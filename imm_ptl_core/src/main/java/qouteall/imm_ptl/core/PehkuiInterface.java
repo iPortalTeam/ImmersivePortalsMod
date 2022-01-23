@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.portal.Portal;
 
 public class PehkuiInterface {
@@ -64,8 +64,8 @@ public class PehkuiInterface {
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {
                 messageShown = true;
-                MinecraftClient.getInstance().inGameHud.setOverlayMessage(
-                    new TranslatableText("imm_ptl.needs_pehkui"), false
+                Minecraft.getInstance().gui.setOverlayMessage(
+                    new TranslatableComponent("imm_ptl.needs_pehkui"), false
                 );
             }
         }

@@ -5,7 +5,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
@@ -58,7 +58,7 @@ public class SodiumInterface {
         @Override
         public void switchContextWithCurrentWorldRenderer(Object context) {
             SodiumWorldRenderer swr =
-                ((WorldRendererExtended) MinecraftClient.getInstance().worldRenderer).getSodiumWorldRenderer();
+                ((WorldRendererExtended) Minecraft.getInstance().levelRenderer).getSodiumWorldRenderer();
             swr.scheduleTerrainUpdate();
             
             RenderSectionManager renderSectionManager =

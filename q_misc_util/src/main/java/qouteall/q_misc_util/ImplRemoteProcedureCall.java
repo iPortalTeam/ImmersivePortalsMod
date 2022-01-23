@@ -11,23 +11,23 @@ import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 
 import java.lang.reflect.InvocationTargetException;
@@ -45,8 +45,8 @@ public class ImplRemoteProcedureCall {
     
     private static final ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
     
-    private static final ImmutableMap<Class, BiConsumer<PacketByteBuf, Object>> serializerMap;
-    private static final ImmutableMap<Type, Function<PacketByteBuf, Object>> deserializerMap;
+    private static final ImmutableMap<Class, BiConsumer<FriendlyByteBuf, Object>> serializerMap;
+    private static final ImmutableMap<Type, Function<FriendlyByteBuf, Object>> deserializerMap;
     
     private static final JsonParser jsonParser = new JsonParser();
     
@@ -54,54 +54,54 @@ public class ImplRemoteProcedureCall {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gson = gsonBuilder.create();
         
-        serializerMap = ImmutableMap.<Class, BiConsumer<PacketByteBuf, Object>>builder()
-            .put(Identifier.class, (buf, o) -> buf.writeIdentifier(((Identifier) o)))
-            .put(RegistryKey.class, (buf, o) -> buf.writeIdentifier(((RegistryKey) o).getValue()))
+        serializerMap = ImmutableMap.<Class, BiConsumer<FriendlyByteBuf, Object>>builder()
+            .put(ResourceLocation.class, (buf, o) -> buf.writeResourceLocation(((ResourceLocation) o)))
+            .put(ResourceKey.class, (buf, o) -> buf.writeResourceLocation(((ResourceKey) o).location()))
             .put(BlockPos.class, (buf, o) -> buf.writeBlockPos(((BlockPos) o)))
-            .put(Vec3d.class, (buf, o) -> {
-                Vec3d vec = (Vec3d) o;
+            .put(Vec3.class, (buf, o) -> {
+                Vec3 vec = (Vec3) o;
                 buf.writeDouble(vec.x);
                 buf.writeDouble(vec.y);
                 buf.writeDouble(vec.z);
             })
-            .put(UUID.class, (buf, o) -> buf.writeUuid(((UUID) o)))
-            .put(Block.class, (buf, o) -> serializeByCodec(buf, Registry.BLOCK.getCodec(), o))
-            .put(Item.class, (buf, o) -> serializeByCodec(buf, Registry.ITEM.getCodec(), o))
+            .put(UUID.class, (buf, o) -> buf.writeUUID(((UUID) o)))
+            .put(Block.class, (buf, o) -> serializeByCodec(buf, Registry.BLOCK.byNameCodec(), o))
+            .put(Item.class, (buf, o) -> serializeByCodec(buf, Registry.ITEM.byNameCodec(), o))
             .put(BlockState.class, (buf, o) -> serializeByCodec(buf, BlockState.CODEC, o))
             .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
-            .put(NbtCompound.class, (buf, o) -> buf.writeNbt(((NbtCompound) o)))
-            .put(Text.class, (buf, o) -> buf.writeText(((Text) o)))
+            .put(CompoundTag.class, (buf, o) -> buf.writeNbt(((CompoundTag) o)))
+            .put(Component.class, (buf, o) -> buf.writeComponent(((Component) o)))
             .build();
         
-        deserializerMap = ImmutableMap.<Type, Function<PacketByteBuf, Object>>builder()
-            .put(Identifier.class, buf -> buf.readIdentifier())
+        deserializerMap = ImmutableMap.<Type, Function<FriendlyByteBuf, Object>>builder()
+            .put(ResourceLocation.class, buf -> buf.readResourceLocation())
             .put(
-                new TypeToken<RegistryKey<World>>() {}.getType(),
-                buf -> RegistryKey.of(
-                    Registry.WORLD_KEY, buf.readIdentifier()
+                new TypeToken<ResourceKey<Level>>() {}.getType(),
+                buf -> ResourceKey.create(
+                    Registry.DIMENSION_REGISTRY, buf.readResourceLocation()
                 )
             )
             .put(
-                new TypeToken<RegistryKey<Biome>>() {}.getType(),
-                buf -> RegistryKey.of(
-                    Registry.BIOME_KEY, buf.readIdentifier()
+                new TypeToken<ResourceKey<Biome>>() {}.getType(),
+                buf -> ResourceKey.create(
+                    Registry.BIOME_REGISTRY, buf.readResourceLocation()
                 )
             )
             .put(BlockPos.class, buf -> buf.readBlockPos())
-            .put(Vec3d.class, buf ->
-                new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble())
+            .put(Vec3.class, buf ->
+                new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
             )
-            .put(UUID.class, buf -> buf.readUuid())
-            .put(Block.class, buf -> deserializeByCodec(buf, Registry.BLOCK.getCodec()))
-            .put(Item.class, buf -> deserializeByCodec(buf, Registry.ITEM.getCodec()))
+            .put(UUID.class, buf -> buf.readUUID())
+            .put(Block.class, buf -> deserializeByCodec(buf, Registry.BLOCK.byNameCodec()))
+            .put(Item.class, buf -> deserializeByCodec(buf, Registry.ITEM.byNameCodec()))
             .put(BlockState.class, buf -> deserializeByCodec(buf, BlockState.CODEC))
             .put(ItemStack.class, buf -> deserializeByCodec(buf, ItemStack.CODEC))
-            .put(NbtCompound.class, buf -> buf.readNbt())
-            .put(Text.class, buf -> buf.readText())
+            .put(CompoundTag.class, buf -> buf.readNbt())
+            .put(Component.class, buf -> buf.readComponent())
             .build();
     }
     
-    private static Object deserializeByCodec(PacketByteBuf buf, Codec codec) {
+    private static Object deserializeByCodec(FriendlyByteBuf buf, Codec codec) {
         String jsonString = readStringNonClientOnly(buf);
         JsonElement jsonElement = jsonParser.parse(jsonString);
         
@@ -111,12 +111,12 @@ public class ImplRemoteProcedureCall {
     }
     
     // readString() is client only
-    private static String readStringNonClientOnly(PacketByteBuf buf) {
-        return buf.readString(32767);
+    private static String readStringNonClientOnly(FriendlyByteBuf buf) {
+        return buf.readUtf(32767);
     }
     
-    private static Object deserialize(PacketByteBuf buf, Type type) {
-        Function<PacketByteBuf, Object> deserializer = deserializerMap.get(type);
+    private static Object deserialize(FriendlyByteBuf buf, Type type) {
+        Function<FriendlyByteBuf, Object> deserializer = deserializerMap.get(type);
         if (deserializer == null) {
             String json = readStringNonClientOnly(buf);
             return gson.fromJson(json, type);
@@ -125,8 +125,8 @@ public class ImplRemoteProcedureCall {
         return deserializer.apply(buf);
     }
     
-    private static void serialize(PacketByteBuf buf, Object object) {
-        BiConsumer<PacketByteBuf, Object> serializer = serializerMap.get(object.getClass());
+    private static void serialize(FriendlyByteBuf buf, Object object) {
+        BiConsumer<FriendlyByteBuf, Object> serializer = serializerMap.get(object.getClass());
         
         if (serializer == null) {
             serializer = serializerMap.entrySet().stream().filter(
@@ -136,14 +136,14 @@ public class ImplRemoteProcedureCall {
         
         if (serializer == null) {
             String json = gson.toJson(object);
-            buf.writeString(json);
+            buf.writeUtf(json);
             return;
         }
         
         serializer.accept(buf, object);
     }
     
-    private static void serializeByCodec(PacketByteBuf buf, Codec codec, Object object) {
+    private static void serializeByCodec(FriendlyByteBuf buf, Codec codec, Object object) {
         JsonElement result = (JsonElement) codec.encodeStart(JsonOps.INSTANCE, object).getOrThrow(
             false, e -> {
                 throw new RuntimeException(e.toString());
@@ -151,34 +151,34 @@ public class ImplRemoteProcedureCall {
         );
         
         String jsonString = gson.toJson(result);
-        buf.writeString(jsonString);
+        buf.writeUtf(jsonString);
     }
     
     @Environment(EnvType.CLIENT)
-    public static CustomPayloadC2SPacket createC2SPacket(
+    public static ServerboundCustomPayloadPacket createC2SPacket(
         String methodPath,
         Object... arguments
     ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadC2SPacket(MiscNetworking.id_ctsRemote, buf);
+        return new ServerboundCustomPayloadPacket(MiscNetworking.id_ctsRemote, buf);
     }
     
-    public static CustomPayloadS2CPacket createS2CPacket(
+    public static ClientboundCustomPayloadPacket createS2CPacket(
         String methodPath,
         Object... arguments
     ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadS2CPacket(MiscNetworking.id_stcRemote, buf);
+        return new ClientboundCustomPayloadPacket(MiscNetworking.id_stcRemote, buf);
     }
     
     @Environment(EnvType.CLIENT)
-    public static Runnable clientReadFunctionAndArguments(PacketByteBuf buf) {
+    public static Runnable clientReadFunctionAndArguments(FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);
@@ -203,7 +203,7 @@ public class ImplRemoteProcedureCall {
         };
     }
     
-    public static Runnable serverReadFunctionAndArguments(ServerPlayerEntity player, PacketByteBuf buf) {
+    public static Runnable serverReadFunctionAndArguments(ServerPlayer player, FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);
@@ -231,9 +231,9 @@ public class ImplRemoteProcedureCall {
     }
     
     private static void serializeStringWithArguments(
-        String methodPath, Object[] arguments, PacketByteBuf buf
+        String methodPath, Object[] arguments, FriendlyByteBuf buf
     ) {
-        buf.writeString(methodPath);
+        buf.writeUtf(methodPath);
         
         for (Object argument : arguments) {
             serialize(buf, argument);

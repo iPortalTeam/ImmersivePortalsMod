@@ -70,7 +70,15 @@ allprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
-        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
+        mappings loom.layered() {
+            officialMojangMappings() {
+                setNameSyntheticMembers(false)
+            }
+        }
+        
+//        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
@@ -94,6 +102,10 @@ allprojects {
 
         modCompileOnly("maven.modrinth:gravitychanger:0.3.0") {
             transitive = false
+        }
+
+        modImplementation ("com.jozufozu.flywheel:Flywheel-Fabric:1.18-0.6.0.custom"){
+            exclude(group: "net.fabricmc.fabric-api")
         }
     }
 
@@ -166,7 +178,7 @@ publishing {
 
 dependencies {
 
-    modRuntime("supercoder79:databreaker:0.2.8") {
+    modRuntimeOnly ("supercoder79:databreaker:0.2.8") {
         exclude module: "fabric-loader"
     }
 

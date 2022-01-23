@@ -2,15 +2,15 @@ package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,38 +22,38 @@ import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 
-@Mixin(ClientPlayerInteractionManager.class)
+@Mixin(MultiPlayerGameMode.class)
 public abstract class MixinClientPlayerInteractionManager implements IEClientPlayerInteractionManager {
     @Shadow
     @Final
-    private ClientPlayNetworkHandler networkHandler;
+    private ClientPacketListener connection;
     
     @Shadow
     @Final
-    private Object2ObjectLinkedOpenHashMap<Pair<BlockPos, PlayerActionC2SPacket.Action>, Vec3d> unacknowledgedPlayerActions;
+    private Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions;
     
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
     
     // vanilla copy
     @Inject(
-        method = "sendPlayerAction",
+        method = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;sendBlockAction(Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onSendPlayerAction(
-        PlayerActionC2SPacket.Action action,
+        ServerboundPlayerActionPacket.Action action,
         BlockPos blockPos,
         Direction direction,
         CallbackInfo ci
     ) {
         if (BlockManipulationClient.isContextSwitched) {
-            this.unacknowledgedPlayerActions.put(Pair.of(blockPos, action), client.player.getPos());
-            this.networkHandler.sendPacket(
+            this.unAckedActions.put(Pair.of(blockPos, action), minecraft.player.position());
+            this.connection.send(
                 IPNetworkingClient.createCtsPlayerAction(
                     BlockManipulationClient.remotePointedDim,
-                    new PlayerActionC2SPacket(action, blockPos, direction)
+                    new ServerboundPlayerActionPacket(action, blockPos, direction)
                 )
             );
             ci.cancel();
@@ -73,7 +73,7 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
         if (BlockManipulationClient.isContextSwitched) {
             return IPNetworkingClient.createCtsRightClick(
                 BlockManipulationClient.remotePointedDim,
-                ((PlayerInteractBlockC2SPacket) packet)
+                ((ServerboundUseItemOnPacket) packet)
             );
         }
         else {

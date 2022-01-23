@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.NetherPortalBlock;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -31,9 +31,9 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithCorner) {
-            toWorld.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState());
+            toWorld.setBlockAndUpdate(blockPos, Blocks.OBSIDIAN.defaultBlockState());
         }
     }
     
@@ -41,7 +41,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
         Direction.Axis axis = shape.axis;
         if (axis == Direction.Axis.X) {
             portal.overlayOpacity = 0.5;
-            portal.overlayBlockState = Blocks.NETHER_PORTAL.getDefaultState().with(
+            portal.overlayBlockState = Blocks.NETHER_PORTAL.defaultBlockState().setValue(
                 NetherPortalBlock.AXIS,
                 Direction.Axis.Z
             );
@@ -49,7 +49,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
         }
         else if (axis == Direction.Axis.Z) {
             portal.overlayOpacity = 0.5;
-            portal.overlayBlockState = Blocks.NETHER_PORTAL.getDefaultState().with(
+            portal.overlayBlockState = Blocks.NETHER_PORTAL.defaultBlockState().setValue(
                 NetherPortalBlock.AXIS,
                 Direction.Axis.X
             );
@@ -58,20 +58,20 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public PortalGenInfo getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public PortalGenInfo getNewPortalPlacement(ServerLevel toWorld, BlockPos toPos, ServerLevel fromWorld, BlockPortalShape fromShape) {
         if (encounteredVanillaPortalBlock) {
             encounteredVanillaPortalBlock = false;
             if (IPGlobal.enableWarning) {
-                List<ServerPlayerEntity> nearbyPlayers = McHelper.findEntitiesRough(
-                    ServerPlayerEntity.class,
+                List<ServerPlayer> nearbyPlayers = McHelper.findEntitiesRough(
+                    ServerPlayer.class,
                     fromWorld,
-                    Vec3d.of(fromShape.anchor),
+                    Vec3.atLowerCornerOf(fromShape.anchor),
                     2,
                     p -> true
                 );
-                for (ServerPlayerEntity player : nearbyPlayers) {
-                    player.sendMessage(
-                        new TranslatableText("imm_ptl.cannot_connect_to_vanilla_portal"),
+                for (ServerPlayer player : nearbyPlayers) {
+                    player.displayClientMessage(
+                        new TranslatableComponent("imm_ptl.cannot_connect_to_vanilla_portal"),
                         false
                     );
                 }
@@ -120,7 +120,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     
     @Override
     public Predicate<BlockState> getAreaPredicate() {
-        return AbstractBlock.AbstractBlockState::isAir;
+        return BlockBehaviour.BlockStateBase::isAir;
     }
     
     @Override

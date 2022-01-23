@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class Mirror extends Portal {
     public static EntityType<Mirror> entityType;
     
-    public Mirror(EntityType<?> entityType_1, World world_1) {
+    public Mirror(EntityType<?> entityType_1, Level world_1) {
         super(entityType_1, world_1);
     }
     
@@ -20,7 +20,7 @@ public class Mirror extends Portal {
     }
     
     @Override
-    public Vec3d transformLocalVecNonScale(Vec3d localVec) {
+    public Vec3 transformLocalVecNonScale(Vec3 localVec) {
         return getMirrored(super.transformLocalVecNonScale(localVec));
     }
     
@@ -29,13 +29,13 @@ public class Mirror extends Portal {
         return false;
     }
     
-    public Vec3d getMirrored(Vec3d vec) {
-        double len = vec.dotProduct(getNormal());
-        return vec.add(getNormal().multiply(len * -2));
+    public Vec3 getMirrored(Vec3 vec) {
+        double len = vec.dot(getNormal());
+        return vec.add(getNormal().scale(len * -2));
     }
     
     @Override
-    public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
+    public Vec3 inverseTransformLocalVecNonScale(Vec3 localVec) {
         return super.inverseTransformLocalVecNonScale(getMirrored(localVec));
     }
 }

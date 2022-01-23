@@ -1,8 +1,8 @@
 package qouteall.q_misc_util.ducks;
 
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.world.level.dimension.LevelStem;
 
 public interface IEGeneratorOptions {
-    void setDimOptionRegistry(SimpleRegistry<DimensionOptions> reg);
+    void setDimOptionRegistry(MappedRegistry<LevelStem> reg);
 }

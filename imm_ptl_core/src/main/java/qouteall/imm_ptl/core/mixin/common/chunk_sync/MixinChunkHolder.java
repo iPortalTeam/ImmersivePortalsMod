@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -26,19 +26,19 @@ public class MixinChunkHolder implements IEChunkHolder {
     
     @Shadow
     @Final
-    private ChunkHolder.PlayersWatchingChunkProvider playersWatchingChunkProvider;
+    private ChunkHolder.PlayerProvider playerProvider;
     
     /**
      * @author qouteall
      * @reason overwriting is clearer
      */
     @Overwrite
-    private void sendPacketToPlayersWatching(Packet<?> packet_1, boolean onlyOnRenderDistanceEdge) {
-        RegistryKey<World> dimension =
-            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().getRegistryKey();
+    private void broadcast(Packet<?> packet_1, boolean onlyOnRenderDistanceEdge) {
+        ResourceKey<Level> dimension =
+            ((IEThreadedAnvilChunkStorage) playerProvider).getWorld().dimension();
         
-        Consumer<ServerPlayerEntity> func = player ->
-            player.networkHandler.sendPacket(
+        Consumer<ServerPlayer> func = player ->
+            player.connection.send(
                 IPNetworking.createRedirectedMessage(
                     dimension, packet_1
                 )

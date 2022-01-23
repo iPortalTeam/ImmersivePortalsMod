@@ -1,18 +1,18 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.math.Vector4f;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -33,7 +33,7 @@ public class TransformationManager {
     private static long interpolationStartTime = 0;
     private static long interpolationEndTime = 1;
     
-    public static final MinecraftClient client = MinecraftClient.getInstance();
+    public static final Minecraft client = Minecraft.getInstance();
     
     public static boolean isIsometricView = false;
     public static float isometricViewLength = 50;
@@ -52,23 +52,23 @@ public class TransformationManager {
         }
     }
     
-    public static void processTransformation(Camera camera, MatrixStack matrixStack) {
+    public static void processTransformation(Camera camera, PoseStack matrixStack) {
 //        if (!WorldRenderInfo.isRendering()) {
 //            ((IECamera) camera).portal_setPos(RenderStates.viewBobbedCameraPos);
 //        }
         
         if (isAnimationRunning()) {
             // override vanilla camera transformation
-            matrixStack.peek().getPositionMatrix().loadIdentity();
-            matrixStack.peek().getNormalMatrix().loadIdentity();
+            matrixStack.last().pose().setIdentity();
+            matrixStack.last().normal().setIdentity();
             
             Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(client.player);
             
-            DQuaternion cameraRotation = getNormalCameraRotation(gravityDir, camera.getPitch(), camera.getYaw());
+            DQuaternion cameraRotation = getNormalCameraRotation(gravityDir, camera.getXRot(), camera.getYRot());
             
             DQuaternion finalRotation = getAnimatedCameraRotation(cameraRotation);
             
-            matrixStack.multiply(finalRotation.toMcQuaternion());
+            matrixStack.mulPose(finalRotation.toMcQuaternion());
         }
         
         WorldRenderInfo.applyAdditionalTransformations(matrixStack);
@@ -120,13 +120,13 @@ public class TransformationManager {
         Portal portal
     ) {
         if (portal.rotation != null) {
-            ClientPlayerEntity player = client.player;
+            LocalPlayer player = client.player;
             
             Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
             
             DQuaternion oldCameraRotation = getNormalCameraRotation(
                 oldGravityDir,
-                player.getPitch(RenderStates.tickDelta), player.getYaw(RenderStates.tickDelta)
+                player.getViewXRot(RenderStates.tickDelta), player.getViewYRot(RenderStates.tickDelta)
             );
             DQuaternion currentCameraRotationInterpolated = getAnimatedCameraRotation(oldCameraRotation);
             
@@ -155,11 +155,11 @@ public class TransformationManager {
                 newCameraRotationWithNormalGravity = cameraRotationThroughPortal;
             }
             
-            Pair<Double, Double> pitchYaw =
+            Tuple<Double, Double> pitchYaw =
                 DQuaternion.getPitchYawFromRotation(newCameraRotationWithNormalGravity);
             
-            float finalYaw = (float) (double) (pitchYaw.getRight());
-            float finalPitch = (float) (double) (pitchYaw.getLeft());
+            float finalYaw = (float) (double) (pitchYaw.getB());
+            float finalPitch = (float) (double) (pitchYaw.getA());
             
             if (finalPitch > 90) {
                 finalPitch = 90 - (finalPitch - 90);
@@ -168,15 +168,15 @@ public class TransformationManager {
                 finalPitch = -90 + (-90 - finalPitch);
             }
             
-            player.setYaw(finalYaw);
-            player.setPitch(finalPitch);
+            player.setYRot(finalYaw);
+            player.setXRot(finalPitch);
             
-            player.prevYaw = finalYaw;
-            player.prevPitch = finalPitch;
-            player.renderYaw = finalYaw;
-            player.renderPitch = finalPitch;
-            player.lastRenderYaw = finalYaw;
-            player.lastRenderPitch = finalPitch;
+            player.yRotO = finalYaw;
+            player.xRotO = finalPitch;
+            player.yBob = finalYaw;
+            player.xBob = finalPitch;
+            player.yBobO = finalYaw;
+            player.xBobO = finalPitch;
             
             DQuaternion newCameraRotation = getNormalCameraRotation(newGravityDir, finalPitch, finalYaw);
             
@@ -196,18 +196,18 @@ public class TransformationManager {
         return 1;
     }
     
-    private static void updateCamera(MinecraftClient client) {
-        Camera camera = client.gameRenderer.getCamera();
-        camera.update(
-            client.world,
+    private static void updateCamera(Minecraft client) {
+        Camera camera = client.gameRenderer.getMainCamera();
+        camera.setup(
+            client.level,
             client.player,
-            !client.options.getPerspective().isFirstPerson(),
-            client.options.getPerspective().isFrontView(),
+            !client.options.getCameraType().isFirstPerson(),
+            client.options.getCameraType().isMirrored(),
             RenderStates.tickDelta
         );
     }
     
-    public static Matrix4f getMirrorTransformation(Vec3d normal) {
+    public static Matrix4f getMirrorTransformation(Vec3 normal) {
         float x = (float) normal.x;
         float y = (float) normal.y;
         float z = (float) normal.z;
@@ -224,8 +224,8 @@ public class TransformationManager {
     
     // https://docs.microsoft.com/en-us/windows/win32/opengl/glortho
     public static Matrix4f getIsometricProjection() {
-        int w = client.getWindow().getFramebufferWidth();
-        int h = client.getWindow().getFramebufferHeight();
+        int w = client.getWindow().getWidth();
+        int h = client.getWindow().getHeight();
         
         float wView = (isometricViewLength / h) * w;
         
@@ -255,10 +255,10 @@ public class TransformationManager {
     /**
      * {@link net.minecraft.client.render.GameRenderer#renderWorld(float, long, MatrixStack)}
      */
-    public static Vec3d getViewBobbingOffset(Camera camera) {
+    public static Vec3 getViewBobbingOffset(Camera camera) {
         Validate.isTrue(!IPGlobal.viewBobbingCameraCorrection);
         
-        MatrixStack matrixStack = new MatrixStack();
+        PoseStack matrixStack = new PoseStack();
         
         isCalculatingViewBobbingOffset = true;
         
@@ -268,17 +268,17 @@ public class TransformationManager {
         
         isCalculatingViewBobbingOffset = false;
         
-        matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(camera.getPitch()));
-        matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw() + 180.0F));
+        matrixStack.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
         
         WorldRenderInfo.applyAdditionalTransformations(matrixStack);
         
-        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+        Matrix4f matrix = matrixStack.last().pose();
         matrix.invert();
         Vector4f origin = new Vector4f(0, 0, 0, 1);
         origin.transform(matrix);
         
-        return new Vec3d(origin.getX(), origin.getY(), origin.getZ());
+        return new Vec3(origin.x(), origin.y(), origin.z());
     }
     
     @Environment(EnvType.CLIENT)
@@ -287,33 +287,33 @@ public class TransformationManager {
             isometricViewLength = viewLength;
             isIsometricView = true;
             
-            client.chunkCullingEnabled = false;
+            client.smartCull = false;
         }
         
         public static void disableIsometricView() {
             isIsometricView = false;
             
-            client.chunkCullingEnabled = true;
+            client.smartCull = true;
         }
     }
     
     // isometric is equivalent to the camera being in infinitely far place
-    public static Vec3d getIsometricAdjustedCameraPos() {
-        Camera camera = client.gameRenderer.getCamera();
+    public static Vec3 getIsometricAdjustedCameraPos() {
+        Camera camera = client.gameRenderer.getMainCamera();
         return getIsometricAdjustedCameraPos(camera);
     }
     
-    public static Vec3d getIsometricAdjustedCameraPos(Camera camera) {
-        Vec3d cameraPos = camera.getPos();
+    public static Vec3 getIsometricAdjustedCameraPos(Camera camera) {
+        Vec3 cameraPos = camera.getPosition();
         
         if (!isIsometricView) {
             return cameraPos;
         }
         
-        Quaternion rotation = camera.getRotation();
-        Vec3f vec = new Vec3f(0, 0, client.options.viewDistance * -10);
-        vec.rotate(rotation);
+        Quaternion rotation = camera.rotation();
+        Vector3f vec = new Vector3f(0, 0, client.options.renderDistance * -10);
+        vec.transform(rotation);
         
-        return cameraPos.add(vec.getX(), vec.getY(), vec.getZ());
+        return cameraPos.add(vec.x(), vec.y(), vec.z());
     }
 }

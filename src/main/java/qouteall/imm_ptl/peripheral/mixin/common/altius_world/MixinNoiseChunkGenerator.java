@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(NoiseChunkGenerator.class)
+@Mixin(NoiseBasedChunkGenerator.class)
 public abstract class MixinNoiseChunkGenerator {
 
 }

@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.entity.EntityLookup;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.storage.WritableLevelData;
 
 public interface IEWorld {
     
-    MutableWorldProperties myGetProperties();
+    WritableLevelData myGetProperties();
     
     void portal_setWeather(float rainGradPrev, float rainGrad, float thunderGradPrev, float thunderGrad);
     
-    EntityLookup<Entity> portal_getEntityLookup();
+    LevelEntityGetter<Entity> portal_getEntityLookup();
     
     Thread portal_getThread();
 }

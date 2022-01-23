@@ -1,13 +1,11 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerEntityManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.level.ServerWorldProperties;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.storage.ServerLevelData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,53 +15,52 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
 
 import java.util.List;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public abstract class MixinServerWorld implements IEServerWorld {
     
     @Shadow
-    public abstract PersistentStateManager getPersistentStateManager();
+    public abstract DimensionDataStorage getDataStorage();
     
     @Shadow
-    public abstract ServerChunkManager getChunkManager();
-    
-    @Shadow
-    @Final
-    private ServerWorldProperties worldProperties;
+    public abstract ServerChunkCache getChunkSource();
     
     @Shadow
     @Final
-    private ServerEntityManager<Entity> entityManager;
+    private ServerLevelData serverLevelData;
+    
+    @Shadow
+    @Final
+    private PersistentEntitySectionManager<Entity> entityManager;
     
     //in vanilla if a dimension has no player and no forced chunks then it will not tick
     @Redirect(
-        method = "tick",
+        method = "Lnet/minecraft/server/level/ServerLevel;tick(Ljava/util/function/BooleanSupplier;)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;isEmpty()Z"
         )
     )
     private boolean redirectIsEmpty(List list) {
-        final ServerWorld this_ = (ServerWorld) (Object) this;
-        if (NewChunkTrackingGraph.shouldLoadDimension(this_.getRegistryKey())) {
+        final ServerLevel this_ = (ServerLevel) (Object) this;
+        if (NewChunkTrackingGraph.shouldLoadDimension(this_.dimension())) {
             return false;
         }
         return list.isEmpty();
     }
     
     // for debug
-    @Inject(method = "toString", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/server/level/ServerLevel;toString()Ljava/lang/String;", at = @At("HEAD"), cancellable = true)
     private void onToString(CallbackInfoReturnable<String> cir) {
-        final ServerWorld this_ = (ServerWorld) (Object) this;
-        cir.setReturnValue("ServerWorld " + this_.getRegistryKey().getValue() +
-            " " + worldProperties.getLevelName());
+        final ServerLevel this_ = (ServerLevel) (Object) this;
+        cir.setReturnValue("ServerWorld " + this_.dimension().location() +
+            " " + serverLevelData.getLevelName());
     }
     
     @Override
-    public ServerEntityManager<Entity> ip_getEntityManager() {
+    public PersistentEntitySectionManager<Entity> ip_getEntityManager() {
         return entityManager;
     }
 }

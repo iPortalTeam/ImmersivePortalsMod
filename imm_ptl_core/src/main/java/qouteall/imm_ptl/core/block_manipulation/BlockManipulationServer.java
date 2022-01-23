@@ -1,22 +1,22 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Pair;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -30,9 +30,9 @@ import java.util.List;
 public class BlockManipulationServer {
     
     public static void processBreakBlock(
-        RegistryKey<World> dimension,
-        PlayerActionC2SPacket packet,
-        ServerPlayerEntity player
+        ResourceKey<Level> dimension,
+        ServerboundPlayerActionPacket packet,
+        ServerPlayer player
     ) {
         if (shouldFinishMining(dimension, packet, player)) {
             if (canPlayerReach(dimension, player, packet.getPos())) {
@@ -45,35 +45,35 @@ public class BlockManipulationServer {
     }
     
     private static boolean shouldFinishMining(
-        RegistryKey<World> dimension,
-        PlayerActionC2SPacket packet,
-        ServerPlayerEntity player
+        ResourceKey<Level> dimension,
+        ServerboundPlayerActionPacket packet,
+        ServerPlayer player
     
     ) {
-        if (packet.getAction() == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
+        if (packet.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
             return canInstantMine(
-                MiscHelper.getServer().getWorld(dimension),
+                MiscHelper.getServer().getLevel(dimension),
                 player,
                 packet.getPos()
             );
         }
         else {
-            return packet.getAction() == PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK;
+            return packet.getAction() == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK;
         }
     }
     
     private static boolean canPlayerReach(
-        RegistryKey<World> dimension,
-        ServerPlayerEntity player,
+        ResourceKey<Level> dimension,
+        ServerPlayer player,
         BlockPos requestPos
     ) {
         Float playerScale = PehkuiInterface.invoker.computeBlockReachScale(player);
         
-        Vec3d pos = Vec3d.ofCenter(requestPos);
-        Vec3d playerPos = player.getPos();
+        Vec3 pos = Vec3.atCenterOf(requestPos);
+        Vec3 playerPos = player.position();
         double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
-        if (player.world.getRegistryKey() == dimension) {
-            if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
+        if (player.level.dimension() == dimension) {
+            if (playerPos.distanceToSqr(pos) < distanceSquare) {
                 return true;
             }
         }
@@ -82,29 +82,29 @@ public class BlockManipulationServer {
             20
         ).anyMatch(portal ->
             portal.dimensionTo == dimension &&
-                portal.transformPoint(playerPos).squaredDistanceTo(pos) <
+                portal.transformPoint(playerPos).distanceToSqr(pos) <
                     distanceSquare * portal.getScale() * portal.getScale()
         );
     }
     
     // vanilla copy
     private static void doDestroyBlock(
-        RegistryKey<World> dimension,
-        PlayerActionC2SPacket packet,
-        ServerPlayerEntity player
+        ResourceKey<Level> dimension,
+        ServerboundPlayerActionPacket packet,
+        ServerPlayer player
     ) {
-        ServerWorld destWorld = MiscHelper.getServer().getWorld(dimension);
-        ServerWorld oldWorld = player.getWorld();
-        player.interactionManager.setWorld(destWorld);
-        player.interactionManager.tryBreakBlock(
+        ServerLevel destWorld = MiscHelper.getServer().getLevel(dimension);
+        ServerLevel oldWorld = player.getLevel();
+        player.gameMode.setLevel(destWorld);
+        player.gameMode.destroyBlock(
             packet.getPos()
         );
-        player.interactionManager.setWorld(oldWorld);
+        player.gameMode.setLevel(oldWorld);
     }
     
     private static boolean canInstantMine(
-        ServerWorld world,
-        ServerPlayerEntity player,
+        ServerLevel world,
+        ServerPlayer player,
         BlockPos pos
     ) {
         if (player.isCreative()) {
@@ -114,54 +114,54 @@ public class BlockManipulationServer {
         float progress = 1.0F;
         BlockState blockState = world.getBlockState(pos);
         if (!blockState.isAir()) {
-            blockState.onBlockBreakStart(world, pos, player);
-            progress = blockState.calcBlockBreakingDelta(player, world, pos);
+            blockState.attack(world, pos, player);
+            progress = blockState.getDestroyProgress(player, world, pos);
         }
         return !blockState.isAir() && progress >= 1.0F;
     }
     
-    public static Pair<BlockHitResult, RegistryKey<World>> getHitResultForPlacing(
-        World world,
+    public static Tuple<BlockHitResult, ResourceKey<Level>> getHitResultForPlacing(
+        Level world,
         BlockHitResult blockHitResult
     ) {
-        Direction side = blockHitResult.getSide();
-        Vec3d sideVec = Vec3d.of(side.getVector());
-        Vec3d hitCenter = Vec3d.ofCenter(blockHitResult.getBlockPos());
+        Direction side = blockHitResult.getDirection();
+        Vec3 sideVec = Vec3.atLowerCornerOf(side.getNormal());
+        Vec3 hitCenter = Vec3.atCenterOf(blockHitResult.getBlockPos());
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         
         Portal portal = globalPortals.stream().filter(p ->
-            p.getNormal().dotProduct(sideVec) < -0.9
+            p.getNormal().dot(sideVec) < -0.9
                 && p.isPointInPortalProjection(hitCenter)
                 && p.getDistanceToPlane(hitCenter) < 0.6
         ).findFirst().orElse(null);
         
         if (portal == null) {
-            return new Pair<>(blockHitResult, world.getRegistryKey());
+            return new Tuple<>(blockHitResult, world.dimension());
         }
         
-        Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec.multiply(0.501)));
+        Vec3 newCenter = portal.transformPoint(hitCenter.add(sideVec.scale(0.501)));
         BlockPos placingBlockPos = new BlockPos(newCenter);
         
         BlockHitResult newHitResult = new BlockHitResult(
-            Vec3d.ZERO,
+            Vec3.ZERO,
             side.getOpposite(),
             placingBlockPos,
-            blockHitResult.isInsideBlock()
+            blockHitResult.isInside()
         );
         
-        return new Pair<>(newHitResult, portal.dimensionTo);
+        return new Tuple<>(newHitResult, portal.dimensionTo);
     }
     
     public static void processRightClickBlock(
-        RegistryKey<World> dimension,
-        PlayerInteractBlockC2SPacket packet,
-        ServerPlayerEntity player
+        ResourceKey<Level> dimension,
+        ServerboundUseItemOnPacket packet,
+        ServerPlayer player
     ) {
-        Hand hand = packet.getHand();
-        BlockHitResult blockHitResult = packet.getBlockHitResult();
+        InteractionHand hand = packet.getHand();
+        BlockHitResult blockHitResult = packet.getHitResult();
         
-        ServerWorld world = MiscHelper.getServer().getWorld(dimension);
+        ServerLevel world = MiscHelper.getServer().getLevel(dimension);
         
         doProcessRightClick(dimension, player, hand, blockHitResult);
     }
@@ -172,57 +172,57 @@ public class BlockManipulationServer {
      * {@link net.minecraft.server.network.ServerPlayNetworkHandler#onPlayerInteractBlock(PlayerInteractBlockC2SPacket)}
      */
     public static void doProcessRightClick(
-        RegistryKey<World> dimension,
-        ServerPlayerEntity player,
-        Hand hand,
+        ResourceKey<Level> dimension,
+        ServerPlayer player,
+        InteractionHand hand,
         BlockHitResult blockHitResult
     ) {
-        ItemStack itemStack = player.getStackInHand(hand);
+        ItemStack itemStack = player.getItemInHand(hand);
         
         MinecraftServer server = MiscHelper.getServer();
-        ServerWorld targetWorld = server.getWorld(dimension);
+        ServerLevel targetWorld = server.getLevel(dimension);
         
         BlockPos blockPos = blockHitResult.getBlockPos();
-        Direction direction = blockHitResult.getSide();
-        player.updateLastActionTime();
-        if (targetWorld.canPlayerModifyAt(player, blockPos)) {
+        Direction direction = blockHitResult.getDirection();
+        player.resetLastActionTime();
+        if (targetWorld.mayInteract(player, blockPos)) {
             if (!canPlayerReach(dimension, player, blockPos)) {
                 Helper.log("Reject cross portal block placing packet " + player);
                 return;
             }
             
-            World oldWorld = player.world;
+            Level oldWorld = player.level;
             
-            player.world = targetWorld;
+            player.level = targetWorld;
             try {
-                ActionResult actionResult = player.interactionManager.interactBlock(
+                InteractionResult actionResult = player.gameMode.useItemOn(
                     player,
                     targetWorld,
                     itemStack,
                     hand,
                     blockHitResult
                 );
-                if (actionResult.shouldSwingHand()) {
-                    player.swingHand(hand, true);
+                if (actionResult.shouldSwing()) {
+                    player.swing(hand, true);
                 }
             }
             finally {
-                player.world = oldWorld;
+                player.level = oldWorld;
             }
         }
         
         IPNetworking.sendRedirectedMessage(
             player,
             dimension,
-            new BlockUpdateS2CPacket(targetWorld, blockPos)
+            new ClientboundBlockUpdatePacket(targetWorld, blockPos)
         );
         
-        BlockPos offseted = blockPos.offset(direction);
-        if (offseted.getY() >= targetWorld.getBottomY() && offseted.getY() < targetWorld.getTopY()) {
+        BlockPos offseted = blockPos.relative(direction);
+        if (offseted.getY() >= targetWorld.getMinBuildHeight() && offseted.getY() < targetWorld.getMaxBuildHeight()) {
             IPNetworking.sendRedirectedMessage(
                 player,
                 dimension,
-                new BlockUpdateS2CPacket(targetWorld, offseted)
+                new ClientboundBlockUpdatePacket(targetWorld, offseted)
             );
         }
     }

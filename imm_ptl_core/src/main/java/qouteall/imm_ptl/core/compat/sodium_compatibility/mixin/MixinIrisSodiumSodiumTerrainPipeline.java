@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.compat.sodium_compatibility.mixin;
 
+import com.mojang.blaze3d.shaders.Program;
 import net.coderbot.iris.pipeline.SodiumTerrainPipeline;
-import net.minecraft.client.gl.Program;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;

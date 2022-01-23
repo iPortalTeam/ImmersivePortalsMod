@@ -1,47 +1,47 @@
 package qouteall.imm_ptl.core.mixin.client.multiworld_awareness;
 
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 
-@Mixin(value = BackgroundRenderer.class, priority = 1100)
+@Mixin(value = FogRenderer.class, priority = 1100)
 public class MixinBackgroundRenderer {
     @Shadow
-    private static float red;
+    private static float fogRed;
     @Shadow
-    private static float green;
+    private static float fogGreen;
     @Shadow
-    private static float blue;
+    private static float fogBlue;
     @Shadow
-    private static int waterFogColor = -1;
+    private static int targetBiomeFog = -1;
     @Shadow
-    private static int nextWaterFogColor = -1;
+    private static int previousBiomeFog = -1;
     @Shadow
-    private static long lastWaterFogColorUpdateTime = -1L;
+    private static long biomeChangedTime = -1L;
     
     static {
         FogRendererContext.copyContextFromObject = context -> {
-            red = context.red;
-            green = context.green;
-            blue = context.blue;
-            waterFogColor = context.waterFogColor;
-            nextWaterFogColor = context.nextWaterFogColor;
-            lastWaterFogColorUpdateTime = context.lastWaterFogColorUpdateTime;
+            fogRed = context.red;
+            fogGreen = context.green;
+            fogBlue = context.blue;
+            targetBiomeFog = context.waterFogColor;
+            previousBiomeFog = context.nextWaterFogColor;
+            biomeChangedTime = context.lastWaterFogColorUpdateTime;
         };
         
         FogRendererContext.copyContextToObject = context -> {
-            context.red = red;
-            context.green = green;
-            context.blue = blue;
-            context.waterFogColor = waterFogColor;
-            context.nextWaterFogColor = nextWaterFogColor;
-            context.lastWaterFogColorUpdateTime = lastWaterFogColorUpdateTime;
+            context.red = fogRed;
+            context.green = fogGreen;
+            context.blue = fogBlue;
+            context.waterFogColor = targetBiomeFog;
+            context.nextWaterFogColor = previousBiomeFog;
+            context.lastWaterFogColorUpdateTime = biomeChangedTime;
         };
         
         FogRendererContext.getCurrentFogColor =
-            () -> new Vec3d(red, green, blue);
+            () -> new Vec3(fogRed, fogGreen, fogBlue);
         
         FogRendererContext.init();
     }

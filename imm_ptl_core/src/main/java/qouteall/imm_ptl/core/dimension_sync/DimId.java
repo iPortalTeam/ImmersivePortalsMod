@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.core.dimension_sync;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 
@@ -17,7 +17,7 @@ public class DimId {
     private static final boolean useIntegerId = true;
     
     public static void writeWorldId(
-        PacketByteBuf buf, RegistryKey<World> dimension, boolean isClient
+        FriendlyByteBuf buf, ResourceKey<Level> dimension, boolean isClient
     ) {
         if (useIntegerId) {
             DimensionIdRecord record = isClient ?
@@ -26,11 +26,11 @@ public class DimId {
             buf.writeInt(intId);
         }
         else {
-            buf.writeIdentifier(dimension.getValue());
+            buf.writeResourceLocation(dimension.location());
         }
     }
     
-    public static RegistryKey<World> readWorldId(PacketByteBuf buf, boolean isClient) {
+    public static ResourceKey<Level> readWorldId(FriendlyByteBuf buf, boolean isClient) {
         if (isClient) {
             if (O_O.isDedicatedServer()) {
                 throw new IllegalStateException("oops");
@@ -44,7 +44,7 @@ public class DimId {
             return record.getDim(intId);
         }
         else {
-            Identifier identifier = buf.readIdentifier();
+            ResourceLocation identifier = buf.readResourceLocation();
             return idToKey(identifier);
         }
     }
@@ -52,34 +52,34 @@ public class DimId {
     // NOTE Minecraft use a global map to store these
     // that map can only grow but cannot be cleaned.
     // so a malicious client may make the server memory leak by that
-    public static RegistryKey<World> idToKey(Identifier identifier) {
-        return RegistryKey.of(Registry.WORLD_KEY, identifier);
+    public static ResourceKey<Level> idToKey(ResourceLocation identifier) {
+        return ResourceKey.create(Registry.DIMENSION_REGISTRY, identifier);
     }
     
-    public static RegistryKey<World> idToKey(String str) {
-        return idToKey(new Identifier(str));
+    public static ResourceKey<Level> idToKey(String str) {
+        return idToKey(new ResourceLocation(str));
     }
     
-    public static void putWorldId(NbtCompound tag, String tagName, RegistryKey<World> dim) {
-        tag.putString(tagName, dim.getValue().toString());
+    public static void putWorldId(CompoundTag tag, String tagName, ResourceKey<Level> dim) {
+        tag.putString(tagName, dim.location().toString());
     }
     
-    public static RegistryKey<World> getWorldId(NbtCompound tag, String tagName, boolean isClient) {
-        NbtElement term = tag.get(tagName);
-        if (term instanceof NbtInt) {
-            int intId = ((NbtInt) term).intValue();
+    public static ResourceKey<Level> getWorldId(CompoundTag tag, String tagName, boolean isClient) {
+        Tag term = tag.get(tagName);
+        if (term instanceof IntTag) {
+            int intId = ((IntTag) term).getAsInt();
             DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
-            RegistryKey<World> result = record.getDimFromIntOptional(intId);
+            ResourceKey<Level> result = record.getDimFromIntOptional(intId);
             if (result == null) {
                 Helper.err("unknown dimension id " + intId);
-                return World.OVERWORLD;
+                return Level.OVERWORLD;
             }
             return result;
         }
         
-        if (term instanceof NbtString) {
-            String id = ((NbtString) term).asString();
+        if (term instanceof StringTag) {
+            String id = ((StringTag) term).getAsString();
             return idToKey(id);
         }
         

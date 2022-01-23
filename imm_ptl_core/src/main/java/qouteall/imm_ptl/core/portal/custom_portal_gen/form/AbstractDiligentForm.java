@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 
@@ -17,15 +17,15 @@ public abstract class AbstractDiligentForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> getFrameMatchingFunc(
-        ServerWorld fromWorld, ServerWorld toWorld, BlockPortalShape fromShape
+    public Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> getFrameMatchingFunc(
+        ServerLevel fromWorld, ServerLevel toWorld, BlockPortalShape fromShape
     ) {
         List<DiligentMatcher.TransformedShape> matchableShapeVariants =
             DiligentMatcher.getMatchableShapeVariants(fromShape, 20);
         
         Predicate<BlockState> areaPredicate = getAreaPredicate();
         Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
-        BlockPos.Mutable temp2 = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos temp2 = new BlockPos.MutableBlockPos();
         return (region) -> (blockPos) -> {
             for (DiligentMatcher.TransformedShape matchableShapeVariant : matchableShapeVariants) {
                 BlockPortalShape template = matchableShapeVariant.transformedShape;
@@ -38,8 +38,8 @@ public abstract class AbstractDiligentForm extends NetherPortalLikeForm {
                 if (matched != null) {
                     if (fromWorld != toWorld || !fromShape.anchor.equals(matched.anchor)) {
                         return new PortalGenInfo(
-                            fromWorld.getRegistryKey(),
-                            toWorld.getRegistryKey(),
+                            fromWorld.dimension(),
+                            toWorld.dimension(),
                             fromShape, matched,
                             matchableShapeVariant.rotation.toQuaternion(),
                             matchableShapeVariant.scale

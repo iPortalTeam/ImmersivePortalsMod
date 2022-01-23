@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class GeometryPortalShape {
         triangles = new ArrayList<>();
     }
     
-    public GeometryPortalShape(NbtList tag) {
+    public GeometryPortalShape(ListTag tag) {
         triangles = new ArrayList<>();
         
         int size = tag.size();
@@ -108,16 +108,16 @@ public class GeometryPortalShape {
         }
     }
     
-    public NbtList writeToTag() {
-        NbtList tag = new NbtList();
+    public ListTag writeToTag() {
+        ListTag tag = new ListTag();
         
         for (TriangleInPlane triangle : triangles) {
-            tag.add(NbtDouble.of(triangle.x1));
-            tag.add(NbtDouble.of(triangle.y1));
-            tag.add(NbtDouble.of(triangle.x2));
-            tag.add(NbtDouble.of(triangle.y2));
-            tag.add(NbtDouble.of(triangle.x3));
-            tag.add(NbtDouble.of(triangle.y3));
+            tag.add(DoubleTag.valueOf(triangle.x1));
+            tag.add(DoubleTag.valueOf(triangle.y1));
+            tag.add(DoubleTag.valueOf(triangle.x2));
+            tag.add(DoubleTag.valueOf(triangle.y2));
+            tag.add(DoubleTag.valueOf(triangle.x3));
+            tag.add(DoubleTag.valueOf(triangle.y3));
         }
         
         return tag;

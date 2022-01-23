@@ -2,18 +2,18 @@ package qouteall.imm_ptl.core.portal.nether_portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -40,7 +40,7 @@ public abstract class BreakablePortalEntity extends Portal {
     
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
-        World world_1
+        Level world_1
     ) {
         super(entityType_1, world_1);
     }
@@ -48,15 +48,15 @@ public abstract class BreakablePortalEntity extends Portal {
     
     @Override
     public boolean isPortalValid() {
-        if (world.isClient) {
+        if (level.isClientSide) {
             return super.isPortalValid();
         }
         return super.isPortalValid() && blockPortalShape != null && reversePortalId != null;
     }
     
     @Override
-    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
-        super.readCustomDataFromNbt(compoundTag);
+    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
         if (compoundTag.contains("netherPortalShape")) {
             blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
@@ -70,7 +70,7 @@ public abstract class BreakablePortalEntity extends Portal {
         unbreakable = compoundTag.getBoolean("unbreakable");
         
         if (compoundTag.contains("overlayBlockState")) {
-            overlayBlockState = NbtHelper.toBlockState(compoundTag.getCompound("overlayBlockState"));
+            overlayBlockState = NbtUtils.readBlockState(compoundTag.getCompound("overlayBlockState"));
             if (overlayBlockState.isAir()) {
                 overlayBlockState = null;
             }
@@ -83,8 +83,8 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     @Override
-    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
-        super.writeCustomDataToNbt(compoundTag);
+    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
         if (blockPortalShape != null) {
             compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
@@ -92,7 +92,7 @@ public abstract class BreakablePortalEntity extends Portal {
         compoundTag.putBoolean("unbreakable", unbreakable);
         
         if (overlayBlockState != null) {
-            compoundTag.put("overlayBlockState", NbtHelper.fromBlockState(overlayBlockState));
+            compoundTag.put("overlayBlockState", NbtUtils.writeBlockState(overlayBlockState));
             compoundTag.putDouble("overlayOpacity", overlayOpacity);
             compoundTag.putDouble("overlayOffset", overlayOffset);
         }
@@ -101,9 +101,9 @@ public abstract class BreakablePortalEntity extends Portal {
     private void breakPortalOnThisSide() {
         blockPortalShape.area.forEach(
             blockPos -> {
-                if (world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance) {
-                    world.setBlockState(
-                        blockPos, Blocks.AIR.getDefaultState()
+                if (level.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance) {
+                    level.setBlockAndUpdate(
+                        blockPos, Blocks.AIR.defaultBlockState()
                     );
                 }
             }
@@ -119,7 +119,7 @@ public abstract class BreakablePortalEntity extends Portal {
     
     private BreakablePortalEntity getReversePortal() {
         
-        ServerWorld world = getServer().getWorld(dimensionTo);
+        ServerLevel world = getServer().getLevel(dimensionTo);
         Entity entity = world.getEntity(reversePortalId);
         if (entity instanceof BreakablePortalEntity) {
             return (BreakablePortalEntity) entity;
@@ -133,12 +133,12 @@ public abstract class BreakablePortalEntity extends Portal {
     public void tick() {
         super.tick();
         
-        if (world.isClient) {
+        if (level.isClientSide) {
             addSoundAndParticle();
         }
         else {
             if (!unbreakable) {
-                if (isNotified || world.getTime() % 233 == getId() % 233) {
+                if (isNotified || level.getGameTime() % 233 == getId() % 233) {
                     isNotified = false;
                     checkPortalIntegrity();
                 }
@@ -151,7 +151,7 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     private void checkPortalIntegrity() {
-        Validate.isTrue(!world.isClient);
+        Validate.isTrue(!level.isClientSide);
         
         if (!isPortalValid()) {
             remove(RemovalReason.KILLED);
@@ -176,7 +176,7 @@ public abstract class BreakablePortalEntity extends Portal {
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     public boolean isPortalPaired() {
-        Validate.isTrue(!world.isClient());
+        Validate.isTrue(!level.isClientSide());
         
         if (isOneWay()) {
             return true;
@@ -189,7 +189,7 @@ public abstract class BreakablePortalEntity extends Portal {
         List<BreakablePortalEntity> revs = findReversePortals(this);
         if (revs.size() == 1) {
             BreakablePortalEntity reversePortal = revs.get(0);
-            if (reversePortal.getDestPos().squaredDistanceTo(getOriginPos()) > 1) {
+            if (reversePortal.getDestPos().distanceToSqr(getOriginPos()) > 1) {
                 return false;
             }
             else {
@@ -242,10 +242,10 @@ public abstract class BreakablePortalEntity extends Portal {
         List<T> revs = McHelper.findEntitiesByBox(
             (Class<T>) portal.getClass(),
             portal.getDestinationWorld(),
-            new Box(new BlockPos(portal.getDestPos())),
+            new AABB(new BlockPos(portal.getDestPos())),
             10,
-            e -> (e.getOriginPos().squaredDistanceTo(portal.getDestPos()) < 0.1) &&
-                e.getContentDirection().dotProduct(portal.getNormal()) > 0.6
+            e -> (e.getOriginPos().distanceToSqr(portal.getDestPos()) < 0.1) &&
+                e.getContentDirection().dot(portal.getNormal()) > 0.6
         );
         return revs;
     }

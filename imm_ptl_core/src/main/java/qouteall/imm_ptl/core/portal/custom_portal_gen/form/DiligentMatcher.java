@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.OctahedralGroup;
+import com.mojang.math.Quaternion;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.util.Pair;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.DirectionTransformation;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
@@ -39,20 +39,20 @@ public class DiligentMatcher {
             this.z = z;
         }
         
-        public IntMatrix3(DirectionTransformation t) {
-            Direction d1 = t.map(Direction.from(Direction.Axis.X, Direction.AxisDirection.POSITIVE));
-            Direction d2 = t.map(Direction.from(Direction.Axis.Y, Direction.AxisDirection.POSITIVE));
-            Direction d3 = t.map(Direction.from(Direction.Axis.Z, Direction.AxisDirection.POSITIVE));
-            x = d1.getVector();
-            y = d2.getVector();
-            z = d3.getVector();
+        public IntMatrix3(OctahedralGroup t) {
+            Direction d1 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.X, Direction.AxisDirection.POSITIVE));
+            Direction d2 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.Y, Direction.AxisDirection.POSITIVE));
+            Direction d3 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.Z, Direction.AxisDirection.POSITIVE));
+            x = d1.getNormal();
+            y = d2.getNormal();
+            z = d3.getNormal();
         }
         
         // p * m  p is horizontal vector
         public BlockPos transform(Vec3i p) {
             return Helper.scale(x, p.getX())
-                .add(Helper.scale(y, p.getY()))
-                .add(Helper.scale(z, p.getZ()));
+                .offset(Helper.scale(y, p.getY()))
+                .offset(Helper.scale(z, p.getZ()));
         }
         
         public IntMatrix3 multiply(IntMatrix3 m) {
@@ -64,8 +64,8 @@ public class DiligentMatcher {
         }
         
         public Direction transformDirection(Direction direction) {
-            BlockPos vec = transform(direction.getVector());
-            return Direction.fromVector(vec.getX(), vec.getY(), vec.getZ());
+            BlockPos vec = transform(direction.getNormal());
+            return Direction.fromNormal(vec.getX(), vec.getY(), vec.getZ());
         }
         
         @Override
@@ -110,9 +110,9 @@ public class DiligentMatcher {
         
         public Quaternion toQuaternion() {
             return DQuaternion.matrixToQuaternion(
-                Vec3d.of(x),
-                Vec3d.of(y),
-                Vec3d.of(z)
+                Vec3.atLowerCornerOf(x),
+                Vec3.atLowerCornerOf(y),
+                Vec3.atLowerCornerOf(z)
             ).toMcQuaternion();
         }
     }
@@ -121,7 +121,7 @@ public class DiligentMatcher {
         if (dir.getAxis() != b.getAxis()) {
             return 0;
         }
-        if (dir.getDirection() == b.getDirection()) {
+        if (dir.getAxisDirection() == b.getAxisDirection()) {
             return 1;
         }
         else {
@@ -131,9 +131,9 @@ public class DiligentMatcher {
     
     // counter clockwise
     public static Direction rotateAlong(Direction dir, Direction axis) {
-        Pair<Direction, Direction> ds = Helper.getPerpendicularDirections(axis);
-        Direction d1 = ds.getLeft();
-        Direction d2 = ds.getRight();
+        Tuple<Direction, Direction> ds = Helper.getPerpendicularDirections(axis);
+        Direction d1 = ds.getA();
+        Direction d2 = ds.getB();
         
         int c1 = dirDotProduct(dir, d1);
         int c2 = dirDotProduct(dir, d2);
@@ -142,17 +142,17 @@ public class DiligentMatcher {
         int nc1 = -c2;
         int nc2 = c1;
         
-        BlockPos finalVec = Helper.scale(d1.getVector(), nc1)
-            .add(Helper.scale(d2.getVector(), nc2))
-            .add(Helper.scale(axis.getVector(), ca));
-        return Direction.fromVector(finalVec.getX(), finalVec.getY(), finalVec.getZ());
+        BlockPos finalVec = Helper.scale(d1.getNormal(), nc1)
+            .offset(Helper.scale(d2.getNormal(), nc2))
+            .offset(Helper.scale(axis.getNormal(), ca));
+        return Direction.fromNormal(finalVec.getX(), finalVec.getY(), finalVec.getZ());
     }
     
     public static IntMatrix3 getRotation90(Direction direction) {
         return new IntMatrix3(
-            rotateAlong(Direction.from(Direction.Axis.X, Direction.AxisDirection.POSITIVE), direction).getVector(),
-            rotateAlong(Direction.from(Direction.Axis.Y, Direction.AxisDirection.POSITIVE), direction).getVector(),
-            rotateAlong(Direction.from(Direction.Axis.Z, Direction.AxisDirection.POSITIVE), direction).getVector()
+            rotateAlong(Direction.fromAxisAndDirection(Direction.Axis.X, Direction.AxisDirection.POSITIVE), direction).getNormal(),
+            rotateAlong(Direction.fromAxisAndDirection(Direction.Axis.Y, Direction.AxisDirection.POSITIVE), direction).getNormal(),
+            rotateAlong(Direction.fromAxisAndDirection(Direction.Axis.Z, Direction.AxisDirection.POSITIVE), direction).getNormal()
         );
     }
     
@@ -245,7 +245,7 @@ public class DiligentMatcher {
     }
     
     public static BlockPortalShape regularizeShape(BlockPortalShape rotatedShape) {
-        return rotatedShape.getShapeWithMovedAnchor(BlockPos.ORIGIN);
+        return rotatedShape.getShapeWithMovedAnchor(BlockPos.ZERO);
     }
     
     public static BlockPortalShape rotateShape(BlockPortalShape shape, IntMatrix3 t) {
@@ -253,7 +253,7 @@ public class DiligentMatcher {
             b -> t.transform(b)
         ).collect(Collectors.toSet());
         Direction.Axis newAxis = t.transformDirection(
-            Direction.from(shape.axis, Direction.AxisDirection.POSITIVE)
+            Direction.fromAxisAndDirection(shape.axis, Direction.AxisDirection.POSITIVE)
         ).getAxis();
         return new BlockPortalShape(newArea, newAxis);
     }
@@ -264,11 +264,11 @@ public class DiligentMatcher {
         ArrayList<IntBox> boxList = decomposeShape(shape, area);
         
         IntArrayList sideLenList = new IntArrayList();
-        Pair<Direction.Axis, Direction.Axis> axs = Helper.getAnotherTwoAxis(shape.axis);
+        Tuple<Direction.Axis, Direction.Axis> axs = Helper.getAnotherTwoAxis(shape.axis);
         for (IntBox box : boxList) {
             BlockPos boxSize = box.getSize();
-            int a = Helper.getCoordinate(boxSize, axs.getLeft());
-            int b = Helper.getCoordinate(boxSize, axs.getRight());
+            int a = Helper.getCoordinate(boxSize, axs.getA());
+            int b = Helper.getCoordinate(boxSize, axs.getB());
             sideLenList.add(a);
             sideLenList.add(b);
         }
@@ -312,16 +312,16 @@ public class DiligentMatcher {
         BlockPortalShape shape,
         int multiplyFactor
     ) {
-        Pair<Direction.Axis, Direction.Axis> axs = Helper.getAnotherTwoAxis(shape.axis);
-        Vec3i v1 = Direction.from(axs.getLeft(), Direction.AxisDirection.POSITIVE).getVector();
-        Vec3i v2 = Direction.from(axs.getRight(), Direction.AxisDirection.POSITIVE).getVector();
+        Tuple<Direction.Axis, Direction.Axis> axs = Helper.getAnotherTwoAxis(shape.axis);
+        Vec3i v1 = Direction.fromAxisAndDirection(axs.getA(), Direction.AxisDirection.POSITIVE).getNormal();
+        Vec3i v2 = Direction.fromAxisAndDirection(axs.getB(), Direction.AxisDirection.POSITIVE).getNormal();
         
         return new BlockPortalShape(
             shape.area.stream().flatMap(
                 basePos -> IntStream.range(0, multiplyFactor).boxed().flatMap(dx ->
                     IntStream.range(0, multiplyFactor).mapToObj(dy ->
                         Helper.scale(basePos, multiplyFactor)
-                            .add(Helper.scale(v1, dx).add(Helper.scale(v2, dy)))
+                            .offset(Helper.scale(v1, dx).offset(Helper.scale(v2, dy)))
                     )
                 )
             ).collect(Collectors.toSet()),

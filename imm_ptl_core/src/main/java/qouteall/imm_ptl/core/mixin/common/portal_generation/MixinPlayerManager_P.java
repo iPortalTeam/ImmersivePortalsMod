@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.common.portal_generation;
 
-import net.minecraft.server.PlayerManager;
+import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public class MixinPlayerManager_P {
     @Inject(
-        method = "onDataPacksReloaded",
+        method = "Lnet/minecraft/server/players/PlayerList;reloadResources()V",
         at = @At("RETURN")
     )
     private void onOnDatapackReloaded(CallbackInfo ci) {

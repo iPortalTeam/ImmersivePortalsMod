@@ -1,20 +1,19 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.EntityList;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.entity.EntityTickList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -33,43 +32,43 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 import java.util.List;
 import java.util.function.Supplier;
 
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     @Final
     @Mutable
-    private ClientPlayNetworkHandler netHandler;
+    private ClientPacketListener connection;
     
     @Mutable
     @Shadow
     @Final
-    private ClientChunkManager chunkManager;
+    private ClientChunkCache chunkSource;
     
     @Shadow
-    public abstract Entity getEntityById(int id);
+    public abstract Entity getEntity(int id);
     
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
     
     @Mutable
     @Shadow
     @Final
-    private WorldRenderer worldRenderer;
+    private LevelRenderer levelRenderer;
     
     @Shadow
     @Final
-    private EntityList entityList;
+    private EntityTickList tickingEntities;
     private List<Portal> portal_globalPortals;
     
     @Override
-    public ClientPlayNetworkHandler getNetHandler() {
-        return netHandler;
+    public ClientPacketListener getNetHandler() {
+        return connection;
     }
     
     @Override
-    public void setNetHandler(ClientPlayNetworkHandler handler) {
-        netHandler = handler;
+    public void setNetHandler(ClientPacketListener handler) {
+        connection = handler;
     }
     
     @Override
@@ -88,25 +87,25 @@ public abstract class MixinClientWorld implements IEClientWorld {
         at = @At("RETURN")
     )
     void onConstructed(
-        ClientPlayNetworkHandler netHandler, ClientWorld.Properties properties,
-        RegistryKey<World> registryRef, DimensionType dimensionType, int loadDistance,
-        int simulationDistance, Supplier<Profiler> profiler, WorldRenderer worldRenderer,
+        ClientPacketListener netHandler, ClientLevel.ClientLevelData properties,
+        ResourceKey<Level> registryRef, DimensionType dimensionType, int loadDistance,
+        int simulationDistance, Supplier<ProfilerFiller> profiler, LevelRenderer worldRenderer,
         boolean debugWorld, long seed, CallbackInfo ci
     ) {
-        ClientWorld clientWorld = (ClientWorld) (Object) this;
-        ClientChunkManager myClientChunkManager =
+        ClientLevel clientWorld = (ClientLevel) (Object) this;
+        ClientChunkCache myClientChunkManager =
             O_O.createMyClientChunkManager(clientWorld, loadDistance);
-        chunkManager = myClientChunkManager;
+        chunkSource = myClientChunkManager;
     }
     
     // avoid entity duplicate when an entity travels
     @Inject(
-        method = "addEntityPrivate",
+        method = "Lnet/minecraft/client/multiplayer/ClientLevel;addEntity(ILnet/minecraft/world/entity/Entity;)V",
         at = @At("TAIL")
     )
     private void onOnEntityAdded(int entityId, Entity entityIn, CallbackInfo ci) {
         if (ClientWorldLoader.getIsInitialized()) {
-            for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
+            for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
                 if (world != (Object) this) {
                     world.removeEntity(entityId, Entity.RemovalReason.DISCARDED);
                 }
@@ -120,14 +119,14 @@ public abstract class MixinClientWorld implements IEClientWorld {
      * {@link ClientPlayerEntity#tick()}
      */
     @Inject(
-        method = "Lnet/minecraft/client/world/ClientWorld;isChunkLoaded(II)Z",
+        method = "Lnet/minecraft/client/multiplayer/ClientLevel;hasChunk(II)Z",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onIsChunkLoaded(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
         if (IPGlobal.tickOnlyIfChunkLoaded) {
-            WorldChunk chunk = chunkManager.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
-            if (chunk == null || chunk instanceof EmptyChunk) {
+            LevelChunk chunk = chunkSource.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+            if (chunk == null || chunk instanceof EmptyLevelChunk) {
                 cir.setReturnValue(false);
                 //            Helper.log("chunk not loaded");
                 //            new Throwable().printStackTrace();
@@ -138,19 +137,19 @@ public abstract class MixinClientWorld implements IEClientWorld {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
     // for debug
-    @Inject(method = "toString", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/multiplayer/ClientLevel;toString()Ljava/lang/String;", at = @At("HEAD"), cancellable = true)
     private void onToString(CallbackInfoReturnable<String> cir) {
-        ClientWorld this_ = (ClientWorld) (Object) this;
-        cir.setReturnValue("ClientWorld " + this_.getRegistryKey().getValue());
+        ClientLevel this_ = (ClientLevel) (Object) this;
+        cir.setReturnValue("ClientWorld " + this_.dimension().location());
     }
     
     @Override
     public void resetWorldRendererRef() {
-        worldRenderer = null;
+        levelRenderer = null;
     }
     
     @Override
-    public EntityList ip_getEntityList() {
-        return entityList;
+    public EntityTickList ip_getEntityList() {
+        return tickingEntities;
     }
 }

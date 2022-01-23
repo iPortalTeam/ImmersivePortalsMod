@@ -2,8 +2,8 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -88,7 +88,7 @@ public class PortalRenderInfo {
         });
         
         Portal.portalCacheUpdateSignal.connect(portal -> {
-            if (portal.world.isClient()) {
+            if (portal.level.isClientSide()) {
                 PortalRenderInfo renderInfo = getOptional(portal);
                 if (renderInfo != null) {
                     renderInfo.onPortalCacheUpdate(portal);
@@ -97,7 +97,7 @@ public class PortalRenderInfo {
         });
         
         Portal.portalDisposeSignal.connect(portal -> {
-            if (portal.world.isClient()) {
+            if (portal.level.isClientSide()) {
                 PortalRenderInfo renderInfo = getOptional(portal);
                 if (renderInfo != null) {
                     renderInfo.dispose();
@@ -109,13 +109,13 @@ public class PortalRenderInfo {
     
     @Nullable
     public static PortalRenderInfo getOptional(Portal portal) {
-        Validate.isTrue(portal.world.isClient());
+        Validate.isTrue(portal.level.isClientSide());
         
         return portal.portalRenderInfo;
     }
     
     public static PortalRenderInfo get(Portal portal) {
-        Validate.isTrue(portal.world.isClient());
+        Validate.isTrue(portal.level.isClientSide());
         
         if (portal.portalRenderInfo == null) {
             portal.portalRenderInfo = new PortalRenderInfo();
@@ -128,7 +128,7 @@ public class PortalRenderInfo {
     }
     
     private void tick(Portal portal) {
-        Validate.isTrue(portal.world.isClient());
+        Validate.isTrue(portal.level.isClientSide());
         
         if (needsGroupingUpdate) {
             needsGroupingUpdate = false;
@@ -214,7 +214,7 @@ public class PortalRenderInfo {
     }
     
     public static boolean renderAndDecideVisibility(PortalLike portal, Runnable queryRendering) {
-        Profiler profiler = MinecraftClient.getInstance().getProfiler();
+        ProfilerFiller profiler = Minecraft.getInstance().getProfiler();
         
         boolean decision;
         if (IPGlobal.offsetOcclusionQuery && portal instanceof Portal) {
@@ -292,7 +292,7 @@ public class PortalRenderInfo {
         List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
             Portal.class,
             portal.getOriginWorld(),
-            portal.getBoundingBox().expand(0.5),
+            portal.getBoundingBox().inflate(0.5),
             Math.min(64, portal.getSizeEstimation()) * 2 + 5,
             p -> p != portal && !Portal.isFlippedPortal(p, portal) && canMerge(p)
         );

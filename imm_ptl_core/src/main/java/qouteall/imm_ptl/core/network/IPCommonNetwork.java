@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.network;
 
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -15,21 +15,21 @@ import javax.annotation.Nullable;
 
 public class IPCommonNetwork {
     
-    private static final ThreadLocal<RegistryKey<World>> tlForceRedirect =
+    private static final ThreadLocal<ResourceKey<Level>> tlForceRedirect =
         ThreadLocal.withInitial(() -> null);
     
     @Nullable
-    private static RegistryKey<World> forceRedirect = null;
+    private static ResourceKey<Level> forceRedirect = null;
     
-    public static void withForceRedirect(ServerWorld world, Runnable func) {
+    public static void withForceRedirect(ServerLevel world, Runnable func) {
         Validate.isTrue(
             ((IEWorld) world).portal_getThread() == Thread.currentThread(),
             "Maybe a mod is trying to add entity in a non-server thread. This is probably not IP's issue"
         );
         
         if (IPGlobal.useThreadLocalServerPacketRedirect) {
-            RegistryKey<World> oldForceRedirect = tlForceRedirect.get();
-            tlForceRedirect.set(world.getRegistryKey());
+            ResourceKey<Level> oldForceRedirect = tlForceRedirect.get();
+            tlForceRedirect.set(world.dimension());
             try {
                 func.run();
             }
@@ -38,8 +38,8 @@ public class IPCommonNetwork {
             }
         }
         else {
-            RegistryKey<World> oldForceRedirect = forceRedirect;
-            forceRedirect = world.getRegistryKey();
+            ResourceKey<Level> oldForceRedirect = forceRedirect;
+            forceRedirect = world.dimension();
             try {
                 func.run();
             }
@@ -54,7 +54,7 @@ public class IPCommonNetwork {
      * {@link MixinServerPlayNetworkHandler_E}
      */
     @Nullable
-    public static RegistryKey<World> getForceRedirectDimension() {
+    public static ResourceKey<Level> getForceRedirectDimension() {
         if (IPGlobal.useThreadLocalServerPacketRedirect) {
             return tlForceRedirect.get();
         }
@@ -65,15 +65,15 @@ public class IPCommonNetwork {
     
     // avoid duplicate redirect nesting
     public static void sendRedirectedPacket(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet<?> packet,
-        RegistryKey<World> dimension
+        ResourceKey<Level> dimension
     ) {
         if (getForceRedirectDimension() == dimension) {
-            serverPlayNetworkHandler.sendPacket(packet);
+            serverPlayNetworkHandler.send(packet);
         }
         else {
-            serverPlayNetworkHandler.sendPacket(
+            serverPlayNetworkHandler.send(
                 IPNetworking.createRedirectedMessage(
                     dimension,
                     packet

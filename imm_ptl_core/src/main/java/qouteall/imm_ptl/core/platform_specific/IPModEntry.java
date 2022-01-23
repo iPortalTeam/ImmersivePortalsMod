@@ -1,13 +1,9 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPModMain;
-import qouteall.imm_ptl.core.PehkuiInterface;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import qouteall.imm_ptl.core.IPModMain;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.q_misc_util.Helper;
 
 public class IPModEntry implements ModInitializer {

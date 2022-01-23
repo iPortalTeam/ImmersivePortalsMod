@@ -1,19 +1,19 @@
 package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FlintAndSteelItem;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,41 +25,41 @@ import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {
-    @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/world/item/FlintAndSteelItem;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
-        ItemUsageContext context,
-        CallbackInfoReturnable<ActionResult> cir
+        UseOnContext context,
+        CallbackInfoReturnable<InteractionResult> cir
     ) {
-        WorldAccess world = context.getWorld();
-        if (!world.isClient()) {
-            BlockPos targetPos = context.getBlockPos();
-            Direction side = context.getSide();
-            BlockPos firePos = targetPos.offset(side);
+        LevelAccessor world = context.getLevel();
+        if (!world.isClientSide()) {
+            BlockPos targetPos = context.getClickedPos();
+            Direction side = context.getClickedFace();
+            BlockPos firePos = targetPos.relative(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (BreakableMirror.isGlass(((World) world), targetPos) && IPGlobal.enableMirrorCreation) {
+            if (BreakableMirror.isGlass(((Level) world), targetPos) && IPGlobal.enableMirrorCreation) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
-                    ((ServerWorld) world), targetPos, side
+                    ((ServerLevel) world), targetPos, side
                 );
-                cir.setReturnValue(ActionResult.SUCCESS);
+                cir.setReturnValue(InteractionResult.SUCCESS);
             }
             else if (targetBlock == PeripheralModMain.portalHelperBlock) {
                 boolean result = IntrinsicPortalGeneration.activatePortalHelper(
-                    ((ServerWorld) world),
+                    ((ServerLevel) world),
                     firePos
                 );
             }
             else if (targetBlock == Blocks.OBSIDIAN) {
-                PlayerEntity player = context.getPlayer();
+                Player player = context.getPlayer();
                 if (player != null) {
-                    if (player.getPose() == EntityPose.CROUCHING) {
+                    if (player.getPose() == Pose.CROUCHING) {
                         boolean succeeded = IntrinsicPortalGeneration.onCrouchingPlayerIgnite(
-                            ((ServerWorld) world),
-                            ((ServerPlayerEntity) player),
+                            ((ServerLevel) world),
+                            ((ServerPlayer) player),
                             firePos
                         );
                         if (succeeded) {
-                            cir.setReturnValue(ActionResult.SUCCESS);
+                            cir.setReturnValue(InteractionResult.SUCCESS);
                             
                         }
                     }

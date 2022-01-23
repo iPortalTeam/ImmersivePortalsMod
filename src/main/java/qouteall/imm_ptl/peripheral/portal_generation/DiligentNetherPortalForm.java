@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
@@ -23,9 +23,9 @@ public class DiligentNetherPortalForm extends AbstractDiligentForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithCorner) {
-            toWorld.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState());
+            toWorld.setBlockAndUpdate(blockPos, Blocks.OBSIDIAN.defaultBlockState());
         }
     }
     
@@ -56,7 +56,7 @@ public class DiligentNetherPortalForm extends AbstractDiligentForm {
     
     @Override
     public Predicate<BlockState> getAreaPredicate() {
-        return AbstractBlock.AbstractBlockState::isAir;
+        return BlockBehaviour.BlockStateBase::isAir;
     }
     
     @Override

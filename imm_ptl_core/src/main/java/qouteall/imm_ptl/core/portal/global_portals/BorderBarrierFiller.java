@@ -2,16 +2,16 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Streams;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.IntBox;
 
@@ -22,14 +22,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class BorderBarrierFiller {
-    private static final WeakHashMap<ServerPlayerEntity, Object> warnedPlayers
+    private static final WeakHashMap<ServerPlayer, Object> warnedPlayers
         = new WeakHashMap<>();
     
     public static void onCommandExecuted(
-        ServerPlayerEntity player
+        ServerPlayer player
     ) {
-        ServerWorld world = (ServerWorld) player.world;
-        Vec3d playerPos = player.getPos();
+        ServerLevel world = (ServerLevel) player.level;
+        Vec3 playerPos = player.position();
         
         List<WorldWrappingPortal.WrappingZone> wrappingZones =
             WorldWrappingPortal.getWrappingZones(world);
@@ -39,7 +39,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"), false);
+            player.displayClientMessage(new TranslatableComponent("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
@@ -47,10 +47,10 @@ public class BorderBarrierFiller {
     }
     
     public static void onCommandExecuted(
-        ServerPlayerEntity player,
+        ServerPlayer player,
         int zoneId
     ) {
-        ServerWorld world = (ServerWorld) player.world;
+        ServerLevel world = (ServerLevel) player.level;
         
         List<WorldWrappingPortal.WrappingZone> wrappingZones =
             WorldWrappingPortal.getWrappingZones(world);
@@ -60,7 +60,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"), false);
+            player.displayClientMessage(new TranslatableComponent("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
@@ -68,8 +68,8 @@ public class BorderBarrierFiller {
     }
     
     private static void doInvoke(
-        ServerPlayerEntity player,
-        ServerWorld world,
+        ServerPlayer player,
+        ServerLevel world,
         WorldWrappingPortal.WrappingZone zone
     ) {
         IntBox borderBox = zone.getBorderBox();
@@ -84,8 +84,8 @@ public class BorderBarrierFiller {
             // according to my test 80000 columns increase world saving by 465 MB
             double sizeEstimationGB = (totalColumns / 80000.0) * 0.5;
             
-            player.sendMessage(
-                new TranslatableText(
+            player.displayClientMessage(
+                new TranslatableComponent(
                     "imm_ptl.clear_border_warning",
                     sizeEstimationGB < 0.01 ? 0 : sizeEstimationGB
                 ),
@@ -95,20 +95,20 @@ public class BorderBarrierFiller {
         else {
             warnedPlayers.remove(player);
             
-            player.sendMessage(
-                new TranslatableText("imm_ptl.start_clearing_border"),
+            player.displayClientMessage(
+                new TranslatableComponent("imm_ptl.start_clearing_border"),
                 false
             );
             
             
-            startFillingBorder(world, borderBox, l -> player.sendMessage(l, false));
+            startFillingBorder(world, borderBox, l -> player.displayClientMessage(l, false));
         }
     }
     
     private static void startFillingBorder(
-        ServerWorld world,
+        ServerLevel world,
         IntBox borderBox,
-        Consumer<Text> informer
+        Consumer<Component> informer
     ) {
         Supplier<IntStream> xStream = () -> IntStream.range(
             borderBox.l.getX(), borderBox.h.getX() + 1
@@ -116,9 +116,9 @@ public class BorderBarrierFiller {
         Supplier<IntStream> zStream = () -> IntStream.range(
             borderBox.l.getZ(), borderBox.h.getZ() + 1
         );
-        BlockPos.Mutable temp = new BlockPos.Mutable();
-        BlockPos.Mutable temp1 = new BlockPos.Mutable();
-        Stream<BlockPos.Mutable> stream = Streams.concat(
+        BlockPos.MutableBlockPos temp = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos temp1 = new BlockPos.MutableBlockPos();
+        Stream<BlockPos.MutableBlockPos> stream = Streams.concat(
             xStream.get().mapToObj(x -> temp.set(x, 0, borderBox.l.getZ())),
             xStream.get().mapToObj(x -> temp.set(x, 0, borderBox.h.getZ())),
             zStream.get().mapToObj(z -> temp.set(borderBox.l.getX(), 0, z)),
@@ -130,15 +130,15 @@ public class BorderBarrierFiller {
         
         int worldHeight = world.getHeight();
         
-        ServerLightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
+        ThreadedLevelLightEngine lightingProvider = world.getChunkSource().getLightEngine();
         
         McHelper.performMultiThreadedFindingTaskOnServer(
             stream,
             columnPos -> {
-                Chunk chunk = world.getChunk(columnPos);
+                ChunkAccess chunk = world.getChunk(columnPos);
                 for (int y = 0; y < worldHeight; y++) {
                     temp1.set(columnPos.getX(), y, columnPos.getZ());
-                    chunk.setBlockState(temp1, Blocks.AIR.getDefaultState(), false);
+                    chunk.setBlockState(temp1, Blocks.AIR.defaultBlockState(), false);
                     lightingProvider.checkBlock(temp1);
                 }
                 
@@ -146,7 +146,7 @@ public class BorderBarrierFiller {
             },
             columns -> {
                 if (McHelper.getServerGameTime() % 20 == 0) {
-                    informer.accept(new LiteralText(
+                    informer.accept(new TextComponent(
                         String.format("Progress: %d / %d", columns, totalColumns)
                     ));
                 }
@@ -156,7 +156,7 @@ public class BorderBarrierFiller {
                 //nothing
             },
             () -> {
-                informer.accept(new TranslatableText("imm_ptl.finished_clearing_border"));
+                informer.accept(new TranslatableComponent("imm_ptl.finished_clearing_border"));
             },
             () -> {
             

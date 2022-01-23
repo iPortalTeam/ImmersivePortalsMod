@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.portal.Portal;
 
 public interface IEEntity {

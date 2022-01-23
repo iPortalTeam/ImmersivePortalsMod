@@ -2,15 +2,15 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
@@ -53,8 +53,8 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     
     @Override
     public boolean perform(
-        CustomPortalGeneration cpg, ServerWorld fromWorld,
-        BlockPos startingPos, ServerWorld toWorld,
+        CustomPortalGeneration cpg, ServerLevel fromWorld,
+        BlockPos startingPos, ServerLevel toWorld,
         @Nullable Entity triggeringEntity
     ) {
         if (triggeringEntity == null) {
@@ -62,21 +62,21 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
             return false;
         }
         
-        if (!(triggeringEntity instanceof ServerPlayerEntity)) {
+        if (!(triggeringEntity instanceof ServerPlayer)) {
             Helper.err("Non player entity triggers portal conversion");
             return false;
         }
         
-        ServerPlayerEntity player = (ServerPlayerEntity) triggeringEntity;
+        ServerPlayer player = (ServerPlayer) triggeringEntity;
         
         
-        if (player.world != toWorld) {
+        if (player.level != toWorld) {
             Helper.err("The player is not in the correct world " +
-                player.world.getRegistryKey().getValue());
+                player.level.dimension().location());
             return false;
         }
         
-        BlockPos playerCurrentPos = player.getBlockPos().toImmutable();
+        BlockPos playerCurrentPos = player.blockPosition().immutable();
         
         BlockPos startFramePos = findBlockAround(
             fromWorld, startingPos, portalBlock
@@ -96,9 +96,9 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         
         Helper.log(String.format(
             "Trying to convert conventional portal %s -> %s by %s (%d %d %d)",
-            fromWorld.getRegistryKey().getValue(),
-            toWorld.getRegistryKey().getValue(),
-            player.getName().asString(),
+            fromWorld.dimension().location(),
+            toWorld.dimension().location(),
+            player.getName().getContents(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ()
         ));
         
@@ -123,14 +123,14 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         Helper.log(fromShape.innerAreaBox + " " + toShape.innerAreaBox);
         
         PortalGenInfo portalGenInfo = tryToMatch(
-            fromWorld.getRegistryKey(), toWorld.getRegistryKey(),
+            fromWorld.dimension(), toWorld.dimension(),
             fromShape, toShape
         );
         
         if (portalGenInfo == null) {
             Helper.err("Shapes are incompatible");
-            player.sendMessage(
-                new TranslatableText(
+            player.displayClientMessage(
+                new TranslatableComponent(
                     "imm_ptl.incompatible_shape"
                 ), false
             );
@@ -172,7 +172,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     @Deprecated
     @Nullable
     public static IntBox findBlockBoxArea(
-        World world, BlockPos pos, Predicate<BlockState> predicate
+        Level world, BlockPos pos, Predicate<BlockState> predicate
     ) {
         BlockPos startingPos = findBlockAround(world, pos, predicate);
         
@@ -194,7 +194,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     
     @Nullable
     public static BlockPos findBlockAround(
-        World world, BlockPos pos, Predicate<BlockState> predicate
+        Level world, BlockPos pos, Predicate<BlockState> predicate
     ) {
         BlockState blockState = world.getBlockState(pos);
         if (predicate.test(blockState)) {
@@ -202,7 +202,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         }
         
         return BlockTraverse.searchInBox(
-            new IntBox(pos.add(-2, -2, -2), pos.add(2, 2, 2)),
+            new IntBox(pos.offset(-2, -2, -2), pos.offset(2, 2, 2)),
             p -> {
                 if (predicate.test(world.getBlockState(p))) {
                     return p;
@@ -239,7 +239,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     
     @Nullable
     public static PortalGenInfo tryToMatch(
-        RegistryKey<World> fromDim, RegistryKey<World> toDim,
+        ResourceKey<Level> fromDim, ResourceKey<Level> toDim,
         BlockPortalShape a, BlockPortalShape b
     ) {
         List<DiligentMatcher.TransformedShape> matchableShapeVariants =

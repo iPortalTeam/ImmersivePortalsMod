@@ -1,17 +1,16 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
@@ -36,7 +35,7 @@ import java.util.function.Supplier;
 public class NetherPortalGeneration {
     
     public static IntBox findAirCubePlacement(
-        ServerWorld toWorld,
+        ServerLevel toWorld,
         BlockPos mappedPosInOtherDimension,
         Direction.Axis axis,
         BlockPos neededAreaSize
@@ -50,10 +49,10 @@ public class NetherPortalGeneration {
         IntBox foundAirCube =
             axis == Direction.Axis.Y ?
                 NetherPortalMatcher.findHorizontalPortalPlacement(
-                    neededAreaSize, toWorld, mappedPosInOtherDimension.add(randomShift)
+                    neededAreaSize, toWorld, mappedPosInOtherDimension.offset(randomShift)
                 ) :
                 NetherPortalMatcher.findVerticalPortalPlacement(
-                    neededAreaSize, toWorld, mappedPosInOtherDimension.add(randomShift)
+                    neededAreaSize, toWorld, mappedPosInOtherDimension.offset(randomShift)
                 );
         
         if (foundAirCube == null) {
@@ -81,27 +80,27 @@ public class NetherPortalGeneration {
         return foundAirCube;
     }
     
-    private static boolean isFloating(ServerWorld toWorld, IntBox foundAirCube) {
+    private static boolean isFloating(ServerLevel toWorld, IntBox foundAirCube) {
         return foundAirCube.getSurfaceLayer(Direction.DOWN).stream().noneMatch(
-            blockPos -> toWorld.getBlockState(blockPos.down()).getMaterial().isSolid()
+            blockPos -> toWorld.getBlockState(blockPos.below()).getMaterial().isSolid()
         );
     }
     
     public static void setPortalContentBlock(
-        ServerWorld world,
+        ServerLevel world,
         BlockPos pos,
         Direction.Axis normalAxis
     ) {
-        world.setBlockState(
+        world.setBlockAndUpdate(
             pos,
-            PortalPlaceholderBlock.instance.getDefaultState().with(
+            PortalPlaceholderBlock.instance.defaultBlockState().setValue(
                 PortalPlaceholderBlock.AXIS, normalAxis
             )
         );
     }
     
     public static void startGeneratingPortal(
-        ServerWorld fromWorld, ServerWorld toWorld,
+        ServerLevel fromWorld, ServerLevel toWorld,
         BlockPortalShape fromShape,
         BlockPos toPos,
         int existingFrameSearchingRadius,
@@ -113,24 +112,24 @@ public class NetherPortalGeneration {
         BooleanSupplier portalIntegrityChecker,
         
         //currying
-        Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> matchShapeByFramePos
+        Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> matchShapeByFramePos
     ) {
-        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
-        RegistryKey<World> toDimension = toWorld.getRegistryKey();
+        ResourceKey<Level> fromDimension = fromWorld.dimension();
+        ResourceKey<Level> toDimension = toWorld.dimension();
         
-        Vec3d indicatorPos = fromShape.innerAreaBox.getCenterVec();
+        Vec3 indicatorPos = fromShape.innerAreaBox.getCenterVec();
         
         LoadingIndicatorEntity indicatorEntity =
             LoadingIndicatorEntity.entityType.create(fromWorld);
         indicatorEntity.isValid = true;
         indicatorEntity.portalShape = fromShape;
-        indicatorEntity.setPosition(
+        indicatorEntity.setPos(
             indicatorPos.x, indicatorPos.y, indicatorPos.z
         );
-        fromWorld.spawnEntity(indicatorEntity);
+        fromWorld.addFreshEntity(indicatorEntity);
         
         Runnable onGenerateNewFrame = () -> {
-            indicatorEntity.inform(new TranslatableText(
+            indicatorEntity.inform(new TranslatableComponent(
                 "imm_ptl.generating_new_frame"
             ));
             
@@ -185,7 +184,7 @@ public class NetherPortalGeneration {
             int allChunksNeedsLoading = chunkLoader.getChunkNum();
             
             if (loadedChunks < allChunksNeedsLoading) {
-                indicatorEntity.inform(new TranslatableText(
+                indicatorEntity.inform(new TranslatableComponent(
                     "imm_ptl.loading_chunks", loadedChunks, allChunksNeedsLoading
                 ));
                 return false;
@@ -197,13 +196,13 @@ public class NetherPortalGeneration {
                 return true;
             }
             
-            ChunkRegion chunkRegion = new ChunkLoader(
+            WorldGenRegion chunkRegion = new ChunkLoader(
                 chunkLoader.center, frameSearchingRadius
             ).createChunkRegion();
             
-            indicatorEntity.inform(new TranslatableText("imm_ptl.searching_for_frame"));
+            indicatorEntity.inform(new TranslatableComponent("imm_ptl.searching_for_frame"));
             
-            BlockPos.Mutable temp1 = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos temp1 = new BlockPos.MutableBlockPos();
             
             FrameSearching.startSearchingPortalFrameAsync(
                 chunkRegion, frameSearchingRadius,
@@ -224,7 +223,7 @@ public class NetherPortalGeneration {
         });
     }
     
-    public static boolean isOtherGenerationRunning(ServerWorld fromWorld, Vec3d indicatorPos) {
+    public static boolean isOtherGenerationRunning(ServerLevel fromWorld, Vec3 indicatorPos) {
         
         boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
             fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
@@ -240,20 +239,20 @@ public class NetherPortalGeneration {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(300);
     
-    public static boolean checkPortalGeneration(ServerWorld fromWorld, BlockPos startingPos) {
-        if (!fromWorld.isChunkLoaded(startingPos)) {
+    public static boolean checkPortalGeneration(ServerLevel fromWorld, BlockPos startingPos) {
+        if (!fromWorld.hasChunkAt(startingPos)) {
             Helper.log("Cancel Portal Generation Because Chunk Not Loaded");
             return false;
         }
         
         limitedLogger.log(String.format("Portal Generation Attempted %s %s %s %s",
-            fromWorld.getRegistryKey().getValue(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
+            fromWorld.dimension().location(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
         ));
         return true;
     }
     
     public static BlockPortalShape findFrameShape(
-        ServerWorld fromWorld, BlockPos startingPos,
+        ServerLevel fromWorld, BlockPos startingPos,
         Predicate<BlockState> thisSideAreaPredicate,
         Predicate<BlockState> thisSideFramePredicate
     ) {
@@ -273,17 +272,17 @@ public class NetherPortalGeneration {
     }
     
     public static void embodyNewFrame(
-        ServerWorld toWorld,
+        ServerLevel toWorld,
         BlockPortalShape toShape,
         BlockState frameBlockState
     ) {
         toShape.frameAreaWithCorner.forEach(blockPos ->
-            toWorld.setBlockState(blockPos, frameBlockState)
+            toWorld.setBlockAndUpdate(blockPos, frameBlockState)
         );
     }
     
     public static void fillInPlaceHolderBlocks(
-        ServerWorld world,
+        ServerLevel world,
         BlockPortalShape blockPortalShape
     ) {
         blockPortalShape.area.forEach(

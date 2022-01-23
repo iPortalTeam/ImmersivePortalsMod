@@ -1,15 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
@@ -19,6 +10,15 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.ArrayDeque;
 import java.util.Stack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 // discover visible sections by breadth-first traverse, for portal rendering
 // probably faster than vanilla
@@ -27,18 +27,18 @@ public class VisibleSectionDiscovery {
     
     private static MyBuiltChunkStorage builtChunks;
     private static Frustum vanillaFrustum;
-    private static ObjectArrayList<WorldRenderer.ChunkInfo> resultHolder;
-    private static final ArrayDeque<ChunkBuilder.BuiltChunk> tempQueue = new ArrayDeque<>();
-    private static ChunkSectionPos cameraSectionPos;
+    private static ObjectArrayList<LevelRenderer.RenderChunkInfo> resultHolder;
+    private static final ArrayDeque<ChunkRenderDispatcher.RenderChunk> tempQueue = new ArrayDeque<>();
+    private static SectionPos cameraSectionPos;
     private static long timeMark;
     private static int viewDistance;
     
     public static void discoverVisibleSections(
-        ClientWorld world,
+        ClientLevel world,
         MyBuiltChunkStorage builtChunks_,
         Camera camera,
         Frustum vanillaFrustum_,
-        ObjectArrayList<WorldRenderer.ChunkInfo> resultHolder_
+        ObjectArrayList<LevelRenderer.RenderChunkInfo> resultHolder_
     ) {
         builtChunks = builtChunks_;
         vanillaFrustum = vanillaFrustum_;
@@ -51,31 +51,31 @@ public class VisibleSectionDiscovery {
         
         timeMark = System.nanoTime();
         
-        Vec3d cameraPos = camera.getPos();
-        vanillaFrustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
-        cameraSectionPos = ChunkSectionPos.from(new BlockPos(cameraPos));
+        Vec3 cameraPos = camera.getPosition();
+        vanillaFrustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
+        cameraSectionPos = SectionPos.of(new BlockPos(cameraPos));
         
-        if (cameraPos.y < world.getBottomY()) {
+        if (cameraPos.y < world.getMinBuildHeight()) {
             discoverBottomOrTopLayerVisibleChunks(builtChunks.minSectionY);
         }
-        else if (cameraPos.y > world.getTopY()) {
+        else if (cameraPos.y > world.getMaxBuildHeight()) {
             discoverBottomOrTopLayerVisibleChunks(builtChunks.endSectionY - 1);
         }
         else {
             checkSection(
-                cameraSectionPos.getSectionX(),
-                cameraSectionPos.getSectionY(),
-                cameraSectionPos.getSectionZ(),
+                cameraSectionPos.x(),
+                cameraSectionPos.y(),
+                cameraSectionPos.z(),
                 true
             );
         }
         
         // breadth-first searching
         while (!tempQueue.isEmpty()) {
-            ChunkBuilder.BuiltChunk curr = tempQueue.poll();
-            int cx = ChunkSectionPos.getSectionCoord(curr.getOrigin().getX());
-            int cy = ChunkSectionPos.getSectionCoord(curr.getOrigin().getY());
-            int cz = ChunkSectionPos.getSectionCoord(curr.getOrigin().getZ());
+            ChunkRenderDispatcher.RenderChunk curr = tempQueue.poll();
+            int cx = SectionPos.blockToSectionCoord(curr.getOrigin().getX());
+            int cy = SectionPos.blockToSectionCoord(curr.getOrigin().getY());
+            int cz = SectionPos.blockToSectionCoord(curr.getOrigin().getZ());
             
             checkSection(cx + 1, cy, cz, false);
             checkSection(cx - 1, cy, cz, false);
@@ -99,15 +99,15 @@ public class VisibleSectionDiscovery {
     }
     
     // NOTE the vanilla frustum culling code may wrongly cull the first section
-    private static boolean isVisible(ChunkBuilder.BuiltChunk builtChunk) {
-        Box box = builtChunk.boundingBox;
+    private static boolean isVisible(ChunkRenderDispatcher.RenderChunk builtChunk) {
+        AABB box = builtChunk.bb;
         return vanillaFrustum.isVisible(box);
     }
     
     private static void discoverBottomOrTopLayerVisibleChunks(int cy) {
         BlockTraverse.<Object>searchOnPlane(
-            cameraSectionPos.getSectionX(),
-            cameraSectionPos.getSectionZ(),
+            cameraSectionPos.x(),
+            cameraSectionPos.z(),
             viewDistance - 1,
             (cx, cz) -> {
                 checkSection(cx, cy, cz, false);
@@ -117,17 +117,17 @@ public class VisibleSectionDiscovery {
     }
     
     private static void checkSection(int cx, int cy, int cz, boolean skipFrustumTest) {
-        if (Math.abs(cx - cameraSectionPos.getSectionX()) > viewDistance) {
+        if (Math.abs(cx - cameraSectionPos.x()) > viewDistance) {
             return;
         }
-        if (Math.abs(cy - cameraSectionPos.getSectionY()) > viewDistance) {
+        if (Math.abs(cy - cameraSectionPos.y()) > viewDistance) {
             return;
         }
-        if (Math.abs(cz - cameraSectionPos.getSectionZ()) > viewDistance) {
+        if (Math.abs(cz - cameraSectionPos.z()) > viewDistance) {
             return;
         }
         
-        ChunkBuilder.BuiltChunk builtChunk =
+        ChunkRenderDispatcher.RenderChunk builtChunk =
             builtChunks.rawFetch(cx, cy, cz, timeMark);
         if (builtChunk != null) {
             IEBuiltChunk ieBuiltChunk = (IEBuiltChunk) builtChunk;
@@ -141,9 +141,9 @@ public class VisibleSectionDiscovery {
         }
     }
     
-    private static final Stack<ObjectArrayList<WorldRenderer.ChunkInfo>> listCaches = new Stack<>();
+    private static final Stack<ObjectArrayList<LevelRenderer.RenderChunkInfo>> listCaches = new Stack<>();
     
-    public static ObjectArrayList<WorldRenderer.ChunkInfo> takeList() {
+    public static ObjectArrayList<LevelRenderer.RenderChunkInfo> takeList() {
         if (listCaches.isEmpty()) {
             return new ObjectArrayList<>();
         }
@@ -152,7 +152,7 @@ public class VisibleSectionDiscovery {
         }
     }
     
-    public static void returnList(ObjectArrayList<WorldRenderer.ChunkInfo> list) {
+    public static void returnList(ObjectArrayList<LevelRenderer.RenderChunkInfo> list) {
         list.clear();// avoid memory leak
         listCaches.push(list);
     }

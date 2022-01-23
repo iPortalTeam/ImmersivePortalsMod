@@ -1,19 +1,19 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
 
 public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEntity> {
-    public LoadingIndicatorRenderer(EntityRendererFactory.Context context) {
+    public LoadingIndicatorRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
     
     @Override
-    public Identifier getTexture(LoadingIndicatorEntity var1) {
+    public ResourceLocation getTextureLocation(LoadingIndicatorEntity var1) {
         return null;
     }
     
@@ -22,8 +22,8 @@ public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEnt
         LoadingIndicatorEntity entity_1,
         float float_1,
         float float_2,
-        MatrixStack matrixStack_1,
-        VertexConsumerProvider vertexConsumerProvider_1,
+        PoseStack matrixStack_1,
+        MultiBufferSource vertexConsumerProvider_1,
         int int_1
     ) {
 //        String[] splited = entity_1.getText().getString().split("\n");

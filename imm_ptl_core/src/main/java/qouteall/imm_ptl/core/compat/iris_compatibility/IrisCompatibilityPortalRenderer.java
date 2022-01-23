@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
@@ -29,7 +29,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         new IrisCompatibilityPortalRenderer(true);
     
     private SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
-    private MatrixStack modelView = new MatrixStack();
+    private PoseStack modelView = new PoseStack();
     
     public boolean isDebugMode;
     
@@ -43,19 +43,19 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
             return;
         }
         
-        modelView = new MatrixStack();
-        modelView.push();
-        modelView.peek().getPositionMatrix().multiply(matrixStack.peek().getPositionMatrix());
-        modelView.peek().getNormalMatrix().multiply(matrixStack.peek().getNormalMatrix());
+        modelView = new PoseStack();
+        modelView.pushPose();
+        modelView.last().pose().multiply(matrixStack.last().pose());
+        modelView.last().normal().mul(matrixStack.last().normal());
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
@@ -69,14 +69,14 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         deferredBuffer.prepare();
         
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
-        deferredBuffer.fb.clear(MinecraftClient.IS_SYSTEM_MAC);
+        deferredBuffer.fb.clear(Minecraft.ON_OSX);
         
-        Framebuffer mcFb = MinecraftClient.getInstance().getFramebuffer();
+        RenderTarget mcFb = Minecraft.getInstance().getMainRenderTarget();
         ((IEFrameBuffer) mcFb).setIsStencilBufferEnabledAndReload(false);
     }
     
     @Override
-    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
+    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
             // this renderer only supports one-layer portal
             return;
@@ -86,7 +86,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             return;
         }
         
-        client.getFramebuffer().beginWrite(true);
+        client.getMainRenderTarget().bindWrite(true);
         
         PortalRendering.pushPortalLayer(portal);
         
@@ -98,18 +98,18 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         if (!isDebugMode) {
             // draw portal content to the deferred buffer
-            deferredBuffer.fb.beginWrite(true);
+            deferredBuffer.fb.bindWrite(true);
             MyRenderHelper.drawPortalAreaWithFramebuffer(
                 portal,
-                client.getFramebuffer(),
-                matrixStack.peek().getPositionMatrix(),
+                client.getMainRenderTarget(),
+                matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix()
             );
         }
         else {
-            deferredBuffer.fb.beginWrite(true);
+            deferredBuffer.fb.bindWrite(true);
             MyRenderHelper.drawScreenFrameBuffer(
-                client.getFramebuffer(),
+                client.getMainRenderTarget(),
                 true, true
             );
         }
@@ -118,7 +118,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         RenderSystem.colorMask(true, true, true, true);
         
-        client.getFramebuffer().beginWrite(true);
+        client.getMainRenderTarget().bindWrite(true);
     }
     
     @Override
@@ -136,18 +136,18 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
     }
     
-    private boolean testShouldRenderPortal(PortalLike portal, MatrixStack matrixStack) {
+    private boolean testShouldRenderPortal(PortalLike portal, PoseStack matrixStack) {
         
         //reset projection matrix
 //        client.gameRenderer.loadProjectionMatrix(RenderStates.basicProjectionMatrix);
         
-        deferredBuffer.fb.beginWrite(true);
+        deferredBuffer.fb.bindWrite(true);
         
         return PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
             
             ViewAreaRenderer.renderPortalArea(
-                portal, Vec3d.ZERO,
-                matrixStack.peek().getPositionMatrix(),
+                portal, Vec3.ZERO,
+                matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, false, false
             );
@@ -155,7 +155,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeHandRendering(MatrixStack matrixStack) {
+    public void onBeforeHandRendering(PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
             return;
         }
@@ -163,11 +163,11 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         CHelper.checkGlError();
         
         // save the main framebuffer to deferredBuffer
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getFramebuffer().fbo);
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getMainRenderTarget().frameBufferId);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.frameBufferId);
         GL30.glBlitFramebuffer(
-            0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
-            0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
+            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
+            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
             GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
             GL_NEAREST
         );
@@ -175,10 +175,10 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         CHelper.checkGlError();
         
         renderPortals(modelView);
-        modelView.pop();
+        modelView.popPose();
         
-        Framebuffer mainFrameBuffer = client.getFramebuffer();
-        mainFrameBuffer.beginWrite(true);
+        RenderTarget mainFrameBuffer = client.getMainRenderTarget();
+        mainFrameBuffer.bindWrite(true);
         
         MyRenderHelper.drawScreenFrameBuffer(
             deferredBuffer.fb,
@@ -188,7 +188,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
     
     }
 }

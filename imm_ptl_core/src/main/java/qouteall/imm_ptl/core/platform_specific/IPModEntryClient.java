@@ -3,10 +3,10 @@ package qouteall.imm_ptl.core.platform_specific;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.EntityType;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -50,7 +50,7 @@ public class IPModEntryClient implements ClientModInitializer {
         ).forEach(
             entityType -> EntityRendererRegistry.INSTANCE.register(
                 entityType,
-                (EntityRendererFactory) PortalEntityRenderer::new
+                (EntityRendererProvider) PortalEntityRenderer::new
             )
         );
         
@@ -110,7 +110,7 @@ public class IPModEntryClient implements ClientModInitializer {
     
     private static void initWarnings() {
         IPGlobal.postClientTickSignal.connect(() -> {
-            if (MinecraftClient.getInstance().world == null) {
+            if (Minecraft.getInstance().level == null) {
                 return;
             }
             
@@ -119,7 +119,7 @@ public class IPModEntryClient implements ClientModInitializer {
             }
             
             if (FabricLoader.getInstance().isModLoaded("canvas")) {
-                CHelper.printChat(new LiteralText(
+                CHelper.printChat(new TextComponent(
                     "[Immersive Portals] Warning: Canvas is incompatible with Immersive Portals."
                 ));
             }

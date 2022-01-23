@@ -1,19 +1,19 @@
 package qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.GenerationShapeConfig;
-import net.minecraft.world.gen.chunk.StructuresConfig;
-import net.minecraft.world.gen.surfacebuilder.MaterialRules;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.SurfaceRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(ChunkGeneratorSettings.class)
+@Mixin(NoiseGeneratorSettings.class)
 public interface IEChunkGeneratorSettings {
     @Invoker("<init>")
-    public static ChunkGeneratorSettings construct(
-        StructuresConfig structuresConfig, GenerationShapeConfig generationShapeConfig,
-        BlockState defaultBlock, BlockState defaultFluid, MaterialRules.MaterialRule surfaceRule,
+    public static NoiseGeneratorSettings construct(
+        StructureSettings structuresConfig, NoiseSettings generationShapeConfig,
+        BlockState defaultBlock, BlockState defaultFluid, SurfaceRules.RuleSource surfaceRule,
         int bedrockCeilingY, boolean mobGenerationDisabled, boolean aquifers, boolean noiseCaves,
         boolean oreVeins, boolean noodleCaves, boolean useLegacyRandom
     ) {

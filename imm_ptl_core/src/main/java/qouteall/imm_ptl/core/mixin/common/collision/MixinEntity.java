@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,19 +33,19 @@ public abstract class MixinEntity implements IEEntity {
     private long collidingPortalActiveTickTime;
     
     @Shadow
-    public abstract Box getBoundingBox();
+    public abstract AABB getBoundingBox();
     
     @Shadow
-    public World world;
+    public Level level;
     
     @Shadow
-    public abstract void setBoundingBox(Box box_1);
+    public abstract void setBoundingBox(AABB box_1);
     
     @Shadow
-    protected abstract Vec3d adjustMovementForCollisions(Vec3d vec3d_1);
+    protected abstract Vec3 collide(Vec3 vec3d_1);
     
     @Shadow
-    public abstract Text getName();
+    public abstract Component getName();
     
     @Shadow
     public abstract double getX();
@@ -57,22 +57,22 @@ public abstract class MixinEntity implements IEEntity {
     public abstract double getZ();
     
     @Shadow
-    protected abstract BlockPos getLandingPos();
+    protected abstract BlockPos getOnPos();
     
     @Shadow
-    public boolean inanimate;
+    public boolean blocksBuilding;
     
     @Shadow
-    public int age;
+    public int tickCount;
     
     @Shadow
-    public abstract Vec3d getVelocity();
+    public abstract Vec3 getDeltaMovement();
     
     @Shadow
     protected abstract void unsetRemoved();
     
     //maintain collidingPortal field
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
         tickCollidingPortal(1);
     }
@@ -80,27 +80,27 @@ public abstract class MixinEntity implements IEEntity {
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     @Redirect(
-        method = "move",
+        method = "Lnet/minecraft/world/entity/Entity;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/world/entity/Entity;collide(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"
         )
     )
-    private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
+    private Vec3 redirectHandleCollisions(Entity entity, Vec3 attemptedMove) {
         if (!IPGlobal.enableServerCollision) {
-            if (!entity.world.isClient()) {
-                if (entity instanceof PlayerEntity) {
+            if (!entity.level.isClientSide()) {
+                if (entity instanceof Player) {
                     return attemptedMove;
                 }
                 else {
-                    return Vec3d.ZERO;
+                    return Vec3.ZERO;
                 }
             }
         }
         
-        if (attemptedMove.lengthSquared() > 60 * 60) {
+        if (attemptedMove.lengthSqr() > 60 * 60) {
             limitedLogger.invoke(() -> {
-                Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
+                Helper.err("Entity moves too fast " + entity + attemptedMove + entity.level.getGameTime());
                 new Throwable().printStackTrace();
             });
 
@@ -112,7 +112,7 @@ public abstract class MixinEntity implements IEEntity {
             return attemptedMove;
         }
         
-        if (getVelocity().lengthSquared() > 2) {
+        if (getDeltaMovement().lengthSqr() > 2) {
             CollisionHelper.updateCollidingPortalNow(entity);
         }
         
@@ -121,21 +121,21 @@ public abstract class MixinEntity implements IEEntity {
 //            entity.hasVehicle() ||
             !IPGlobal.crossPortalCollision
         ) {
-            return adjustMovementForCollisions(attemptedMove);
+            return collide(attemptedMove);
         }
         
-        Vec3d result = CollisionHelper.handleCollisionHalfwayInPortal(
+        Vec3 result = CollisionHelper.handleCollisionHalfwayInPortal(
             (Entity) (Object) this,
             attemptedMove,
             getCollidingPortal(),
-            attemptedMove1 -> adjustMovementForCollisions(attemptedMove1)
+            attemptedMove1 -> collide(attemptedMove1)
         );
         return result;
     }
     
     //don't burn when jumping into end portal
     @Inject(
-        method = "isFireImmune",
+        method = "Lnet/minecraft/world/entity/Entity;fireImmune()Z",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -147,18 +147,18 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     @Redirect(
-        method = "checkBlockCollision",
+        method = "Lnet/minecraft/world/entity/Entity;checkInsideBlocks()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;getBoundingBox()Lnet/minecraft/util/math/Box;"
+            target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"
         )
     )
-    private Box redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
+    private AABB redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
         return CollisionHelper.getActiveCollisionBox(entity);
     }
     
     // avoid suffocation when colliding with a portal on wall
-    @Inject(method = "isInsideWall", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/world/entity/Entity;isInWall()Z", at = @At("HEAD"), cancellable = true)
     private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
         if (isRecentlyCollidingWithPortal()) {
             cir.setReturnValue(false);
@@ -167,11 +167,11 @@ public abstract class MixinEntity implements IEEntity {
     
     //for teleportation debug
     @Inject(
-        method = "setPos",
+        method = "Lnet/minecraft/world/entity/Entity;setPosRaw(DDD)V",
         at = @At("HEAD")
     )
     private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
-        if (((Object) this) instanceof ServerPlayerEntity) {
+        if (((Object) this) instanceof ServerPlayer) {
             if (IPGlobal.teleportationDebugEnabled) {
                 if (Math.abs(getX() - nx) > 10 ||
                     Math.abs(getY() - ny) > 10 ||
@@ -179,8 +179,8 @@ public abstract class MixinEntity implements IEEntity {
                 ) {
                     Helper.log(String.format(
                         "%s %s teleported from %s %s %s to %s %s %s",
-                        getName().asString(),
-                        world.getRegistryKey(),
+                        getName().getContents(),
+                        level.dimension(),
                         (int) getX(), (int) getY(), (int) getZ(),
                         (int) nx, (int) ny, (int) nz
                     ));
@@ -191,27 +191,27 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     // Avoid instant crouching when crossing a scaling portal
-    @Inject(method = "wouldPoseNotCollide", at = @At("HEAD"), cancellable = true)
-    private void onWouldPoseNotCollide(EntityPose pose, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "Lnet/minecraft/world/entity/Entity;canEnterPose(Lnet/minecraft/world/entity/Pose;)Z", at = @At("HEAD"), cancellable = true)
+    private void onWouldPoseNotCollide(Pose pose, CallbackInfoReturnable<Boolean> cir) {
         if (isRecentlyCollidingWithPortal()) {
             cir.setReturnValue(true);
         }
     }
     
     //fix climbing onto ladder cross portal
-    @Inject(method = "getBlockStateAtPos", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/world/entity/Entity;getFeetBlockState()Lnet/minecraft/world/level/block/state/BlockState;", at = @At("HEAD"), cancellable = true)
     private void onGetBlockState(CallbackInfoReturnable<BlockState> cir) {
         Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
         Entity this_ = (Entity) (Object) this;
         if (collidingPortal != null) {
             if (collidingPortal.getNormal().y > 0) {
                 BlockPos remoteLandingPos = new BlockPos(
-                    collidingPortal.transformPoint(this_.getPos())
+                    collidingPortal.transformPoint(this_.position())
                 );
                 
-                World destinationWorld = collidingPortal.getDestinationWorld();
+                Level destinationWorld = collidingPortal.getDestinationWorld();
                 
-                if (destinationWorld.isChunkLoaded(remoteLandingPos)) {
+                if (destinationWorld.hasChunkAt(remoteLandingPos)) {
                     BlockState result = destinationWorld.getBlockState(remoteLandingPos);
                     
                     if (!result.isAir()) {
@@ -233,22 +233,22 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         
         if (collidingPortal != null) {
-            if (collidingPortal.world != world) {
+            if (collidingPortal.level != level) {
                 collidingPortal = null;
             }
             else {
-                Box stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
-                if (!stretchedBoundingBox.expand(0.5).intersects(collidingPortal.getBoundingBox())) {
+                AABB stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
+                if (!stretchedBoundingBox.inflate(0.5).intersects(collidingPortal.getBoundingBox())) {
                     collidingPortal = null;
                 }
             }
             
-            if (Math.abs(age - collidingPortalActiveTickTime) >= 3) {
+            if (Math.abs(tickCount - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
             }
         }
         
-        if (world.isClient) {
+        if (level.isClientSide) {
             IPMcHelper.onClientEntityTick(this_);
         }
     }
@@ -258,13 +258,13 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         
         collidingPortal = portal;
-        collidingPortalActiveTickTime = age;//world time may jump due to time synchroization
+        collidingPortalActiveTickTime = tickCount;//world time may jump due to time synchroization
         ((Portal) portal).onCollidingWithEntity(this_);
     }
     
     @Override
     public boolean isRecentlyCollidingWithPortal() {
-        return (age - collidingPortalActiveTickTime) < 20;
+        return (tickCount - collidingPortalActiveTickTime) < 20;
     }
     
     @Override

@@ -3,12 +3,12 @@ package qouteall.imm_ptl.core.platform_specific;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -50,13 +50,13 @@ public class RequiemCompat {
         
     }
     
-    public static MobEntity getPossessedEntity(PlayerEntity player) {
+    public static Mob getPossessedEntity(Player player) {
         Validate.isTrue(isRequiemPresent);
         
         Object possessionComponent = Helper.noError(() -> method_asPossessor.invoke(player));
         Object possessedEntity = Helper.noError(() ->
             method_getPossessedEntity.invoke(possessionComponent));
-        return (MobEntity) possessedEntity;
+        return (Mob) possessedEntity;
     }
     
     @Environment(EnvType.CLIENT)
@@ -65,32 +65,32 @@ public class RequiemCompat {
             return;
         }
         
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        MobEntity possessedEntity = getPossessedEntity(player);
+        LocalPlayer player = Minecraft.getInstance().player;
+        Mob possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.world != player.world) {
+            if (possessedEntity.level != player.level) {
                 Helper.log("Move Requiem Possessed Entity at Client");
                 ClientTeleportationManager.moveClientEntityAcrossDimension(
                     possessedEntity,
-                    ((ClientWorld) player.world),
-                    player.getPos()
+                    ((ClientLevel) player.level),
+                    player.position()
                 );
             }
         }
     }
     
-    public static void onPlayerTeleportedServer(ServerPlayerEntity player) {
+    public static void onPlayerTeleportedServer(ServerPlayer player) {
         if (!isRequiemPresent) {
             return;
         }
         
-        MobEntity possessedEntity = getPossessedEntity(player);
+        Mob possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.world != player.world) {
+            if (possessedEntity.level != player.level) {
                 Helper.log("Move Requiem Posessed Entity at Server");
                 IPGlobal.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
-                    player.world.getRegistryKey(),
+                    player.level.dimension(),
                     McHelper.getEyePos(player),
                     false
                 );

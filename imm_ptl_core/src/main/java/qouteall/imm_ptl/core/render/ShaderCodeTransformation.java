@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.render;
 
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.client.gl.Program;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.shaders.Program;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -50,7 +50,7 @@ public class ShaderCodeTransformation {
     
     public static void init() {
         if (IPGlobal.enableClippingMechanism) {
-            String json = McHelper.readTextResource(new Identifier(
+            String json = McHelper.readTextResource(new ResourceLocation(
                 "immersive_portals:shaders/shader_transformation.json"
             ));
             configs = IPGlobal.gson.fromJson(

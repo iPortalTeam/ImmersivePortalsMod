@@ -1,25 +1,22 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.GuiHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DimListWidget extends EntryListWidget<DimEntryWidget> {
+public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
     public final List<DimEntryWidget> entryWidgets = new ArrayList<>();
     public final Screen parent;
     private final Type type;
     
     @Override
-    public void appendNarrations(NarrationMessageBuilder builder) {
+    public void updateNarration(NarrationElementOutput builder) {
     
     }
     
@@ -36,7 +33,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         Screen parent,
         Type type
     ) {
-        super(MinecraftClient.getInstance(), width, height, top, bottom, itemHeight);
+        super(Minecraft.getInstance(), width, height, top, bottom, itemHeight);
         this.parent = parent;
         this.type = type;
         
@@ -66,7 +63,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (type == Type.mainDimensionList) {
-            DimEntryWidget selected = getSelectedOrNull();
+            DimEntryWidget selected = getSelected();
             
             if (selected != null) {
                 DimEntryWidget mouseOn = getEntryAtPosition(mouseX, mouseY);
@@ -106,7 +103,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
 //    }
     
     @Override
-    protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
+    protected void renderList(PoseStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
         super.renderList(matrices, x, y, mouseX, mouseY, delta);
         
         if (type == Type.mainDimensionList) {
@@ -115,13 +112,13 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     }
     
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
     }
     
-    private void renderLoopButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    private void renderLoopButton(PoseStack matrices, int mouseX, int mouseY, float delta) {
         int localOffset = getMaxPosition() - 35;
-        int currY = top + 4 - (int) getScrollAmount() + localOffset;
+        int currY = y0 + 4 - (int) getScrollAmount() + localOffset;
 //        extraLoopButton.y = currY;
 //        extraLoopButton.x = getRowLeft() + 100;
 //

@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
@@ -44,16 +44,16 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
         doPortalRendering(matrixStack);
     }
     
-    private void doPortalRendering(MatrixStack matrixStack) {
+    private void doPortalRendering(PoseStack matrixStack) {
         // maybe fix issue with modern industrialization
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
         
-        client.getProfiler().swap("render_portal_total");
+        client.getProfiler().popPush("render_portal_total");
         renderPortals(matrixStack);
         if (PortalRendering.isRendering()) {
             setStencilStateForWorldRendering();
@@ -64,21 +64,21 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
         //nothing
     }
     
     @Override
     public void prepareRendering() {
-        IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getFramebuffer();
+        IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getMainRenderTarget();
         if (!ieFrameBuffer.getIsStencilBufferEnabled()) {
             ieFrameBuffer.setIsStencilBufferEnabledAndReload(true);
-            if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+            if (Minecraft.useShaderTransparency()) {
 //                client.worldRenderer.reload();
             }
         }
@@ -107,7 +107,7 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     protected void doRenderPortal(
         PortalLike portal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
         if (shouldSkipRenderingInsideFuseViewPortal(portal)) {
             return;
@@ -167,7 +167,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void renderPortalViewAreaToStencil(
-        PortalLike portal, MatrixStack matrixStack
+        PortalLike portal, PoseStack matrixStack
     ) {
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
@@ -186,8 +186,8 @@ public class RendererUsingStencil extends PortalRenderer {
         FrontClipping.updateInnerClipping(matrixStack);
         
         ViewAreaRenderer.renderPortalArea(
-            portal, Vec3d.ZERO,
-            matrixStack.peek().getPositionMatrix(),
+            portal, Vec3.ZERO,
+            matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix(),
             true, true,
             true);
@@ -222,7 +222,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void restoreDepthOfPortalViewArea(
-        PortalLike portal, MatrixStack matrixStack
+        PortalLike portal, PoseStack matrixStack
     ) {
         setStencilStateForWorldRendering();
         
@@ -233,8 +233,8 @@ public class RendererUsingStencil extends PortalRenderer {
         FrontClipping.disableClipping();
         
         ViewAreaRenderer.renderPortalArea(
-            portal, Vec3d.ZERO,
-            matrixStack.peek().getPositionMatrix(),
+            portal, Vec3.ZERO,
+            matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix(),
             false,
             false,
@@ -296,11 +296,11 @@ public class RendererUsingStencil extends PortalRenderer {
             return false;
         }
         
-        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
-        Vec3d transformedCameraPos = portal.transformPoint(renderingPortal.transformPoint(cameraPos));
+        Vec3 transformedCameraPos = portal.transformPoint(renderingPortal.transformPoint(cameraPos));
         
         // roughly test whether they are reverse portals
-        return cameraPos.squaredDistanceTo(transformedCameraPos) < 0.1;
+        return cameraPos.distanceToSqr(transformedCameraPos) < 0.1;
     }
 }

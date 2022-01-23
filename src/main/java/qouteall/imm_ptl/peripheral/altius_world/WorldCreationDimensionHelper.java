@@ -4,18 +4,18 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.DataPackSettings;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.resource.ServerResourceManager;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.util.Util;
-import net.minecraft.util.dynamic.RegistryOps;
-import net.minecraft.util.dynamic.RegistryReadingOps;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.DataPackConfig;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import qouteall.q_misc_util.Helper;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,29 +24,29 @@ import java.util.concurrent.ExecutionException;
 public class WorldCreationDimensionHelper {
     
     public static ResourceManager fetchResourceManager(
-        ResourcePackManager resourcePackManager,
-        DataPackSettings dataPackSettings,
-        DynamicRegistryManager.Impl dynamicRegistryManager
+        PackRepository resourcePackManager,
+        DataPackConfig dataPackSettings,
+        RegistryAccess.RegistryHolder dynamicRegistryManager
     ) {
-        final MinecraftClient client = MinecraftClient.getInstance();
+        final Minecraft client = Minecraft.getInstance();
         
         Helper.log("Getting Dimension List");
         
-        DataPackSettings dataPackSettings2 = MinecraftServer.loadDataPacks(
+        DataPackConfig dataPackSettings2 = MinecraftServer.configurePackRepository(
             resourcePackManager, dataPackSettings, true
         );
-        CompletableFuture<ServerResourceManager> completableFuture =
-            ServerResourceManager.reload(
-                resourcePackManager.createResourcePacks(),
+        CompletableFuture<ServerResources> completableFuture =
+            ServerResources.loadResources(
+                resourcePackManager.openAllSelected(),
                 dynamicRegistryManager,
-                CommandManager.RegistrationEnvironment.INTEGRATED,
-                2, Util.getMainWorkerExecutor(), client
+                Commands.CommandSelection.INTEGRATED,
+                2, Util.backgroundExecutor(), client
             );
         
-        client.runTasks(completableFuture::isDone);
-        ServerResourceManager serverResourceManager = null;
+        client.managedBlock(completableFuture::isDone);
+        ServerResources serverResourceManager = null;
         try {
-            serverResourceManager = (ServerResourceManager) completableFuture.get();
+            serverResourceManager = (ServerResources) completableFuture.get();
         }
         catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -55,26 +55,26 @@ public class WorldCreationDimensionHelper {
         return serverResourceManager.getResourceManager();
     }
     
-    public static GeneratorOptions getPopulatedGeneratorOptions(
-        DynamicRegistryManager.Impl registryTracker, ResourceManager resourceManager,
-        GeneratorOptions generatorOptions
+    public static WorldGenSettings getPopulatedGeneratorOptions(
+        RegistryAccess.RegistryHolder registryTracker, ResourceManager resourceManager,
+        WorldGenSettings generatorOptions
     ) {
-        RegistryReadingOps<JsonElement> registryReadingOps =
-            RegistryReadingOps.of(JsonOps.INSTANCE, registryTracker);
-        RegistryOps<JsonElement> registryOps =
-            RegistryOps.ofLoaded(JsonOps.INSTANCE, (ResourceManager) resourceManager, registryTracker);
+        RegistryWriteOps<JsonElement> registryReadingOps =
+            RegistryWriteOps.create(JsonOps.INSTANCE, registryTracker);
+        RegistryReadOps<JsonElement> registryOps =
+            RegistryReadOps.createAndLoad(JsonOps.INSTANCE, (ResourceManager) resourceManager, registryTracker);
         
-        DynamicRegistryManager.load(registryTracker, registryOps);
+        RegistryAccess.load(registryTracker, registryOps);
         
-        DataResult<GeneratorOptions> dataResult =
-            GeneratorOptions.CODEC.encodeStart(registryReadingOps, generatorOptions)
+        DataResult<WorldGenSettings> dataResult =
+            WorldGenSettings.CODEC.encodeStart(registryReadingOps, generatorOptions)
                 .setLifecycle(Lifecycle.stable())
                 .flatMap((jsonElement) -> {
-                    return GeneratorOptions.CODEC.parse(registryOps, jsonElement);
+                    return WorldGenSettings.CODEC.parse(registryOps, jsonElement);
                 });
         
-        GeneratorOptions result = (GeneratorOptions) dataResult.resultOrPartial(
-            Util.addPrefix(
+        WorldGenSettings result = (WorldGenSettings) dataResult.resultOrPartial(
+            Util.prefix(
                 "Error reading worldgen settings after loading data packs: ",
                 Helper::log
             )
@@ -95,11 +95,11 @@ public class WorldCreationDimensionHelper {
 //        return populateGeneratorOptions1(rawGeneratorOptions, registryManager, resourcePackManager, dataPackSettings);
 //    }
     
-    public static GeneratorOptions populateGeneratorOptions1(
-        GeneratorOptions rawGeneratorOptions,
-        DynamicRegistryManager.Impl registryManager,
-        ResourcePackManager resourcePackManager,
-        DataPackSettings dataPackSettings
+    public static WorldGenSettings populateGeneratorOptions1(
+        WorldGenSettings rawGeneratorOptions,
+        RegistryAccess.RegistryHolder registryManager,
+        PackRepository resourcePackManager,
+        DataPackConfig dataPackSettings
     ) {
         ResourceManager resourceManager = fetchResourceManager(
             resourcePackManager,
@@ -107,7 +107,7 @@ public class WorldCreationDimensionHelper {
             registryManager
         );
         
-        GeneratorOptions populatedGeneratorOptions = getPopulatedGeneratorOptions(
+        WorldGenSettings populatedGeneratorOptions = getPopulatedGeneratorOptions(
             registryManager, resourceManager, rawGeneratorOptions
         );
         return populatedGeneratorOptions;

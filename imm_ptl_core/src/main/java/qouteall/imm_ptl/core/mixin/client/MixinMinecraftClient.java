@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.thread.ReentrantThreadExecutor;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -25,35 +25,35 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import javax.annotation.Nullable;
 
-@Mixin(MinecraftClient.class)
-public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runnable> implements IEMinecraftClient {
+@Mixin(Minecraft.class)
+public abstract class MixinMinecraftClient extends ReentrantBlockableEventLoop<Runnable> implements IEMinecraftClient {
     @Final
     @Shadow
     @Mutable
-    private Framebuffer framebuffer;
+    private RenderTarget mainRenderTarget;
     
     @Shadow
-    public Screen currentScreen;
+    public Screen screen;
     
     @Mutable
     @Shadow
     @Final
-    public WorldRenderer worldRenderer;
+    public LevelRenderer levelRenderer;
     
     @Shadow
-    private static int currentFps;
+    private static int fps;
     
     @Shadow
-    public abstract Profiler getProfiler();
+    public abstract ProfilerFiller getProfiler();
     
     @Shadow
     @Nullable
-    public ClientWorld world;
+    public ClientLevel level;
     
     @Mutable
     @Shadow
     @Final
-    private BufferBuilderStorage bufferBuilders;
+    private RenderBuffers renderBuffers;
     
     public MixinMinecraftClient(String string) {
         super(string);
@@ -61,10 +61,10 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     }
     
     @Inject(
-        method = "tick",
+        method = "Lnet/minecraft/client/Minecraft;tick()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V",
+            target = "Lnet/minecraft/client/multiplayer/ClientLevel;tick(Ljava/util/function/BooleanSupplier;)V",
             shift = At.Shift.AFTER
         )
     )
@@ -77,27 +77,27 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     }
     
     @Inject(
-        method = "render",
+        method = "Lnet/minecraft/client/Minecraft;runTick(Z)V",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/client/MinecraftClient;currentFps:I",
+            target = "Lnet/minecraft/client/Minecraft;fps:LI;",
             shift = At.Shift.AFTER
         )
     )
     private void onSnooperUpdate(boolean tick, CallbackInfo ci) {
-        ClientPerformanceMonitor.updateEverySecond(currentFps);
+        ClientPerformanceMonitor.updateEverySecond(fps);
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V",
+        method = "Lnet/minecraft/client/Minecraft;updateLevelInEngines(Lnet/minecraft/client/multiplayer/ClientLevel;)V",
         at = @At("HEAD")
     )
-    private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
+    private void onSetWorld(ClientLevel clientWorld_1, CallbackInfo ci) {
         IPGlobal.clientCleanupSignal.emit();
     }
     
     //avoid messing up rendering states in fabulous
-    @Inject(method = "isFabulousGraphicsOrBetter", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/Minecraft;useShaderTransparency()Z", at = @At("HEAD"), cancellable = true)
     private static void onIsFabulousGraphicsOrBetter(CallbackInfoReturnable<Boolean> cir) {
         if (WorldRenderInfo.isRendering()) {
             cir.setReturnValue(false);
@@ -107,15 +107,15 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     // when processing redirected message, a mod packet processing may call execute()
     // then the task gets delayed. keep the hacky redirect after delaying
     @Inject(
-        method = "createTask",
+        method = "Lnet/minecraft/client/Minecraft;wrapRunnable(Ljava/lang/Runnable;)Ljava/lang/Runnable;",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
-        MinecraftClient this_ = (MinecraftClient) (Object) this;
-        if (this_.isOnThread()) {
+        Minecraft this_ = (Minecraft) (Object) this;
+        if (this_.isSameThread()) {
             if (IPCommonNetworkClient.getIsProcessingRedirectedMessage()) {
-                ClientWorld currWorld = this_.world;
+                ClientLevel currWorld = this_.level;
                 Runnable newRunnable = () -> {
                     IPCommonNetworkClient.withSwitchedWorld(currWorld, runnable);
                 };
@@ -128,8 +128,8 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
      * Make sure that the redirected packet handling won't be delayed
      */
     @Override
-    public boolean shouldExecuteAsync() {
-        boolean onThread = isOnThread();
+    public boolean scheduleExecutables() {
+        boolean onThread = isSameThread();
         
         if (onThread) {
             if (IPCommonNetworkClient.isProcessingRedirectedMessage) {
@@ -137,26 +137,26 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
             }
         }
         
-        return this.hasRunningTasks() || !onThread;
+        return this.runningTask() || !onThread;
     }
     
     @Override
-    public void setFrameBuffer(Framebuffer buffer) {
-        framebuffer = buffer;
+    public void setFrameBuffer(RenderTarget buffer) {
+        mainRenderTarget = buffer;
     }
     
     @Override
     public Screen getCurrentScreen() {
-        return currentScreen;
+        return screen;
     }
     
     @Override
-    public void setWorldRenderer(WorldRenderer r) {
-        worldRenderer = r;
+    public void setWorldRenderer(LevelRenderer r) {
+        levelRenderer = r;
     }
     
     @Override
-    public void setBufferBuilderStorage(BufferBuilderStorage arg) {
-        bufferBuilders = arg;
+    public void setBufferBuilderStorage(RenderBuffers arg) {
+        renderBuffers = arg;
     }
 }

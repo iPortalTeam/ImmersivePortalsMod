@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.debug.isometric;
 
-import net.minecraft.client.render.Camera;
+import net.minecraft.client.Camera;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Camera.class)

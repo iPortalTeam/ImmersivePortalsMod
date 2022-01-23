@@ -2,10 +2,10 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 
@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 public class ClassicalForm extends NetherPortalLikeForm {
     public static final Codec<ClassicalForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.getCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.getCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.getCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
         ).apply(instance, instance.stable(ClassicalForm::new));
     });
@@ -51,15 +51,15 @@ public class ClassicalForm extends NetherPortalLikeForm {
     
     @Override
     public void generateNewFrame(
-        ServerWorld fromWorld,
+        ServerLevel fromWorld,
         BlockPortalShape fromShape,
-        ServerWorld toWorld,
+        ServerLevel toWorld,
         BlockPortalShape toShape
     ) {
         NetherPortalGeneration.embodyNewFrame(
             toWorld,
             toShape,
-            toFrameBlock.getDefaultState()
+            toFrameBlock.defaultBlockState()
         );
     }
     

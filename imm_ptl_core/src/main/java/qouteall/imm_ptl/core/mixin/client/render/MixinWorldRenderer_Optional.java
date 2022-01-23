@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BuiltChunkStorage;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ViewArea;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,61 +21,61 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 // avoid crashing with sodium
 // the overwrite has priority of 1000
-@Mixin(value = WorldRenderer.class, priority = 1100)
+@Mixin(value = LevelRenderer.class, priority = 1100)
 public class MixinWorldRenderer_Optional {
     @Shadow
-    private BuiltChunkStorage chunks;
+    private ViewArea viewArea;
     
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
     
     //avoid translucent sort while rendering portal
     @Redirect(
-        method = "renderLayer",
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;",
+            target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
             ordinal = 0
         ),
         require = 0
     )
-    private RenderLayer redirectGetTranslucent() {
+    private RenderType redirectGetTranslucent() {
         if (PortalRendering.isRendering()) {
             return null;
         }
-        return RenderLayer.getTranslucent();
+        return RenderType.translucent();
     }
     
     //the camera position is used for translucent sort
     //avoid messing it
     @Redirect(
-        method = "setupTerrain",
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;setCamera(Lnet/minecraft/world/phys/Vec3;)V"
         ),
         require = 0
     )
-    private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
+    private void onSetChunkBuilderCameraPosition(ChunkRenderDispatcher chunkBuilder, Vec3 cameraPosition) {
         if (PortalRendering.isRendering()) {
-            if (client.world.getRegistryKey() == RenderStates.originalPlayerDimension) {
+            if (minecraft.level.dimension() == RenderStates.originalPlayerDimension) {
                 return;
             }
         }
-        chunkBuilder.setCameraPosition(cameraPosition);
+        chunkBuilder.setCamera(cameraPosition);
     }
     
     @Inject(
-        method = "renderLayer",
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/BufferRenderer;unbindAll()V"
+            target = "Lcom/mojang/blaze3d/vertex/BufferUploader;reset()V"
         ),
         require = 0
     )
     private void onGetShaderInRenderingLayer(
-        RenderLayer renderLayer, MatrixStack matrices,
+        RenderType renderLayer, PoseStack matrices,
         double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
     ) {
         FrontClipping.updateClippingEquationUniformForCurrentShader(false);

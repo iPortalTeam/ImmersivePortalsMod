@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldGenerationProgressListener;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.progress.ChunkProgressListener;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,27 +18,27 @@ import java.util.Map;
 @Mixin(MinecraftServer.class)
 public abstract class MixinMinecraftServer_DimStack {
     @Shadow
-    public abstract ServerWorld getWorld(RegistryKey<World> dimensionType);
+    public abstract ServerLevel getLevel(ResourceKey<Level> dimensionType);
     
-    @Shadow @Final private Map<RegistryKey<World>, ServerWorld> worlds;
+    @Shadow @Final private Map<ResourceKey<Level>, ServerLevel> levels;
     
     @Inject(
-        method = "createWorlds",
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/MinecraftServer;setupSpawn(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/level/ServerWorldProperties;ZZ)V"
+            target = "Lnet/minecraft/server/MinecraftServer;setInitialSpawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ServerLevelData;ZZ)V"
         )
     )
-    private void onBeforeSetupSpawn(WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci) {
+    private void onBeforeSetupSpawn(ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci) {
         AltiusManagement.onServerEarlyInit((MinecraftServer) (Object) this);
     }
     
     @Inject(
-        method = "createWorlds",
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
         at = @At("RETURN")
     )
     private void onCreateWorldsFinishes(
-        WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci
+        ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci
     ) {
         AltiusManagement.onServerCreatedWorlds((MinecraftServer) (Object) this);
     }

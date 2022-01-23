@@ -1,10 +1,9 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
@@ -20,8 +19,8 @@ public class CloudContext {
     public int lastCloudsBlockX = 0;
     public int lastCloudsBlockY = 0;
     public int lastCloudsBlockZ = 0;
-    public RegistryKey<World> dimension = null;
-    public Vec3d cloudColor;
+    public ResourceKey<Level> dimension = null;
+    public Vec3 cloudColor;
     
     public VertexBuffer cloudsBuffer = null;
     
@@ -52,14 +51,14 @@ public class CloudContext {
     @Nullable
     public static CloudContext findAndTakeContext(
         int lastCloudsBlockX, int lastCloudsBlockY, int lastCloudsBlockZ,
-        RegistryKey<World> dimension, Vec3d cloudColor
+        ResourceKey<Level> dimension, Vec3 cloudColor
     ) {
         int i = Helper.indexOf(contexts, c ->
             c.lastCloudsBlockX == lastCloudsBlockX &&
                 c.lastCloudsBlockY == lastCloudsBlockY &&
                 c.lastCloudsBlockZ == lastCloudsBlockZ &&
                 c.dimension == dimension &&
-                c.cloudColor.squaredDistanceTo(cloudColor) < 2.0E-4D
+                c.cloudColor.distanceToSqr(cloudColor) < 2.0E-4D
         );
         
         if (i == -1) {

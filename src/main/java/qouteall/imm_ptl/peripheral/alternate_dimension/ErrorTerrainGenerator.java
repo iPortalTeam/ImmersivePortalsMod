@@ -3,19 +3,19 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ProtoChunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
@@ -30,14 +30,14 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     public static final int averageY = 64;
     public static final int maxY = 128;
     
-    private final BlockState air = Blocks.AIR.getDefaultState();
-    private final BlockState defaultBlock = Blocks.STONE.getDefaultState();
-    private final BlockState defaultFluid = Blocks.WATER.getDefaultState();
+    private final BlockState air = Blocks.AIR.defaultBlockState();
+    private final BlockState defaultBlock = Blocks.STONE.defaultBlockState();
+    private final BlockState defaultFluid = Blocks.WATER.defaultBlockState();
     
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
     public ErrorTerrainGenerator(long seed, ChunkGenerator delegate, BiomeSource biomeSource) {
-        super(biomeSource, new StructuresConfig(true), delegate);
+        super(biomeSource, new StructureSettings(true), delegate);
         
         cache = CacheBuilder.newBuilder()
             .maximumSize(10000)
@@ -56,12 +56,12 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     }
     
     @Override
-    public CompletableFuture<Chunk> populateNoise(Executor executor, Blender arg, StructureAccessor structureAccessor, Chunk chunk) {
-        ChunkSection[] sectionArray = chunk.getSectionArray();
-        ArrayList<ChunkSection> locked = new ArrayList<>();
-        for (ChunkSection chunkSection : sectionArray) {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
+        LevelChunkSection[] sectionArray = chunk.getSections();
+        ArrayList<LevelChunkSection> locked = new ArrayList<>();
+        for (LevelChunkSection chunkSection : sectionArray) {
             if (chunkSection != null) {
-                chunkSection.lock();
+                chunkSection.acquire();
                 locked.add(chunkSection);
             }
         }
@@ -69,20 +69,20 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             doPopulateNoise(chunk);
             return chunk;
         }, executor).thenApplyAsync((chunkx) -> {
-            for (ChunkSection chunkSection : locked) {
-                chunkSection.unlock();
+            for (LevelChunkSection chunkSection : locked) {
+                chunkSection.release();
             }
             
             return chunkx;
         }, executor);
     }
     
-    public void doPopulateNoise(Chunk chunk) {
+    public void doPopulateNoise(ChunkAccess chunk) {
         ProtoChunk protoChunk = (ProtoChunk) chunk;
         ChunkPos pos = chunk.getPos();
-        Heightmap oceanFloorHeightMap = protoChunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
-        Heightmap surfaceHeightMap = protoChunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        Heightmap oceanFloorHeightMap = protoChunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap surfaceHeightMap = protoChunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         
         int regionX = Math.floorDiv(pos.x, regionChunkNum);
         int regionZ = Math.floorDiv(pos.z, regionChunkNum);
@@ -91,7 +91,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
         );
         
         for (int sectionY = 0; sectionY < 16; sectionY++) {
-            ChunkSection section = protoChunk.getSection(sectionY);
+            LevelChunkSection section = protoChunk.getSection(sectionY);
             
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
@@ -106,8 +106,8 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
                         
                         if (currBlockState != air) {
                             section.setBlockState(localX, localY, localZ, currBlockState, false);
-                            oceanFloorHeightMap.trackUpdate(localX, worldY, localZ, currBlockState);
-                            surfaceHeightMap.trackUpdate(localX, worldY, localZ, currBlockState);
+                            oceanFloorHeightMap.update(localX, worldY, localZ, currBlockState);
+                            surfaceHeightMap.update(localX, worldY, localZ, currBlockState);
                         }
                     }
                 }

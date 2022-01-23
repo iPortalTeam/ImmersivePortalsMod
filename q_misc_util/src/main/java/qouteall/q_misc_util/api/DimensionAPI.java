@@ -3,15 +3,15 @@ package qouteall.q_misc_util.api;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.GeneratorOptions;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.MiscHelper;
@@ -24,7 +24,7 @@ public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
     
     public static interface ServerDimensionsLoadCallback {
-        void run(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager);
+        void run(WorldGenSettings generatorOptions, RegistryAccess registryManager);
     }
     
     public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
@@ -37,19 +37,19 @@ public class DimensionAPI {
             })
         );
     
-    private static final Set<Identifier> nonPersistentDimensions = new HashSet<>();
+    private static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     
     public static void addDimension(
         long argSeed,
-        SimpleRegistry<DimensionOptions> dimensionOptionsRegistry,
-        Identifier dimensionId,
+        MappedRegistry<LevelStem> dimensionOptionsRegistry,
+        ResourceLocation dimensionId,
         Supplier<DimensionType> dimensionTypeSupplier,
         ChunkGenerator chunkGenerator
     ) {
-        if (!dimensionOptionsRegistry.getIds().contains(dimensionId)) {
-            dimensionOptionsRegistry.add(
-                RegistryKey.of(Registry.DIMENSION_KEY, dimensionId),
-                new DimensionOptions(
+        if (!dimensionOptionsRegistry.keySet().contains(dimensionId)) {
+            dimensionOptionsRegistry.register(
+                ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
+                new LevelStem(
                     dimensionTypeSupplier,
                     chunkGenerator
                 ),
@@ -58,7 +58,7 @@ public class DimensionAPI {
         }
     }
     
-    public static void markDimensionNonPersistent(Identifier dimensionId) {
+    public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
         nonPersistentDimensions.add(dimensionId);
     }
     
@@ -66,8 +66,8 @@ public class DimensionAPI {
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
     // then the nether and the end will be swallowed (https://github.com/TelepathicGrunt/Bumblezone-Fabric/issues/20)
     // to fix that, don't store the custom dimensions into level.dat
-    public static SimpleRegistry<DimensionOptions> _getAdditionalDimensionsRemoved(
-        SimpleRegistry<DimensionOptions> registry
+    public static MappedRegistry<LevelStem> _getAdditionalDimensionsRemoved(
+        MappedRegistry<LevelStem> registry
     ) {
         if (nonPersistentDimensions.isEmpty()) {
             return registry;
@@ -76,7 +76,7 @@ public class DimensionAPI {
         return MiscHelper.filterAndCopyRegistry(
             registry,
             (key, obj) -> {
-                Identifier identifier = key.getValue();
+                ResourceLocation identifier = key.location();
                 return !nonPersistentDimensions.contains(identifier);
             }
         );

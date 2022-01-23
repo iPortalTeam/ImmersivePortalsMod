@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 
 public class FlippingFloorSquareForm extends PortalGenForm {
     
-    public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK.getCodec());
+    public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK.byNameCodec());
     
     public static final Codec<FlippingFloorSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
@@ -76,8 +76,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
     @Override
     public boolean perform(
         CustomPortalGeneration cpg,
-        ServerWorld fromWorld, BlockPos startingPos,
-        ServerWorld toWorld,
+        ServerLevel fromWorld, BlockPos startingPos,
+        ServerLevel toWorld,
         @Nullable Entity triggeringEntity
     ) {
         Predicate<BlockState> areaPredicate = areaBlock;
@@ -88,7 +88,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
             return false;
         }
         
-        if (!bottomPredicate.test(fromWorld.getBlockState(startingPos.down()))) {
+        if (!bottomPredicate.test(fromWorld.getBlockState(startingPos.below()))) {
             return false;
         }
         
@@ -115,14 +115,14 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         
         BlockPos offset = placingBox.l.subtract(fromShape.innerAreaBox.l);
         BlockPortalShape toShape = fromShape.getShapeWithMovedAnchor(
-            fromShape.anchor.add(offset)
+            fromShape.anchor.offset(offset)
         );
         
         // clone the frame into the destination
         fromShape.frameAreaWithoutCorner.forEach(fromWorldPos -> {
-            BlockPos toWorldPos = fromWorldPos.add(offset);
-            toWorld.setBlockState(toWorldPos, fromWorld.getBlockState(fromWorldPos));
-            toWorld.setBlockState(toWorldPos.up(), fromWorld.getBlockState(fromWorldPos.up()));
+            BlockPos toWorldPos = fromWorldPos.offset(offset);
+            toWorld.setBlockAndUpdate(toWorldPos, fromWorld.getBlockState(fromWorldPos));
+            toWorld.setBlockAndUpdate(toWorldPos.above(), fromWorld.getBlockState(fromWorldPos.above()));
         });
         NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, fromShape);
         NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, toShape);
@@ -134,20 +134,20 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         return true;
     }
     
-    public boolean checkFromShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public boolean checkFromShape(ServerLevel fromWorld, BlockPortalShape fromShape) {
         boolean areaSizeTest = BlockPortalShape.isSquareShape(fromShape, length);
         if (!areaSizeTest) {
             return false;
         }
         
         return fromShape.frameAreaWithoutCorner.stream().allMatch(
-            blockPos -> (upFrameBlock).test(fromWorld.getBlockState(blockPos.up()))
+            blockPos -> (upFrameBlock).test(fromWorld.getBlockState(blockPos.above()))
         ) && fromShape.area.stream().allMatch(
-            blockPos -> (bottomBlock).test(fromWorld.getBlockState(blockPos.down()))
+            blockPos -> (bottomBlock).test(fromWorld.getBlockState(blockPos.below()))
         );
     }
     
-    public static IntBox findPortalPlacement(ServerWorld toWorld, BlockPos areaSize, BlockPos toPos) {
+    public static IntBox findPortalPlacement(ServerLevel toWorld, BlockPos areaSize, BlockPos toPos) {
         return IntStream.range(toPos.getX() - 8, toPos.getX() + 8).boxed()
             .flatMap(x -> IntStream.range(toPos.getZ() - 8, toPos.getZ() + 8).boxed()
                 .flatMap(z -> IntStream.range(
@@ -161,13 +161,13 @@ public class FlippingFloorSquareForm extends PortalGenForm {
             .filter(intBox -> intBox.stream().allMatch(
                 pos -> {
                     BlockState blockState = toWorld.getBlockState(pos);
-                    return !blockState.isOpaqueFullCube(toWorld, pos) &&
+                    return !blockState.isSolidRender(toWorld, pos) &&
                         blockState.getBlock() != PortalPlaceholderBlock.instance &&
                         blockState.getFluidState().isEmpty();
                 }
             ))
             .filter(intBox -> intBox.getSurfaceLayer(Direction.DOWN)
-                .getMoved(Direction.DOWN.getVector())
+                .getMoved(Direction.DOWN.getNormal())
                 .stream().allMatch(
                     blockPos -> {
                         BlockState blockState = toWorld.getBlockState(blockPos);
@@ -177,20 +177,20 @@ public class FlippingFloorSquareForm extends PortalGenForm {
                 )
             )
             .findFirst().orElseGet(() -> IntBox.getBoxByBasePointAndSize(areaSize, toPos))
-            .getMoved(Direction.DOWN.getVector());
+            .getMoved(Direction.DOWN.getNormal());
     }
     
     public static GeneralBreakablePortal[] createPortals(
-        ServerWorld fromWorld, ServerWorld toWorld,
+        ServerLevel fromWorld, ServerLevel toWorld,
         BlockPortalShape fromShape, BlockPortalShape toShape
     ) {
         GeneralBreakablePortal pa = GeneralBreakablePortal.entityType.create(fromWorld);
         fromShape.initPortalPosAxisShape(pa, true);
         
         pa.setDestination(toShape.innerAreaBox.getCenterVec());
-        pa.dimensionTo = toWorld.getRegistryKey();
+        pa.dimensionTo = toWorld.dimension();
         pa.rotation = new Quaternion(
-            new Vec3f(1, 0, 0),
+            new Vector3f(1, 0, 0),
             180,
             true
         );
@@ -200,8 +200,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         
         pa.blockPortalShape = fromShape;
         pb.blockPortalShape = toShape;
-        pa.reversePortalId = pb.getUuid();
-        pb.reversePortalId = pa.getUuid();
+        pa.reversePortalId = pb.getUUID();
+        pb.reversePortalId = pa.getUUID();
         
         PortalExtension.get(pa).motionAffinity = 0.1;
         PortalExtension.get(pb).motionAffinity = 0.1;

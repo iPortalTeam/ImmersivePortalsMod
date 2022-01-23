@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render.framebuffer;
 
+import com.mojang.blaze3d.pipeline.MainTarget;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.WindowFramebuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
@@ -19,8 +19,8 @@ import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
-@Mixin(WindowFramebuffer.class)
-public abstract class MixinWindowFramebuffer extends Framebuffer {
+@Mixin(MainTarget.class)
+public abstract class MixinWindowFramebuffer extends RenderTarget {
     
     public MixinWindowFramebuffer(boolean useDepth) {
         super(useDepth);
@@ -28,7 +28,7 @@ public abstract class MixinWindowFramebuffer extends Framebuffer {
     }
     
     @Redirect(
-        method = "supportsDepth",
+        method = "Lcom/mojang/blaze3d/pipeline/MainTarget;allocateDepthAttachment(Lcom/mojang/blaze3d/pipeline/MainTarget$Dimension;)Z",
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
@@ -62,7 +62,7 @@ public abstract class MixinWindowFramebuffer extends Framebuffer {
     }
     
     @Redirect(
-        method = "initSize",
+        method = "Lcom/mojang/blaze3d/pipeline/MainTarget;createFrameBuffer(II)V",
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V"

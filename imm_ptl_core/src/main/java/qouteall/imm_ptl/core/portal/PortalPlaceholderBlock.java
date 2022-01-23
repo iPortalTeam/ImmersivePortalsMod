@@ -2,28 +2,28 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 
 import java.util.Random;
 
 public class PortalPlaceholderBlock extends Block {
-    public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;
-    public static final VoxelShape X_AABB = Block.createCuboidShape(
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    public static final VoxelShape X_AABB = Block.box(
         6.0D,
         0.0D,
         0.0D,
@@ -31,7 +31,7 @@ public class PortalPlaceholderBlock extends Block {
         16.0D,
         16.0D
     );
-    public static final VoxelShape Y_AABB = Block.createCuboidShape(
+    public static final VoxelShape Y_AABB = Block.box(
         0.0D,
         6.0D,
         0.0D,
@@ -39,7 +39,7 @@ public class PortalPlaceholderBlock extends Block {
         10.0D,
         16.0D
     );
-    public static final VoxelShape Z_AABB = Block.createCuboidShape(
+    public static final VoxelShape Z_AABB = Block.box(
         0.0D,
         0.0D,
         6.0D,
@@ -50,20 +50,20 @@ public class PortalPlaceholderBlock extends Block {
     
     public static PortalPlaceholderBlock instance;
     
-    public PortalPlaceholderBlock(Settings properties) {
+    public PortalPlaceholderBlock(Properties properties) {
         super(properties);
-        this.setDefaultState(
-            (BlockState) ((BlockState) this.getStateManager().getDefaultState()).with(
+        this.registerDefaultState(
+            (BlockState) ((BlockState) this.getStateDefinition().any()).setValue(
                 AXIS, Direction.Axis.X
             )
         );
     }
     
     @Override
-    public VoxelShape getOutlineShape(
-        BlockState state, BlockView world, BlockPos blockPos, ShapeContext shapeContext
+    public VoxelShape getShape(
+        BlockState state, BlockGetter world, BlockPos blockPos, CollisionContext shapeContext
     ) {
-        switch ((Direction.Axis) state.get(AXIS)) {
+        switch ((Direction.Axis) state.getValue(AXIS)) {
             case Z:
                 return Z_AABB;
             case Y:
@@ -75,31 +75,31 @@ public class PortalPlaceholderBlock extends Block {
     }
     
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
     }
     
     @Override
-    public BlockState getStateForNeighborUpdate(
+    public BlockState updateShape(
         BlockState thisState,
         Direction direction,
         BlockState neighborState,
-        WorldAccess worldAccess,
+        LevelAccessor worldAccess,
         BlockPos blockPos,
         BlockPos neighborPos
     ) {
-        if (!worldAccess.isClient()) {
-            if (worldAccess instanceof World) {
-                World world = (World) worldAccess;
+        if (!worldAccess.isClientSide()) {
+            if (worldAccess instanceof Level) {
+                Level world = (Level) worldAccess;
                 
                 world.getProfiler().push("portal_placeholder");
                 
-                Direction.Axis axis = thisState.get(AXIS);
+                Direction.Axis axis = thisState.getValue(AXIS);
                 if (direction.getAxis() != axis) {
                     McHelper.findEntitiesRough(
                         BreakablePortalEntity.class,
                         world,
-                        Vec3d.of(blockPos),
+                        Vec3.atLowerCornerOf(blockPos),
                         2,
                         e -> true
                     ).forEach(
@@ -113,7 +113,7 @@ public class PortalPlaceholderBlock extends Block {
             }
         }
         
-        return super.getStateForNeighborUpdate(
+        return super.updateShape(
             thisState,
             direction,
             neighborState,
@@ -125,9 +125,9 @@ public class PortalPlaceholderBlock extends Block {
     
     //copied from PortalBlock
     @Override
-    public void randomDisplayTick(
+    public void animateTick(
         BlockState blockState_1,
-        World world_1,
+        Level world_1,
         BlockPos blockPos_1,
         Random random_1
     ) {
@@ -137,24 +137,24 @@ public class PortalPlaceholderBlock extends Block {
     
     //---------These are copied from BlockBarrier
     @Override
-    public boolean isTranslucent(
+    public boolean propagatesSkylightDown(
         BlockState blockState_1,
-        BlockView blockView_1,
+        BlockGetter blockView_1,
         BlockPos blockPos_1
     ) {
         return true;
     }
     
     @Override
-    public BlockRenderType getRenderType(BlockState blockState_1) {
-        return BlockRenderType.INVISIBLE;
+    public RenderShape getRenderShape(BlockState blockState_1) {
+        return RenderShape.INVISIBLE;
     }
     
     @Environment(EnvType.CLIENT)
     @Override
-    public float getAmbientOcclusionLightLevel(
+    public float getShadeBrightness(
         BlockState blockState_1,
-        BlockView blockView_1,
+        BlockGetter blockView_1,
         BlockPos blockPos_1
     ) {
         return 1.0F;

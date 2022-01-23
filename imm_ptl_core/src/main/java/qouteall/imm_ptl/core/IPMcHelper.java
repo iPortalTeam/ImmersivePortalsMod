@@ -1,25 +1,21 @@
 package qouteall.imm_ptl.core;
 
 import com.google.common.collect.Streams;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
-import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +26,11 @@ import java.util.stream.Stream;
 public class IPMcHelper {
     // includes global portals
     public static Stream<Portal> getNearbyPortals(Entity center, double range) {
-        return getNearbyPortals(center.world, center.getPos(), range);
+        return getNearbyPortals(center.level, center.position(), range);
     }
     
     // includes global portals
-    public static Stream<Portal> getNearbyPortals(World world, Vec3d pos, double range) {
+    public static Stream<Portal> getNearbyPortals(Level world, Vec3 pos, double range) {
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         
         Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
@@ -65,10 +61,10 @@ public class IPMcHelper {
      * @author LoganDark
      */
     @SuppressWarnings("WeakerAccess")
-    public static List<Pair<Portal, Vec3d>> rayTracePortals(
-        World world,
-        Vec3d start,
-        Vec3d end,
+    public static List<Tuple<Portal, Vec3>> rayTracePortals(
+        Level world,
+        Vec3 start,
+        Vec3 end,
         boolean includeGlobalPortals,
         Predicate<Portal> filter
     ) {
@@ -76,7 +72,7 @@ public class IPMcHelper {
         // smaller, and as a result, the search to be faster and slightly less inefficient.
         //
         // The searching method employed by getNearbyEntities is still not ideal, but it's the best idea I have.
-        Vec3d middle = start.multiply(0.5).add(end.multiply(0.5));
+        Vec3 middle = start.scale(0.5).add(end.scale(0.5));
         
         // This could result in searching more chunks than necessary, but it always expands to completely cover any
         // chunks the line from start->end passes through.
@@ -89,24 +85,24 @@ public class IPMcHelper {
         
         // Make a list of all portals actually intersecting with this line, and then sort them by the distance from the
         // start position. Nearest portals first.
-        List<Pair<Portal, Vec3d>> hits = new ArrayList<>();
+        List<Tuple<Portal, Vec3>> hits = new ArrayList<>();
         
         nearby.forEach(portal -> {
             if (filter == null || filter.test(portal)) {
-                Vec3d intersection = portal.rayTrace(start, end);
+                Vec3 intersection = portal.rayTrace(start, end);
                 
                 if (intersection != null) {
-                    hits.add(new Pair<>(portal, intersection));
+                    hits.add(new Tuple<>(portal, intersection));
                 }
             }
         });
         
         hits.sort((pair1, pair2) -> {
-            Vec3d intersection1 = pair1.getRight();
-            Vec3d intersection2 = pair2.getRight();
+            Vec3 intersection1 = pair1.getB();
+            Vec3 intersection2 = pair2.getB();
             
             // Return a negative number if intersection1 is smaller (should come first)
-            return (int) Math.signum(intersection1.squaredDistanceTo(start) - intersection2.squaredDistanceTo(
+            return (int) Math.signum(intersection1.distanceToSqr(start) - intersection2.distanceToSqr(
                 start));
         });
         
@@ -124,9 +120,9 @@ public class IPMcHelper {
      * @param <T>   The return type of {@code func}.
      * @return Whatever {@code func} returned.
      */
-    public static <T> T withSwitchedContext(World world, Supplier<T> func) {
-        if (world.isClient) {
-            return IPCommonNetworkClient.withSwitchedWorld((ClientWorld) world, func);
+    public static <T> T withSwitchedContext(Level world, Supplier<T> func) {
+        if (world.isClientSide) {
+            return IPCommonNetworkClient.withSwitchedWorld((ClientLevel) world, func);
         }
         else {
             return func.get();
@@ -137,23 +133,23 @@ public class IPMcHelper {
      * @author LoganDark
      * @see IPMcHelper#rayTrace(World, RaycastContext, boolean, List)
      */
-    private static Pair<BlockHitResult, List<Portal>> rayTrace(
-        World world,
-        RaycastContext context,
+    private static Tuple<BlockHitResult, List<Portal>> rayTrace(
+        Level world,
+        ClipContext context,
         boolean includeGlobalPortals,
         List<Portal> portals
     ) {
-        Vec3d start = context.getStart();
-        Vec3d end = context.getEnd();
+        Vec3 start = context.getFrom();
+        Vec3 end = context.getTo();
         
         // If we're past the max portal layer, don't let the player target behind this portal, create a missed result
         if (portals.size() > IPGlobal.maxPortalLayer) {
-            Vec3d diff = end.subtract(start);
+            Vec3 diff = end.subtract(start);
             
-            return new Pair<>(
-                BlockHitResult.createMissed(
+            return new Tuple<>(
+                BlockHitResult.miss(
                     end,
-                    Direction.getFacing(diff.x, diff.y, diff.z),
+                    Direction.getNearest(diff.x, diff.y, diff.z),
                     new BlockPos(end)
                 ),
                 portals
@@ -161,22 +157,22 @@ public class IPMcHelper {
         }
         
         // First ray trace normally
-        BlockHitResult hitResult = world.raycast(context);
+        BlockHitResult hitResult = world.clip(context);
         
-        List<Pair<Portal, Vec3d>> rayTracedPortals =
+        List<Tuple<Portal, Vec3>> rayTracedPortals =
             rayTracePortals(world, start, end, includeGlobalPortals, Portal::isInteractable);
         
         if (rayTracedPortals.isEmpty()) {
-            return new Pair<>(hitResult, portals);
+            return new Tuple<>(hitResult, portals);
         }
         
-        Pair<Portal, Vec3d> portalHit = rayTracedPortals.get(0);
-        Portal portal = portalHit.getLeft();
-        Vec3d intersection = portalHit.getRight();
+        Tuple<Portal, Vec3> portalHit = rayTracedPortals.get(0);
+        Portal portal = portalHit.getA();
+        Vec3 intersection = portalHit.getB();
         
         // If the portal is not closer, return the hit result we just got
-        if (hitResult.getPos().squaredDistanceTo(start) < intersection.squaredDistanceTo(start)) {
-            return new Pair<>(hitResult, portals);
+        if (hitResult.getLocation().distanceToSqr(start) < intersection.distanceToSqr(start)) {
+            return new Tuple<>(hitResult, portals);
         }
         
         // If the portal is closer, recurse
@@ -188,8 +184,8 @@ public class IPMcHelper {
             .setEnd(portal.transformPoint(end));
         
         portals.add(portal);
-        World destWorld = portal.getDestinationWorld();
-        Pair<BlockHitResult, List<Portal>> recursion = withSwitchedContext(
+        Level destWorld = portal.getDestinationWorld();
+        Tuple<BlockHitResult, List<Portal>> recursion = withSwitchedContext(
             destWorld,
             () -> rayTrace(destWorld, context, includeGlobalPortals, portals)
         );
@@ -215,9 +211,9 @@ public class IPMcHelper {
      * @author LoganDark
      */
     @SuppressWarnings("WeakerAccess")
-    public static Pair<BlockHitResult, List<Portal>> rayTrace(
-        World world,
-        RaycastContext context,
+    public static Tuple<BlockHitResult, List<Portal>> rayTrace(
+        Level world,
+        ClipContext context,
         boolean includeGlobalPortals
     ) {
         return rayTrace(world, context, includeGlobalPortals, new ArrayList<>());

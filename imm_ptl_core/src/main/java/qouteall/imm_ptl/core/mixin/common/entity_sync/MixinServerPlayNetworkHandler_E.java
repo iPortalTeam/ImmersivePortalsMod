@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public class MixinServerPlayNetworkHandler_E {
     @ModifyVariable(
-        method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
         at = @At("HEAD"),
         argsOnly = true
     )

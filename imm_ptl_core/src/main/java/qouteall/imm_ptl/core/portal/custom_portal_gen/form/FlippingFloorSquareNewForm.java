@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
@@ -33,8 +33,8 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     
     @Override
     public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
-        ServerWorld fromWorld = McHelper.getServerWorld(info.from);
-        ServerWorld toWorld = McHelper.getServerWorld(info.to);
+        ServerLevel fromWorld = McHelper.getServerWorld(info.from);
+        ServerLevel toWorld = McHelper.getServerWorld(info.to);
         NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, info.fromShape);
         NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, info.toShape);
         return FlippingFloorSquareForm.createPortals(
@@ -45,7 +45,7 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     }
     
     @Override
-    public boolean testThisSideShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public boolean testThisSideShape(ServerLevel fromWorld, BlockPortalShape fromShape) {
         // only horizontal shape
         if (fromShape.axis != Direction.Axis.Y) {
             return false;
@@ -60,8 +60,8 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     
     @Override
     public PortalGenInfo getNewPortalPlacement(
-        ServerWorld toWorld, BlockPos toPos,
-        ServerWorld fromWorld, BlockPortalShape fromShape
+        ServerLevel toWorld, BlockPos toPos,
+        ServerLevel fromWorld, BlockPortalShape fromShape
     ) {
         IntBox portalPlacement = FlippingFloorSquareForm.findPortalPlacement(
             toWorld,
@@ -72,10 +72,10 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
         BlockPortalShape placedShape = fromShape.getShapeWithMovedTotalAreaBox(portalPlacement);
     
         return new PortalGenInfo(
-            fromWorld.getRegistryKey(), toWorld.getRegistryKey(),
+            fromWorld.dimension(), toWorld.dimension(),
             fromShape, placedShape,
             new Quaternion(
-                new Vec3f(1, 0, 0),
+                new Vector3f(1, 0, 0),
                 180,
                 true
             ), 1.0

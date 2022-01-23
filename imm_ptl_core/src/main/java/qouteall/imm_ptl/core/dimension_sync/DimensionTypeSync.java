@@ -3,14 +3,14 @@ package qouteall.imm_ptl.core.dimension_sync;
 import com.google.common.collect.Streams;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -21,26 +21,26 @@ import java.util.stream.Collectors;
 public class DimensionTypeSync {
     
     @Environment(EnvType.CLIENT)
-    public static Map<RegistryKey<World>, RegistryKey<DimensionType>> clientTypeMap;
+    public static Map<ResourceKey<Level>, ResourceKey<DimensionType>> clientTypeMap;
     
     @Environment(EnvType.CLIENT)
-    private static DynamicRegistryManager currentDimensionTypeTracker;
+    private static RegistryAccess currentDimensionTypeTracker;
     
     @Environment(EnvType.CLIENT)
-    public static void onGameJoinPacketReceived(DynamicRegistryManager tracker) {
+    public static void onGameJoinPacketReceived(RegistryAccess tracker) {
         currentDimensionTypeTracker = tracker;
     }
     
     @Environment(EnvType.CLIENT)
-    private static Map<RegistryKey<World>, RegistryKey<DimensionType>> typeMapFromTag(NbtCompound tag) {
-        Map<RegistryKey<World>, RegistryKey<DimensionType>> result = new HashMap<>();
-        tag.getKeys().forEach(key -> {
-            RegistryKey<World> worldKey = DimId.idToKey(key);
+    private static Map<ResourceKey<Level>, ResourceKey<DimensionType>> typeMapFromTag(CompoundTag tag) {
+        Map<ResourceKey<Level>, ResourceKey<DimensionType>> result = new HashMap<>();
+        tag.getAllKeys().forEach(key -> {
+            ResourceKey<Level> worldKey = DimId.idToKey(key);
             
             String val = tag.getString(key);
             
-            RegistryKey<DimensionType> typeKey =
-                RegistryKey.of(Registry.DIMENSION_TYPE_KEY, new Identifier(val));
+            ResourceKey<DimensionType> typeKey =
+                ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation(val));
             
             result.put(worldKey, typeKey);
         });
@@ -49,32 +49,32 @@ public class DimensionTypeSync {
     }
     
     @Environment(EnvType.CLIENT)
-    public static void acceptTypeMapData(NbtCompound tag) {
+    public static void acceptTypeMapData(CompoundTag tag) {
         clientTypeMap = typeMapFromTag(tag);
         
         Helper.log("Received Dimension Type Sync");
         Helper.log("\n" + Helper.myToString(
             clientTypeMap.entrySet().stream().map(
-                e -> e.getKey().getValue().toString() + " -> " + e.getValue().getValue()
+                e -> e.getKey().location().toString() + " -> " + e.getValue().location()
             )
         ));
     }
     
-    public static NbtCompound createTagFromServerWorldInfo() {
-        DynamicRegistryManager registryManager = MiscHelper.getServer().getRegistryManager();
-        Registry<DimensionType> dimensionTypes = registryManager.get(Registry.DIMENSION_TYPE_KEY);
+    public static CompoundTag createTagFromServerWorldInfo() {
+        RegistryAccess registryManager = MiscHelper.getServer().registryAccess();
+        Registry<DimensionType> dimensionTypes = registryManager.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         return typeMapToTag(
-            Streams.stream(MiscHelper.getServer().getWorlds()).collect(
+            Streams.stream(MiscHelper.getServer().getAllLevels()).collect(
                 Collectors.toMap(
-                    World::getRegistryKey,
+                    Level::dimension,
                     w -> {
-                        DimensionType dimensionType = w.getDimension();
-                        Identifier id = dimensionTypes.getId(dimensionType);
+                        DimensionType dimensionType = w.dimensionType();
+                        ResourceLocation id = dimensionTypes.getKey(dimensionType);
                         if (id == null) {
-                            Helper.err("Missing dim type id for " + w.getRegistryKey());
+                            Helper.err("Missing dim type id for " + w.dimension());
                             Helper.err("Registered dimension types " +
-                                Helper.myToString(dimensionTypes.getIds().stream()));
-                            return DimensionType.OVERWORLD_REGISTRY_KEY;
+                                Helper.myToString(dimensionTypes.keySet().stream()));
+                            return DimensionType.OVERWORLD_LOCATION;
                         }
                         return idToDimType(id);
                     }
@@ -83,45 +83,45 @@ public class DimensionTypeSync {
         );
     }
     
-    public static RegistryKey<DimensionType> idToDimType(Identifier id) {
-        return RegistryKey.of(Registry.DIMENSION_TYPE_KEY, id);
+    public static ResourceKey<DimensionType> idToDimType(ResourceLocation id) {
+        return ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, id);
     }
     
-    private static NbtCompound typeMapToTag(Map<RegistryKey<World>, RegistryKey<DimensionType>> data) {
-        NbtCompound tag = new NbtCompound();
+    private static CompoundTag typeMapToTag(Map<ResourceKey<Level>, ResourceKey<DimensionType>> data) {
+        CompoundTag tag = new CompoundTag();
         data.forEach((worldKey, typeKey) -> {
-            tag.put(worldKey.getValue().toString(), NbtString.of(typeKey.getValue().toString()));
+            tag.put(worldKey.location().toString(), StringTag.valueOf(typeKey.location().toString()));
         });
         return tag;
     }
     
     @Environment(EnvType.CLIENT)
-    public static RegistryKey<DimensionType> getDimensionTypeKey(RegistryKey<World> worldKey) {
-        if (worldKey == World.OVERWORLD) {
-            return DimensionType.OVERWORLD_REGISTRY_KEY;
+    public static ResourceKey<DimensionType> getDimensionTypeKey(ResourceKey<Level> worldKey) {
+        if (worldKey == Level.OVERWORLD) {
+            return DimensionType.OVERWORLD_LOCATION;
         }
         
-        if (worldKey == World.NETHER) {
-            return DimensionType.THE_NETHER_REGISTRY_KEY;
+        if (worldKey == Level.NETHER) {
+            return DimensionType.NETHER_LOCATION;
         }
         
-        if (worldKey == World.END) {
-            return DimensionType.THE_END_REGISTRY_KEY;
+        if (worldKey == Level.END) {
+            return DimensionType.END_LOCATION;
         }
         
-        RegistryKey<DimensionType> obj = clientTypeMap.get(worldKey);
+        ResourceKey<DimensionType> obj = clientTypeMap.get(worldKey);
         
         if (obj == null) {
             Helper.err("Missing Dimension Type For " + worldKey);
-            return DimensionType.OVERWORLD_REGISTRY_KEY;
+            return DimensionType.OVERWORLD_LOCATION;
         }
         
         return obj;
     }
     
     @Environment(EnvType.CLIENT)
-    public static DimensionType getDimensionType(RegistryKey<DimensionType> registryKey) {
-        return currentDimensionTypeTracker.get(Registry.DIMENSION_TYPE_KEY).get(registryKey);
+    public static DimensionType getDimensionType(ResourceKey<DimensionType> registryKey) {
+        return currentDimensionTypeTracker.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(registryKey);
     }
     
 }

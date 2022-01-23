@@ -3,19 +3,19 @@ package qouteall.imm_ptl.core.chunk_loading;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.ChunkData;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.LightType;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -28,57 +28,57 @@ import java.util.function.Consumer;
 
 // allow storing chunks that are far away from the player
 @Environment(EnvType.CLIENT)
-public class MyClientChunkManager extends ClientChunkManager {
+public class MyClientChunkManager extends ClientChunkCache {
     private static final Logger LOGGER = LogManager.getLogger();
-    protected final WorldChunk emptyChunk;
-    protected final LightingProvider lightingProvider;
-    protected final ClientWorld world;
+    protected final LevelChunk emptyChunk;
+    protected final LevelLightEngine lightingProvider;
+    protected final ClientLevel world;
     
-    protected final Long2ObjectLinkedOpenHashMap<WorldChunk> chunkMap =
+    protected final Long2ObjectLinkedOpenHashMap<LevelChunk> chunkMap =
         new Long2ObjectLinkedOpenHashMap<>();
     
-    public static final SignalArged<WorldChunk> clientChunkLoadSignal = new SignalArged<>();
-    public static final SignalArged<WorldChunk> clientChunkUnloadSignal = new SignalArged<>();
+    public static final SignalArged<LevelChunk> clientChunkLoadSignal = new SignalArged<>();
+    public static final SignalArged<LevelChunk> clientChunkUnloadSignal = new SignalArged<>();
     
-    public MyClientChunkManager(ClientWorld clientWorld, int loadDistance) {
+    public MyClientChunkManager(ClientLevel clientWorld, int loadDistance) {
         super(clientWorld, loadDistance);
         this.world = clientWorld;
-        this.emptyChunk = new EmptyChunk(clientWorld, new ChunkPos(0, 0));
-        this.lightingProvider = new LightingProvider(
+        this.emptyChunk = new EmptyLevelChunk(clientWorld, new ChunkPos(0, 0));
+        this.lightingProvider = new LevelLightEngine(
             this,
             true,
-            clientWorld.getDimension().hasSkyLight()
+            clientWorld.dimensionType().hasSkyLight()
         );
         
     }
     
     @Override
-    public LightingProvider getLightingProvider() {
+    public LevelLightEngine getLightEngine() {
         return this.lightingProvider;
     }
     
     @Override
-    public void unload(int x, int z) {
+    public void drop(int x, int z) {
         synchronized (chunkMap) {
             
             ChunkPos chunkPos = new ChunkPos(x, z);
-            WorldChunk chunk = chunkMap.get(chunkPos.toLong());
-            if (positionEquals(chunk, x, z)) {
+            LevelChunk chunk = chunkMap.get(chunkPos.toLong());
+            if (isValidChunk(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 O_O.postClientChunkUnloadEvent(chunk);
                 // wrong yarn name, also unloads entities
-                world.unloadBlockEntities(chunk);
+                world.unload(chunk);
                 clientChunkUnloadSignal.emit(chunk);
             }
         }
     }
     
     @Override
-    public WorldChunk getChunk(int x, int z, ChunkStatus chunkStatus, boolean create) {
+    public LevelChunk getChunk(int x, int z, ChunkStatus chunkStatus, boolean create) {
         // the profiler shows that this is not a hot spot
         synchronized (chunkMap) {
-            WorldChunk chunk = chunkMap.get(ChunkPos.toLong(x, z));
-            if (positionEquals(chunk, x, z)) {
+            LevelChunk chunk = chunkMap.get(ChunkPos.asLong(x, z));
+            if (isValidChunk(chunk, x, z)) {
                 return chunk;
             }
             
@@ -87,34 +87,34 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     @Override
-    public BlockView getWorld() {
+    public BlockGetter getLevel() {
         return this.world;
     }
     
     @Override
-    public WorldChunk loadChunkFromPacket(
+    public LevelChunk replaceWithPacketData(
         int x, int z,
-        PacketByteBuf buf, NbtCompound nbt, Consumer<ChunkData.BlockEntityVisitor> consumer
+        FriendlyByteBuf buf, CompoundTag nbt, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
-        long chunkPosLong = ChunkPos.toLong(x, z);
+        long chunkPosLong = ChunkPos.asLong(x, z);
         
-        WorldChunk worldChunk;
+        LevelChunk worldChunk;
         
         synchronized (chunkMap) {
             worldChunk = chunkMap.get(chunkPosLong);
             ChunkPos chunkPos = new ChunkPos(x, z);
-            if (!positionEquals(worldChunk, x, z)) {
-                worldChunk = new WorldChunk(this.world, chunkPos);
-                worldChunk.loadFromPacket(buf, nbt, consumer);
+            if (!isValidChunk(worldChunk, x, z)) {
+                worldChunk = new LevelChunk(this.world, chunkPos);
+                worldChunk.replaceWithPacketData(buf, nbt, consumer);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
             else {
-                worldChunk.loadFromPacket(buf, nbt, consumer);
+                worldChunk.replaceWithPacketData(buf, nbt, consumer);
             }
         }
         
         // wrong yarn name. it loads entities
-        this.world.resetChunkColor(new ChunkPos(x, z));
+        this.world.onChunkLoaded(new ChunkPos(x, z));
         
         O_O.postClientChunkLoadEvent(worldChunk);
         clientChunkLoadSignal.emit(worldChunk);
@@ -122,46 +122,46 @@ public class MyClientChunkManager extends ClientChunkManager {
         return worldChunk;
     }
     
-    public List<WorldChunk> getCopiedChunkList() {
+    public List<LevelChunk> getCopiedChunkList() {
         synchronized (chunkMap) {
-            return Arrays.asList(chunkMap.values().toArray(new WorldChunk[0]));
+            return Arrays.asList(chunkMap.values().toArray(new LevelChunk[0]));
         }
     }
     
     @Override
-    public void setChunkMapCenter(int x, int z) {
+    public void updateViewCenter(int x, int z) {
         //do nothing
     }
     
     @Override
-    public void updateLoadDistance(int r) {
+    public void updateViewRadius(int r) {
         //do nothing
     }
     
     @Override
-    public String getDebugString() {
-        return "Client Chunks (ImmPtl) " + getLoadedChunkCount();
+    public String gatherStats() {
+        return "Client Chunks (ImmPtl) " + getLoadedChunksCount();
     }
     
     @Override
-    public int getLoadedChunkCount() {
+    public int getLoadedChunksCount() {
         synchronized (chunkMap) {
             return chunkMap.size();
         }
     }
     
     @Override
-    public void onLightUpdate(LightType lightType, ChunkSectionPos chunkSectionPos) {
+    public void onLightUpdate(LightLayer lightType, SectionPos chunkSectionPos) {
         ClientWorldLoader.getWorldRenderer(
-            world.getRegistryKey()
-        ).scheduleBlockRender(
-            chunkSectionPos.getSectionX(),
-            chunkSectionPos.getSectionY(),
-            chunkSectionPos.getSectionZ()
+            world.dimension()
+        ).setSectionDirty(
+            chunkSectionPos.x(),
+            chunkSectionPos.y(),
+            chunkSectionPos.z()
         );
     }
     
-    protected static boolean positionEquals(WorldChunk worldChunk, int x, int z) {
+    protected static boolean isValidChunk(LevelChunk worldChunk, int x, int z) {
         if (worldChunk == null) {
             return false;
         }

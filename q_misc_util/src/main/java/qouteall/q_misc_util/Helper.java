@@ -2,14 +2,14 @@ package qouteall.q_misc_util;
 
 import com.google.common.collect.Streams;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,66 +43,66 @@ public class Helper {
     //get the t of the colliding point
     //normal and lineDirection have to be normalized
     public static double getCollidingT(
-        Vec3d planeCenter,
-        Vec3d planeNormal,
-        Vec3d lineCenter,
-        Vec3d lineDirection
+        Vec3 planeCenter,
+        Vec3 planeNormal,
+        Vec3 lineCenter,
+        Vec3 lineDirection
     ) {
-        return (planeCenter.subtract(lineCenter).dotProduct(planeNormal))
+        return (planeCenter.subtract(lineCenter).dot(planeNormal))
             /
-            (lineDirection.dotProduct(planeNormal));
+            (lineDirection.dot(planeNormal));
     }
     
     public static boolean isInFrontOfPlane(
-        Vec3d pos,
-        Vec3d planePos,
-        Vec3d planeNormal
+        Vec3 pos,
+        Vec3 planePos,
+        Vec3 planeNormal
     ) {
-        return pos.subtract(planePos).dotProduct(planeNormal) > 0;
+        return pos.subtract(planePos).dot(planeNormal) > 0;
     }
     
-    public static Vec3d fallPointOntoPlane(
-        Vec3d point,
-        Vec3d planePos,
-        Vec3d planeNormal
+    public static Vec3 fallPointOntoPlane(
+        Vec3 point,
+        Vec3 planePos,
+        Vec3 planeNormal
     ) {
         double t = getCollidingT(planePos, planeNormal, point, planeNormal);
-        return point.add(planeNormal.multiply(t));
+        return point.add(planeNormal.scale(t));
     }
     
     public static Vec3i getUnitFromAxis(Direction.Axis axis) {
         return Direction.get(
             Direction.AxisDirection.POSITIVE,
             axis
-        ).getVector();
+        ).getNormal();
     }
     
     public static int getCoordinate(Vec3i v, Direction.Axis axis) {
         return axis.choose(v.getX(), v.getY(), v.getZ());
     }
     
-    public static double getCoordinate(Vec3d v, Direction.Axis axis) {
+    public static double getCoordinate(Vec3 v, Direction.Axis axis) {
         return axis.choose(v.x, v.y, v.z);
     }
     
     public static int getCoordinate(Vec3i v, Direction direction) {
         return getCoordinate(v, direction.getAxis()) *
-            (direction.getDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1);
+            (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1);
     }
     
-    public static Vec3d putCoordinate(Vec3d v, Direction.Axis axis, double value) {
+    public static Vec3 putCoordinate(Vec3 v, Direction.Axis axis, double value) {
         if (axis == Direction.Axis.X) {
-            return new Vec3d(value, v.y, v.z);
+            return new Vec3(value, v.y, v.z);
         }
         else if (axis == Direction.Axis.Y) {
-            return new Vec3d(v.x, value, v.z);
+            return new Vec3(v.x, value, v.z);
         }
         else {
-            return new Vec3d(v.x, v.y, value);
+            return new Vec3(v.x, v.y, value);
         }
     }
     
-    public static double getBoxCoordinate(Box box, Direction direction) {
+    public static double getBoxCoordinate(AABB box, Direction direction) {
         switch (direction) {
             case DOWN -> {return box.minY;}
             case UP -> {return box.maxY;}
@@ -114,20 +114,20 @@ public class Helper {
         throw new RuntimeException();
     }
     
-    public static Box replaceBoxCoordinate(Box box, Direction direction, double coordinate) {
+    public static AABB replaceBoxCoordinate(AABB box, Direction direction, double coordinate) {
         switch (direction) {
-            case DOWN -> {return new Box(box.minX, coordinate, box.minZ, box.maxX, box.maxY, box.maxZ);}
-            case UP -> {return new Box(box.minX, box.minY, box.minZ, box.maxX, coordinate, box.maxZ);}
-            case NORTH -> {return new Box(box.minX, box.minY, coordinate, box.maxX, box.maxY, box.maxZ);}
-            case SOUTH -> {return new Box(box.minX, box.minY, box.minZ, box.maxX, box.maxY, coordinate);}
-            case WEST -> {return new Box(coordinate, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);}
-            case EAST -> {return new Box(box.minX, box.minY, box.minZ, coordinate, box.maxY, box.maxZ);}
+            case DOWN -> {return new AABB(box.minX, coordinate, box.minZ, box.maxX, box.maxY, box.maxZ);}
+            case UP -> {return new AABB(box.minX, box.minY, box.minZ, box.maxX, coordinate, box.maxZ);}
+            case NORTH -> {return new AABB(box.minX, box.minY, coordinate, box.maxX, box.maxY, box.maxZ);}
+            case SOUTH -> {return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, coordinate);}
+            case WEST -> {return new AABB(coordinate, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);}
+            case EAST -> {return new AABB(box.minX, box.minY, box.minZ, coordinate, box.maxY, box.maxZ);}
         }
         throw new RuntimeException();
     }
     
-    public static <A, B> Pair<B, A> swaped(Pair<A, B> p) {
-        return new Pair<>(p.getRight(), p.getLeft());
+    public static <A, B> Tuple<B, A> swaped(Tuple<A, B> p) {
+        return new Tuple<>(p.getB(), p.getA());
     }
     
     public static <T> T uniqueOfThree(T a, T b, T c) {
@@ -159,14 +159,14 @@ public class Helper {
         );
     }
     
-    public static Pair<Direction.Axis, Direction.Axis> getAnotherTwoAxis(Direction.Axis axis) {
+    public static Tuple<Direction.Axis, Direction.Axis> getAnotherTwoAxis(Direction.Axis axis) {
         switch (axis) {
             case X:
-                return new Pair<>(Direction.Axis.Y, Direction.Axis.Z);
+                return new Tuple<>(Direction.Axis.Y, Direction.Axis.Z);
             case Y:
-                return new Pair<>(Direction.Axis.Z, Direction.Axis.X);
+                return new Tuple<>(Direction.Axis.Z, Direction.Axis.X);
             case Z:
-                return new Pair<>(Direction.Axis.X, Direction.Axis.Y);
+                return new Tuple<>(Direction.Axis.X, Direction.Axis.Y);
         }
         throw new IllegalArgumentException();
     }
@@ -180,47 +180,47 @@ public class Helper {
     }
     
     public static Direction[] getAnotherFourDirections(Direction.Axis axisOfNormal) {
-        Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = getAnotherTwoAxis(
+        Tuple<Direction.Axis, Direction.Axis> anotherTwoAxis = getAnotherTwoAxis(
             axisOfNormal
         );
         return new Direction[]{
             Direction.get(
-                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getLeft()
+                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getA()
             ),
             Direction.get(
-                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getRight()
+                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getB()
             ),
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getLeft()
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getA()
             ),
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getRight()
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getB()
             )
         };
     }
     
-    public static Pair<Direction, Direction> getPerpendicularDirections(Direction facing) {
-        Pair<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
-        if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
-            axises = new Pair<>(axises.getRight(), axises.getLeft());
+    public static Tuple<Direction, Direction> getPerpendicularDirections(Direction facing) {
+        Tuple<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
+        if (facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
+            axises = new Tuple<>(axises.getB(), axises.getA());
         }
-        return new Pair<>(
-            Direction.get(Direction.AxisDirection.POSITIVE, axises.getLeft()),
-            Direction.get(Direction.AxisDirection.POSITIVE, axises.getRight())
+        return new Tuple<>(
+            Direction.get(Direction.AxisDirection.POSITIVE, axises.getA()),
+            Direction.get(Direction.AxisDirection.POSITIVE, axises.getB())
         );
     }
     
-    public static Vec3d getBoxSize(Box box) {
-        return new Vec3d(box.getXLength(), box.getYLength(), box.getZLength());
+    public static Vec3 getBoxSize(AABB box) {
+        return new Vec3(box.getXsize(), box.getYsize(), box.getZsize());
     }
     
-    public static Box getBoxSurfaceInversed(Box box, Direction direction) {
+    public static AABB getBoxSurfaceInversed(AABB box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
-        Vec3d shrinkVec = Vec3d.of(direction.getVector()).multiply(size);
-        return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
+        Vec3 shrinkVec = Vec3.atLowerCornerOf(direction.getNormal()).scale(size);
+        return box.contract(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
-    public static Box getBoxSurface(Box box, Direction direction) {
+    public static AABB getBoxSurface(AABB box, Direction direction) {
         return getBoxSurfaceInversed(box, direction.getOpposite());
     }
     
@@ -263,15 +263,15 @@ public class Helper {
         );
     }
     
-    public static Box getBoxByBottomPosAndSize(Vec3d boxBottomCenter, Vec3d viewBoxSize) {
-        return new Box(
+    public static AABB getBoxByBottomPosAndSize(Vec3 boxBottomCenter, Vec3 viewBoxSize) {
+        return new AABB(
             boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
             boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
         );
     }
     
-    public static Vec3d getBoxBottomCenter(Box box) {
-        return new Vec3d(
+    public static Vec3 getBoxBottomCenter(AABB box) {
+        return new Vec3(
             (box.maxX + box.minX) / 2,
             box.minY,
             (box.maxZ + box.minZ) / 2
@@ -347,13 +347,13 @@ public class Helper {
         return stringBuilder.toString();
     }
     
-    public static <A, B> Stream<Pair<A, B>> composeTwoStreamsWithEqualLength(
+    public static <A, B> Stream<Tuple<A, B>> composeTwoStreamsWithEqualLength(
         Stream<A> a,
         Stream<B> b
     ) {
         Iterator<A> aIterator = a.iterator();
         Iterator<B> bIterator = b.iterator();
-        Iterator<Pair<A, B>> iterator = new Iterator<Pair<A, B>>() {
+        Iterator<Tuple<A, B>> iterator = new Iterator<Tuple<A, B>>() {
             
             @Override
             public boolean hasNext() {
@@ -362,8 +362,8 @@ public class Helper {
             }
             
             @Override
-            public Pair<A, B> next() {
-                return new Pair<>(aIterator.next(), bIterator.next());
+            public Tuple<A, B> next() {
+                return new Tuple<>(aIterator.next(), bIterator.next());
             }
         };
         
@@ -382,40 +382,40 @@ public class Helper {
         logger.debug(str);
     }
     
-    public static Vec3d[] eightVerticesOf(Box box) {
-        return new Vec3d[]{
-            new Vec3d(box.minX, box.minY, box.minZ),
-            new Vec3d(box.minX, box.minY, box.maxZ),
-            new Vec3d(box.minX, box.maxY, box.minZ),
-            new Vec3d(box.minX, box.maxY, box.maxZ),
-            new Vec3d(box.maxX, box.minY, box.minZ),
-            new Vec3d(box.maxX, box.minY, box.maxZ),
-            new Vec3d(box.maxX, box.maxY, box.minZ),
-            new Vec3d(box.maxX, box.maxY, box.maxZ)
+    public static Vec3[] eightVerticesOf(AABB box) {
+        return new Vec3[]{
+            new Vec3(box.minX, box.minY, box.minZ),
+            new Vec3(box.minX, box.minY, box.maxZ),
+            new Vec3(box.minX, box.maxY, box.minZ),
+            new Vec3(box.minX, box.maxY, box.maxZ),
+            new Vec3(box.maxX, box.minY, box.minZ),
+            new Vec3(box.maxX, box.minY, box.maxZ),
+            new Vec3(box.maxX, box.maxY, box.minZ),
+            new Vec3(box.maxX, box.maxY, box.maxZ)
         };
     }
     
-    public static void putVec3d(NbtCompound compoundTag, String name, Vec3d vec3d) {
+    public static void putVec3d(CompoundTag compoundTag, String name, Vec3 vec3d) {
         compoundTag.putDouble(name + "X", vec3d.x);
         compoundTag.putDouble(name + "Y", vec3d.y);
         compoundTag.putDouble(name + "Z", vec3d.z);
     }
     
-    public static Vec3d getVec3d(NbtCompound compoundTag, String name) {
-        return new Vec3d(
+    public static Vec3 getVec3d(CompoundTag compoundTag, String name) {
+        return new Vec3(
             compoundTag.getDouble(name + "X"),
             compoundTag.getDouble(name + "Y"),
             compoundTag.getDouble(name + "Z")
         );
     }
     
-    public static void putVec3i(NbtCompound compoundTag, String name, Vec3i vec3i) {
+    public static void putVec3i(CompoundTag compoundTag, String name, Vec3i vec3i) {
         compoundTag.putInt(name + "X", vec3i.getX());
         compoundTag.putInt(name + "Y", vec3i.getY());
         compoundTag.putInt(name + "Z", vec3i.getZ());
     }
     
-    public static BlockPos getVec3i(NbtCompound compoundTag, String name) {
+    public static BlockPos getVec3i(CompoundTag compoundTag, String name) {
         return new BlockPos(
             compoundTag.getInt(name + "X"),
             compoundTag.getInt(name + "Y"),
@@ -574,10 +574,10 @@ public class Helper {
         Stream<T> newStream = Streams.stream(iterator);
         return mapReduce(
             newStream,
-            (Pair<T, S> lastPair, T curr) ->
-                new Pair<T, S>(curr, function.apply(lastPair.getLeft(), curr)),
-            new SimpleBox<>(new Pair<T, S>(firstValue, null))
-        ).map(pair -> pair.getRight());
+            (Tuple<T, S> lastPair, T curr) ->
+                new Tuple<T, S>(curr, function.apply(lastPair.getA(), curr)),
+            new SimpleBox<>(new Tuple<T, S>(firstValue, null))
+        ).map(pair -> pair.getB());
     }
     
     public static <T> T makeIntoExpression(T t, Consumer<T> func) {
@@ -585,13 +585,13 @@ public class Helper {
         return t;
     }
     
-    public static void putUuid(NbtCompound tag, String key, UUID uuid) {
+    public static void putUuid(CompoundTag tag, String key, UUID uuid) {
         tag.putLong(key + "Most", uuid.getMostSignificantBits());
         tag.putLong(key + "Least", uuid.getLeastSignificantBits());
     }
     
     @Nullable
-    public static UUID getUuid(NbtCompound tag, String key) {
+    public static UUID getUuid(CompoundTag tag, String key) {
         String key1 = key + "Most";
         
         if (!tag.contains(key1)) {
@@ -601,13 +601,13 @@ public class Helper {
         return new UUID(tag.getLong(key1), tag.getLong(key + "Least"));
     }
     
-    public static Vec3d getFlippedVec(Vec3d vec, Vec3d flippingAxis) {
-        Vec3d component = getProjection(vec, flippingAxis);
-        return vec.subtract(component).multiply(-1).add(component);
+    public static Vec3 getFlippedVec(Vec3 vec, Vec3 flippingAxis) {
+        Vec3 component = getProjection(vec, flippingAxis);
+        return vec.subtract(component).scale(-1).add(component);
     }
     
-    public static Vec3d getProjection(Vec3d vec, Vec3d direction) {
-        return direction.multiply(vec.dotProduct(direction));
+    public static Vec3 getProjection(Vec3 vec, Vec3 direction) {
+        return direction.scale(vec.dot(direction));
     }
     
     /**
@@ -616,11 +616,11 @@ public class Helper {
      * @return The {@link Direction} of the passed {@code vec}, excluding directions of axis {@code axis}.
      */
     @SuppressWarnings("WeakerAccess")
-    public static Direction getFacingExcludingAxis(Vec3d vec, Direction.Axis axis) {
+    public static Direction getFacingExcludingAxis(Vec3 vec, Direction.Axis axis) {
         return Arrays.stream(Direction.values())
             .filter(d -> d.getAxis() != axis)
             .max(Comparator.comparingDouble(
-                dir -> vec.x * dir.getOffsetX() + vec.y * dir.getOffsetY() + vec.z * dir.getOffsetZ()
+                dir -> vec.x * dir.getStepX() + vec.y * dir.getStepY() + vec.z * dir.getStepZ()
             ))
             .orElse(null);
     }
@@ -665,13 +665,13 @@ public class Helper {
     }
     
     // this will expand the box because the box can only be axis aligned
-    public static Box transformBox(
-        Box box, Function<Vec3d, Vec3d> function
+    public static AABB transformBox(
+        AABB box, Function<Vec3, Vec3> function
     ) {
-        List<Vec3d> result =
+        List<Vec3> result =
             Arrays.stream(eightVerticesOf(box)).map(function).collect(Collectors.toList());
         
-        return new Box(
+        return new AABB(
             result.stream().mapToDouble(b -> b.x).min().getAsDouble(),
             result.stream().mapToDouble(b -> b.y).min().getAsDouble(),
             result.stream().mapToDouble(b -> b.z).min().getAsDouble(),
@@ -696,7 +696,7 @@ public class Helper {
         }
     }
     
-    public static double getDistanceToBox(Box box, Vec3d point) {
+    public static double getDistanceToBox(AABB box, Vec3 point) {
         double dx = getDistanceToRange(box.minX, box.maxX, point.x);
         double dy = getDistanceToRange(box.minY, box.maxY, point.y);
         double dz = getDistanceToRange(box.minZ, box.maxZ, point.z);
@@ -768,11 +768,11 @@ public class Helper {
         });
     }
     
-    public static Vec3d interpolatePos(Vec3d from, Vec3d to, double progress) {
-        return new Vec3d(
-            MathHelper.lerp(progress, from.x, to.x),
-            MathHelper.lerp(progress, from.y, to.y),
-            MathHelper.lerp(progress, from.z, to.z)
+    public static Vec3 interpolatePos(Vec3 from, Vec3 to, double progress) {
+        return new Vec3(
+            Mth.lerp(progress, from.x, to.x),
+            Mth.lerp(progress, from.y, to.y),
+            Mth.lerp(progress, from.z, to.z)
         );
     }
     

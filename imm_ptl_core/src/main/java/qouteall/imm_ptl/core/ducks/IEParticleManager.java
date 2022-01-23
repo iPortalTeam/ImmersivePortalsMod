@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 public interface IEParticleManager {
-    void ip_setWorld(ClientWorld world);
+    void ip_setWorld(ClientLevel world);
 }

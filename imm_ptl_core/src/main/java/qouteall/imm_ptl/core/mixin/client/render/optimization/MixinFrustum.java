@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.render.Frustum;
+import net.minecraft.client.renderer.culling.Frustum;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,16 +15,16 @@ import qouteall.imm_ptl.core.render.FrustumCuller;
 @Mixin(Frustum.class)
 public class MixinFrustum implements IEFrustum {
     @Shadow
-    private double x;
+    private double camX;
     @Shadow
-    private double y;
+    private double camY;
     @Shadow
-    private double z;
+    private double camZ;
     
     private FrustumCuller portal_frustumCuller;
     
     @Inject(
-        method = "setPosition",
+        method = "Lnet/minecraft/client/renderer/culling/Frustum;prepare(DDD)V",
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
@@ -35,12 +35,12 @@ public class MixinFrustum implements IEFrustum {
         if (portal_frustumCuller == null) {
             portal_frustumCuller = new FrustumCuller();
         }
-        portal_frustumCuller.update(x, y, z);
+        portal_frustumCuller.update(camX, camY, camZ);
     }
     
     
     @Inject(
-        method = "Lnet/minecraft/client/render/Frustum;isVisible(DDDDDD)Z",
+        method = "Lnet/minecraft/client/renderer/culling/Frustum;cubeInFrustum(DDDDDD)Z",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -62,8 +62,8 @@ public class MixinFrustum implements IEFrustum {
             return false;
         }
         return portal_frustumCuller.canDetermineInvisibleWithCameraCoord(
-            minX - x, minY - y, minZ - z,
-            maxX - x, maxY - y, maxZ - z
+            minX - camX, minY - camY, minZ - camZ,
+            maxX - camX, maxY - camY, maxZ - camZ
         );
     }
 }

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.gui_portal;
 
-import net.minecraft.client.util.Window;
+import com.mojang.blaze3d.platform.Window;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Window.class)

@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.util.MetricsData;
+import net.minecraft.util.FrameTimer;
 
 public interface IEMinecraftServer {
-    public MetricsData getMetricsDataNonClientOnly();
+    public FrameTimer getMetricsDataNonClientOnly();
     
     boolean portal_getAreAllWorldsLoaded();
 }

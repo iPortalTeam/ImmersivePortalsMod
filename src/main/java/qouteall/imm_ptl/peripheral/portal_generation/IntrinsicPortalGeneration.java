@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.google.common.collect.Lists;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.AreaHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.PortalShape;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
@@ -24,7 +24,7 @@ public class IntrinsicPortalGeneration {
         new PortalHelperForm();
     
     public static final CustomPortalGeneration intrinsicToNether = new CustomPortalGeneration(
-        Lists.newArrayList(World.OVERWORLD), World.NETHER,
+        Lists.newArrayList(Level.OVERWORLD), Level.NETHER,
         8, 1,
         true,
         intrinsicNetherPortalForm,
@@ -34,7 +34,7 @@ public class IntrinsicPortalGeneration {
     public static final CustomPortalGeneration intrinsicFromNether = intrinsicToNether.getReverse();
     
     public static final CustomPortalGeneration diligentToNether = new CustomPortalGeneration(
-        Lists.newArrayList(World.OVERWORLD), World.NETHER,
+        Lists.newArrayList(Level.OVERWORLD), Level.NETHER,
         8, 1,
         true,
         diligentNetherPortalForm,
@@ -52,29 +52,29 @@ public class IntrinsicPortalGeneration {
     );
     
     public static void init() {
-        intrinsicToNether.identifier = new Identifier("imm_ptl:intrinsic_nether_portal");
-        intrinsicFromNether.identifier = new Identifier("imm_ptl:intrinsic_nether_portal");
+        intrinsicToNether.identifier = new ResourceLocation("imm_ptl:intrinsic_nether_portal");
+        intrinsicFromNether.identifier = new ResourceLocation("imm_ptl:intrinsic_nether_portal");
         
-        diligentFromNether.identifier = new Identifier("imm_ptl:intrinsic_diligent_nether_portal");
-        diligentToNether.identifier = new Identifier("imm_ptl:intrinsic_diligent_nether_portal");
+        diligentFromNether.identifier = new ResourceLocation("imm_ptl:intrinsic_diligent_nether_portal");
+        diligentToNether.identifier = new ResourceLocation("imm_ptl:intrinsic_diligent_nether_portal");
         
-        portalHelper.identifier = new Identifier("imm_ptl:intrinsic_portal_helper");
+        portalHelper.identifier = new ResourceLocation("imm_ptl:intrinsic_portal_helper");
     }
     
     public static boolean onFireLitOnObsidian(
-        ServerWorld fromWorld,
+        ServerLevel fromWorld,
         BlockPos firePos
     ) {
-        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
+        ResourceKey<Level> fromDimension = fromWorld.dimension();
         
-        if (fromDimension == World.OVERWORLD) {
+        if (fromDimension == Level.OVERWORLD) {
             CustomPortalGeneration gen =
                 IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicToNether :
                     diligentToNether;
             return gen.perform(fromWorld, firePos, null);
         }
-        else if (fromDimension == World.NETHER) {
+        else if (fromDimension == Level.NETHER) {
             CustomPortalGeneration gen =
                 IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicFromNether :
@@ -86,15 +86,15 @@ public class IntrinsicPortalGeneration {
     }
     
     public static boolean activatePortalHelper(
-        ServerWorld fromWorld,
+        ServerLevel fromWorld,
         BlockPos firePos
     ) {
         return portalHelper.perform(fromWorld, firePos, null);
     }
     
     public static boolean onCrouchingPlayerIgnite(
-        ServerWorld world,
-        ServerPlayerEntity player,
+        ServerLevel world,
+        ServerPlayer player,
         BlockPos firePos
     ) {
         if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.disabled) {
@@ -106,20 +106,20 @@ public class IntrinsicPortalGeneration {
         }
         
         boolean dimensionCorrect =
-            world.getRegistryKey() == World.OVERWORLD || world.getRegistryKey() == World.NETHER;
+            world.dimension() == Level.OVERWORLD || world.dimension() == Level.NETHER;
         
         if (!dimensionCorrect) {
             return false;
         }
         
-        Optional<AreaHelper> newPortal = AreaHelper.getNewPortal(world, firePos, Direction.Axis.X);
+        Optional<PortalShape> newPortal = PortalShape.findEmptyPortalShape(world, firePos, Direction.Axis.X);
         
         if (newPortal.isEmpty()) {
             return false;
         }
         
-        AreaHelper areaHelper = newPortal.get();
-        areaHelper.createPortal();
+        PortalShape areaHelper = newPortal.get();
+        areaHelper.createPortalBlocks();
         return true;
     }
 }

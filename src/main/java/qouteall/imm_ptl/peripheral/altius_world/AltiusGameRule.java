@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import net.minecraft.world.GameRules;
+import net.minecraft.world.level.GameRules;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscHelper;
 
 public class AltiusGameRule {
-    public static GameRules.Key<GameRules.BooleanRule> dimensionStackKey;
+    public static GameRules.Key<GameRules.BooleanValue> dimensionStackKey;
     
     
     private static boolean doUpgradeOldDimensionStack = false;
@@ -14,7 +14,7 @@ public class AltiusGameRule {
         dimensionStackKey = GameRules.register(
             "ipDimensionStack",
             GameRules.Category.MISC,
-            GameRules.BooleanRule.create(false)
+            GameRules.BooleanValue.create(false)
         );
         
         IPGlobal.postServerTickSignal.connect(AltiusGameRule::serverTick);
@@ -28,12 +28,12 @@ public class AltiusGameRule {
     }
     
     public static boolean getIsDimensionStack() {
-        return MiscHelper.getServer().getGameRules().get(dimensionStackKey).get();
+        return MiscHelper.getServer().getGameRules().getRule(dimensionStackKey).get();
     }
     
     public static void setIsDimensionStack(boolean cond) {
         MiscHelper.getServer().getGameRules()
-            .get(dimensionStackKey).set(cond, MiscHelper.getServer());
+            .getRule(dimensionStackKey).set(cond, MiscHelper.getServer());
     }
     
     public static void upgradeOldDimensionStack() {

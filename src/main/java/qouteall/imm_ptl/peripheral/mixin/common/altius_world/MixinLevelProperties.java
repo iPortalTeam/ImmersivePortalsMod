@@ -3,12 +3,12 @@ package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.world.gen.GeneratorOptions;
-import net.minecraft.world.level.LevelInfo;
-import net.minecraft.world.level.LevelProperties;
-import net.minecraft.world.level.storage.SaveVersionInfo;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.storage.LevelVersion;
+import net.minecraft.world.level.storage.PrimaryLevelData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,36 +17,36 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
 
-@Mixin(LevelProperties.class)
+@Mixin(PrimaryLevelData.class)
 public class MixinLevelProperties {
     
    
     
     @Shadow
     @Final
-    private GeneratorOptions generatorOptions;
+    private WorldGenSettings worldGenSettings;
     
     @Inject(
-        method = "readProperties",
+        method = "Lnet/minecraft/world/level/storage/PrimaryLevelData;parse(Lcom/mojang/serialization/Dynamic;Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/world/level/storage/LevelVersion;Lnet/minecraft/world/level/levelgen/WorldGenSettings;Lcom/mojang/serialization/Lifecycle;)Lnet/minecraft/world/level/storage/PrimaryLevelData;",
         at = @At("RETURN"),
         cancellable = true
     )
     private static void onReadDataFromTag(
-        Dynamic<NbtElement> dynamic,
+        Dynamic<Tag> dynamic,
         DataFixer dataFixer,
         int i,
-        NbtCompound playerTag,
-        LevelInfo levelInfo,
-        SaveVersionInfo saveVersionInfo,
-        GeneratorOptions generatorOptions,
+        CompoundTag playerTag,
+        LevelSettings levelInfo,
+        LevelVersion saveVersionInfo,
+        WorldGenSettings generatorOptions,
         Lifecycle lifecycle,
-        CallbackInfoReturnable<LevelProperties> cir
+        CallbackInfoReturnable<PrimaryLevelData> cir
     ) {
-        LevelProperties levelProperties = cir.getReturnValue();
+        PrimaryLevelData levelProperties = cir.getReturnValue();
         
         MixinLevelProperties this_ = (MixinLevelProperties) (Object) levelProperties;
         
-        NbtElement altiusTag = dynamic.getElement("altius", null);
+        Tag altiusTag = dynamic.getElement("altius", null);
         if (altiusTag != null) {
             AltiusGameRule.upgradeOldDimensionStack();
         }

@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.common.fix_concurrency;
 
-import net.minecraft.util.collection.WeightedList;
+import net.minecraft.world.entity.ai.behavior.ShufflingList;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(WeightedList.class)
+@Mixin(ShufflingList.class)
 public abstract class MixinWeightedList {
 //    @Shadow
 //    public abstract WeightedList shuffle(Random random);

@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.MiscHelper;
@@ -30,7 +30,7 @@ public class ChunkLoader {
     public int getLoadedChunkNum() {
         int[] numBox = {0};
         foreachChunkPos((dim, x, z, dist) -> {
-            WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
+            LevelChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
             if (chunk != null) {
                 numBox[0] += 1;
             }
@@ -56,7 +56,7 @@ public class ChunkLoader {
     }
     
     public LenientChunkRegion createChunkRegion() {
-        ServerWorld world = MiscHelper.getServer().getWorld(center.dimension);
+        ServerLevel world = MiscHelper.getServer().getLevel(center.dimension);
         
         return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
     }
@@ -96,6 +96,6 @@ public class ChunkLoader {
     }
     
     public static interface ChunkPosConsumer {
-        void consume(RegistryKey<World> dimension, int x, int z, int distanceToSource);
+        void consume(ResourceKey<Level> dimension, int x, int z, int distanceToSource);
     }
 }

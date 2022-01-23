@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,25 +13,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public abstract class MixinMinecraftClient_B {
     @Shadow
-    protected abstract void doItemPick();
+    protected abstract void pickBlock();
     
     @Shadow
-    public ClientWorld world;
+    public ClientLevel level;
     
     @Shadow
-    public HitResult crosshairTarget;
+    public HitResult hitResult;
     
     @Shadow
-    protected int attackCooldown;
+    protected int missTime;
     
     @Inject(
-        method = "handleBlockBreaking",
+        method = "Lnet/minecraft/client/Minecraft;continueAttack(Z)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"
+            target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z"
         ),
         cancellable = true
     )
@@ -43,12 +43,12 @@ public abstract class MixinMinecraftClient_B {
     }
     
     @Inject(
-        method = "doAttack",
+        method = "Lnet/minecraft/client/Minecraft;startAttack()V",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onDoAttack(CallbackInfo ci) {
-        if (attackCooldown <= 0) {
+        if (missTime <= 0) {
             if (BlockManipulationClient.isPointingToPortal()) {
                 BlockManipulationClient.myAttackBlock();
                 ci.cancel();
@@ -57,44 +57,44 @@ public abstract class MixinMinecraftClient_B {
     }
     
     @Inject(
-        method = "doItemUse",
+        method = "Lnet/minecraft/client/Minecraft;startUseItem()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayerEntity;getStackInHand(Lnet/minecraft/util/Hand;)Lnet/minecraft/item/ItemStack;"
+            target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"
         ),
         cancellable = true
     )
     private void onDoItemUse(CallbackInfo ci) {
         if (BlockManipulationClient.isPointingToPortal()) {
             // supporting offhand is unnecessary
-            BlockManipulationClient.myItemUse(Hand.MAIN_HAND);
+            BlockManipulationClient.myItemUse(InteractionHand.MAIN_HAND);
             ci.cancel();
         }
     }
     
     @Redirect(
-        method = "handleInputEvents",
+        method = "Lnet/minecraft/client/Minecraft;handleKeybinds()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;doItemPick()V"
+            target = "Lnet/minecraft/client/Minecraft;pickBlock()V"
         )
     )
-    private void redirectDoItemPick(MinecraftClient minecraftClient) {
+    private void redirectDoItemPick(Minecraft minecraftClient) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            ClientWorld remoteWorld = ClientWorldLoader.getWorld(BlockManipulationClient.remotePointedDim);
-            ClientWorld oldWorld = this.world;
-            HitResult oldTarget = this.crosshairTarget;
+            ClientLevel remoteWorld = ClientWorldLoader.getWorld(BlockManipulationClient.remotePointedDim);
+            ClientLevel oldWorld = this.level;
+            HitResult oldTarget = this.hitResult;
             
-            world = remoteWorld;
-            crosshairTarget = BlockManipulationClient.remoteHitResult;
+            level = remoteWorld;
+            hitResult = BlockManipulationClient.remoteHitResult;
             
-            doItemPick();
+            pickBlock();
             
-            world = oldWorld;
-            crosshairTarget = oldTarget;
+            level = oldWorld;
+            hitResult = oldTarget;
         }
         else {
-            doItemPick();
+            pickBlock();
         }
     }
 }

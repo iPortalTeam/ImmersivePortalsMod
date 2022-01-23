@@ -1,26 +1,26 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 
 public class DimensionRenderHelper {
-    private static final MinecraftClient client = MinecraftClient.getInstance();
-    public World world;
+    private static final Minecraft client = Minecraft.getInstance();
+    public Level world;
     
-    public final LightmapTextureManager lightmapTexture;
+    public final LightTexture lightmapTexture;
     
-    public DimensionRenderHelper(World world) {
+    public DimensionRenderHelper(Level world) {
         this.world = world;
     
-        if (client.world == world) {
+        if (client.level == world) {
             IEGameRenderer gameRenderer = (IEGameRenderer) client.gameRenderer;
         
-            lightmapTexture = client.gameRenderer.getLightmapTextureManager();
+            lightmapTexture = client.gameRenderer.lightTexture();
         }
         else {
-            lightmapTexture = new LightmapTextureManager(client.gameRenderer, client);
+            lightmapTexture = new LightTexture(client.gameRenderer, client);
         }
     }
     
@@ -29,7 +29,7 @@ public class DimensionRenderHelper {
     }
     
     public void cleanUp() {
-        if (lightmapTexture != client.gameRenderer.getLightmapTextureManager()) {
+        if (lightmapTexture != client.gameRenderer.lightTexture()) {
             lightmapTexture.close();
         }
     }

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.mc_util;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,10 +10,10 @@ import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 @Mixin(Entity.class)
 public class MixinEntity_U {
     @Inject(
-        method = "setPos",
+        method = "Lnet/minecraft/world/entity/Entity;setPosRaw(DDD)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/EntityChangeListener;updateEntityPosition()V"
+            target = "Lnet/minecraft/world/level/entity/EntityInLevelCallback;onMove()V"
         )
     )
     private void onUpdateEntityPosition(double x, double y, double z, CallbackInfo ci) {
@@ -23,7 +23,7 @@ public class MixinEntity_U {
     }
     
     @Inject(
-        method = "setRemoved",
+        method = "Lnet/minecraft/world/entity/Entity;setRemoved(Lnet/minecraft/world/entity/Entity$RemovalReason;)V",
         at = @At("RETURN")
     )
     private void onSetRemoved(Entity.RemovalReason reason, CallbackInfo ci) {

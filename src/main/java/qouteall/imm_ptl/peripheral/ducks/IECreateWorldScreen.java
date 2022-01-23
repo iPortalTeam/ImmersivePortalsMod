@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.peripheral.ducks;
 
-import net.minecraft.resource.DataPackSettings;
-import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.level.DataPackConfig;
 
 public interface IECreateWorldScreen {
-    ResourcePackManager portal_getResourcePackManager();
+    PackRepository portal_getResourcePackManager();
     
-    DataPackSettings portal_getDataPackSettings();
+    DataPackConfig portal_getDataPackSettings();
 }

@@ -2,16 +2,16 @@ package qouteall.imm_ptl.core.network;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
@@ -32,18 +32,18 @@ public class IPCommonNetworkClient {
     
     public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
     
-    public static final MinecraftClient client = MinecraftClient.getInstance();
+    public static final Minecraft client = Minecraft.getInstance();
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
     public static boolean isProcessingRedirectedMessage = false;
     
     
-    public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
+    public static void processRedirectedPacket(ResourceKey<Level> dimension, Packet packet) {
         Runnable func = () -> {
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
-                ClientWorld packetWorld = ClientWorldLoader.getWorld(dimension);
+                ClientLevel packetWorld = ClientWorldLoader.getWorld(dimension);
                 
                 doProcessRedirectedMessage(packetWorld, packet);
             }
@@ -57,29 +57,29 @@ public class IPCommonNetworkClient {
     
     
     public static void doProcessRedirectedMessage(
-        ClientWorld packetWorld,
+        ClientLevel packetWorld,
         Packet packet
     ) {
         boolean oldIsProcessing = isProcessingRedirectedMessage;
         
         isProcessingRedirectedMessage = true;
         
-        ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
+        ClientPacketListener netHandler = ((IEClientWorld) packetWorld).getNetHandler();
         
-        if (netHandler.getWorld() != client.world) {
+        if (netHandler.getLevel() != client.level) {
             Helper.err("Net handler world state inconsistent");
         }
         
         client.getProfiler().push(() -> {
-            return "handle_redirected_packet" + packetWorld.getRegistryKey() + packet;
+            return "handle_redirected_packet" + packetWorld.dimension() + packet;
         });
         
         try {
-            withSwitchedWorld(packetWorld, () -> packet.apply(netHandler));
+            withSwitchedWorld(packetWorld, () -> packet.handle(netHandler));
         }
         catch (Throwable e) {
             limitedLogger.throwException(() -> new IllegalStateException(
-                "handling packet in " + packetWorld.getRegistryKey(), e
+                "handling packet in " + packetWorld.dimension(), e
             ));
         }
         finally {
@@ -89,30 +89,30 @@ public class IPCommonNetworkClient {
         }
     }
     
-    public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
+    public static void withSwitchedWorld(ClientLevel newWorld, Runnable runnable) {
         withSwitchedWorld(newWorld, () -> {
             runnable.run();
             return null; // Must return null for "void" supplier
         });
     }
     
-    public static <T> T withSwitchedWorld(ClientWorld newWorld, Supplier<T> supplier) {
-        Validate.isTrue(client.isOnThread());
+    public static <T> T withSwitchedWorld(ClientLevel newWorld, Supplier<T> supplier) {
+        Validate.isTrue(client.isSameThread());
         Validate.isTrue(client.player != null);
         
-        ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
+        ClientPacketListener networkHandler = client.getConnection();
         
-        ClientWorld originalWorld = client.world;
-        WorldRenderer originalWorldRenderer = client.worldRenderer;
-        ClientWorld originalNetHandlerWorld = networkHandler.getWorld();
+        ClientLevel originalWorld = client.level;
+        LevelRenderer originalWorldRenderer = client.levelRenderer;
+        ClientLevel originalNetHandlerWorld = networkHandler.getLevel();
         
-        WorldRenderer newWorldRenderer = ClientWorldLoader.getWorldRenderer(newWorld.getRegistryKey());
+        LevelRenderer newWorldRenderer = ClientWorldLoader.getWorldRenderer(newWorld.dimension());
         
         Validate.notNull(newWorldRenderer);
         
-        client.world = newWorld;
-        client.player.world = newWorld;
-        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
+        client.level = newWorld;
+        client.player.level = newWorld;
+        ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
         
@@ -120,23 +120,23 @@ public class IPCommonNetworkClient {
             return supplier.get();
         }
         finally {
-            if (client.world != newWorld) {
+            if (client.level != newWorld) {
                 Helper.err("Respawn packet should not be redirected");
-                originalWorld = client.world;
-                originalWorldRenderer = client.worldRenderer;
+                originalWorld = client.level;
+                originalWorldRenderer = client.levelRenderer;
                 throw new RuntimeException("Respawn packet should not be redirected");
             }
             
-            client.world = originalWorld;
-            client.player.world = originalWorld;
+            client.level = originalWorld;
+            client.player.level = originalWorld;
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
-            ((IEParticleManager) client.particleManager).ip_setWorld(originalWorld);
+            ((IEParticleManager) client.particleEngine).ip_setWorld(originalWorld);
             ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
         }
     }
     
-    public static void processEntitySpawn(String entityTypeString, int entityId, RegistryKey<World> dim, NbtCompound compoundTag) {
-        Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
+    public static void processEntitySpawn(String entityTypeString, int entityId, ResourceKey<Level> dim, CompoundTag compoundTag) {
+        Optional<EntityType<?>> entityType = EntityType.byString(entityTypeString);
         if (!entityType.isPresent()) {
             Helper.err("unknown entity type " + entityTypeString);
             return;
@@ -145,15 +145,15 @@ public class IPCommonNetworkClient {
         MiscHelper.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
             
-            ClientWorld world = ClientWorldLoader.getWorld(dim);
+            ClientLevel world = ClientWorldLoader.getWorld(dim);
             
             Entity entity = entityType.get().create(
                 world
             );
-            entity.readNbt(compoundTag);
+            entity.load(compoundTag);
             entity.setId(entityId);
-            entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
-            world.addEntity(entityId, entity);
+            entity.setPacketCoordinates(entity.getX(), entity.getY(), entity.getZ());
+            world.putNonPlayerEntity(entityId, entity);
             
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {

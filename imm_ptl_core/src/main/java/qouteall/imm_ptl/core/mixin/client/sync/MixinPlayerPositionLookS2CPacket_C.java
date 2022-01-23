@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,12 +12,12 @@ import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 
-@Mixin(PlayerPositionLookS2CPacket.class)
+@Mixin(ClientboundPlayerPositionPacket.class)
 public class MixinPlayerPositionLookS2CPacket_C {
-    @Inject(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At("RETURN"))
-    private void onRead(PacketByteBuf buf, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
+    private void onRead(FriendlyByteBuf buf, CallbackInfo ci) {
         if (buf.isReadable()) {
-            RegistryKey<World> playerDimension = DimId.readWorldId(buf, true);
+            ResourceKey<Level> playerDimension = DimId.readWorldId(buf, true);
             ((IEPlayerPositionLookS2CPacket) this).setPlayerDimension(playerDimension);
             IPNetworkAdapt.setServerHasIP(true);
         }

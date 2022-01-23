@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
+import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public class CompositeSimplexNoiseSampler {
-    private SimplexNoiseSampler[] samplers;
+    private SimplexNoise[] samplers;
     
     public CompositeSimplexNoiseSampler(int samplerNum, long seed) {
         // TODO recover
@@ -20,7 +20,7 @@ public class CompositeSimplexNoiseSampler {
         int result = 0;
         for (int i = 0; i < getSamplerNum(); i++) {
             result = result * 2;
-            double r = samplers[i].sample(x, z);
+            double r = samplers[i].getValue(x, z);
             if (r > 0) {
                 result += 1;
             }

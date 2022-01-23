@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 
-import net.minecraft.world.SpawnHelper;
+import net.minecraft.world.level.NaturalSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(SpawnHelper.class)
+@Mixin(NaturalSpawner.class)
 public class MixinSpawnHelper {
     
     // TODO recover

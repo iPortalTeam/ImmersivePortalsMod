@@ -1,38 +1,38 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.SimpleFramebuffer;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import net.minecraft.client.Minecraft;
 import qouteall.q_misc_util.Helper;
 
 //it will always be the same size as the main frame buffer
 public class SecondaryFrameBuffer {
-    public SimpleFramebuffer fb;
+    public TextureTarget fb;
     
     public void prepare() {
-        Framebuffer mainFrameBuffer = MinecraftClient.getInstance().getFramebuffer();
-        int width = mainFrameBuffer.viewportWidth;
-        int height = mainFrameBuffer.viewportHeight;
+        RenderTarget mainFrameBuffer = Minecraft.getInstance().getMainRenderTarget();
+        int width = mainFrameBuffer.viewWidth;
+        int height = mainFrameBuffer.viewHeight;
         prepare(width, height);
     }
     
     public void prepare(int width, int height) {
         if (fb == null) {
-            fb = new SimpleFramebuffer(
+            fb = new TextureTarget(
                 width, height,
                 true,//has depth attachment
-                MinecraftClient.IS_SYSTEM_MAC
+                Minecraft.ON_OSX
             );
-            fb.checkFramebufferStatus();
+            fb.checkStatus();
             Helper.log("Deferred buffer init");
         }
-        if (width != fb.viewportWidth ||
-            height != fb.viewportHeight
+        if (width != fb.viewWidth ||
+            height != fb.viewHeight
         ) {
             fb.resize(
-                width, height, MinecraftClient.IS_SYSTEM_MAC
+                width, height, Minecraft.ON_OSX
             );
-            fb.checkFramebufferStatus();
+            fb.checkStatus();
             Helper.log("Deferred buffer resized");
         }
     }

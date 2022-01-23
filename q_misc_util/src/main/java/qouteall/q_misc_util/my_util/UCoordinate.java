@@ -1,18 +1,18 @@
 package qouteall.q_misc_util.my_util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Objects;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class UCoordinate {
-    public RegistryKey<World> dimension;
-    public Vec3d pos;
+    public ResourceKey<Level> dimension;
+    public Vec3 pos;
     
-    public UCoordinate(RegistryKey<World> dimension, Vec3d pos) {
+    public UCoordinate(ResourceKey<Level> dimension, Vec3 pos) {
         Validate.notNull(dimension);
         Validate.notNull(pos);
         this.dimension = dimension;
@@ -20,7 +20,7 @@ public class UCoordinate {
     }
     
     public UCoordinate(Entity entity) {
-        this(entity.world.getRegistryKey(), entity.getPos());
+        this(entity.level.dimension(), entity.position());
     }
     
     @Override
@@ -39,6 +39,6 @@ public class UCoordinate {
     
     @Override
     public String toString() {
-        return String.format("%s %s %s %s", dimension.getValue(), pos.x, pos.y, pos.z);
+        return String.format("%s %s %s %s", dimension.location(), pos.x, pos.y, pos.z);
     }
 }

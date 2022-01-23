@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.dimension.AreaHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.portal.PortalShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,27 +15,27 @@ import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 import java.util.Optional;
 
-@Mixin(AbstractFireBlock.class)
+@Mixin(BaseFireBlock.class)
 public class MixinAbstractFireBlock {
     @Redirect(
-        method = "onBlockAdded",
+        method = "Lnet/minecraft/world/level/block/BaseFireBlock;onPlace(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/dimension/AreaHelper;getNewPortal(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction$Axis;)Ljava/util/Optional;"
+            target = "Lnet/minecraft/world/level/portal/PortalShape;findEmptyPortalShape(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction$Axis;)Ljava/util/Optional;"
         )
     )
-    Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
+    Optional<PortalShape> redirectCreateAreaHelper(LevelAccessor worldAccess, BlockPos blockPos, Direction.Axis axis) {
         if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.disabled) {
             return Optional.empty();
         }
         
         if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.vanilla) {
-            return AreaHelper.getNewPortal(worldAccess, blockPos, axis);
+            return PortalShape.findEmptyPortalShape(worldAccess, blockPos, axis);
         }
         
         if (isNearObsidian(worldAccess, blockPos)) {
             IntrinsicPortalGeneration.onFireLitOnObsidian(
-                ((ServerWorld) worldAccess),
+                ((ServerLevel) worldAccess),
                 blockPos
             );
         }
@@ -43,9 +43,9 @@ public class MixinAbstractFireBlock {
         return Optional.empty();
     }
     
-    private static boolean isNearObsidian(WorldAccess access, BlockPos blockPos) {
+    private static boolean isNearObsidian(LevelAccessor access, BlockPos blockPos) {
         for (Direction value : Direction.values()) {
-            if (O_O.isObsidian(access.getBlockState(blockPos.offset(value)))) {
+            if (O_O.isObsidian(access.getBlockState(blockPos.relative(value)))) {
                 return true;
             }
         }
@@ -55,7 +55,7 @@ public class MixinAbstractFireBlock {
     // allow lighting fire on the side of obsidian
     // for lighting horizontal portals
     @Redirect(
-        method = "shouldLightPortalAt",
+        method = "Lnet/minecraft/world/level/block/BaseFireBlock;isPortal(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Optional;isPresent()Z"

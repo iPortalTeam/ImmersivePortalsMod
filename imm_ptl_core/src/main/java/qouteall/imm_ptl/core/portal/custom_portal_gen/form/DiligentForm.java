@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 
 import java.util.function.Predicate;
@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 public class DiligentForm extends AbstractDiligentForm {
     public static final Codec<DiligentForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.getCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.getCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.getCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
         ).apply(instance, instance.stable(DiligentForm::new));
     });
@@ -48,9 +48,9 @@ public class DiligentForm extends AbstractDiligentForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithCorner) {
-            toWorld.setBlockState(blockPos, toFrameBlock.getDefaultState());
+            toWorld.setBlockAndUpdate(blockPos, toFrameBlock.defaultBlockState());
         }
     }
     

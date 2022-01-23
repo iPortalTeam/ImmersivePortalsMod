@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.client.alternate_dimension;
 
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.multiplayer.ClientLevel;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 public class MixinClientWorld_A {
 //
 //    @Redirect(

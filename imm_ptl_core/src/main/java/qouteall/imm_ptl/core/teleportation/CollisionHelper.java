@@ -2,18 +2,18 @@ package qouteall.imm_ptl.core.teleportation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -39,18 +39,18 @@ public class CollisionHelper {
     //the facing that normal points to will be remained
     //return null for empty box
     @Nullable
-    private static Box clipBox(Box box, Vec3d planePos, Vec3d planeNormal) {
+    private static AABB clipBox(AABB box, Vec3 planePos, Vec3 planeNormal) {
         
         boolean xForward = planeNormal.x > 0;
         boolean yForward = planeNormal.y > 0;
         boolean zForward = planeNormal.z > 0;
         
-        Vec3d pushedPos = new Vec3d(
+        Vec3 pushedPos = new Vec3(
             xForward ? box.minX : box.maxX,
             yForward ? box.minY : box.maxY,
             zForward ? box.minZ : box.maxZ
         );
-        Vec3d staticPos = new Vec3d(
+        Vec3 staticPos = new Vec3(
             xForward ? box.maxX : box.minX,
             yForward ? box.maxY : box.minY,
             zForward ? box.maxZ : box.minZ
@@ -71,13 +71,13 @@ public class CollisionHelper {
         }
         
         //the plane cut the box halfly
-        Vec3d afterBeingPushed = pushedPos.add(planeNormal.multiply(tOfPushedPos));
-        return new Box(afterBeingPushed, staticPos);
+        Vec3 afterBeingPushed = pushedPos.add(planeNormal.scale(tOfPushedPos));
+        return new AABB(afterBeingPushed, staticPos);
     }
     
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
         if (portal.canTeleportEntity(entity)) {
-            Vec3d cameraPosVec = entity.getCameraPosVec(tickDelta);
+            Vec3 cameraPosVec = entity.getEyePosition(tickDelta);
             if (portal.isInFrontOfPortal(cameraPosVec)) {
                 PortalLike collisionHandlingUnit = getCollisionHandlingUnit(portal);
                 boolean isInGroup = collisionHandlingUnit != portal;
@@ -92,17 +92,17 @@ public class CollisionHelper {
         return false;
     }
     
-    public static Vec3d handleCollisionHalfwayInPortal(
+    public static Vec3 handleCollisionHalfwayInPortal(
         Entity entity,
-        Vec3d attemptedMove,
+        Vec3 attemptedMove,
         Portal collidingPortal,
-        Function<Vec3d, Vec3d> handleCollisionFunc
+        Function<Vec3, Vec3> handleCollisionFunc
     ) {
-        entity.world.getProfiler().push("cross_portal_collision");
+        entity.level.getProfiler().push("cross_portal_collision");
         
-        Box originalBoundingBox = entity.getBoundingBox();
+        AABB originalBoundingBox = entity.getBoundingBox();
         
-        Vec3d thisSideMove = getThisSideMove(
+        Vec3 thisSideMove = getThisSideMove(
             entity, attemptedMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
@@ -114,14 +114,14 @@ public class CollisionHelper {
             thisSideMove = handleCollisionFunc.apply(attemptedMove);
         }
         
-        Vec3d otherSideMove = getOtherSideMove(
+        Vec3 otherSideMove = getOtherSideMove(
             entity, thisSideMove, getCollisionHandlingUnit(collidingPortal),
             handleCollisionFunc, originalBoundingBox
         );
         
-        entity.world.getProfiler().pop();
+        entity.level.getProfiler().pop();
         
-        return new Vec3d(
+        return new Vec3(
             correctXZCoordinate(attemptedMove.x, otherSideMove.x),
             correctYCoordinate(attemptedMove.y, otherSideMove.y),
             correctXZCoordinate(attemptedMove.z, otherSideMove.z)
@@ -132,20 +132,20 @@ public class CollisionHelper {
         return Math.abs(a) < Math.abs(b) ? a : b;
     }
     
-    private static Vec3d getOtherSideMove(
+    private static Vec3 getOtherSideMove(
         Entity entity,
-        Vec3d attemptedMove,
+        Vec3 attemptedMove,
         PortalLike collidingPortal,
-        Function<Vec3d, Vec3d> handleCollisionFunc,
-        Box originalBoundingBox
+        Function<Vec3, Vec3> handleCollisionFunc,
+        AABB originalBoundingBox
     ) {
         if (!collidingPortal.getHasCrossPortalCollision()) {
             return attemptedMove;
         }
         
-        Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
+        Vec3 transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
-        Box boxOtherSide = getCollisionBoxOtherSide(
+        AABB boxOtherSide = getCollisionBoxOtherSide(
             collidingPortal,
             originalBoundingBox,
             transformedAttemptedMove
@@ -154,41 +154,41 @@ public class CollisionHelper {
             return attemptedMove;
         }
         
-        World destinationWorld = collidingPortal.getDestWorld();
+        Level destinationWorld = collidingPortal.getDestWorld();
         
-        if (!destinationWorld.isChunkLoaded(new BlockPos(boxOtherSide.getCenter()))) {
-            if (entity instanceof PlayerEntity && entity.world.isClient()) {
+        if (!destinationWorld.hasChunkAt(new BlockPos(boxOtherSide.getCenter()))) {
+            if (entity instanceof Player && entity.level.isClientSide()) {
                 informClientStagnant();
             }
-            return Vec3d.ZERO;
+            return Vec3.ZERO;
         }
         
         //switch world and check collision
-        World oldWorld = entity.world;
-        Vec3d oldPos = entity.getPos();
-        Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
-        float oldStepHeight = entity.stepHeight;
+        Level oldWorld = entity.level;
+        Vec3 oldPos = entity.position();
+        Vec3 oldLastTickPos = McHelper.lastTickPosOf(entity);
+        float oldStepHeight = entity.maxUpStep;
         
-        entity.world = destinationWorld;
+        entity.level = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
         if (collidingPortal.getScale() > 1) {
-            entity.stepHeight = (float) (oldStepHeight * collidingPortal.getScale() * 2);
+            entity.maxUpStep = (float) (oldStepHeight * collidingPortal.getScale() * 2);
         }
         
-        Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
+        Vec3 collided = handleCollisionFunc.apply(transformedAttemptedMove);
         
-        collided = new Vec3d(
+        collided = new Vec3(
             correctXZCoordinate(transformedAttemptedMove.x, collided.x),
             correctYCoordinate(transformedAttemptedMove.y, collided.y),
             correctXZCoordinate(transformedAttemptedMove.z, collided.z)
         );
         
-        Vec3d result = collidingPortal.inverseTransformLocalVec(collided);
+        Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
         
-        entity.world = oldWorld;
+        entity.level = oldWorld;
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
-        entity.stepHeight = oldStepHeight;
+        entity.maxUpStep = oldStepHeight;
         
         return result;
     }
@@ -236,14 +236,14 @@ public class CollisionHelper {
         return result;
     }
     
-    private static Vec3d getThisSideMove(
+    private static Vec3 getThisSideMove(
         Entity entity,
-        Vec3d attemptedMove,
+        Vec3 attemptedMove,
         Portal collidingPortal,
-        Function<Vec3d, Vec3d> handleCollisionFunc,
-        Box originalBoundingBox
+        Function<Vec3, Vec3> handleCollisionFunc,
+        AABB originalBoundingBox
     ) {
-        Box boxThisSide = getCollisionBoxThisSide(
+        AABB boxThisSide = getCollisionBoxThisSide(
             collidingPortal, originalBoundingBox, attemptedMove
         );
         if (boxThisSide == null) {
@@ -251,21 +251,21 @@ public class CollisionHelper {
         }
         
         entity.setBoundingBox(boxThisSide);
-        Vec3d move1 = handleCollisionFunc.apply(attemptedMove);
+        Vec3 move1 = handleCollisionFunc.apply(attemptedMove);
         
         entity.setBoundingBox(originalBoundingBox);
         
         return move1;
     }
     
-    private static Box getCollisionBoxThisSide(
+    private static AABB getCollisionBoxThisSide(
         Portal portal,
-        Box originalBox,
-        Vec3d attemptedMove
+        AABB originalBox,
+        Vec3 attemptedMove
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-        Vec3d clippingPos = portal.getOriginPos().subtract(attemptedMove);
+        Vec3 clippingPos = portal.getOriginPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
             clippingPos,
@@ -273,19 +273,19 @@ public class CollisionHelper {
         );
     }
     
-    private static Box getCollisionBoxOtherSide(
+    private static AABB getCollisionBoxOtherSide(
         PortalLike portalLike,
-        Box originalBox,
-        Vec3d transformedAttemptedMove
+        AABB originalBox,
+        Vec3 transformedAttemptedMove
     ) {
         if (portalLike instanceof Portal) {
             Portal portal = (Portal) portalLike;
             
-            Box otherSideBox = transformBox(portal, originalBox);
+            AABB otherSideBox = transformBox(portal, originalBox);
             
-            Vec3d clippingPos = portal.getDestPos().subtract(transformedAttemptedMove);
+            Vec3 clippingPos = portal.getDestPos().subtract(transformedAttemptedMove);
             
-            Box box = clipBox(
+            AABB box = clipBox(
                 otherSideBox,
                 clippingPos,
                 portal.getContentDirection()
@@ -293,16 +293,16 @@ public class CollisionHelper {
             
             if (box != null) {
                 // special handling in high speed (not perfect)
-                Vec3d contentDirection = portal.getContentDirection();
+                Vec3 contentDirection = portal.getContentDirection();
                 boolean movingIntoPortal =
-                    contentDirection.dotProduct(transformedAttemptedMove) > 0;
+                    contentDirection.dot(transformedAttemptedMove) > 0;
                 
-                if (movingIntoPortal && transformedAttemptedMove.lengthSquared() > 1) {
+                if (movingIntoPortal && transformedAttemptedMove.lengthSqr() > 1) {
                     // the box is not clipped
-                    if (box.getCenter().subtract(otherSideBox.getCenter()).lengthSquared() < 0.2) {
+                    if (box.getCenter().subtract(otherSideBox.getCenter()).lengthSqr() < 0.2) {
                         // avoid colliding with blocks behind the portal destination
-                        box = box.offset(
-                            contentDirection.multiply(transformedAttemptedMove.dotProduct(contentDirection))
+                        box = box.move(
+                            contentDirection.scale(transformedAttemptedMove.dot(contentDirection))
                         );
                     }
                 }
@@ -316,9 +316,9 @@ public class CollisionHelper {
         }
     }
     
-    private static Box transformBox(Portal portal, Box originalBox) {
+    private static AABB transformBox(Portal portal, AABB originalBox) {
         if (portal.rotation == null && portal.scaling == 1) {
-            return originalBox.offset(portal.getDestPos().subtract(portal.getOriginPos()));
+            return originalBox.move(portal.getDestPos().subtract(portal.getOriginPos()));
         }
         else {
 //            if (portal.teleportChangesScale) {
@@ -338,12 +338,12 @@ public class CollisionHelper {
         }
     }
     
-    public static World getWorld(boolean isClient, RegistryKey<World> dimension) {
+    public static Level getWorld(boolean isClient, ResourceKey<Level> dimension) {
         if (isClient) {
             return CHelper.getClientWorld(dimension);
         }
         else {
-            return MiscHelper.getServer().getWorld(dimension);
+            return MiscHelper.getServer().getLevel(dimension);
         }
     }
     
@@ -351,19 +351,19 @@ public class CollisionHelper {
         return ((IEEntity) entity).getCollidingPortal() != null;
     }
     
-    public static Box getActiveCollisionBox(Entity entity) {
+    public static AABB getActiveCollisionBox(Entity entity) {
         Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
         if (collidingPortal != null) {
-            Box thisSideBox = getCollisionBoxThisSide(
+            AABB thisSideBox = getCollisionBoxThisSide(
                 collidingPortal,
                 entity.getBoundingBox(),
-                Vec3d.ZERO //is it ok?
+                Vec3.ZERO //is it ok?
             );
             if (thisSideBox != null) {
                 return thisSideBox;
             }
             else {
-                return new Box(0, 0, 0, 0, 0, 0);
+                return new AABB(0, 0, 0, 0, 0, 0);
             }
         }
         else {
@@ -371,7 +371,7 @@ public class CollisionHelper {
         }
     }
     
-    private static void updateGlobalPortalCollidingPortalForWorld(World world) {
+    private static void updateGlobalPortalCollidingPortalForWorld(Level world) {
         world.getProfiler().push("global_portal_colliding_portal");
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
@@ -379,9 +379,9 @@ public class CollisionHelper {
         
         if (!globalPortals.isEmpty()) {
             for (Entity entity : worldEntityList) {
-                Box entityBoundingBoxStretched = getStretchedBoundingBox(entity);
+                AABB entityBoundingBoxStretched = getStretchedBoundingBox(entity);
                 for (Portal globalPortal : globalPortals) {
-                    Box globalPortalBoundingBox = globalPortal.getBoundingBox();
+                    AABB globalPortalBoundingBox = globalPortal.getBoundingBox();
                     if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
                         if (canCollideWithPortal(entity, globalPortal, 0)) {
                             ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
@@ -396,7 +396,7 @@ public class CollisionHelper {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
+            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
                 updateGlobalPortalCollidingPortalForWorld(world);
             }
         });
@@ -417,7 +417,7 @@ public class CollisionHelper {
     @Environment(EnvType.CLIENT)
     private static void updateGlobalPortalCollidingStatus() {
         if (ClientWorldLoader.getIsInitialized()) {
-            for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
+            for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
                 updateGlobalPortalCollidingPortalForWorld(world);
             }
         }
@@ -428,16 +428,16 @@ public class CollisionHelper {
             return;
         }
         
-        Box portalBoundingBox = portal.getBoundingBox();
+        AABB portalBoundingBox = portal.getBoundingBox();
         
         McHelper.foreachEntitiesByBoxApproximateRegions(
-            Entity.class, portal.world,
+            Entity.class, portal.level,
             portalBoundingBox, 3,
             entity -> {
                 if (entity instanceof Portal) {
                     return;
                 }
-                Box entityBoxStretched = getStretchedBoundingBox(entity);
+                AABB entityBoxStretched = getStretchedBoundingBox(entity);
                 if (!entityBoxStretched.intersects(portalBoundingBox)) {
                     return;
                 }
@@ -458,12 +458,12 @@ public class CollisionHelper {
             return;
         }
         
-        entity.world.getProfiler().push("update_colliding_portal_now");
+        entity.level.getProfiler().push("update_colliding_portal_now");
         
-        Box boundingBox = getStretchedBoundingBox(entity);
+        AABB boundingBox = getStretchedBoundingBox(entity);
         McHelper.foreachEntitiesByBoxApproximateRegions(
             Portal.class,
-            entity.world,
+            entity.level,
             boundingBox,
             10,
             portal -> {
@@ -475,15 +475,15 @@ public class CollisionHelper {
             }
         );
         
-        entity.world.getProfiler().pop();
+        entity.level.getProfiler().pop();
     }
     
-    public static Box getStretchedBoundingBox(Entity entity) {
+    public static AABB getStretchedBoundingBox(Entity entity) {
         // normal colliding portal update lags 1 tick before collision calculation
         // the velocity updates later after updating colliding portal
         // expand the velocity to avoid not collide with portal in time
-        Vec3d expand = McHelper.getWorldVelocity(entity).multiply(1.2);
-        return entity.getBoundingBox().stretch(expand);
+        Vec3 expand = McHelper.getWorldVelocity(entity).scale(1.2);
+        return entity.getBoundingBox().expandTowards(expand);
     }
     
     private static boolean thisTickStagnate = false;
@@ -498,14 +498,14 @@ public class CollisionHelper {
     @Environment(EnvType.CLIENT)
     private static void updateClientStagnateStatus() {
         if (thisTickStagnate && lastTickStagnate) {
-            MinecraftClient.getInstance().inGameHud.setOverlayMessage(
-                new TranslatableText("imm_ptl.stagnate_movement"),
+            Minecraft.getInstance().gui.setOverlayMessage(
+                new TranslatableComponent("imm_ptl.stagnate_movement"),
                 false
             );
         }
         else if (!thisTickStagnate && lastTickStagnate) {
-            MinecraftClient.getInstance().inGameHud.setOverlayMessage(
-                new LiteralText(""),
+            Minecraft.getInstance().gui.setOverlayMessage(
+                new TextComponent(""),
                 false
             );
         }
@@ -518,7 +518,7 @@ public class CollisionHelper {
         if (portal.getIsGlobal()) {
             return portal;
         }
-        if (portal.world.isClient()) {
+        if (portal.level.isClientSide()) {
             return getCollisionHandlingUnitClient(portal);
         }
         else {

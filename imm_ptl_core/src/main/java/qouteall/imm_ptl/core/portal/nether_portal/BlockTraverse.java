@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.function.Function;
@@ -101,7 +101,7 @@ public class BlockTraverse {
         int startY, int endY,
         Function<BlockPos, T> func
     ) {
-        BlockPos.Mutable temp = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos temp = new BlockPos.MutableBlockPos();
         return searchColumnedRaw(
             centerX, centerZ, range, startY, endY,
             (x, y, z) -> {
@@ -127,7 +127,7 @@ public class BlockTraverse {
     
     // NOTE Mutable block pos
     public static <T> T searchInBox(IntBox box, Function<BlockPos, T> func) {
-        BlockPos.Mutable temp = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos temp = new BlockPos.MutableBlockPos();
         return searchInBox(box,
             (x, y, z) -> {
                 temp.set(x, y, z);

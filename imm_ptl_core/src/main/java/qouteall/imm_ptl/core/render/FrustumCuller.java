@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -74,26 +74,26 @@ public class FrustumCuller {
             Portal portal = getCurrentNearestVisibleCullablePortal();
             if (portal != null) {
                 
-                Vec3d portalOrigin = portal.getOriginPos();
-                Vec3d portalOriginInLocalCoordinate = portalOrigin.add(
+                Vec3 portalOrigin = portal.getOriginPos();
+                Vec3 portalOriginInLocalCoordinate = portalOrigin.add(
                     -cameraX, -cameraY, -cameraZ
                 );
-                final Vec3d[] outerFrustumCullingVertices = portal.getOuterFrustumCullingVertices();
+                final Vec3[] outerFrustumCullingVertices = portal.getOuterFrustumCullingVertices();
                 if (outerFrustumCullingVertices == null) {
                     return BoxPredicate.nonePredicate;
                 }
-                Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
+                Vec3[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
                     outerFrustumCullingVertices
                 );
                 
-                Vec3d downPlane = downLeftUpRightPlaneNormals[0];
-                Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
-                Vec3d upPlane = downLeftUpRightPlaneNormals[2];
-                Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+                Vec3 downPlane = downLeftUpRightPlaneNormals[0];
+                Vec3 leftPlane = downLeftUpRightPlaneNormals[1];
+                Vec3 upPlane = downLeftUpRightPlaneNormals[2];
+                Vec3 rightPlane = downLeftUpRightPlaneNormals[3];
                 
-                Vec3d nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
-                Vec3d nearPlaneNormal = portal.getNormal().multiply(-1);
+                Vec3 nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
+                Vec3 nearPlaneNormal = portal.getNormal().scale(-1);
                 
                 return
                     (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> {
@@ -122,11 +122,11 @@ public class FrustumCuller {
         }
     }
     
-    public static Vec3d[] getDownLeftUpRightPlaneNormals(
-        Vec3d portalOriginInLocalCoordinate,
-        Vec3d[] fourVertices
+    public static Vec3[] getDownLeftUpRightPlaneNormals(
+        Vec3 portalOriginInLocalCoordinate,
+        Vec3[] fourVertices
     ) {
-        Vec3d[] relativeVertices = {
+        Vec3[] relativeVertices = {
             fourVertices[0].add(portalOriginInLocalCoordinate),
             fourVertices[1].add(portalOriginInLocalCoordinate),
             fourVertices[2].add(portalOriginInLocalCoordinate),
@@ -135,11 +135,11 @@ public class FrustumCuller {
         
         //3  2
         //1  0
-        return new Vec3d[]{
-            relativeVertices[0].crossProduct(relativeVertices[1]),
-            relativeVertices[1].crossProduct(relativeVertices[3]),
-            relativeVertices[3].crossProduct(relativeVertices[2]),
-            relativeVertices[2].crossProduct(relativeVertices[0])
+        return new Vec3[]{
+            relativeVertices[0].cross(relativeVertices[1]),
+            relativeVertices[1].cross(relativeVertices[3]),
+            relativeVertices[3].cross(relativeVertices[2]),
+            relativeVertices[2].cross(relativeVertices[0])
         };
     }
     
@@ -213,7 +213,7 @@ public class FrustumCuller {
     public static BatchTestResult testBoxTwoVertices(
         double minX, double minY, double minZ,
         double maxX, double maxY, double maxZ,
-        Vec3d planeNormal
+        Vec3 planeNormal
     ) {
         return testBoxTwoVertices(
             minX, minY, minZ, maxX, maxY, maxZ,
@@ -222,7 +222,7 @@ public class FrustumCuller {
         );
     }
     
-    private static boolean isInFrontOf(double x, double y, double z, Vec3d planeNormal) {
+    private static boolean isInFrontOf(double x, double y, double z, Vec3 planeNormal) {
         return x * planeNormal.x + y * planeNormal.y + z * planeNormal.z >= 0;
     }
     
@@ -235,10 +235,10 @@ public class FrustumCuller {
     
     public static boolean isFullyOutsideFrustum(
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
-        Vec3d leftPlane,
-        Vec3d rightPlane,
-        Vec3d upPlane,
-        Vec3d downPlane
+        Vec3 leftPlane,
+        Vec3 rightPlane,
+        Vec3 upPlane,
+        Vec3 downPlane
     ) {
         BatchTestResult left = testBoxTwoVertices(
             minX, minY, minZ, maxX, maxY, maxZ, leftPlane
@@ -271,10 +271,10 @@ public class FrustumCuller {
     
     private static boolean isFullyInFrustum(
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
-        Vec3d leftPlane,
-        Vec3d rightPlane,
-        Vec3d upPlane,
-        Vec3d downPlane
+        Vec3 leftPlane,
+        Vec3 rightPlane,
+        Vec3 upPlane,
+        Vec3 downPlane
     ) {
         return testBoxTwoVertices(minX, minY, minZ, maxX, maxY, maxZ, leftPlane)
             == BatchTestResult.all_true
@@ -292,7 +292,7 @@ public class FrustumCuller {
             return null;
         }
         
-        Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         return CHelper.getClientNearbyPortals(16).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)
         ).filter(
@@ -302,9 +302,9 @@ public class FrustumCuller {
         ).orElse(null);
     }
     
-    public static boolean isTouchingInsideContentArea(Portal renderingPortal, Box boundingBox) {
-        Vec3d planeNormal = renderingPortal.getContentDirection();
-        Vec3d planePos = renderingPortal.getDestPos();
+    public static boolean isTouchingInsideContentArea(Portal renderingPortal, AABB boundingBox) {
+        Vec3 planeNormal = renderingPortal.getContentDirection();
+        Vec3 planePos = renderingPortal.getDestPos();
         BatchTestResult batchTestResult = testBoxTwoVertices(
             boundingBox.minX, boundingBox.minY, boundingBox.minZ,
             boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ,

@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public interface IECamera {
-    void resetState(Vec3d pos, ClientWorld currWorld);
+    void resetState(Vec3 pos, ClientLevel currWorld);
     
-    void portal_setPos(Vec3d pos);
+    void portal_setPos(Vec3 pos);
     
     float getCameraY();
     

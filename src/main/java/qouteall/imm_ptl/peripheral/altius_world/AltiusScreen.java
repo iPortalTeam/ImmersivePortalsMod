@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.screen.SaveLevelScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
@@ -28,16 +28,16 @@ import java.util.stream.Collectors;
 public class AltiusScreen extends Screen {
     @org.jetbrains.annotations.Nullable
     public final Screen parent;
-    private final ButtonWidget finishButton;
-    private final ButtonWidget toggleButton;
-    private final ButtonWidget addDimensionButton;
-    private final ButtonWidget removeDimensionButton;
-    private final ButtonWidget editButton;
+    private final Button finishButton;
+    private final Button toggleButton;
+    private final Button addDimensionButton;
+    private final Button removeDimensionButton;
+    private final Button editButton;
     
-    private final ButtonWidget helpButton;
+    private final Button helpButton;
     
-    private final ButtonWidget loopButton;
-    private final ButtonWidget gravityChangeButton;
+    private final Button loopButton;
+    private final Button gravityChangeButton;
     
     private int titleY;
     
@@ -47,76 +47,76 @@ public class AltiusScreen extends Screen {
     public boolean loopEnabled = false;
     public boolean gravityChangeEnabled = false;
     
-    public final Supplier<List<RegistryKey<World>>> dimensionListSupplier;
+    public final Supplier<List<ResourceKey<Level>>> dimensionListSupplier;
     private final Consumer<AltiusInfo> finishCallback;
     
     public AltiusScreen(
         Screen parent,
-        Supplier<List<RegistryKey<World>>> dimensionListSupplier,
+        Supplier<List<ResourceKey<Level>>> dimensionListSupplier,
         Consumer<AltiusInfo> finishCallback
     ) {
-        super(new TranslatableText("imm_ptl.altius_screen"));
+        super(new TranslatableComponent("imm_ptl.altius_screen"));
         this.parent = parent;
         this.dimensionListSupplier = dimensionListSupplier;
         this.finishCallback = finishCallback;
         
-        toggleButton = new ButtonWidget(
+        toggleButton = new Button(
             0, 0, 150, 20,
-            new TranslatableText("imm_ptl.altius_toggle_false"),
+            new TranslatableComponent("imm_ptl.altius_toggle_false"),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
             }
         );
         
-        loopButton = new ButtonWidget(
+        loopButton = new Button(
             0, 0, 150, 20,
-            new TranslatableText("imm_ptl.loop_disabled"),
+            new TranslatableComponent("imm_ptl.loop_disabled"),
             (buttonWidget) -> {
                 loopEnabled = !loopEnabled;
-                buttonWidget.setMessage(new TranslatableText(
+                buttonWidget.setMessage(new TranslatableComponent(
                     loopEnabled ? "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
                 ));
             }
         );
         
-        gravityChangeButton = new ButtonWidget(
+        gravityChangeButton = new Button(
             0, 0, 150, 20,
-            new TranslatableText("imm_ptl.gravity_change_disabled"),
+            new TranslatableComponent("imm_ptl.gravity_change_disabled"),
             (buttonWidget) -> {
                 gravityChangeEnabled = !gravityChangeEnabled;
-                buttonWidget.setMessage(new TranslatableText(
+                buttonWidget.setMessage(new TranslatableComponent(
                     gravityChangeEnabled ? "imm_ptl.gravity_change_enabled" :
                         "imm_ptl.gravity_change_disabled"
                 ));
             }
         );
         
-        finishButton = new ButtonWidget(
+        finishButton = new Button(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.finish"),
+            new TranslatableComponent("imm_ptl.finish"),
             (buttonWidget) -> {
-                MinecraftClient.getInstance().setScreen(parent);
+                Minecraft.getInstance().setScreen(parent);
                 finishCallback.accept(getAltiusInfo());
             }
         );
-        addDimensionButton = new ButtonWidget(
+        addDimensionButton = new Button(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.dim_stack_add"),
+            new TranslatableComponent("imm_ptl.dim_stack_add"),
             (buttonWidget) -> {
                 onAddEntry();
             }
         );
-        removeDimensionButton = new ButtonWidget(
+        removeDimensionButton = new Button(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.dim_stack_remove"),
+            new TranslatableComponent("imm_ptl.dim_stack_remove"),
             (buttonWidget) -> {
                 onRemoveEntry();
             }
         );
         
-        editButton = new ButtonWidget(
+        editButton = new Button(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.dim_stack_edit"),
+            new TranslatableComponent("imm_ptl.dim_stack_edit"),
             (buttonWidget) -> {
                 onEditEntry();
             }
@@ -137,16 +137,16 @@ public class AltiusScreen extends Screen {
             dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate5));
             dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate1));
         }
-        dimListWidget.entryWidgets.add(createDimEntryWidget(World.OVERWORLD));
-        dimListWidget.entryWidgets.add(createDimEntryWidget(World.NETHER));
+        dimListWidget.entryWidgets.add(createDimEntryWidget(Level.OVERWORLD));
+        dimListWidget.entryWidgets.add(createDimEntryWidget(Level.NETHER));
         
         helpButton = createHelpButton(this);
     }
     
-    public static ButtonWidget createHelpButton(Screen parent) {
-        return new ButtonWidget(
+    public static Button createHelpButton(Screen parent) {
+        return new Button(
             0, 0, 30, 20,
-            new LiteralText("?"),
+            new TextComponent("?"),
             button -> {
                 CHelper.openLinkConfirmScreen(
                     parent, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
@@ -155,7 +155,7 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    private DimEntryWidget createDimEntryWidget(RegistryKey<World> dimension) {
+    private DimEntryWidget createDimEntryWidget(ResourceKey<Level> dimension) {
         return new DimEntryWidget(dimension, dimListWidget, getElementSelectCallback(), DimEntryWidget.Type.withAdvancedOptions);
     }
     
@@ -178,19 +178,19 @@ public class AltiusScreen extends Screen {
     @Override
     protected void init() {
         
-        addDrawableChild(toggleButton);
-        addDrawableChild(finishButton);
-        addDrawableChild(addDimensionButton);
-        addDrawableChild(removeDimensionButton);
+        addRenderableWidget(toggleButton);
+        addRenderableWidget(finishButton);
+        addRenderableWidget(addDimensionButton);
+        addRenderableWidget(removeDimensionButton);
         
-        addDrawableChild(editButton);
-        addDrawableChild(helpButton);
-        addDrawableChild(loopButton);
-        addDrawableChild(gravityChangeButton);
+        addRenderableWidget(editButton);
+        addRenderableWidget(helpButton);
+        addRenderableWidget(loopButton);
+        addRenderableWidget(gravityChangeButton);
         
         setEnabled(isEnabled);
         
-        addSelectableChild(dimListWidget);
+        addWidget(dimListWidget);
         
         dimListWidget.update();
         
@@ -272,7 +272,7 @@ public class AltiusScreen extends Screen {
     @Override
     public void onClose() {
         // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
-        this.client.setScreen(this.parent);
+        this.minecraft.setScreen(this.parent);
     }
     
     private Consumer<DimEntryWidget> getElementSelectCallback() {
@@ -280,7 +280,7 @@ public class AltiusScreen extends Screen {
     }
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseY, int i, float f) {
+    public void render(PoseStack matrixStack, int mouseY, int i, float f) {
         this.renderBackground(matrixStack);
         
         
@@ -290,8 +290,8 @@ public class AltiusScreen extends Screen {
         
         super.render(matrixStack, mouseY, i, f);
         
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        textRenderer.drawWithShadow(
+        Font textRenderer = Minecraft.getInstance().font;
+        textRenderer.drawShadow(
             matrixStack, this.title,
             20, 10, -1
         );
@@ -301,10 +301,10 @@ public class AltiusScreen extends Screen {
     private void setEnabled(boolean cond) {
         isEnabled = cond;
         if (isEnabled) {
-            toggleButton.setMessage(new TranslatableText("imm_ptl.altius_toggle_true"));
+            toggleButton.setMessage(new TranslatableComponent("imm_ptl.altius_toggle_true"));
         }
         else {
-            toggleButton.setMessage(new TranslatableText("imm_ptl.altius_toggle_false"));
+            toggleButton.setMessage(new TranslatableComponent("imm_ptl.altius_toggle_false"));
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;
@@ -314,7 +314,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onAddEntry() {
-        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
+        DimEntryWidget selected = dimListWidget.getSelected();
         
         int position;
         if (selected == null) {
@@ -330,12 +330,12 @@ public class AltiusScreen extends Screen {
         
         int insertingPosition = position + 1;
         
-        MinecraftClient.getInstance().setScreen(
-            new SaveLevelScreen(new TranslatableText("imm_ptl.loading_datapack_dimensions"))
+        Minecraft.getInstance().setScreen(
+            new GenericDirtMessageScreen(new TranslatableComponent("imm_ptl.loading_datapack_dimensions"))
         );
         
         IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
-            MinecraftClient.getInstance().setScreen(
+            Minecraft.getInstance().setScreen(
                 new SelectDimensionScreen(
                     this,
                     dimensionType -> {
@@ -353,7 +353,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onRemoveEntry() {
-        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
+        DimEntryWidget selected = dimListWidget.getSelected();
         if (selected == null) {
             return;
         }
@@ -369,18 +369,18 @@ public class AltiusScreen extends Screen {
     }
     
     private void onEditEntry() {
-        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
+        DimEntryWidget selected = dimListWidget.getSelected();
         if (selected == null) {
             return;
         }
         
-        MinecraftClient.getInstance().setScreen(new AltiusEditScreen(
+        Minecraft.getInstance().setScreen(new AltiusEditScreen(
             this, selected
         ));
     }
     
     private void removeDuplicate(int insertedIndex) {
-        RegistryKey<World> inserted = dimListWidget.entryWidgets.get(insertedIndex).dimension;
+        ResourceKey<Level> inserted = dimListWidget.entryWidgets.get(insertedIndex).dimension;
         for (int i = dimListWidget.entryWidgets.size() - 1; i >= 0; i--) {
             if (dimListWidget.entryWidgets.get(i).dimension == inserted) {
                 if (i != insertedIndex) {

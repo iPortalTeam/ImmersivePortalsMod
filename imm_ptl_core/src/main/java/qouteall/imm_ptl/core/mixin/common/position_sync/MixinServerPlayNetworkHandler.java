@@ -1,21 +1,21 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
-import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
-import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,45 +35,45 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.Set;
 
-@Mixin(value = ServerPlayNetworkHandler.class, priority = 900)
+@Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
 public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetworkHandler {
     @Shadow
-    public ServerPlayerEntity player;
+    public ServerPlayer player;
     @Shadow
-    private Vec3d requestedTeleportPos;
+    private Vec3 awaitingPositionFromClient;
     @Shadow
-    private int requestedTeleportId;
+    private int awaitingTeleport;
     @Shadow
-    private int teleportRequestTick;
+    private int awaitingTeleportTime;
     @Shadow
-    private int ticks;
+    private int tickCount;
     
     @Shadow
-    private double updatedRiddenX;
+    private double vehicleLastGoodX;
     
     @Shadow
-    private double updatedRiddenY;
+    private double vehicleLastGoodY;
     
     @Shadow
-    private double updatedRiddenZ;
+    private double vehicleLastGoodZ;
     
     @Shadow
-    protected abstract boolean isHost();
+    protected abstract boolean isSingleplayerOwner();
     
     @Shadow
-    protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView, Box box);
+    protected abstract boolean isPlayerCollidingWithAnythingNew(LevelReader worldView, AABB box);
     
     @Shadow
-    public abstract void disconnect(Text reason);
+    public abstract void disconnect(Component reason);
     
     @Shadow
-    private double lastTickRiddenX;
+    private double vehicleFirstGoodX;
     
     @Shadow
-    private double lastTickRiddenY;
+    private double vehicleFirstGoodY;
     
     @Shadow
-    private double lastTickRiddenZ;
+    private double vehicleFirstGoodZ;
     
     @Shadow
     @Final
@@ -81,35 +81,35 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     @Shadow
     @Final
-    public ClientConnection connection;
+    public Connection connection;
     
     @Shadow
     @Final
     private MinecraftServer server;
     
     @Shadow
-    private Entity topmostRiddenEntity;
+    private Entity lastVehicle;
     
     @Shadow
-    private boolean vehicleFloating;
+    private boolean clientVehicleIsFloating;
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
-        method = "onPlayerMove",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
         at = @At(
             value = "INVOKE",
             shift = At.Shift.AFTER,
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"
+            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V"
         ),
         cancellable = true
     )
-    private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
-        RegistryKey<World> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
+    private void onProcessMovePacket(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
+        ResourceKey<Level> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
         
         if (packetDimension == null) {
             Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have IP");
             IPGlobal.serverTaskList.addTask(() -> {
-                player.networkHandler.disconnect(new LiteralText(
+                player.connection.disconnect(new TextComponent(
                     "The client does not have Immersive Portals mod"
                 ));
                 return true;
@@ -121,7 +121,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             cancelTeleportRequest();
         }
         
-        if (player.world.getRegistryKey() != packetDimension) {
+        if (player.level.dimension() != packetDimension) {
             IPGlobal.serverTaskList.addTask(() -> {
                 IPGlobal.serverTeleportationManager.acceptDubiousMovePacket(
                     player, packet, packetDimension
@@ -133,32 +133,32 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     }
     
     @Redirect(
-        method = "onPlayerMove",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isHost()Z"
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isSingleplayerOwner()Z"
         )
     )
-    private boolean redirectIsServerOwnerOnPlayerMove(ServerPlayNetworkHandler serverPlayNetworkHandler) {
+    private boolean redirectIsServerOwnerOnPlayerMove(ServerGamePacketListenerImpl serverPlayNetworkHandler) {
         if (shouldAcceptDubiousMovement(player)) {
             return true;
         }
-        return isHost();
+        return isSingleplayerOwner();
     }
     
     @Redirect(
-        method = "onPlayerMove",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayerEntity;isInTeleportationState()Z"
+            target = "Lnet/minecraft/server/level/ServerPlayer;isChangingDimension()Z"
         ),
         require = 0 // don't crash with carpet
     )
-    private boolean redirectIsInTeleportationState(ServerPlayerEntity player) {
+    private boolean redirectIsInTeleportationState(ServerPlayer player) {
         if (shouldAcceptDubiousMovement(player)) {
             return true;
         }
-        return player.isInTeleportationState();
+        return player.isChangingDimension();
     }
     
     /**
@@ -166,17 +166,17 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
      * @author qouteall
      */
     @Overwrite
-    public void requestTeleport(double x, double y, double z, float yaw, float pitch, Set<PlayerPositionLookS2CPacket.Flag> flags, boolean shouldDismount) {
+    public void teleport(double x, double y, double z, float yaw, float pitch, Set<ClientboundPlayerPositionPacket.RelativeArgument> flags, boolean shouldDismount) {
         // it may request teleport while this.player is marked removed during respawn
         
-        double d = flags.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
-        double e = flags.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0D;
-        double f = flags.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.getZ() : 0.0D;
-        float g = flags.contains(PlayerPositionLookS2CPacket.Flag.Y_ROT) ? this.player.getYaw() : 0.0F;
-        float h = flags.contains(PlayerPositionLookS2CPacket.Flag.X_ROT) ? this.player.getPitch() : 0.0F;
-        this.requestedTeleportPos = new Vec3d(x, y, z);
-        if (++this.requestedTeleportId == Integer.MAX_VALUE) {
-            this.requestedTeleportId = 0;
+        double d = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0D;
+        double e = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0D;
+        double f = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0D;
+        float g = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.getYRot() : 0.0F;
+        float h = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.getXRot() : 0.0F;
+        this.awaitingPositionFromClient = new Vec3(x, y, z);
+        if (++this.awaitingTeleport == Integer.MAX_VALUE) {
+            this.awaitingTeleport = 0;
         }
 
 //        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
@@ -184,29 +184,29 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
 //            return;
 //        }
         
-        this.teleportRequestTick = this.ticks;
-        this.player.updatePositionAndAngles(x, y, z, yaw, pitch);
-        PlayerPositionLookS2CPacket lookPacket = new PlayerPositionLookS2CPacket(x - d, y - e, z - f, yaw - g, pitch - h, flags, this.requestedTeleportId, shouldDismount);
+        this.awaitingTeleportTime = this.tickCount;
+        this.player.absMoveTo(x, y, z, yaw, pitch);
+        ClientboundPlayerPositionPacket lookPacket = new ClientboundPlayerPositionPacket(x - d, y - e, z - f, yaw - g, pitch - h, flags, this.awaitingTeleport, shouldDismount);
         
-        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.world.getRegistryKey());
+        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.level.dimension());
         
-        this.player.networkHandler.sendPacket(lookPacket);
+        this.player.connection.send(lookPacket);
     }
     
     //server will check the collision when receiving position packet from client
     //we treat collision specially when player is halfway through a portal
     //"isPlayerNotCollidingWithBlocks" is wrong now
     @Redirect(
-        method = "onPlayerMove",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isPlayerCollidingWithAnythingNew(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/phys/AABB;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
-        WorldView worldView,
-        Box box
+        ServerGamePacketListenerImpl serverPlayNetworkHandler,
+        LevelReader worldView,
+        AABB box
     ) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return false;
@@ -221,16 +221,16 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (portalsNearby) {
             return false;
         }
-        return isPlayerNotCollidingWithBlocks(worldView, box);
+        return isPlayerCollidingWithAnythingNew(worldView, box);
     }
     
     @Inject(
-        method = "onTeleportConfirm",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleAcceptTeleportPacket(Lnet/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket;)V",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onOnTeleportConfirm(TeleportConfirmC2SPacket packet, CallbackInfo ci) {
-        if (requestedTeleportPos == null) {
+    private void onOnTeleportConfirm(ServerboundAcceptTeleportationPacket packet, CallbackInfo ci) {
+        if (awaitingPositionFromClient == null) {
             ci.cancel();
         }
     }
@@ -238,14 +238,14 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     //do not reject move when player is riding and entering portal
     //the client packet is not validated (validating it needs dimension info in packet)
     @Inject(
-        method = "onVehicleMove",
+        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMoveVehicle(Lnet/minecraft/network/protocol/game/ServerboundMoveVehiclePacket;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isMovementInvalid(DDDFF)Z"
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;containsInvalidValues(DDDFF)Z"
         ),
         cancellable = true
     )
-    private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
+    private void onOnVehicleMove(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
             
@@ -258,20 +258,20 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
                 double newY = packet.getY();
                 double newZ = packet.getZ();
                 
-                if (entity.getPos().squaredDistanceTo(
+                if (entity.position().distanceToSqr(
                     newX, newY, newZ
                 ) < 256) {
-                    float yaw = packet.getYaw();
-                    float pitch = packet.getPitch();
+                    float yaw = packet.getYRot();
+                    float pitch = packet.getXRot();
                     
-                    entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
+                    entity.absMoveTo(newX, newY, newZ, yaw, pitch);
                     
-                    this.player.getWorld().getChunkManager().updatePosition(this.player);
+                    this.player.getLevel().getChunkSource().move(this.player);
                     
-                    vehicleFloating = false;
-                    updatedRiddenX = entity.getX();
-                    updatedRiddenY = entity.getY();
-                    updatedRiddenZ = entity.getZ();
+                    clientVehicleIsFloating = false;
+                    vehicleLastGoodX = entity.getX();
+                    vehicleLastGoodY = entity.getY();
+                    vehicleLastGoodZ = entity.getZ();
                 }
             }
             
@@ -279,7 +279,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
     }
     
-    private static boolean shouldAcceptDubiousMovement(ServerPlayerEntity player) {
+    private static boolean shouldAcceptDubiousMovement(ServerPlayer player) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
         }
@@ -298,6 +298,6 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     @Override
     public void cancelTeleportRequest() {
-        requestedTeleportPos = null;
+        awaitingPositionFromClient = null;
     }
 }

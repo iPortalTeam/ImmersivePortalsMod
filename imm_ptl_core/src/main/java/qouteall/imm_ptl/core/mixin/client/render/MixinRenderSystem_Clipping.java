@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.render.Shader;
+import net.minecraft.client.renderer.ShaderInstance;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 @Mixin(value = RenderSystem.class, remap = false)
 public class MixinRenderSystem_Clipping {
     @Inject(
-        method = "setShader",
+        method = "Lcom/mojang/blaze3d/systems/RenderSystem;setShader(Ljava/util/function/Supplier;)V",
         at = @At("RETURN")
     )
-    private static void onSetShader(Supplier<Shader> supplier, CallbackInfo ci) {
+    private static void onSetShader(Supplier<ShaderInstance> supplier, CallbackInfo ci) {
         if (IPGlobal.enableClippingMechanism && !IrisInterface.invoker.isIrisPresent()) {
             if (CrossPortalEntityRenderer.isRenderingEntityNormally ||
                 CrossPortalEntityRenderer.isRenderingEntityProjection

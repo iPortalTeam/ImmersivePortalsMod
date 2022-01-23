@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,35 +22,35 @@ import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
-@Mixin(RaycastContext.class)
+@Mixin(ClipContext.class)
 public abstract class MixinRaycastContext implements IERayTraceContext {
     @Shadow
     @Final
     @Mutable
-    private Vec3d start;
+    private Vec3 from;
     
     @Shadow
     @Final
     @Mutable
-    private Vec3d end;
+    private Vec3 to;
     
     @Shadow
     @Final
-    private RaycastContext.ShapeType shapeType;
+    private ClipContext.Block block;
     
     @Shadow
     @Final
-    private ShapeContext entityPosition;
+    private CollisionContext collisionContext;
     
     @Override
-    public IERayTraceContext setStart(Vec3d newStart) {
-        start = newStart;
+    public IERayTraceContext setStart(Vec3 newStart) {
+        from = newStart;
         return this;
     }
     
     @Override
-    public IERayTraceContext setEnd(Vec3d newEnd) {
-        end = newEnd;
+    public IERayTraceContext setEnd(Vec3 newEnd) {
+        to = newEnd;
         return this;
     }
     
@@ -58,30 +58,30 @@ public abstract class MixinRaycastContext implements IERayTraceContext {
     // placeholder blocks entity view
     @Inject(
         at = @At("HEAD"),
-        method = "getBlockShape",
+        method = "Lnet/minecraft/world/level/ClipContext;getBlockShape(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
         cancellable = true
     )
     private void onGetBlockShape(
         BlockState blockState,
-        BlockView blockView,
+        BlockGetter blockView,
         BlockPos blockPos,
         CallbackInfoReturnable<VoxelShape> cir
     ) {
         if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
-            if (shapeType == RaycastContext.ShapeType.OUTLINE) {
-                if (blockView instanceof World) {
+            if (block == ClipContext.Block.OUTLINE) {
+                if (blockView instanceof Level) {
                     boolean isIntersectingWithPortal = McHelper.getEntitiesRegardingLargeEntities(
-                        (World) blockView, new Box(blockPos),
+                        (Level) blockView, new AABB(blockPos),
                         10, Portal.class, e -> true
                     ).isEmpty();
                     if (!isIntersectingWithPortal) {
-                        cir.setReturnValue(VoxelShapes.empty());
+                        cir.setReturnValue(Shapes.empty());
                     }
                 }
             }
-            else if (shapeType == RaycastContext.ShapeType.COLLIDER) {
-                cir.setReturnValue(PortalPlaceholderBlock.instance.getOutlineShape(
-                    blockState, blockView, blockPos, entityPosition
+            else if (block == ClipContext.Block.COLLIDER) {
+                cir.setReturnValue(PortalPlaceholderBlock.instance.getShape(
+                    blockState, blockView, blockPos, collisionContext
                 ));
             }
         }

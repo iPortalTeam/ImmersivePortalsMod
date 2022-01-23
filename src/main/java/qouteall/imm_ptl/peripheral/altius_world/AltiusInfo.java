@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -46,8 +46,8 @@ public class AltiusInfo {
     public static void createConnectionBetween(
         AltiusEntry a, AltiusEntry b, boolean gravityChange
     ) {
-        ServerWorld fromWorld = McHelper.getServerWorld(a.dimension);
-        ServerWorld toWorld = McHelper.getServerWorld(b.dimension);
+        ServerLevel fromWorld = McHelper.getServerWorld(a.dimension);
+        ServerLevel toWorld = McHelper.getServerWorld(b.dimension);
         
         boolean xorFlipped = a.flipped ^ b.flipped;
         
@@ -97,7 +97,7 @@ public class AltiusInfo {
     public void apply() {
         
         if (entries.isEmpty()) {
-            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
                 "Error: No dimension for dimension stack"
             ));
             return;
@@ -121,7 +121,7 @@ public class AltiusInfo {
             createConnectionBetween(entries.get(entries.size() - 1), entries.get(0), gravityChange);
         }
         
-        Map<RegistryKey<World>, BlockState> bedrockReplacementMap = new HashMap<>();
+        Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
         for (AltiusEntry entry : entries) {
             String bedrockReplacementStr = entry.bedrockReplacementStr;
             
@@ -137,15 +137,15 @@ public class AltiusInfo {
         AltiusManagement.bedrockReplacementMap = bedrockReplacementMap;
         
         McHelper.sendMessageToFirstLoggedPlayer(
-            new TranslatableText("imm_ptl.dim_stack_initialized")
+            new TranslatableComponent("imm_ptl.dim_stack_initialized")
         );
     }
     
-    public NbtCompound toNbt() {
-        NbtCompound nbtCompound = new NbtCompound();
+    public CompoundTag toNbt() {
+        CompoundTag nbtCompound = new CompoundTag();
         nbtCompound.putBoolean("loop", loop);
         nbtCompound.putBoolean("gravityChange", gravityChange);
-        NbtList list = new NbtList();
+        ListTag list = new ListTag();
         for (AltiusEntry entry : entries) {
             list.add(entry.toNbt());
         }
@@ -153,12 +153,12 @@ public class AltiusInfo {
         return nbtCompound;
     }
     
-    public static AltiusInfo fromNbt(NbtCompound compound) {
+    public static AltiusInfo fromNbt(CompoundTag compound) {
         boolean loop = compound.getBoolean("loop");
         boolean gravityChange = compound.getBoolean("gravityChange");
-        NbtList list = compound.getList("entries", new NbtCompound().getType());
+        ListTag list = compound.getList("entries", new CompoundTag().getId());
         List<AltiusEntry> entries = list.stream()
-            .map(n -> AltiusEntry.fromNbt(((NbtCompound) n))).collect(Collectors.toList());
+            .map(n -> AltiusEntry.fromNbt(((CompoundTag) n))).collect(Collectors.toList());
         return new AltiusInfo(entries, loop, gravityChange);
     }
     
@@ -172,8 +172,8 @@ public class AltiusInfo {
         }
         
         try {
-            Optional<Block> block = Registry.BLOCK.getOrEmpty(new Identifier(str));
-            return block.map(Block::getDefaultState).orElse(null);
+            Optional<Block> block = Registry.BLOCK.getOptional(new ResourceLocation(str));
+            return block.map(Block::defaultBlockState).orElse(null);
         }
         catch (Exception e) {
             e.printStackTrace();

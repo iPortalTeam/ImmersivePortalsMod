@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render.framebuffer;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
@@ -24,48 +24,48 @@ import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
-@Mixin(Framebuffer.class)
+@Mixin(RenderTarget.class)
 public abstract class MixinFrameBuffer implements IEFrameBuffer {
     
     private boolean isStencilBufferEnabled;
     
     @Shadow
-    public int textureWidth;
+    public int width;
     @Shadow
-    public int textureHeight;
+    public int height;
     
     @Shadow
-    public int viewportWidth;
+    public int viewWidth;
     
     @Shadow
-    public int viewportHeight;
+    public int viewHeight;
     
     @Shadow
-    public int fbo;
+    public int frameBufferId;
     
     @Shadow
-    public int colorAttachment;
+    public int colorTextureId;
     
     @Shadow
-    public int depthAttachment;
+    public int depthBufferId;
     
     @Shadow
     @Final
-    public boolean useDepthAttachment;
+    public boolean useDepth;
     
     @Shadow
-    public abstract void setTexFilter(int i);
+    public abstract void setFilterMode(int i);
     
     @Shadow
-    public abstract void checkFramebufferStatus();
+    public abstract void checkStatus();
     
     @Shadow
     public abstract void clear(boolean getError);
     
     @Shadow
-    public abstract void endRead();
+    public abstract void unbindRead();
     
-    @Shadow public abstract void initFbo(int width, int height, boolean getError);
+    @Shadow public abstract void createBuffers(int width, int height, boolean getError);
     
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(
@@ -134,7 +134,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     
 
     @Redirect(
-        method = "initFbo",
+        method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;createBuffers(IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
@@ -168,7 +168,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     }
 
     @Redirect(
-        method = "initFbo",
+        method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;createBuffers(IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V"
@@ -189,10 +189,10 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     }
     
     @Inject(
-        method = "copyDepthFrom",
+        method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;copyDepthFrom(Lcom/mojang/blaze3d/pipeline/RenderTarget;)V",
         at = @At("RETURN")
     )
-    private void onCopiedDepthFrom(Framebuffer framebuffer, CallbackInfo ci) {
+    private void onCopiedDepthFrom(RenderTarget framebuffer, CallbackInfo ci) {
         CHelper.checkGlError();
     }
     
@@ -205,7 +205,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     public void setIsStencilBufferEnabledAndReload(boolean cond) {
         if (isStencilBufferEnabled != cond) {
             isStencilBufferEnabled = cond;
-            initFbo(textureWidth, textureHeight, MinecraftClient.IS_SYSTEM_MAC);
+            createBuffers(width, height, Minecraft.ON_OSX);
         }
     }
 }

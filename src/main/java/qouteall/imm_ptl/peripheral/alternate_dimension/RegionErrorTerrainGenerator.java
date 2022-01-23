@@ -1,10 +1,9 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.world.biome.source.SeedMixer;
-
 import java.util.Arrays;
 import java.util.Random;
+import net.minecraft.util.LinearCongruentialGenerator;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class RegionErrorTerrainGenerator {
     public static interface Composition {
@@ -43,8 +42,8 @@ public class RegionErrorTerrainGenerator {
     }
     
     private void initExpression(long seed) {
-        long realSeed = SeedMixer.mixSeed(
-            seed, SeedMixer.mixSeed(
+        long realSeed = LinearCongruentialGenerator.next(
+            seed, LinearCongruentialGenerator.next(
                 regionX, regionZ
             )
         );

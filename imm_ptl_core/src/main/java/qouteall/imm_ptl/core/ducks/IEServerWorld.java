@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerEntityManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 
 public interface IEServerWorld {
-    ServerEntityManager<Entity> ip_getEntityManager();
+    PersistentEntitySectionManager<Entity> ip_getEntityManager();
 }

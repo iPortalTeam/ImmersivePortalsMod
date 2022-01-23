@@ -1,10 +1,10 @@
 package qouteall.q_misc_util;
 
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.api.DimensionAPI;
@@ -14,36 +14,36 @@ public class DimensionMisc {
     private static final Logger logger = LogManager.getLogger();
     
     // fix the issue that nether and end get swallowed by DFU
-    public static void addMissingVanillaDimensions(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager) {
-        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
-        long seed = generatorOptions.getSeed();
-        if (!registry.getIds().contains(DimensionOptions.NETHER.getValue())) {
+    public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
+        MappedRegistry<LevelStem> registry = generatorOptions.dimensions();
+        long seed = generatorOptions.seed();
+        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
             logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
             
-            SimpleRegistry<DimensionOptions> newOptions =
-                DimensionType.createDefaultDimensionOptions(registryManager, seed);
+            MappedRegistry<LevelStem> newOptions =
+                DimensionType.defaultDimensions(registryManager, seed);
             
             DimensionAPI.addDimension(
                 seed,
                 registry,
-                DimensionOptions.NETHER.getValue(),
+                LevelStem.NETHER.location(),
                 () -> DimensionTypeAccessor._getTheNether(),
-                newOptions.get(DimensionOptions.NETHER).getChunkGenerator()
+                newOptions.get(LevelStem.NETHER).generator()
             );
         }
         
-        if (!registry.getIds().contains(DimensionOptions.END.getValue())) {
+        if (!registry.keySet().contains(LevelStem.END.location())) {
             logger.error("Missing the end. This may be caused by DFU. Trying to fix");
             
-            SimpleRegistry<DimensionOptions> newOptions =
-                DimensionType.createDefaultDimensionOptions(registryManager, seed);
+            MappedRegistry<LevelStem> newOptions =
+                DimensionType.defaultDimensions(registryManager, seed);
             
             DimensionAPI.addDimension(
                 seed,
                 registry,
-                DimensionOptions.END.getValue(),
+                LevelStem.END.location(),
                 () -> DimensionTypeAccessor._getTheEnd(),
-                newOptions.get(DimensionOptions.END).getChunkGenerator()
+                newOptions.get(LevelStem.END).generator()
             );
         }
     }

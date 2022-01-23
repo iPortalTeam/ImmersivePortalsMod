@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.EntityTrackingListener;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.core.SectionPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -29,60 +29,60 @@ import java.util.List;
 import java.util.Set;
 
 //NOTE must redirect all packets about entities
-@Mixin(ThreadedAnvilChunkStorage.EntityTracker.class)
+@Mixin(ChunkMap.TrackedEntity.class)
 public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
-    private EntityTrackerEntry entry;
+    private ServerEntity serverEntity;
     @Shadow
     @Final
     private Entity entity;
     @Shadow
     @Final
-    private int maxDistance;
+    private int range;
     
     @Shadow
-    public abstract void stopTracking();
+    public abstract void broadcastRemoved();
     
     @Shadow
-    protected abstract int getMaxTrackDistance();
+    protected abstract int getEffectiveRange();
     
     @Shadow
     @Final
-    private Set<EntityTrackingListener> listeners;
+    private Set<ServerPlayerConnection> seenBy;
     
-    @Shadow private ChunkSectionPos trackedSection;
+    @Shadow private SectionPos lastSectionPos;
     
     @Redirect(
-        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
+        method = "Lnet/minecraft/server/level/ChunkMap$TrackedEntity;broadcast(Lnet/minecraft/network/protocol/Packet;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/world/EntityTrackingListener;sendPacket(Lnet/minecraft/network/Packet;)V"
+            target = "Lnet/minecraft/server/network/ServerPlayerConnection;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
     private void onSendToOtherNearbyPlayers(
-        EntityTrackingListener entityTrackingListener, Packet<?> packet
+        ServerPlayerConnection entityTrackingListener, Packet<?> packet
     ) {
         IPCommonNetwork.withForceRedirect(
-            ((ServerWorld) entity.world),
+            ((ServerLevel) entity.level),
             () -> {
-                entityTrackingListener.sendPacket(packet);
+                entityTrackingListener.send(packet);
             }
         );
     }
     
     @Redirect(
-        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToNearbyPlayers(Lnet/minecraft/network/Packet;)V",
+        method = "Lnet/minecraft/server/level/ChunkMap$TrackedEntity;broadcastAndSend(Lnet/minecraft/network/protocol/Packet;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
     private void onSendToNearbyPlayers(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
     
     /**
@@ -90,7 +90,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
      * @reason make incompat fail fast
      */
     @Overwrite
-    public void updateTrackedStatus(ServerPlayerEntity player) {
+    public void updatePlayer(ServerPlayer player) {
         updateEntityTrackingStatus(player);
     }
     
@@ -99,8 +99,8 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
      * @reason make incompat fail fast
      */
     @Overwrite
-    public void updateTrackedStatus(List<ServerPlayerEntity> list) {
-        for (ServerPlayerEntity player : McHelper.getRawPlayerList()) {
+    public void updatePlayers(List<ServerPlayer> list) {
+        for (ServerPlayer player : McHelper.getRawPlayerList()) {
             updateEntityTrackingStatus(player);
         }
     }
@@ -111,38 +111,38 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     }
     
     @Override
-    public void updateEntityTrackingStatus(ServerPlayerEntity player) {
+    public void updateEntityTrackingStatus(ServerPlayer player) {
         IEThreadedAnvilChunkStorage storage = (IEThreadedAnvilChunkStorage)
-            ((ServerWorld) entity.world).getChunkManager().threadedAnvilChunkStorage;
+            ((ServerLevel) entity.level).getChunkSource().chunkMap;
         
         if (player == this.entity) {
             return;
         }
         
-        Profiler profiler = player.world.getProfiler();
+        ProfilerFiller profiler = player.level.getProfiler();
         profiler.push("portal_entity_track");
         
         int maxWatchDistance = Math.min(
-            this.getMaxTrackDistance(),
+            this.getEffectiveRange(),
             (storage.getWatchDistance() - 1) * 16
         );
-        ChunkPos chunkPos = entity.getChunkPos();
+        ChunkPos chunkPos = entity.chunkPosition();
         boolean isWatchedNow =
             NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
                 player,
-                this.entity.world.getRegistryKey(),
+                this.entity.level.dimension(),
                 chunkPos.x,
                 chunkPos.z,
                 maxWatchDistance
-            ) && this.entity.canBeSpectated(player);
+            ) && this.entity.broadcastToPlayer(player);
         if (isWatchedNow) {
             
-            if (listeners.add(player.networkHandler)) {
-                this.entry.startTracking(player);
+            if (seenBy.add(player.connection)) {
+                this.serverEntity.addPairing(player);
             }
         }
-        else if (listeners.remove(player.networkHandler)) {
-            this.entry.stopTracking(player);
+        else if (seenBy.remove(player.connection)) {
+            this.serverEntity.removePairing(player);
         }
         
         profiler.pop();
@@ -150,40 +150,40 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     }
     
     @Override
-    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        listeners.remove(oldPlayer.networkHandler);
-        entry.stopTracking(oldPlayer);
+    public void onPlayerRespawn(ServerPlayer oldPlayer) {
+        seenBy.remove(oldPlayer.connection);
+        serverEntity.removePairing(oldPlayer);
     }
     
     @Override
     public void resendSpawnPacketToTrackers() {
         // avoid sending wrong position delta update packet
-        ((IEEntityTrackerEntry) entry).ip_updateTrackedEntityPosition();
+        ((IEEntityTrackerEntry) serverEntity).ip_updateTrackedEntityPosition();
         
-        Packet<?> spawnPacket = entity.createSpawnPacket();
-        Packet redirected = IPNetworking.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
-        listeners.forEach(handler -> {
-            handler.sendPacket(redirected);
+        Packet<?> spawnPacket = entity.getAddEntityPacket();
+        Packet redirected = IPNetworking.createRedirectedMessage(entity.level.dimension(), spawnPacket);
+        seenBy.forEach(handler -> {
+            handler.send(redirected);
         });
     }
     
     @Override
     public void stopTrackingToAllPlayers_() {
-        stopTracking();
+        broadcastRemoved();
     }
     
     @Override
     public void tickEntry() {
-        entry.tick();
+        serverEntity.sendChanges();
     }
     
     @Override
-    public ChunkSectionPos getLastCameraPosition() {
-        return trackedSection;
+    public SectionPos getLastCameraPosition() {
+        return lastSectionPos;
     }
     
     @Override
-    public void setLastCameraPosition(ChunkSectionPos arg) {
-        trackedSection = arg;
+    public void setLastCameraPosition(SectionPos arg) {
+        lastSectionPos = arg;
     }
 }

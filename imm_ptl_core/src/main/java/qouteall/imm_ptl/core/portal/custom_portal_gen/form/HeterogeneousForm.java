@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 
@@ -32,12 +32,12 @@ public class HeterogeneousForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         //clone
         BlockPos offset = toShape.innerAreaBox.l.subtract(fromShape.innerAreaBox.l);
         fromShape.frameAreaWithoutCorner.forEach(blockPos -> {
-            toWorld.setBlockState(
-                blockPos.add(offset),
+            toWorld.setBlockAndUpdate(
+                blockPos.offset(offset),
                 fromWorld.getBlockState(blockPos)
             );
         });

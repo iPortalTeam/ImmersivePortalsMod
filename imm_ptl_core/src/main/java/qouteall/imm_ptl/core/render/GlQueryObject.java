@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
@@ -18,7 +18,7 @@ public class GlQueryObject {
     
     public void performQueryAnySamplePassed(Runnable renderingFunc) {
         // mac does not support any samples passed query
-        if (MinecraftClient.IS_SYSTEM_MAC) {
+        if (Minecraft.ON_OSX) {
             performQuerySampleNumPassed(renderingFunc);
             return;
         }

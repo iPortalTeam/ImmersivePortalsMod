@@ -2,13 +2,13 @@ package qouteall.imm_ptl.peripheral.guide;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.MessageType;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
@@ -54,7 +54,7 @@ public class IPGuide {
     }
     
     private static File getStorageFile() {
-        return new File(MinecraftClient.getInstance().runDirectory, "imm_ptl_state.json");
+        return new File(Minecraft.getInstance().gameDirectory, "imm_ptl_state.json");
     }
     
     private static void writeToFile(GuideInfo guideInfo) {
@@ -73,7 +73,7 @@ public class IPGuide {
         guideInfo = readFromFile();
         
         IPCommonNetworkClient.clientPortalSpawnSignal.connect(p -> {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            LocalPlayer player = Minecraft.getInstance().player;
             
             if (!guideInfo.wikiInformed) {
                 if (player != null && player.isCreative()) {
@@ -81,7 +81,7 @@ public class IPGuide {
                     writeToFile(guideInfo);
                     informWithURL(
                         "https://qouteall.fun/immptl/wiki/Portal-Customization",
-                        new TranslatableText("imm_ptl.inform_wiki")
+                        new TranslatableComponent("imm_ptl.inform_wiki")
                     );
                 }
             }
@@ -92,9 +92,9 @@ public class IPGuide {
                     writeToFile(guideInfo);
                     
                     IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
-                        MinecraftClient.getInstance().inGameHud.addChatMessage(
-                            MessageType.SYSTEM,
-                            new TranslatableText("imm_ptl.about_lag"),
+                        Minecraft.getInstance().gui.handleChat(
+                            ChatType.SYSTEM,
+                            new TranslatableComponent("imm_ptl.about_lag"),
                             Util.NIL_UUID
                         );
                         return true;
@@ -111,14 +111,14 @@ public class IPGuide {
             
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
-                new TranslatableText("imm_ptl.inform_portal_helper")
+                new TranslatableComponent("imm_ptl.inform_portal_helper")
             );
         }
     }
     
-    private static void informWithURL(String link, MutableText text) {
-        MinecraftClient.getInstance().inGameHud.addChatMessage(
-            MessageType.SYSTEM,
+    private static void informWithURL(String link, MutableComponent text) {
+        Minecraft.getInstance().gui.handleChat(
+            ChatType.SYSTEM,
             text.append(
                 McHelper.getLinkText(link)
             ),
@@ -131,7 +131,7 @@ public class IPGuide {
         public static void showWiki() {
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Commands-Reference",
-                new LiteralText("")
+                new TextComponent("")
             );
         }
     }

@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 
 public interface IEGameRenderer {
-    void setLightmapTextureManager(LightmapTextureManager manager);
+    void setLightmapTextureManager(LightTexture manager);
     
     boolean getDoRenderHand();
     
@@ -13,5 +13,5 @@ public interface IEGameRenderer {
     
     void setIsRenderingPanorama(boolean cond);
     
-    void portal_bobView(MatrixStack matrixStack, float tickDelta);
+    void portal_bobView(PoseStack matrixStack, float tickDelta);
 }

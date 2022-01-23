@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 public interface IEPlayerPositionLookS2CPacket {
-    RegistryKey<World> getPlayerDimension();
+    ResourceKey<Level> getPlayerDimension();
     
-    void setPlayerDimension(RegistryKey<World> dimension);
+    void setPlayerDimension(ResourceKey<Level> dimension);
 }

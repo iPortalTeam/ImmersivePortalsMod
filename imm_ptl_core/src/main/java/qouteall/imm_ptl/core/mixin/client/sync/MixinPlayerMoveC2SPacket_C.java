@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
-@Mixin(PlayerMoveC2SPacket.class)
+@Mixin(ServerboundMovePlayerPacket.class)
 public class MixinPlayerMoveC2SPacket_C {
     @Inject(
         method = "<init>",
@@ -20,7 +20,7 @@ public class MixinPlayerMoveC2SPacket_C {
         double x, double y, double z, float yaw, float pitch, boolean onGround,
         boolean changePosition, boolean changeLook, CallbackInfo ci
     ) {
-        RegistryKey<World> dimension = MinecraftClient.getInstance().player.world.getRegistryKey();
+        ResourceKey<Level> dimension = Minecraft.getInstance().player.level.dimension();
         ((IEPlayerMoveC2SPacket) this).setPlayerDimension(dimension);
     }
 }

@@ -1,19 +1,19 @@
 package qouteall.q_misc_util.my_util;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import qouteall.q_misc_util.Helper;
 
 public class RotationHelper {
     //NOTE this will mutate a and return a
     public static Quaternion quaternionNumAdd(Quaternion a, Quaternion b) {
         a.set(
-            a.getX() + b.getX(),
-            a.getY() + b.getY(),
-            a.getZ() + b.getZ(),
-            a.getW() + b.getW()
+            a.i() + b.i(),
+            a.j() + b.j(),
+            a.k() + b.k(),
+            a.r() + b.r()
         );
         return a;
     }
@@ -21,10 +21,10 @@ public class RotationHelper {
     //NOTE this will mutate a and reutrn a
     public static Quaternion quaternionScale(Quaternion a, float scale) {
         a.set(
-            a.getX() * scale,
-            a.getY() * scale,
-            a.getZ() * scale,
-            a.getW() * scale
+            a.i() * scale,
+            a.j() * scale,
+            a.k() * scale,
+            a.r() * scale
         );
         return a;
     }
@@ -42,7 +42,7 @@ public class RotationHelper {
         double dot = dotProduct4d(a, b);
         
         if (dot < 0.0f) {
-            a.scale(-1);
+            a.mul(-1);
             dot = -dot;
         }
         
@@ -74,43 +74,43 @@ public class RotationHelper {
     }
     
     public static double dotProduct4d(Quaternion a, Quaternion b) {
-        return a.getX() * b.getX() +
-            a.getY() * b.getY() +
-            a.getZ() * b.getZ() +
-            a.getW() * b.getW();
+        return a.i() * b.i() +
+            a.j() * b.j() +
+            a.k() * b.k() +
+            a.r() * b.r();
     }
     
     public static boolean isClose(Quaternion a, Quaternion b, float valve) {
         a.normalize();
         b.normalize();
-        if (a.getW() * b.getW() < 0) {
-            a.scale(-1);
+        if (a.r() * b.r() < 0) {
+            a.mul(-1);
         }
-        float da = a.getX() - b.getX();
-        float db = a.getY() - b.getY();
-        float dc = a.getZ() - b.getZ();
-        float dd = a.getW() - b.getW();
+        float da = a.i() - b.i();
+        float db = a.j() - b.j();
+        float dc = a.k() - b.k();
+        float dd = a.r() - b.r();
         return da * da + db * db + dc * dc + dd * dd < valve;
     }
     
-    public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
-        Vec3f vector3f = new Vec3f(vec);
-        vector3f.rotate(rotation);
-        return new Vec3d(vector3f);
+    public static Vec3 getRotated(Quaternion rotation, Vec3 vec) {
+        Vector3f vector3f = new Vector3f(vec);
+        vector3f.transform(rotation);
+        return new Vec3(vector3f);
     }
     
     public static Quaternion ortholize(Quaternion quaternion) {
-        if (quaternion.getW() < 0) {
-            quaternion.scale(-1);
+        if (quaternion.r() < 0) {
+            quaternion.mul(-1);
         }
         return quaternion;
     }
     
-    public static Vec3d getRotatingAxis(Quaternion quaternion) {
-        return new Vec3d(
-            quaternion.getX(),
-            quaternion.getY(),
-            quaternion.getZ()
+    public static Vec3 getRotatingAxis(Quaternion quaternion) {
+        return new Vec3(
+            quaternion.i(),
+            quaternion.j(),
+            quaternion.k()
         ).normalize();
     }
     
@@ -123,10 +123,10 @@ public class RotationHelper {
     ) {
         return Helper.makeIntoExpression(
             new Quaternion(
-                MathHelper.lerp(t, a.getX(), b.getX()),
-                MathHelper.lerp(t, a.getY(), b.getY()),
-                MathHelper.lerp(t, a.getZ(), b.getZ()),
-                MathHelper.lerp(t, a.getW(), b.getW())
+                Mth.lerp(t, a.i(), b.i()),
+                Mth.lerp(t, a.j(), b.j()),
+                Mth.lerp(t, a.k(), b.k()),
+                Mth.lerp(t, a.r(), b.r())
             ),
             Quaternion::normalize
         );

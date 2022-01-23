@@ -2,18 +2,18 @@ package qouteall.imm_ptl.core;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
@@ -35,19 +35,19 @@ public class CHelper {
     
     private static int reportedErrorNum = 0;
     
-    public static PlayerListEntry getClientPlayerListEntry() {
-        return MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
-            MinecraftClient.getInstance().player.getGameProfile().getId()
+    public static PlayerInfo getClientPlayerListEntry() {
+        return Minecraft.getInstance().getConnection().getPlayerInfo(
+            Minecraft.getInstance().player.getGameProfile().getId()
         );
     }
     
     //do not inline this or it will crash in server
-    public static World getClientWorld(RegistryKey<World> dimension) {
+    public static Level getClientWorld(ResourceKey<Level> dimension) {
         return ClientWorldLoader.getWorld(dimension);
     }
     
-    public static List<Portal> getClientGlobalPortal(World world) {
-        if (world instanceof ClientWorld) {
+    public static List<Portal> getClientGlobalPortal(Level world) {
+        if (world instanceof ClientLevel) {
             return ((IEClientWorld) world).getGlobalPortals();
         }
         else {
@@ -56,7 +56,7 @@ public class CHelper {
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {
-        return IPMcHelper.getNearbyPortals(MinecraftClient.getInstance().player, range);
+        return IPMcHelper.getNearbyPortals(Minecraft.getInstance().player, range);
     }
     
     public static void checkGlError() {
@@ -80,23 +80,23 @@ public class CHelper {
     
     public static void printChat(String str) {
         Helper.log(str);
-        printChat(new LiteralText(str));
+        printChat(new TextComponent(str));
     }
     
-    public static void printChat(Text text) {
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
+    public static void printChat(Component text) {
+        Minecraft.getInstance().gui.getChat().addMessage(text);
     }
     
     public static void openLinkConfirmScreen(
         Screen parent,
         String link
     ) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        client.setScreen(new ConfirmChatLinkScreen(
+        Minecraft client = Minecraft.getInstance();
+        client.setScreen(new ConfirmLinkScreen(
             (result) -> {
                 if (result) {
                     try {
-                        Util.getOperatingSystem().open(new URI(link));
+                        Util.getPlatform().openUri(new URI(link));
                     }
                     catch (URISyntaxException e) {
                         e.printStackTrace();
@@ -108,17 +108,17 @@ public class CHelper {
         ));
     }
     
-    public static Vec3d getCurrentCameraPos() {
-        return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+    public static Vec3 getCurrentCameraPos() {
+        return Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
     }
     
     public static <T> T withWorldSwitched(Entity entity, Portal portal, Supplier<T> func) {
         
-        World oldWorld = entity.world;
-        Vec3d eyePos = McHelper.getEyePos(entity);
-        Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
+        Level oldWorld = entity.level;
+        Vec3 eyePos = McHelper.getEyePos(entity);
+        Vec3 lastTickEyePos = McHelper.getLastTickEyePos(entity);
         
-        entity.world = portal.getDestinationWorld();
+        entity.level = portal.getDestinationWorld();
         McHelper.setEyePos(
             entity,
             portal.transformPoint(eyePos),
@@ -130,22 +130,22 @@ public class CHelper {
             return result;
         }
         finally {
-            entity.world = oldWorld;
+            entity.level = oldWorld;
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
         }
     }
     
-    public static Iterable<Entity> getWorldEntityList(World world) {
-        if (!(world instanceof ClientWorld)) {
+    public static Iterable<Entity> getWorldEntityList(Level world) {
+        if (!(world instanceof ClientLevel)) {
             return (Iterable<Entity>) Collections.emptyList().iterator();
         }
         
-        ClientWorld clientWorld = (ClientWorld) world;
-        return clientWorld.getEntities();
+        ClientLevel clientWorld = (ClientLevel) world;
+        return clientWorld.entitiesForRendering();
     }
     
     public static double getSmoothCycles(long unitTicks) {
-        int playerAge = MinecraftClient.getInstance().player.age;
+        int playerAge = Minecraft.getInstance().player.tickCount;
         return (playerAge % unitTicks + RenderStates.tickDelta) / (double) unitTicks;
     }
     

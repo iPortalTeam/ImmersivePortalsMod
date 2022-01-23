@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 
@@ -16,17 +16,17 @@ public class RendererDummy extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
     
     }
     
@@ -38,7 +38,7 @@ public class RendererDummy extends PortalRenderer {
     @Override
     protected void doRenderPortal(
         PortalLike portal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
     
     }

@@ -1,17 +1,5 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -21,6 +9,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class WorldWrappingPortal extends GlobalTrackedPortal {
     public static EntityType<WorldWrappingPortal> entityType;
@@ -30,14 +30,14 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     
     public WorldWrappingPortal(
         EntityType<?> entityType_1,
-        World world_1
+        Level world_1
     ) {
         super(entityType_1, world_1);
     }
     
     @Override
-    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
-        super.readCustomDataFromNbt(compoundTag);
+    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
         
         if (compoundTag.contains("isInward")) {
             isInward = compoundTag.getBoolean("isInward");
@@ -48,16 +48,16 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     @Override
-    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
-        super.writeCustomDataToNbt(compoundTag);
+    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
         
         compoundTag.putBoolean("isInward", isInward);
         compoundTag.putInt("zoneId", zoneId);
     }
     
     private static WorldWrappingPortal createWrappingPortal(
-        ServerWorld serverWorld,
-        Box area,
+        ServerLevel serverWorld,
+        AABB area,
         Direction direction,
         int zoneId,
         boolean isInward
@@ -72,40 +72,40 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     public static void initWrappingPortal(
-        ServerWorld serverWorld,
-        Box area,
+        ServerLevel serverWorld,
+        AABB area,
         Direction direction,
         boolean isInward,
         Portal portal
     ) {
-        Vec3d areaSize = Helper.getBoxSize(area);
+        Vec3 areaSize = Helper.getBoxSize(area);
         
-        Pair<Direction, Direction> axises = Helper.getPerpendicularDirections(
+        Tuple<Direction, Direction> axises = Helper.getPerpendicularDirections(
             isInward ? direction : direction.getOpposite()
         );
-        Box boxSurface = Helper.getBoxSurfaceInversed(area, direction);
-        Vec3d center = boxSurface.getCenter();
-        Box oppositeSurface = Helper.getBoxSurfaceInversed(area, direction.getOpposite());
-        Vec3d destination = oppositeSurface.getCenter();
-        portal.setPosition(center.x, center.y, center.z);
+        AABB boxSurface = Helper.getBoxSurfaceInversed(area, direction);
+        Vec3 center = boxSurface.getCenter();
+        AABB oppositeSurface = Helper.getBoxSurfaceInversed(area, direction.getOpposite());
+        Vec3 destination = oppositeSurface.getCenter();
+        portal.setPos(center.x, center.y, center.z);
         portal.setDestination(destination);
         
-        portal.axisW = Vec3d.of(axises.getLeft().getVector());
-        portal.axisH = Vec3d.of(axises.getRight().getVector());
-        portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
-        portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
+        portal.axisW = Vec3.atLowerCornerOf(axises.getA().getNormal());
+        portal.axisH = Vec3.atLowerCornerOf(axises.getB().getNormal());
+        portal.width = Helper.getCoordinate(areaSize, axises.getA().getAxis());
+        portal.height = Helper.getCoordinate(areaSize, axises.getB().getAxis());
         
-        portal.dimensionTo = serverWorld.getRegistryKey();
+        portal.dimensionTo = serverWorld.dimension();
     }
     
     public static class WrappingZone {
-        public ServerWorld world;
+        public ServerLevel world;
         public boolean isInwardZone;
         public int id;
         public List<WorldWrappingPortal> portals;
         
         public WrappingZone(
-            ServerWorld world,
+            ServerLevel world,
             boolean isInwardZone,
             int id,
             List<WorldWrappingPortal> portals
@@ -129,14 +129,14 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
             portals.forEach(worldWrappingPortal -> gps.removePortal(worldWrappingPortal));
         }
         
-        public Box getArea() {
+        public AABB getArea() {
             return portals.stream().map(
                 Portal::getThinAreaBox
-            ).reduce(Box::union).orElse(null);
+            ).reduce(AABB::minmax).orElse(null);
         }
         
         public IntBox getIntArea() {
-            Box floatBox = getArea();
+            AABB floatBox = getArea();
             
             return new IntBox(
                 new BlockPos(
@@ -154,7 +154,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
                 return getIntArea();
             }
             
-            Box floatBox = getArea();
+            AABB floatBox = getArea();
             
             return new IntBox(
                 new BlockPos(
@@ -168,7 +168,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         @Override
         public String toString() {
-            Box area = getArea();
+            AABB area = getArea();
             return String.format(
                 "[%d] %s %s %s ~ %s %s\n",
                 id,
@@ -179,7 +179,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         }
     }
     
-    public static List<WrappingZone> getWrappingZones(ServerWorld world) {
+    public static List<WrappingZone> getWrappingZones(ServerLevel world) {
         GlobalPortalStorage gps = GlobalPortalStorage.get(world);
         
         List<WrappingZone> result = new ArrayList<>();
@@ -208,16 +208,16 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     public static void invokeAddWrappingZone(
-        ServerWorld world,
+        ServerLevel world,
         int x1, int z1, int x2, int z2,
         boolean isInward,
-        Consumer<Text> feedbackSender
+        Consumer<Component> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
         
         for (WrappingZone zone : wrappingZones) {
             if (!zone.isValid()) {
-                feedbackSender.accept(new TranslatableText(
+                feedbackSender.accept(new TranslatableComponent(
                     "imm_ptl.removed_invalid_wrapping_portals",
                     Helper.myToString(zone.portals.stream())
                 ));
@@ -227,7 +227,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         int availableId = getAvailableId(wrappingZones);
     
-        Box box = new IntBox(new BlockPos(x1, 0, z1), new BlockPos(x2, 255, z2)).toRealNumberBox();
+        AABB box = new IntBox(new BlockPos(x1, 0, z1), new BlockPos(x2, 255, z2)).toRealNumberBox();
         
         WorldWrappingPortal p1 = createWrappingPortal(
             world, box, Direction.NORTH, availableId, isInward
@@ -250,20 +250,20 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     public static void invokeViewWrappingZones(
-        ServerWorld world,
-        Consumer<Text> feedbackSender
+        ServerLevel world,
+        Consumer<Component> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
         
         wrappingZones.forEach(wrappingZone -> {
-            feedbackSender.accept(new LiteralText(wrappingZone.toString()));
+            feedbackSender.accept(new TextComponent(wrappingZone.toString()));
         });
     }
     
     public static void invokeRemoveWrappingZone(
-        ServerWorld world,
-        Vec3d playerPos,
-        Consumer<Text> feedbackSender
+        ServerLevel world,
+        Vec3 playerPos,
+        Consumer<Component> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
         
@@ -273,17 +273,17 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         if (zone != null) {
             zone.removeFromWorld();
-            feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
+            feedbackSender.accept(new TranslatableComponent("imm_ptl.removed_portal", zone.toString()));
         }
         else {
-            feedbackSender.accept(new TranslatableText("imm_ptl.not_in_wrapping_zone"));
+            feedbackSender.accept(new TranslatableComponent("imm_ptl.not_in_wrapping_zone"));
         }
     }
     
     public static void invokeRemoveWrappingZone(
-        ServerWorld world,
+        ServerLevel world,
         int zoneId,
-        Consumer<Text> feedbackSender
+        Consumer<Component> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
         
@@ -293,10 +293,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         if (zone != null) {
             zone.removeFromWorld();
-            feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
+            feedbackSender.accept(new TranslatableComponent("imm_ptl.removed_portal", zone.toString()));
         }
         else {
-            feedbackSender.accept(new TranslatableText("imm_ptl.cannot_find_zone"));
+            feedbackSender.accept(new TranslatableComponent("imm_ptl.cannot_find_zone"));
         }
     }
     

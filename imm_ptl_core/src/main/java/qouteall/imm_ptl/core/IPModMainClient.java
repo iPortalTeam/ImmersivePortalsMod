@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core;
 
-import com.mojang.blaze3d.platform.GlDebugInfo;
+import com.mojang.blaze3d.platform.GlUtil;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.GraphicsMode;
-import net.minecraft.network.MessageType;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.GraphicsStatus;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -42,10 +42,10 @@ public class IPModMainClient {
             return;
         }
         
-        if (MinecraftClient.getInstance().options.graphicsMode == GraphicsMode.FABULOUS) {
+        if (Minecraft.getInstance().options.graphicsMode == GraphicsStatus.FABULOUS) {
             if (!fabulousWarned) {
                 fabulousWarned = true;
-                CHelper.printChat(new TranslatableText("imm_ptl.fabulous_warning"));
+                CHelper.printChat(new TranslatableComponent("imm_ptl.fabulous_warning"));
             }
         }
         
@@ -79,12 +79,12 @@ public class IPModMainClient {
     
     private static void showPreviewWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-            () -> MinecraftClient.getInstance().world == null,
+            () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
-                    MinecraftClient.getInstance().inGameHud.addChatMessage(
-                        MessageType.CHAT,
-                        new TranslatableText("imm_ptl.preview_warning").append(
+                    Minecraft.getInstance().gui.handleChat(
+                        ChatType.CHAT,
+                        new TranslatableComponent("imm_ptl.preview_warning").append(
                             McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
                         ),
                         UUID.randomUUID()
@@ -96,10 +96,10 @@ public class IPModMainClient {
     
     private static void showIntelVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-            () -> MinecraftClient.getInstance().world == null,
+            () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
-                if (GlDebugInfo.getVendor().toLowerCase().contains("intel")) {
-                    CHelper.printChat(new TranslatableText("imm_ptl.intel_warning"));
+                if (GlUtil.getVendor().toLowerCase().contains("intel")) {
+                    CHelper.printChat(new TranslatableComponent("imm_ptl.intel_warning"));
                 }
             })
         ));
@@ -110,7 +110,7 @@ public class IPModMainClient {
         
         ClientWorldLoader.init();
         
-        MinecraftClient.getInstance().execute(() -> {
+        Minecraft.getInstance().execute(() -> {
             ShaderCodeTransformation.init();
             
             MyRenderHelper.init();

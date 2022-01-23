@@ -1,9 +1,9 @@
 package qouteall.q_misc_util.my_util;
 
 
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.math.Quaternion;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
 
@@ -33,15 +33,15 @@ public class DQuaternion {
      */
     public static DQuaternion fromMcQuaternion(Quaternion quaternion) {
         return new DQuaternion(
-            quaternion.getX(), quaternion.getY(), quaternion.getZ(), quaternion.getW()
+            quaternion.i(), quaternion.j(), quaternion.k(), quaternion.r()
         );
     }
     
     /**
      * @return the axis that the rotation is being performed along
      */
-    public Vec3d getRotatingAxis() {
-        return new Vec3d(x, y, z).normalize();
+    public Vec3 getRotatingAxis() {
+        return new Vec3(x, y, z).normalize();
     }
     
     public double getRotatingAngleRadians() {
@@ -69,7 +69,7 @@ public class DQuaternion {
      * @return the result
      */
     public static DQuaternion rotationByDegrees(
-        Vec3d rotatingAxis,
+        Vec3 rotatingAxis,
         double degrees
     ) {
         return rotationByRadians(
@@ -85,14 +85,14 @@ public class DQuaternion {
      * @return the result
      */
     public static DQuaternion rotationByRadians(
-        Vec3d axis,
+        Vec3 axis,
         double rotationAngle
     ) {
         double s = Math.sin(rotationAngle / 2.0F);
         return new DQuaternion(
-            axis.getX() * s,
-            axis.getY() * s,
-            axis.getZ() * s,
+            axis.x() * s,
+            axis.y() * s,
+            axis.z() * s,
             Math.cos(rotationAngle / 2.0F)
         );
     }
@@ -100,7 +100,7 @@ public class DQuaternion {
     /**
      * Perform the rotation onto an immutable vector
      */
-    public Vec3d rotate(Vec3d vec) {
+    public Vec3 rotate(Vec3 vec) {
         DQuaternion result = this.hamiltonProduct(new DQuaternion(vec.x, vec.y, vec.z, 0))
             .hamiltonProduct(getConjugated());
         
@@ -202,8 +202,8 @@ public class DQuaternion {
     }
     
     public static DQuaternion getCameraRotation(double pitch, double yaw) {
-        DQuaternion r1 = rotationByDegrees(new Vec3d(1, 0, 0), pitch);
-        DQuaternion r2 = rotationByDegrees(new Vec3d(0, 1, 0), yaw + 180);
+        DQuaternion r1 = rotationByDegrees(new Vec3(1, 0, 0), pitch);
+        DQuaternion r2 = rotationByDegrees(new Vec3(0, 1, 0), yaw + 180);
         DQuaternion result = r1.hamiltonProduct(r2);
         return result;
     }
@@ -252,7 +252,7 @@ public class DQuaternion {
     
     @Override
     public String toString() {
-        Vec3d rotatingAxis = getRotatingAxis();
+        Vec3 rotatingAxis = getRotatingAxis();
         return String.format("Rotates %.3f degrees along (%.3f %.3f %.3f) Quaternion:(%.3f %.3f %.3f %.3f)",
             getRotatingAngleDegrees(), rotatingAxis.x, rotatingAxis.y, rotatingAxis.z, x, y, z, w
         );
@@ -297,7 +297,7 @@ public class DQuaternion {
      * The inverse of {@link DQuaternion#getCameraRotation1(double, double)}
      * Also roughly works for non-camera transformation
      */
-    public static Pair<Double, Double> getPitchYawFromRotation(DQuaternion quaternion) {
+    public static Tuple<Double, Double> getPitchYawFromRotation(DQuaternion quaternion) {
         double x = quaternion.getX();
         double y = quaternion.getY();
         double z = quaternion.getZ();
@@ -309,7 +309,7 @@ public class DQuaternion {
         double cosPitch = 1 - 2 * (x * x + z * z);
         double sinPitch = (x * w + y * z) * 2;
         
-        return new Pair<>(
+        return new Tuple<>(
             Math.toDegrees(Math.atan2(sinPitch, cosPitch)),
             Math.toDegrees(Math.atan2(sinYaw, cosYaw))
         );
@@ -319,20 +319,20 @@ public class DQuaternion {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
     // only works if the matrix is rotation only
     public static DQuaternion matrixToQuaternion(
-        Vec3d x, Vec3d y, Vec3d z
+        Vec3 x, Vec3 y, Vec3 z
     ) {
-        double m00 = x.getX();
-        double m11 = y.getY();
-        double m22 = z.getZ();
+        double m00 = x.x();
+        double m11 = y.y();
+        double m22 = z.z();
         
-        double m12 = z.getY();
-        double m21 = y.getZ();
+        double m12 = z.y();
+        double m21 = y.z();
         
-        double m20 = x.getZ();
-        double m02 = z.getX();
+        double m20 = x.z();
+        double m02 = z.x();
         
-        double m01 = y.getX();
-        double m10 = x.getY();
+        double m01 = y.x();
+        double m10 = x.y();
         
         double tr = m00 + m11 + m22;
         
@@ -370,11 +370,11 @@ public class DQuaternion {
         return new DQuaternion(qx, qy, qz, qw);
     }
     
-    public static DQuaternion getRotationBetween(Vec3d from, Vec3d to) {
+    public static DQuaternion getRotationBetween(Vec3 from, Vec3 to) {
         from = from.normalize();
         to = to.normalize();
-        Vec3d axis = from.crossProduct(to).normalize();
-        double cos = from.dotProduct(to);
+        Vec3 axis = from.cross(to).normalize();
+        double cos = from.dot(to);
         double angle = Math.acos(cos);
         return DQuaternion.rotationByRadians(axis, angle);
     }

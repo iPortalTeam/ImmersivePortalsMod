@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.render.chunk.ChunkBuilder;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ChunkBuilder.class)
+@Mixin(ChunkRenderDispatcher.class)
 public abstract class MixinChunkBuilder_Optimization {
     // TODO recover
     

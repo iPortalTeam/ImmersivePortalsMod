@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.teleportation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -21,20 +21,20 @@ public class CrossPortalSound {
     public static final float VOLUME_RADIUS_MULT = 16f;
     public static final float MIN_SOUND_RADIUS = 16f;
     
-    public static boolean isPlayerWorld(ClientWorld world) {
-        return world.getRegistryKey() == RenderStates.originalPlayerDimension;
+    public static boolean isPlayerWorld(ClientLevel world) {
+        return world.dimension() == RenderStates.originalPlayerDimension;
     }
     
     @Nullable
-    public static PositionedSoundInstance createCrossPortalSound(
-        ClientWorld soundWorld,
+    public static SimpleSoundInstance createCrossPortalSound(
+        ClientLevel soundWorld,
         SoundEvent sound,
-        SoundCategory category,
-        Vec3d soundPos,
+        SoundSource category,
+        Vec3 soundPos,
         float soundVol,
         float soundPitch
     ) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         
         if (client.player == null) {
             return null;
@@ -43,12 +43,12 @@ public class CrossPortalSound {
         soundWorld.getProfiler().push("cross_portal_sound");
         
         double soundRadius = Math.min(64, Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS));
-        Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
+        Vec3 playerCameraPos = RenderStates.originalPlayerPos.add(
             McHelper.getEyeOffset(client.player)
         );
         
         // find portals in range of the sound
-        PositionedSoundInstance result = IPMcHelper.getNearbyPortals(
+        SimpleSoundInstance result = IPMcHelper.getNearbyPortals(
             soundWorld, soundPos, soundRadius
         ).filter(
             // keep portals in range of the player
@@ -60,22 +60,22 @@ public class CrossPortalSound {
         ).map(
             portal -> {
                 // set sound position to the point the sound would exit the portal
-                Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
-                Vec3d soundExitPortalPoint = portal.transformPoint(soundEnterPortalPoint);
+                Vec3 soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
+                Vec3 soundExitPortalPoint = portal.transformPoint(soundEnterPortalPoint);
                 
                 // reduce volume based on distance from the sound source to the portal entry point
                 float volumeToEnterPortal =
                     (float) soundEnterPortalPoint.distanceTo(soundPos) / VOLUME_RADIUS_MULT;
                 float volumeAtPortal = Math.max(0, soundVol - volumeToEnterPortal);
                 
-                return new PositionedSoundInstance(
+                return new SimpleSoundInstance(
                     sound,
                     category,
                     volumeAtPortal,
                     soundPitch,
-                    soundExitPortalPoint.getX(),
-                    soundExitPortalPoint.getY(),
-                    soundExitPortalPoint.getZ()
+                    soundExitPortalPoint.x(),
+                    soundExitPortalPoint.y(),
+                    soundExitPortalPoint.z()
                 );
             }
         ).orElse(null);
@@ -86,14 +86,14 @@ public class CrossPortalSound {
     }
     
     private static boolean isPlayerInRange(
-        Portal portal, Vec3d soundPos, double soundRadius, Vec3d playerCameraPos
+        Portal portal, Vec3 soundPos, double soundRadius, Vec3 playerCameraPos
     ) {
-        Vec3d soundExitPoint = portal.transformPoint(portal.getNearestPointInPortal(soundPos));
-        return soundExitPoint.isInRange(playerCameraPos, soundRadius);
+        Vec3 soundExitPoint = portal.transformPoint(portal.getNearestPointInPortal(soundPos));
+        return soundExitPoint.closerThan(playerCameraPos, soundRadius);
     }
     
-    private static double getPortalDistance(Portal portal, Vec3d soundPos) {
-        Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
-        return soundEnterPortalPoint.squaredDistanceTo(soundPos);
+    private static double getPortalDistance(Portal portal, Vec3 soundPos) {
+        Vec3 soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
+        return soundEnterPortalPoint.distanceToSqr(soundPos);
     }
 }

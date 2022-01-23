@@ -3,16 +3,16 @@ package qouteall.imm_ptl.core.mixin.common;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.resource.ServerResourceManager;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldGenerationProgressListenerFactory;
-import net.minecraft.util.MetricsData;
-import net.minecraft.util.UserCache;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.world.SaveProperties;
-import net.minecraft.world.level.storage.LevelStorage;
+import net.minecraft.server.ServerResources;
+import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.util.FrameTimer;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.WorldData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,9 +31,9 @@ import java.util.function.BooleanSupplier;
 public abstract class MixinMinecraftServer implements IEMinecraftServer {
     @Shadow
     @Final
-    private MetricsData metricsData;
+    private FrameTimer frameTimer;
     
-    @Shadow public abstract Profiler getProfiler();
+    @Shadow public abstract ProfilerFiller getProfiler();
     
     private boolean portal_areAllWorldsLoaded;
     
@@ -42,18 +42,18 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerConstruct(
-        Thread thread, DynamicRegistryManager.Impl impl,
-        LevelStorage.Session session, SaveProperties saveProperties,
-        ResourcePackManager resourcePackManager, Proxy proxy, DataFixer dataFixer,
-        ServerResourceManager serverResourceManager, MinecraftSessionService minecraftSessionService,
-        GameProfileRepository gameProfileRepository, UserCache userCache,
-        WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
+        Thread thread, RegistryAccess.RegistryHolder impl,
+        LevelStorageSource.LevelStorageAccess session, WorldData saveProperties,
+        PackRepository resourcePackManager, Proxy proxy, DataFixer dataFixer,
+        ServerResources serverResourceManager, MinecraftSessionService minecraftSessionService,
+        GameProfileRepository gameProfileRepository, GameProfileCache userCache,
+        ChunkProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
     ) {
         O_O.onServerConstructed();
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V",
+        method = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V",
         at = @At("TAIL")
     )
     private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
@@ -63,7 +63,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Inject(
-        method = "runServer",
+        method = "Lnet/minecraft/server/MinecraftServer;runServer()V",
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
@@ -71,7 +71,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Inject(
-        method = "createWorlds",
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
         at = @At("RETURN")
     )
     private void onFinishedLoadingAllWorlds(
@@ -82,8 +82,8 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Override
-    public MetricsData getMetricsDataNonClientOnly() {
-        return metricsData;
+    public FrameTimer getMetricsDataNonClientOnly() {
+        return frameTimer;
     }
     
     @Override

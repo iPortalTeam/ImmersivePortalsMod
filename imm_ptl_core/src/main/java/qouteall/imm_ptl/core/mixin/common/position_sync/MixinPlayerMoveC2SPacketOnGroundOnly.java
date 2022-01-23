@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
-@Mixin(PlayerMoveC2SPacket.OnGroundOnly.class)
+@Mixin(ServerboundMovePlayerPacket.StatusOnly.class)
 public class MixinPlayerMoveC2SPacketOnGroundOnly {
-    @Inject(method = "read", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$StatusOnly;read(Lnet/minecraft/network/FriendlyByteBuf;)Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$StatusOnly;", at = @At("RETURN"), cancellable = true)
     private static void onRead(
-        PacketByteBuf buf, CallbackInfoReturnable<PlayerMoveC2SPacket.OnGroundOnly> cir
+        FriendlyByteBuf buf, CallbackInfoReturnable<ServerboundMovePlayerPacket.StatusOnly> cir
     ) {
-        RegistryKey<World> playerDim = DimId.readWorldId(buf, false);
+        ResourceKey<Level> playerDim = DimId.readWorldId(buf, false);
         ((IEPlayerMoveC2SPacket) cir.getReturnValue()).setPlayerDimension(playerDim);
     }
 }

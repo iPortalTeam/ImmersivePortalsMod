@@ -1,24 +1,24 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
 
 public class DimensionalChunkPos {
-    public final RegistryKey<World> dimension;
+    public final ResourceKey<Level> dimension;
     public final int x;
     public final int z;
     
-    public DimensionalChunkPos(RegistryKey<World> dimension, int x, int z) {
+    public DimensionalChunkPos(ResourceKey<Level> dimension, int x, int z) {
         this.dimension = dimension;
         this.x = x;
         this.z = z;
     }
     
-    public DimensionalChunkPos(RegistryKey<World> dimension, ChunkPos chunkPos) {
+    public DimensionalChunkPos(ResourceKey<Level> dimension, ChunkPos chunkPos) {
         this(dimension, chunkPos.x, chunkPos.z);
     }
     

@@ -2,34 +2,34 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
-import net.minecraft.world.biome.source.util.VanillaTerrainParametersCreator;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.GeneratorOptions;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.FlatChunkGenerator;
-import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.FlatChunkGeneratorLayer;
-import net.minecraft.world.gen.chunk.GenerationShapeConfig;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
-import net.minecraft.world.gen.chunk.NoiseSamplingConfig;
-import net.minecraft.world.gen.chunk.SlideConfig;
-import net.minecraft.world.gen.chunk.StructureConfig;
-import net.minecraft.world.gen.chunk.StructuresConfig;
-import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.surfacebuilder.VanillaSurfaceRules;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.worldgen.SurfaceRuleData;
+import net.minecraft.data.worldgen.TerrainProvider;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseSamplingSettings;
+import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.NoiseSlider;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
+import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -49,15 +49,15 @@ public class AlternateDimensions {
     }
     
     private static void initializeAlternateDimensions(
-        GeneratorOptions generatorOptions, DynamicRegistryManager registryManager
+        WorldGenSettings generatorOptions, RegistryAccess registryManager
     ) {
-        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
-        long seed = generatorOptions.getSeed();
+        MappedRegistry<LevelStem> registry = generatorOptions.dimensions();
+        long seed = generatorOptions.seed();
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
         
-        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        DimensionType surfaceTypeObject = registryManager.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(new ResourceLocation("immersive_portals:surface_type"));
         
         if (surfaceTypeObject == null) {
             Helper.err("Missing dimension type immersive_portals:surface_type");
@@ -68,99 +68,99 @@ public class AlternateDimensions {
         DimensionAPI.addDimension(
             seed,
             registry,
-            alternate1Option.getValue(),
+            alternate1Option.location(),
             () -> surfaceTypeObject,
             createSkylandGenerator(seed + 1, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate1Option.location());
         
         DimensionAPI.addDimension(
             seed,
             registry,
-            alternate2Option.getValue(),
+            alternate2Option.location(),
             () -> surfaceTypeObject,
             createSkylandGenerator(seed, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate2Option.location());
         
         //different seed
         DimensionAPI.addDimension(
             seed,
             registry,
-            alternate3Option.getValue(),
+            alternate3Option.location(),
             () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed + 1, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate3Option.location());
         
         DimensionAPI.addDimension(
             seed,
             registry,
-            alternate4Option.getValue(),
+            alternate4Option.location(),
             () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate4Option.location());
         
         DimensionAPI.addDimension(
             seed,
             registry,
-            alternate5Option.getValue(),
+            alternate5Option.location(),
             () -> surfaceTypeObject,
             createVoidGenerator(registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate5Option.location());
     }
     
     
-    public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
-        Registry.DIMENSION_KEY,
-        new Identifier("immersive_portals:alternate1")
+    public static final ResourceKey<LevelStem> alternate1Option = ResourceKey.create(
+        Registry.LEVEL_STEM_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate1")
     );
-    public static final RegistryKey<DimensionOptions> alternate2Option = RegistryKey.of(
-        Registry.DIMENSION_KEY,
-        new Identifier("immersive_portals:alternate2")
+    public static final ResourceKey<LevelStem> alternate2Option = ResourceKey.create(
+        Registry.LEVEL_STEM_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate2")
     );
-    public static final RegistryKey<DimensionOptions> alternate3Option = RegistryKey.of(
-        Registry.DIMENSION_KEY,
-        new Identifier("immersive_portals:alternate3")
+    public static final ResourceKey<LevelStem> alternate3Option = ResourceKey.create(
+        Registry.LEVEL_STEM_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate3")
     );
-    public static final RegistryKey<DimensionOptions> alternate4Option = RegistryKey.of(
-        Registry.DIMENSION_KEY,
-        new Identifier("immersive_portals:alternate4")
+    public static final ResourceKey<LevelStem> alternate4Option = ResourceKey.create(
+        Registry.LEVEL_STEM_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate4")
     );
-    public static final RegistryKey<DimensionOptions> alternate5Option = RegistryKey.of(
-        Registry.DIMENSION_KEY,
-        new Identifier("immersive_portals:alternate5")
+    public static final ResourceKey<LevelStem> alternate5Option = ResourceKey.create(
+        Registry.LEVEL_STEM_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate5")
     );
-    public static final RegistryKey<DimensionType> surfaceType = RegistryKey.of(
-        Registry.DIMENSION_TYPE_KEY,
-        new Identifier("immersive_portals:surface_type")
+    public static final ResourceKey<DimensionType> surfaceType = ResourceKey.create(
+        Registry.DIMENSION_TYPE_REGISTRY,
+        new ResourceLocation("immersive_portals:surface_type")
     );
-    public static final RegistryKey<World> alternate1 = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("immersive_portals:alternate1")
+    public static final ResourceKey<Level> alternate1 = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate1")
     );
-    public static final RegistryKey<World> alternate2 = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("immersive_portals:alternate2")
+    public static final ResourceKey<Level> alternate2 = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate2")
     );
-    public static final RegistryKey<World> alternate3 = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("immersive_portals:alternate3")
+    public static final ResourceKey<Level> alternate3 = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate3")
     );
-    public static final RegistryKey<World> alternate4 = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("immersive_portals:alternate4")
+    public static final ResourceKey<Level> alternate4 = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate4")
     );
-    public static final RegistryKey<World> alternate5 = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("immersive_portals:alternate5")
+    public static final ResourceKey<Level> alternate5 = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("immersive_portals:alternate5")
     );
 //    public static DimensionType surfaceTypeObject;
     
-    public static boolean isAlternateDimension(World world) {
-        final RegistryKey<World> key = world.getRegistryKey();
+    public static boolean isAlternateDimension(Level world) {
+        final ResourceKey<Level> key = world.dimension();
         return key == alternate1 ||
             key == alternate2 ||
             key == alternate3 ||
@@ -168,48 +168,48 @@ public class AlternateDimensions {
             key == alternate5;
     }
     
-    private static void syncWithOverworldTimeWeather(ServerWorld world, ServerWorld overworld) {
+    private static void syncWithOverworldTimeWeather(ServerLevel world, ServerLevel overworld) {
         ((IEWorld) world).portal_setWeather(
-            overworld.getRainGradient(1), overworld.getRainGradient(1),
-            overworld.getThunderGradient(1), overworld.getThunderGradient(1)
+            overworld.getRainLevel(1), overworld.getRainLevel(1),
+            overworld.getThunderLevel(1), overworld.getThunderLevel(1)
         );
     }
     
-    public static ChunkGenerator createSkylandGenerator(long seed, DynamicRegistryManager rm) {
+    public static ChunkGenerator createSkylandGenerator(long seed, RegistryAccess rm) {
         
-        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
-        MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.getBiomeSource(
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
+        MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(
             biomeRegistry, true
         );
         
-        Registry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY);
+        Registry<NoiseGeneratorSettings> settingsRegistry = rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
         
-        HashMap<StructureFeature<?>, StructureConfig> structureMap = new HashMap<>();
-        structureMap.putAll(StructuresConfig.DEFAULT_STRUCTURES);
+        HashMap<StructureFeature<?>, StructureFeatureConfiguration> structureMap = new HashMap<>();
+        structureMap.putAll(StructureSettings.DEFAULTS);
         structureMap.remove(StructureFeature.MINESHAFT);
         structureMap.remove(StructureFeature.STRONGHOLD);
         
-        StructuresConfig structuresConfig = new StructuresConfig(
+        StructureSettings structuresConfig = new StructureSettings(
             Optional.empty(), structureMap
         );
         
-        ChunkGeneratorSettings skylandSetting = createIslandSettings(
-            structuresConfig, Blocks.STONE.getDefaultState(),
-            Blocks.WATER.getDefaultState()
+        NoiseGeneratorSettings skylandSetting = createIslandSettings(
+            structuresConfig, Blocks.STONE.defaultBlockState(),
+            Blocks.WATER.defaultBlockState()
         );
         
-        NoiseChunkGenerator islandChunkGenerator = new NoiseChunkGenerator(
-            rm.get(Registry.NOISE_WORLDGEN),
+        NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
+            rm.registryOrThrow(Registry.NOISE_WORLDGEN),
             biomeSource, seed, () -> skylandSetting
         );
         
-        ChunkGeneratorSettings surfaceSetting = createSurfaceSettings(
-            structuresConfig, Blocks.STONE.getDefaultState(),
-            Blocks.WATER.getDefaultState()
+        NoiseGeneratorSettings surfaceSetting = createSurfaceSettings(
+            structuresConfig, Blocks.STONE.defaultBlockState(),
+            Blocks.WATER.defaultBlockState()
         );
         
-        NoiseChunkGenerator surfaceChunkGenerator = new NoiseChunkGenerator(
-            rm.get(Registry.NOISE_WORLDGEN),
+        NoiseBasedChunkGenerator surfaceChunkGenerator = new NoiseBasedChunkGenerator(
+            rm.registryOrThrow(Registry.NOISE_WORLDGEN),
             biomeSource, seed, () -> surfaceSetting
         );
         
@@ -219,26 +219,26 @@ public class AlternateDimensions {
         );
     }
     
-    public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
-        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+    public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
         return new ErrorTerrainGenerator(seed, createSkylandGenerator(seed, rm), chaosBiomeSource);
     }
     
-    public static ChunkGenerator createVoidGenerator(DynamicRegistryManager rm) {
-        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+    public static ChunkGenerator createVoidGenerator(RegistryAccess rm) {
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         
-        StructuresConfig structuresConfig = new StructuresConfig(
-            Optional.of(StructuresConfig.DEFAULT_STRONGHOLD),
+        StructureSettings structuresConfig = new StructureSettings(
+            Optional.of(StructureSettings.DEFAULT_STRONGHOLD),
             Maps.newHashMap(ImmutableMap.of())
         );
-        FlatChunkGeneratorConfig flatChunkGeneratorConfig =
-            new FlatChunkGeneratorConfig(structuresConfig, biomeRegistry);
-        flatChunkGeneratorConfig.getLayers().add(new FlatChunkGeneratorLayer(1, Blocks.AIR));
-        flatChunkGeneratorConfig.updateLayerBlocks();
+        FlatLevelGeneratorSettings flatChunkGeneratorConfig =
+            new FlatLevelGeneratorSettings(structuresConfig, biomeRegistry);
+        flatChunkGeneratorConfig.getLayersInfo().add(new FlatLayerInfo(1, Blocks.AIR));
+        flatChunkGeneratorConfig.updateLayers();
         
-        return new FlatChunkGenerator(flatChunkGeneratorConfig);
+        return new FlatLevelSource(flatChunkGeneratorConfig);
     }
     
     
@@ -247,7 +247,7 @@ public class AlternateDimensions {
             return;
         }
         
-        ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
+        ServerLevel overworld = McHelper.getServerWorld(Level.OVERWORLD);
         
         syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
         syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
@@ -260,50 +260,50 @@ public class AlternateDimensions {
      * vanilla copy
      * {@link ChunkGeneratorSettings}
      */
-    private static ChunkGeneratorSettings createIslandSettings(
-        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
+    private static NoiseGeneratorSettings createIslandSettings(
+        StructureSettings structuresConfig, BlockState defaultBlock, BlockState defaultFluid
     ) {
         return IEChunkGeneratorSettings.construct(
             structuresConfig,
-            GenerationShapeConfig.create(
+            NoiseSettings.create(
                 0, 128,
-                new NoiseSamplingConfig(
+                new NoiseSamplingSettings(
                     2.0, 1.0, 80.0, 160.0
                 ),
-                new SlideConfig(-23.4375, 64, -46),
-                new SlideConfig(-0.234375, 7, 1),
+                new NoiseSlider(-23.4375, 64, -46),
+                new NoiseSlider(-0.234375, 7, 1),
                 2, 1, false, false, false,
 //                VanillaTerrainParametersCreator.createNetherParameters()
 //                VanillaTerrainParametersCreator.createSurfaceParameters(false)
-                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
+                TerrainProvider.floatingIslands()
             ),
             defaultBlock, defaultFluid,
-            VanillaSurfaceRules.createDefaultRule(true, false, false),
+            SurfaceRuleData.overworldLike(true, false, false),
             0, false, false, false, false, false,
             false
         );
         
     }
     
-    private static ChunkGeneratorSettings createSurfaceSettings(
-        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
+    private static NoiseGeneratorSettings createSurfaceSettings(
+        StructureSettings structuresConfig, BlockState defaultBlock, BlockState defaultFluid
     ) {
         return IEChunkGeneratorSettings.construct(
             structuresConfig,
-            GenerationShapeConfig.create(
+            NoiseSettings.create(
                 0, 128,
-                new NoiseSamplingConfig(
+                new NoiseSamplingSettings(
                     2.0, 1.0, 80.0, 160.0
                 ),
-                new SlideConfig(-23.4375, 64, -46),
-                new SlideConfig(-0.234375, 7, 1),
+                new NoiseSlider(-23.4375, 64, -46),
+                new NoiseSlider(-0.234375, 7, 1),
                 2, 1, false, false, false,
 //                VanillaTerrainParametersCreator.createNetherParameters()
-                VanillaTerrainParametersCreator.createSurfaceParameters(false)
+                TerrainProvider.overworld(false)
 //                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
             ),
             defaultBlock, defaultFluid,
-            VanillaSurfaceRules.createDefaultRule(true, false, false),
+            SurfaceRuleData.overworldLike(true, false, false),
             0, false, false, false, false, false,
             false
         );

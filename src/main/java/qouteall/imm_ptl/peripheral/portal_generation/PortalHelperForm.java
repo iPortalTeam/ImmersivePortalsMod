@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -26,19 +26,19 @@ public class PortalHelperForm extends AbstractDiligentForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithoutCorner) {
-            toWorld.setBlockState(blockPos, PeripheralModMain.portalHelperBlock.getDefaultState());
+            toWorld.setBlockAndUpdate(blockPos, PeripheralModMain.portalHelperBlock.defaultBlockState());
         }
         McHelper.findEntitiesByBox(
-            ServerPlayerEntity.class,
+            ServerPlayer.class,
             fromWorld,
-            new Box(fromShape.anchor).expand(10),
+            new AABB(fromShape.anchor).inflate(10),
             2,
             e -> true
         ).forEach(player -> {
-            player.sendMessage(
-                new TranslatableText("imm_ptl.portal_helper_not_linked"),
+            player.displayClientMessage(
+                new TranslatableComponent("imm_ptl.portal_helper_not_linked"),
                 false
             );
         });
@@ -46,14 +46,14 @@ public class PortalHelperForm extends AbstractDiligentForm {
     
     @Override
     public Portal[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
-        ServerWorld world = McHelper.getServerWorld(info.from);
+        ServerLevel world = McHelper.getServerWorld(info.from);
         
         for (BlockPos blockPos : info.fromShape.area) {
-            world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
+            world.setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
         }
         
-        world.setBlockState(info.fromShape.firstFramePos, Blocks.AIR.getDefaultState());
-        world.setBlockState(info.toShape.firstFramePos, Blocks.AIR.getDefaultState());
+        world.setBlockAndUpdate(info.fromShape.firstFramePos, Blocks.AIR.defaultBlockState());
+        world.setBlockAndUpdate(info.toShape.firstFramePos, Blocks.AIR.defaultBlockState());
         
         Portal portal = info.createTemplatePortal(Portal.entityType);
         PortalExtension.get(portal).bindCluster = true;

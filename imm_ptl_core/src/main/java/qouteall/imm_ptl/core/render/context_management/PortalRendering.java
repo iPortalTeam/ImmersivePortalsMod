@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.render.context_management;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
@@ -89,8 +89,8 @@ public class PortalRendering {
         );
     }
     
-    public static Vec3d getRenderingCameraPos() {
-        Vec3d pos = RenderStates.originalCamera.getPos();
+    public static Vec3 getRenderingCameraPos() {
+        Vec3 pos = RenderStates.originalCamera.getPosition();
         for (PortalLike portal : portalLayers) {
             pos = portal.transformPoint(pos);
         }

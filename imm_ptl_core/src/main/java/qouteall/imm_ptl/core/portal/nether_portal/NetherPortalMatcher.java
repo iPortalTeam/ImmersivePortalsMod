@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -14,13 +14,13 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public class NetherPortalMatcher {
-    private static boolean isAir(WorldAccess world, BlockPos pos) {
-        return world.isAir(pos);
+    private static boolean isAir(LevelAccessor world, BlockPos pos) {
+        return world.isEmptyBlock(pos);
     }
     
     static IntBox findVerticalPortalPlacement(
         BlockPos areaSize,
-        WorldAccess world,
+        LevelAccessor world,
         BlockPos searchingCenter
     ) {
         int radius = 16;
@@ -58,7 +58,7 @@ public class NetherPortalMatcher {
             return null;
         }
         
-        if (world.getBlockState(airCube.l.down()).getMaterial().isSolid()) {
+        if (world.getBlockState(airCube.l.below()).getMaterial().isSolid()) {
             Helper.log("Generated Portal On Ground");
             
             return pushDownBox(world, airCube.getSubBoxInCenter(areaSize));
@@ -83,7 +83,7 @@ public class NetherPortalMatcher {
     private static IntBox getAirCubeOnSolidGround(
         BlockPos areaSize,
         BlockPos ambientSpaceReserved,
-        WorldAccess world,
+        LevelAccessor world,
         BlockPos searchingCenter,
         int findingRadius,
         boolean solidGround,
@@ -123,7 +123,7 @@ public class NetherPortalMatcher {
     //make it possibly generate above ground
     static IntBox findHorizontalPortalPlacement(
         BlockPos areaSize,
-        WorldAccess world,
+        LevelAccessor world,
         BlockPos searchingCenter
     ) {
         IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
@@ -147,7 +147,7 @@ public class NetherPortalMatcher {
     
     private static IntBox findHorizontalPortalPlacementWithVerticalSpaceReserved(
         BlockPos areaSize,
-        WorldAccess world,
+        LevelAccessor world,
         BlockPos searchingCenter,
         int verticalSpaceReserve,
         int findingRadius
@@ -176,19 +176,19 @@ public class NetherPortalMatcher {
         return !blockState.isAir();
     }
     
-    private static boolean isAirOnSolidGround(WorldAccess world, BlockPos blockPos) {
-        return world.isAir(blockPos) &&
-            isSolidGroundBlock(world.getBlockState(blockPos.add(0, -1, 0)));
+    private static boolean isAirOnSolidGround(LevelAccessor world, BlockPos blockPos) {
+        return world.isEmptyBlock(blockPos) &&
+            isSolidGroundBlock(world.getBlockState(blockPos.offset(0, -1, 0)));
     }
     
-    private static boolean isAirOnGround(WorldAccess world, BlockPos blockPos) {
-        return world.isAir(blockPos) &&
-            isGroundBlock(world.getBlockState(blockPos.add(0, -1, 0)));
+    private static boolean isAirOnGround(LevelAccessor world, BlockPos blockPos) {
+        return world.isEmptyBlock(blockPos) &&
+            isGroundBlock(world.getBlockState(blockPos.offset(0, -1, 0)));
     }
     
     public static IntBox findCubeAirAreaAtAnywhere(
         BlockPos areaSize,
-        WorldAccess world,
+        LevelAccessor world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
@@ -209,7 +209,7 @@ public class NetherPortalMatcher {
         );
     }
     
-    public static boolean isAirCubeMediumPlace(WorldAccess world, IntBox box) {
+    public static boolean isAirCubeMediumPlace(LevelAccessor world, IntBox box) {
         //the box out of height limit is not accepted
         if (box.h.getY() + 5 >= McHelper.getMaxContentYExclusive(world)) {
             return false;
@@ -221,7 +221,7 @@ public class NetherPortalMatcher {
         return isAllAir(world, box);
     }
     
-    public static boolean isAllAir(WorldAccess world, IntBox box) {
+    public static boolean isAllAir(LevelAccessor world, IntBox box) {
         boolean roughTest = Arrays.stream(box.getEightVertices()).allMatch(
             blockPos -> isAir(world, blockPos)
         );
@@ -236,7 +236,7 @@ public class NetherPortalMatcher {
     
     //move the box up
     public static IntBox levitateBox(
-        WorldAccess world, IntBox airCube, int maxOffset
+        LevelAccessor world, IntBox airCube, int maxOffset
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
             IntStream.range(1, maxOffset * 3 / 2).boxed(),
@@ -253,7 +253,7 @@ public class NetherPortalMatcher {
     }
     
     public static IntBox pushDownBox(
-        WorldAccess world, IntBox airCube
+        LevelAccessor world, IntBox airCube
     ) {
         Integer downShift = Helper.getLastSatisfying(
             IntStream.range(0, 40).boxed(),

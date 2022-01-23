@@ -2,10 +2,10 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
@@ -53,8 +53,8 @@ public class OneWayForm extends PortalGenForm {
     
     @Override
     public boolean perform(
-        CustomPortalGeneration cpg, ServerWorld fromWorld,
-        BlockPos startingPos, ServerWorld toWorld, @Nullable Entity triggeringEntity
+        CustomPortalGeneration cpg, ServerLevel fromWorld,
+        BlockPos startingPos, ServerLevel toWorld, @Nullable Entity triggeringEntity
     ) {
         
         if (!NetherPortalGeneration.checkPortalGeneration(fromWorld, startingPos)) {
@@ -72,7 +72,7 @@ public class OneWayForm extends PortalGenForm {
         
         // clear the area
         for (BlockPos areaPos : fromShape.area) {
-            fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
+            fromWorld.setBlockAndUpdate(areaPos, Blocks.AIR.defaultBlockState());
         }
         
         if (breakable) {
@@ -85,11 +85,11 @@ public class OneWayForm extends PortalGenForm {
         
         if (triggeringEntity == null) {
             portal.setDestination(portal.getOriginPos().add(0, 10, 0));
-            portal.setDestinationDimension(fromWorld.getRegistryKey());
+            portal.setDestinationDimension(fromWorld.dimension());
         }
         else {
-            portal.setDestination(triggeringEntity.getCameraPosVec(1));
-            portal.setDestinationDimension(triggeringEntity.world.getRegistryKey());
+            portal.setDestination(triggeringEntity.getEyePosition(1));
+            portal.setDestinationDimension(triggeringEntity.level.dimension());
         }
         
         portal.blockPortalShape = fromShape;

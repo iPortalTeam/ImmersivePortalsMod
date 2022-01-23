@@ -2,8 +2,8 @@ package qouteall.imm_ptl.core.miscellaneous;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
@@ -35,7 +35,7 @@ public class ClientPerformanceMonitor {
     private static int counter = 0;
     
     public static void updateEverySecond(int newFps) {
-        if (MinecraftClient.getInstance().player == null) {
+        if (Minecraft.getInstance().player == null) {
             return;
         }
         
@@ -72,7 +72,7 @@ public class ClientPerformanceMonitor {
     }
     
     private static void updateAndSend() {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
         }

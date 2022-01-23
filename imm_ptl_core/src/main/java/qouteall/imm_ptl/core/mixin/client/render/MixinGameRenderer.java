@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -31,62 +31,62 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     @Final
     @Mutable
-    private LightmapTextureManager lightmapTextureManager;
+    private LightTexture lightTexture;
     
     @Shadow
     private boolean renderHand;
     @Shadow
     @Final
     @Mutable
-    private Camera camera;
+    private Camera mainCamera;
     
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
     
     @Shadow
-    private int ticks;
+    private int tick;
     
     @Shadow
-    private boolean renderingPanorama;
+    private boolean panoramicMode;
     
     @Shadow
-    public abstract void loadProjectionMatrix(Matrix4f matrix4f);
+    public abstract void resetProjectionMatrix(Matrix4f matrix4f);
     
     @Shadow
-    protected abstract void bobView(MatrixStack matrices, float f);
+    protected abstract void bobView(PoseStack matrices, float f);
     
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V", at = @At("HEAD"))
     private void onFarBeforeRendering(
         float tickDelta,
         long nanoTime,
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
-        client.getProfiler().push("ip_pre_total_render");
+        minecraft.getProfiler().push("ip_pre_total_render");
         IPGlobal.preTotalRenderTaskList.processTasks();
-        client.getProfiler().pop();
-        if (client.world == null) {
+        minecraft.getProfiler().pop();
+        if (minecraft.level == null) {
             return;
         }
-        client.getProfiler().push("ip_pre_render");
+        minecraft.getProfiler().push("ip_pre_render");
         RenderStates.updatePreRenderInfo(tickDelta);
         IPCGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
         IPGlobal.preGameRenderSignal.emit();
         if (IPCGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }
-        client.getProfiler().pop();
+        minecraft.getProfiler().pop();
         
         RenderStates.frameIndex++;
     }
     
     //before rendering world (not triggered when rendering portal)
     @Inject(
-        method = "render",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"
+            target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V"
         )
     )
     private void onBeforeRenderingCenter(
@@ -102,10 +102,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     //after rendering world (not triggered when rendering portal)
     @Inject(
-        method = "render",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V",
+            target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
             shift = At.Shift.AFTER
         )
     )
@@ -124,79 +124,79 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     //special rendering in third person view
     @Redirect(
-        method = "render",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"
+            target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V"
         )
     )
     private void redirectRenderingWorld(
-        GameRenderer gameRenderer, float tickDelta, long limitTime, MatrixStack matrix
+        GameRenderer gameRenderer, float tickDelta, long limitTime, PoseStack matrix
     ) {
         if (CrossPortalViewRendering.renderCrossPortalView()) {
             return;
         }
         
-        gameRenderer.renderWorld(tickDelta, limitTime, matrix);
+        gameRenderer.renderLevel(tickDelta, limitTime, matrix);
     }
     
-    @Inject(method = "renderWorld", at = @At("TAIL"))
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At("TAIL"))
     private void onRenderCenterEnded(
         float float_1,
         long long_1,
-        MatrixStack matrixStack_1,
+        PoseStack matrixStack_1,
         CallbackInfo ci
     ) {
         IPCGlobal.renderer.onHandRenderingEnded(matrixStack_1);
     }
     
     @Inject(
-        method = "renderWorld",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lnet/minecraft/util/math/Matrix4f;)V",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
             shift = At.Shift.AFTER
         )
     )
-    private void onRightBeforeHandRendering(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
+    private void onRightBeforeHandRendering(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
         IPCGlobal.renderer.onBeforeHandRendering(matrix);
     }
     
     //resize all world renderers when resizing window
-    @Inject(method = "onResized", at = @At("RETURN"))
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;resize(II)V", at = @At("RETURN"))
     private void onOnResized(int int_1, int int_2, CallbackInfo ci) {
         if (ClientWorldLoader.getIsInitialized()) {
             ClientWorldLoader.worldRendererMap.values().stream()
                 .filter(
-                    worldRenderer -> worldRenderer != client.worldRenderer
+                    worldRenderer -> worldRenderer != minecraft.levelRenderer
                 )
                 .forEach(
-                    worldRenderer -> worldRenderer.onResized(int_1, int_2)
+                    worldRenderer -> worldRenderer.resize(int_1, int_2)
                 );
         }
     }
     
     private static boolean portal_isRenderingHand = false;
     
-    @Inject(method = "renderHand", at = @At("HEAD"))
-    private void onRenderHandBegins(MatrixStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At("HEAD"))
+    private void onRenderHandBegins(PoseStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
         portal_isRenderingHand = true;
     }
     
-    @Inject(method = "renderHand", at = @At("RETURN"))
-    private void onRenderHandEnds(MatrixStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At("RETURN"))
+    private void onRenderHandEnds(PoseStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
         portal_isRenderingHand = false;
     }
     
     // do not translate
     @Redirect(
-        method = "bobView",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V"
+            target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V"
         )
     )
-    private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
+    private void redirectBobViewTranslate(PoseStack matrixStack, double x, double y, double z) {
         if (portal_isRenderingHand) {
             matrixStack.translate(x, y, z);
         }
@@ -211,11 +211,11 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     // make sure that the portal rendering basic projection matrix is right
     // the basic projection matrix does not contain view bobbing
     @Redirect(
-        method = "renderWorld",
+        method = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
         at = @At(
             value = "INVOKE",
             ordinal = 0,
-            target = "Lnet/minecraft/client/render/GameRenderer;getBasicProjectionMatrix(D)Lnet/minecraft/util/math/Matrix4f;"
+            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lcom/mojang/math/Matrix4f;"
         )
     )
     private Matrix4f redirectGetBasicProjectionMatrix(GameRenderer instance, double fov) {
@@ -229,15 +229,15 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
             }
         }
         
-        Matrix4f result = instance.getBasicProjectionMatrix(fov);
+        Matrix4f result = instance.getProjectionMatrix(fov);
         RenderStates.basicProjectionMatrix = result;
         
         return result;
     }
     
     @Override
-    public void setLightmapTextureManager(LightmapTextureManager manager) {
-        lightmapTextureManager = manager;
+    public void setLightmapTextureManager(LightTexture manager) {
+        lightTexture = manager;
     }
     
     @Override
@@ -247,16 +247,16 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     @Override
     public void setCamera(Camera camera_) {
-        camera = camera_;
+        mainCamera = camera_;
     }
     
     @Override
     public void setIsRenderingPanorama(boolean cond) {
-        renderingPanorama = cond;
+        panoramicMode = cond;
     }
     
     @Override
-    public void portal_bobView(MatrixStack matrixStack, float tickDelta) {
+    public void portal_bobView(PoseStack matrixStack, float tickDelta) {
         bobView(matrixStack, tickDelta);
     }
 }

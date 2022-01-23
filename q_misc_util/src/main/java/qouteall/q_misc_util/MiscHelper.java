@@ -2,11 +2,10 @@ package qouteall.q_misc_util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.util.thread.ReentrantThreadExecutor;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
@@ -16,20 +15,20 @@ public class MiscHelper {
     public static WeakReference<MinecraftServer> refMinecraftServer =
         new WeakReference<>(null);
     
-    public static <T> SimpleRegistry<T> filterAndCopyRegistry(
-        SimpleRegistry<T> registry, BiPredicate<RegistryKey<T>, T> predicate
+    public static <T> MappedRegistry<T> filterAndCopyRegistry(
+        MappedRegistry<T> registry, BiPredicate<ResourceKey<T>, T> predicate
     ) {
-        SimpleRegistry<T> newRegistry = new SimpleRegistry<>(
-            registry.getKey(),
-            registry.getLifecycle()
+        MappedRegistry<T> newRegistry = new MappedRegistry<>(
+            registry.key(),
+            registry.elementsLifecycle()
         );
         
-        for (Map.Entry<RegistryKey<T>, T> entry : registry.getEntries()) {
+        for (Map.Entry<ResourceKey<T>, T> entry : registry.entrySet()) {
             T object = entry.getValue();
-            RegistryKey<T> key = entry.getKey();
+            ResourceKey<T> key = entry.getKey();
             if (predicate.test(key, object)) {
-                newRegistry.add(
-                    key, object, registry.getEntryLifecycle(object)
+                newRegistry.register(
+                    key, object, registry.lifecycle(object)
                 );
             }
         }
@@ -43,9 +42,9 @@ public class MiscHelper {
      */
     @Environment(EnvType.CLIENT)
     public static void executeOnRenderThread(Runnable runnable) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         
-        if (client.isOnThread()) {
+        if (client.isSameThread()) {
             runnable.run();
         }
         else {
@@ -60,7 +59,7 @@ public class MiscHelper {
     public static void executeOnServerThread(Runnable runnable) {
         MinecraftServer server = getServer();
         
-        if (server.isOnThread()) {
+        if (server.isSameThread()) {
             runnable.run();
         }
         else {

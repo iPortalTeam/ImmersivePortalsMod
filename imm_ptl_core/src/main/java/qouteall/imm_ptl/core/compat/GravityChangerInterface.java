@@ -6,11 +6,11 @@ import me.andrew.gravitychanger.api.GravityChangerAPI;
 import me.andrew.gravitychanger.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -24,16 +24,16 @@ public class GravityChangerInterface {
             return false;
         }
         
-        public Vec3d getEyeOffset(Entity entity) {
-            return new Vec3d(0, entity.getStandingEyeHeight(), 0);
+        public Vec3 getEyeOffset(Entity entity) {
+            return new Vec3(0, entity.getEyeHeight(), 0);
         }
         
-        public Direction getGravityDirection(PlayerEntity entity) {
+        public Direction getGravityDirection(Player entity) {
             return Direction.DOWN;
         }
         
         public void setGravityDirection(Entity entity, Direction direction) {
-            if (entity instanceof PlayerEntity && entity.world.isClient()) {
+            if (entity instanceof Player && entity.level.isClientSide()) {
                 warnGravityChangerNotPresent();
             }
         }
@@ -43,19 +43,19 @@ public class GravityChangerInterface {
             return null;
         }
         
-        public Vec3d getWorldVelocity(Entity entity) {
-            return entity.getVelocity();
+        public Vec3 getWorldVelocity(Entity entity) {
+            return entity.getDeltaMovement();
         }
         
-        public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
-            entity.setVelocity(newVelocity);
+        public void setWorldVelocity(Entity entity, Vec3 newVelocity) {
+            entity.setDeltaMovement(newVelocity);
         }
     
-        public Vec3d transformPlayerToWorld(Direction gravity, Vec3d vec3d) {
+        public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
             return vec3d;
         }
     
-        public Vec3d transformWorldToPlayer(Direction gravity, Vec3d vec3d) {
+        public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
             return vec3d;
         }
     }
@@ -66,7 +66,7 @@ public class GravityChangerInterface {
     private static void warnGravityChangerNotPresent() {
         if (!warned) {
             warned = true;
-            CHelper.printChat(new TranslatableText("imm_ptl.missing_gravity_changer"));
+            CHelper.printChat(new TranslatableComponent("imm_ptl.missing_gravity_changer"));
         }
     }
     
@@ -78,8 +78,8 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public Vec3d getEyeOffset(Entity entity) {
-            if (entity instanceof PlayerEntity player) {
+        public Vec3 getEyeOffset(Entity entity) {
+            if (entity instanceof Player player) {
                 return GravityChangerAPI.getEyeOffset(player);
             }
             else {
@@ -88,7 +88,7 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public Direction getGravityDirection(PlayerEntity entity) {
+        public Direction getGravityDirection(Player entity) {
             return ((EntityAccessor) entity).gravitychanger$getAppliedGravityDirection();
         }
         
@@ -110,8 +110,8 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public Vec3d getWorldVelocity(Entity entity) {
-            if (entity instanceof PlayerEntity player) {
+        public Vec3 getWorldVelocity(Entity entity) {
+            if (entity instanceof Player player) {
                 return GravityChangerAPI.getWorldVelocity(player);
             }
             else {
@@ -120,8 +120,8 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
-            if (entity instanceof PlayerEntity player) {
+        public void setWorldVelocity(Entity entity, Vec3 newVelocity) {
+            if (entity instanceof Player player) {
                 GravityChangerAPI.setWorldVelocity(player, newVelocity);
             }
             else {
@@ -130,12 +130,12 @@ public class GravityChangerInterface {
         }
     
         @Override
-        public Vec3d transformPlayerToWorld(Direction gravity, Vec3d vec3d) {
+        public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
             return RotationUtil.vecPlayerToWorld(vec3d, gravity);
         }
     
         @Override
-        public Vec3d transformWorldToPlayer(Direction gravity, Vec3d vec3d) {
+        public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
             return RotationUtil.vecWorldToPlayer(vec3d, gravity);
         }
     }

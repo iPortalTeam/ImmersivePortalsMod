@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.CameraSubmersionType;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.material.FogType;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,28 +22,28 @@ public abstract class MixinCamera implements IECamera {
     private static double lastClipSpaceResult = 1;
     
     @Shadow
-    private Vec3d pos;
+    private Vec3 position;
     @Shadow
-    private BlockView area;
+    private BlockGetter level;
     @Shadow
-    private Entity focusedEntity;
+    private Entity entity;
     @Shadow
-    private float cameraY;
+    private float eyeHeight;
     @Shadow
-    private float lastCameraY;
+    private float eyeHeightOld;
     
     @Shadow
-    protected abstract void setPos(Vec3d vec3d_1);
+    protected abstract void setPosition(Vec3 vec3d_1);
     
     @Shadow
-    public abstract Entity getFocusedEntity();
+    public abstract Entity getEntity();
     
     @Inject(
-        method = "update",
+        method = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V",
         at = @At("RETURN")
     )
     private void onUpdateFinished(
-        BlockView area, Entity focusedEntity, boolean thirdPerson,
+        BlockGetter area, Entity focusedEntity, boolean thirdPerson,
         boolean inverseView, float tickDelta, CallbackInfo ci
     ) {
         Camera this_ = (Camera) (Object) this;
@@ -51,18 +51,18 @@ public abstract class MixinCamera implements IECamera {
     }
     
     @Inject(
-        method = "getSubmersionType",
+        method = "Lnet/minecraft/client/Camera;getFluidInCamera()Lnet/minecraft/world/level/material/FogType;",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void getSubmergedFluidState(CallbackInfoReturnable<CameraSubmersionType> cir) {
+    private void getSubmergedFluidState(CallbackInfoReturnable<FogType> cir) {
         if (PortalRendering.isRendering()) {
-            cir.setReturnValue(CameraSubmersionType.NONE);
+            cir.setReturnValue(FogType.NONE);
             cir.cancel();
         }
     }
     
-    @Inject(method = "clipToSpace", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/Camera;getMaxZoom(D)D", at = @At("HEAD"), cancellable = true)
     private void onClipToSpaceHead(double double_1, CallbackInfoReturnable<Double> cir) {
         if (PortalRendering.isRendering()) {
             cir.setReturnValue(lastClipSpaceResult);
@@ -70,13 +70,13 @@ public abstract class MixinCamera implements IECamera {
         }
     }
     
-    @Inject(method = "clipToSpace", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/Camera;getMaxZoom(D)D", at = @At("RETURN"), cancellable = true)
     private void onClipToSpaceReturn(double double_1, CallbackInfoReturnable<Double> cir) {
         lastClipSpaceResult = cir.getReturnValue();
     }
     
     //to let the player be rendered when rendering portal
-    @Inject(method = "isThirdPerson", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/Camera;isDetached()Z", at = @At("HEAD"), cancellable = true)
     private void onIsThirdPerson(CallbackInfoReturnable<Boolean> cir) {
         if (CrossPortalEntityRenderer.shouldRenderPlayerDefault()) {
             cir.setReturnValue(true);
@@ -84,34 +84,34 @@ public abstract class MixinCamera implements IECamera {
     }
     
     @Override
-    public void resetState(Vec3d pos, ClientWorld currWorld) {
-        setPos(pos);
-        area = currWorld;
+    public void resetState(Vec3 pos, ClientLevel currWorld) {
+        setPosition(pos);
+        level = currWorld;
     }
     
     @Override
     public float getCameraY() {
-        return cameraY;
+        return eyeHeight;
     }
     
     @Override
     public float getLastCameraY() {
-        return lastCameraY;
+        return eyeHeightOld;
     }
     
     @Override
     public void setCameraY(float cameraY_, float lastCameraY_) {
-        cameraY = cameraY_;
-        lastCameraY = lastCameraY_;
+        eyeHeight = cameraY_;
+        eyeHeightOld = lastCameraY_;
     }
     
     @Override
-    public void portal_setPos(Vec3d pos) {
-        setPos(pos);
+    public void portal_setPos(Vec3 pos) {
+        setPosition(pos);
     }
     
     @Override
     public void portal_setFocusedEntity(Entity arg) {
-        focusedEntity = arg;
+        entity = arg;
     }
 }

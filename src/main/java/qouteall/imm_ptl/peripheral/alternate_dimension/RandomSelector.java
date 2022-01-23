@@ -1,24 +1,24 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import net.minecraft.util.Pair;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.util.Tuple;
 
 public class RandomSelector<T> {
     private Object[] entries;
     private int[] subWeightSum;
     private int weightSum;
     
-    public RandomSelector(List<Pair<T, Integer>> data) {
-        entries = data.stream().map(Pair::getLeft).toArray();
+    public RandomSelector(List<Tuple<T, Integer>> data) {
+        entries = data.stream().map(Tuple::getA).toArray();
         
         subWeightSum = Helper.mapReduce(
             data.stream(),
-            (preSum, curr) -> preSum + curr.getRight(),
+            (preSum, curr) -> preSum + curr.getB(),
             new Helper.SimpleBox<>((Integer) 0)
         ).mapToInt(i -> i).toArray();
         
@@ -49,13 +49,13 @@ public class RandomSelector<T> {
     }
     
     public static class Builder<A> {
-        private ArrayList<Pair<A, Integer>> data = new ArrayList<>();
+        private ArrayList<Tuple<A, Integer>> data = new ArrayList<>();
         
         public Builder() {
         }
         
         public Builder<A> add(int weight, A element) {
-            data.add(new Pair<>(element, weight));
+            data.add(new Tuple<>(element, weight));
             return this;
         }
         

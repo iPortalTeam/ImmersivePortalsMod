@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ public class PortalExtension {
     
     }
     
-    private void readFromNbt(NbtCompound compoundTag) {
+    private void readFromNbt(CompoundTag compoundTag) {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
@@ -89,7 +89,7 @@ public class PortalExtension {
         }
     }
     
-    private void writeToNbt(NbtCompound compoundTag) {
+    private void writeToNbt(CompoundTag compoundTag) {
         if (motionAffinity != 0) {
             compoundTag.putDouble("motionAffinity", motionAffinity);
         }
@@ -98,7 +98,7 @@ public class PortalExtension {
     }
     
     private void tick(Portal portal) {
-        if (portal.world.isClient()) {
+        if (portal.level.isClientSide()) {
             tickClient(portal);
         }
         else {
@@ -145,7 +145,7 @@ public class PortalExtension {
         if (flippedPortal != null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 flippedPortal,
-                portal.world.getRegistryKey(),
+                portal.level.dimension(),
                 portal.getOriginPos()
             );
             
@@ -154,7 +154,7 @@ public class PortalExtension {
             flippedPortal.setDestination(portal.getDestPos());
             
             flippedPortal.axisW = portal.axisW;
-            flippedPortal.axisH = portal.axisH.multiply(-1);
+            flippedPortal.axisH = portal.axisH.scale(-1);
             
             flippedPortal.scaling = portal.scaling;
             flippedPortal.rotation = portal.rotation;
@@ -184,11 +184,11 @@ public class PortalExtension {
             reversePortal.setDestination(portal.getOriginPos());
             
             reversePortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
-            reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.multiply(-1));
+            reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.scale(-1));
             reversePortal.scaling = 1.0 / portal.scaling;
             if (portal.rotation != null) {
                 reversePortal.rotation = portal.rotation.copy();
-                reversePortal.rotation.conjugate();
+                reversePortal.rotation.conj();
             }
             else {
                 reversePortal.rotation = null;
@@ -223,7 +223,7 @@ public class PortalExtension {
             parallelPortal.scaling = 1.0 / portal.scaling;
             if (portal.rotation != null) {
                 parallelPortal.rotation = portal.rotation.copy();
-                parallelPortal.rotation.conjugate();
+                parallelPortal.rotation.conj();
             }
             else {
                 parallelPortal.rotation = null;

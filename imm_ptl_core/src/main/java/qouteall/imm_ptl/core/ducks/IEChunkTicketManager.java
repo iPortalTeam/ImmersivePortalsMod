@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.server.world.ChunkTicket;
-import net.minecraft.util.collection.SortedArraySet;
+import net.minecraft.server.level.Ticket;
+import net.minecraft.util.SortedArraySet;
 
 public interface IEChunkTicketManager {
     void mySetWatchDistance(int newWatchDistance);
     
-    SortedArraySet<ChunkTicket<?>> portal_getTicketSet(long chunkPos);
+    SortedArraySet<Ticket<?>> portal_getTicketSet(long chunkPos);
 }

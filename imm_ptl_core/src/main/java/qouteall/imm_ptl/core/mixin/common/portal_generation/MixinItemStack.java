@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.common.portal_generation;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,11 +12,11 @@ import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 @Mixin(ItemStack.class)
 public class MixinItemStack {
     @Inject(
-        method = "useOnBlock",
+        method = "Lnet/minecraft/world/item/ItemStack;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;",
         at = @At("RETURN"),
         cancellable = true
     )
-    private void onUseOnBlockEnded(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
+    private void onUseOnBlockEnded(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         CustomPortalGenManagement.onItemUse(context, cir.getReturnValue());
     }
 }

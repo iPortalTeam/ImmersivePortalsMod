@@ -1,30 +1,30 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Util;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -49,13 +49,13 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class MyGameRenderer {
-    public static MinecraftClient client = MinecraftClient.getInstance();
+    public static Minecraft client = Minecraft.getInstance();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     // portal rendering and outer world rendering uses different buffer builder storages
     // theoretically every layer of portal rendering should have its own buffer builder storage
-    private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
+    private static RenderBuffers secondaryBufferBuilderStorage = new RenderBuffers();
     
     // the vanilla visibility sections discovery code is multi-threaded
     // when the player teleports through a portal, on the first frame it will not work normally
@@ -81,9 +81,9 @@ public class MyGameRenderer {
     }
     
     private static void switchAndRenderTheWorld(
-        ClientWorld newWorld,
-        Vec3d thisTickCameraPos,
-        Vec3d lastTickCameraPos,
+        ClientLevel newWorld,
+        Vec3 thisTickCameraPos,
+        Vec3 lastTickCameraPos,
         Consumer<Runnable> invokeWrapper,
         int renderDistance,
         boolean doRenderHand
@@ -92,19 +92,19 @@ public class MyGameRenderer {
         
         Entity cameraEntity = client.cameraEntity;
         
-        Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
-        Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
+        Vec3 oldEyePos = McHelper.getEyePos(cameraEntity);
+        Vec3 oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         
-        RegistryKey<World> oldEntityDimension = cameraEntity.world.getRegistryKey();
-        ClientWorld oldEntityWorld = ((ClientWorld) cameraEntity.world);
+        ResourceKey<Level> oldEntityDimension = cameraEntity.level.dimension();
+        ClientLevel oldEntityWorld = ((ClientLevel) cameraEntity.level);
         
-        RegistryKey<World> newDimension = newWorld.getRegistryKey();
+        ResourceKey<Level> newDimension = newWorld.dimension();
         
         //switch the camera entity pos
         McHelper.setEyePos(cameraEntity, thisTickCameraPos, lastTickCameraPos);
-        cameraEntity.world = newWorld;
+        cameraEntity.level = newWorld;
         
-        WorldRenderer worldRenderer = ClientWorldLoader.getWorldRenderer(newDimension);
+        LevelRenderer worldRenderer = ClientWorldLoader.getWorldRenderer(newDimension);
         
         CHelper.checkGlError();
         
@@ -116,38 +116,38 @@ public class MyGameRenderer {
         Camera newCamera = new Camera();
         
         //store old state
-        WorldRenderer oldWorldRenderer = client.worldRenderer;
-        LightmapTextureManager oldLightmap = client.gameRenderer.getLightmapTextureManager();
-        boolean oldNoClip = client.player.noClip;
+        LevelRenderer oldWorldRenderer = client.levelRenderer;
+        LightTexture oldLightmap = client.gameRenderer.lightTexture();
+        boolean oldNoClip = client.player.noPhysics;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        ObjectArrayList<WorldRenderer.ChunkInfo> oldChunkInfoList =
+        ObjectArrayList<LevelRenderer.RenderChunkInfo> oldChunkInfoList =
             ((IEWorldRenderer) oldWorldRenderer).portal_getChunkInfoList();
-        HitResult oldCrosshairTarget = client.crosshairTarget;
-        Camera oldCamera = client.gameRenderer.getCamera();
-        ShaderEffect oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
-        BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).ip_getBufferBuilderStorage();
-        BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
-        boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
+        HitResult oldCrosshairTarget = client.hitResult;
+        Camera oldCamera = client.gameRenderer.getMainCamera();
+        PostChain oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
+        RenderBuffers oldBufferBuilder = ((IEWorldRenderer) worldRenderer).ip_getBufferBuilderStorage();
+        RenderBuffers oldClientBufferBuilder = client.renderBuffers();
+        boolean oldChunkCullingEnabled = client.smartCull;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
-        ObjectArrayList<WorldRenderer.ChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
+        ObjectArrayList<LevelRenderer.RenderChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
         Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
         //switch
         ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
-        client.world = newWorld;
+        client.level = newWorld;
         ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
         
-        client.getBlockEntityRenderDispatcher().world = newWorld;
-        client.player.noClip = true;
+        client.getBlockEntityRenderDispatcher().level = newWorld;
+        client.player.noPhysics = true;
         client.gameRenderer.setRenderHand(doRenderHand);
         
         FogRendererContext.swappingManager.pushSwapping(newDimension);
-        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
+        ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
         if (BlockManipulationClient.remotePointedDim == newDimension) {
-            client.crosshairTarget = BlockManipulationClient.remoteHitResult;
+            client.hitResult = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
         
@@ -164,22 +164,22 @@ public class MyGameRenderer {
         IrisInterface.invoker.setPipeline(worldRenderer, null);
         
         if (IPGlobal.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = false;
+            client.smartCull = false;
         }
         
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
-            helper.lightmapTexture.update(0);
+            helper.lightmapTexture.updateLightTexture(0);
         }
         
         //invoke rendering
         try {
             invokeWrapper.accept(() -> {
                 client.getProfiler().push("render_portal_content");
-                client.gameRenderer.renderWorld(
+                client.gameRenderer.renderLevel(
                     tickDelta,
-                    Util.getMeasuringTimeNano(),
-                    new MatrixStack()
+                    Util.getNanos(),
+                    new PoseStack()
                 );
                 client.getProfiler().pop();
             });
@@ -193,14 +193,14 @@ public class MyGameRenderer {
         //recover
         
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        client.world = oldEntityWorld;
+        client.level = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
-        client.getBlockEntityRenderDispatcher().world = oldEntityWorld;
-        client.player.noClip = oldNoClip;
+        client.getBlockEntityRenderDispatcher().level = oldEntityWorld;
+        client.player.noPhysics = oldNoClip;
         client.gameRenderer.setRenderHand(oldDoRenderHand);
         
-        ((IEParticleManager) client.particleManager).ip_setWorld(oldEntityWorld);
-        client.crosshairTarget = oldCrosshairTarget;
+        ((IEParticleManager) client.particleEngine).ip_setWorld(oldEntityWorld);
+        client.hitResult = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(oldTransparencyShader);
@@ -219,20 +219,20 @@ public class MyGameRenderer {
         
         
         if (IPGlobal.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = oldChunkCullingEnabled;
+            client.smartCull = oldChunkCullingEnabled;
         }
         
         client.getEntityRenderDispatcher()
-            .configure(
-                client.world,
+            .prepare(
+                client.level,
                 oldCamera,
-                client.targetedEntity
+                client.crosshairPickEntity
             );
         
         CHelper.checkGlError();
         
         //restore the camera entity pos
-        cameraEntity.world = oldEntityWorld;
+        cameraEntity.level = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
         
         resetGlStates();
@@ -257,16 +257,16 @@ public class MyGameRenderer {
     
     public static void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
-            ((IEWorldRenderer) client.worldRenderer).ip_getEntityRenderDispatcher();
-        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        GameMode originalGameMode = RenderStates.originalGameMode;
+            ((IEWorldRenderer) client.levelRenderer).ip_getEntityRenderDispatcher();
+        PlayerInfo playerListEntry = CHelper.getClientPlayerListEntry();
+        GameType originalGameMode = RenderStates.originalGameMode;
         
         Entity player = client.cameraEntity;
         assert player != null;
         
-        Vec3d oldPos = player.getPos();
-        Vec3d oldLastTickPos = McHelper.lastTickPosOf(player);
-        GameMode oldGameMode = playerListEntry.getGameMode();
+        Vec3 oldPos = player.position();
+        Vec3 oldLastTickPos = McHelper.lastTickPosOf(player);
+        GameType oldGameMode = playerListEntry.getGameMode();
         
         McHelper.setPosAndLastTickPos(
             player, RenderStates.originalPlayerPos, RenderStates.originalPlayerLastTickPos
@@ -282,33 +282,33 @@ public class MyGameRenderer {
     }
     
     public static void resetFogState() {
-        Camera camera = client.gameRenderer.getCamera();
-        float g = client.gameRenderer.getViewDistance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        float g = client.gameRenderer.getRenderDistance();
         
-        Vec3d cameraPos = camera.getPos();
-        double d = cameraPos.getX();
-        double e = cameraPos.getY();
-        double f = cameraPos.getZ();
+        Vec3 cameraPos = camera.getPosition();
+        double d = cameraPos.x();
+        double e = cameraPos.y();
+        double f = cameraPos.z();
         
-        boolean bl2 = client.world.getDimensionEffects().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
-            client.inGameHud.getBossBarHud().shouldThickenFog();
+        boolean bl2 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
+            client.gui.getBossOverlay().shouldCreateWorldFog();
         
-        BackgroundRenderer.applyFog(camera, BackgroundRenderer.FogType.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
-        BackgroundRenderer.setFogBlack();
+        FogRenderer.setupFog(camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
+        FogRenderer.levelFogColor();
     }
     
     public static void updateFogColor() {
-        BackgroundRenderer.render(
-            client.gameRenderer.getCamera(),
+        FogRenderer.setupColor(
+            client.gameRenderer.getMainCamera(),
             RenderStates.tickDelta,
-            client.world,
-            client.options.viewDistance,
-            client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
+            client.level,
+            client.options.renderDistance,
+            client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
         );
     }
     
-    public static void resetDiffuseLighting(MatrixStack matrixStack) {
-        DiffuseLighting.enableForLevel(matrixStack.peek().getPositionMatrix());
+    public static void resetDiffuseLighting(PoseStack matrixStack) {
+        Lighting.setupNetherLevel(matrixStack.last().pose());
     }
     
     public static void pruneRenderList(ObjectList<?> visibleChunks) {

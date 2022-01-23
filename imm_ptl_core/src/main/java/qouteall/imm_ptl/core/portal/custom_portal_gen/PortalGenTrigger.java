@@ -3,13 +3,13 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
 
 import java.util.function.Function;
 
@@ -30,12 +30,12 @@ public abstract class PortalGenTrigger {
             this.consume = consume;
         }
         
-        public boolean shouldConsume(ItemUsageContext context) {
+        public boolean shouldConsume(UseOnContext context) {
             if (!consume) {
                 return false;
             }
             
-            PlayerEntity player = context.getPlayer();
+            Player player = context.getPlayer();
             if (player != null) {
                 if (player.isCreative()) {
                     return false;
@@ -76,14 +76,14 @@ public abstract class PortalGenTrigger {
     
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.ITEM.getCodec().fieldOf("item").forGetter(o -> o.item),
+            Registry.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item),
             Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume)
         ).apply(instance, instance.stable(UseItemTrigger::new));
     });
     
     public static final Codec<ThrowItemTrigger> throwItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.ITEM.getCodec().fieldOf("item").forGetter(o -> o.item)
+            Registry.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item)
         ).apply(instance, instance.stable(ThrowItemTrigger::new));
     });
     
@@ -91,23 +91,23 @@ public abstract class PortalGenTrigger {
         Codec.unit(ConventionalDimensionChangeTrigger::new);
     
     static {
-        codecRegistry = new SimpleRegistry<>(
-            RegistryKey.ofRegistry(new Identifier("imm_ptl:custom_portal_gen_trigger")),
+        codecRegistry = new MappedRegistry<>(
+            ResourceKey.createRegistryKey(new ResourceLocation("imm_ptl:custom_portal_gen_trigger")),
             Lifecycle.stable()
         );
         
         Registry.register(
-            codecRegistry, new Identifier("imm_ptl:use_item"), useItemTriggerCodec
+            codecRegistry, new ResourceLocation("imm_ptl:use_item"), useItemTriggerCodec
         );
         Registry.register(
-            codecRegistry, new Identifier("imm_ptl:throw_item"), throwItemTriggerCodec
+            codecRegistry, new ResourceLocation("imm_ptl:throw_item"), throwItemTriggerCodec
         );
         Registry.register(
-            codecRegistry, new Identifier("imm_ptl:conventional_dimension_change"),
+            codecRegistry, new ResourceLocation("imm_ptl:conventional_dimension_change"),
             ConventionalDimensionChangeTrigger.conventionalDimensionChangeCodec
         );
         
-        triggerCodec = codecRegistry.getCodec().dispatchStable(
+        triggerCodec = codecRegistry.byNameCodec().dispatchStable(
             PortalGenTrigger::getCodec,
             Function.identity()
         );

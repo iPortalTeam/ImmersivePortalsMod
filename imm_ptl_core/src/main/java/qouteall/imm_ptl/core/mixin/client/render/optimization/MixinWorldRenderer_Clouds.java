@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,37 +21,37 @@ import javax.annotation.Nullable;
 
 // Optimize cloud rendering by storing the context and
 // avoiding rebuild the cloud mesh every time
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public abstract class MixinWorldRenderer_Clouds {
     
     @Shadow
-    private int lastCloudsBlockX;
+    private int prevCloudX;
     
     @Shadow
-    private int lastCloudsBlockY;
+    private int prevCloudY;
     
     @Shadow
-    private int lastCloudsBlockZ;
+    private int prevCloudZ;
     
     @Shadow
     @Nullable
-    private VertexBuffer cloudsBuffer;
+    private VertexBuffer cloudBuffer;
     
     @Shadow
-    private ClientWorld world;
+    private ClientLevel level;
     
     @Shadow
-    private boolean cloudsDirty;
+    private boolean generateClouds;
     
     @Shadow
     private int ticks;
     
     @Inject(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
         at = @At("HEAD")
     )
     private void onBeginRenderClouds(
-        MatrixStack matrices, Matrix4f matrix4f,
+        PoseStack matrices, Matrix4f matrix4f,
         float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci
     ) {
         if (RenderStates.getRenderedPortalNum() == 0) {
@@ -64,10 +64,10 @@ public abstract class MixinWorldRenderer_Clouds {
     }
     
     @Inject(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
         at = @At("RETURN")
     )
-    private void onEndRenderClouds(MatrixStack matrices, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
+    private void onEndRenderClouds(PoseStack matrices, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
@@ -78,34 +78,34 @@ public abstract class MixinWorldRenderer_Clouds {
     }
     
     private void portal_yieldCloudContext(CloudContext context) {
-        Vec3d cloudsColor = this.world.getCloudsColor(RenderStates.tickDelta);
+        Vec3 cloudsColor = this.level.getCloudColor(RenderStates.tickDelta);
         
-        context.lastCloudsBlockX = lastCloudsBlockX;
-        context.lastCloudsBlockY = lastCloudsBlockY;
-        context.lastCloudsBlockZ = lastCloudsBlockZ;
-        context.cloudsBuffer = cloudsBuffer;
-        context.dimension = world.getRegistryKey();
+        context.lastCloudsBlockX = prevCloudX;
+        context.lastCloudsBlockY = prevCloudY;
+        context.lastCloudsBlockZ = prevCloudZ;
+        context.cloudsBuffer = cloudBuffer;
+        context.dimension = level.dimension();
         context.cloudColor = cloudsColor;
         
-        cloudsBuffer = null;
-        cloudsDirty = true;
+        cloudBuffer = null;
+        generateClouds = true;
     }
     
     private void portal_loadCloudContext(CloudContext context) {
-        Validate.isTrue(context.dimension == world.getRegistryKey());
+        Validate.isTrue(context.dimension == level.dimension());
         
-        lastCloudsBlockX = context.lastCloudsBlockX;
-        lastCloudsBlockY = context.lastCloudsBlockY;
-        lastCloudsBlockZ = context.lastCloudsBlockZ;
-        cloudsBuffer = context.cloudsBuffer;
+        prevCloudX = context.lastCloudsBlockX;
+        prevCloudY = context.lastCloudsBlockY;
+        prevCloudZ = context.lastCloudsBlockZ;
+        cloudBuffer = context.cloudsBuffer;
         
-        cloudsDirty = false;
+        generateClouds = false;
     }
     
     private void portal_onBeginCloudRendering(
         float tickDelta, double cameraX, double cameraY, double cameraZ
     ) {
-        float f = this.world.getDimensionEffects().getCloudsHeight();
+        float f = this.level.effects().getCloudHeight();
         float g = 12.0F;
         float h = 4.0F;
         double d = 2.0E-4D;
@@ -113,18 +113,18 @@ public abstract class MixinWorldRenderer_Clouds {
         double i = (cameraX + e) / 12.0D;
         double j = (double) (f - (float) cameraY + 0.33F);
         double k = cameraZ / 12.0D + 0.33000001311302185D;
-        i -= (double) (MathHelper.floor(i / 2048.0D) * 2048);
-        k -= (double) (MathHelper.floor(k / 2048.0D) * 2048);
-        float l = (float) (i - (double) MathHelper.floor(i));
-        float m = (float) (j / 4.0D - (double) MathHelper.floor(j / 4.0D)) * 4.0F;
-        float n = (float) (k - (double) MathHelper.floor(k));
-        Vec3d cloudsColor = this.world.getCloudsColor(tickDelta);
+        i -= (double) (Mth.floor(i / 2048.0D) * 2048);
+        k -= (double) (Mth.floor(k / 2048.0D) * 2048);
+        float l = (float) (i - (double) Mth.floor(i));
+        float m = (float) (j / 4.0D - (double) Mth.floor(j / 4.0D)) * 4.0F;
+        float n = (float) (k - (double) Mth.floor(k));
+        Vec3 cloudsColor = this.level.getCloudColor(tickDelta);
         int kx = (int) Math.floor(i);
         int ky = (int) Math.floor(j / 4.0D);
         int kz = (int) Math.floor(k);
         
         @Nullable CloudContext context = CloudContext.findAndTakeContext(
-            kx, ky, kz, world.getRegistryKey(), cloudsColor
+            kx, ky, kz, level.dimension(), cloudsColor
         );
         
         if (context != null) {
@@ -133,7 +133,7 @@ public abstract class MixinWorldRenderer_Clouds {
     }
     
     private void portal_onEndCloudRendering() {
-        if (!cloudsDirty) {
+        if (!generateClouds) {
             final CloudContext newContext = new CloudContext();
             portal_yieldCloudContext(newContext);
             

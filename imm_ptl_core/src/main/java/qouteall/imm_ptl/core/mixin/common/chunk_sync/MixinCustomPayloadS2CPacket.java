@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(CustomPayloadS2CPacket.class)
+@Mixin(ClientboundCustomPayloadPacket.class)
 public class MixinCustomPayloadS2CPacket {
     // TODO write own packet handling without custom payload which may be faster
     
     @ModifyConstant(
-        method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V",
+        method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V",
         constant = @Constant(intValue = 1048576)
     )
     private int modifySizeLimit1(int oldValue){
@@ -18,7 +18,7 @@ public class MixinCustomPayloadS2CPacket {
     }
     
     @ModifyConstant(
-        method = "<init>(Lnet/minecraft/util/Identifier;Lnet/minecraft/network/PacketByteBuf;)V",
+        method = "<init>(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/network/FriendlyByteBuf;)V",
         constant = @Constant(intValue = 1048576)
     )
     private int modifySizeLimit2(int oldValue){

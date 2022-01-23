@@ -10,37 +10,37 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.NetherPortalBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.EntityList;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkNibbleArray;
-import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.DataLayer;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
+import net.minecraft.world.level.entity.EntityTickList;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -176,7 +176,7 @@ public class ClientDebugCommand {
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(IPCGlobal.renderInfoNumMap.entrySet().stream());
-                context.getSource().getPlayer().sendMessage(new LiteralText(str), false);
+                context.getSource().getPlayer().displayClientMessage(new TextComponent(str), false);
                 return 0;
             })
         );
@@ -184,7 +184,7 @@ public class ClientDebugCommand {
             .literal("get_player_colliding_portal_client")
             .executes(context -> {
                 Portal collidingPortal =
-                    ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
+                    ((IEEntity) Minecraft.getInstance().player).getCollidingPortal();
                 CHelper.printChat(
                     collidingPortal != null ? collidingPortal.toString() : "null"
                 );
@@ -210,14 +210,14 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("vanilla_chunk_culling_enable")
             .executes(context -> {
-                MinecraftClient.getInstance().chunkCullingEnabled = true;
+                Minecraft.getInstance().smartCull = true;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("vanilla_chunk_culling_disable")
             .executes(context -> {
-                MinecraftClient.getInstance().chunkCullingEnabled = false;
+                Minecraft.getInstance().smartCull = false;
                 return 0;
             })
         );
@@ -253,10 +253,10 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("check_client_light")
             .executes(context -> {
-                MinecraftClient client = MinecraftClient.getInstance();
+                Minecraft client = Minecraft.getInstance();
                 client.execute(() -> {
-                    client.world.getChunkManager().getLightingProvider().setSectionStatus(
-                        ChunkSectionPos.from(new BlockPos(client.player.getPos())),
+                    client.level.getChunkSource().getLightEngine().updateSectionStatus(
+                        SectionPos.of(new BlockPos(client.player.position())),
                         false
                     );
                 });
@@ -266,17 +266,17 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("report_client_entities")
             .executes(context -> {
-                ClientWorld world = MinecraftClient.getInstance().world;
+                ClientLevel world = Minecraft.getInstance().level;
                 
                 CHelper.printChat("client entity manager:");
                 
-                for (Entity entity : world.getEntities()) {
+                for (Entity entity : world.entitiesForRendering()) {
                     CHelper.printChat(entity.toString());
                 }
                 
                 CHelper.printChat("client entity list:");
                 
-                EntityList entityList = ((IEClientWorld) world).ip_getEntityList();
+                EntityTickList entityList = ((IEClientWorld) world).ip_getEntityList();
                 
                 entityList.forEach(e -> {
                     CHelper.printChat(e.toString());
@@ -289,13 +289,13 @@ public class ClientDebugCommand {
             .literal("check_server_light")
             .executes(context -> {
                 MiscHelper.getServer().execute(() -> {
-                    ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
+                    ServerPlayer player = McHelper.getRawPlayerList().get(0);
                     
-                    BlockPos.stream(
-                        player.getBlockPos().add(-2, -2, -2),
-                        player.getBlockPos().add(2, 2, 2)
+                    BlockPos.betweenClosedStream(
+                        player.blockPosition().offset(-2, -2, -2),
+                        player.blockPosition().offset(2, 2, 2)
                     ).forEach(blockPos -> {
-                        player.world.getLightingProvider().checkBlock(blockPos);
+                        player.level.getLightEngine().checkBlock(blockPos);
                     });
                 });
                 return 0;
@@ -305,11 +305,11 @@ public class ClientDebugCommand {
                 .literal("update_server_light")
                 .executes(context -> {
                     MiscHelper.getServer().execute(() -> {
-                        ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
+                        ServerPlayer player = McHelper.getRawPlayerList().get(0);
                         
-                        ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
-                        lightingProvider.light(
-                            player.world.getChunk(player.getBlockPos()),
+                        ThreadedLevelLightEngine lightingProvider = (ThreadedLevelLightEngine) player.level.getLightEngine();
+                        lightingProvider.lightChunk(
+                            player.level.getChunk(player.blockPosition()),
                             false
                         );
 //                    lightingProvider.light(
@@ -324,13 +324,13 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("report_rebuild_status")
             .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
+                Minecraft.getInstance().execute(() -> {
                     ClientWorldLoader.getClientWorlds().forEach((world) -> {
                         MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
-                            ClientWorldLoader.getWorldRenderer(world.getRegistryKey()))
+                            ClientWorldLoader.getWorldRenderer(world.dimension()))
                             .ip_getBuiltChunkStorage();
                         CHelper.printChat(
-                            world.getRegistryKey().getValue().toString() + builtChunkStorage.getDebugString()
+                            world.dimension().location().toString() + builtChunkStorage.getDebugString()
                         );
                     });
                 });
@@ -342,9 +342,9 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("report_portal_groups")
             .executes(context -> {
-                for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
+                for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
                     Map<Optional<PortalGroup>, List<Portal>> result =
-                        Streams.stream(clientWorld.getEntities())
+                        Streams.stream(clientWorld.entitiesForRendering())
                             .flatMap(
                                 entity -> entity instanceof Portal ?
                                     Stream.of(((Portal) entity)) : Stream.empty()
@@ -353,7 +353,7 @@ public class ClientDebugCommand {
                                 p -> Optional.ofNullable(PortalRenderInfo.getGroupOf(p))
                             ));
                     
-                    CHelper.printChat("\n" + clientWorld.getRegistryKey().getValue().toString());
+                    CHelper.printChat("\n" + clientWorld.dimension().location().toString());
                     result.forEach((g, l) -> {
                         CHelper.printChat("\n" + g.toString());
                         CHelper.printChat(l.stream()
@@ -367,15 +367,15 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("report_client_light_status")
             .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                    ChunkNibbleArray lightSection = player.world.getLightingProvider().get(LightType.BLOCK).getLightSection(
-                        ChunkSectionPos.from(player.getBlockPos())
+                Minecraft.getInstance().execute(() -> {
+                    LocalPlayer player = Minecraft.getInstance().player;
+                    DataLayer lightSection = player.level.getLightEngine().getLayerListener(LightLayer.BLOCK).getDataLayerData(
+                        SectionPos.of(player.blockPosition())
                     );
                     if (lightSection != null) {
-                        boolean uninitialized = lightSection.isUninitialized();
+                        boolean uninitialized = lightSection.isEmpty();
                         
-                        byte[] byteArray = lightSection.asByteArray();
+                        byte[] byteArray = lightSection.getData();
                         boolean allZero = true;
                         for (byte b : byteArray) {
                             if (b != 0) {
@@ -385,7 +385,7 @@ public class ClientDebugCommand {
                         }
                         
                         context.getSource().sendFeedback(
-                            new LiteralText(
+                            new TextComponent(
                                 "has light section " +
                                     (allZero ? "all zero" : "not all zero") +
                                     (uninitialized ? " uninitialized" : " fine")
@@ -394,7 +394,7 @@ public class ClientDebugCommand {
                     }
                     else {
                         context.getSource().sendFeedback(
-                            new LiteralText("does not have light section")
+                            new TextComponent("does not have light section")
                         );
                     }
                 });
@@ -405,9 +405,9 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("reload_world_renderer")
             .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
+                Minecraft.getInstance().execute(() -> {
                     ClientWorldLoader.disposeRenderHelpers();
-                    MinecraftClient.getInstance().worldRenderer.reload();
+                    Minecraft.getInstance().levelRenderer.allChanged();
                 });
                 return 0;
             })
@@ -417,7 +417,7 @@ public class ClientDebugCommand {
             .literal("config")
             .executes(context -> {
                 // works without modmenu
-                MinecraftClient client = MinecraftClient.getInstance();
+                Minecraft client = Minecraft.getInstance();
                 
                 IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                     client.setScreen(IPConfigGUI.createClothConfigScreen(null));
@@ -582,26 +582,26 @@ public class ClientDebugCommand {
     
     public static class RemoteCallables {
         public static void reportClientChunkLoadStatus(int chunkX, int chunkZ) {
-            Chunk chunk = MinecraftClient.getInstance().world.getChunk(
+            ChunkAccess chunk = Minecraft.getInstance().level.getChunk(
                 chunkX, chunkZ
             );
             CHelper.printChat(
-                chunk != null && !(chunk instanceof EmptyChunk) ?
+                chunk != null && !(chunk instanceof EmptyLevelChunk) ?
                     "client loaded" : "client not loaded"
             );
         }
         
         public static void reportClientPlayerStatus() {
-            ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
+            LocalPlayer playerSP = Minecraft.getInstance().player;
             
             CHelper.printChat(
                 String.format(
                     "On Client %s %s removal:%s added:%s age:%s",
-                    playerSP.world.getRegistryKey().getValue(),
-                    playerSP.getBlockPos(),
+                    playerSP.level.dimension().location(),
+                    playerSP.blockPosition(),
                     playerSP.getRemovalReason(),
-                    playerSP.world.getEntityById(playerSP.getId()) != null,
-                    playerSP.age
+                    playerSP.level.getEntity(playerSP.getId()) != null,
+                    playerSP.tickCount
                 )
             );
         }
@@ -611,8 +611,8 @@ public class ClientDebugCommand {
             
             result.append("Client Portals\n");
             ClientWorldLoader.getClientWorlds().forEach((world) -> {
-                result.append(world.getRegistryKey().getValue().toString() + "\n");
-                for (Entity e : world.getEntities()) {
+                result.append(world.dimension().location().toString() + "\n");
+                for (Entity e : world.entitiesForRendering()) {
                     if (e instanceof Portal) {
                         result.append(e.toString());
                         result.append("\n");
@@ -630,8 +630,8 @@ public class ClientDebugCommand {
             ClientWorldLoader.getClientWorlds().forEach(world -> {
                 str.append(String.format(
                     "%s %s\n",
-                    world.getRegistryKey().getValue(),
-                    world.getChunkManager().getLoadedChunkCount()
+                    world.dimension().location(),
+                    world.getChunkSource().getLoadedChunksCount()
                 ));
             });
             
@@ -641,7 +641,7 @@ public class ClientDebugCommand {
                 (dimension, worldRenderer) -> {
                     str.append(String.format(
                         "%s %s\n",
-                        dimension.getValue(),
+                        dimension.location(),
                         ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
                             .ip_getBuiltChunkStorage()
                         ).getManagedSectionNum()
@@ -667,40 +667,40 @@ public class ClientDebugCommand {
     
     public static class TestRemoteCallable {
         public static void serverToClient(
-            String str, int integer, double doubleNum, Identifier identifier,
-            RegistryKey<World> dimension, RegistryKey<Biome> biomeKey,
-            BlockPos blockPos, Vec3d vec3d
+            String str, int integer, double doubleNum, ResourceLocation identifier,
+            ResourceKey<Level> dimension, ResourceKey<Biome> biomeKey,
+            BlockPos blockPos, Vec3 vec3d
         ) {
             Helper.log(str + integer + doubleNum + identifier + dimension + biomeKey + blockPos + vec3d);
         }
         
         public static void clientToServer(
-            ServerPlayerEntity player,
+            ServerPlayer player,
             UUID uuid,
             Block block, BlockState blockState,
             Item item, ItemStack itemStack,
-            NbtCompound compoundTag, Text text, int[] intArray
+            CompoundTag compoundTag, Component text, int[] intArray
         ) {
             Helper.log(
-                player.getName().asString() + uuid + block + blockState + item + itemStack
+                player.getName().getContents() + uuid + block + blockState + item + itemStack
                     + compoundTag + text + Arrays.toString(intArray)
             );
         }
     }
     
-    private static void testRemoteProcedureCall(ServerPlayerEntity player) {
-        MinecraftClient.getInstance().execute(() -> {
-            NbtCompound compoundTag = new NbtCompound();
-            compoundTag.put("test", NbtInt.of(7));
+    private static void testRemoteProcedureCall(ServerPlayer player) {
+        Minecraft.getInstance().execute(() -> {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.put("test", IntTag.valueOf(7));
             McRemoteProcedureCall.tellServerToInvoke(
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
                 new UUID(3, 3),
                 Blocks.ACACIA_PLANKS,
-                Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, Direction.Axis.Z),
+                Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, Direction.Axis.Z),
                 Items.COMPASS,
                 new ItemStack(Items.ACACIA_LOG, 2),
                 compoundTag,
-                new LiteralText("test"),
+                new TextComponent("test"),
                 new int[]{777, 765}
             );
         });
@@ -709,10 +709,10 @@ public class ClientDebugCommand {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
-                "string", 2, 3.5, new Identifier("imm_ptl:oops"),
-                World.NETHER, BiomeKeys.JUNGLE,
+                "string", 2, 3.5, new ResourceLocation("imm_ptl:oops"),
+                Level.NETHER, Biomes.JUNGLE,
                 new BlockPos(3, 5, 4),
-                new Vec3d(7, 4, 1)
+                new Vec3(7, 4, 1)
             );
         });
     }

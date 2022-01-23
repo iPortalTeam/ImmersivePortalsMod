@@ -1,12 +1,11 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
@@ -40,17 +39,17 @@ public class EntitySync {
         
         server.getProfiler().push("ip_entity_tracking");
         
-        List<ServerPlayerEntity> playerList = McHelper.getRawPlayerList();
+        List<ServerPlayer> playerList = McHelper.getRawPlayerList();
         
-        List<ServerPlayerEntity> dirtyPlayers = new ArrayList<>();
+        List<ServerPlayer> dirtyPlayers = new ArrayList<>();
         
-        for (ServerPlayerEntity player : playerList) {
-            ThreadedAnvilChunkStorage storage =
-                ((ServerWorld) player.world).getChunkManager().threadedAnvilChunkStorage;
-            Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
+        for (ServerPlayer player : playerList) {
+            ChunkMap storage =
+                ((ServerLevel) player.level).getChunkSource().chunkMap;
+            Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
-            ThreadedAnvilChunkStorage.EntityTracker playerItselfTracker =
+            ChunkMap.TrackedEntity playerItselfTracker =
                 entityTrackerMap.get(player.getId());
             if (playerItselfTracker != null) {
                 if (isDirty(playerItselfTracker)) {
@@ -64,19 +63,19 @@ public class EntitySync {
             }
         }
         
-        server.getWorlds().forEach(world -> {
-            ThreadedAnvilChunkStorage storage = world.getChunkManager().threadedAnvilChunkStorage;
-            Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
+        server.getAllLevels().forEach(world -> {
+            ChunkMap storage = world.getChunkSource().chunkMap;
+            Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
             IPCommonNetwork.withForceRedirect(world, () -> {
-                for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
+                for (ChunkMap.TrackedEntity tracker : entityTrackerMap.values()) {
                     ((IEEntityTracker) tracker).tickEntry();
                     
                     boolean dirty = isDirty(tracker);
-                    List<ServerPlayerEntity> updatedPlayerList = dirty ? playerList : dirtyPlayers;
+                    List<ServerPlayer> updatedPlayerList = dirty ? playerList : dirtyPlayers;
                     
-                    for (ServerPlayerEntity player : updatedPlayerList) {
+                    for (ServerPlayer player : updatedPlayerList) {
                         ((IEEntityTracker) tracker).updateEntityTrackingStatus(player);
                     }
                     
@@ -90,13 +89,13 @@ public class EntitySync {
         server.getProfiler().pop();
     }
     
-    private static boolean isDirty(ThreadedAnvilChunkStorage.EntityTracker tracker) {
-        ChunkSectionPos newPos = ChunkSectionPos.from(((IEEntityTracker) tracker).getEntity_());
+    private static boolean isDirty(ChunkMap.TrackedEntity tracker) {
+        SectionPos newPos = SectionPos.of(((IEEntityTracker) tracker).getEntity_());
         return !((IEEntityTracker) tracker).getLastCameraPosition().equals(newPos);
     }
     
-    private static void markUnDirty(ThreadedAnvilChunkStorage.EntityTracker tracker) {
-        ChunkSectionPos currPos = ChunkSectionPos.from(((IEEntityTracker) tracker).getEntity_());
+    private static void markUnDirty(ChunkMap.TrackedEntity tracker) {
+        SectionPos currPos = SectionPos.of(((IEEntityTracker) tracker).getEntity_());
         ((IEEntityTracker) tracker).setLastCameraPosition(currPos);
     }
     

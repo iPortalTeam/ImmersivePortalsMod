@@ -1,33 +1,33 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class MixinServerPlayerEntity extends PlayerEntity implements IEServerPlayerEntity {
+@Mixin(ServerPlayer.class)
+public abstract class MixinServerPlayerEntity extends Player implements IEServerPlayerEntity {
     @Shadow
-    public ServerPlayNetworkHandler networkHandler;
+    public ServerGamePacketListenerImpl connection;
     @Shadow
-    private Vec3d enteredNetherPos;
+    private Vec3 enteredNetherPosition;
     
 //    private HashMultimap<RegistryKey<World>, Entity> myRemovedEntities;
     
     @Shadow
-    private boolean inTeleportationState;
+    private boolean isChangingDimension;
     
-    @Shadow protected abstract void worldChanged(ServerWorld origin);
+    @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);
     
-    public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
+    public MixinServerPlayerEntity(Level world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
     
@@ -102,18 +102,18 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
 //    }
     
     @Override
-    public void setEnteredNetherPos(Vec3d pos) {
-        enteredNetherPos = pos;
+    public void setEnteredNetherPos(Vec3 pos) {
+        enteredNetherPosition = pos;
     }
     
     @Override
-    public void updateDimensionTravelAdvancements(ServerWorld fromWorld) {
-        worldChanged(fromWorld);
+    public void updateDimensionTravelAdvancements(ServerLevel fromWorld) {
+        triggerDimensionChangeTriggers(fromWorld);
     }
     
     @Override
     public void setIsInTeleportationState(boolean arg) {
-        inTeleportationState = arg;
+        isChangingDimension = arg;
     }
     
     @Override
@@ -127,7 +127,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     }
     
     @Override
-    public void portal_worldChanged(ServerWorld fromWorld) {
-        worldChanged(fromWorld);
+    public void portal_worldChanged(ServerLevel fromWorld) {
+        triggerDimensionChangeTriggers(fromWorld);
     }
 }

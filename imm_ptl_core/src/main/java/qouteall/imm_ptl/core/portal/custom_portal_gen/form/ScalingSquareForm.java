@@ -2,12 +2,6 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.ChunkRegion;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
@@ -15,13 +9,19 @@ import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ScalingSquareForm extends NetherPortalLikeForm {
     public static final Codec<ScalingSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.getCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.getCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.getCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.INT.fieldOf("from_length").forGetter(o -> o.fromLength),
             Codec.INT.fieldOf("to_length").forGetter(o -> o.toLength),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
@@ -60,20 +60,20 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public boolean testThisSideShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public boolean testThisSideShape(ServerLevel fromWorld, BlockPortalShape fromShape) {
         boolean isSquareShape = BlockPortalShape.isSquareShape(fromShape, fromLength);
         return isSquareShape;
     }
     
     @Override
-    public Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> getFrameMatchingFunc(
-        ServerWorld fromWorld, ServerWorld toWorld, BlockPortalShape fromShape
+    public Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> getFrameMatchingFunc(
+        ServerLevel fromWorld, ServerLevel toWorld, BlockPortalShape fromShape
     ) {
         BlockPortalShape template = getTemplateToShape(fromShape);
         
         Predicate<BlockState> areaPredicate = getAreaPredicate();
         Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
-        BlockPos.Mutable temp2 = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos temp2 = new BlockPos.MutableBlockPos();
         return (region) -> (blockPos) -> {
             BlockPortalShape result = template.matchShapeWithMovedFirstFramePos(
                 pos -> areaPredicate.test(region.getBlockState(pos)),
@@ -84,8 +84,8 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
             if (result != null) {
                 if (fromWorld != toWorld || fromShape.anchor != result.anchor) {
                     return new PortalGenInfo(
-                        fromWorld.getRegistryKey(),
-                        toWorld.getRegistryKey(),
+                        fromWorld.dimension(),
+                        toWorld.dimension(),
                         fromShape, result,
                         null,
                         getScale()
@@ -108,14 +108,14 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
+    public void generateNewFrame(ServerLevel fromWorld, BlockPortalShape fromShape, ServerLevel toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithCorner) {
-            toWorld.setBlockState(blockPos, toFrameBlock.getDefaultState());
+            toWorld.setBlockAndUpdate(blockPos, toFrameBlock.defaultBlockState());
         }
     }
     
     @Override
-    public PortalGenInfo getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public PortalGenInfo getNewPortalPlacement(ServerLevel toWorld, BlockPos toPos, ServerLevel fromWorld, BlockPortalShape fromShape) {
         BlockPortalShape templateShape = getTemplateToShape(fromShape);
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
@@ -128,8 +128,8 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
         );
         
         return new PortalGenInfo(
-            fromWorld.getRegistryKey(),
-            toWorld.getRegistryKey(),
+            fromWorld.dimension(),
+            toWorld.dimension(),
             templateShape,
             placedShape,
             null,

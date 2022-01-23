@@ -1,24 +1,23 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -35,7 +34,7 @@ import java.util.WeakHashMap;
 
 @Environment(EnvType.CLIENT)
 public class CrossPortalEntityRenderer {
-    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Minecraft client = Minecraft.getInstance();
     
     //there is no weak hash set
     private static final WeakHashMap<Entity, Object> collidedEntities = new WeakHashMap<>();
@@ -72,7 +71,7 @@ public class CrossPortalEntityRenderer {
         }
     }
     
-    public static void onBeginRenderingEntities(MatrixStack matrixStack) {
+    public static void onBeginRenderingEntities(PoseStack matrixStack) {
         isRenderingEntityNormally = true;
         
         if (PortalRendering.isRendering()) {
@@ -90,7 +89,7 @@ public class CrossPortalEntityRenderer {
     }
     
     // do not use runWithTransformation here (because matrixStack is changed?)
-    public static void onEndRenderingEntities(MatrixStack matrixStack) {
+    public static void onEndRenderingEntities(PoseStack matrixStack) {
         isRenderingEntityNormally = false;
         
         FrontClipping.disableClipping();
@@ -102,7 +101,7 @@ public class CrossPortalEntityRenderer {
         renderEntityProjections(matrixStack);
     }
     
-    public static void beforeRenderingEntity(Entity entity, MatrixStack matrixStack) {
+    public static void beforeRenderingEntity(Entity entity, PoseStack matrixStack) {
         if (!isCrossPortalRenderingEnabled()) {
             return;
         }
@@ -115,7 +114,7 @@ public class CrossPortalEntityRenderer {
                 }
                 
                 //draw already built triangles
-                client.getBufferBuilders().getEntityVertexConsumers().draw();
+                client.renderBuffers().bufferSource().endBatch();
                 
                 FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
             }
@@ -129,7 +128,7 @@ public class CrossPortalEntityRenderer {
         if (!PortalRendering.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
                 //draw it with culling in a separate draw call
-                client.getBufferBuilders().getEntityVertexConsumers().draw();
+                client.renderBuffers().bufferSource().endBatch();
                 FrontClipping.disableClipping();
             }
         }
@@ -137,7 +136,7 @@ public class CrossPortalEntityRenderer {
     
     //if an entity is in overworld but halfway through a nether portal
     //then it has a projection in nether
-    private static void renderEntityProjections(MatrixStack matrixStack) {
+    private static void renderEntityProjections(PoseStack matrixStack) {
         if (!isCrossPortalRenderingEnabled()) {
             return;
         }
@@ -151,25 +150,25 @@ public class CrossPortalEntityRenderer {
                 //no need to render entity projection for mirrors
                 return;
             }
-            RegistryKey<World> projectionDimension = collidingPortal.dimensionTo;
-            if (client.world.getRegistryKey() == projectionDimension) {
+            ResourceKey<Level> projectionDimension = collidingPortal.dimensionTo;
+            if (client.level.dimension() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);
             }
         });
     }
     
     public static boolean hasIntersection(
-        Vec3d outerPlanePos, Vec3d outerPlaneNormal,
-        Vec3d entityPos, Vec3d collidingPortalNormal
+        Vec3 outerPlanePos, Vec3 outerPlaneNormal,
+        Vec3 entityPos, Vec3 collidingPortalNormal
     ) {
-        return entityPos.subtract(outerPlanePos).dotProduct(outerPlaneNormal) > 0.01 &&
-            outerPlanePos.subtract(entityPos).dotProduct(collidingPortalNormal) > 0.01;
+        return entityPos.subtract(outerPlanePos).dot(outerPlaneNormal) > 0.01 &&
+            outerPlanePos.subtract(entityPos).dot(collidingPortalNormal) > 0.01;
     }
     
     private static void renderProjectedEntity(
         Entity entity,
         Portal collidingPortal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
@@ -180,10 +179,10 @@ public class CrossPortalEntityRenderer {
                 if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)
                     && !Portal.isReversePortal(((Portal) renderingPortal), collidingPortal)
                 ) {
-                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
                     
                     boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
-                        .dotProduct(collidingPortal.getContentDirection()) < 0;
+                        .dot(collidingPortal.getContentDirection()) < 0;
                     if (renderingPortal == collidingPortal || !isHidden) {
                         renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
                     }
@@ -193,7 +192,7 @@ public class CrossPortalEntityRenderer {
         else {
             FrontClipping.disableClipping();
             // don't draw the existing triangles with culling enabled
-            client.getBufferBuilders().getEntityVertexConsumers().draw();
+            client.renderBuffers().bufferSource().endBatch();
             
             FrontClipping.setupInnerClipping(collidingPortal, false, matrixStack);
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
@@ -204,9 +203,9 @@ public class CrossPortalEntityRenderer {
     private static void renderEntityRegardingPlayer(
         Entity entity,
         Portal transformingPortal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
-        if (entity instanceof ClientPlayerEntity) {
+        if (entity instanceof LocalPlayer) {
             MyGameRenderer.renderPlayerItself(() -> {
                 renderEntity(entity, transformingPortal, matrixStack);
             });
@@ -219,23 +218,23 @@ public class CrossPortalEntityRenderer {
     private static void renderEntity(
         Entity entity,
         Portal transformingPortal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
-        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
         
-        ClientWorld newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
+        ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
         
-        Vec3d oldEyePos = McHelper.getEyePos(entity);
-        Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
-        World oldWorld = entity.world;
+        Vec3 oldEyePos = McHelper.getEyePos(entity);
+        Vec3 oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
+        Level oldWorld = entity.level;
         
-        Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
+        Vec3 newEyePos = transformingPortal.transformPoint(oldEyePos);
         
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             
-            Vec3d transformedEntityPos = newEyePos.subtract(McHelper.getEyeOffset(entity));
-            Box transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
+            Vec3 transformedEntityPos = newEyePos.subtract(McHelper.getEyeOffset(entity));
+            AABB transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
             
             boolean intersects = PortalManipulation.isOtherSideBoxInside(transformedBoundingBox, renderingPortal);
             
@@ -244,7 +243,7 @@ public class CrossPortalEntityRenderer {
             }
         }
         
-        if (entity instanceof ClientPlayerEntity) {
+        if (entity instanceof LocalPlayer) {
             if (!IPGlobal.renderYourselfInPortal) {
                 return;
             }
@@ -253,10 +252,10 @@ public class CrossPortalEntityRenderer {
                 return;
             }
             
-            if (client.options.getPerspective().isFirstPerson()) {
+            if (client.options.getCameraType().isFirstPerson()) {
                 //avoid rendering player too near and block view
                 double dis = newEyePos.distanceTo(cameraPos);
-                double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.getPos());
+                double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.position());
                 if (transformingPortal.scaling > 1) {
                     valve *= transformingPortal.scaling;
                 }
@@ -264,7 +263,7 @@ public class CrossPortalEntityRenderer {
                     return;
                 }
                 
-                Box transformedBoundingBox =
+                AABB transformedBoundingBox =
                     Helper.transformBox(RenderStates.originalPlayerBoundingBox, transformingPortal::transformPoint);
                 if (transformedBoundingBox.contains(CHelper.getCurrentCameraPos())) {
                     return;
@@ -278,43 +277,43 @@ public class CrossPortalEntityRenderer {
             transformingPortal.transformPoint(oldLastTickEyePos)
         );
         
-        entity.world = newWorld;
+        entity.level = newWorld;
         
         isRenderingEntityProjection = true;
-        matrixStack.push();
+        matrixStack.pushPose();
         setupEntityProjectionRenderingTransformation(
             transformingPortal, entity, matrixStack
         );
         
-        VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
-        ((IEWorldRenderer) client.worldRenderer).ip_myRenderEntity(
+        MultiBufferSource.BufferSource consumers = client.renderBuffers().bufferSource();
+        ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
             entity,
             cameraPos.x, cameraPos.y, cameraPos.z,
             RenderStates.tickDelta, matrixStack,
             consumers
         );
         //immediately invoke draw call
-        consumers.draw();
+        consumers.endBatch();
         
-        matrixStack.pop();
+        matrixStack.popPose();
         isRenderingEntityProjection = false;
         
         McHelper.setEyePos(
             entity, oldEyePos, oldLastTickEyePos
         );
-        entity.world = oldWorld;
+        entity.level = oldWorld;
     }
     
     private static void setupEntityProjectionRenderingTransformation(
-        Portal portal, Entity entity, MatrixStack matrixStack
+        Portal portal, Entity entity, PoseStack matrixStack
     ) {
         if (portal.scaling == 1.0 && portal.rotation == null) {
             return;
         }
         
-        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
-        Vec3d anchor = entity.getCameraPosVec(RenderStates.tickDelta).subtract(cameraPos);
+        Vec3 anchor = entity.getEyePosition(RenderStates.tickDelta).subtract(cameraPos);
         
         matrixStack.translate(anchor.x, anchor.y, anchor.z);
         
@@ -322,7 +321,7 @@ public class CrossPortalEntityRenderer {
         matrixStack.scale(scaling, scaling, scaling);
         
         if (portal.rotation != null) {
-            matrixStack.multiply(portal.rotation);
+            matrixStack.mulPose(portal.rotation);
         }
         
         matrixStack.translate(-anchor.x, -anchor.y, -anchor.z);
@@ -335,7 +334,7 @@ public class CrossPortalEntityRenderer {
         if (!WorldRenderInfo.isRendering()) {
             return false;
         }
-        if (client.cameraEntity.world.getRegistryKey() == RenderStates.originalPlayerDimension) {
+        if (client.cameraEntity.level.dimension() == RenderStates.originalPlayerDimension) {
             return true;
         }
         return false;
@@ -350,18 +349,18 @@ public class CrossPortalEntityRenderer {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
             
-            if (entity instanceof PlayerEntity && !renderingPortal.getDoRenderPlayer()) {
+            if (entity instanceof Player && !renderingPortal.getDoRenderPlayer()) {
                 return false;
             }
             
             // client colliding portal update is not immediate
-            if (collidingPortal != null && !(entity instanceof ClientPlayerEntity)) {
+            if (collidingPortal != null && !(entity instanceof LocalPlayer)) {
                 if (renderingPortal instanceof Portal) {
                     if (!Portal.isReversePortal(collidingPortal, ((Portal) renderingPortal))) {
-                        Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
+                        Vec3 cameraPos = PortalRenderer.client.gameRenderer.getMainCamera().getPosition();
                         
                         boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
-                            .dotProduct(collidingPortal.getNormal()) < 0;
+                            .dot(collidingPortal.getNormal()) < 0;
                         if (isHidden) {
                             return false;
                         }
@@ -377,7 +376,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static boolean shouldRenderPlayerNormally(Entity entity) {
-        if (!client.options.getPerspective().isFirstPerson()) {
+        if (!client.options.getCameraType().isFirstPerson()) {
             return true;
         }
         
@@ -387,17 +386,17 @@ public class CrossPortalEntityRenderer {
         
         double distanceToCamera =
             getRenderingCameraPos(entity)
-                .distanceTo(client.gameRenderer.getCamera().getPos());
+                .distanceTo(client.gameRenderer.getMainCamera().getPosition());
         //avoid rendering player too near and block view except mirror
         return distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors();
     }
     
-    public static Vec3d getRenderingCameraPos(Entity entity) {
-        if (entity instanceof ClientPlayerEntity) {
+    public static Vec3 getRenderingCameraPos(Entity entity) {
+        if (entity instanceof LocalPlayer) {
             return RenderStates.originalPlayerPos.add(
                 McHelper.getEyeOffset(entity)
             );
         }
-        return entity.getCameraPosVec(RenderStates.tickDelta);
+        return entity.getEyePosition(RenderStates.tickDelta);
     }
 }

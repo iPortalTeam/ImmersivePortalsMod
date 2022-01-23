@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -35,24 +35,24 @@ public class PortalGroup implements PortalLike {
     public final Portal.TransformationDesc transformationDesc;
     public final List<Portal> portals = new ArrayList<>();
     
-    private Box exactBoundingBox;
-    private Vec3d origin;
-    private Vec3d dest;
+    private AABB exactBoundingBox;
+    private Vec3 origin;
+    private Vec3 dest;
     
     @Nullable
-    private Box destAreaBoxCache = null;
+    private AABB destAreaBoxCache = null;
     
     @Nullable
     private Boolean isEnclosedCache = null;
     
-    private final UUID uuid = MathHelper.randomUuid();
+    private final UUID uuid = Mth.createInsecureUUID();
     
     public PortalGroup(Portal.TransformationDesc transformationDesc) {
         this.transformationDesc = transformationDesc;
     }
     
     public void addPortal(Portal portal) {
-        Validate.isTrue(portal.world.isClient());
+        Validate.isTrue(portal.level.isClientSide());
         Validate.isTrue(!portal.getIsGlobal());
         
         if (portals.contains(portal)) {
@@ -78,7 +78,7 @@ public class PortalGroup implements PortalLike {
         isEnclosedCache = null;
     }
     
-    public Box getDestAreaBox() {
+    public AABB getDestAreaBox() {
         if (destAreaBoxCache == null) {
             destAreaBoxCache = (
                 Helper.transformBox(getExactAreaBox(), pos -> {
@@ -96,37 +96,37 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public Box getExactAreaBox() {
+    public AABB getExactAreaBox() {
         if (exactBoundingBox == null) {
             exactBoundingBox = portals.stream().map(
                 Portal::getExactBoundingBox
-            ).reduce(Box::union).get();
+            ).reduce(AABB::minmax).get();
         }
         return exactBoundingBox;
     }
     
     @Override
-    public Vec3d transformPoint(Vec3d pos) {
+    public Vec3 transformPoint(Vec3 pos) {
         return getFirstPortal().transformPoint(pos);
     }
     
     @Override
-    public Vec3d transformLocalVec(Vec3d localVec) {
+    public Vec3 transformLocalVec(Vec3 localVec) {
         return getFirstPortal().transformLocalVec(localVec);
     }
     
     @Override
-    public Vec3d inverseTransformLocalVec(Vec3d localVec) {
+    public Vec3 inverseTransformLocalVec(Vec3 localVec) {
         return getFirstPortal().inverseTransformLocalVec(localVec);
     }
     
     @Override
-    public Vec3d inverseTransformPoint(Vec3d point) {
+    public Vec3 inverseTransformPoint(Vec3 point) {
         return getFirstPortal().inverseTransformPoint(point);
     }
     
     @Override
-    public double getDistanceToNearestPointInPortal(Vec3d point) {
+    public double getDistanceToNearestPointInPortal(Vec3 point) {
         return Helper.getDistanceToBox(getExactAreaBox(), point);
     }
     
@@ -138,7 +138,7 @@ public class PortalGroup implements PortalLike {
     
     
     @Override
-    public Vec3d getOriginPos() {
+    public Vec3 getOriginPos() {
         if (origin == null) {
             origin = getExactAreaBox().getCenter();
         }
@@ -147,7 +147,7 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public Vec3d getDestPos() {
+    public Vec3 getDestPos() {
         if (dest == null) {
             dest = transformPoint(getOriginPos());
         }
@@ -156,22 +156,22 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public World getOriginWorld() {
-        return getFirstPortal().world;
+    public Level getOriginWorld() {
+        return getFirstPortal().level;
     }
     
     @Override
-    public World getDestWorld() {
+    public Level getDestWorld() {
         return getFirstPortal().getDestWorld();
     }
     
     @Override
-    public RegistryKey<World> getDestDim() {
+    public ResourceKey<Level> getDestDim() {
         return getFirstPortal().getDestDim();
     }
     
     @Override
-    public boolean isRoughlyVisibleTo(Vec3d cameraPos) {
+    public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
         return true;
     }
     
@@ -182,7 +182,7 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public boolean isInside(Vec3d entityPos, double valve) {
+    public boolean isInside(Vec3 entityPos, double valve) {
         if (isEnclosed()) {
             return getDestAreaBox().contains(entityPos);
         }
@@ -207,15 +207,15 @@ public class PortalGroup implements PortalLike {
     
     @Nullable
     @Override
-    public Vec3d[] getOuterFrustumCullingVertices() {
+    public Vec3[] getOuterFrustumCullingVertices() {
         return null;
     }
     
     @Environment(EnvType.CLIENT)
     @Override
-    public void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput) {
+    public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
         for (Portal portal : portals) {
-            Vec3d relativeToGroup = portal.getOriginPos().subtract(getOriginPos());
+            Vec3 relativeToGroup = portal.getOriginPos().subtract(getOriginPos());
             portal.renderViewAreaMesh(
                 portalPosRelativeToCamera.add(relativeToGroup),
                 vertexOutput
@@ -257,8 +257,8 @@ public class PortalGroup implements PortalLike {
     public BoxPredicate getInnerFrustumCullingFunc(
         double innerCameraX, double innerCameraY, double innerCameraZ
     ) {
-        Vec3d innerCameraPos = new Vec3d(innerCameraX, innerCameraY, innerCameraZ);
-        Vec3d outerCameraPos = getFirstPortal().inverseTransformPoint(innerCameraPos);
+        Vec3 innerCameraPos = new Vec3(innerCameraX, innerCameraY, innerCameraZ);
+        Vec3 outerCameraPos = getFirstPortal().inverseTransformPoint(innerCameraPos);
         
         List<BoxPredicate> funcs = portals.stream().filter(
             portal1 -> portal1.isInFrontOfPortal(outerCameraPos)
@@ -334,7 +334,7 @@ public class PortalGroup implements PortalLike {
     public boolean isEnclosed() {
         if (isEnclosedCache == null) {
             isEnclosedCache = portals.stream().allMatch(
-                p -> p.getOriginPos().subtract(getOriginPos()).dotProduct(p.getNormal()) > 0.3
+                p -> p.getOriginPos().subtract(getOriginPos()).dot(p.getNormal()) > 0.3
             );
         }
         

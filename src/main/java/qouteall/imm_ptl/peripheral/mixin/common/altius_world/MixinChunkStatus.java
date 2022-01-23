@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,11 +15,11 @@ import java.util.List;
 @Mixin(ChunkStatus.class)
 public class MixinChunkStatus {
     @Inject(
-        method = "method_17033", at = @At("HEAD"),
+        method = "Lnet/minecraft/world/level/chunk/ChunkStatus;lambda$static$15(Lnet/minecraft/world/level/chunk/ChunkStatus;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Ljava/util/List;Lnet/minecraft/world/level/chunk/ChunkAccess;)V", at = @At("HEAD"),
         remap = false
     )
     private static void redirectPopulateEntities(
-        ChunkStatus var1, ServerWorld world, ChunkGenerator var3, List<Chunk> var4, Chunk chunk,
+        ChunkStatus var1, ServerLevel world, ChunkGenerator var3, List<ChunkAccess> var4, ChunkAccess chunk,
         CallbackInfo ci
     ) {
         AltiusManagement.replaceBedrock(world, chunk);

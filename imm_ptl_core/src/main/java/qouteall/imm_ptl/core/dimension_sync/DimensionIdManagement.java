@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -47,7 +47,7 @@ public class DimensionIdManagement {
             
             FileOutputStream fileInputStream = new FileOutputStream(file);
             
-            NbtCompound tag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+            CompoundTag tag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
             
             NbtIo.writeCompressed(tag, fileInputStream);
             
@@ -71,7 +71,7 @@ public class DimensionIdManagement {
         
         try {
             FileInputStream fileInputStream = new FileInputStream(dataFile);
-            NbtCompound tag = NbtIo.readCompressed(fileInputStream);
+            CompoundTag tag = NbtIo.readCompressed(fileInputStream);
             fileInputStream.close();
             
             return DimensionIdRecord.tagToRecord(tag);
@@ -85,7 +85,7 @@ public class DimensionIdManagement {
     private static File getIPDimIdFile() {
         MinecraftServer server = MiscHelper.getServer();
         Validate.notNull(server);
-        Path saveDir = server.session.directory;
+        Path saveDir = server.storageSource.levelPath;
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
     }
     
@@ -98,25 +98,25 @@ public class DimensionIdManagement {
         Helper.log("Start Completing Dimension Id Record");
         Helper.log("Before:\n" + DimensionIdRecord.serverRecord);
         
-        Set<RegistryKey<World>> keys = MiscHelper.getServer().getWorldRegistryKeys();
+        Set<ResourceKey<Level>> keys = MiscHelper.getServer().levelKeys();
         
-        BiMap<RegistryKey<World>, Integer> bimap = DimensionIdRecord.serverRecord.idMap;
+        BiMap<ResourceKey<Level>, Integer> bimap = DimensionIdRecord.serverRecord.idMap;
         
-        if (!bimap.containsKey(World.OVERWORLD)) {
-            bimap.put(World.OVERWORLD, 0);
+        if (!bimap.containsKey(Level.OVERWORLD)) {
+            bimap.put(Level.OVERWORLD, 0);
         }
-        if (!bimap.containsKey(World.NETHER)) {
-            bimap.put(World.NETHER, -1);
+        if (!bimap.containsKey(Level.NETHER)) {
+            bimap.put(Level.NETHER, -1);
         }
-        if (!bimap.containsKey(World.END)) {
-            bimap.put(World.END, 1);
+        if (!bimap.containsKey(Level.END)) {
+            bimap.put(Level.END, 1);
         }
         
-        List<RegistryKey<World>> keysList = new ArrayList<>(keys);
-        keysList.sort(Comparator.comparing(RegistryKey::toString));
+        List<ResourceKey<Level>> keysList = new ArrayList<>(keys);
+        keysList.sort(Comparator.comparing(ResourceKey::toString));
         
         Helper.log("Server Loaded Dimensions:\n" + Helper.myToString(
-            keysList.stream().map(RegistryKey::getValue)
+            keysList.stream().map(ResourceKey::location)
         ));
         
         keysList.forEach(dim -> {

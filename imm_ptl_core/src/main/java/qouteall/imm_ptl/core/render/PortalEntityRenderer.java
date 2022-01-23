@@ -1,19 +1,19 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 
 @Environment(EnvType.CLIENT)
 public class PortalEntityRenderer extends EntityRenderer<Portal> {
     
-    public PortalEntityRenderer(EntityRendererFactory.Context context) {
+    public PortalEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
     
@@ -22,8 +22,8 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
         Portal portal,
         float yaw,
         float tickDelta,
-        MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider,
+        PoseStack matrixStack,
+        MultiBufferSource vertexConsumerProvider,
         int light
     ) {
         
@@ -40,7 +40,7 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
     }
     
     @Override
-    public Identifier getTexture(Portal portal) {
+    public ResourceLocation getTextureLocation(Portal portal) {
 //        if (portal instanceof BreakablePortalEntity) {
 //            if (((BreakablePortalEntity) portal).overlayBlockState != null) {
 //                return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE;

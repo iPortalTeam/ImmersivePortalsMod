@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
-import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -36,7 +36,7 @@ public class ChunkDataSyncManager {
     /**
      * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
-    private void onBeginWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
+    private void onBeginWatch(ServerPlayer player, DimensionalChunkPos chunkPos) {
         MiscHelper.getServer().getProfiler().push("begin_watch");
         
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(chunkPos.dimension);
@@ -47,23 +47,23 @@ public class ChunkDataSyncManager {
     }
     
     private void sendChunkDataPacketNow(
-        ServerPlayerEntity player,
+        ServerPlayer player,
         DimensionalChunkPos chunkPos,
         IEThreadedAnvilChunkStorage ieStorage
     ) {
         ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
         
-        ServerLightingProvider lightingProvider = ieStorage.getLightingProvider();
+        ThreadedLevelLightEngine lightingProvider = ieStorage.getLightingProvider();
         
         if (chunkHolder != null) {
-            WorldChunk chunk = chunkHolder.getWorldChunk();
+            LevelChunk chunk = chunkHolder.getTickingChunk();
             if (chunk != null) {
                 MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
-                player.networkHandler.sendPacket(
+                player.connection.send(
                     IPNetworking.createRedirectedMessage(
                         chunkPos.dimension,
-                        new ChunkDataS2CPacket(((WorldChunk) chunk), lightingProvider, null, null, true)
+                        new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
                     )
                 );
                 
@@ -80,24 +80,24 @@ public class ChunkDataSyncManager {
     /**
      * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
-    public void onChunkProvidedDeferred(WorldChunk chunk) {
-        RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
+    public void onChunkProvidedDeferred(LevelChunk chunk) {
+        ResourceKey<Level> dimension = chunk.getLevel().dimension();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
-        ServerLightingProvider lightingProvider = ieStorage.getLightingProvider();
+        ThreadedLevelLightEngine lightingProvider = ieStorage.getLightingProvider();
     
         MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> IPNetworking.createRedirectedMessage(
                 dimension,
-                new ChunkDataS2CPacket(((WorldChunk) chunk), lightingProvider, null, null, true)
+                new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
             )
         );
         
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunk.getPos().x, chunk.getPos().z
         ).forEach(player -> {
-            player.networkHandler.sendPacket(chunkDataPacketRedirected.get());
+            player.connection.send(chunkDataPacketRedirected.get());
             
             ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });
@@ -105,24 +105,24 @@ public class ChunkDataSyncManager {
         MiscHelper.getServer().getProfiler().pop();
     }
     
-    private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
+    private void onEndWatch(ServerPlayer player, DimensionalChunkPos chunkPos) {
         
-        player.networkHandler.sendPacket(
+        player.connection.send(
             IPNetworking.createRedirectedMessage(
                 chunkPos.dimension,
-                new UnloadChunkS2CPacket(
+                new ClientboundForgetLevelChunkPacket(
                     chunkPos.x, chunkPos.z
                 )
             )
         );
     }
     
-    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        MiscHelper.getServer().getWorlds()
+    public void onPlayerRespawn(ServerPlayer oldPlayer) {
+        MiscHelper.getServer().getAllLevels()
             .forEach(world -> {
-                ServerChunkManager chunkManager = (ServerChunkManager) world.getChunkManager();
+                ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
                 IEThreadedAnvilChunkStorage storage =
-                    (IEThreadedAnvilChunkStorage) chunkManager.threadedAnvilChunkStorage;
+                    (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
                 storage.onPlayerRespawn(oldPlayer);
             });
         

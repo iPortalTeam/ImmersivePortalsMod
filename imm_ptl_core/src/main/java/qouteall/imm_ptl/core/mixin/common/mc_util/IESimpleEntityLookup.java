@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.common.mc_util;
 
-import net.minecraft.world.entity.EntityIndex;
-import net.minecraft.world.entity.SectionedEntityCache;
-import net.minecraft.world.entity.SimpleEntityLookup;
+import net.minecraft.world.level.entity.EntityLookup;
+import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.level.entity.LevelEntityGetterAdapter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(SimpleEntityLookup.class)
+@Mixin(LevelEntityGetterAdapter.class)
 public interface IESimpleEntityLookup {
-    @Accessor("cache")
-    SectionedEntityCache<?> getCache();
+    @Accessor("sectionStorage")
+    EntitySectionStorage<?> getCache();
     
-    @Accessor("index")
-    EntityIndex<?> getIndex();
+    @Accessor("visibleEntities")
+    EntityLookup<?> getIndex();
 }

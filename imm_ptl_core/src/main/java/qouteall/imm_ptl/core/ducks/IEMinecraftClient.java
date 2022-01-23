@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.WorldRenderer;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
 
 public interface IEMinecraftClient {
-    void setFrameBuffer(Framebuffer buffer);
+    void setFrameBuffer(RenderTarget buffer);
     
     Screen getCurrentScreen();
     
-    void setWorldRenderer(WorldRenderer r);
+    void setWorldRenderer(LevelRenderer r);
     
-    void setBufferBuilderStorage(BufferBuilderStorage arg);
+    void setBufferBuilderStorage(RenderBuffers arg);
 }

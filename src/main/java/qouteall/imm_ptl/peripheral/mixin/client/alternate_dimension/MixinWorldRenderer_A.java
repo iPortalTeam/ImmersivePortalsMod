@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.mixin.client.alternate_dimension;
 
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public class MixinWorldRenderer_A {
 //    //avoid alternate dimension dark sky in low y
 //    @Redirect(

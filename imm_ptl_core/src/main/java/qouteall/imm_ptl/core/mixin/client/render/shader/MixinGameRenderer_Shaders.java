@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render.shader;
 
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Shader;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,10 +17,10 @@ import java.util.Map;
 public class MixinGameRenderer_Shaders {
     @Shadow
     @Final
-    private Map<String, Shader> shaders;
+    private Map<String, ShaderInstance> shaders;
     
     @Inject(
-        method = "loadShaders", at = @At("RETURN")
+        method = "Lnet/minecraft/client/renderer/GameRenderer;reloadShaders(Lnet/minecraft/server/packs/resources/ResourceManager;)V", at = @At("RETURN")
     )
     private void onLoadShaders(ResourceManager manager, CallbackInfo ci) {
         MyRenderHelper.loadShaderSignal.emit(

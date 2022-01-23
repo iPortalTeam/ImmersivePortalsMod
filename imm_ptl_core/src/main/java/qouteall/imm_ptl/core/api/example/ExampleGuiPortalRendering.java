@@ -1,21 +1,21 @@
 package qouteall.imm_ptl.core.api.example;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.SimpleFramebuffer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -58,30 +58,30 @@ public class ExampleGuiPortalRendering {
      * The Framebuffer that the GUI portal is going to render onto
      */
     @Environment(EnvType.CLIENT)
-    private static Framebuffer frameBuffer;
+    private static RenderTarget frameBuffer;
     
     /**
      * A weak hash map storing ChunkLoader objects for each players
      */
-    private static final WeakHashMap<ServerPlayerEntity, ChunkLoader>
+    private static final WeakHashMap<ServerPlayer, ChunkLoader>
         chunkLoaderMap = new WeakHashMap<>();
     
     /**
      * Remove the GUI portal chunk loader for a player
      */
-    private static void removeChunkLoaderFor(ServerPlayerEntity player) {
+    private static void removeChunkLoaderFor(ServerPlayer player) {
         ChunkLoader chunkLoader = chunkLoaderMap.remove(player);
         if (chunkLoader != null) {
             PortalAPI.removeChunkLoaderForPlayer(player, chunkLoader);
         }
     }
     
-    public static void onCommandExecuted(ServerPlayerEntity player, ServerWorld world, Vec3d pos) {
+    public static void onCommandExecuted(ServerPlayer player, ServerLevel world, Vec3 pos) {
         removeChunkLoaderFor(player);
         
         ChunkLoader chunkLoader = new ChunkLoader(
             new DimensionalChunkPos(
-                world.getRegistryKey(), new ChunkPos(new BlockPos(pos))
+                world.dimension(), new ChunkPos(new BlockPos(pos))
             ),
             8
         );
@@ -94,7 +94,7 @@ public class ExampleGuiPortalRendering {
         McRemoteProcedureCall.tellClientToInvoke(
             player,
             "qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering.RemoteCallables.clientActivateExampleGuiPortal",
-            world.getRegistryKey(),
+            world.dimension(),
             pos
         );
     }
@@ -102,17 +102,17 @@ public class ExampleGuiPortalRendering {
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
         public static void clientActivateExampleGuiPortal(
-            RegistryKey<World> dimension,
-            Vec3d position
+            ResourceKey<Level> dimension,
+            Vec3 position
         ) {
             if (frameBuffer == null) {
-                frameBuffer = new SimpleFramebuffer(100, 100, true, true);
+                frameBuffer = new TextureTarget(100, 100, true, true);
             }
             
-            MinecraftClient.getInstance().setScreen(new GuiPortalScreen(dimension, position));
+            Minecraft.getInstance().setScreen(new GuiPortalScreen(dimension, position));
         }
         
-        public static void serverRemoveChunkLoader(ServerPlayerEntity player) {
+        public static void serverRemoveChunkLoader(ServerPlayer player) {
             removeChunkLoaderFor(player);
         }
     }
@@ -120,12 +120,12 @@ public class ExampleGuiPortalRendering {
     @Environment(EnvType.CLIENT)
     public static class GuiPortalScreen extends Screen {
         
-        private final RegistryKey<World> viewingDimension;
+        private final ResourceKey<Level> viewingDimension;
         
-        private final Vec3d viewingPosition;
+        private final Vec3 viewingPosition;
         
-        public GuiPortalScreen(RegistryKey<World> viewingDimension, Vec3d viewingPosition) {
-            super(new LiteralText("GUI Portal Example"));
+        public GuiPortalScreen(ResourceKey<Level> viewingDimension, Vec3 viewingPosition) {
+            super(new TextComponent("GUI Portal Example"));
             this.viewingDimension = viewingDimension;
             this.viewingPosition = viewingPosition;
         }
@@ -141,7 +141,7 @@ public class ExampleGuiPortalRendering {
         }
         
         @Override
-        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
             super.render(matrices, mouseX, mouseY, delta);
             
             double t1 = CHelper.getSmoothCycles(503);
@@ -149,17 +149,17 @@ public class ExampleGuiPortalRendering {
             
             // Determine the camera transformation
             Matrix4f cameraTransformation = new Matrix4f();
-            cameraTransformation.loadIdentity();
+            cameraTransformation.setIdentity();
             cameraTransformation.multiply(
                 DQuaternion.rotationByDegrees(
-                    new Vec3d(1, 1, 1).normalize(),
+                    new Vec3(1, 1, 1).normalize(),
                     t1 * 360
                 ).toMcQuaternion()
             );
             
             // Determine the camera position
-            Vec3d cameraPosition = this.viewingPosition.add(
-                new Vec3d(Math.cos(t2 * 2 * Math.PI), 0, Math.sin(t2 * 2 * Math.PI)).multiply(30)
+            Vec3 cameraPosition = this.viewingPosition.add(
+                new Vec3(Math.cos(t2 * 2 * Math.PI), 0, Math.sin(t2 * 2 * Math.PI)).scale(30)
             );
             
             // Create the world render info
@@ -169,15 +169,15 @@ public class ExampleGuiPortalRendering {
                 cameraTransformation,// the camera transformation
                 true,// does not apply this transformation to the existing player camera
                 null,
-                client.options.viewDistance// render distance
+                minecraft.options.renderDistance// render distance
             );
             
             // Ask it to render the world into the framebuffer the next frame
             GuiPortalRendering.submitNextFrameRendering(worldRenderInfo, frameBuffer);
             
             // Draw the framebuffer
-            int h = client.getWindow().getFramebufferHeight();
-            int w = client.getWindow().getFramebufferWidth();
+            int h = minecraft.getWindow().getHeight();
+            int w = minecraft.getWindow().getWidth();
             MyRenderHelper.drawFramebuffer(
                 frameBuffer,
                 false, false,
@@ -185,8 +185,8 @@ public class ExampleGuiPortalRendering {
                 h * 0.2f, h * 0.8f
             );
             
-            drawCenteredText(
-                matrices, this.textRenderer, this.title, this.width / 2, 70, 16777215
+            drawCenteredString(
+                matrices, this.font, this.title, this.width / 2, 70, 16777215
             );
         }
         

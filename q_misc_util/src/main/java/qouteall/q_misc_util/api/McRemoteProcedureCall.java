@@ -2,11 +2,10 @@ package qouteall.q_misc_util.api;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.server.level.ServerPlayer;
 import qouteall.q_misc_util.ImplRemoteProcedureCall;
 
 /**
@@ -104,21 +103,21 @@ public class McRemoteProcedureCall {
      * @param arguments The arguments. The types must match the remotely invoked method signature.
      */
     public static void tellClientToInvoke(
-        ServerPlayerEntity player,
+        ServerPlayer player,
         String methodPath,
         Object... arguments
     ) {
-        CustomPayloadS2CPacket packet = createPacketToSendToClient(methodPath, arguments);
-        player.networkHandler.sendPacket(packet);
+        ClientboundCustomPayloadPacket packet = createPacketToSendToClient(methodPath, arguments);
+        player.connection.send(packet);
     }
     
     /**
      * Same as the above, but only creates packet and does not send.
      */
-    public static CustomPayloadS2CPacket createPacketToSendToClient(
+    public static ClientboundCustomPayloadPacket createPacketToSendToClient(
         String methodPath, Object... arguments
     ) {
-        CustomPayloadS2CPacket packet =
+        ClientboundCustomPayloadPacket packet =
             ImplRemoteProcedureCall.createS2CPacket(methodPath, arguments);
         return packet;
     }
@@ -152,8 +151,8 @@ public class McRemoteProcedureCall {
         String methodPath,
         Object... arguments
     ) {
-        CustomPayloadC2SPacket packet =
+        ServerboundCustomPayloadPacket packet =
             ImplRemoteProcedureCall.createC2SPacket(methodPath, arguments);
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+        Minecraft.getInstance().getConnection().send(packet);
     }
 }

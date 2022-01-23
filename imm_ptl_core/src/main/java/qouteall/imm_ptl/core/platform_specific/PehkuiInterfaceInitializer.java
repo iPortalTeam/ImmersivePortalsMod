@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -44,8 +44,8 @@ public class PehkuiInterfaceInitializer {
         
         private void logErrorMessage(Entity entity, Throwable e, String situation) {
             e.printStackTrace();
-            entity.sendSystemMessage(
-                new LiteralText("Something went wrong with Pehkui (" + situation + ")"),
+            entity.sendMessage(
+                new TextComponent("Something went wrong with Pehkui (" + situation + ")"),
                 Util.NIL_UUID
             );
         }
@@ -129,15 +129,15 @@ public class PehkuiInterfaceInitializer {
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
         if (portal.hasScaling() && portal.teleportChangesScale) {
-            MinecraftClient client = MinecraftClient.getInstance();
+            Minecraft client = Minecraft.getInstance();
             
-            ClientPlayerEntity player = client.player;
+            LocalPlayer player = client.player;
             
             Validate.notNull(player);
             
             doScalingForEntity(player, portal);
             
-            IECamera camera = (IECamera) client.gameRenderer.getCamera();
+            IECamera camera = (IECamera) client.gameRenderer.getMainCamera();
             camera.setCameraY(
                 ((float) (camera.getCameraY() * portal.scaling)),
                 ((float) (camera.getLastCameraY() * portal.scaling))
@@ -156,23 +156,23 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static void doScalingForEntity(Entity entity, Portal portal) {
-        Vec3d eyePos = McHelper.getEyePos(entity);
-        Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
+        Vec3 eyePos = McHelper.getEyePos(entity);
+        Vec3 lastTickEyePos = McHelper.getLastTickEyePos(entity);
         
         float oldScale = PehkuiInterface.invoker.getBaseScale(entity);
         float newScale = transformScale(portal, oldScale);
         
-        if (!entity.world.isClient && isScaleIllegal(newScale)) {
+        if (!entity.level.isClientSide && isScaleIllegal(newScale)) {
             newScale = 1;
-            entity.sendSystemMessage(
-                new LiteralText("Scale out of range"),
+            entity.sendMessage(
+                new TextComponent("Scale out of range"),
                 Util.NIL_UUID
             );
         }
         
         PehkuiInterface.invoker.setBaseScale(entity, newScale);
         
-        if (!entity.world.isClient) {
+        if (!entity.level.isClientSide) {
             IPGlobal.serverTaskList.addTask(() -> {
                 McHelper.setEyePos(entity, eyePos, lastTickEyePos);
                 McHelper.updateBoundingBox(entity);

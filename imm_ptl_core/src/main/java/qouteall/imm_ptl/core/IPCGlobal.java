@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core;
 
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.level.dimension.DimensionType;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.RendererDebug;
 import qouteall.imm_ptl.core.render.RendererDummy;

@@ -5,18 +5,18 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
@@ -31,7 +31,7 @@ import java.util.UUID;
 @Environment(EnvType.CLIENT)
 public class IPNetworkingClient {
     
-    private static MinecraftClient client = MinecraftClient.getInstance();
+    private static Minecraft client = Minecraft.getInstance();
     
     public static void init() {
         
@@ -76,22 +76,22 @@ public class IPNetworkingClient {
         
     }
     
-    private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
-        String entityTypeString = buf.readString();
+    private static void processStcSpawnEntity(PacketContext context, FriendlyByteBuf buf) {
+        String entityTypeString = buf.readUtf();
         
         int entityId = buf.readInt();
         
-        RegistryKey<World> dim = DimId.readWorldId(buf, true);
+        ResourceKey<Level> dim = DimId.readWorldId(buf, true);
         
-        NbtCompound compoundTag = buf.readNbt();
+        CompoundTag compoundTag = buf.readNbt();
         
         IPCommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
-    private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
+    private static void processStcDimensionConfirm(PacketContext context, FriendlyByteBuf buf) {
         
-        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
-        Vec3d pos = new Vec3d(
+        ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
+        Vec3 pos = new Vec3(
             buf.readDouble(),
             buf.readDouble(),
             buf.readDouble()
@@ -106,9 +106,9 @@ public class IPNetworkingClient {
     }
     
     public static void processRedirectedMessage(
-        PacketByteBuf buf
+        FriendlyByteBuf buf
     ) {
-        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
+        ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
         int messageType = buf.readInt();
         Packet packet = createPacketByType(messageType,buf);
         
@@ -116,13 +116,13 @@ public class IPNetworkingClient {
     }
     
     public static void processDimSync(
-        PacketByteBuf buf
+        FriendlyByteBuf buf
     ) {
-        NbtCompound idMap = buf.readNbt();
+        CompoundTag idMap = buf.readNbt();
         
         DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMap);
         
-        NbtCompound typeMap = buf.readNbt();
+        CompoundTag typeMap = buf.readNbt();
         
         DimensionTypeSync.acceptTypeMapData(typeMap);
         
@@ -130,51 +130,51 @@ public class IPNetworkingClient {
         Helper.log("\n" + DimensionIdRecord.clientRecord);
     }
     
-    private static void processGlobalPortalUpdate(PacketByteBuf buf) {
-        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
-        NbtCompound compoundTag = buf.readNbt();
+    private static void processGlobalPortalUpdate(FriendlyByteBuf buf) {
+        ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
+        CompoundTag compoundTag = buf.readNbt();
         MiscHelper.executeOnRenderThread(() -> {
             GlobalPortalStorage.receiveGlobalPortalSync(dimension, compoundTag);
         });
     }
     
     public static Packet createCtsPlayerAction(
-        RegistryKey<World> dimension,
-        PlayerActionC2SPacket packet
+        ResourceKey<Level> dimension,
+        ServerboundPlayerActionPacket packet
     ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
         packet.write(buf);
-        return new CustomPayloadC2SPacket(IPNetworking.id_ctsPlayerAction, buf);
+        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsPlayerAction, buf);
     }
     
     public static Packet createCtsRightClick(
-        RegistryKey<World> dimension,
-        PlayerInteractBlockC2SPacket packet
+        ResourceKey<Level> dimension,
+        ServerboundUseItemOnPacket packet
     ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
         packet.write(buf);
-        return new CustomPayloadC2SPacket(IPNetworking.id_ctsRightClick, buf);
+        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsRightClick, buf);
     }
     
     public static Packet createCtsTeleport(
-        RegistryKey<World> dimensionBefore,
-        Vec3d posBefore,
+        ResourceKey<Level> dimensionBefore,
+        Vec3 posBefore,
         UUID portalEntityId
     ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimensionBefore, true);
         buf.writeDouble(posBefore.x);
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
-        buf.writeUuid(portalEntityId);
-        return new CustomPayloadC2SPacket(IPNetworking.id_ctsTeleport, buf);
+        buf.writeUUID(portalEntityId);
+        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsTeleport, buf);
     }
     
     private static Packet createPacketByType(
-        int messageType, PacketByteBuf buf
+        int messageType, FriendlyByteBuf buf
     ) {
-        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType, buf);
+        return ConnectionProtocol.PLAY.createPacket(PacketFlow.CLIENTBOUND, messageType, buf);
     }
 }

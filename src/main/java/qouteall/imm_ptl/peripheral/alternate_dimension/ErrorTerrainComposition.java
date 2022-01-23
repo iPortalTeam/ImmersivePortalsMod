@@ -1,20 +1,20 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.source.SeedMixer;
+import net.minecraft.core.Registry;
+import net.minecraft.util.LinearCongruentialGenerator;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;
 
 public class ErrorTerrainComposition {
     
     
-    public static final BlockState air = Blocks.AIR.getDefaultState();
-    public static final BlockState stone = Blocks.STONE.getDefaultState();
-    public static final BlockState water = Blocks.WATER.getDefaultState();
+    public static final BlockState air = Blocks.AIR.defaultBlockState();
+    public static final BlockState stone = Blocks.STONE.defaultBlockState();
+    public static final BlockState water = Blocks.WATER.defaultBlockState();
     
     public static final RegionErrorTerrainGenerator.Composition mountain = (
         worldY, funcValue, middle, upMiddle, downMiddle, worldX, worldZ
@@ -123,7 +123,7 @@ public class ErrorTerrainComposition {
         worldY, funcValue, middle, upMiddle, downMiddle, worldX, worldZ
     ) -> {
         double upPoint = Math.max(middle, Math.max(upMiddle, downMiddle));
-        double splitPoint = MathHelper.lerp(
+        double splitPoint = Mth.lerp(
             Math.abs(worldY - 32) / 32.0,
             middle,
             worldY > 32 ? upMiddle : downMiddle
@@ -131,13 +131,13 @@ public class ErrorTerrainComposition {
         if (funcValue > splitPoint) {
             if (((int) funcValue) % 37 == 0) {
                 Block randomBlock = Registry.BLOCK.getRandom(new Random(
-                    SeedMixer.mixSeed(worldX, SeedMixer.mixSeed(worldY, worldZ))
+                    LinearCongruentialGenerator.next(worldX, LinearCongruentialGenerator.next(worldY, worldZ))
                 ));
                 //player should not get beacon so easily
                 if (randomBlock == Blocks.BEACON) {
                     randomBlock = Blocks.AIR;
                 }
-                return randomBlock.getDefaultState();
+                return randomBlock.defaultBlockState();
             }
         }
         return air;

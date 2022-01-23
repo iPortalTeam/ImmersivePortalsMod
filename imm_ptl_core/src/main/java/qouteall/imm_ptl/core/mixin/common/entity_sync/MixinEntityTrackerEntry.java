@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -21,21 +21,21 @@ import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@Mixin(value = EntityTrackerEntry.class, priority = 1200)
+@Mixin(value = ServerEntity.class, priority = 1200)
 public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Shadow
     @Final
     private Entity entity;
     
     @Shadow
-    public abstract void sendPackets(Consumer<Packet<?>> consumer_1);
+    public abstract void sendPairingData(Consumer<Packet<?>> consumer_1);
     
     @Shadow
-    protected abstract void storeEncodedCoordinates();
+    protected abstract void updateSentPos();
     
     // make sure that the packet is being redirected
     @Inject(
-        method = "tick",
+        method = "Lnet/minecraft/server/level/ServerEntity;sendChanges()V",
         at = @At("HEAD")
     )
     private void onTick(CallbackInfo ci) {
@@ -47,11 +47,11 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
      * @reason make incompat fail fast
      */
     @Overwrite
-    public void stopTracking(ServerPlayerEntity player) {
+    public void removePairing(ServerPlayer player) {
         IPCommonNetwork.withForceRedirect(
-            ((ServerWorld) entity.world), () -> {
-                entity.onStoppedTrackingBy(player);
-                player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(entity.getId()));
+            ((ServerLevel) entity.level), () -> {
+                entity.stopSeenByPlayer(player);
+                player.connection.send(new ClientboundRemoveEntitiesPacket(entity.getId()));
             }
         );
     }
@@ -61,13 +61,13 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
      * @reason make incompat fail fast
      */
     @Overwrite
-    public void startTracking(ServerPlayerEntity player) {
+    public void addPairing(ServerPlayer player) {
         IPCommonNetwork.withForceRedirect(
-            ((ServerWorld) entity.world), () -> {
-                ServerPlayNetworkHandler networkHandler = player.networkHandler;
+            ((ServerLevel) entity.level), () -> {
+                ServerGamePacketListenerImpl networkHandler = player.connection;
                 Objects.requireNonNull(networkHandler);
-                this.sendPackets(networkHandler::sendPacket);
-                this.entity.onStartedTrackingBy(player);
+                this.sendPairingData(networkHandler::send);
+                this.entity.startSeenByPlayer(player);
             }
         );
     }
@@ -88,21 +88,21 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
 //    }
     
     @Redirect(
-        method = "sendSyncPacket",
+        method = "Lnet/minecraft/server/level/ServerEntity;broadcastAndSend(Lnet/minecraft/network/protocol/Packet;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
     private void onSendToWatcherAndSelf(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
     
     @Override
     public void ip_updateTrackedEntityPosition() {
-        storeEncodedCoordinates();
+        updateSentPos();
     }
 }

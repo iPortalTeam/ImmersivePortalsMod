@@ -1,21 +1,20 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import qouteall.q_misc_util.Helper;
 
 import java.io.IOException;
@@ -24,13 +23,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 // extending EntryListWidget.Entry is also fine
-public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
+public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryWidget> {
     
-    public final RegistryKey<World> dimension;
+    public final ResourceKey<Level> dimension;
     public final DimListWidget parent;
     private final Consumer<DimEntryWidget> selectCallback;
-    private final Identifier dimIconPath;
-    private final Text dimensionName;
+    private final ResourceLocation dimIconPath;
+    private final Component dimensionName;
     private boolean dimensionIconPresent = true;
     private final Type type;
     public final AltiusEntry entry;
@@ -38,7 +37,7 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     public final static int widgetHeight = 50;
     
     @Override
-    public List<? extends Selectable> selectableChildren() {
+    public List<? extends NarratableEntry> narratables() {
         return List.of();
     }
     
@@ -47,7 +46,7 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     }
     
     public DimEntryWidget(
-        RegistryKey<World> dimension,
+        ResourceKey<Level> dimension,
         DimListWidget parent,
         Consumer<DimEntryWidget> selectCallback,
         Type type
@@ -62,7 +61,7 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         this.dimensionName = getDimensionName(dimension);
         
         try {
-            MinecraftClient.getInstance().getResourceManager().getResource(dimIconPath);
+            Minecraft.getInstance().getResourceManager().getResource(dimIconPath);
         }
         catch (IOException e) {
             Helper.err("Cannot load texture " + dimIconPath);
@@ -72,16 +71,16 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         entry = new AltiusEntry(dimension);
     }
     
-    private final List<Element> children = new ArrayList<>();
+    private final List<GuiEventListener> children = new ArrayList<>();
     
     @Override
-    public List<? extends Element> children() {
+    public List<? extends GuiEventListener> children() {
         return children;
     }
     
     @Override
     public void render(
-        MatrixStack matrixStack,
+        PoseStack matrixStack,
         int index,
         int y,
         int x,
@@ -92,16 +91,16 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         boolean bl,
         float delta
     ) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         
-        client.textRenderer.draw(
+        client.font.draw(
             matrixStack, dimensionName.getString(),
             x + widgetHeight + 3, (float) (y),
             0xFFFFFFFF
         );
         
-        client.textRenderer.draw(
-            matrixStack, dimension.getValue().toString(),
+        client.font.draw(
+            matrixStack, dimension.location().toString(),
             x + widgetHeight + 3, (float) (y + 10),
             0xFF999999
         );
@@ -111,7 +110,7 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, dimIconPath);
             RenderSystem.enableBlend();
-            DrawableHelper.drawTexture(
+            GuiComponent.blit(
                 matrixStack, x, y, 0.0F, 0.0F,
                 widgetHeight - 4, widgetHeight - 4,
                 widgetHeight - 4, widgetHeight - 4
@@ -120,12 +119,12 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         }
         
         if (type == Type.withAdvancedOptions) {
-            client.textRenderer.draw(
+            client.font.draw(
                 matrixStack, getText1(),
                 x + widgetHeight + 3, (float) (y + 20),
                 0xFF999999
             );
-            client.textRenderer.draw(
+            client.font.draw(
                 matrixStack, getText2(),
                 x + widgetHeight + 3, (float) (y + 30),
                 0xFF999999
@@ -133,25 +132,25 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         }
     }
     
-    private Text getText1() {
-        MutableText scaleText = entry.scale != 1.0 ?
-            new TranslatableText("imm_ptl.scale")
-                .append(new LiteralText(":" + Double.toString(entry.scale)))
-            : new LiteralText("");
+    private Component getText1() {
+        MutableComponent scaleText = entry.scale != 1.0 ?
+            new TranslatableComponent("imm_ptl.scale")
+                .append(new TextComponent(":" + Double.toString(entry.scale)))
+            : new TextComponent("");
         
         return scaleText;
     }
     
-    private Text getText2() {
-        MutableText horizontalRotationText = entry.horizontalRotation != 0 ?
-            new TranslatableText("imm_ptl.horizontal_rotation")
-                .append(new LiteralText(":" + Double.toString(entry.horizontalRotation)))
-                .append(new LiteralText(" "))
-            : new LiteralText("");
+    private Component getText2() {
+        MutableComponent horizontalRotationText = entry.horizontalRotation != 0 ?
+            new TranslatableComponent("imm_ptl.horizontal_rotation")
+                .append(new TextComponent(":" + Double.toString(entry.horizontalRotation)))
+                .append(new TextComponent(" "))
+            : new TextComponent("");
         
-        MutableText flippedText = entry.flipped ?
-            new TranslatableText("imm_ptl.flipped")
-            : new LiteralText("");
+        MutableComponent flippedText = entry.flipped ?
+            new TranslatableComponent("imm_ptl.flipped")
+            : new TextComponent("");
         
         return horizontalRotationText.append(flippedText);
     }
@@ -166,18 +165,18 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
          */
     }
     
-    public static Identifier getDimensionIconPath(RegistryKey<World> dimension) {
-        Identifier id = dimension.getValue();
-        return new Identifier(
+    public static ResourceLocation getDimensionIconPath(ResourceKey<Level> dimension) {
+        ResourceLocation id = dimension.location();
+        return new ResourceLocation(
             id.getNamespace(),
             "textures/dimension/" + id.getPath() + ".png"
         );
     }
     
-    private static TranslatableText getDimensionName(RegistryKey<World> dimension) {
-        return new TranslatableText(
-            "dimension." + dimension.getValue().getNamespace() + "."
-                + dimension.getValue().getPath()
+    private static TranslatableComponent getDimensionName(ResourceKey<Level> dimension) {
+        return new TranslatableComponent(
+            "dimension." + dimension.location().getNamespace() + "."
+                + dimension.location().getPath()
         );
     }
 }

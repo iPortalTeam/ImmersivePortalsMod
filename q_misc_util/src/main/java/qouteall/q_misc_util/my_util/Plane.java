@@ -1,14 +1,14 @@
 package qouteall.q_misc_util.my_util;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
 
 public class Plane {
-    public final Vec3d pos;
-    public final Vec3d normal;
+    public final Vec3 pos;
+    public final Vec3 normal;
     
-    public Plane(Vec3d pos, Vec3d normal) {
+    public Plane(Vec3 pos, Vec3 normal) {
         this.pos = pos;
         this.normal = normal;
     }

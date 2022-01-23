@@ -2,10 +2,10 @@ package qouteall.imm_ptl.core.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.stream.Collectors;
@@ -16,16 +16,16 @@ public class DimensionIdRecord {
     
     public static DimensionIdRecord serverRecord;
     
-    final BiMap<RegistryKey<World>, Integer> idMap;
-    final BiMap<Integer, RegistryKey<World>> inverseMap;
+    final BiMap<ResourceKey<Level>, Integer> idMap;
+    final BiMap<Integer, ResourceKey<Level>> inverseMap;
     
-    public DimensionIdRecord(BiMap<RegistryKey<World>, Integer> data) {
+    public DimensionIdRecord(BiMap<ResourceKey<Level>, Integer> data) {
         idMap = data;
         inverseMap = data.inverse();
     }
     
-    public RegistryKey<World> getDim(int integerId) {
-        RegistryKey<World> result = inverseMap.get(integerId);
+    public ResourceKey<Level> getDim(int integerId) {
+        ResourceKey<Level> result = inverseMap.get(integerId);
         if (result == null) {
             throw new RuntimeException(
                 "Missing Dimension " + integerId
@@ -35,11 +35,11 @@ public class DimensionIdRecord {
     }
     
     @Nullable
-    public RegistryKey<World> getDimFromIntOptional(int integerId) {
+    public ResourceKey<Level> getDimFromIntOptional(int integerId) {
         return inverseMap.get(integerId);
     }
     
-    public int getIntId(RegistryKey<World> dim) {
+    public int getIntId(ResourceKey<Level> dim) {
         Integer result = idMap.get(dim);
         if (result == null) {
             throw new RuntimeException(
@@ -52,20 +52,20 @@ public class DimensionIdRecord {
     @Override
     public String toString() {
         return idMap.entrySet().stream().map(
-            e -> e.getKey().getValue().toString() + " -> " + e.getValue()
+            e -> e.getKey().location().toString() + " -> " + e.getValue()
         ).collect(Collectors.joining("\n"));
     }
     
-    public static DimensionIdRecord tagToRecord(NbtCompound tag) {
-        NbtCompound intids = tag.getCompound("intids");
+    public static DimensionIdRecord tagToRecord(CompoundTag tag) {
+        CompoundTag intids = tag.getCompound("intids");
         
         if (intids == null) {
             return null;
         }
         
-        HashBiMap<RegistryKey<World>, Integer> bimap = HashBiMap.create();
+        HashBiMap<ResourceKey<Level>, Integer> bimap = HashBiMap.create();
         
-        intids.getKeys().forEach(dim -> {
+        intids.getAllKeys().forEach(dim -> {
             if (intids.contains(dim)) {
                 int intid = intids.getInt(dim);
                 bimap.put(DimId.idToKey(dim), intid);
@@ -75,13 +75,13 @@ public class DimensionIdRecord {
         return new DimensionIdRecord(bimap);
     }
     
-    public static NbtCompound recordToTag(DimensionIdRecord record) {
-        NbtCompound intids = new NbtCompound();
+    public static CompoundTag recordToTag(DimensionIdRecord record) {
+        CompoundTag intids = new CompoundTag();
         record.idMap.forEach((key, intid) -> {
-            intids.put(key.getValue().toString(), NbtInt.of(intid));
+            intids.put(key.location().toString(), IntTag.valueOf(intid));
         });
         
-        NbtCompound result = new NbtCompound();
+        CompoundTag result = new CompoundTag();
         result.put("intids", intids);
         return result;
     }

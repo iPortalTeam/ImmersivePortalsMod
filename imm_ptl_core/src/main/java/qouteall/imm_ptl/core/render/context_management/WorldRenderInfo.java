@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
 import javax.annotation.Nullable;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
@@ -23,12 +23,12 @@ public class WorldRenderInfo {
     /**
      * The dimension that it's going to render
      */
-    public final ClientWorld world;
+    public final ClientLevel world;
     
     /**
      * Camera position
      */
-    public final Vec3d cameraPos;
+    public final Vec3 cameraPos;
     
     public final boolean overwriteCameraTransformation;
     
@@ -58,7 +58,7 @@ public class WorldRenderInfo {
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
     
     public WorldRenderInfo(
-        ClientWorld world, Vec3d cameraPos,
+        ClientLevel world, Vec3 cameraPos,
         @Nullable Matrix4f cameraTransformation,
         boolean overwriteCameraTransformation,
         @Nullable UUID description,
@@ -71,7 +71,7 @@ public class WorldRenderInfo {
     }
     
     public WorldRenderInfo(
-        ClientWorld world, Vec3d cameraPos,
+        ClientLevel world, Vec3 cameraPos,
         @Nullable Matrix4f cameraTransformation,
         boolean overwriteCameraTransformation,
         @Nullable UUID description,
@@ -102,23 +102,23 @@ public class WorldRenderInfo {
         }
     }
     
-    public static void applyAdditionalTransformations(MatrixStack matrixStack) {
+    public static void applyAdditionalTransformations(PoseStack matrixStack) {
         for (WorldRenderInfo worldRenderInfo : renderInfoStack) {
             if (worldRenderInfo.overwriteCameraTransformation) {
-                matrixStack.peek().getPositionMatrix().loadIdentity();
-                matrixStack.peek().getNormalMatrix().loadIdentity();
+                matrixStack.last().pose().setIdentity();
+                matrixStack.last().normal().setIdentity();
             }
             
             Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
-                matrixStack.peek().getPositionMatrix().multiply(matrix);
+                matrixStack.last().pose().multiply(matrix);
                 
                 Matrix3f normalMatrixMult = new Matrix3f(matrix);
                 // make its determinant 1 so it won't scale the normal vector
-                normalMatrixMult.multiply(
+                normalMatrixMult.mul(
                     (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3)
                 );
-                matrixStack.peek().getNormalMatrix().multiply(normalMatrixMult);
+                matrixStack.last().normal().mul(normalMatrixMult);
             }
         }
     }
@@ -144,7 +144,7 @@ public class WorldRenderInfo {
     
     public static int getRenderDistance() {
         if (renderInfoStack.isEmpty()) {
-            return MinecraftClient.getInstance().options.viewDistance;
+            return Minecraft.getInstance().options.renderDistance;
         }
         
         return renderInfoStack.peek().renderDistance;

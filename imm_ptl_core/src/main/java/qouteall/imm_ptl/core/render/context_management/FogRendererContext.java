@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
@@ -23,13 +23,13 @@ public class FogRendererContext {
     
     public static Consumer<FogRendererContext> copyContextFromObject;
     public static Consumer<FogRendererContext> copyContextToObject;
-    public static Supplier<Vec3d> getCurrentFogColor;
+    public static Supplier<Vec3> getCurrentFogColor;
     
     public static StaticFieldsSwappingManager<FogRendererContext> swappingManager;
     
     public static void init() {
         //load the class and apply mixin
-        BackgroundRenderer.class.hashCode();
+        FogRenderer.class.hashCode();
         
         swappingManager = new StaticFieldsSwappingManager<>(
             copyContextFromObject, copyContextToObject, false,
@@ -44,7 +44,7 @@ public class FogRendererContext {
         swappingManager.resetChecks();
         if (ClientWorldLoader.getIsInitialized()) {
             ClientWorldLoader.getClientWorlds().forEach(world -> {
-                RegistryKey<World> dimension = world.getRegistryKey();
+                ResourceKey<Level> dimension = world.dimension();
                 swappingManager.contextMap.computeIfAbsent(
                     dimension,
                     k -> new StaticFieldsSwappingManager.ContextRecord<>(
@@ -57,16 +57,16 @@ public class FogRendererContext {
         }
     }
     
-    public static Vec3d getFogColorOf(
-        ClientWorld destWorld, Vec3d pos
+    public static Vec3 getFogColorOf(
+        ClientLevel destWorld, Vec3 pos
     ) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         
         client.getProfiler().push("get_fog_color");
         
-        ClientWorld oldWorld = client.world;
+        ClientLevel oldWorld = client.level;
         
-        RegistryKey<World> newWorldKey = destWorld.getRegistryKey();
+        ResourceKey<Level> newWorldKey = destWorld.dimension();
         
         swappingManager.contextMap.computeIfAbsent(
             newWorldKey,
@@ -76,34 +76,34 @@ public class FogRendererContext {
         );
         
         swappingManager.pushSwapping(newWorldKey);
-        client.world = destWorld;
+        client.level = destWorld;
         
         Camera newCamera = new Camera();
         ((IECamera) newCamera).portal_setPos(pos);
         ((IECamera) newCamera).portal_setFocusedEntity(client.cameraEntity);
         
         try {
-            BackgroundRenderer.render(
+            FogRenderer.setupColor(
                 newCamera,
                 RenderStates.tickDelta,
                 destWorld,
-                client.options.viewDistance,
-                client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
+                client.options.renderDistance,
+                client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
             );
             
-            Vec3d result = getCurrentFogColor.get();
+            Vec3 result = getCurrentFogColor.get();
             
             return result;
         }
         finally {
             swappingManager.popSwapping();
-            client.world = oldWorld;
+            client.level = oldWorld;
             
             client.getProfiler().pop();
         }
     }
     
-    public static void onPlayerTeleport(RegistryKey<World> from, RegistryKey<World> to) {
+    public static void onPlayerTeleport(ResourceKey<Level> from, ResourceKey<Level> to) {
         swappingManager.updateOuterDimensionAndChangeContext(to);
     }
     

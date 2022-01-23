@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.render.Shader;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vector4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -19,7 +19,7 @@ import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.Plane;
 
 public class FrontClipping {
-    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Minecraft client = Minecraft.getInstance();
     private static double[] activeClipPlaneEquation;
     
     // entity rendering transforms vertices by modelView on CPU
@@ -41,7 +41,7 @@ public class FrontClipping {
         }
     }
     
-    public static void updateInnerClipping(MatrixStack matrixStack) {
+    public static void updateInnerClipping(PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
             setupInnerClipping(PortalRendering.getRenderingPortal(), false, matrixStack);
         }
@@ -52,7 +52,7 @@ public class FrontClipping {
     
     //NOTE the actual culling plane is related to current model view matrix
     public static void setupInnerClipping(
-        PortalLike portalLike, boolean doCompensate, MatrixStack matrixStack
+        PortalLike portalLike, boolean doCompensate, PoseStack matrixStack
     ) {
         if (!IPCGlobal.useFrontClipping) {
             return;
@@ -73,50 +73,50 @@ public class FrontClipping {
     }
     
     private static double[] transformClipEquation(
-        double[] equation, MatrixStack matrixStack
+        double[] equation, PoseStack matrixStack
     ) {
         Vector4f eq =
             new Vector4f((float) equation[0], (float) equation[1], (float) equation[2], (float) equation[3]);
-        Matrix4f m = matrixStack.peek().getPositionMatrix().copy();
+        Matrix4f m = matrixStack.last().pose().copy();
         m.invert();
         m.transpose();
         eq.transform(m);
-        return new double[]{eq.getX(), eq.getY(), eq.getZ(), eq.getW()};
+        return new double[]{eq.x(), eq.y(), eq.z(), eq.w()};
     }
     
     private static double[] getClipEquationInner(
-        boolean doCompensate, Vec3d clippingPoint, Vec3d clippingDirection
+        boolean doCompensate, Vec3 clippingPoint, Vec3 clippingDirection
     ) {
         
-        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
         
-        Vec3d planeNormal = clippingDirection;
+        Vec3 planeNormal = clippingDirection;
         
         double correction;
         
         if (doCompensate) {
             correction = clippingPoint.subtract(cameraPos)
-                .dotProduct(clippingDirection) / 150.0;
+                .dot(clippingDirection) / 150.0;
         }
         else {
             correction = 0;
         }
         
-        Vec3d portalPos = clippingPoint
-            .subtract(planeNormal.multiply(correction))//avoid z fighting
+        Vec3 portalPos = clippingPoint
+            .subtract(planeNormal.scale(correction))//avoid z fighting
             .subtract(cameraPos);
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
-        double c = planeNormal.multiply(-1).dotProduct(portalPos);
+        double c = planeNormal.scale(-1).dot(portalPos);
         
         return new double[]{
             planeNormal.x, planeNormal.y, planeNormal.z, c
         };
     }
     
-    public static void setupOuterClipping(MatrixStack matrixStack, PortalLike portalLike) {
+    public static void setupOuterClipping(PoseStack matrixStack, PortalLike portalLike) {
         if (!IPCGlobal.useFrontClipping) {
             return;
         }
@@ -133,15 +133,15 @@ public class FrontClipping {
     }
     
     private static double[] getClipEquationOuter(Portal portal) {
-        Vec3d planeNormal = portal.getNormal();
+        Vec3 planeNormal = portal.getNormal();
         
-        Vec3d portalPos = portal.getOriginPos()
+        Vec3 portalPos = portal.getOriginPos()
             //.subtract(planeNormal.multiply(0.01))//avoid z fighting
-            .subtract(client.gameRenderer.getCamera().getPos());
+            .subtract(client.gameRenderer.getMainCamera().getPosition());
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
-        double c = planeNormal.multiply(-1).dotProduct(portalPos);
+        double c = planeNormal.scale(-1).dot(portalPos);
         
         return new double[]{
             planeNormal.x, planeNormal.y, planeNormal.z, c
@@ -161,13 +161,13 @@ public class FrontClipping {
             return;
         }
         
-        Shader shader = RenderSystem.getShader();
+        ShaderInstance shader = RenderSystem.getShader();
         
         if (shader == null) {
             return;
         }
         
-        GlUniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
+        Uniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
         if (clippingEquationUniform != null) {
             if (isClippingEnabled) {
                 double[] equation = isRenderingEntities ? activeClipPlaneForEntities : activeClipPlaneEquation;

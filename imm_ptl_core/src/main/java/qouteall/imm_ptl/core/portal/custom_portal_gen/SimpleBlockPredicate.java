@@ -3,13 +3,13 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tag.Tag;
-import net.minecraft.tag.TagManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.function.Predicate;
@@ -43,7 +43,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     @Override
     public boolean test(BlockState blockState) {
         if (tag != null) {
-            return blockState.isIn(tag);
+            return blockState.is(tag);
         }
         else {
             if (block != null) {
@@ -69,15 +69,15 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             return DataResult.success(new AirPredicate());
         }
         
-        TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
-        Identifier id = new Identifier(string);
-        Tag<Block> blockTag = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getTag(id);
+        TagContainer tagManager = server.resources.getTags();
+        ResourceLocation id = new ResourceLocation(string);
+        Tag<Block> blockTag = tagManager.getOrEmpty(Registry.BLOCK_REGISTRY).getTag(id);
         
         if (blockTag != null) {
             return DataResult.success(new SimpleBlockPredicate(string, blockTag), Lifecycle.stable());
         }
         
-        if (Registry.BLOCK.getIds().contains(id)) {
+        if (Registry.BLOCK.keySet().contains(id)) {
             Block block = Registry.BLOCK.get(id);
             return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
         }

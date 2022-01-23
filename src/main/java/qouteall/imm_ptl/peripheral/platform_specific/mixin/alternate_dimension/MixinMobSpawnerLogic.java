@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.peripheral.platform_specific.mixin.alternate_dimension;
 
-import net.minecraft.world.MobSpawnerLogic;
+import net.minecraft.world.level.BaseSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(MobSpawnerLogic.class)
+@Mixin(BaseSpawner.class)
 public class MixinMobSpawnerLogic {
 //    //spawn regardless of light
 //    @Redirect(

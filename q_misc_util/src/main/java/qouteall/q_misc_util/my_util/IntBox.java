@@ -1,10 +1,10 @@
 package qouteall.q_misc_util.my_util;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 
@@ -31,7 +31,7 @@ public class IntBox {
     ) {
         return new IntBox(
             blockPos,
-            blockPos.add(areaSize).add(-1, -1, -1)
+            blockPos.offset(areaSize).offset(-1, -1, -1)
         );
     }
     
@@ -39,7 +39,7 @@ public class IntBox {
     public IntBox expandOrShrink(Vec3i offset) {
         return new IntBox(
             l.subtract(offset),
-            h.add(offset)
+            h.offset(offset)
         );
     }
     
@@ -50,22 +50,22 @@ public class IntBox {
             Helper.scale(
                 Direction.get(
                     Direction.AxisDirection.POSITIVE, axis
-                ).getVector(),
+                ).getNormal(),
                 n
             )
         );
     }
     
     public IntBox getExpanded(Direction direction, int n) {
-        if (direction.getDirection() == Direction.AxisDirection.POSITIVE) {
+        if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
             return new IntBox(
                 l,
-                h.add(Helper.scale(direction.getVector(), n))
+                h.offset(Helper.scale(direction.getNormal(), n))
             );
         }
         else {
             return new IntBox(
-                l.add(Helper.scale(direction.getVector(), n)),
+                l.offset(Helper.scale(direction.getNormal(), n)),
                 h
             );
         }
@@ -86,13 +86,13 @@ public class IntBox {
     //it will get only one mutable block pos object
     //don't store its reference. store its copy
     public Stream<BlockPos> fastStream() {
-        return BlockPos.stream(l, h);
+        return BlockPos.betweenClosedStream(l, h);
     }
     
     public BlockPos getSize() {
         
         
-        return h.add(1, 1, 1).subtract(l);
+        return h.offset(1, 1, 1).subtract(l);
     }
     
     public IntBox getSurfaceLayer(
@@ -132,7 +132,7 @@ public class IntBox {
     ) {
         return getSurfaceLayer(
             facing.getAxis(),
-            facing.getDirection()
+            facing.getAxisDirection()
         );
     }
     
@@ -168,11 +168,11 @@ public class IntBox {
     }
     
     public BlockPos getCenter() {
-        return Helper.divide(l.add(h), 2);
+        return Helper.divide(l.offset(h), 2);
     }
     
-    public Vec3d getCenterVec() {
-        return new Vec3d(
+    public Vec3 getCenterVec() {
+        return new Vec3(
             (l.getX() + h.getX() + 1) / 2.0,
             (l.getY() + h.getY() + 1) / 2.0,
             (l.getZ() + h.getZ() + 1) / 2.0
@@ -184,8 +184,8 @@ public class IntBox {
         int dxb, int dyb, int dzb
     ) {
         return new IntBox(
-            l.add(dxa, dya, dza),
-            h.add(dxb, dyb, dzb)
+            l.offset(dxa, dya, dza),
+            h.offset(dxb, dyb, dzb)
         );
     }
     
@@ -227,8 +227,8 @@ public class IntBox {
     
     public IntBox getMoved(Vec3i offset) {
         return new IntBox(
-            l.add(offset),
-            h.add(offset)
+            l.offset(offset),
+            h.offset(offset)
         );
     }
     
@@ -255,7 +255,7 @@ public class IntBox {
         Validate.isTrue(thisSize.getZ() >= subBoxSize.getZ());
         return getBoxByBasePointAndSize(
             subBoxSize,
-            Helper.divide(thisSize.subtract(subBoxSize), 2).add(l)
+            Helper.divide(thisSize.subtract(subBoxSize), 2).offset(l)
         );
     }
     
@@ -272,9 +272,9 @@ public class IntBox {
         };
     }
     
-    public Box toRealNumberBox() {
+    public AABB toRealNumberBox() {
         
-        return new Box(
+        return new AABB(
             l.getX(),
             l.getY(),
             l.getZ(),

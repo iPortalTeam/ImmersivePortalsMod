@@ -1,21 +1,21 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkBuilder;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 
-@Mixin(ChunkBuilder.BuiltChunk.class)
+@Mixin(ChunkRenderDispatcher.RenderChunk.class)
 public abstract class MixinBuiltChunk implements IEBuiltChunk {
     
     private long portal_mark;
-    private WorldRenderer.ChunkInfo portal_dummyChunkInfo;
+    private LevelRenderer.RenderChunkInfo portal_dummyChunkInfo;
     
     @Shadow
-    protected abstract void clear();
+    protected abstract void reset();
     
     @Shadow
     @Final
@@ -24,7 +24,7 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     
     @Override
     public void portal_fullyReset() {
-        clear();
+        reset();
     }
     
     @Override
@@ -43,10 +43,10 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     }
     
     @Override
-    public WorldRenderer.ChunkInfo portal_getDummyChunkInfo() {
+    public LevelRenderer.RenderChunkInfo portal_getDummyChunkInfo() {
         if (portal_dummyChunkInfo == null) {
-            portal_dummyChunkInfo = new WorldRenderer.ChunkInfo(
-                ((ChunkBuilder.BuiltChunk) (Object) this),
+            portal_dummyChunkInfo = new LevelRenderer.RenderChunkInfo(
+                ((ChunkRenderDispatcher.RenderChunk) (Object) this),
                 null, 0
             );
         }

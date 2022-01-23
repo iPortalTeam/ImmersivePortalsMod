@@ -2,24 +2,24 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.MessageType;
-import net.minecraft.network.Packet;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -29,20 +29,20 @@ import java.util.Random;
 public class LoadingIndicatorEntity extends Entity {
     public static EntityType<LoadingIndicatorEntity> entityType;
     
-    private static final TrackedData<Text> text = DataTracker.registerData(
-        LoadingIndicatorEntity.class, TrackedDataHandlerRegistry.TEXT_COMPONENT
+    private static final EntityDataAccessor<Component> text = SynchedEntityData.defineId(
+        LoadingIndicatorEntity.class, EntityDataSerializers.COMPONENT
     );
     
     public boolean isValid = false;
     
     public BlockPortalShape portalShape;
     
-    public LoadingIndicatorEntity(EntityType type, World world) {
+    public LoadingIndicatorEntity(EntityType type, Level world) {
         super(type, world);
     }
     
     @Override
-    public Iterable<ItemStack> getArmorItems() {
+    public Iterable<ItemStack> getArmorSlots() {
         return null;
     }
     
@@ -50,7 +50,7 @@ public class LoadingIndicatorEntity extends Entity {
     public void tick() {
         super.tick();
         
-        if (world.isClient()) {
+        if (level.isClientSide()) {
             tickClient();
         }
         else {
@@ -65,24 +65,24 @@ public class LoadingIndicatorEntity extends Entity {
     private void tickClient() {
         addParticles();
         
-        if (age > 40) {
+        if (tickCount > 40) {
             showMessageClient();
         }
     }
     
     @Environment(EnvType.CLIENT)
     private void addParticles() {
-        int num = age < 100 ? 50 : 20;
+        int num = tickCount < 100 ? 50 : 20;
         
         if (portalShape != null) {
             IntBox box = portalShape.innerAreaBox;
             BlockPos size = box.getSize();
-            Random random = world.getRandom();
+            Random random = level.getRandom();
             
             for (int i = 0; i < num; i++) {
-                Vec3d p = new Vec3d(
+                Vec3 p = new Vec3(
                     random.nextDouble(), random.nextDouble(), random.nextDouble()
-                ).multiply(Vec3d.of(size)).add(Vec3d.of(box.l));
+                ).multiply(Vec3.atLowerCornerOf(size)).add(Vec3.atLowerCornerOf(box.l));
                 
                 double speedMultiplier = 20;
                 
@@ -90,7 +90,7 @@ public class LoadingIndicatorEntity extends Entity {
                 double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 
-                world.addParticle(
+                level.addParticle(
                     ParticleTypes.PORTAL,
                     p.x, p.y, p.z,
                     vx, vy, vz
@@ -100,46 +100,46 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     @Override
-    protected void initDataTracker() {
-        getDataTracker().startTracking(text, new LiteralText("Loading..."));
+    protected void defineSynchedData() {
+        getEntityData().define(text, new TextComponent("Loading..."));
     }
     
     @Override
-    protected void readCustomDataFromNbt(NbtCompound tag) {
+    protected void readAdditionalSaveData(CompoundTag tag) {
         if (tag.contains("shape")) {
             portalShape = new BlockPortalShape(tag.getCompound("shape"));
         }
     }
     
     @Override
-    protected void writeCustomDataToNbt(NbtCompound tag) {
+    protected void addAdditionalSaveData(CompoundTag tag) {
         if (portalShape != null) {
             tag.put("shape", portalShape.toTag());
         }
     }
     
     @Override
-    public Packet<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return IPNetworking.createStcSpawnEntity(this);
     }
     
-    public void inform(Text str) {
+    public void inform(Component str) {
         setText(str);
     }
     
-    public void setText(Text str) {
-        getDataTracker().set(text, str);
+    public void setText(Component str) {
+        getEntityData().set(text, str);
     }
     
-    public Text getText() {
-        return getDataTracker().get(text);
+    public Component getText() {
+        return getEntityData().get(text);
     }
     
     @Environment(EnvType.CLIENT)
     private void showMessageClient() {
-        InGameHud inGameHud = MinecraftClient.getInstance().inGameHud;
-        inGameHud.addChatMessage(
-            MessageType.GAME_INFO,
+        Gui inGameHud = Minecraft.getInstance().gui;
+        inGameHud.handleChat(
+            ChatType.GAME_INFO,
             getText(),
             Util.NIL_UUID
         );

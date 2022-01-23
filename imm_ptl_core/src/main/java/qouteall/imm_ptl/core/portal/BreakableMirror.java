@@ -1,18 +1,18 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.GlassBlock;
-import net.minecraft.block.PaneBlock;
-import net.minecraft.block.StainedGlassBlock;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -24,13 +24,13 @@ public class BreakableMirror extends Mirror {
     public IntBox wallArea;
     public boolean unbreakable = false;
     
-    public BreakableMirror(EntityType<?> entityType_1, World world_1) {
+    public BreakableMirror(EntityType<?> entityType_1, Level world_1) {
         super(entityType_1, world_1);
     }
     
     @Override
-    protected void readCustomDataFromNbt(NbtCompound tag) {
-        super.readCustomDataFromNbt(tag);
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
         wallArea = new IntBox(
             new BlockPos(
                 tag.getInt("boxXL"),
@@ -49,8 +49,8 @@ public class BreakableMirror extends Mirror {
     }
     
     @Override
-    protected void writeCustomDataToNbt(NbtCompound tag) {
-        super.writeCustomDataToNbt(tag);
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
         tag.putInt("boxXL", wallArea.l.getX());
         tag.putInt("boxYL", wallArea.l.getY());
         tag.putInt("boxZL", wallArea.l.getZ());
@@ -64,9 +64,9 @@ public class BreakableMirror extends Mirror {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isClient) {
+        if (!level.isClientSide) {
             if (!unbreakable) {
-                if (world.getTime() % 10 == getId() % 10) {
+                if (level.getGameTime() % 10 == getId() % 10) {
                     checkWallIntegrity();
                 }
             }
@@ -81,25 +81,25 @@ public class BreakableMirror extends Mirror {
     private void checkWallIntegrity() {
         boolean wallValid = wallArea.fastStream().allMatch(
             blockPos ->
-                isGlass(world, blockPos)
+                isGlass(level, blockPos)
         );
         if (!wallValid) {
             remove(RemovalReason.KILLED);
         }
     }
     
-    public static boolean isGlass(World world, BlockPos blockPos) {
+    public static boolean isGlass(Level world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock;
+        return block instanceof GlassBlock || block instanceof IronBarsBlock || block instanceof StainedGlassBlock;
     }
     
-    private static boolean isGlassPane(World world, BlockPos blockPos) {
+    private static boolean isGlassPane(Level world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block instanceof PaneBlock;
+        return block instanceof IronBarsBlock;
     }
     
     public static BreakableMirror createMirror(
-        ServerWorld world,
+        ServerLevel world,
         BlockPos glassPos,
         Direction facing
     ) {
@@ -122,32 +122,32 @@ public class BreakableMirror extends Mirror {
         BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
         double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
         
-        Box wallBox = getWallBox(world, wallArea);
+        AABB wallBox = getWallBox(world, wallArea);
         
-        Vec3d pos = Helper.getBoxSurfaceInversed(wallBox, facing.getOpposite()).getCenter();
+        Vec3 pos = Helper.getBoxSurfaceInversed(wallBox, facing.getOpposite()).getCenter();
         pos = Helper.putCoordinate(
             //getWallBox is incorrect with corner glass pane so correct the coordinate on the normal axis
             pos, facing.getAxis(),
             Helper.getCoordinate(
                 wallArea.getCenterVec().add(
-                     Vec3d.of(facing.getVector()).multiply(distanceToCenter)
+                     Vec3.atLowerCornerOf(facing.getNormal()).scale(distanceToCenter)
                 ),
                 facing.getAxis()
             )
         );
-        breakableMirror.setPosition(pos.x, pos.y, pos.z);
+        breakableMirror.setPos(pos.x, pos.y, pos.z);
         breakableMirror.setDestination(pos);
-        breakableMirror.dimensionTo = world.getRegistryKey();
+        breakableMirror.dimensionTo = world.dimension();
         
-        Pair<Direction, Direction> dirs =
+        Tuple<Direction, Direction> dirs =
             Helper.getPerpendicularDirections(facing);
         
-        Vec3d boxSize = Helper.getBoxSize(wallBox);
-        double width = Helper.getCoordinate(boxSize, dirs.getLeft().getAxis());
-        double height = Helper.getCoordinate(boxSize, dirs.getRight().getAxis());
+        Vec3 boxSize = Helper.getBoxSize(wallBox);
+        double width = Helper.getCoordinate(boxSize, dirs.getA().getAxis());
+        double height = Helper.getCoordinate(boxSize, dirs.getB().getAxis());
         
-        breakableMirror.axisW =  Vec3d.of(dirs.getLeft().getVector());
-        breakableMirror.axisH =  Vec3d.of(dirs.getRight().getVector());
+        breakableMirror.axisW =  Vec3.atLowerCornerOf(dirs.getA().getNormal());
+        breakableMirror.axisH =  Vec3.atLowerCornerOf(dirs.getB().getNormal());
         breakableMirror.width = width;
         breakableMirror.height = height;
         
@@ -155,7 +155,7 @@ public class BreakableMirror extends Mirror {
         
         breakIntersectedMirror(breakableMirror);
         
-        world.spawnEntity(breakableMirror);
+        world.addFreshEntity(breakableMirror);
         
         return breakableMirror;
     }
@@ -166,7 +166,7 @@ public class BreakableMirror extends Mirror {
             BreakableMirror.class,
             20
         ).stream().filter(
-            mirror1 -> mirror1.getNormal().dotProduct(newMirror.getNormal()) > 0.5
+            mirror1 -> mirror1.getNormal().dot(newMirror.getNormal()) > 0.5
         ).filter(
             mirror1 -> IntBox.getIntersect(
                 mirror1.wallArea, newMirror.wallArea
@@ -179,10 +179,10 @@ public class BreakableMirror extends Mirror {
     }
     
     //it's a little bit incorrect with corner glass pane
-    private static Box getWallBox(ServerWorld world, IntBox glassArea) {
+    private static AABB getWallBox(ServerLevel world, IntBox glassArea) {
         return glassArea.stream().map(blockPos ->
-            world.getBlockState(blockPos).getCollisionShape(world, blockPos).getBoundingBox()
-                .offset( Vec3d.of(blockPos))
-        ).reduce(Box::union).orElse(null);
+            world.getBlockState(blockPos).getCollisionShape(world, blockPos).bounds()
+                .move( Vec3.atLowerCornerOf(blockPos))
+        ).reduce(AABB::minmax).orElse(null);
     }
 }

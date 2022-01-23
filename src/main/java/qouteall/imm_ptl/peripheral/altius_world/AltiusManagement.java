@@ -2,20 +2,20 @@ package qouteall.imm_ptl.peripheral.altius_world;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class AltiusManagement {
     // This is for client dimension stack initialization
     public static AltiusInfo dimStackToApply = null;
-    public static Map<RegistryKey<World>, BlockState> bedrockReplacementMap = new HashMap<>();
+    public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
     public static void init() {
     
@@ -41,7 +41,7 @@ public class AltiusManagement {
     // it's going to generate overworld spawn chunks
     // make sure the bedrock replacement map for overworld is initialized in time
     public static void onServerEarlyInit(MinecraftServer server) {
-        Map<RegistryKey<World>, BlockState> newMap = new HashMap<>();
+        Map<ResourceKey<Level>, BlockState> newMap = new HashMap<>();
         
         if (dimStackToApply != null) {
             for (AltiusEntry entry : dimStackToApply.entries) {
@@ -62,7 +62,7 @@ public class AltiusManagement {
             updateBedrockReplacementFromStorage(server);
             
             GameRules gameRules = server.getGameRules();
-            GameRules.BooleanRule o = gameRules.get(AltiusGameRule.dimensionStackKey);
+            GameRules.BooleanValue o = gameRules.getRule(AltiusGameRule.dimensionStackKey);
             if (o.get()) {
                 // legacy dimension stack
                 
@@ -75,14 +75,14 @@ public class AltiusManagement {
     
     private static void updateBedrockReplacementFromStorage(MinecraftServer server) {
         // do not mutate the old map to avoid data race
-        Map<RegistryKey<World>, BlockState> newMap = new HashMap<>();
-        for (ServerWorld world : server.getWorlds()) {
+        Map<ResourceKey<Level>, BlockState> newMap = new HashMap<>();
+        for (ServerLevel world : server.getAllLevels()) {
             BlockState replacement = GlobalPortalStorage.get(world).bedrockReplacement;
-            newMap.put(world.getRegistryKey(), replacement);
+            newMap.put(world.dimension(), replacement);
             Helper.log(String.format(
                 "Bedrock Replacement %s %s",
-                world.getRegistryKey().getValue(),
-                replacement != null ? Registry.BLOCK.getId(replacement.getBlock()) : "null"
+                world.dimension().location(),
+                replacement != null ? Registry.BLOCK.getKey(replacement.getBlock()) : "null"
             ));
         }
         bedrockReplacementMap = newMap;
@@ -90,9 +90,9 @@ public class AltiusManagement {
     
     public static void upgradeLegacyDimensionStack(MinecraftServer server) {
         
-        for (ServerWorld world : server.getWorlds()) {
+        for (ServerLevel world : server.getAllLevels()) {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
-            gps.bedrockReplacement = Blocks.OBSIDIAN.getDefaultState();
+            gps.bedrockReplacement = Blocks.OBSIDIAN.defaultBlockState();
             gps.onDataChanged();
         }
         
@@ -101,19 +101,19 @@ public class AltiusManagement {
         Helper.log("Legacy Dimension Stack Upgraded");
     }
     
-    public static void replaceBedrock(ServerWorld world, Chunk chunk) {
+    public static void replaceBedrock(ServerLevel world, ChunkAccess chunk) {
         if (bedrockReplacementMap == null) {
             Helper.err("Dimension Stack Bedrock Replacement Abnormal");
             return;
         }
         
-        BlockState replacement = bedrockReplacementMap.get(world.getRegistryKey());
+        BlockState replacement = bedrockReplacementMap.get(world.dimension());
         
         if (replacement != null) {
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int y = chunk.getBottomY(); y < chunk.getTopY(); y++) {
+                    for (int y = chunk.getMinBuildHeight(); y < chunk.getMaxBuildHeight(); y++) {
                         mutable.set(x, y, z);
                         BlockState blockState = chunk.getBlockState(mutable);
                         if (blockState.getBlock() == Blocks.BEDROCK) {
@@ -132,10 +132,10 @@ public class AltiusManagement {
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
         public static void clientOpenScreen(List<String> dimensions) {
-            List<RegistryKey<World>> dimensionList =
+            List<ResourceKey<Level>> dimensionList =
                 dimensions.stream().map(DimId::idToKey).collect(Collectors.toList());
             
-            MinecraftClient.getInstance().setScreen(new AltiusScreen(
+            Minecraft.getInstance().setScreen(new AltiusScreen(
                 null,
                 () -> dimensionList,
                 altiusInfo -> {
@@ -155,9 +155,9 @@ public class AltiusManagement {
         }
         
         public static void serverSetupDimStack(
-            ServerPlayerEntity player, NbtCompound infoTag
+            ServerPlayer player, CompoundTag infoTag
         ) {
-            if (!player.hasPermissionLevel(2)) {
+            if (!player.hasPermissions(2)) {
                 Helper.err("one player without permission tries to change dimension stack");
                 return;
             }
@@ -168,24 +168,24 @@ public class AltiusManagement {
             
             altiusInfo.apply();
             
-            player.sendMessage(
-                new TranslatableText("imm_ptl.dim_stack_established"),
+            player.displayClientMessage(
+                new TranslatableComponent("imm_ptl.dim_stack_established"),
                 false
             );
         }
         
         public static void serverRemoveDimStack(
-            ServerPlayerEntity player
+            ServerPlayer player
         ) {
-            if (!player.hasPermissionLevel(2)) {
+            if (!player.hasPermissions(2)) {
                 Helper.err("one player without permission tries to change dimension stack");
                 return;
             }
             
             clearDimStackPortals();
             
-            player.sendMessage(
-                new TranslatableText("imm_ptl.dim_stack_removed"),
+            player.displayClientMessage(
+                new TranslatableComponent("imm_ptl.dim_stack_removed"),
                 false
             );
         }
@@ -193,7 +193,7 @@ public class AltiusManagement {
     
     private static void clearDimStackPortals() {
         MinecraftServer server = MiscHelper.getServer();
-        for (ServerWorld world : server.getWorlds()) {
+        for (ServerLevel world : server.getAllLevels()) {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             gps.data.removeIf(p -> p instanceof VerticalConnectingPortal);
             gps.bedrockReplacement = null;

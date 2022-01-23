@@ -2,15 +2,15 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.dynamic.RegistryLookupCodec;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
-import net.minecraft.world.biome.source.SeedMixer;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil;
+import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.resources.RegistryLookupCodec;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.LinearCongruentialGenerator;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,22 +20,22 @@ import java.util.stream.Collectors;
 public class ChaosBiomeSource extends BiomeSource {
     public static Codec<ChaosBiomeSource> codec = RecordCodecBuilder.create(instance -> instance.group(
         Codec.LONG.fieldOf("seed").forGetter(o -> o.worldSeed),
-        RegistryLookupCodec.of(Registry.BIOME_KEY).forGetter(o -> o.biomeRegistry)
+        RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter(o -> o.biomeRegistry)
     ).apply(instance, instance.stable(ChaosBiomeSource::new)));
     
     private long worldSeed;
     private Registry<Biome> biomeRegistry;
     private List<Biome> biomes;
     
-    private static List<RegistryKey<Biome>> getOverworldBiomeIds() {
-        Set<Biome> set = MultiNoiseBiomeSource.Preset.OVERWORLD.getBiomeSource(BuiltinRegistries.BIOME).getBiomes();
-        return set.stream().map(BuiltinRegistries.BIOME::getKey).flatMap(Optional::stream).collect(Collectors.toList());
+    private static List<ResourceKey<Biome>> getOverworldBiomeIds() {
+        Set<Biome> set = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(BuiltinRegistries.BIOME).possibleBiomes();
+        return set.stream().map(BuiltinRegistries.BIOME::getResourceKey).flatMap(Optional::stream).collect(Collectors.toList());
     }
     
     public static List<Biome> getInvolvedBiomes(Registry<Biome> biomeRegistry) {
         
         return getOverworldBiomeIds().stream().flatMap(
-            biomeRegistryKey -> biomeRegistry.getOrEmpty(biomeRegistryKey).stream()
+            biomeRegistryKey -> biomeRegistry.getOptional(biomeRegistryKey).stream()
         ).collect(Collectors.toList());
 
 
@@ -57,12 +57,12 @@ public class ChaosBiomeSource extends BiomeSource {
     private Biome getRandomBiome(int x, int z) {
         int biomeNum = biomes.size();
         
-        int index = (Math.abs((int) SeedMixer.mixSeed(x / 5, z / 5))) % biomeNum;
+        int index = (Math.abs((int) LinearCongruentialGenerator.next(x / 5, z / 5))) % biomeNum;
         return biomes.get(index);
     }
     
     @Override
-    protected Codec<? extends BiomeSource> getCodec() {
+    protected Codec<? extends BiomeSource> codec() {
         return codec;
     }
     
@@ -72,7 +72,7 @@ public class ChaosBiomeSource extends BiomeSource {
     }
     
     @Override
-    public Biome getBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler) {
+    public Biome getNoiseBiome(int i, int j, int k, Climate.Sampler multiNoiseSampler) {
         return getRandomBiome(i, i + j + k);
     }
 }

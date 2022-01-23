@@ -2,15 +2,15 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DefaultedRegistry;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
@@ -33,17 +33,17 @@ public class IPRegistry {
     public static void registerBlocksFabric() {
         PortalPlaceholderBlock.instance = new PortalPlaceholderBlock(
             FabricBlockSettings.of(Material.PORTAL)
-                .noCollision()
-                .sounds(BlockSoundGroup.GLASS)
+                .noCollission()
+                .sound(SoundType.GLASS)
                 .strength(1.0f, 0)
-                .nonOpaque()
-                .dropsNothing()
-                .luminance(15)
+                .noOcclusion()
+                .noDrops()
+                .lightLevel(15)
         );
         Registry.register(
             Registry.BLOCK,
             // the id is inappropriate
-            new Identifier("immersive_portals", "nether_portal_block"),
+            new ResourceLocation("immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
         );
         
@@ -58,7 +58,7 @@ public class IPRegistry {
         Registry<EntityType<?>> registry
     ) {
         EntityType<T> entityType = FabricEntityTypeBuilder.create(
-            SpawnGroup.MISC,
+            MobCategory.MISC,
             constructor
         ).dimensions(
             new EntityDimensions(1, 1, true)
@@ -66,7 +66,7 @@ public class IPRegistry {
         setEntityType.accept(entityType);
         Registry.register(
             Registry.ENTITY_TYPE,
-            new Identifier(id),
+            new ResourceLocation(id),
             entityType
         );
     }
@@ -147,9 +147,9 @@ public class IPRegistry {
         
         LoadingIndicatorEntity.entityType = Registry.register(
             Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "loading_indicator"),
+            new ResourceLocation("immersive_portals", "loading_indicator"),
             FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
+                MobCategory.MISC,
                 (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
             ).dimensions(
                 new EntityDimensions(1, 1, true)

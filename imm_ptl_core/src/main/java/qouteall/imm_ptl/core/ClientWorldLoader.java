@@ -2,17 +2,17 @@ package qouteall.imm_ptl.core;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -37,11 +37,11 @@ public class ClientWorldLoader {
     // sent to client by login and respawn packets
     public static boolean isFlatWorld = false;
     
-    private static final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
-    public static final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
-    public static final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
+    private static final Map<ResourceKey<Level>, ClientLevel> clientWorldMap = new HashMap<>();
+    public static final Map<ResourceKey<Level>, LevelRenderer> worldRendererMap = new HashMap<>();
+    public static final Map<ResourceKey<Level>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
     
-    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Minecraft client = Minecraft.getInstance();
     
     private static boolean isInitialized = false;
     
@@ -49,7 +49,7 @@ public class ClientWorldLoader {
     
     public static boolean isClientRemoteTicking = false;
     
-    public static final SignalArged<ClientWorld> clientWorldLoadSignal = new SignalArged<>();
+    public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
     
     public static void init() {
         IPGlobal.postClientTickSignal.connect(ClientWorldLoader::tick);
@@ -69,12 +69,12 @@ public class ClientWorldLoader {
         if (IPCGlobal.isClientRemoteTickingEnabled) {
             isClientRemoteTicking = true;
             clientWorldMap.values().forEach(world -> {
-                if (client.world != world) {
+                if (client.level != world) {
                     tickRemoteWorld(world);
                 }
             });
             worldRendererMap.values().forEach(worldRenderer -> {
-                if (worldRenderer != client.worldRenderer) {
+                if (worldRenderer != client.levelRenderer) {
                     worldRenderer.tick();
                 }
             });
@@ -84,12 +84,12 @@ public class ClientWorldLoader {
         boolean lightmapTextureConflict = false;
         for (DimensionRenderHelper helper : renderHelperMap.values()) {
             helper.tick();
-            if (helper.world != client.world) {
-                if (helper.lightmapTexture == client.gameRenderer.getLightmapTextureManager()) {
+            if (helper.world != client.level) {
+                if (helper.lightmapTexture == client.gameRenderer.lightTexture()) {
                     Helper.err(String.format(
                         "Lightmap Texture Conflict %s %s",
-                        helper.world.getRegistryKey(),
-                        client.world.getRegistryKey()
+                        helper.world.dimension(),
+                        client.level.dimension()
                     ));
                     lightmapTextureConflict = true;
                 }
@@ -109,7 +109,7 @@ public class ClientWorldLoader {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
-    private static void tickRemoteWorld(ClientWorld newWorld) {
+    private static void tickRemoteWorld(ClientLevel newWorld) {
         List<Portal> nearbyPortals = CHelper.getClientNearbyPortals(10).collect(Collectors.toList());
         
         IPCommonNetworkClient.withSwitchedWorld(newWorld, () -> {
@@ -121,7 +121,7 @@ public class ClientWorldLoader {
                     tickRemoteWorldRandomTicksClient(newWorld, nearbyPortals);
                 }
                 
-                newWorld.runQueuedChunkUpdates();
+                newWorld.pollLightUpdates();
             }
             catch (Throwable e) {
                 limitedLogger.invoke(e::printStackTrace);
@@ -132,27 +132,27 @@ public class ClientWorldLoader {
     // show nether particles through portal
     // TODO optimize it
     private static void tickRemoteWorldRandomTicksClient(
-        ClientWorld newWorld, List<Portal> nearbyPortals
+        ClientLevel newWorld, List<Portal> nearbyPortals
     ) {
         nearbyPortals.stream().filter(
-            portal -> portal.dimensionTo == newWorld.getRegistryKey()
+            portal -> portal.dimensionTo == newWorld.dimension()
         ).findFirst().ifPresent(portal -> {
-            Vec3d playerPos = client.player.getPos();
-            Vec3d center = portal.transformPoint(playerPos);
+            Vec3 playerPos = client.player.position();
+            Vec3 center = portal.transformPoint(playerPos);
             
-            Camera camera = client.gameRenderer.getCamera();
-            Vec3d oldCameraPos = camera.getPos();
+            Camera camera = client.gameRenderer.getMainCamera();
+            Vec3 oldCameraPos = camera.getPosition();
             
             ((IECamera) camera).portal_setPos(center);
             
-            if (newWorld.getTime() % 2 == 0) {
+            if (newWorld.getGameTime() % 2 == 0) {
                 // it costs some CPU time
-                newWorld.doRandomBlockDisplayTicks(
+                newWorld.animateTick(
                     (int) center.x, (int) center.y, (int) center.z
                 );
             }
             
-            client.particleManager.tick();
+            client.particleEngine.tick();
             
             ((IECamera) camera).portal_setPos(oldCameraPos);
         });
@@ -163,15 +163,15 @@ public class ClientWorldLoader {
     private static void cleanUp() {
         worldRendererMap.values().forEach(
             worldRenderer -> {
-                worldRenderer.setWorld(null);
-                if (worldRenderer != client.worldRenderer) {
+                worldRenderer.setLevel(null);
+                if (worldRenderer != client.levelRenderer) {
                     worldRenderer.close();
                     ((IEWorldRenderer) worldRenderer).portal_fullyDispose();
                 }
             }
         );
         
-        for (ClientWorld clientWorld : clientWorldMap.values()) {
+        for (ClientLevel clientWorld : clientWorldMap.values()) {
             ((IEClientWorld) clientWorld).resetWorldRendererRef();
         }
         
@@ -186,13 +186,13 @@ public class ClientWorldLoader {
     }
     
     //@Nullable
-    public static WorldRenderer getWorldRenderer(RegistryKey<World> dimension) {
+    public static LevelRenderer getWorldRenderer(ResourceKey<Level> dimension) {
         initializeIfNeeded();
         
         return worldRendererMap.get(dimension);
     }
     
-    public static ClientWorld getWorld(RegistryKey<World> dimension) {
+    public static ClientLevel getWorld(ResourceKey<Level> dimension) {
         Validate.notNull(dimension);
         
         initializeIfNeeded();
@@ -204,7 +204,7 @@ public class ClientWorldLoader {
         return clientWorldMap.get(dimension);
     }
     
-    public static DimensionRenderHelper getDimensionRenderHelper(RegistryKey<World> dimension) {
+    public static DimensionRenderHelper getDimensionRenderHelper(ResourceKey<Level> dimension) {
         initializeIfNeeded();
         
         DimensionRenderHelper result = renderHelperMap.computeIfAbsent(
@@ -216,33 +216,33 @@ public class ClientWorldLoader {
             }
         );
         
-        Validate.isTrue(result.world.getRegistryKey() == dimension);
+        Validate.isTrue(result.world.dimension() == dimension);
         
         return result;
     }
     
     public static void initializeIfNeeded() {
         if (!isInitialized) {
-            Validate.isTrue(client.world != null);
-            Validate.isTrue(client.worldRenderer != null);
+            Validate.isTrue(client.level != null);
+            Validate.isTrue(client.levelRenderer != null);
             
             Validate.notNull(client.player);
-            Validate.isTrue(client.player.world == client.world);
+            Validate.isTrue(client.player.level == client.level);
             
-            RegistryKey<World> playerDimension = client.world.getRegistryKey();
-            clientWorldMap.put(playerDimension, client.world);
-            worldRendererMap.put(playerDimension, client.worldRenderer);
+            ResourceKey<Level> playerDimension = client.level.dimension();
+            clientWorldMap.put(playerDimension, client.level);
+            worldRendererMap.put(playerDimension, client.levelRenderer);
             renderHelperMap.put(
-                client.world.getRegistryKey(),
-                new DimensionRenderHelper(client.world)
+                client.level.dimension(),
+                new DimensionRenderHelper(client.level)
             );
             
             isInitialized = true;
         }
     }
     
-    private static ClientWorld createSecondaryClientWorld(RegistryKey<World> dimension) {
-        Validate.isTrue(client.player.world.getRegistryKey() != dimension);
+    private static ClientLevel createSecondaryClientWorld(ResourceKey<Level> dimension) {
+        Validate.isTrue(client.player.level.dimension() != dimension);
         
         isCreatingClientWorld = true;
         
@@ -250,29 +250,29 @@ public class ClientWorldLoader {
         
         int chunkLoadDistance = 3;// my own chunk manager doesn't need it
         
-        WorldRenderer worldRenderer = new WorldRenderer(client, client.getBufferBuilders());
+        LevelRenderer worldRenderer = new LevelRenderer(client, client.renderBuffers());
         
-        ClientWorld newWorld;
+        ClientLevel newWorld;
         try {
-            ClientPlayNetworkHandler mainNetHandler = client.player.networkHandler;
+            ClientPacketListener mainNetHandler = client.player.connection;
             
-            RegistryKey<DimensionType> dimensionTypeKey =
+            ResourceKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
-            ClientWorld.Properties currentProperty =
-                (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
-            DynamicRegistryManager registryManager = mainNetHandler.getRegistryManager();
-            int simulationDistance = client.world.getSimulationDistance();
+            ClientLevel.ClientLevelData currentProperty =
+                (ClientLevel.ClientLevelData) ((IEWorld) client.level).myGetProperties();
+            RegistryAccess registryManager = mainNetHandler.registryAccess();
+            int simulationDistance = client.level.getServerSimulationDistance();
             
             DimensionType dimensionType = registryManager
-                .get(Registry.DIMENSION_TYPE_KEY).get(dimensionTypeKey);
+                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(dimensionTypeKey);
             Validate.notNull(dimensionType);
             
-            ClientWorld.Properties properties = new ClientWorld.Properties(
+            ClientLevel.ClientLevelData properties = new ClientLevel.ClientLevelData(
                 currentProperty.getDifficulty(),
                 currentProperty.isHardcore(),
                 isFlatWorld
             );
-            newWorld = new ClientWorld(
+            newWorld = new ClientLevel(
                 mainNetHandler,
                 properties,
                 dimension,
@@ -281,8 +281,8 @@ public class ClientWorldLoader {
                 simulationDistance,// seems that client world does not use this
                 client::getProfiler,
                 worldRenderer,
-                client.world.isDebugWorld(),
-                client.world.getBiomeAccess().seed
+                client.level.isDebug(),
+                client.level.getBiomeManager().biomeZoomSeed
             );
         }
         catch (Exception e) {
@@ -292,15 +292,15 @@ public class ClientWorldLoader {
             );
         }
         
-        worldRenderer.setWorld(newWorld);
+        worldRenderer.setLevel(newWorld);
         
         // there are two "reload" methods
-        worldRenderer.reload(client.getResourceManager());
+        worldRenderer.onResourceManagerReload(client.getResourceManager());
         
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);
         
-        Helper.log("Client World Created " + dimension.getValue());
+        Helper.log("Client World Created " + dimension.location());
         
         isCreatingClientWorld = false;
         
@@ -311,7 +311,7 @@ public class ClientWorldLoader {
         return newWorld;
     }
     
-    public static Collection<ClientWorld> getClientWorlds() {
+    public static Collection<ClientLevel> getClientWorlds() {
         Validate.isTrue(isInitialized);
         
         return clientWorldMap.values();

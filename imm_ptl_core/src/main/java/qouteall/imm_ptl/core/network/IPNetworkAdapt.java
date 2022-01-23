@@ -2,10 +2,10 @@ package qouteall.imm_ptl.core.network;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.MessageType;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TextComponent;
 
 @Environment(EnvType.CLIENT)
 public class IPNetworkAdapt {
@@ -26,10 +26,10 @@ public class IPNetworkAdapt {
     }
     
     private static void warnServerMissingIP() {
-        MinecraftClient.getInstance().execute(() -> {
-            MinecraftClient.getInstance().inGameHud.addChatMessage(
-                MessageType.SYSTEM,
-                new LiteralText(
+        Minecraft.getInstance().execute(() -> {
+            Minecraft.getInstance().gui.handleChat(
+                ChatType.SYSTEM,
+                new TextComponent(
                     "You logged into a server that doesn't have Immersive Portals mod." +
                         " Issues may arise. It's recommended to uninstall IP before joining a vanilla server"
                 ),

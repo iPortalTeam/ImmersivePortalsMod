@@ -1,34 +1,34 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -67,7 +67,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public static EntityType<Portal> entityType;
     
     public static final UUID nullUUID = Util.NIL_UUID;
-    private static final Box nullBox = new Box(0, 0, 0, 0, 0, 0);
+    private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
     
     /**
      * The portal area length along axisW
@@ -79,19 +79,19 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * axisW and axisH define the orientation of the portal
      * They should be normalized and should be perpendicular to each other
      */
-    public Vec3d axisW;
-    public Vec3d axisH;
+    public Vec3 axisW;
+    public Vec3 axisH;
     
     /**
      * The destination dimension
      */
-    public RegistryKey<World> dimensionTo;
+    public ResourceKey<Level> dimensionTo;
     
     
     /**
      * The destination position
      */
-    public Vec3d destination;
+    public Vec3 destination;
     
     /**
      * If false, cannot teleport entities
@@ -115,14 +115,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * The bounding box. Expanded very little.
      */
-    private Box exactBoundingBoxCache;
+    private AABB exactBoundingBoxCache;
     
     /**
      * The bounding box. Expanded a little.
      */
-    private Box boundingBoxCache;
-    private Vec3d normal;
-    private Vec3d contentDirection;
+    private AABB boundingBoxCache;
+    private Vec3 normal;
+    private Vec3 contentDirection;
     
     /**
      * For outer frustum culling
@@ -206,11 +206,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalDisposeSignal = new SignalArged<>();
-    public static final SignalBiArged<Portal, NbtCompound> readPortalDataSignal = new SignalBiArged<>();
-    public static final SignalBiArged<Portal, NbtCompound> writePortalDataSignal = new SignalBiArged<>();
+    public static final SignalBiArged<Portal, CompoundTag> readPortalDataSignal = new SignalBiArged<>();
+    public static final SignalBiArged<Portal, CompoundTag> writePortalDataSignal = new SignalBiArged<>();
     
     public Portal(
-        EntityType<?> entityType, World world
+        EntityType<?> entityType, Level world
     ) {
         super(entityType, world);
     }
@@ -229,8 +229,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * @return use the portal's transformation to transform a point
      */
     @Override
-    public Vec3d transformPoint(Vec3d pos) {
-        Vec3d localPos = pos.subtract(getOriginPos());
+    public Vec3 transformPoint(Vec3 pos) {
+        Vec3 localPos = pos.subtract(getOriginPos());
         
         return transformLocalVec(localPos).add(getDestPos());
     }
@@ -239,16 +239,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Transform a vector in portal-centered coordinate (without translation transformation)
      */
     @Override
-    public Vec3d transformLocalVec(Vec3d localVec) {
-        return transformLocalVecNonScale(localVec).multiply(scaling);
+    public Vec3 transformLocalVec(Vec3 localVec) {
+        return transformLocalVecNonScale(localVec).scale(scaling);
     }
     
     /**
      * @return The normal vector of the portal plane
      */
-    public Vec3d getNormal() {
+    public Vec3 getNormal() {
         if (normal == null) {
-            normal = axisW.crossProduct(axisH).normalize();
+            normal = axisW.cross(axisH).normalize();
         }
         return normal;
     }
@@ -256,9 +256,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * @return The direction of "portal content", the "direction" of the "inner world view"
      */
-    public Vec3d getContentDirection() {
+    public Vec3 getContentDirection() {
         if (contentDirection == null) {
-            contentDirection = transformLocalVecNonScale(getNormal().multiply(-1));
+            contentDirection = transformLocalVecNonScale(getNormal().scale(-1));
         }
         return contentDirection;
     }
@@ -279,17 +279,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      */
     public void reloadAndSyncToClient() {
         Validate.isTrue(!isGlobalPortal);
-        Validate.isTrue(!world.isClient(), "must be used on server side");
+        Validate.isTrue(!level.isClientSide(), "must be used on server side");
         updateCache();
         
-        NbtCompound customData = new NbtCompound();
-        writeCustomDataToNbt(customData);
+        CompoundTag customData = new CompoundTag();
+        addAdditionalSaveData(customData);
         
-        CustomPayloadS2CPacket packet = McRemoteProcedureCall.createPacketToSendToClient(
+        ClientboundCustomPayloadPacket packet = McRemoteProcedureCall.createPacketToSendToClient(
             "qouteall.imm_ptl.core.portal.Portal.RemoteCallables.acceptPortalDataSync",
-            world.getRegistryKey(),
+            level.dimension(),
             getId(),
-            getPos(),
+            position(),
             customData
         );
         
@@ -320,9 +320,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public Box getBoundingBox() {
+    public AABB getBoundingBox() {
         if (boundingBoxCache == null) {
-            boundingBoxCache = calculateBoundingBox();
+            boundingBoxCache = makeBoundingBox();
             if (boundingBoxCache == null) {
                 Helper.err("Cannot calc portal bounding box");
                 return nullBox;
@@ -335,23 +335,23 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * @return The portal center
      */
     @Override
-    public Vec3d getOriginPos() {
-        return getPos();
+    public Vec3 getOriginPos() {
+        return position();
     }
     
     /**
      * @return The destination position
      */
     @Override
-    public Vec3d getDestPos() {
+    public Vec3 getDestPos() {
         return destination;
     }
     
     /**
      * Set the portal's center position
      */
-    public void setOriginPos(Vec3d pos) {
-        setPosition(pos);
+    public void setOriginPos(Vec3 pos) {
+        setPos(pos);
         // it will call setPos and update the cache
     }
     
@@ -359,14 +359,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Set the destination dimension
      * If the dimension does not exist, the portal is invalid and will be automatically removed
      */
-    public void setDestinationDimension(RegistryKey<World> dim) {
+    public void setDestinationDimension(ResourceKey<Level> dim) {
         dimensionTo = dim;
     }
     
     /**
      * Set the portal's destination
      */
-    public void setDestination(Vec3d destination) {
+    public void setDestination(Vec3 destination) {
         this.destination = destination;
         updateCache();
     }
@@ -379,14 +379,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput) {
+    public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
             boolean offsetFront = IrisInterface.invoker.isShaders()
                 || IPGlobal.pureMirror;
             double mirrorOffset = offsetFront ? 0.01 : -0.01;
             portalPosRelativeToCamera = portalPosRelativeToCamera.add(
-                ((Mirror) this).getNormal().multiply(mirrorOffset));
+                ((Mirror) this).getNormal().scale(mirrorOffset));
         }
         
         ViewAreaRenderer.generateViewAreaTriangles(this, portalPosRelativeToCamera, vertexOutput);
@@ -421,17 +421,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public World getOriginWorld() {
-        return world;
+    public Level getOriginWorld() {
+        return level;
     }
     
     @Override
-    public World getDestWorld() {
+    public Level getDestWorld() {
         return getDestinationWorld();
     }
     
     @Override
-    public RegistryKey<World> getDestDim() {
+    public ResourceKey<Level> getDestDim() {
         return dimensionTo;
     }
     
@@ -455,9 +455,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (entity instanceof Portal) {
             return false;
         }
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             if (specificPlayerId != null) {
-                if (!entity.getUuid().equals(specificPlayerId)) {
+                if (!entity.getUUID().equals(specificPlayerId)) {
                     return false;
                 }
             }
@@ -471,7 +471,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
         }
         
-        return entity.canUsePortals();
+        return entity.canChangeDimensions();
     }
     
     @Nullable
@@ -486,7 +486,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setOrientationAndSize(
-        Vec3d newAxisW, Vec3d newAxisH,
+        Vec3 newAxisW, Vec3 newAxisH,
         double newWidth, double newHeight
     ) {
         setOrientation(newAxisW, newAxisH);
@@ -496,7 +496,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         updateCache();
     }
     
-    public void setOrientation(Vec3d newAxisW, Vec3d newAxisH) {
+    public void setOrientation(Vec3 newAxisW, Vec3 newAxisH) {
         axisW = newAxisW.normalize();
         axisH = newAxisH.normalize();
         updateCache();
@@ -521,7 +521,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
+    protected void readAdditionalSaveData(CompoundTag compoundTag) {
         if (compoundTag.contains("animation")) {
             animation = PortalAnimation.fromNbt(compoundTag.getCompound("animation"));
         }
@@ -533,7 +533,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         height = compoundTag.getDouble("height");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
-        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
+        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", level.isClientSide);
         destination = (Helper.getVec3d(compoundTag, "destination"));
         specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         if (compoundTag.contains("specialShape")) {
@@ -622,9 +622,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         if (compoundTag.contains("commandsOnTeleported")) {
-            NbtList list = compoundTag.getList("commandsOnTeleported", 8);
+            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
             commandsOnTeleported = list.stream()
-                .map(t -> ((NbtString) t).asString()).collect(Collectors.toList());
+                .map(t -> ((StringTag) t).getAsString()).collect(Collectors.toList());
         }
         else {
             commandsOnTeleported = null;
@@ -640,7 +640,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
+    protected void addAdditionalSaveData(CompoundTag compoundTag) {
         compoundTag.put("animation", animation.toNbt());
         
         compoundTag.putDouble("width", width);
@@ -668,10 +668,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         compoundTag.putDouble("cullableYStart", cullableYStart);
         compoundTag.putDouble("cullableYEnd", cullableYEnd);
         if (rotation != null) {
-            compoundTag.putDouble("rotationA", rotation.getW());
-            compoundTag.putDouble("rotationB", rotation.getX());
-            compoundTag.putDouble("rotationC", rotation.getY());
-            compoundTag.putDouble("rotationD", rotation.getZ());
+            compoundTag.putDouble("rotationA", rotation.r());
+            compoundTag.putDouble("rotationB", rotation.i());
+            compoundTag.putDouble("rotationC", rotation.j());
+            compoundTag.putDouble("rotationD", rotation.k());
         }
         
         compoundTag.putBoolean("interactable", interactable);
@@ -693,9 +693,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         compoundTag.putBoolean("doRenderPlayer", doRenderPlayer);
         
         if (commandsOnTeleported != null) {
-            NbtList list = new NbtList();
+            ListTag list = new ListTag();
             for (String command : commandsOnTeleported) {
-                list.add(NbtString.of(command));
+                list.add(StringTag.valueOf(command));
             }
             compoundTag.put(
                 "commandsOnTeleported",
@@ -727,16 +727,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public Packet<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return IPNetworking.createStcSpawnEntity(this);
     }
     
     @Override
-    public boolean canBeSpectated(ServerPlayerEntity spectator) {
+    public boolean broadcastToPlayer(ServerPlayer spectator) {
         if (specificPlayerId == null) {
             return true;
         }
-        return spectator.getUuid().equals(specificPlayerId);
+        return spectator.getUUID().equals(specificPlayerId);
     }
     
     @Override
@@ -745,7 +745,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             Helper.err("Abnormal bounding box " + this);
         }
         
-        if (world.isClient) {
+        if (level.isClientSide) {
             clientPortalTickSignal.emit(this);
         }
         else {
@@ -761,7 +761,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    protected Box calculateBoundingBox() {
+    protected AABB makeBoundingBox() {
         if (axisW == null) {
             // it may be called when the portal is not yet initialized
             boundingBoxCache = null;
@@ -776,16 +776,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 h = Math.min(this.height, 64.0);
             }
             
-            boundingBoxCache = new Box(
+            boundingBoxCache = new AABB(
                 getPointInPlane(w / 2, h / 2)
-                    .add(getNormal().multiply(0.2)),
+                    .add(getNormal().scale(0.2)),
                 getPointInPlane(-w / 2, -h / 2)
-                    .add(getNormal().multiply(-0.2))
-            ).union(new Box(
+                    .add(getNormal().scale(-0.2))
+            ).minmax(new AABB(
                 getPointInPlane(-w / 2, h / 2)
-                    .add(getNormal().multiply(0.2)),
+                    .add(getNormal().scale(0.2)),
                 getPointInPlane(w / 2, -h / 2)
-                    .add(getNormal().multiply(-0.2))
+                    .add(getNormal().scale(-0.2))
             ));
         }
         return boundingBoxCache;
@@ -795,18 +795,18 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return !getIsGlobal();
     }
     
-    public Box getExactBoundingBox() {
+    public AABB getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
-            exactBoundingBoxCache = new Box(
+            exactBoundingBoxCache = new AABB(
                 getPointInPlane(width / 2, height / 2)
-                    .add(getNormal().multiply(0.02)),
+                    .add(getNormal().scale(0.02)),
                 getPointInPlane(-width / 2, -height / 2)
-                    .add(getNormal().multiply(-0.02))
-            ).union(new Box(
+                    .add(getNormal().scale(-0.02))
+            ).minmax(new AABB(
                 getPointInPlane(-width / 2, height / 2)
-                    .add(getNormal().multiply(0.02)),
+                    .add(getNormal().scale(0.02)),
                 getPointInPlane(width / 2, -height / 2)
-                    .add(getNormal().multiply(-0.02))
+                    .add(getNormal().scale(-0.02))
             ));
         }
         
@@ -814,7 +814,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public void move(MovementType type, Vec3d movement) {
+    public void move(MoverType type, Vec3 movement) {
         //portal cannot be moved
     }
     
@@ -828,17 +828,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             axisW != null &&
             axisH != null &&
             getDestPos() != null &&
-            axisW.lengthSquared() > 0.9 &&
-            axisH.lengthSquared() > 0.9 &&
+            axisW.lengthSqr() > 0.9 &&
+            axisH.lengthSqr() > 0.9 &&
             getY() > -1000;
         if (valid) {
-            if (world instanceof ServerWorld) {
-                ServerWorld destWorld = MiscHelper.getServer().getWorld(dimensionTo);
+            if (level instanceof ServerLevel) {
+                ServerLevel destWorld = MiscHelper.getServer().getLevel(dimensionTo);
                 if (destWorld == null) {
-                    Helper.err("Missing Dimension " + dimensionTo.getValue());
+                    Helper.err("Missing Dimension " + dimensionTo.location());
                     return false;
                 }
-                boolean inWorldBorder = destWorld.getWorldBorder().contains(new BlockPos(getDestPos()));
+                boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(new BlockPos(getDestPos()));
                 if (!inWorldBorder) {
                     Helper.err("Destination out of world border " + this);
                     return false;
@@ -855,7 +855,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Nullable
     @Override
     public UUID getDiscriminator() {
-        return getUuid();
+        return getUUID();
     }
     
     @Override
@@ -864,11 +864,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s%s}",
             getClass().getSimpleName(),
             getId(),
-            Direction.getFacing(
+            Direction.getNearest(
                 getNormal().x, getNormal().y, getNormal().z
             ),
-            world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
-            dimensionTo.getValue(), (int) getDestPos().x, (int) getDestPos().y, (int) getDestPos().z,
+            level.dimension().location(), (int) getX(), (int) getY(), (int) getZ(),
+            dimensionTo.location(), (int) getDestPos().x, (int) getDestPos().y, (int) getDestPos().z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : "",
             portalTag != null ? "," + portalTag : ""
@@ -876,7 +876,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void transformVelocity(Entity entity) {
-        Vec3d oldVelocity = McHelper.getWorldVelocity(entity);
+        Vec3 oldVelocity = McHelper.getWorldVelocity(entity);
         if (PehkuiInterface.invoker.isPehkuiPresent()) {
             if (teleportChangesScale) {
                 McHelper.setWorldVelocity(entity, transformLocalVecNonScale(oldVelocity));
@@ -894,13 +894,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             // cannot be too fast
             McHelper.setWorldVelocity(
                 entity,
-                McHelper.getWorldVelocity(entity).normalize().multiply(maxVelocity)
+                McHelper.getWorldVelocity(entity).normalize().scale(maxVelocity)
             );
         }
         
         // avoid cannot push minecart out of nether portal
-        if (entity instanceof AbstractMinecartEntity && oldVelocity.lengthSquared() < 0.5) {
-            McHelper.setWorldVelocity(entity, McHelper.getWorldVelocity(entity).multiply(2));
+        if (entity instanceof AbstractMinecart && oldVelocity.lengthSqr() < 0.5) {
+            McHelper.setWorldVelocity(entity, McHelper.getWorldVelocity(entity).scale(2));
         }
     }
     
@@ -908,15 +908,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * @param pos
      * @return the distance to the portal plane without regarding the shape
      */
-    public double getDistanceToPlane(Vec3d pos) {
-        return pos.subtract(getOriginPos()).dotProduct(getNormal());
+    public double getDistanceToPlane(Vec3 pos) {
+        return pos.subtract(getOriginPos()).dot(getNormal());
     }
     
     /**
      * @param pos
      * @return is the point in front of the portal plane without regarding the shape
      */
-    public boolean isInFrontOfPortal(Vec3d pos) {
+    public boolean isInFrontOfPortal(Vec3 pos) {
         return getDistanceToPlane(pos) > 0;
     }
     
@@ -925,7 +925,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * @param yInPlane
      * @return Convert the 2D coordinate in portal plane into the world coordinate
      */
-    public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
+    public Vec3 getPointInPlane(double xInPlane, double yInPlane) {
         return getOriginPos().add(getPointInPlaneLocal(xInPlane, yInPlane));
     }
     
@@ -934,21 +934,21 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * @param yInPlane
      * @return Convert the 2D coordinate in portal plane into the portal-centered coordinate
      */
-    public Vec3d getPointInPlaneLocal(double xInPlane, double yInPlane) {
-        return axisW.multiply(xInPlane).add(axisH.multiply(yInPlane));
+    public Vec3 getPointInPlaneLocal(double xInPlane, double yInPlane) {
+        return axisW.scale(xInPlane).add(axisH.scale(yInPlane));
     }
     
-    public Vec3d getPointInPlaneLocalClamped(double xInPlane, double yInPlane) {
+    public Vec3 getPointInPlaneLocalClamped(double xInPlane, double yInPlane) {
         return getPointInPlaneLocal(
-            MathHelper.clamp(xInPlane, -width / 2, width / 2),
-            MathHelper.clamp(yInPlane, -height / 2, height / 2)
+            Mth.clamp(xInPlane, -width / 2, width / 2),
+            Mth.clamp(yInPlane, -height / 2, height / 2)
         );
     }
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesLocal(double shrinkFactor) {
-        Vec3d[] vertices = new Vec3d[4];
+    public Vec3[] getFourVerticesLocal(double shrinkFactor) {
+        Vec3[] vertices = new Vec3[4];
         vertices[0] = getPointInPlaneLocal(
             width / 2 - shrinkFactor,
             -height / 2 + shrinkFactor
@@ -971,8 +971,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     //3  2
     //1  0
-    private Vec3d[] getFourVerticesLocalRotated(double shrinkFactor) {
-        Vec3d[] fourVerticesLocal = getFourVerticesLocal(shrinkFactor);
+    private Vec3[] getFourVerticesLocalRotated(double shrinkFactor) {
+        Vec3[] fourVerticesLocal = getFourVerticesLocal(shrinkFactor);
         fourVerticesLocal[0] = transformLocalVec(fourVerticesLocal[0]);
         fourVerticesLocal[1] = transformLocalVec(fourVerticesLocal[1]);
         fourVerticesLocal[2] = transformLocalVec(fourVerticesLocal[2]);
@@ -982,8 +982,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     //3  2
     //1  0
-    private Vec3d[] getFourVerticesLocalCullable(double shrinkFactor) {
-        Vec3d[] vertices = new Vec3d[4];
+    private Vec3[] getFourVerticesLocalCullable(double shrinkFactor) {
+        Vec3[] vertices = new Vec3[4];
         vertices[0] = getPointInPlaneLocal(
             cullableXEnd - shrinkFactor,
             cullableYStart + shrinkFactor
@@ -1007,46 +1007,46 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * Transform a point regardless of rotation transformation and scale transformation
      */
-    public final Vec3d transformPointRough(Vec3d pos) {
-        Vec3d offset = getDestPos().subtract(getOriginPos());
+    public final Vec3 transformPointRough(Vec3 pos) {
+        Vec3 offset = getDestPos().subtract(getOriginPos());
         return pos.add(offset);
     }
     
-    public Vec3d transformLocalVecNonScale(Vec3d localVec) {
+    public Vec3 transformLocalVecNonScale(Vec3 localVec) {
         if (rotation == null) {
             return localVec;
         }
         
-        Vec3f temp = new Vec3f(localVec);
-        temp.rotate(rotation);
+        Vector3f temp = new Vector3f(localVec);
+        temp.transform(rotation);
         
-        return new Vec3d(temp);
+        return new Vec3(temp);
     }
     
-    public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
+    public Vec3 inverseTransformLocalVecNonScale(Vec3 localVec) {
         if (rotation == null) {
             return localVec;
         }
         
-        Vec3f temp = new Vec3f(localVec);
+        Vector3f temp = new Vector3f(localVec);
         Quaternion r = new Quaternion(rotation);//copy() is client only
-        r.conjugate();
-        temp.rotate(r);
-        return new Vec3d(temp);
+        r.conj();
+        temp.transform(r);
+        return new Vec3(temp);
     }
     
     @Override
-    public Vec3d inverseTransformLocalVec(Vec3d localVec) {
-        return inverseTransformLocalVecNonScale(localVec).multiply(1.0 / scaling);
+    public Vec3 inverseTransformLocalVec(Vec3 localVec) {
+        return inverseTransformLocalVecNonScale(localVec).scale(1.0 / scaling);
     }
     
     @Override
-    public Vec3d inverseTransformPoint(Vec3d point) {
+    public Vec3 inverseTransformPoint(Vec3 point) {
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
     
-    public Box getThinAreaBox() {
-        return new Box(
+    public AABB getThinAreaBox() {
+        return new AABB(
             getPointInPlane(width / 2, height / 2),
             getPointInPlane(-width / 2, -height / 2)
         );
@@ -1055,11 +1055,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * Project the point into the portal plane, is it in the portal area
      */
-    public boolean isPointInPortalProjection(Vec3d pos) {
-        Vec3d offset = pos.subtract(getOriginPos());
+    public boolean isPointInPortalProjection(Vec3 pos) {
+        Vec3 offset = pos.subtract(getOriginPos());
         
-        double yInPlane = offset.dotProduct(axisH);
-        double xInPlane = offset.dotProduct(axisW);
+        double yInPlane = offset.dot(axisH);
+        double xInPlane = offset.dot(axisW);
         
         boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.001) &&
             Math.abs(yInPlane) < (height / 2 + 0.001);
@@ -1075,16 +1075,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public boolean isMovedThroughPortal(
-        Vec3d lastTickPos,
-        Vec3d pos
+        Vec3 lastTickPos,
+        Vec3 pos
     ) {
         return rayTrace(lastTickPos, pos) != null;
     }
     
     @Nullable
-    public Vec3d rayTrace(
-        Vec3d from,
-        Vec3d to
+    public Vec3 rayTrace(
+        Vec3 from,
+        Vec3 to
     ) {
         double lastDistance = getDistanceToPlane(from);
         double nowDistance = getDistanceToPlane(to);
@@ -1093,11 +1093,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return null;
         }
         
-        Vec3d lineOrigin = from;
-        Vec3d lineDirection = to.subtract(from).normalize();
+        Vec3 lineOrigin = from;
+        Vec3 lineDirection = to.subtract(from).normalize();
         
         double collidingT = Helper.getCollidingT(getOriginPos(), normal, lineOrigin, lineDirection);
-        Vec3d collidingPoint = lineOrigin.add(lineDirection.multiply(collidingT));
+        Vec3 collidingPoint = lineOrigin.add(lineDirection.scale(collidingT));
         
         if (isPointInPortalProjection(collidingPoint)) {
             return collidingPoint;
@@ -1109,12 +1109,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public double getDistanceToNearestPointInPortal(
-        Vec3d point
+        Vec3 point
     ) {
         double distanceToPlane = getDistanceToPlane(point);
-        Vec3d localPos = point.subtract(getOriginPos());
-        double localX = localPos.dotProduct(axisW);
-        double localY = localPos.dotProduct(axisH);
+        Vec3 localPos = point.subtract(getOriginPos());
+        double localX = localPos.dot(axisW);
+        double localY = localPos.dot(axisH);
         double distanceToRect = Helper.getDistanceToRectangle(
             localX, localY,
             -(width / 2), -(height / 2),
@@ -1123,80 +1123,80 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return Math.sqrt(distanceToPlane * distanceToPlane + distanceToRect * distanceToRect);
     }
     
-    public Vec3d getPointProjectedToPlane(Vec3d pos) {
-        Vec3d originPos = getOriginPos();
-        Vec3d offset = pos.subtract(originPos);
+    public Vec3 getPointProjectedToPlane(Vec3 pos) {
+        Vec3 originPos = getOriginPos();
+        Vec3 offset = pos.subtract(originPos);
         
-        double yInPlane = offset.dotProduct(axisH);
-        double xInPlane = offset.dotProduct(axisW);
+        double yInPlane = offset.dot(axisH);
+        double xInPlane = offset.dot(axisW);
         
         return originPos.add(
-            axisW.multiply(xInPlane)
+            axisW.scale(xInPlane)
         ).add(
-            axisH.multiply(yInPlane)
+            axisH.scale(yInPlane)
         );
     }
     
-    public Vec3d getNearestPointInPortal(Vec3d pos) {
-        Vec3d originPos = getOriginPos();
-        Vec3d offset = pos.subtract(originPos);
+    public Vec3 getNearestPointInPortal(Vec3 pos) {
+        Vec3 originPos = getOriginPos();
+        Vec3 offset = pos.subtract(originPos);
         
-        double yInPlane = offset.dotProduct(axisH);
-        double xInPlane = offset.dotProduct(axisW);
+        double yInPlane = offset.dot(axisH);
+        double xInPlane = offset.dot(axisW);
         
-        xInPlane = MathHelper.clamp(xInPlane, -width / 2, width / 2);
-        yInPlane = MathHelper.clamp(yInPlane, -height / 2, height / 2);
+        xInPlane = Mth.clamp(xInPlane, -width / 2, width / 2);
+        yInPlane = Mth.clamp(yInPlane, -height / 2, height / 2);
         
         return originPos.add(
-            axisW.multiply(xInPlane)
+            axisW.scale(xInPlane)
         ).add(
-            axisH.multiply(yInPlane)
+            axisH.scale(yInPlane)
         );
     }
     
-    public World getDestinationWorld() {
-        return getDestinationWorld(world.isClient());
+    public Level getDestinationWorld() {
+        return getDestinationWorld(level.isClientSide());
     }
     
-    private World getDestinationWorld(boolean isClient) {
+    private Level getDestinationWorld(boolean isClient) {
         if (isClient) {
             return CHelper.getClientWorld(dimensionTo);
         }
         else {
-            return MiscHelper.getServer().getWorld(dimensionTo);
+            return MiscHelper.getServer().getLevel(dimensionTo);
         }
     }
     
     public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
-        return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
-            currPortal.dimensionTo == outerPortal.world.getRegistryKey() &&
-            !(currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) &&
+        return currPortal.level.dimension() == outerPortal.dimensionTo &&
+            currPortal.dimensionTo == outerPortal.level.dimension() &&
+            !(currPortal.getNormal().dot(outerPortal.getContentDirection()) > -0.9) &&
             !outerPortal.isInside(currPortal.getOriginPos(), 0.1);
     }
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
-        return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
-            currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) < -0.9 &&
+        return currPortal.level.dimension() == outerPortal.dimensionTo &&
+            currPortal.getNormal().dot(outerPortal.getContentDirection()) < -0.9 &&
             !outerPortal.isInside(currPortal.getOriginPos(), 0.1);
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {
-        return a.dimensionTo == b.world.getRegistryKey() &&
-            a.world.getRegistryKey() == b.dimensionTo &&
+        return a.dimensionTo == b.level.dimension() &&
+            a.level.dimension() == b.dimensionTo &&
             a.getOriginPos().distanceTo(b.getDestPos()) < 0.1 &&
             a.getDestPos().distanceTo(b.getOriginPos()) < 0.1 &&
-            a.getNormal().dotProduct(b.getContentDirection()) > 0.9;
+            a.getNormal().dot(b.getContentDirection()) > 0.9;
     }
     
     public static boolean isFlippedPortal(Portal a, Portal b) {
         if (a == b) {
             return false;
         }
-        return a.world == b.world &&
+        return a.level == b.level &&
             a.dimensionTo == b.dimensionTo &&
             a.getOriginPos().distanceTo(b.getOriginPos()) < 0.1 &&
             a.getDestPos().distanceTo(b.getDestPos()) < 0.1 &&
-            a.getNormal().dotProduct(b.getNormal()) < -0.9;
+            a.getNormal().dot(b.getNormal()) < -0.9;
     }
     
     @Override
@@ -1210,12 +1210,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public Box getExactAreaBox() {
+    public AABB getExactAreaBox() {
         return getExactBoundingBox();
     }
     
     @Override
-    public boolean isRoughlyVisibleTo(Vec3d cameraPos) {
+    public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
         return isInFrontOfPortal(cameraPos);
     }
     
@@ -1229,7 +1229,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     //1  0
     @Nullable
     @Override
-    public Vec3d[] getOuterFrustumCullingVertices() {
+    public Vec3[] getOuterFrustumCullingVertices() {
         return getFourVerticesLocalCullable(0);
     }
     
@@ -1241,22 +1241,22 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         double cameraX, double cameraY, double cameraZ
     ) {
         
-        Vec3d portalOriginInLocalCoordinate = getDestPos().add(
+        Vec3 portalOriginInLocalCoordinate = getDestPos().add(
             -cameraX, -cameraY, -cameraZ
         );
-        Vec3d[] innerFrustumCullingVertices = getFourVerticesLocalRotated(0);
+        Vec3[] innerFrustumCullingVertices = getFourVerticesLocalRotated(0);
         if (innerFrustumCullingVertices == null) {
             return BoxPredicate.nonePredicate;
         }
-        Vec3d[] downLeftUpRightPlaneNormals = FrustumCuller.getDownLeftUpRightPlaneNormals(
+        Vec3[] downLeftUpRightPlaneNormals = FrustumCuller.getDownLeftUpRightPlaneNormals(
             portalOriginInLocalCoordinate,
             innerFrustumCullingVertices
         );
         
-        Vec3d downPlane = downLeftUpRightPlaneNormals[0];
-        Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
-        Vec3d upPlane = downLeftUpRightPlaneNormals[2];
-        Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+        Vec3 downPlane = downLeftUpRightPlaneNormals[0];
+        Vec3 leftPlane = downLeftUpRightPlaneNormals[1];
+        Vec3 upPlane = downLeftUpRightPlaneNormals[2];
+        Vec3 rightPlane = downLeftUpRightPlaneNormals[3];
         
         return
             (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
@@ -1267,17 +1267,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public static class TransformationDesc {
-        public final RegistryKey<World> dimensionTo;
+        public final ResourceKey<Level> dimensionTo;
         @Nullable
         public final Quaternion rotation;
         public final double scaling;
-        public final Vec3d offset;
+        public final Vec3 offset;
         public final boolean isMirror;
         
         public TransformationDesc(
-            RegistryKey<World> dimensionTo,
+            ResourceKey<Level> dimensionTo,
             @Nullable Quaternion rotation, double scaling,
-            Vec3d offset, boolean isMirror
+            Vec3 offset, boolean isMirror
         ) {
             this.dimensionTo = dimensionTo;
             this.rotation = rotation;
@@ -1311,7 +1311,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return Double.compare(that.scaling, scaling) == 0 &&
                 dimensionTo == that.dimensionTo &&
                 rotationRoughlyEquals(rotation, that.rotation) &&//approximately
-                offset.squaredDistanceTo(that.offset) < 0.01;//approximately
+                offset.distanceToSqr(that.offset) < 0.01;//approximately
         }
         
         @Override
@@ -1325,7 +1325,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             getDestDim(),
             getRotation(),
             getScale(),
-            getDestPos().multiply(1.0 / getScale()).subtract(getOriginPos()),
+            getDestPos().scale(1.0 / getScale()).subtract(getOriginPos()),
             this instanceof Mirror
         );
     }
@@ -1357,12 +1357,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     
     @Override
-    public void calculateDimensions() {
+    public void refreshDimensions() {
         boundingBoxCache = null;
     }
     
     @Override
-    protected float getEyeHeight(EntityPose pose, EntityDimensions dimensions) {
+    protected float getEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0;
     }
     
@@ -1377,7 +1377,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     
     @Override
-    protected void initDataTracker() {
+    protected void defineSynchedData() {
         //do nothing
     }
     
@@ -1401,17 +1401,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public static boolean doesPortalBlockEntityView(
         LivingEntity observer, Entity target
     ) {
-        observer.world.getProfiler().push("portal_block_view");
+        observer.level.getProfiler().push("portal_block_view");
         
         List<Portal> viewBlockingPortals = McHelper.findEntitiesByBox(
             Portal.class,
-            observer.world,
-            observer.getBoundingBox().union(target.getBoundingBox()),
+            observer.level,
+            observer.getBoundingBox().minmax(target.getBoundingBox()),
             8,
-            p -> p.rayTrace(observer.getCameraPosVec(1), target.getCameraPosVec(1)) != null
+            p -> p.rayTrace(observer.getEyePosition(1), target.getEyePosition(1)) != null
         );
         
-        observer.world.getProfiler().pop();
+        observer.level.getProfiler().pop();
         
         return !viewBlockingPortals.isEmpty();
     }
@@ -1441,11 +1441,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public Direction getTransformedGravityDirection(Direction oldGravityDir) {
-        Vec3d oldGravityVec = Vec3d.of(oldGravityDir.getVector());
+        Vec3 oldGravityVec = Vec3.atLowerCornerOf(oldGravityDir.getNormal());
         
-        Vec3d newGravityVec = transformLocalVecNonScale(oldGravityVec);
+        Vec3 newGravityVec = transformLocalVecNonScale(oldGravityVec);
         
-        return Direction.getFacing(
+        return Direction.getNearest(
             newGravityVec.x, newGravityVec.y, newGravityVec.z
         );
     }
@@ -1457,12 +1457,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return null;
         }
         
-        if (age == 0) {
+        if (tickCount == 0) {
             return null;
         }
         
         return new PortalState(
-            world.getRegistryKey(),
+            level.dimension(),
             getOriginPos(),
             dimensionTo,
             getDestPos(),
@@ -1474,7 +1474,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setPortalState(PortalState state) {
-        Validate.isTrue(world.getRegistryKey() == state.fromWorld);
+        Validate.isTrue(level.dimension() == state.fromWorld);
         Validate.isTrue(dimensionTo == state.toWorld);
         
         width = state.width;
@@ -1517,25 +1517,25 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Environment(EnvType.CLIENT)
-    private void acceptDataSync(Vec3d pos, NbtCompound customData) {
+    private void acceptDataSync(Vec3 pos, CompoundTag customData) {
         PortalState oldState = getPortalState();
         
-        setPosition(pos);
-        readCustomDataFromNbt(customData);
+        setPos(pos);
+        readAdditionalSaveData(customData);
         
         if (animation.durationTicks > 0) {
             startAnimationClient(oldState);
         }
     }
     
-    public NbtCompound writePortalDataToNbt() {
-        NbtCompound nbtCompound = new NbtCompound();
-        writeCustomDataToNbt(nbtCompound);
+    public CompoundTag writePortalDataToNbt() {
+        CompoundTag nbtCompound = new CompoundTag();
+        addAdditionalSaveData(nbtCompound);
         return nbtCompound;
     }
     
-    public void readPortalDataFromNbt(NbtCompound compound) {
-        readCustomDataFromNbt(compound);
+    public void readPortalDataFromNbt(CompoundTag compound) {
+        readAdditionalSaveData(compound);
     }
     
     public void rectifyClusterPortals() {
@@ -1544,13 +1544,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public static class RemoteCallables {
         public static void acceptPortalDataSync(
-            RegistryKey<World> dim,
+            ResourceKey<Level> dim,
             int entityId,
-            Vec3d pos,
-            NbtCompound customData
+            Vec3 pos,
+            CompoundTag customData
         ) {
-            ClientWorld world = ClientWorldLoader.getWorld(dim);
-            Entity entity = world.getEntityById(entityId);
+            ClientLevel world = ClientWorldLoader.getWorld(dim);
+            Entity entity = world.getEntity(entityId);
             if (entity instanceof Portal portal) {
                 portal.acceptDataSync(pos, customData);
             }

@@ -9,7 +9,7 @@ import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer_P {
-    @Inject(method = "loadWorld", at = @At("RETURN"))
+    @Inject(method = "Lnet/minecraft/server/MinecraftServer;loadLevel()V", at = @At("RETURN"))
     private void onLoadWorldFinished(CallbackInfo ci) {
         CustomPortalGenManagement.onDatapackReload();
     }

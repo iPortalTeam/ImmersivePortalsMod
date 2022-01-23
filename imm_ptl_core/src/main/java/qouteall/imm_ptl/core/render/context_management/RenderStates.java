@@ -1,18 +1,17 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -23,7 +22,7 @@ import qouteall.imm_ptl.core.mixin.client.particle.IEParticle;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.QueryManager;
-
+import com.mojang.math.Matrix4f;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,20 +33,20 @@ public class RenderStates {
     
     public static int frameIndex = 0;
     
-    public static RegistryKey<World> originalPlayerDimension;
-    public static Vec3d originalPlayerPos = Vec3d.ZERO;
-    public static Vec3d originalPlayerLastTickPos = Vec3d.ZERO;
-    public static GameMode originalGameMode;
+    public static ResourceKey<Level> originalPlayerDimension;
+    public static Vec3 originalPlayerPos = Vec3.ZERO;
+    public static Vec3 originalPlayerLastTickPos = Vec3.ZERO;
+    public static GameType originalGameMode;
     public static float tickDelta = 0;
-    public static Box originalPlayerBoundingBox;
+    public static AABB originalPlayerBoundingBox;
     
-    public static Set<RegistryKey<World>> renderedDimensions = new HashSet<>();
+    public static Set<ResourceKey<Level>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();
     public static List<List<WeakReference<PortalLike>>> portalRenderInfos = new ArrayList<>();
     public static int portalsRenderedThisFrame = 0;// mixins to sodium use that
     
-    public static Vec3d lastCameraPos = Vec3d.ZERO;
-    public static Vec3d cameraPosDelta = Vec3d.ZERO;
+    public static Vec3 lastCameraPos = Vec3.ZERO;
+    public static Vec3 cameraPosDelta = Vec3.ZERO;
     
     public static boolean shouldForceDisableCull = false;
     
@@ -70,7 +69,7 @@ public class RenderStates {
     
     public static boolean renderedScalingPortal = false;
     
-    public static Vec3d viewBobbedCameraPos = Vec3d.ZERO;
+    public static Vec3 viewBobbedCameraPos = Vec3.ZERO;
     
     public static boolean isRenderingPortalWeather = false;
     
@@ -85,11 +84,11 @@ public class RenderStates {
             return;
         }
         
-        originalPlayerDimension = cameraEntity.world.getRegistryKey();
-        originalPlayerPos = cameraEntity.getPos();
+        originalPlayerDimension = cameraEntity.level.dimension();
+        originalPlayerPos = cameraEntity.position();
         originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
-        PlayerListEntry entry = CHelper.getClientPlayerListEntry();
-        originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
+        PlayerInfo entry = CHelper.getClientPlayerListEntry();
+        originalGameMode = entry != null ? entry.getGameMode() : GameType.CREATIVE;
         tickDelta = tickDelta_;
         
         renderedDimensions.clear();
@@ -104,10 +103,10 @@ public class RenderStates {
         updateViewBobbingFactor(cameraEntity);
         
         basicProjectionMatrix = null;
-        originalCamera = MyRenderHelper.client.gameRenderer.getCamera();
+        originalCamera = MyRenderHelper.client.gameRenderer.getMainCamera();
         
         originalCameraLightPacked = MyRenderHelper.client.getEntityRenderDispatcher()
-            .getLight(MyRenderHelper.client.cameraEntity, tickDelta);
+            .getPackedLightCoords(MyRenderHelper.client.cameraEntity, tickDelta);
         
         updateIsLaggy();
         
@@ -116,8 +115,8 @@ public class RenderStates {
         
         QueryManager.queryStallCounter = 0;
         
-        Vec3d velocity = McHelper.getWorldVelocity(cameraEntity);
-        originalPlayerBoundingBox = cameraEntity.getBoundingBox().stretch(
+        Vec3 velocity = McHelper.getWorldVelocity(cameraEntity);
+        originalPlayerBoundingBox = cameraEntity.getBoundingBox().expandTowards(
             -velocity.x, -velocity.y, -velocity.z
         );
     }
@@ -136,8 +135,8 @@ public class RenderStates {
         else {
             if (lastPortalRenderInfos.size() > 10) {
                 if (ClientPerformanceMonitor.getAverageFps() < 8 || ClientPerformanceMonitor.getMinimumFps() < 6) {
-                    MyRenderHelper.client.inGameHud.setOverlayMessage(
-                        new TranslatableText("imm_ptl.laggy"),
+                    MyRenderHelper.client.gui.setOverlayMessage(
+                        new TranslatableComponent("imm_ptl.laggy"),
                         false
                     );
                     isLaggy = true;
@@ -155,7 +154,7 @@ public class RenderStates {
 //            }
 //        }
         
-        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
+        Vec3 cameraPosVec = cameraEntity.getEyePosition(tickDelta);
         double minPortalDistance = CHelper.getClientNearbyPortals(16)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(100.0);
@@ -186,20 +185,20 @@ public class RenderStates {
             viewBobFactor = arg;
         }
         else {
-            viewBobFactor = MathHelper.lerp(0.1, viewBobFactor, arg);
+            viewBobFactor = Mth.lerp(0.1, viewBobFactor, arg);
         }
     }
     
     public static void onTotalRenderEnd() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
+        Minecraft client = Minecraft.getInstance();
+        IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(ClientWorldLoader
-            .getDimensionRenderHelper(client.world.getRegistryKey()).lightmapTexture);
+            .getDimensionRenderHelper(client.level.dimension()).lightmapTexture);
         
-        Vec3d currCameraPos = client.gameRenderer.getCamera().getPos();
+        Vec3 currCameraPos = client.gameRenderer.getMainCamera().getPosition();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);
-        if (cameraPosDelta.lengthSquared() > 1) {
-            cameraPosDelta = Vec3d.ZERO;
+        if (cameraPosDelta.lengthSqr() > 1) {
+            cameraPosDelta = Vec3.ZERO;
         }
         lastCameraPos = currCameraPos;
         
@@ -210,7 +209,7 @@ public class RenderStates {
         return portalRenderInfos.size();
     }
     
-    public static boolean isDimensionRendered(RegistryKey<World> dimensionType) {
+    public static boolean isDimensionRendered(ResourceKey<Level> dimensionType) {
         if (dimensionType == originalPlayerDimension) {
             return true;
         }
@@ -218,12 +217,12 @@ public class RenderStates {
     }
     
     public static boolean shouldRenderParticle(Particle particle) {
-        if (((IEParticle) particle).portal_getWorld() != MinecraftClient.getInstance().world) {
+        if (((IEParticle) particle).portal_getWorld() != Minecraft.getInstance().level) {
             return false;
         }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            Vec3d particlePos = particle.getBoundingBox().getCenter();
+            Vec3 particlePos = particle.getBoundingBox().getCenter();
             return renderingPortal.isInside(particlePos, 0.5);
         }
         return true;

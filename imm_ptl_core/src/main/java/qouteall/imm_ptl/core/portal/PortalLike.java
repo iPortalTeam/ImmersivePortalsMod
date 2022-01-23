@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.Plane;
@@ -31,35 +31,35 @@ public interface PortalLike {
     boolean isConventionalPortal();
     
     // bounding box
-    Box getExactAreaBox();
+    AABB getExactAreaBox();
     
-    Vec3d transformPoint(Vec3d pos);
+    Vec3 transformPoint(Vec3 pos);
     
-    Vec3d transformLocalVec(Vec3d localVec);
+    Vec3 transformLocalVec(Vec3 localVec);
     
-    Vec3d inverseTransformLocalVec(Vec3d localVec);
+    Vec3 inverseTransformLocalVec(Vec3 localVec);
     
-    Vec3d inverseTransformPoint(Vec3d point);
+    Vec3 inverseTransformPoint(Vec3 point);
     
     // TODO remove this and use the area box
     double getDistanceToNearestPointInPortal(
-        Vec3d point
+        Vec3 point
     );
     
     // TODO remove this and use the area box
     double getDestAreaRadiusEstimation();
     
-    Vec3d getOriginPos();
+    Vec3 getOriginPos();
     
-    Vec3d getDestPos();
+    Vec3 getDestPos();
     
-    World getOriginWorld();
+    Level getOriginWorld();
     
-    World getDestWorld();
+    Level getDestWorld();
     
-    RegistryKey<World> getDestDim();
+    ResourceKey<Level> getDestDim();
     
-    boolean isRoughlyVisibleTo(Vec3d cameraPos);
+    boolean isRoughlyVisibleTo(Vec3 cameraPos);
     
     @Nullable
     Plane getInnerClipping();
@@ -73,10 +73,10 @@ public interface PortalLike {
     
     // used for super advanced frustum culling
     @Nullable
-    Vec3d[] getOuterFrustumCullingVertices();
+    Vec3[] getOuterFrustumCullingVertices();
     
     @Environment(EnvType.CLIENT)
-    void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput);
+    void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput);
     
     // Scaling does not interfere camera transformation
     @Nullable
@@ -97,23 +97,23 @@ public interface PortalLike {
         return Math.abs(getScale() - 1.0) > 0.01;
     }
     
-    default RegistryKey<World> getOriginDim() {
-        return getOriginWorld().getRegistryKey();
+    default ResourceKey<Level> getOriginDim() {
+        return getOriginWorld().dimension();
     }
     
-    default boolean isInside(Vec3d entityPos, double valve) {
+    default boolean isInside(Vec3 entityPos, double valve) {
         Plane innerClipping = getInnerClipping();
         
         if (innerClipping == null) {
             return true;
         }
         
-        double v = entityPos.subtract(innerClipping.pos).dotProduct(innerClipping.normal);
+        double v = entityPos.subtract(innerClipping.pos).dot(innerClipping.normal);
         return v > valve;
     }
     
     default double getSizeEstimation() {
-        final Vec3d boxSize = Helper.getBoxSize(getExactAreaBox());
+        final Vec3 boxSize = Helper.getBoxSize(getExactAreaBox());
         final double maxDimension = Math.max(Math.max(boxSize.x, boxSize.y), boxSize.z);
         return maxDimension;
     }

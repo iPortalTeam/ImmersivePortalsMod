@@ -2,14 +2,14 @@ package qouteall.imm_ptl.core.render.optimization;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
 import java.util.function.Consumer;
 
 public class GLResourceCache {
-    public static MinecraftClient client = MinecraftClient.getInstance();
+    public static Minecraft client = Minecraft.getInstance();
     
     private final Consumer<int[]> generator;
     private final IntList bufferIds = new IntArrayList();
@@ -41,7 +41,7 @@ public class GLResourceCache {
     }
     
     private int getExpectedBufferSize() {
-        int viewDistance = client.options.viewDistance;
+        int viewDistance = client.options.renderDistance;
         int diameter = viewDistance * 2 + 1;
         
         //every column has 16 sections, every section has 5 layers

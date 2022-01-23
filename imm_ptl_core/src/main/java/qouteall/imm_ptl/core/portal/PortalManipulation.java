@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import com.mojang.math.Quaternion;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 public class PortalManipulation {
     public static void setPortalTransformation(
         Portal portal,
-        RegistryKey<World> destDim,
-        Vec3d destPos,
+        ResourceKey<Level> destDim,
+        Vec3 destPos,
         @Nullable Quaternion rotation,
         double scale
     ) {
@@ -45,17 +45,17 @@ public class PortalManipulation {
     
     public static void removeConnectedPortals(Portal portal, Consumer<Portal> removalInformer) {
         removeOverlappedPortals(
-            portal.world,
+            portal.level,
             portal.getOriginPos(),
-            portal.getNormal().multiply(-1),
+            portal.getNormal().scale(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
-        ServerWorld toWorld = MiscHelper.getServer().getWorld(portal.dimensionTo);
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(portal.dimensionTo);
         removeOverlappedPortals(
             toWorld,
             portal.getDestPos(),
-            portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
+            portal.transformLocalVecNonScale(portal.getNormal().scale(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
@@ -78,18 +78,18 @@ public class PortalManipulation {
     
     // can also be used in client
     public static <T extends Portal> T createReversePortal(Portal portal, EntityType<T> entityType) {
-        World world = portal.getDestinationWorld();
+        Level world = portal.getDestinationWorld();
         
         T newPortal = entityType.create(world);
-        newPortal.dimensionTo = portal.world.getRegistryKey();
-        newPortal.setPosition(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
+        newPortal.dimensionTo = portal.level.dimension();
+        newPortal.setPos(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
         newPortal.setDestination(portal.getOriginPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width * portal.scaling;
         newPortal.height = portal.height * portal.scaling;
         newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.multiply(-1);
+        newPortal.axisH = portal.axisH.scale(-1);
         
         if (portal.specialShape != null) {
             newPortal.specialShape = new GeometryPortalShape();
@@ -107,7 +107,7 @@ public class PortalManipulation {
             rotatePortalBody(newPortal, portal.rotation);
             
             newPortal.rotation = new Quaternion(portal.rotation);
-            newPortal.rotation.conjugate();
+            newPortal.rotation.conj();
         }
         
         newPortal.scaling = 1.0 / portal.scaling;
@@ -131,17 +131,17 @@ public class PortalManipulation {
     }
     
     public static <T extends Portal> T createFlippedPortal(Portal portal, EntityType<T> entityType) {
-        World world = portal.world;
+        Level world = portal.level;
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.setPosition(portal.getX(), portal.getY(), portal.getZ());
+        newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width;
         newPortal.height = portal.height;
         newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.multiply(-1);
+        newPortal.axisH = portal.axisH.scale(-1);
         
         if (portal.specialShape != null) {
             newPortal.specialShape = new GeometryPortalShape();
@@ -166,10 +166,10 @@ public class PortalManipulation {
     
     //the new portal will not be added into world
     public static Portal copyPortal(Portal portal, EntityType<Portal> entityType) {
-        World world = portal.world;
+        Level world = portal.level;
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.setPosition(portal.getX(), portal.getY(), portal.getZ());
+        newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
@@ -213,27 +213,27 @@ public class PortalManipulation {
         Consumer<Portal> addingInformer, EntityType<Portal> entityType
     ) {
         removeOverlappedPortals(
-            ((ServerWorld) portal.world),
+            ((ServerLevel) portal.level),
             portal.getOriginPos(),
-            portal.getNormal().multiply(-1),
+            portal.getNormal().scale(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
         
         Portal oppositeFacedPortal = completeBiFacedPortal(portal, entityType);
         removeOverlappedPortals(
-            MiscHelper.getServer().getWorld(portal.dimensionTo),
+            MiscHelper.getServer().getLevel(portal.dimensionTo),
             portal.getDestPos(),
-            portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
+            portal.transformLocalVecNonScale(portal.getNormal().scale(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
         
         Portal r1 = completeBiWayPortal(portal, entityType);
         removeOverlappedPortals(
-            MiscHelper.getServer().getWorld(oppositeFacedPortal.dimensionTo),
+            MiscHelper.getServer().getLevel(oppositeFacedPortal.dimensionTo),
             oppositeFacedPortal.getDestPos(),
-            oppositeFacedPortal.transformLocalVecNonScale(oppositeFacedPortal.getNormal().multiply(-1)),
+            oppositeFacedPortal.transformLocalVecNonScale(oppositeFacedPortal.getNormal().scale(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
@@ -245,9 +245,9 @@ public class PortalManipulation {
     }
     
     public static void removeOverlappedPortals(
-        World world,
-        Vec3d pos,
-        Vec3d normal,
+        Level world,
+        Vec3 pos,
+        Vec3 normal,
         Predicate<Portal> predicate,
         Consumer<Portal> informer
     ) {
@@ -258,35 +258,35 @@ public class PortalManipulation {
     }
     
     public static List<Portal> getPortalClutter(
-        World world,
-        Vec3d pos,
-        Vec3d normal,
+        Level world,
+        Vec3 pos,
+        Vec3 normal,
         Predicate<Portal> predicate
     ) {
         return McHelper.findEntitiesByBox(
             Portal.class,
             world,
-            new Box(
+            new AABB(
                 pos.add(0.1, 0.1, 0.1),
                 pos.subtract(0.1, 0.1, 0.1)
             ),
             20,
-            p -> p.getNormal().dotProduct(normal) > 0.5 && predicate.test(p)
+            p -> p.getNormal().dot(normal) > 0.5 && predicate.test(p)
         );
     }
     
     public static <T extends Portal> T createOrthodoxPortal(
         EntityType<T> entityType,
-        ServerWorld fromWorld, ServerWorld toWorld,
-        Direction facing, Box portalArea,
-        Vec3d destination
+        ServerLevel fromWorld, ServerLevel toWorld,
+        Direction facing, AABB portalArea,
+        Vec3 destination
     ) {
         T portal = entityType.create(fromWorld);
         
         PortalAPI.setPortalOrthodoxShape(portal, facing, portalArea);
         
         portal.setDestination(destination);
-        portal.dimensionTo = toWorld.getRegistryKey();
+        portal.dimensionTo = toWorld.dimension();
         
         return portal;
     }
@@ -313,8 +313,8 @@ public class PortalManipulation {
     }
     
     public static void createScaledBoxView(
-        ServerWorld areaWorld, Box area,
-        ServerWorld boxWorld, Vec3d boxBottomCenter,
+        ServerLevel areaWorld, AABB area,
+        ServerLevel boxWorld, Vec3 boxBottomCenter,
         double scale,
         boolean biWay,
         boolean teleportChangesScale,
@@ -323,8 +323,8 @@ public class PortalManipulation {
         boolean innerRenderingMergable,
         boolean hasCrossPortalCollision
     ) {
-        Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
-        Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
+        Vec3 viewBoxSize = Helper.getBoxSize(area).scale(1.0 / scale);
+        AABB viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
         for (Direction direction : Direction.values()) {
             Portal portal = createOrthodoxPortal(
                 Portal.entityType,
@@ -364,23 +364,23 @@ public class PortalManipulation {
      * @author LoganDark
      */
     public static Portal placePortal(double width, double height, Entity entity) {
-        Vec3d playerLook = entity.getRotationVector();
+        Vec3 playerLook = entity.getLookAngle();
         
-        Pair<BlockHitResult, List<Portal>> rayTrace =
+        Tuple<BlockHitResult, List<Portal>> rayTrace =
             IPMcHelper.rayTrace(
-                entity.world,
-                new RaycastContext(
-                    entity.getCameraPosVec(1.0f),
-                    entity.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
-                    RaycastContext.ShapeType.OUTLINE,
-                    RaycastContext.FluidHandling.NONE,
+                entity.level,
+                new ClipContext(
+                    entity.getEyePosition(1.0f),
+                    entity.getEyePosition(1.0f).add(playerLook.scale(100.0)),
+                    ClipContext.Block.OUTLINE,
+                    ClipContext.Fluid.NONE,
                     entity
                 ),
                 true
             );
         
-        BlockHitResult hitResult = rayTrace.getLeft();
-        List<Portal> hitPortals = rayTrace.getRight();
+        BlockHitResult hitResult = rayTrace.getA();
+        List<Portal> hitPortals = rayTrace.getB();
         
         if (IPMcHelper.hitResultIsMissedOrNull(hitResult)) {
             return null;
@@ -392,7 +392,7 @@ public class PortalManipulation {
         
         Direction lookingDirection = Helper.getFacingExcludingAxis(
             playerLook,
-            hitResult.getSide().getAxis()
+            hitResult.getDirection().getAxis()
         );
         
         // this should never happen...
@@ -400,18 +400,18 @@ public class PortalManipulation {
             return null;
         }
         
-        Vec3d axisH = Vec3d.of(hitResult.getSide().getVector());
-        Vec3d axisW = axisH.crossProduct(Vec3d.of(lookingDirection.getOpposite().getVector()));
-        Vec3d pos = Vec3d.ofCenter(hitResult.getBlockPos())
-            .add(axisH.multiply(0.5 + height / 2));
+        Vec3 axisH = Vec3.atLowerCornerOf(hitResult.getDirection().getNormal());
+        Vec3 axisW = axisH.cross(Vec3.atLowerCornerOf(lookingDirection.getOpposite().getNormal()));
+        Vec3 pos = Vec3.atCenterOf(hitResult.getBlockPos())
+            .add(axisH.scale(0.5 + height / 2));
         
-        World world = hitPortals.isEmpty()
-            ? entity.world
+        Level world = hitPortals.isEmpty()
+            ? entity.level
             : hitPortals.get(hitPortals.size() - 1).getDestinationWorld();
         
         Portal portal = new Portal(Portal.entityType, world);
         
-        portal.setPos(pos.x, pos.y, pos.z);
+        portal.setPosRaw(pos.x, pos.y, pos.z);
         
         portal.axisW = axisW;
         portal.axisH = axisH;
@@ -423,9 +423,9 @@ public class PortalManipulation {
     }
     
     public static DQuaternion getPortalOrientationQuaternion(
-        Vec3d axisW, Vec3d axisH
+        Vec3 axisW, Vec3 axisH
     ) {
-        Vec3d normal = axisW.crossProduct(axisH);
+        Vec3 normal = axisW.cross(axisH);
         
         return DQuaternion.matrixToQuaternion(axisW, axisH, normal);
     }
@@ -434,8 +434,8 @@ public class PortalManipulation {
         Portal portal, DQuaternion quaternion
     ) {
         portal.setOrientation(
-            quaternion.rotate(new Vec3d(1, 0, 0)),
-            quaternion.rotate(new Vec3d(0, 1, 0))
+            quaternion.rotate(new Vec3(1, 0, 0)),
+            quaternion.rotate(new Vec3(0, 1, 0))
         );
     }
     
@@ -455,7 +455,7 @@ public class PortalManipulation {
         
     }
     
-    public static boolean isOtherSideBoxInside(Box transformedBoundingBox, PortalLike renderingPortal) {
+    public static boolean isOtherSideBoxInside(AABB transformedBoundingBox, PortalLike renderingPortal) {
         boolean intersects = Arrays.stream(Helper.eightVerticesOf(transformedBoundingBox))
             .anyMatch(p -> renderingPortal.isInside(p, 0));
         return intersects;
@@ -468,9 +468,9 @@ public class PortalManipulation {
             portal.getDestinationWorld(),
             portal.getDestPos(),
             0,
-            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.01 &&
-                p1.getDestPos().subtract(portal.getOriginPos()).lengthSquared() < 0.01 &&
-                p1.getNormal().dotProduct(portal.getContentDirection()) < -0.9
+            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSqr() < 0.01 &&
+                p1.getDestPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
+                p1.getNormal().dot(portal.getContentDirection()) < -0.9
         ));
     }
     
@@ -481,9 +481,9 @@ public class PortalManipulation {
             portal.getDestinationWorld(),
             portal.getDestPos(),
             0,
-            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.01 &&
-                p1.getDestPos().subtract(portal.getOriginPos()).lengthSquared() < 0.01 &&
-                p1.getNormal().dotProduct(portal.getContentDirection()) > 0.9
+            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSqr() < 0.01 &&
+                p1.getDestPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
+                p1.getNormal().dot(portal.getContentDirection()) > 0.9
         ));
     }
     
@@ -494,8 +494,8 @@ public class PortalManipulation {
             portal.getOriginWorld(),
             portal.getOriginPos(),
             0,
-            p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSquared() < 0.01 &&
-                p1.getNormal().dotProduct(portal.getNormal()) < -0.9
+            p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
+                p1.getNormal().dot(portal.getNormal()) < -0.9
         ));
     }
 }

@@ -4,14 +4,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
@@ -24,7 +24,7 @@ public class O_O {
     
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
-        RegistryKey<World> from, RegistryKey<World> to
+        ResourceKey<Level> from, ResourceKey<Level> to
     ) {
         RequiemCompat.onPlayerTeleportedClient();
     }
@@ -55,9 +55,9 @@ public class O_O {
 //    }
     
     public static void onPlayerTravelOnServer(
-        ServerPlayerEntity player,
-        RegistryKey<World> from,
-        RegistryKey<World> to
+        ServerPlayer player,
+        ResourceKey<Level> from,
+        ResourceKey<Level> to
     ) {
         RequiemCompat.onPlayerTeleportedServer(player);
     }
@@ -72,21 +72,21 @@ public class O_O {
         // forge version initialize server config
     }
     
-    private static final BlockState obsidianState = Blocks.OBSIDIAN.getDefaultState();
+    private static final BlockState obsidianState = Blocks.OBSIDIAN.defaultBlockState();
     
     public static boolean isObsidian(BlockState blockState) {
         return blockState == obsidianState;
     }
     
-    public static void postClientChunkLoadEvent(WorldChunk chunk) {
+    public static void postClientChunkLoadEvent(LevelChunk chunk) {
         ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad(
-            ((ClientWorld) chunk.getWorld()), chunk
+            ((ClientLevel) chunk.getLevel()), chunk
         );
     }
     
-    public static void postClientChunkUnloadEvent(WorldChunk chunk) {
+    public static void postClientChunkUnloadEvent(LevelChunk chunk) {
         ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload(
-            ((ClientWorld) chunk.getWorld()), chunk
+            ((ClientLevel) chunk.getLevel()), chunk
         );
     }
     
@@ -99,7 +99,7 @@ public class O_O {
     }
     
     @Environment(EnvType.CLIENT)
-    public static ClientChunkManager createMyClientChunkManager(ClientWorld world, int loadDistance) {
+    public static ClientChunkCache createMyClientChunkManager(ClientLevel world, int loadDistance) {
         return new MyClientChunkManager(world, loadDistance);
     }
     

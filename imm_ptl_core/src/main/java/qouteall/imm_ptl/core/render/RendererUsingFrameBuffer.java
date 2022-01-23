@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
@@ -18,17 +18,17 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     SecondaryFrameBuffer secondaryFrameBuffer = new SecondaryFrameBuffer();
     
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
         renderPortals(matrixStack);
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
     
     }
     
@@ -45,13 +45,13 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         
-        ((IEFrameBuffer) client.getFramebuffer()).setIsStencilBufferEnabledAndReload(false);
+        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
     }
     
     @Override
     protected void doRenderPortal(
         PortalLike portal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
             //only support one-layer portal
@@ -64,23 +64,23 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         PortalRendering.pushPortalLayer(portal);
         
-        Framebuffer oldFrameBuffer = client.getFramebuffer();
+        RenderTarget oldFrameBuffer = client.getMainRenderTarget();
         
         ((IEMinecraftClient) client).setFrameBuffer(secondaryFrameBuffer.fb);
-        secondaryFrameBuffer.fb.beginWrite(true);
+        secondaryFrameBuffer.fb.bindWrite(true);
         
         GlStateManager._clearColor(1, 0, 1, 1);
         GlStateManager._clearDepth(1);
         GlStateManager._clear(
             GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
-            MinecraftClient.IS_SYSTEM_MAC
+            Minecraft.ON_OSX
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         
         renderPortalContent(portal);
         
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
-        oldFrameBuffer.beginWrite(true);
+        oldFrameBuffer.bindWrite(true);
         
         PortalRendering.popPortalLayer();
         
@@ -103,24 +103,24 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     
     private boolean testShouldRenderPortal(
         PortalLike portal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
         FrontClipping.updateInnerClipping(matrixStack);
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.renderPortalArea(
-                portal, Vec3d.ZERO,
-                matrixStack.peek().getPositionMatrix(),
+                portal, Vec3.ZERO,
+                matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, true,
                 true);
         });
     }
     
-    private void renderSecondBufferIntoMainBuffer(PortalLike portal, MatrixStack matrixStack) {
+    private void renderSecondBufferIntoMainBuffer(PortalLike portal, PoseStack matrixStack) {
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             secondaryFrameBuffer.fb,
-            matrixStack.peek().getPositionMatrix(),
+            matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix()
         );
     }

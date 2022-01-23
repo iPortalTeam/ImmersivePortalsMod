@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.util.TypeFilter;
+import net.minecraft.world.level.entity.EntityTypeTest;
 
 import java.util.function.Consumer;
 
 public interface IEEntityTrackingSection {
-    void myForeach(TypeFilter type, Consumer action);
+    void myForeach(EntityTypeTest type, Consumer action);
 }

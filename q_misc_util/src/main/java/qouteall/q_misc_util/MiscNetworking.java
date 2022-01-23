@@ -4,13 +4,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class MiscNetworking {
-    public static final Identifier id_stcRemote =
-        new Identifier("imm_ptl", "remote_stc");
-    public static final Identifier id_ctsRemote =
-        new Identifier("imm_ptl", "remote_cts");
+    public static final ResourceLocation id_stcRemote =
+        new ResourceLocation("imm_ptl", "remote_stc");
+    public static final ResourceLocation id_ctsRemote =
+        new ResourceLocation("imm_ptl", "remote_cts");
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {

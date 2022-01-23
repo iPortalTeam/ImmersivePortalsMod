@@ -2,24 +2,24 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -36,7 +36,7 @@ public class EndPortalEntity extends Portal {
     
     public EndPortalEntity(
         EntityType<?> entityType_1,
-        World world_1
+        Level world_1
     ) {
         super(entityType_1, world_1);
         
@@ -44,14 +44,14 @@ public class EndPortalEntity extends Portal {
         hasCrossPortalCollision = false;
     }
     
-    public static void onEndPortalComplete(ServerWorld world, Vec3d portalCenter) {
+    public static void onEndPortalComplete(ServerLevel world, Vec3 portalCenter) {
         if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.normal) {
-            generateClassicalEndPortal(world, new Vec3d(0, 120, 0), portalCenter);
+            generateClassicalEndPortal(world, new Vec3(0, 120, 0), portalCenter);
         }
         else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
-            BlockPos endSpawnPos = ServerWorld.END_SPAWN_POS;
+            BlockPos endSpawnPos = ServerLevel.END_SPAWN_POINT;
             generateClassicalEndPortal(world,
-                Vec3d.ofCenter(endSpawnPos).add(0, 1, 0), portalCenter
+                Vec3.atCenterOf(endSpawnPos).add(0, 1, 0), portalCenter
             );
         }
         else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.scaledView) {
@@ -66,37 +66,37 @@ public class EndPortalEntity extends Portal {
         generateObsidianPlatform();
     }
     
-    private static void generateClassicalEndPortal(ServerWorld world, Vec3d destination, Vec3d portalCenter) {
+    private static void generateClassicalEndPortal(ServerLevel world, Vec3 destination, Vec3 portalCenter) {
         Portal portal = new EndPortalEntity(entityType, world);
         
-        portal.setPosition(portalCenter.x, portalCenter.y, portalCenter.z);
+        portal.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
         
         portal.setDestination(destination);
         
-        portal.dimensionTo = World.END;
+        portal.dimensionTo = Level.END;
         
-        portal.axisW = new Vec3d(0, 0, 1);
-        portal.axisH = new Vec3d(1, 0, 0);
+        portal.axisW = new Vec3(0, 0, 1);
+        portal.axisH = new Vec3(1, 0, 0);
         
         portal.width = 3;
         portal.height = 3;
         
-        world.spawnEntity(portal);
+        world.addFreshEntity(portal);
     }
     
-    private static void generateScaledViewEndPortal(ServerWorld world, Vec3d portalCenter) {
-        ServerWorld endWorld = McHelper.getServerWorld(World.END);
+    private static void generateScaledViewEndPortal(ServerLevel world, Vec3 portalCenter) {
+        ServerLevel endWorld = McHelper.getServerWorld(Level.END);
         
         double d = 3;
-        final Vec3d viewBoxSize = new Vec3d(d, 1.2, d);
+        final Vec3 viewBoxSize = new Vec3(d, 1.2, d);
         final double scale = 280 / d;
         
-        Box thisSideBox = Helper.getBoxByBottomPosAndSize(
+        AABB thisSideBox = Helper.getBoxByBottomPosAndSize(
             portalCenter.add(0, 0, 0), viewBoxSize
         );
-        Box otherSideBox = Helper.getBoxByBottomPosAndSize(
-            new Vec3d(0, 0, 0),
-            viewBoxSize.multiply(scale)
+        AABB otherSideBox = Helper.getBoxByBottomPosAndSize(
+            new Vec3(0, 0, 0),
+            viewBoxSize.scale(scale)
         );
         
         for (Direction direction : Direction.values()) {
@@ -121,7 +121,7 @@ public class EndPortalEntity extends Portal {
     public void tick() {
         super.tick();
         
-        if (world.isClient()) {
+        if (level.isClientSide()) {
             tickClient();
         }
     }
@@ -129,20 +129,20 @@ public class EndPortalEntity extends Portal {
     @Environment(EnvType.CLIENT)
     private void tickClient() {
         if (Objects.equals(portalTag, "view_box")) {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
                 return;
             }
             if (getNormal().y > 0.5) {
                 if (((IEEntity) player).getCollidingPortal() == this) {
-                    Vec3d cameraPosVec = player.getCameraPosVec(1);
+                    Vec3 cameraPosVec = player.getEyePosition(1);
                     double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
                     if (dist < 1) {
                         double mul = dist / 2 + 0.1;
-                        player.setVelocity(
-                            player.getVelocity().x * mul,
-                            player.getVelocity().y * mul,
-                            player.getVelocity().z * mul
+                        player.setDeltaMovement(
+                            player.getDeltaMovement().x * mul,
+                            player.getDeltaMovement().y * mul,
+                            player.getDeltaMovement().z * mul
                         );
                     }
                 }
@@ -168,9 +168,9 @@ public class EndPortalEntity extends Portal {
             }
             
             LivingEntity livingEntity = (LivingEntity) entity;
-            livingEntity.addStatusEffect(
-                new StatusEffectInstance(
-                    StatusEffects.SLOW_FALLING,
+            livingEntity.addEffect(
+                new MobEffectInstance(
+                    MobEffects.SLOW_FALLING,
                     duration,//duration
                     1//amplifier
                 )
@@ -189,7 +189,7 @@ public class EndPortalEntity extends Portal {
     // avoid easily snipping end crystals
     @Override
     public boolean canTeleportEntity(Entity entity) {
-        if (entity instanceof ArrowEntity) {
+        if (entity instanceof Arrow) {
             return false;
         }
         return super.canTeleportEntity(entity);
@@ -197,12 +197,12 @@ public class EndPortalEntity extends Portal {
     
     private boolean shouldAddSlowFalling(Entity entity) {
         if (entity instanceof LivingEntity) {
-            if (entity instanceof ServerPlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) entity;
-                if (player.interactionManager.getGameMode() == GameMode.CREATIVE) {
+            if (entity instanceof ServerPlayer) {
+                ServerPlayer player = (ServerPlayer) entity;
+                if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
                     return false;
                 }
-                if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA) {
+                if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == Items.ELYTRA) {
                     return false;
                 }
             }
@@ -221,17 +221,17 @@ public class EndPortalEntity extends Portal {
     }
     
     private static void generateObsidianPlatform() {
-        ServerWorld endWorld = MiscHelper.getServer().getWorld(World.END);
+        ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
         
-        ServerWorld.createEndSpawnPlatform(endWorld);
+        ServerLevel.makeObsidianPlatform(endWorld);
     }
     
     @Override
     public void onCollidingWithEntity(Entity entity) {
         // fix https://github.com/qouteall/ImmersivePortalsMod/issues/698
         // maybe allows easier farming of obsidian
-        if (!world.isClient()) {
-            if (entity instanceof ServerPlayerEntity) {
+        if (!level.isClientSide()) {
+            if (entity instanceof ServerPlayer) {
                 if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
                     generateObsidianPlatform();
                 }

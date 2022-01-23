@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TextComponent;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
@@ -61,14 +61,14 @@ public class IPModCompatibilityWarning {
         for (ModInfo mod : incompatibleMods) {
             if (FabricLoader.getInstance().isModLoaded(mod.modId)) {
                 IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-                    () -> MinecraftClient.getInstance().world == null,
+                    () -> Minecraft.getInstance().level == null,
                     MyTaskList.oneShotTask(() -> {
-                        CHelper.printChat(new LiteralText(
+                        CHelper.printChat(new TextComponent(
                             String.format(
                                 "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur.",
                                 mod.modName, mod.modId
                             )
-                        ).formatted(Formatting.RED));
+                        ).withStyle(ChatFormatting.RED));
                     })
                 ));
                 
@@ -78,14 +78,14 @@ public class IPModCompatibilityWarning {
         for (ModInfo mod : maybeIncompatibleMods) {
             if (FabricLoader.getInstance().isModLoaded(mod.modId)) {
                 IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-                    () -> MinecraftClient.getInstance().world == null,
+                    () -> Minecraft.getInstance().level == null,
                     MyTaskList.oneShotTask(() -> {
-                        CHelper.printChat(new LiteralText(
+                        CHelper.printChat(new TextComponent(
                             String.format(
                                 "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Major issues may occur.",
                                 mod.modName, mod.modId
                             )
-                        ).formatted(Formatting.RED));
+                        ).withStyle(ChatFormatting.RED));
                     })
                 ));
                 

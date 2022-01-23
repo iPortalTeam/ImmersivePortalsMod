@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 
 import javax.annotation.Nullable;
 
 public class AltiusEntry {
-    public RegistryKey<World> dimension;
+    public ResourceKey<Level> dimension;
     public double scale = 1;
     public boolean flipped = false;
     public double horizontalRotation = 0;
@@ -19,13 +19,13 @@ public class AltiusEntry {
     @Nullable
     public String bedrockReplacementStr = "minecraft:obsidian";
     
-    public AltiusEntry(RegistryKey<World> dimension) {
+    public AltiusEntry(ResourceKey<Level> dimension) {
         this.dimension = dimension;
     }
     
-    public NbtCompound toNbt() {
-        NbtCompound compound = new NbtCompound();
-        compound.putString("dimension", dimension.getValue().toString());
+    public CompoundTag toNbt() {
+        CompoundTag compound = new CompoundTag();
+        compound.putString("dimension", dimension.location().toString());
         compound.putDouble("scale", scale);
         compound.putBoolean("flipped", flipped);
         compound.putDouble("horizontalRotation", horizontalRotation);
@@ -41,8 +41,8 @@ public class AltiusEntry {
         return compound;
     }
     
-    public static AltiusEntry fromNbt(NbtCompound compound) {
-        RegistryKey<World> dimension = DimId.idToKey(compound.getString("dimension"));
+    public static AltiusEntry fromNbt(CompoundTag compound) {
+        ResourceKey<Level> dimension = DimId.idToKey(compound.getString("dimension"));
         AltiusEntry altiusEntry = new AltiusEntry(dimension);
         altiusEntry.scale = compound.contains("scale") ? compound.getDouble("scale") : 1.0;
         altiusEntry.flipped = compound.contains("flipped") ? compound.getBoolean("flipped") : false;

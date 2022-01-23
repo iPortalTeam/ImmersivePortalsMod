@@ -1,21 +1,21 @@
 package qouteall.imm_ptl.peripheral.mixin.client.altius_world;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.gui.screen.world.MoreOptionsDialog;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.resource.DataPackSettings;
-import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.GeneratorOptions;
-import net.minecraft.world.level.LevelInfo;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.level.DataPackConfig;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,45 +44,45 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     public abstract void removed();
     
     @Shadow
-    protected DataPackSettings dataPackSettings;
+    protected DataPackConfig dataPacks;
     
     @Shadow
     @org.jetbrains.annotations.Nullable
-    protected abstract Pair<File, ResourcePackManager> getScannedPack();
+    protected abstract Pair<File, PackRepository> getDataPackSelectionSettings();
     
     @Shadow
     @Final
-    public MoreOptionsDialog moreOptionsDialog;
-    private ButtonWidget altiusButton;
+    public WorldGenSettingsComponent worldGenSettingsComponent;
+    private Button altiusButton;
     
     @Nullable
     private AltiusScreen altiusScreen;
     
-    protected MixinCreateWorldScreen(Text title) {
+    protected MixinCreateWorldScreen(Component title) {
         super(title);
         throw new RuntimeException();
     }
     
     @Inject(
-        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/resource/DataPackSettings;Lnet/minecraft/client/gui/screen/world/MoreOptionsDialog;)V",
+        method = "<init>(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/world/level/DataPackConfig;Lnet/minecraft/client/gui/screens/worldselection/WorldGenSettingsComponent;)V",
         at = @At("RETURN")
     )
     private void onConstructEnded(
-        Screen screen, DataPackSettings dataPackSettings, MoreOptionsDialog moreOptionsDialog,
+        Screen screen, DataPackConfig dataPackSettings, WorldGenSettingsComponent moreOptionsDialog,
         CallbackInfo ci
     ) {
     
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/gui/screen/world/CreateWorldScreen;init()V",
+        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;init()V",
         at = @At("HEAD")
     )
     private void onInitEnded(CallbackInfo ci) {
         
-        altiusButton = (ButtonWidget) this.addDrawableChild(new ButtonWidget(
+        altiusButton = (Button) this.addRenderableWidget(new Button(
             width / 2 + 5, 151, 150, 20,
-            new TranslatableText("imm_ptl.altius_screen_button"),
+            new TranslatableComponent("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
                 openAltiusScreen();
             }
@@ -92,7 +92,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/gui/screen/world/CreateWorldScreen;setMoreOptionsOpen(Z)V",
+        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;setWorldGenSettingsVisible(Z)V",
         at = @At("RETURN")
     )
     private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {
@@ -105,15 +105,15 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     }
     
     @Redirect(
-        method = "createLevel",
+        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;onCreate()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;createWorld(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/gen/GeneratorOptions;)V"
+            target = "Lnet/minecraft/client/Minecraft;createLevel(Ljava/lang/String;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/core/RegistryAccess$RegistryHolder;Lnet/minecraft/world/level/levelgen/WorldGenSettings;)V"
         )
     )
     private void redirectOnCreateLevel(
-        MinecraftClient client, String worldName, LevelInfo levelInfo,
-        DynamicRegistryManager.Impl registryTracker, GeneratorOptions generatorOptions
+        Minecraft client, String worldName, LevelSettings levelInfo,
+        RegistryAccess.RegistryHolder registryTracker, WorldGenSettings generatorOptions
     ) {
         if (altiusScreen != null) {
             AltiusInfo info = altiusScreen.getAltiusInfo();
@@ -121,14 +121,14 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             if (info != null) {
                 AltiusManagement.dimStackToApply = info;
                 
-                GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
+                GameRules.BooleanValue rule = levelInfo.gameRules().getRule(AltiusGameRule.dimensionStackKey);
                 rule.set(true, null);
                 
                 Helper.log("Generating dimension stack world");
             }
         }
         
-        client.createWorld(worldName, levelInfo, registryTracker, generatorOptions);
+        client.createLevel(worldName, levelInfo, registryTracker, generatorOptions);
     }
     
     private void openAltiusScreen() {
@@ -142,35 +142,35 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             );
         }
         
-        MinecraftClient.getInstance().setScreen(altiusScreen);
+        Minecraft.getInstance().setScreen(altiusScreen);
     }
     
-    private List<RegistryKey<World>> portal_getDimensionList() {
-        GeneratorOptions rawGeneratorOptions = moreOptionsDialog.getGeneratorOptions(false);
+    private List<ResourceKey<Level>> portal_getDimensionList() {
+        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.makeSettings(false);
         
-        DynamicRegistryManager.Impl registryManager = moreOptionsDialog.getRegistryManager();
+        RegistryAccess.RegistryHolder registryManager = worldGenSettingsComponent.registryHolder();
         
-        GeneratorOptions populated = WorldCreationDimensionHelper.populateGeneratorOptions1(
+        WorldGenSettings populated = WorldCreationDimensionHelper.populateGeneratorOptions1(
             rawGeneratorOptions, registryManager,
             portal_getResourcePackManager(),
-            dataPackSettings
+            dataPacks
         );
         
         // register the alternate dimensions
         DimensionAPI.serverDimensionsLoadEvent.invoker().run(populated, registryManager);
         
-        return populated.getDimensions().getEntries().stream().map(
-            e -> DimId.idToKey(e.getKey().getValue())
+        return populated.dimensions().entrySet().stream().map(
+            e -> DimId.idToKey(e.getKey().location())
         ).collect(Collectors.toList());
     }
     
     @Override
-    public ResourcePackManager portal_getResourcePackManager() {
-        return getScannedPack().getSecond();
+    public PackRepository portal_getResourcePackManager() {
+        return getDataPackSelectionSettings().getSecond();
     }
     
     @Override
-    public DataPackSettings portal_getDataPackSettings() {
-        return dataPackSettings;
+    public DataPackConfig portal_getDataPackSettings() {
+        return dataPacks;
     }
 }

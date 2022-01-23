@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -63,7 +63,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         if (deferredFbs.length != PortalRendering.getMaxPortalLayer() + 1) {
             for (SecondaryFrameBuffer fb : deferredFbs) {
-                fb.fb.delete();
+                fb.fb.destroyBuffers();
             }
             
             deferredFbs = new SecondaryFrameBuffer[PortalRendering.getMaxPortalLayer() + 1];
@@ -78,20 +78,20 @@ public class IrisPortalRenderer extends PortalRenderer {
             deferredFb.prepare();
             ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
             
-            deferredFb.fb.beginWrite(true);
+            deferredFb.fb.bindWrite(true);
             GlStateManager._clearColor(1, 0, 1, 0);
             GlStateManager._clearDepth(1);
             GlStateManager._clearStencil(0);
             GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             
-            deferredFb.fb.checkFramebufferStatus();
+            deferredFb.fb.checkStatus();
             
             CHelper.checkGlError();
             
-            deferredFb.fb.endWrite();
+            deferredFb.fb.unbindWrite();
         }
         
-        ((IEFrameBuffer) client.getFramebuffer()).setIsStencilBufferEnabledAndReload(false);
+        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
     }
     
     private void updateNeedsPortalRendering() {
@@ -100,25 +100,25 @@ public class IrisPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeHandRendering(MatrixStack matrixStack) {
+    public void onBeforeHandRendering(PoseStack matrixStack) {
         doMainRenderings(matrixStack);
     }
     
-    private void doMainRenderings(MatrixStack matrixStack) {
+    private void doMainRenderings(PoseStack matrixStack) {
         CHelper.checkGlError();
         
-        Framebuffer mcFrameBuffer = client.getFramebuffer();
+        RenderTarget mcFrameBuffer = client.getMainRenderTarget();
         int portalLayer = PortalRendering.getPortalLayer();
         
         if (portalRenderingNeeded) {
             CHelper.doCheckGlError();
             
             // copy depth from mc fb to deferred fb
-            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mcFrameBuffer.fbo);
-            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mcFrameBuffer.frameBufferId);
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.frameBufferId);
             GL30.glBlitFramebuffer(
-                0, 0, mcFrameBuffer.viewportWidth, mcFrameBuffer.viewportHeight,
-                0, 0, mcFrameBuffer.viewportWidth, mcFrameBuffer.viewportHeight,
+                0, 0, mcFrameBuffer.viewWidth, mcFrameBuffer.viewHeight,
+                0, 0, mcFrameBuffer.viewWidth, mcFrameBuffer.viewHeight,
                 GL_DEPTH_BUFFER_BIT, GL_NEAREST
             );
             
@@ -132,7 +132,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             
             initStencilForLayer(portalLayer);
             
-            deferredFbs[portalLayer].fb.beginWrite(true);
+            deferredFbs[portalLayer].fb.bindWrite(true);
             
             glEnable(GL_STENCIL_TEST);
             glStencilFunc(GL_EQUAL, portalLayer, 0xFF);
@@ -143,9 +143,9 @@ public class IrisPortalRenderer extends PortalRenderer {
             
             glDisable(GL_STENCIL_TEST);
             
-            deferredFbs[portalLayer].fb.endWrite();
+            deferredFbs[portalLayer].fb.unbindWrite();
             
-            mcFrameBuffer.beginWrite(false);
+            mcFrameBuffer.bindWrite(false);
         }
         
         renderPortals(matrixStack);
@@ -154,29 +154,29 @@ public class IrisPortalRenderer extends PortalRenderer {
             finish();
         }
         
-        mcFrameBuffer.beginWrite(true);
+        mcFrameBuffer.bindWrite(true);
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
     
     }
     
     private void initStencilForLayer(int portalLayer) {
         if (portalLayer == 0) {
-            deferredFbs[portalLayer].fb.beginWrite(true);
+            deferredFbs[portalLayer].fb.bindWrite(true);
             GlStateManager._clearStencil(0);
             GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         }
         else {
             CHelper.checkGlError();
             
-            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
-            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.frameBufferId);
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.frameBufferId);
             
             GL30.glBlitFramebuffer(
-                0, 0, deferredFbs[0].fb.viewportWidth, deferredFbs[0].fb.viewportHeight,
-                0, 0, deferredFbs[0].fb.viewportWidth, deferredFbs[0].fb.viewportHeight,
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
                 GL_STENCIL_BUFFER_BIT, GL_NEAREST
             );
             
@@ -185,12 +185,12 @@ public class IrisPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
@@ -211,16 +211,16 @@ public class IrisPortalRenderer extends PortalRenderer {
             return;
         }
         
-        Framebuffer mainFrameBuffer = client.getFramebuffer();
-        mainFrameBuffer.beginWrite(true);
+        RenderTarget mainFrameBuffer = client.getMainRenderTarget();
+        mainFrameBuffer.bindWrite(true);
         
-        deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
+        deferredFbs[0].fb.blitToScreen(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
         
         CHelper.checkGlError();
     }
     
     @Override
-    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
+    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
         nextFramePortalRenderingNeeded = true;
         
         if (!portalRenderingNeeded) {
@@ -238,7 +238,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         PortalRendering.pushPortalLayer(portal);
         
         // this is important
-        client.getFramebuffer().beginWrite(true);
+        client.getMainRenderTarget().bindWrite(true);
         
         renderPortalContent(portal);
         
@@ -252,7 +252,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             return;
         }
         
-        deferredFbs[outerLayer].fb.beginWrite(true);
+        deferredFbs[outerLayer].fb.bindWrite(true);
         
         glEnable(GL_STENCIL_TEST);
         glStencilFunc(GL_EQUAL, innerLayer, 0xFF);
@@ -266,18 +266,18 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         glDisable(GL_STENCIL_TEST);
         
-        deferredFbs[outerLayer].fb.endWrite();
+        deferredFbs[outerLayer].fb.unbindWrite();
     }
     
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
-        PortalLike portal, MatrixStack matrixStack
+        PortalLike portal, PoseStack matrixStack
     ) {
         
         int portalLayer = PortalRendering.getPortalLayer();
         
         initStencilForLayer(portalLayer);
         
-        deferredFbs[portalLayer].fb.beginWrite(true);
+        deferredFbs[portalLayer].fb.bindWrite(true);
         
         GL11.glEnable(GL_STENCIL_TEST);
         GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
@@ -287,8 +287,8 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         boolean result = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
             ViewAreaRenderer.renderPortalArea(
-                portal, Vec3d.ZERO,
-                matrixStack.peek().getPositionMatrix(),
+                portal, Vec3.ZERO,
+                matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, true, true
             );

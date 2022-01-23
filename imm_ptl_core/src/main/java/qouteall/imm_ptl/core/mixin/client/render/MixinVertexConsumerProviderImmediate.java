@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,13 +10,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
-@Mixin(VertexConsumerProvider.Immediate.class)
+@Mixin(MultiBufferSource.BufferSource.class)
 public class MixinVertexConsumerProviderImmediate {
     @Inject(
-        method = "draw(Lnet/minecraft/client/render/RenderLayer;)V",
+        method = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
         at = @At("HEAD")
     )
-    private void onBeginDraw(RenderLayer layer, CallbackInfo ci) {
+    private void onBeginDraw(RenderType layer, CallbackInfo ci) {
         if (PortalRendering.isRenderingOddNumberOfMirrors()) {
             RenderStates.shouldForceDisableCull = true;
             GlStateManager._disableCull();
@@ -24,10 +24,10 @@ public class MixinVertexConsumerProviderImmediate {
     }
     
     @Inject(
-        method = "draw(Lnet/minecraft/client/render/RenderLayer;)V",
+        method = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
         at = @At("RETURN")
     )
-    private void onEndDraw(RenderLayer layer, CallbackInfo ci) {
+    private void onEndDraw(RenderType layer, CallbackInfo ci) {
         if (RenderStates.shouldForceDisableCull) {
             RenderStates.shouldForceDisableCull = false;
             GlStateManager._enableCull();

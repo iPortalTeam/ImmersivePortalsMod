@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.platform_specific.mixin.common;
 
-import net.minecraft.network.packet.s2c.play.LightUpdateS2CPacket;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(LightUpdateS2CPacket.class)
+@Mixin(ClientboundLightUpdatePacket.class)
 public class MixinDebugLightUpdateS2CPacket {
 //    @Shadow
 //    private int filledBlockLightMask;

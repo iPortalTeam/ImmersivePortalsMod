@@ -2,21 +2,21 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -41,9 +41,9 @@ import java.util.function.Predicate;
  * Stores global portals.
  * Also stores bedrock replacement block state for dimension stack.
  * */
-public class GlobalPortalStorage extends PersistentState {
+public class GlobalPortalStorage extends SavedData {
     public List<Portal> data;
-    public final WeakReference<ServerWorld> world;
+    public final WeakReference<ServerLevel> world;
     private int version = 1;
     private boolean shouldReSync = false;
     
@@ -52,14 +52,14 @@ public class GlobalPortalStorage extends PersistentState {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            MiscHelper.getServer().getWorlds().forEach(world1 -> {
+            MiscHelper.getServer().getAllLevels().forEach(world1 -> {
                 GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
                 gps.tick();
             });
         });
         
         IPGlobal.serverCleanupSignal.connect(() -> {
-            for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
+            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
                 get(world).onServerClose();
             }
         });
@@ -70,16 +70,16 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     public static GlobalPortalStorage get(
-        ServerWorld world
+        ServerLevel world
     ) {
-        return world.getPersistentStateManager().getOrCreate(
+        return world.getDataStorage().computeIfAbsent(
             (nbt) -> {
                 GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
                 globalPortalStorage.fromNbt(nbt);
                 return globalPortalStorage;
             },
             () -> {
-                Helper.log("Global portal storage initialized " + world.getRegistryKey().getValue());
+                Helper.log("Global portal storage initialized " + world.dimension().location());
                 return new GlobalPortalStorage(world);
             },
             "global_portal"
@@ -94,7 +94,7 @@ public class GlobalPortalStorage extends PersistentState {
     @Environment(EnvType.CLIENT)
     private static void onClientCleanup() {
         if (ClientWorldLoader.getIsInitialized()) {
-            for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
+            for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
                 for (Portal globalPortal : getGlobalPortals(clientWorld)) {
                     globalPortal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
                 }
@@ -102,17 +102,17 @@ public class GlobalPortalStorage extends PersistentState {
         }
     }
     
-    public GlobalPortalStorage(ServerWorld world_) {
+    public GlobalPortalStorage(ServerLevel world_) {
         world = new WeakReference<>(world_);
         data = new ArrayList<>();
     }
     
-    public static void onPlayerLoggedIn(ServerPlayerEntity player) {
-        MiscHelper.getServer().getWorlds().forEach(
+    public static void onPlayerLoggedIn(ServerPlayer player) {
+        MiscHelper.getServer().getAllLevels().forEach(
             world -> {
                 GlobalPortalStorage storage = get(world);
                 if (!storage.data.isEmpty()) {
-                    player.networkHandler.sendPacket(
+                    player.connection.send(
                         IPNetworking.createGlobalPortalUpdate(
                             storage
                         )
@@ -162,13 +162,13 @@ public class GlobalPortalStorage extends PersistentState {
     private void syncToAllPlayers() {
         Packet packet = IPNetworking.createGlobalPortalUpdate(this);
         McHelper.getCopiedPlayerList().forEach(
-            player -> player.networkHandler.sendPacket(packet)
+            player -> player.connection.send(packet)
         );
     }
     
-    public void fromNbt(NbtCompound tag) {
+    public void fromNbt(CompoundTag tag) {
         
-        ServerWorld currWorld = world.get();
+        ServerLevel currWorld = world.get();
         Validate.notNull(currWorld);
         List<Portal> newData = getPortalsFromTag(tag, currWorld);
         
@@ -179,7 +179,7 @@ public class GlobalPortalStorage extends PersistentState {
         }
         
         if (tag.contains("bedrockReplacement")) {
-            bedrockReplacement = NbtHelper.toBlockState(tag.getCompound("bedrockReplacement"));
+            bedrockReplacement = NbtUtils.readBlockState(tag.getCompound("bedrockReplacement"));
         }
         else {
             bedrockReplacement = null;
@@ -189,16 +189,16 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     private static List<Portal> getPortalsFromTag(
-        NbtCompound tag,
-        World currWorld
+        CompoundTag tag,
+        Level currWorld
     ) {
         /**{@link CompoundTag#getType()}*/
-        NbtList listTag = tag.getList("data", 10);
+        ListTag listTag = tag.getList("data", 10);
         
         List<Portal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
-            NbtCompound compoundTag = listTag.getCompound(i);
+            CompoundTag compoundTag = listTag.getCompound(i);
             Portal e = readPortalFromTag(currWorld, compoundTag);
             if (e != null) {
                 newData.add(e);
@@ -210,12 +210,12 @@ public class GlobalPortalStorage extends PersistentState {
         return newData;
     }
     
-    private static Portal readPortalFromTag(World currWorld, NbtCompound compoundTag) {
-        Identifier entityId = new Identifier(compoundTag.getString("entity_type"));
+    private static Portal readPortalFromTag(Level currWorld, CompoundTag compoundTag) {
+        ResourceLocation entityId = new ResourceLocation(compoundTag.getString("entity_type"));
         EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
         
         Entity e = entityType.create(currWorld);
-        e.readNbt(compoundTag);
+        e.load(compoundTag);
         
         ((Portal) e).isGlobalPortal = true;
         
@@ -227,22 +227,22 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Override
-    public NbtCompound writeNbt(NbtCompound tag) {
+    public CompoundTag save(CompoundTag tag) {
         if (data == null) {
             return tag;
         }
         
-        NbtList listTag = new NbtList();
-        ServerWorld currWorld = world.get();
+        ListTag listTag = new ListTag();
+        ServerLevel currWorld = world.get();
         Validate.notNull(currWorld);
         
         for (Portal portal : data) {
-            Validate.isTrue(portal.world == currWorld);
-            NbtCompound portalTag = new NbtCompound();
-            portal.writeNbt(portalTag);
+            Validate.isTrue(portal.level == currWorld);
+            CompoundTag portalTag = new CompoundTag();
+            portal.saveWithoutId(portalTag);
             portalTag.putString(
                 "entity_type",
-                EntityType.getId(portal.getType()).toString()
+                EntityType.getKey(portal.getType()).toString()
             );
             listTag.add(portalTag);
         }
@@ -252,7 +252,7 @@ public class GlobalPortalStorage extends PersistentState {
         tag.putInt("version", version);
         
         if (bedrockReplacement != null) {
-            tag.put("bedrockReplacement", NbtHelper.fromBlockState(bedrockReplacement));
+            tag.put("bedrockReplacement", NbtUtils.writeBlockState(bedrockReplacement));
         }
         
         return tag;
@@ -273,22 +273,22 @@ public class GlobalPortalStorage extends PersistentState {
     
     public void clearAbnormalPortals() {
         data.removeIf(e -> {
-            RegistryKey<World> dimensionTo = ((Portal) e).dimensionTo;
-            if (MiscHelper.getServer().getWorld(dimensionTo) == null) {
-                Helper.err("Missing Dimension for global portal " + dimensionTo.getValue());
+            ResourceKey<Level> dimensionTo = ((Portal) e).dimensionTo;
+            if (MiscHelper.getServer().getLevel(dimensionTo) == null) {
+                Helper.err("Missing Dimension for global portal " + dimensionTo.location());
                 return true;
             }
             return false;
         });
     }
     
-    private static void upgradeData(ServerWorld world) {
+    private static void upgradeData(ServerLevel world) {
         //removed
     }
     
     @Environment(EnvType.CLIENT)
-    public static void receiveGlobalPortalSync(RegistryKey<World> dimension, NbtCompound compoundTag) {
-        ClientWorld world = ClientWorldLoader.getWorld(dimension);
+    public static void receiveGlobalPortalSync(ResourceKey<Level> dimension, CompoundTag compoundTag) {
+        ClientLevel world = ClientWorldLoader.getWorld(dimension);
         
         List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
         if (oldGlobalPortals != null) {
@@ -309,12 +309,12 @@ public class GlobalPortalStorage extends PersistentState {
         
         ((IEClientWorld) world).setGlobalPortals(newPortals);
         
-        Helper.log("Global Portals Updated " + dimension.getValue());
+        Helper.log("Global Portals Updated " + dimension.location());
     }
     
     public static void convertNormalPortalIntoGlobalPortal(Portal portal) {
         Validate.isTrue(!portal.getIsGlobal());
-        Validate.isTrue(!portal.world.isClient());
+        Validate.isTrue(!portal.level.isClientSide());
         
         //global portal can only be square
         portal.specialShape = null;
@@ -323,14 +323,14 @@ public class GlobalPortalStorage extends PersistentState {
         
         Portal newPortal = McHelper.copyEntity(portal);
         
-        get(((ServerWorld) portal.world)).addPortal(newPortal);
+        get(((ServerLevel) portal.level)).addPortal(newPortal);
     }
     
     public static void convertGlobalPortalIntoNormalPortal(Portal portal) {
         Validate.isTrue(portal.getIsGlobal());
-        Validate.isTrue(!portal.world.isClient());
+        Validate.isTrue(!portal.level.isClientSide());
         
-        get(((ServerWorld) portal.world)).removePortal(portal);
+        get(((ServerLevel) portal.level)).removePortal(portal);
         
         Portal newPortal = McHelper.copyEntity(portal);
         
@@ -344,13 +344,13 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Nonnull
-    public static List<Portal> getGlobalPortals(World world) {
+    public static List<Portal> getGlobalPortals(Level world) {
         List<Portal> result;
-        if (world.isClient()) {
+        if (world.isClientSide()) {
             result = CHelper.getClientGlobalPortal(world);
         }
-        else if (world instanceof ServerWorld) {
-            result = get(((ServerWorld) world)).data;
+        else if (world instanceof ServerLevel) {
+            result = get(((ServerLevel) world)).data;
         }
         else {
             result = null;

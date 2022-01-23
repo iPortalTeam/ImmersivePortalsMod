@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public interface IEServerPlayerEntity {
-    void setEnteredNetherPos(Vec3d pos);
+    void setEnteredNetherPos(Vec3 pos);
     
-    void updateDimensionTravelAdvancements(ServerWorld fromWorld);
+    void updateDimensionTravelAdvancements(ServerLevel fromWorld);
     
     void setIsInTeleportationState(boolean arg);
     
@@ -15,5 +15,5 @@ public interface IEServerPlayerEntity {
     
     void startRidingWithoutTeleportRequest(Entity newVehicle);
     
-    void portal_worldChanged(ServerWorld fromWorld);
+    void portal_worldChanged(ServerLevel fromWorld);
 }

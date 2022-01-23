@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -13,17 +13,17 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 public class RendererDebug extends PortalRenderer {
     @Override
-    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    public void onBeforeTranslucentRendering(PoseStack matrixStack) {
         renderPortals(matrixStack);
     }
     
     @Override
-    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+    public void onAfterTranslucentRendering(PoseStack matrixStack) {
     
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(PoseStack matrixStack) {
     
     }
     
@@ -48,7 +48,7 @@ public class RendererDebug extends PortalRenderer {
     }
     
     @Override
-    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
+    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
         if (RenderStates.getRenderedPortalNum() != 0) {
             return;
         }
@@ -63,7 +63,7 @@ public class RendererDebug extends PortalRenderer {
         GlStateManager._clearDepth(1);
         GlStateManager._clear(
             GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
-            MinecraftClient.IS_SYSTEM_MAC
+            Minecraft.ON_OSX
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         
@@ -74,12 +74,12 @@ public class RendererDebug extends PortalRenderer {
     
     private boolean testShouldRenderPortal(
         PortalLike portal,
-        MatrixStack matrixStack
+        PoseStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.renderPortalArea(
-                portal, Vec3d.ZERO,
-                matrixStack.peek().getPositionMatrix(),
+                portal, Vec3.ZERO,
+                matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, true,
                 true);

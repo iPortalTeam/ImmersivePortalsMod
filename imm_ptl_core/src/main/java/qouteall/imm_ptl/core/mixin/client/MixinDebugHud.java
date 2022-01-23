@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.DebugHud;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
+import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,14 +16,14 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.List;
 
-@Mixin(DebugHud.class)
+@Mixin(DebugScreenOverlay.class)
 public class MixinDebugHud {
-    @Inject(method = "getRightText", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/gui/components/DebugScreenOverlay;getSystemInformation()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         List<String> returnValue = cir.getReturnValue();
         returnValue.add("Rendered Portals: " + RenderStates.lastPortalRenderInfos.size());
         
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
             if (collidingPortal != null) {

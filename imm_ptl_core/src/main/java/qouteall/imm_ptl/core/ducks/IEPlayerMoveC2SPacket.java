@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 public interface IEPlayerMoveC2SPacket {
-    RegistryKey<World> getPlayerDimension();
+    ResourceKey<Level> getPlayerDimension();
     
-    void setPlayerDimension(RegistryKey<World> dim);
+    void setPlayerDimension(ResourceKey<Level> dim);
 }

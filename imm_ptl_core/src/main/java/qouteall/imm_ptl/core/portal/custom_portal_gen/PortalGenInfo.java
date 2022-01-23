@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
-import net.minecraft.entity.EntityType;
+import com.mojang.math.Quaternion;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
 public class PortalGenInfo {
     public static final SignalArged<PortalGenInfo> generatedSignal = new SignalArged<>();
     
-    public RegistryKey<World> from;
-    public RegistryKey<World> to;
+    public ResourceKey<Level> from;
+    public ResourceKey<Level> to;
     public BlockPortalShape fromShape;
     public BlockPortalShape toShape;
     @Nullable
@@ -30,8 +30,8 @@ public class PortalGenInfo {
     public double scale = 1.0;
     
     public PortalGenInfo(
-        RegistryKey<World> from,
-        RegistryKey<World> to,
+        ResourceKey<Level> from,
+        ResourceKey<Level> to,
         BlockPortalShape fromShape,
         BlockPortalShape toShape
     ) {
@@ -42,8 +42,8 @@ public class PortalGenInfo {
     }
     
     public PortalGenInfo(
-        RegistryKey<World> from,
-        RegistryKey<World> to,
+        ResourceKey<Level> from,
+        ResourceKey<Level> to,
         BlockPortalShape fromShape,
         BlockPortalShape toShape,
         Quaternion rotation,
@@ -58,7 +58,7 @@ public class PortalGenInfo {
         
         //floating point inaccuracy may make the portal to have near identity rotation or scale
         if (rotation != null) {
-            if (Math.abs(1.0 - rotation.getW()) < 0.001) {
+            if (Math.abs(1.0 - rotation.r()) < 0.001) {
                 this.rotation = null;
             }
         }
@@ -69,7 +69,7 @@ public class PortalGenInfo {
     }
     
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {
-        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
+        ServerLevel fromWorld = MiscHelper.getServer().getLevel(from);
         
         T portal = entityType.create(fromWorld);
         fromShape.initPortalPosAxisShape(portal, false);
@@ -88,8 +88,8 @@ public class PortalGenInfo {
     public <T extends BreakablePortalEntity> BreakablePortalEntity[] generateBiWayBiFacedPortal(
         EntityType<T> entityType
     ) {
-        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
-        ServerWorld toWorld = MiscHelper.getServer().getWorld(to);
+        ServerLevel fromWorld = MiscHelper.getServer().getLevel(from);
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(to);
         
         T f1 = createTemplatePortal(entityType);
         
@@ -103,10 +103,10 @@ public class PortalGenInfo {
         t1.blockPortalShape = toShape;
         t2.blockPortalShape = toShape;
         
-        f1.reversePortalId = t1.getUuid();
-        t1.reversePortalId = f1.getUuid();
-        f2.reversePortalId = t2.getUuid();
-        t2.reversePortalId = f2.getUuid();
+        f1.reversePortalId = t1.getUUID();
+        t1.reversePortalId = f1.getUUID();
+        f2.reversePortalId = t2.getUUID();
+        t2.reversePortalId = f2.getUUID();
         
         McHelper.spawnServerEntity(f1);
         McHelper.spawnServerEntity(f2);
@@ -120,10 +120,10 @@ public class PortalGenInfo {
         MinecraftServer server = MiscHelper.getServer();
         
         NetherPortalGeneration.fillInPlaceHolderBlocks(
-            server.getWorld(from), fromShape
+            server.getLevel(from), fromShape
         );
         NetherPortalGeneration.fillInPlaceHolderBlocks(
-            server.getWorld(to), toShape
+            server.getLevel(to), toShape
         );
         
         generatedSignal.emit(this);

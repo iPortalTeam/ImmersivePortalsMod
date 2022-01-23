@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public class PortalAnimation {
     public static enum Curve {
@@ -20,7 +20,7 @@ public class PortalAnimation {
     public static final PortalAnimation defaultAnimation =
         new PortalAnimation(Curve.sine, 10, false);
     
-    public static PortalAnimation fromNbt(NbtCompound nbt) {
+    public static PortalAnimation fromNbt(CompoundTag nbt) {
         String c = nbt.getString("curve");
         Curve curve = switch (c) {
             case "linear" -> Curve.linear;
@@ -34,8 +34,8 @@ public class PortalAnimation {
         return new PortalAnimation(curve, durationTicks, inverseScale);
     }
     
-    public NbtCompound toNbt() {
-        NbtCompound nbtCompound = new NbtCompound();
+    public CompoundTag toNbt() {
+        CompoundTag nbtCompound = new CompoundTag();
         nbtCompound.putString("curve", curve.toString());
         nbtCompound.putInt("durationTicks", durationTicks);
         nbtCompound.putBoolean("inverseScale", inverseScale);

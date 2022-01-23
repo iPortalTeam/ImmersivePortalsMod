@@ -1,17 +1,17 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.Packet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -27,53 +27,53 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public class MixinPlayerManager {
     @Shadow
     @Final
-    private List<ServerPlayerEntity> players;
+    private List<ServerPlayer> players;
     
     @Shadow
     @Final
     private MinecraftServer server;
     
     @Inject(
-        method = "onPlayerConnect",
+        method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;<init>(IZLnet/minecraft/world/GameMode;Lnet/minecraft/world/GameMode;Ljava/util/Set;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/util/registry/RegistryKey;JIIIZZZZ)V"
+            target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;<init>(IZLnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;Ljava/util/Set;Lnet/minecraft/core/RegistryAccess$RegistryHolder;Lnet/minecraft/world/level/dimension/DimensionType;Lnet/minecraft/resources/ResourceKey;JIIIZZZZ)V"
         )
     )
     private void onConnectionEstablished(
-        ClientConnection connection,
-        ServerPlayerEntity player,
+        Connection connection,
+        ServerPlayer player,
         CallbackInfo ci
     ) {
-        player.networkHandler.sendPacket(IPNetworking.createDimSync());
+        player.connection.send(IPNetworking.createDimSync());
     }
     
-    @Inject(method = "sendWorldInfo", at = @At("RETURN"))
-    private void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo ci) {
+    @Inject(method = "Lnet/minecraft/server/players/PlayerList;sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V", at = @At("RETURN"))
+    private void onSendWorldInfo(ServerPlayer player, ServerLevel world, CallbackInfo ci) {
         if (!IPGlobal.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
             GlobalPortalStorage.onPlayerLoggedIn(player);
         }
     }
     
-    @Inject(method = "onPlayerConnect", at = @At("TAIL"))
-    private void onOnPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("TAIL"))
+    private void onOnPlayerConnect(Connection connection, ServerPlayer player, CallbackInfo ci) {
         NewChunkTrackingGraph.updateForPlayer(player);
     }
     
     //with redirection
     @Inject(
-        method = "sendToDimension",
+        method = "Lnet/minecraft/server/players/PlayerList;broadcastAll(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/resources/ResourceKey;)V",
         at = @At("HEAD"),
         cancellable = true
     )
-    public void sendToDimension(Packet<?> packet, RegistryKey<World> dimension, CallbackInfo ci) {
-        for (ServerPlayerEntity player : players) {
-            if (player.world.getRegistryKey() == dimension) {
-                player.networkHandler.sendPacket(
+    public void sendToDimension(Packet<?> packet, ResourceKey<Level> dimension, CallbackInfo ci) {
+        for (ServerPlayer player : players) {
+            if (player.level.dimension() == dimension) {
+                player.connection.send(
                     IPNetworking.createRedirectedMessage(
                         dimension,
                         packet
@@ -91,12 +91,12 @@ public class MixinPlayerManager {
      * @reason make incompat fail fast
      */
     @Overwrite
-    public void sendToAround(
-        @Nullable PlayerEntity excludingPlayer,
+    public void broadcast(
+        @Nullable Player excludingPlayer,
         double x, double y, double z, double distance,
-        RegistryKey<World> dimension, Packet<?> packet
+        ResourceKey<Level> dimension, Packet<?> packet
     ) {
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(new Vec3d(x, y, z)));
+        ChunkPos chunkPos = new ChunkPos(new BlockPos(new Vec3(x, y, z)));
         
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunkPos.x, chunkPos.z
@@ -104,7 +104,7 @@ public class MixinPlayerManager {
             playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
         )).forEach(playerEntity -> {
             if (playerEntity != excludingPlayer) {
-                playerEntity.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
+                playerEntity.connection.send(IPNetworking.createRedirectedMessage(
                     dimension, packet
                 ));
             }

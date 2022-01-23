@@ -1,17 +1,17 @@
 package qouteall.q_misc_util.my_util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.Arrays;
 
 public class GuiHelper {
     // mc does not expose the height
-    public static LayoutFunc layoutButtonHorizontally(ClickableWidget widget) {
+    public static LayoutFunc layoutButtonHorizontally(AbstractWidget widget) {
         return (a, b) -> {
             widget.x = a;
             widget.setWidth(b - a);
@@ -25,7 +25,7 @@ public class GuiHelper {
         };
     }
     
-    public static LayoutFunc layoutButtonVertically(ClickableWidget widget) {
+    public static LayoutFunc layoutButtonVertically(AbstractWidget widget) {
         return (a, b) -> {
             widget.y = a;
         };
@@ -105,20 +105,20 @@ public class GuiHelper {
             this(0, 0, 0, 0);
         }
         
-        public void renderTextCentered(Text text, MatrixStack matrixStack) {
-            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        public void renderTextCentered(Component text, PoseStack matrixStack) {
+            Font textRenderer = Minecraft.getInstance().font;
             
-            OrderedText orderedText = text.asOrderedText();
-            textRenderer.drawWithShadow(
+            FormattedCharSequence orderedText = text.getVisualOrderText();
+            textRenderer.drawShadow(
                 matrixStack, orderedText,
-                (((xMin + xMax) / 2.0f) - textRenderer.getWidth(orderedText) / 2.0f), yMin+5,
+                (((xMin + xMax) / 2.0f) - textRenderer.width(orderedText) / 2.0f), yMin+5,
                 -1
             );
         }
         
-        public void renderTextLeft(Text text, MatrixStack matrixStack) {
-            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-            textRenderer.drawWithShadow(
+        public void renderTextLeft(Component text, PoseStack matrixStack) {
+            Font textRenderer = Minecraft.getInstance().font;
+            textRenderer.drawShadow(
                 matrixStack, text,
                 xMin, yMin+5, -1
             );

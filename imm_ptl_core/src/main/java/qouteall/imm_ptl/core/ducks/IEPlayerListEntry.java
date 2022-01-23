@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.world.GameMode;
+import net.minecraft.world.level.GameType;
 
 public interface IEPlayerListEntry {
-    void setGameMode(GameMode mode);
+    void setGameMode(GameType mode);
 }

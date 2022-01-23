@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import qouteall.q_misc_util.Helper;
 
 import java.lang.reflect.Field;
@@ -23,12 +23,12 @@ public class IrisInterface {
             return false;
         }
         
-        public Object getPipeline(WorldRenderer worldRenderer) {
+        public Object getPipeline(LevelRenderer worldRenderer) {
             return null;
         }
         
         // TODO check whether it's necessary
-        public void setPipeline(WorldRenderer worldRenderer, Object pipeline) {
+        public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
         
         }
     }
@@ -36,7 +36,7 @@ public class IrisInterface {
     public static class OnIrisPresent extends Invoker {
         
         private Field worldRendererPipelineField = Helper.noError(() -> {
-            Field field = WorldRenderer.class.getDeclaredField("pipeline");
+            Field field = LevelRenderer.class.getDeclaredField("pipeline");
             field.setAccessible(true);
             return field;
         });
@@ -57,14 +57,14 @@ public class IrisInterface {
         }
         
         @Override
-        public Object getPipeline(WorldRenderer worldRenderer) {
+        public Object getPipeline(LevelRenderer worldRenderer) {
             return Helper.noError(() ->
                 ((WorldRenderingPipeline) worldRendererPipelineField.get(worldRenderer))
             );
         }
         
         @Override
-        public void setPipeline(WorldRenderer worldRenderer, Object pipeline) {
+        public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
             Helper.noError(() -> {
                 worldRendererPipelineField.set(worldRenderer, pipeline);
                 return null;

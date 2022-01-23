@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.miscellaneous;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.MessageType;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -41,7 +41,7 @@ public class GcMonitor {
         IPGlobal.postServerTickSignal.connect(() -> {
             MinecraftServer server = MiscHelper.getServer();
             if (server != null) {
-                if (server.isDedicated()) {
+                if (server.isDedicatedServer()) {
                     update();
                 }
             }
@@ -116,9 +116,9 @@ public class GcMonitor {
     @Environment(EnvType.CLIENT)
     private static void informMemoryNotEnoughClient() {
         limitedLogger.invoke(() -> {
-            MinecraftClient.getInstance().inGameHud.addChatMessage(
-                MessageType.SYSTEM,
-                new TranslatableText("imm_ptl.memory_not_enough"),
+            Minecraft.getInstance().gui.handleChat(
+                ChatType.SYSTEM,
+                new TranslatableComponent("imm_ptl.memory_not_enough"),
                 Util.NIL_UUID
             );
         });

@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.api;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -26,37 +26,37 @@ public class PortalAPI {
     
     public static void setPortalPositionOrientationAndSize(
         Portal portal,
-        Vec3d position,
+        Vec3 position,
         DQuaternion orientation,
         double width, double height
     ) {
         portal.setOriginPos(position);
         portal.setOrientationAndSize(
-            orientation.rotate(new Vec3d(1, 0, 0)),
-            orientation.rotate(new Vec3d(0, 1, 0)),
+            orientation.rotate(new Vec3(1, 0, 0)),
+            orientation.rotate(new Vec3(0, 1, 0)),
             width, height
         );
     }
     
-    public static void setPortalOrthodoxShape(Portal portal, Direction facing, Box portalArea) {
-        Pair<Direction, Direction> directions = Helper.getPerpendicularDirections(facing);
+    public static void setPortalOrthodoxShape(Portal portal, Direction facing, AABB portalArea) {
+        Tuple<Direction, Direction> directions = Helper.getPerpendicularDirections(facing);
         
-        Vec3d areaSize = Helper.getBoxSize(portalArea);
+        Vec3 areaSize = Helper.getBoxSize(portalArea);
         
-        Box boxSurface = Helper.getBoxSurface(portalArea, facing);
-        Vec3d center = boxSurface.getCenter();
-        portal.setPosition(center.x, center.y, center.z);
+        AABB boxSurface = Helper.getBoxSurface(portalArea, facing);
+        Vec3 center = boxSurface.getCenter();
+        portal.setPos(center.x, center.y, center.z);
         
-        portal.axisW = Vec3d.of(directions.getLeft().getVector());
-        portal.axisH = Vec3d.of(directions.getRight().getVector());
-        portal.width = Helper.getCoordinate(areaSize, directions.getLeft().getAxis());
-        portal.height = Helper.getCoordinate(areaSize, directions.getRight().getAxis());
+        portal.axisW = Vec3.atLowerCornerOf(directions.getA().getNormal());
+        portal.axisH = Vec3.atLowerCornerOf(directions.getB().getNormal());
+        portal.width = Helper.getCoordinate(areaSize, directions.getA().getAxis());
+        portal.height = Helper.getCoordinate(areaSize, directions.getB().getAxis());
     }
     
     public static void setPortalTransformation(
         Portal portal,
-        RegistryKey<World> destinationDimension,
-        Vec3d destinationPosition,
+        ResourceKey<Level> destinationDimension,
+        Vec3 destinationPosition,
         @Nullable DQuaternion rotation,
         double scale
     ) {
@@ -95,25 +95,25 @@ public class PortalAPI {
     }
     
     public static void addGlobalPortal(
-        ServerWorld world, Portal portal
+        ServerLevel world, Portal portal
     ) {
         McHelper.validateOnServerThread();
         GlobalPortalStorage.get(world).addPortal(portal);
     }
     
     public static void removeGlobalPortal(
-        ServerWorld world, Portal portal
+        ServerLevel world, Portal portal
     ) {
         McHelper.validateOnServerThread();
         GlobalPortalStorage.get(world).removePortal(portal);
     }
     
-    public static void addChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+    public static void addChunkLoaderForPlayer(ServerPlayer player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
         NewChunkTrackingGraph.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
-    public static void removeChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+    public static void removeChunkLoaderForPlayer(ServerPlayer player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
         NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
@@ -122,7 +122,7 @@ public class PortalAPI {
     /**
      * It can teleport the player without loading screen
      */
-    public static void teleportEntity(Entity entity, ServerWorld targetWorld, Vec3d targetPos) {
+    public static void teleportEntity(Entity entity, ServerLevel targetWorld, Vec3 targetPos) {
         ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
     }
     

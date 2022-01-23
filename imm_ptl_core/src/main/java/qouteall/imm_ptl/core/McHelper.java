@@ -9,36 +9,36 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.entity.EntityLookup;
-import net.minecraft.world.entity.SectionedEntityCache;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -67,38 +67,38 @@ import java.util.stream.Stream;
 // mc related helper methods
 public class McHelper {
     
-    public static IEThreadedAnvilChunkStorage getIEStorage(RegistryKey<World> dimension) {
+    public static IEThreadedAnvilChunkStorage getIEStorage(ResourceKey<Level> dimension) {
         return (IEThreadedAnvilChunkStorage) (
-            (ServerChunkManager) MiscHelper.getServer().getWorld(dimension).getChunkManager()
-        ).threadedAnvilChunkStorage;
+            (ServerChunkCache) MiscHelper.getServer().getLevel(dimension).getChunkSource()
+        ).chunkMap;
     }
     
-    public static ArrayList<ServerPlayerEntity> getCopiedPlayerList() {
-        return new ArrayList<>(MiscHelper.getServer().getPlayerManager().getPlayerList());
+    public static ArrayList<ServerPlayer> getCopiedPlayerList() {
+        return new ArrayList<>(MiscHelper.getServer().getPlayerList().getPlayers());
     }
     
-    public static List<ServerPlayerEntity> getRawPlayerList() {
-        return MiscHelper.getServer().getPlayerManager().getPlayerList();
+    public static List<ServerPlayer> getRawPlayerList() {
+        return MiscHelper.getServer().getPlayerList().getPlayers();
     }
     
-    public static Vec3d lastTickPosOf(Entity entity) {
-        return new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
+    public static Vec3 lastTickPosOf(Entity entity) {
+        return new Vec3(entity.xo, entity.yo, entity.zo);
     }
     
-    public static ServerWorld getOverWorldOnServer() {
-        return MiscHelper.getServer().getWorld(World.OVERWORLD);
+    public static ServerLevel getOverWorldOnServer() {
+        return MiscHelper.getServer().getLevel(Level.OVERWORLD);
     }
     
     public static void serverLog(
-        ServerPlayerEntity player,
+        ServerPlayer player,
         String text
     ) {
         Helper.log(text);
-        player.sendMessage(new LiteralText(text), false);
+        player.displayClientMessage(new TextComponent(text), false);
     }
     
     public static long getServerGameTime() {
-        return getOverWorldOnServer().getTime();
+        return getOverWorldOnServer().getGameTime();
     }
     
     public static <T> void performMultiThreadedFindingTaskOnServer(
@@ -138,7 +138,7 @@ public class McHelper {
                     };
                 }
             },
-            Util.getMainWorkerExecutor()
+            Util.backgroundExecutor()
         );
         IPGlobal.serverTaskList.addTask(() -> {
             if (future.isDone()) {
@@ -175,8 +175,8 @@ public class McHelper {
     }
     
     public static <ENTITY extends Entity> List<ENTITY> getEntitiesNearby(
-        World world,
-        Vec3d center,
+        Level world,
+        Vec3 center,
         Class<ENTITY> entityClass,
         double range
     ) {
@@ -195,43 +195,43 @@ public class McHelper {
         double range
     ) {
         return getEntitiesNearby(
-            center.world,
-            center.getPos(),
+            center.level,
+            center.position(),
             entityClass,
             range
         );
     }
     
     public static int getRenderDistanceOnServer() {
-        return getIEStorage(World.OVERWORLD).getWatchDistance();
+        return getIEStorage(Level.OVERWORLD).getWatchDistance();
     }
     
     public static void setPosAndLastTickPos(
         Entity entity,
-        Vec3d pos,
-        Vec3d lastTickPos
+        Vec3 pos,
+        Vec3 lastTickPos
     ) {
-        entity.setPos(pos.x, pos.y, pos.z);
-        entity.lastRenderX = lastTickPos.x;
-        entity.lastRenderY = lastTickPos.y;
-        entity.lastRenderZ = lastTickPos.z;
-        entity.prevX = lastTickPos.x;
-        entity.prevY = lastTickPos.y;
-        entity.prevZ = lastTickPos.z;
+        entity.setPosRaw(pos.x, pos.y, pos.z);
+        entity.xOld = lastTickPos.x;
+        entity.yOld = lastTickPos.y;
+        entity.zOld = lastTickPos.z;
+        entity.xo = lastTickPos.x;
+        entity.yo = lastTickPos.y;
+        entity.zo = lastTickPos.z;
     }
     
-    public static Vec3d getEyePos(Entity entity) {
-        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
-        return entity.getPos().add(eyeOffset);
+    public static Vec3 getEyePos(Entity entity) {
+        Vec3 eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+        return entity.position().add(eyeOffset);
     }
     
-    public static Vec3d getLastTickEyePos(Entity entity) {
-        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+    public static Vec3 getLastTickEyePos(Entity entity) {
+        Vec3 eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
         return lastTickPosOf(entity).add(eyeOffset);
     }
     
-    public static void setEyePos(Entity entity, Vec3d eyePos, Vec3d lastTickEyePos) {
-        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+    public static void setEyePos(Entity entity, Vec3 eyePos, Vec3 lastTickEyePos) {
+        Vec3 eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
         
         setPosAndLastTickPos(
             entity,
@@ -248,7 +248,7 @@ public class McHelper {
     }
     
     public static double getVehicleY(Entity vehicle, Entity passenger) {
-        return passenger.getY() - vehicle.getMountedHeightOffset() - passenger.getHeightOffset();
+        return passenger.getY() - vehicle.getPassengersRidingOffset() - passenger.getMyRidingOffset();
     }
     
     public static void adjustVehicle(Entity entity) {
@@ -257,54 +257,54 @@ public class McHelper {
             return;
         }
         
-        Vec3d currVelocity = vehicle.getVelocity();
+        Vec3 currVelocity = vehicle.getDeltaMovement();
         
         double newX = entity.getX();
         double newY = getVehicleY(vehicle, entity);
         double newZ = entity.getZ();
-        vehicle.setPosition(newX, newY, newZ);
-        Vec3d newPos = new Vec3d(newX, newY, newZ);
+        vehicle.setPos(newX, newY, newZ);
+        Vec3 newPos = new Vec3(newX, newY, newZ);
         McHelper.setPosAndLastTickPos(
             vehicle, newPos, newPos
         );
         
         // MinecartEntity or LivingEntity use position interpolation
         // disable the interpolation or it may interpolate into unloaded chunks
-        vehicle.updateTrackedPositionAndAngles(
-            newX, newY, newZ, vehicle.getYaw(), vehicle.getPitch(),
+        vehicle.lerpTo(
+            newX, newY, newZ, vehicle.getYRot(), vehicle.getXRot(),
             0, false
         );
         
-        vehicle.setVelocity(currVelocity);
+        vehicle.setDeltaMovement(currVelocity);
         
     }
     
-    public static WorldChunk getServerChunkIfPresent(
-        RegistryKey<World> dimension,
+    public static LevelChunk getServerChunkIfPresent(
+        ResourceKey<Level> dimension,
         int x, int z
     ) {
-        ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.toLong(x, z));
+        ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
-        return chunkHolder_.getWorldChunk();
+        return chunkHolder_.getTickingChunk();
     }
     
-    public static WorldChunk getServerChunkIfPresent(
-        ServerWorld world, int x, int z
+    public static LevelChunk getServerChunkIfPresent(
+        ServerLevel world, int x, int z
     ) {
         ChunkHolder chunkHolder_ = ((IEThreadedAnvilChunkStorage) (
-            (ServerChunkManager) world.getChunkManager()
-        ).threadedAnvilChunkStorage).getChunkHolder_(ChunkPos.toLong(x, z));
+            (ServerChunkCache) world.getChunkSource()
+        ).chunkMap).getChunkHolder_(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
-        return chunkHolder_.getWorldChunk();
+        return chunkHolder_.getTickingChunk();
     }
     
     public static <ENTITY extends Entity> Stream<ENTITY> getServerEntitiesNearbyWithoutLoadingChunk(
-        World world,
-        Vec3d center,
+        Level world,
+        Vec3 center,
         Class<ENTITY> entityClass,
         double range
     ) {
@@ -318,16 +318,16 @@ public class McHelper {
     }
     
     public static void updateBoundingBox(Entity player) {
-        player.setPosition(player.getX(), player.getY(), player.getZ());
+        player.setPos(player.getX(), player.getY(), player.getZ());
     }
     
-    public static void updatePosition(Entity entity, Vec3d pos) {
-        entity.setPosition(pos.x, pos.y, pos.z);
+    public static void updatePosition(Entity entity, Vec3 pos) {
+        entity.setPos(pos.x, pos.y, pos.z);
     }
     
     public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
-        World world,
-        Box box,
+        Level world,
+        AABB box,
         double maxEntitySizeHalf,
         Class<T> entityClass,
         Predicate<T> predicate
@@ -343,73 +343,73 @@ public class McHelper {
     
     
     public static Portal copyEntity(Portal portal) {
-        Portal newPortal = ((Portal) portal.getType().create(portal.world));
+        Portal newPortal = ((Portal) portal.getType().create(portal.level));
         
         Validate.notNull(newPortal);
         
-        newPortal.readNbt(portal.writeNbt(new NbtCompound()));
+        newPortal.load(portal.saveWithoutId(new CompoundTag()));
         return newPortal;
     }
     
-    public static boolean getIsServerChunkGenerated(RegistryKey<World> toDimension, BlockPos toPos) {
+    public static boolean getIsServerChunkGenerated(ResourceKey<Level> toDimension, BlockPos toPos) {
         return getIEStorage(toDimension)
             .portal_isChunkGenerated(new ChunkPos(toPos));
     }
     
     // because withUnderline is client only
     @Environment(EnvType.CLIENT)
-    public static MutableText getLinkText(String link) {
-        return new LiteralText(link).styled(
+    public static MutableComponent getLinkText(String link) {
+        return new TextComponent(link).withStyle(
             style -> style.withClickEvent(new ClickEvent(
                 ClickEvent.Action.OPEN_URL, link
-            )).withUnderline(true)
+            )).withUnderlined(true)
         );
     }
     
     public static void validateOnServerThread() {
-        Validate.isTrue(Thread.currentThread() == MiscHelper.getServer().getThread(), "must be on server thread");
+        Validate.isTrue(Thread.currentThread() == MiscHelper.getServer().getRunningThread(), "must be on server thread");
     }
     
     public static void invokeCommandAs(Entity commandSender, List<String> commandList) {
-        ServerCommandSource commandSource = commandSender.getCommandSource().withLevel(2).withSilent();
-        CommandManager commandManager = MiscHelper.getServer().getCommandManager();
+        CommandSourceStack commandSource = commandSender.createCommandSourceStack().withPermission(2).withSuppressedOutput();
+        Commands commandManager = MiscHelper.getServer().getCommands();
         
         for (String command : commandList) {
-            commandManager.execute(commandSource, command);
+            commandManager.performCommand(commandSource, command);
         }
     }
     
     public static void resendSpawnPacketToTrackers(Entity entity) {
-        getIEStorage(entity.world.getRegistryKey()).resendSpawnPacketToTrackers(entity);
+        getIEStorage(entity.level.dimension()).resendSpawnPacketToTrackers(entity);
     }
     
     public static void sendToTrackers(Entity entity, Packet<?> packet) {
-        ThreadedAnvilChunkStorage.EntityTracker entityTracker =
-            getIEStorage(entity.world.getRegistryKey()).getEntityTrackerMap().get(entity.getId());
+        ChunkMap.TrackedEntity entityTracker =
+            getIEStorage(entity.level.dimension()).getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
 //            Helper.err("missing entity tracker object");
             return;
         }
         
-        entityTracker.sendToNearbyPlayers(packet);
+        entityTracker.broadcastAndSend(packet);
     }
     
     public static interface ChunkAccessor {
-        WorldChunk getChunk(int x, int z);
+        LevelChunk getChunk(int x, int z);
     }
     
-    public static ChunkAccessor getChunkAccessor(World world) {
-        if (world.isClient()) {
+    public static ChunkAccessor getChunkAccessor(Level world) {
+        if (world.isClientSide()) {
             return world::getChunk;
         }
         else {
-            return (x, z) -> getServerChunkIfPresent(((ServerWorld) world), x, z);
+            return (x, z) -> getServerChunkIfPresent(((ServerLevel) world), x, z);
         }
     }
     
     public static <T extends Entity> List<T> findEntities(
         Class<T> entityClass,
-        EntityLookup<Entity> entityLookup,
+        LevelEntityGetter<Entity> entityLookup,
         int chunkXStart,
         int chunkXEnd,
         int chunkYStart,
@@ -438,7 +438,7 @@ public class McHelper {
      * but without hardcoding the max entity radius
      */
     public static <T extends Entity> void foreachEntities(
-        Class<T> entityClass, EntityLookup<Entity> entityLookup,
+        Class<T> entityClass, LevelEntityGetter<Entity> entityLookup,
         int chunkXStart, int chunkXEnd,
         int chunkYStart, int chunkYEnd,
         int chunkZStart, int chunkZEnd,
@@ -450,10 +450,10 @@ public class McHelper {
         Validate.isTrue(chunkXEnd - chunkXStart < 1000, "too big");
         Validate.isTrue(chunkZEnd - chunkZStart < 1000, "too big");
         
-        TypeFilter<T, T> typeFilter = TypeFilter.instanceOf(entityClass);
+        EntityTypeTest<T, T> typeFilter = EntityTypeTest.forClass(entityClass);
         
-        SectionedEntityCache<Entity> cache =
-            (SectionedEntityCache<Entity>) ((IESimpleEntityLookup) entityLookup).getCache();
+        EntitySectionStorage<Entity> cache =
+            (EntitySectionStorage<Entity>) ((IESimpleEntityLookup) entityLookup).getCache();
         
         ((IESectionedEntityCache) cache).forEachSectionInBox(
             chunkXStart, chunkXEnd,
@@ -470,8 +470,8 @@ public class McHelper {
     //faster
     public static <T extends Entity> List<T> findEntitiesRough(
         Class<T> entityClass,
-        World world,
-        Vec3d center,
+        Level world,
+        Vec3 center,
         int radiusChunks,
         Predicate<T> predicate
     ) {
@@ -496,8 +496,8 @@ public class McHelper {
     //does not load chunk on server and works with large entities
     public static <T extends Entity> List<T> findEntitiesByBox(
         Class<T> entityClass,
-        World world,
-        Box box,
+        Level world,
+        AABB box,
         double maxEntityRadius,
         Predicate<T> predicate
     ) {
@@ -508,7 +508,7 @@ public class McHelper {
     }
     
     public static <T extends Entity> void foreachEntitiesByBox(
-        Class<T> entityClass, World world, Box box,
+        Class<T> entityClass, Level world, AABB box,
         double maxEntityRadius, Predicate<T> predicate, Consumer<T> consumer
     ) {
         
@@ -520,7 +520,7 @@ public class McHelper {
     }
     
     public static <T extends Entity> void foreachEntitiesByBoxApproximateRegions(
-        Class<T> entityClass, World world, Box box, double maxEntityRadius, Consumer<T> consumer
+        Class<T> entityClass, Level world, AABB box, double maxEntityRadius, Consumer<T> consumer
     ) {
         int xMin = (int) Math.floor(box.minX - maxEntityRadius);
         int yMin = (int) Math.floor(box.minY - maxEntityRadius);
@@ -535,15 +535,15 @@ public class McHelper {
         foreachEntities(
             entityClass, ((IEWorld) world).portal_getEntityLookup(),
             xMin >> 4, xMax >> 4,
-            MathHelper.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
-            MathHelper.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
+            Mth.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
+            Mth.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
             zMin >> 4, zMax >> 4,
             consumer
         );
     }
     
-    public static Identifier dimensionTypeId(RegistryKey<World> dimType) {
-        return dimType.getValue();
+    public static ResourceLocation dimensionTypeId(ResourceKey<Level> dimType) {
+        return dimType.location();
     }
     
     public static <T> String serializeToJson(T object, Codec<T> codec) {
@@ -604,34 +604,34 @@ public class McHelper {
         );
     }
     
-    public static void sendMessageToFirstLoggedPlayer(Text text) {
-        Helper.log(text.asString());
+    public static void sendMessageToFirstLoggedPlayer(Component text) {
+        Helper.log(text.getContents());
         IPGlobal.serverTaskList.addTask(() -> {
             MinecraftServer server = MiscHelper.getServer();
             if (server == null) {
                 return false;
             }
             
-            List<ServerPlayerEntity> playerList = server.getPlayerManager().getPlayerList();
+            List<ServerPlayer> playerList = server.getPlayerList().getPlayers();
             if (playerList.isEmpty()) {
                 return false;
             }
             
-            for (ServerPlayerEntity player : playerList) {
-                player.sendMessage(text, false);
+            for (ServerPlayer player : playerList) {
+                player.displayClientMessage(text, false);
             }
             
             return true;
         });
     }
     
-    public static Iterable<Entity> getWorldEntityList(World world) {
-        if (world.isClient()) {
+    public static Iterable<Entity> getWorldEntityList(Level world) {
+        if (world.isClientSide()) {
             return CHelper.getWorldEntityList(world);
         }
         else {
-            if (world instanceof ServerWorld) {
-                return ((ServerWorld) world).iterateEntities();
+            if (world instanceof ServerLevel) {
+                return ((ServerLevel) world).getAllEntities();
             }
             else {
                 return ((Iterable<Entity>) Collections.emptyList().iterator());
@@ -645,64 +645,64 @@ public class McHelper {
      * @link ServerWorld#addEntity(Entity)
      */
     public static void spawnServerEntity(Entity entity) {
-        Validate.isTrue(!entity.world.isClient());
+        Validate.isTrue(!entity.level.isClientSide());
         
-        boolean spawned = entity.world.spawnEntity(entity);
+        boolean spawned = entity.level.addFreshEntity(entity);
         
         if (!spawned) {
-            Helper.err("Failed to spawn " + entity + entity.world);
+            Helper.err("Failed to spawn " + entity + entity.level);
         }
     }
     
-    public static ServerWorld getServerWorld(RegistryKey<World> dim) {
-        ServerWorld world = MiscHelper.getServer().getWorld(dim);
+    public static ServerLevel getServerWorld(ResourceKey<Level> dim) {
+        ServerLevel world = MiscHelper.getServer().getLevel(dim);
         if (world == null) {
-            throw new RuntimeException("Missing dimension " + dim.getValue());
+            throw new RuntimeException("Missing dimension " + dim.location());
         }
         return world;
     }
     
-    public static Text compoundTagToTextSorted(NbtCompound tag, String indent, int depth) {
+    public static Component compoundTagToTextSorted(CompoundTag tag, String indent, int depth) {
         return new MyNbtTextFormatter(" ", 0).apply(tag);
     }
     
-    public static int getMinY(WorldAccess world) {
-        return world.getBottomY();
+    public static int getMinY(LevelAccessor world) {
+        return world.getMinBuildHeight();
     }
     
-    public static int getMaxYExclusive(WorldAccess world) {
-        return world.getTopY();
+    public static int getMaxYExclusive(LevelAccessor world) {
+        return world.getMaxBuildHeight();
     }
     
-    public static int getMaxContentYExclusive(WorldAccess world) {
-        return world.getDimension().getLogicalHeight() + getMinY(world);
+    public static int getMaxContentYExclusive(LevelAccessor world) {
+        return world.dimensionType().logicalHeight() + getMinY(world);
     }
     
-    public static int getMinSectionY(WorldAccess world) {
-        return world.getBottomSectionCoord();
+    public static int getMinSectionY(LevelAccessor world) {
+        return world.getMinSection();
     }
     
-    public static int getMaxSectionYExclusive(WorldAccess world) {
-        return world.getTopSectionCoord();
+    public static int getMaxSectionYExclusive(LevelAccessor world) {
+        return world.getMaxSection();
     }
     
-    public static int getYSectionNumber(WorldAccess world) {
+    public static int getYSectionNumber(LevelAccessor world) {
         return getMaxSectionYExclusive(world) - getMinSectionY(world);
     }
     
-    public static Box getBoundingBoxWithMovedPosition(
-        Entity entity, Vec3d newPos
+    public static AABB getBoundingBoxWithMovedPosition(
+        Entity entity, Vec3 newPos
     ) {
-        return entity.getBoundingBox().offset(
-            newPos.subtract(entity.getPos())
+        return entity.getBoundingBox().move(
+            newPos.subtract(entity.position())
         );
     }
     
-    public static String readTextResource(Identifier identifier) {
+    public static String readTextResource(ResourceLocation identifier) {
         String result = null;
         try {
             InputStream inputStream =
-                MinecraftClient.getInstance().getResourceManager().getResource(
+                Minecraft.getInstance().getResourceManager().getResource(
                     identifier
                 ).getInputStream();
             
@@ -714,15 +714,15 @@ public class McHelper {
         return result;
     }
     
-    public static Vec3d getWorldVelocity(Entity entity) {
+    public static Vec3 getWorldVelocity(Entity entity) {
         return GravityChangerInterface.invoker.getWorldVelocity(entity);
     }
     
-    public static void setWorldVelocity(Entity entity, Vec3d newVelocity) {
+    public static void setWorldVelocity(Entity entity, Vec3 newVelocity) {
         GravityChangerInterface.invoker.setWorldVelocity(entity, newVelocity);
     }
     
-    public static Vec3d getEyeOffset(Entity entity) {
+    public static Vec3 getEyeOffset(Entity entity) {
         return GravityChangerInterface.invoker.getEyeOffset(entity);
     }
     

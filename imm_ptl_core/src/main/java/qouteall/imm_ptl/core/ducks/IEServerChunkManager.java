@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.server.world.ChunkTicketManager;
+import net.minecraft.server.level.DistanceManager;
 
 public interface IEServerChunkManager {
-    ChunkTicketManager getTicketManager();
+    DistanceManager getTicketManager();
 }

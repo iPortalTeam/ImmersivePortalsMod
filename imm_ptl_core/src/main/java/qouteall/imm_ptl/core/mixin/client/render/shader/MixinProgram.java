@@ -2,8 +2,8 @@ package qouteall.imm_ptl.core.mixin.client.render.shader;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
-import net.minecraft.client.gl.GLImportProcessor;
-import net.minecraft.client.gl.Program;
+import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
+import com.mojang.blaze3d.shaders.Program;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -21,9 +21,9 @@ public class MixinProgram {
      * vanilla copy
      */
     @Overwrite
-    public static int loadProgram(
+    public static int compileShaderInternal(
         Program.Type type, String name, InputStream stream,
-        String domain, GLImportProcessor loader
+        String domain, GlslPreprocessor loader
     ) throws IOException {
         String shaderCode = TextureUtil.readResourceAsString(stream);
         if (shaderCode == null) {
@@ -35,7 +35,7 @@ public class MixinProgram {
         
         int shaderId = GlStateManager.glCreateShader(type.getGlType());
         
-        GlStateManager.glShaderSource(shaderId, loader.readSource(transformedShaderCode));
+        GlStateManager.glShaderSource(shaderId, loader.process(transformedShaderCode));
         
         GlStateManager.glCompileShader(shaderId);
         

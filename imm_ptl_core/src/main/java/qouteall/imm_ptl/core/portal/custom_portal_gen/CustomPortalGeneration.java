@@ -6,15 +6,15 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
@@ -27,35 +27,35 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CustomPortalGeneration {
-    public static final RegistryKey<World> theSameDimension = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("imm_ptl:the_same_dimension")
+    public static final ResourceKey<Level> theSameDimension = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("imm_ptl:the_same_dimension")
     );
     
-    public static final RegistryKey<World> anyDimension = RegistryKey.of(
-        Registry.WORLD_KEY,
-        new Identifier("imm_ptl:any_dimension")
+    public static final ResourceKey<Level> anyDimension = ResourceKey.create(
+        Registry.DIMENSION_REGISTRY,
+        new ResourceLocation("imm_ptl:any_dimension")
     );
     
-    public static final Codec<List<RegistryKey<World>>> dimensionListCodec =
-        new ListCodec<>(World.CODEC);
+    public static final Codec<List<ResourceKey<Level>>> dimensionListCodec =
+        new ListCodec<>(Level.RESOURCE_KEY_CODEC);
     public static final Codec<List<String>> stringListCodec =
         new ListCodec<>(Codec.STRING);
     public static final Codec<List<List<String>>> stringListListCodec =
         new ListCodec<>(stringListCodec);
     
-    public static RegistryKey<Registry<Codec<CustomPortalGeneration>>> schemaRegistryKey = RegistryKey.ofRegistry(
-        new Identifier("imm_ptl:custom_portal_gen_schema")
+    public static ResourceKey<Registry<Codec<CustomPortalGeneration>>> schemaRegistryKey = ResourceKey.createRegistryKey(
+        new ResourceLocation("imm_ptl:custom_portal_gen_schema")
     );
     
-    public static RegistryKey<Registry<CustomPortalGeneration>> registryRegistryKey =
-        RegistryKey.ofRegistry(new Identifier("imm_ptl:custom_portal_generation"));
+    public static ResourceKey<Registry<CustomPortalGeneration>> registryRegistryKey =
+        ResourceKey.createRegistryKey(new ResourceLocation("imm_ptl:custom_portal_generation"));
     
     public static final Codec<CustomPortalGeneration> codecV1 =
         RecordCodecBuilder.create(instance -> {
         return instance.group(
             dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
-            World.CODEC.fieldOf("to").forGetter(o -> o.toDimension),
+            Level.RESOURCE_KEY_CODEC.fieldOf("to").forGetter(o -> o.toDimension),
             Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
             Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
             Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
@@ -68,24 +68,24 @@ public class CustomPortalGeneration {
         ).apply(instance, instance.stable(CustomPortalGeneration::new));
     });
     
-    public static SimpleRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
+    public static MappedRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
         Util.make(() -> {
-        SimpleRegistry<Codec<CustomPortalGeneration>> registry = new SimpleRegistry<>(
+        MappedRegistry<Codec<CustomPortalGeneration>> registry = new MappedRegistry<>(
             schemaRegistryKey, Lifecycle.stable()
         );
         Registry.register(
-            registry, new Identifier("imm_ptl:v1"), codecV1
+            registry, new ResourceLocation("imm_ptl:v1"), codecV1
         );
         return registry;
     });
     
     public static final MapCodec<CustomPortalGeneration> codec =
-        schemaRegistry.getCodec().dispatchMap(
+        schemaRegistry.byNameCodec().dispatchMap(
         "schema_version", e -> codecV1, Function.identity()
     );
     
-    public final List<RegistryKey<World>> fromDimensions;
-    public final RegistryKey<World> toDimension;
+    public final List<ResourceKey<Level>> fromDimensions;
+    public final ResourceKey<Level> toDimension;
     public final int spaceRatioFrom;
     public final int spaceRatioTo;
     public final boolean reversible;
@@ -94,10 +94,10 @@ public class CustomPortalGeneration {
     public final List<String> postInvokeCommands;
     public final List<List<String>> commandsOnGenerated;
     
-    public Identifier identifier = null;
+    public ResourceLocation identifier = null;
     
     public CustomPortalGeneration(
-        List<RegistryKey<World>> fromDimensions, RegistryKey<World> toDimension,
+        List<ResourceKey<Level>> fromDimensions, ResourceKey<Level> toDimension,
         int spaceRatioFrom, int spaceRatioTo, boolean reversible,
         PortalGenForm form, PortalGenTrigger trigger,
         List<String> postInvokeCommands,
@@ -155,9 +155,9 @@ public class CustomPortalGeneration {
     public boolean initAndCheck() {
         // if from dimension is not present, nothing happens
         
-        RegistryKey<World> toDimension = this.toDimension;
+        ResourceKey<Level> toDimension = this.toDimension;
         if (toDimension != theSameDimension) {
-            if (MiscHelper.getServer().getWorld(toDimension) == null) {
+            if (MiscHelper.getServer().getLevel(toDimension) == null) {
                 return false;
             }
         }
@@ -182,31 +182,31 @@ public class CustomPortalGeneration {
     }
     
     public boolean perform(
-        ServerWorld world,
+        ServerLevel world,
         BlockPos startPos,
         @Nullable Entity triggeringEntity
     ) {
-        if (!fromDimensions.contains(world.getRegistryKey())) {
+        if (!fromDimensions.contains(world.dimension())) {
             if (fromDimensions.get(0) != anyDimension) {
                 return false;
             }
         }
         
-        if (!world.isChunkLoaded(startPos)) {
+        if (!world.hasChunkAt(startPos)) {
             Helper.log("Skip custom portal generation because chunk not loaded");
             return false;
         }
         
-        RegistryKey<World> destDimension = this.toDimension;
+        ResourceKey<Level> destDimension = this.toDimension;
         
         if (destDimension == theSameDimension) {
-            destDimension = world.getRegistryKey();
+            destDimension = world.dimension();
         }
         
-        ServerWorld toWorld = MiscHelper.getServer().getWorld(destDimension);
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(destDimension);
         
         if (toWorld == null) {
-            Helper.err("Missing dimension " + destDimension.getValue());
+            Helper.err("Missing dimension " + destDimension.location());
             return false;
         }
         

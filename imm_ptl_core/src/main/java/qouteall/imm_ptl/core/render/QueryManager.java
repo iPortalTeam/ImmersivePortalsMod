@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
 import qouteall.imm_ptl.core.CHelper;
@@ -18,7 +18,7 @@ public class QueryManager {
         }
         
         //mac does not support GL_ANY_SAMPLES_PASSED
-        if (MinecraftClient.IS_SYSTEM_MAC) {
+        if (Minecraft.ON_OSX) {
             return renderAndGetSampleCountPassed(renderingFunc) > 0;
         }
         

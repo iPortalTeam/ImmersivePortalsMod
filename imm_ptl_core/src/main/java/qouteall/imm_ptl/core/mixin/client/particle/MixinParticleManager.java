@@ -1,14 +1,14 @@
 package qouteall.imm_ptl.core.mixin.client.particle;
 
-import net.minecraft.client.MinecraftClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,20 +19,20 @@ import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
-@Mixin(ParticleManager.class)
+@Mixin(ParticleEngine.class)
 public class MixinParticleManager implements IEParticleManager {
     @Shadow
-    protected ClientWorld world;
+    protected ClientLevel level;
     
     // skip particle rendering for far portals
     @Inject(
-        method = "renderParticles",
+        method = "Lnet/minecraft/client/particle/ParticleEngine;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;F)V",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onBeginRenderParticles(
-        MatrixStack matrixStack, VertexConsumerProvider.Immediate immediate,
-        LightmapTextureManager lightmapTextureManager, Camera camera, float f, CallbackInfo ci
+        PoseStack matrixStack, MultiBufferSource.BufferSource immediate,
+        LightTexture lightmapTextureManager, Camera camera, float f, CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
             if (RenderStates.getRenderedPortalNum() > 4) {
@@ -43,30 +43,30 @@ public class MixinParticleManager implements IEParticleManager {
     
     // maybe incompatible with sodium and iris
     @Redirect(
-        method = "renderParticles",
+        method = "Lnet/minecraft/client/particle/ParticleEngine;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;F)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/particle/Particle;buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V"
+            target = "Lnet/minecraft/client/particle/Particle;render(Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/client/Camera;F)V"
         )
     )
     private void redirectBuildGeometry(Particle instance, VertexConsumer vertexConsumer, Camera camera, float v) {
         if (RenderStates.shouldRenderParticle(instance)) {
-            instance.buildGeometry(vertexConsumer, camera, v);
+            instance.render(vertexConsumer, camera, v);
         }
     }
     
     // a lava ember particle can generate a smoke particle during ticking
     // avoid generating the particle into the wrong dimension
-    @Inject(method = "tickParticle", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/client/particle/ParticleEngine;tickParticle(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
     private void onTickParticle(Particle particle, CallbackInfo ci) {
-        if (((IEParticle) particle).portal_getWorld() != MinecraftClient.getInstance().world) {
+        if (((IEParticle) particle).portal_getWorld() != Minecraft.getInstance().level) {
             ci.cancel();
         }
     }
     
     @Override
-    public void ip_setWorld(ClientWorld world_) {
-        world = world_;
+    public void ip_setWorld(ClientLevel world_) {
+        level = world_;
     }
     
 }

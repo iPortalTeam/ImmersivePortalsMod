@@ -10,41 +10,41 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.command.argument.ColumnPosArgumentType;
-import net.minecraft.command.argument.DimensionArgumentType;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.NbtCompoundArgumentType;
-import net.minecraft.command.argument.TextArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ColumnPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ComponentArgument;
+import net.minecraft.commands.arguments.CompoundTagArgument;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.coordinates.ColumnPosArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ColumnPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -83,14 +83,14 @@ import java.util.stream.Stream;
 
 public class PortalCommand {
     // it needs to invoke the outer mod but the core does not have outer mod dependency
-    public static final SignalBiArged<ServerPlayerEntity, String>
+    public static final SignalBiArged<ServerPlayer, String>
         createCommandStickCommandSignal = new SignalBiArged<>();
     
     public static void register(
-        CommandDispatcher<ServerCommandSource> dispatcher
+        CommandDispatcher<CommandSourceStack> dispatcher
     ) {
         
-        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
+        LiteralArgumentBuilder<CommandSourceStack> builder = Commands
             .literal("portal")
             .requires(PortalCommand::canUsePortalCommand);
         
@@ -100,13 +100,13 @@ public class PortalCommand {
         
         registerUtilityCommands(builder);
         
-        LiteralArgumentBuilder<ServerCommandSource> global =
-            CommandManager.literal("global")
-                .requires(commandSource -> commandSource.hasPermissionLevel(2));
+        LiteralArgumentBuilder<CommandSourceStack> global =
+            Commands.literal("global")
+                .requires(commandSource -> commandSource.hasPermission(2));
         registerGlobalPortalCommands(global);
         builder.then(global);
         
-        LiteralArgumentBuilder<ServerCommandSource> debugBuilder = CommandManager.literal("debug")
+        LiteralArgumentBuilder<CommandSourceStack> debugBuilder = Commands.literal("debug")
             .requires(PortalCommand::canUsePortalCommand);
         PortalDebugCommands.registerDebugCommands(debugBuilder);
         builder.then(debugBuilder);
@@ -114,33 +114,33 @@ public class PortalCommand {
         dispatcher.register(builder);
     }
     
-    public static boolean canUsePortalCommand(ServerCommandSource commandSource) {
+    public static boolean canUsePortalCommand(CommandSourceStack commandSource) {
         Entity entity = commandSource.getEntity();
-        if (entity instanceof ServerPlayerEntity) {
+        if (entity instanceof ServerPlayer) {
             if (IPGlobal.easeCreativePermission) {
-                if (((ServerPlayerEntity) entity).isCreative()) {
+                if (((ServerPlayer) entity).isCreative()) {
                     return true;
                 }
             }
         }
         
-        return commandSource.hasPermissionLevel(2);
+        return commandSource.hasPermission(2);
     }
     
     private static void registerGlobalPortalCommands(
-        LiteralArgumentBuilder<ServerCommandSource> builder
+        LiteralArgumentBuilder<CommandSourceStack> builder
     ) {
-        builder.then(CommandManager.literal("create_inward_wrapping")
-            .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
-                .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
+        builder.then(Commands.literal("create_inward_wrapping")
+            .then(Commands.argument("p1", ColumnPosArgument.columnPos())
+                .then(Commands.argument("p2", ColumnPosArgument.columnPos())
                     .executes(context -> {
-                        ColumnPos p1 = ColumnPosArgumentType.getColumnPos(context, "p1");
-                        ColumnPos p2 = ColumnPosArgumentType.getColumnPos(context, "p2");
+                        ColumnPos p1 = ColumnPosArgument.getColumnPos(context, "p1");
+                        ColumnPos p2 = ColumnPosArgument.getColumnPos(context, "p2");
                         WorldWrappingPortal.invokeAddWrappingZone(
-                            context.getSource().getWorld(),
+                            context.getSource().getLevel(),
                             p1.x, p1.z, p2.x, p2.z,
                             true,
-                            text -> context.getSource().sendFeedback(text, false)
+                            text -> context.getSource().sendSuccess(text, false)
                         );
                         return 0;
                     })
@@ -148,17 +148,17 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("create_outward_wrapping")
-            .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
-                .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
+        builder.then(Commands.literal("create_outward_wrapping")
+            .then(Commands.argument("p1", ColumnPosArgument.columnPos())
+                .then(Commands.argument("p2", ColumnPosArgument.columnPos())
                     .executes(context -> {
-                        ColumnPos p1 = ColumnPosArgumentType.getColumnPos(context, "p1");
-                        ColumnPos p2 = ColumnPosArgumentType.getColumnPos(context, "p2");
+                        ColumnPos p1 = ColumnPosArgument.getColumnPos(context, "p1");
+                        ColumnPos p2 = ColumnPosArgument.getColumnPos(context, "p2");
                         WorldWrappingPortal.invokeAddWrappingZone(
-                            context.getSource().getWorld(),
+                            context.getSource().getLevel(),
                             p1.x, p1.z, p2.x, p2.z,
                             false,
-                            text -> context.getSource().sendFeedback(text, false)
+                            text -> context.getSource().sendSuccess(text, false)
                         );
                         return 0;
                     })
@@ -166,50 +166,50 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("remove_wrapping_zone")
+        builder.then(Commands.literal("remove_wrapping_zone")
             .executes(context -> {
                 WorldWrappingPortal.invokeRemoveWrappingZone(
-                    context.getSource().getWorld(),
+                    context.getSource().getLevel(),
                     context.getSource().getPosition(),
-                    text -> context.getSource().sendFeedback(text, false)
+                    text -> context.getSource().sendSuccess(text, false)
                 );
                 return 0;
             })
-            .then(CommandManager.argument("id", IntegerArgumentType.integer())
+            .then(Commands.argument("id", IntegerArgumentType.integer())
                 .executes(context -> {
                     int id = IntegerArgumentType.getInteger(context, "id");
                     WorldWrappingPortal.invokeRemoveWrappingZone(
-                        context.getSource().getWorld(),
+                        context.getSource().getLevel(),
                         id,
-                        text -> context.getSource().sendFeedback(text, false)
+                        text -> context.getSource().sendSuccess(text, false)
                     );
                     return 0;
                 })
             )
         );
         
-        builder.then(CommandManager.literal("view_wrapping_zones")
+        builder.then(Commands.literal("view_wrapping_zones")
             .executes(context -> {
                 WorldWrappingPortal.invokeViewWrappingZones(
-                    context.getSource().getWorld(),
-                    text -> context.getSource().sendFeedback(text, false)
+                    context.getSource().getLevel(),
+                    text -> context.getSource().sendSuccess(text, false)
                 );
                 return 0;
             })
         );
         
-        builder.then(CommandManager.literal("clear_wrapping_border")
+        builder.then(Commands.literal("clear_wrapping_border")
             .executes(context -> {
                 BorderBarrierFiller.onCommandExecuted(
-                    context.getSource().getPlayer()
+                    context.getSource().getPlayerOrException()
                 );
                 return 0;
             })
-            .then(CommandManager.argument("id", IntegerArgumentType.integer())
+            .then(Commands.argument("id", IntegerArgumentType.integer())
                 .executes(context -> {
                     int id = IntegerArgumentType.getInteger(context, "id");
                     BorderBarrierFiller.onCommandExecuted(
-                        context.getSource().getPlayer(),
+                        context.getSource().getPlayerOrException(),
                         id
                     );
                     return 0;
@@ -217,20 +217,20 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("connect_floor")
-            .then(CommandManager.argument("from", DimensionArgumentType.dimension())
+        builder.then(Commands.literal("connect_floor")
+            .then(Commands.argument("from", DimensionArgument.dimension())
                 .then(
-                    CommandManager.argument(
+                    Commands.argument(
                         "to",
-                        DimensionArgumentType.dimension()
+                        DimensionArgument.dimension()
                     ).executes(
                         context -> {
-                            RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
+                            ResourceKey<Level> from = DimensionArgument.getDimension(
                                 context, "from"
-                            ).getRegistryKey();
-                            RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
+                            ).dimension();
+                            ResourceKey<Level> to = DimensionArgument.getDimension(
                                 context, "to"
-                            ).getRegistryKey();
+                            ).dimension();
                             
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.floor, to
@@ -242,17 +242,17 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("connect_ceil")
-            .then(CommandManager.argument("from", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("to", DimensionArgumentType.dimension())
+        builder.then(Commands.literal("connect_ceil")
+            .then(Commands.argument("from", DimensionArgument.dimension())
+                .then(Commands.argument("to", DimensionArgument.dimension())
                     .executes(
                         context -> {
-                            RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
+                            ResourceKey<Level> from = DimensionArgument.getDimension(
                                 context, "from"
-                            ).getRegistryKey();
-                            RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
+                            ).dimension();
+                            ResourceKey<Level> to = DimensionArgument.getDimension(
                                 context, "to"
-                            ).getRegistryKey();
+                            ).dimension();
                             
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.ceil, to
@@ -264,14 +264,14 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("connection_floor_remove")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+            .then(Commands.argument("dim", DimensionArgument.dimension())
                 .executes(
                     context -> {
-                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                        ResourceKey<Level> dim = DimensionArgument.getDimension(
                             context, "dim"
-                        ).getRegistryKey();
+                        ).dimension();
                         
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.floor, dim
@@ -282,14 +282,14 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("connection_ceil_remove")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+            .then(Commands.argument("dim", DimensionArgument.dimension())
                 .executes(
                     context -> {
-                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                        ResourceKey<Level> dim = DimensionArgument.getDimension(
                             context, "dim"
-                        ).getRegistryKey();
+                        ).dimension();
                         
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.ceil, dim
@@ -300,48 +300,48 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("view_global_portals")
+        builder.then(Commands.literal("view_global_portals")
             .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
+                ServerPlayer player = context.getSource().getPlayerOrException();
                 sendMessage(
                     context,
-                    Helper.myToString(GlobalPortalStorage.getGlobalPortals(player.world).stream())
+                    Helper.myToString(GlobalPortalStorage.getGlobalPortals(player.level).stream())
                 );
                 return 0;
             })
         );
         
-        builder.then(CommandManager.literal("convert_normal_portal_to_global_portal")
+        builder.then(Commands.literal("convert_normal_portal_to_global_portal")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 GlobalPortalStorage::convertNormalPortalIntoGlobalPortal
             ))
         );
         
-        builder.then(CommandManager.literal("convert_global_portal_to_normal_portal")
+        builder.then(Commands.literal("convert_global_portal_to_normal_portal")
             .executes(context -> {
-                final ServerPlayerEntity player = context.getSource().getPlayer();
+                final ServerPlayer player = context.getSource().getPlayerOrException();
                 final Portal portal = getPlayerPointingPortal(player, true);
                 
                 if (portal == null) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are not pointing to any portal"),
+                    context.getSource().sendSuccess(
+                        new TextComponent("You are not pointing to any portal"),
                         false
                     );
                     return 0;
                 }
                 
                 if (!portal.getIsGlobal()) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are not pointing to a global portal"),
+                    context.getSource().sendSuccess(
+                        new TextComponent("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
                 }
                 
-                if (player.getPos().distanceTo(portal.getOriginPos()) > 64) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are too far away from the portal's center " + portal),
+                if (player.position().distanceTo(portal.getOriginPos()) > 64) {
+                    context.getSource().sendSuccess(
+                        new TextComponent("You are too far away from the portal's center " + portal),
                         false
                     );
                     return 0;
@@ -353,28 +353,28 @@ public class PortalCommand {
             })
         );
         
-        builder.then(CommandManager.literal("delete_global_portal")
+        builder.then(Commands.literal("delete_global_portal")
             .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
+                ServerPlayer player = context.getSource().getPlayerOrException();
                 Portal portal = getPlayerPointingPortal(player, true);
                 
                 if (portal == null) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are not pointing to any portal"),
+                    context.getSource().sendSuccess(
+                        new TextComponent("You are not pointing to any portal"),
                         false
                     );
                     return 0;
                 }
                 
                 if (!portal.getIsGlobal()) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are not pointing to a global portal"),
+                    context.getSource().sendSuccess(
+                        new TextComponent("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
                 }
                 
-                GlobalPortalStorage.get((ServerWorld) portal.world).removePortal(portal);
+                GlobalPortalStorage.get((ServerLevel) portal.level).removePortal(portal);
                 
                 return 0;
             })
@@ -382,9 +382,9 @@ public class PortalCommand {
     }
     
     private static void registerPortalTargetedCommands(
-        LiteralArgumentBuilder<ServerCommandSource> builder
+        LiteralArgumentBuilder<CommandSourceStack> builder
     ) {
-        builder.then(CommandManager.literal("view_portal_data")
+        builder.then(Commands.literal("view_portal_data")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 (portal) -> {
@@ -393,20 +393,20 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("set_portal_custom_name")
-            .then(CommandManager
-                .argument("name", TextArgumentType.text())
+        builder.then(Commands.literal("set_portal_custom_name")
+            .then(Commands
+                .argument("name", ComponentArgument.textComponent())
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
-                        Text name = TextArgumentType.getTextArgument(context, "name");
+                        Component name = ComponentArgument.getComponent(context, "name");
                         portal.setCustomName(name);
                     }
                 ))
             )
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("delete_portal")
             .executes(context -> processPortalTargetedCommand(
                 context,
@@ -417,18 +417,18 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("set_portal_nbt")
-            .then(CommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound())
+        builder.then(Commands.literal("set_portal_nbt")
+            .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
-                        NbtCompound newNbt = NbtCompoundArgumentType.getNbtCompound(
+                        CompoundTag newNbt = CompoundTagArgument.getCompoundTag(
                             context, "nbt"
                         );
                         
                         if (newNbt.contains("commandsOnTeleported")) {
-                            if (!context.getSource().hasPermissionLevel(2)) {
-                                context.getSource().sendError(new LiteralText(
+                            if (!context.getSource().hasPermission(2)) {
+                                context.getSource().sendFailure(new TextComponent(
                                     "You do not have the permission to set commandsOnTeleported"
                                 ));
                                 return;
@@ -436,7 +436,7 @@ public class PortalCommand {
                         }
                         
                         if (newNbt.contains("dimensionTo")) {
-                            context.getSource().sendError(new LiteralText(
+                            context.getSource().sendFailure(new TextComponent(
                                 "Cannot change tag dimensionTo. use command /portal set_portal_destination"
                             ));
                             return;
@@ -450,17 +450,17 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("set_portal_destination")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("set_portal_destination")
+            .then(Commands.argument("dim", DimensionArgument.dimension())
+                .then(Commands.argument("dest", Vec3Argument.vec3(false))
                     .executes(context -> processPortalTargetedCommand(
                         context, portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
+                            portal.dimensionTo = DimensionArgument.getDimension(
                                 context, "dim"
-                            ).getRegistryKey();
-                            portal.setDestination(Vec3ArgumentType.getVec3(
+                            ).dimension();
+                            portal.setDestination(Vec3Argument.getVec3(
                                 context, "dest"
                             ));
                             
@@ -497,13 +497,13 @@ public class PortalCommand {
                         portal.rotation = rot;
                     }
                     else {
-                        portal.rotation.hamiltonProduct(rot);
+                        portal.rotation.mul(rot);
                     }
                 }
             }
         );
         
-        builder.then(CommandManager.literal("complete_bi_way_portal")
+        builder.then(Commands.literal("complete_bi_way_portal")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
@@ -512,7 +512,7 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("complete_bi_faced_portal")
+        builder.then(Commands.literal("complete_bi_faced_portal")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
@@ -521,7 +521,7 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("complete_bi_way_bi_faced_portal")
+        builder.then(Commands.literal("complete_bi_way_bi_faced_portal")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal ->
@@ -529,7 +529,7 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("remove_connected_portals")
+        builder.then(Commands.literal("remove_connected_portals")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
@@ -541,21 +541,7 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("eradicate_portal_clutter")
-            .executes(context -> processPortalTargetedCommand(
-                context,
-                portal -> {
-                    PortalManipulation.removeConnectedPortals(
-                        portal,
-                        p -> sendMessage(context, "Removed " + p)
-                    );
-                    portal.remove(Entity.RemovalReason.KILLED);
-                    sendMessage(context, "Deleted " + portal);
-                }
-            ))
-        );
-        
-        builder.then(CommandManager.literal("eradicate_portal_cluster")
+        builder.then(Commands.literal("eradicate_portal_clutter")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
@@ -569,8 +555,22 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("move_portal")
-            .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
+        builder.then(Commands.literal("eradicate_portal_cluster")
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                portal -> {
+                    PortalManipulation.removeConnectedPortals(
+                        portal,
+                        p -> sendMessage(context, "Removed " + p)
+                    );
+                    portal.remove(Entity.RemovalReason.KILLED);
+                    sendMessage(context, "Deleted " + portal);
+                }
+            ))
+        );
+        
+        builder.then(Commands.literal("move_portal")
+            .then(Commands.argument("distance", DoubleArgumentType.doubleArg())
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         try {
@@ -579,13 +579,13 @@ public class PortalCommand {
                             double distance =
                                 DoubleArgumentType.getDouble(context, "distance");
                             
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            Vec3d viewVector = player.getRotationVector();
-                            Direction facing = Direction.getFacing(
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            Vec3 viewVector = player.getLookAngle();
+                            Direction facing = Direction.getNearest(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
-                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
-                            portal.setPosition(
+                            Vec3 offset = Vec3.atLowerCornerOf(facing.getNormal()).scale(distance);
+                            portal.setPos(
                                 portal.getX() + offset.x,
                                 portal.getY() + offset.y,
                                 portal.getZ() + offset.z
@@ -600,8 +600,8 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("move_portal_destination")
-            .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
+        builder.then(Commands.literal("move_portal_destination")
+            .then(Commands.argument("distance", DoubleArgumentType.doubleArg())
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         try {
@@ -610,12 +610,12 @@ public class PortalCommand {
                             double distance =
                                 DoubleArgumentType.getDouble(context, "distance");
                             
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            Vec3d viewVector = player.getRotationVector();
-                            Direction facing = Direction.getFacing(
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            Vec3 viewVector = player.getLookAngle();
+                            Direction facing = Direction.getNearest(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
-                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
+                            Vec3 offset = Vec3.atLowerCornerOf(facing.getNormal()).scale(distance);
                             
                             portal.setDestination(portal.getDestPos().add(
                                 portal.transformLocalVecNonScale(offset)
@@ -631,19 +631,19 @@ public class PortalCommand {
         );
         
         
-        builder.then(CommandManager.literal("set_portal_specific_accessor")
+        builder.then(Commands.literal("set_portal_specific_accessor")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
                     removeSpecificAccessor(context, portal);
                 }
             ))
-            .then(CommandManager.argument("player", EntityArgumentType.player())
+            .then(Commands.argument("player", EntityArgument.player())
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
                         setSpecificAccessor(context, portal,
-                            EntityArgumentType.getEntity(context, "player")
+                            EntityArgument.getEntity(context, "player")
                         );
                     }
                 ))
@@ -651,32 +651,32 @@ public class PortalCommand {
         );
         
         
-        builder.then(CommandManager.literal("multidest")
-            .then(CommandManager.argument("player", EntityArgumentType.player())
+        builder.then(Commands.literal("multidest")
+            .then(Commands.argument("player", EntityArgument.player())
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
                         removeMultidestEntry(
-                            context, portal, EntityArgumentType.getPlayer(context, "player")
+                            context, portal, EntityArgument.getPlayer(context, "player")
                         );
                     }
                 ))
-                .then(CommandManager.argument("dimension", DimensionArgumentType.dimension())
-                    .then(CommandManager.argument("destination", Vec3ArgumentType.vec3(false))
-                        .then(CommandManager.argument("isBiFaced", BoolArgumentType.bool())
-                            .then(CommandManager.argument("isBiWay", BoolArgumentType.bool())
+                .then(Commands.argument("dimension", DimensionArgument.dimension())
+                    .then(Commands.argument("destination", Vec3Argument.vec3(false))
+                        .then(Commands.argument("isBiFaced", BoolArgumentType.bool())
+                            .then(Commands.argument("isBiWay", BoolArgumentType.bool())
                                 .executes(context -> processPortalTargetedCommand(
                                     context,
                                     portal -> {
                                         setMultidestEntry(
                                             context,
                                             portal,
-                                            EntityArgumentType.getPlayer(context, "player"),
-                                            DimensionArgumentType.getDimensionArgument(
+                                            EntityArgument.getPlayer(context, "player"),
+                                            DimensionArgument.getDimension(
                                                 context,
                                                 "dimension"
-                                            ).getRegistryKey(),
-                                            Vec3ArgumentType.getVec3(context, "destination"),
+                                            ).dimension(),
+                                            Vec3Argument.getVec3(context, "destination"),
                                             BoolArgumentType.getBool(context, "isBiFaced"),
                                             BoolArgumentType.getBool(context, "isBiWay")
                                         );
@@ -689,7 +689,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("make_portal_round")
+        builder.then(Commands.literal("make_portal_round")
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
@@ -699,8 +699,8 @@ public class PortalCommand {
             ))
         );
         
-        builder.then(CommandManager.literal("set_portal_scale")
-            .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
+        builder.then(Commands.literal("set_portal_scale")
+            .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
@@ -713,27 +713,27 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("set_portal_destination_to")
-            .then(CommandManager.argument("entity", EntityArgumentType.entity())
+        builder.then(Commands.literal("set_portal_destination_to")
+            .then(Commands.argument("entity", EntityArgument.entity())
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    Entity entity = EntityArgumentType.getEntity(context, "entity");
-                    portal.dimensionTo = entity.world.getRegistryKey();
-                    portal.setDestination(entity.getPos());
+                    Entity entity = EntityArgument.getEntity(context, "entity");
+                    portal.dimensionTo = entity.level.dimension();
+                    portal.setDestination(entity.position());
                     reloadPortal(portal);
                 }))
             )
         );
         
-        builder.then(CommandManager.literal("set_portal_position")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("set_portal_position")
+            .then(Commands.argument("dim", DimensionArgument.dimension())
+                .then(Commands.argument("pos", Vec3Argument.vec3(false))
                     .executes(context -> processPortalTargetedCommand(context, portal -> {
-                        ServerWorld targetWorld =
-                            DimensionArgumentType.getDimensionArgument(context, "dim");
+                        ServerLevel targetWorld =
+                            DimensionArgument.getDimension(context, "dim");
                         
-                        Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                        Vec3 pos = Vec3Argument.getVec3(context, "pos");
                         
-                        if (targetWorld == portal.world) {
+                        if (targetWorld == portal.level) {
                             portal.setOriginPos(pos);
                             reloadPortal(portal);
                         }
@@ -750,18 +750,18 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("set_portal_position_to")
-            .then(CommandManager.argument("targetEntity", EntityArgumentType.entity())
+        builder.then(Commands.literal("set_portal_position_to")
+            .then(Commands.argument("targetEntity", EntityArgument.entity())
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    Entity targetEntity = EntityArgumentType.getEntity(context, "targetEntity");
+                    Entity targetEntity = EntityArgument.getEntity(context, "targetEntity");
                     
-                    if (targetEntity.world == portal.world) {
-                        portal.setOriginPos(targetEntity.getPos());
+                    if (targetEntity.level == portal.level) {
+                        portal.setOriginPos(targetEntity.position());
                         reloadPortal(portal);
                     }
                     else {
                         ServerTeleportationManager.teleportEntityGeneral(
-                            portal, targetEntity.getPos(), ((ServerWorld) targetEntity.world)
+                            portal, targetEntity.position(), ((ServerLevel) targetEntity.level)
                         );
                     }
                     
@@ -770,27 +770,27 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("reset_portal_orientation")
+        builder.then(Commands.literal("reset_portal_orientation")
             .executes(context -> processPortalTargetedCommand(
                 context, portal -> {
-                    portal.axisW = new Vec3d(1, 0, 0);
-                    portal.axisH = new Vec3d(0, 1, 0);
+                    portal.axisW = new Vec3(1, 0, 0);
+                    portal.axisH = new Vec3(0, 1, 0);
                     reloadPortal(portal);
                 }
             ))
         );
         
-        builder.then(CommandManager.literal("relatively_move_portal")
-            .then(CommandManager.argument("offset", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("relatively_move_portal")
+            .then(Commands.argument("offset", Vec3Argument.vec3(false))
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    Vec3d offset = Vec3ArgumentType.getVec3(context, "offset");
+                    Vec3 offset = Vec3Argument.getVec3(context, "offset");
                     portal.setOriginPos(
                         portal.getOriginPos().add(
-                            portal.axisW.multiply(offset.x)
+                            portal.axisW.scale(offset.x)
                         ).add(
-                            portal.axisH.multiply(offset.y)
+                            portal.axisH.scale(offset.y)
                         ).add(
-                            portal.getNormal().multiply(offset.z)
+                            portal.getNormal().scale(offset.z)
                         )
                     );
                     reloadPortal(portal);
@@ -798,17 +798,17 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("relatively_move_portal_destination")
-            .then(CommandManager.argument("offset", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("relatively_move_portal_destination")
+            .then(Commands.argument("offset", Vec3Argument.vec3(false))
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    Vec3d offset = Vec3ArgumentType.getVec3(context, "offset");
+                    Vec3 offset = Vec3Argument.getVec3(context, "offset");
                     portal.setDestination(
                         portal.getDestPos().add(
-                            portal.transformLocalVec(portal.axisW).multiply(offset.x)
+                            portal.transformLocalVec(portal.axisW).scale(offset.x)
                         ).add(
-                            portal.transformLocalVec(portal.axisH).multiply(offset.y)
+                            portal.transformLocalVec(portal.axisH).scale(offset.y)
                         ).add(
-                            portal.transformLocalVec(portal.getNormal()).multiply(offset.z)
+                            portal.transformLocalVec(portal.getNormal()).scale(offset.z)
                         )
                     );
                     reloadPortal(portal);
@@ -823,19 +823,19 @@ public class PortalCommand {
     }
     
     private static void registerPortalTargetedCommandWithRotationArgument(
-        LiteralArgumentBuilder<ServerCommandSource> builder,
+        LiteralArgumentBuilder<CommandSourceStack> builder,
         String literal,
         BiConsumer<Portal, Quaternion> func
     ) {
-        builder.then(CommandManager.literal(literal)
-            .then(CommandManager.argument("rotatingAxis", Vec3ArgumentType.vec3(false))
-                .then(CommandManager.argument("angleDegrees", DoubleArgumentType.doubleArg())
+        builder.then(Commands.literal(literal)
+            .then(Commands.argument("rotatingAxis", Vec3Argument.vec3(false))
+                .then(Commands.argument("angleDegrees", DoubleArgumentType.doubleArg())
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
+                            Vec3 rotatingAxis = Vec3Argument.getVec3(
                                 context, "rotatingAxis"
                             ).normalize();
                             
@@ -844,7 +844,7 @@ public class PortalCommand {
                             );
                             
                             Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                new Vec3f(rotatingAxis),
+                                new Vector3f(rotatingAxis),
                                 (float) angleDegrees,
                                 true
                             ) : null;
@@ -858,15 +858,15 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal(literal + "_along")
-            .then(CommandManager.literal("x")
-                .then(CommandManager.argument("angleDegrees", DoubleArgumentType.doubleArg())
+        builder.then(Commands.literal(literal + "_along")
+            .then(Commands.literal("x")
+                .then(Commands.argument("angleDegrees", DoubleArgumentType.doubleArg())
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            Vec3f axis = new Vec3f(1, 0, 0);
+                            Vector3f axis = new Vector3f(1, 0, 0);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -884,14 +884,14 @@ public class PortalCommand {
                     ))
                 )
             )
-            .then(CommandManager.literal("y")
-                .then(CommandManager.argument("angleDegrees", DoubleArgumentType.doubleArg())
+            .then(Commands.literal("y")
+                .then(Commands.argument("angleDegrees", DoubleArgumentType.doubleArg())
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            Vec3f axis = new Vec3f(0, 1, 0);
+                            Vector3f axis = new Vector3f(0, 1, 0);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -909,14 +909,14 @@ public class PortalCommand {
                     ))
                 )
             )
-            .then(CommandManager.literal("z")
-                .then(CommandManager.argument("angleDegrees", DoubleArgumentType.doubleArg())
+            .then(Commands.literal("z")
+                .then(Commands.argument("angleDegrees", DoubleArgumentType.doubleArg())
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            Vec3f axis = new Vec3f(0, 0, 1);
+                            Vector3f axis = new Vector3f(0, 0, 1);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -937,7 +937,7 @@ public class PortalCommand {
         );
     }
     
-    private static void setPortalRotation(Portal portal, Vec3f axis, double angleDegrees) {
+    private static void setPortalRotation(Portal portal, Vector3f axis, double angleDegrees) {
         if (angleDegrees != 0) {
             portal.rotation = new Quaternion(
                 axis, (float) angleDegrees, true
@@ -951,10 +951,10 @@ public class PortalCommand {
     }
     
     // only portal custom data can be changed
-    private static void setPortalNbt(Portal portal, NbtCompound newNbt) {
-        NbtCompound data = portal.writePortalDataToNbt();
+    private static void setPortalNbt(Portal portal, CompoundTag newNbt) {
+        CompoundTag data = portal.writePortalDataToNbt();
         
-        newNbt.getKeys().forEach(
+        newNbt.getAllKeys().forEach(
             key -> data.put(key, newNbt.get(key))
         );
         
@@ -964,31 +964,31 @@ public class PortalCommand {
     }
     
     private static void registerCBPortalCommands(
-        LiteralArgumentBuilder<ServerCommandSource> builder
+        LiteralArgumentBuilder<CommandSourceStack> builder
     ) {
-        builder.then(CommandManager.literal("cb_make_portal")
-            .then(CommandManager.argument("width", DoubleArgumentType.doubleArg())
-                .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
-                    .then(CommandManager.argument("from", EntityArgumentType.entity())
-                        .then(CommandManager.argument("to", EntityArgumentType.entity())
+        builder.then(Commands.literal("cb_make_portal")
+            .then(Commands.argument("width", DoubleArgumentType.doubleArg())
+                .then(Commands.argument("height", DoubleArgumentType.doubleArg())
+                    .then(Commands.argument("from", EntityArgument.entity())
+                        .then(Commands.argument("to", EntityArgument.entity())
                             .executes(context -> {
                                 double width = DoubleArgumentType.getDouble(context, "width");
                                 double height = DoubleArgumentType.getDouble(context, "height");
                                 
-                                Entity fromEntity = EntityArgumentType.getEntity(context, "from");
-                                Entity toEntity = EntityArgumentType.getEntity(context, "to");
+                                Entity fromEntity = EntityArgument.getEntity(context, "from");
+                                Entity toEntity = EntityArgument.getEntity(context, "to");
                                 
                                 invokeCbMakePortal(width, height, fromEntity, toEntity, "");
                                 
                                 return 0;
                             })
-                            .then(CommandManager.argument("portalName", StringArgumentType.string())
+                            .then(Commands.argument("portalName", StringArgumentType.string())
                                 .executes(context -> {
                                     double width = DoubleArgumentType.getDouble(context, "width");
                                     double height = DoubleArgumentType.getDouble(context, "height");
                                     
-                                    Entity fromEntity = EntityArgumentType.getEntity(context, "from");
-                                    Entity toEntity = EntityArgumentType.getEntity(context, "to");
+                                    Entity fromEntity = EntityArgument.getEntity(context, "from");
+                                    Entity toEntity = EntityArgument.getEntity(context, "to");
                                     
                                     String portalName = StringArgumentType.getString(context, "portalName");
                                     
@@ -1008,44 +1008,44 @@ public class PortalCommand {
         double width, double height, Entity fromEntity, Entity toEntity,
         String portalName
     ) {
-        Portal portal = Portal.entityType.create(fromEntity.world);
+        Portal portal = Portal.entityType.create(fromEntity.level);
         
-        portal.setPosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
+        portal.setPos(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
         
-        portal.dimensionTo = toEntity.world.getRegistryKey();
-        portal.setDestination(toEntity.getPos());
+        portal.dimensionTo = toEntity.level.dimension();
+        portal.setDestination(toEntity.position());
         portal.width = width;
         portal.height = height;
         
-        Vec3d normal = fromEntity.getRotationVec(1);
-        Vec3d rightVec = getRightVec(fromEntity);
+        Vec3 normal = fromEntity.getViewVector(1);
+        Vec3 rightVec = getRightVec(fromEntity);
         
-        Vec3d axisH = rightVec.crossProduct(normal).normalize();
+        Vec3 axisH = rightVec.cross(normal).normalize();
         
         portal.axisW = rightVec;
         portal.axisH = axisH;
         
-        portal.setCustomName(new LiteralText(portalName));
+        portal.setCustomName(new TextComponent(portalName));
         
         McHelper.spawnServerEntity(portal);
     }
     
     private static void registerUtilityCommands(
-        LiteralArgumentBuilder<ServerCommandSource> builder
+        LiteralArgumentBuilder<CommandSourceStack> builder
     ) {
-        builder.then(CommandManager.literal("tpme")
-            .then(CommandManager.argument("target", EntityArgumentType.entity())
+        builder.then(Commands.literal("tpme")
+            .then(Commands.argument("target", EntityArgument.entity())
                 .executes(context -> {
-                    Entity entity = EntityArgumentType.getEntity(context, "target");
+                    Entity entity = EntityArgument.getEntity(context, "target");
                     
                     IPGlobal.serverTeleportationManager.invokeTpmeCommand(
-                        context.getSource().getPlayer(),
-                        entity.world.getRegistryKey(),
-                        entity.getPos()
+                        context.getSource().getPlayerOrException(),
+                        entity.level.dimension(),
+                        entity.position()
                     );
                     
-                    context.getSource().sendFeedback(
-                        new TranslatableText(
+                    context.getSource().sendSuccess(
+                        new TranslatableComponent(
                             "imm_ptl.command.tpme.success",
                             entity.getDisplayName()
                         ),
@@ -1055,19 +1055,19 @@ public class PortalCommand {
                     return 1;
                 })
             )
-            .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+            .then(Commands.argument("dest", Vec3Argument.vec3())
                 .executes(context -> {
-                    Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
-                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    Vec3 dest = Vec3Argument.getVec3(context, "dest");
+                    ServerPlayer player = context.getSource().getPlayerOrException();
                     
                     IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                         player,
-                        player.world.getRegistryKey(),
+                        player.level.dimension(),
                         dest
                     );
                     
-                    context.getSource().sendFeedback(
-                        new TranslatableText(
+                    context.getSource().sendSuccess(
+                        new TranslatableComponent(
                             "imm_ptl.command.tpme.success",
                             dest.toString()
                         ),
@@ -1077,23 +1077,23 @@ public class PortalCommand {
                     return 1;
                 })
             )
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+            .then(Commands.argument("dim", DimensionArgument.dimension())
+                .then(Commands.argument("dest", Vec3Argument.vec3())
                     .executes(context -> {
-                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                        ResourceKey<Level> dim = DimensionArgument.getDimension(
                             context,
                             "dim"
-                        ).getRegistryKey();
-                        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+                        ).dimension();
+                        Vec3 dest = Vec3Argument.getVec3(context, "dest");
                         
                         IPGlobal.serverTeleportationManager.invokeTpmeCommand(
-                            context.getSource().getPlayer(),
+                            context.getSource().getPlayerOrException(),
                             dim,
                             dest
                         );
                         
-                        context.getSource().sendFeedback(
-                            new TranslatableText(
+                        context.getSource().sendSuccess(
+                            new TranslatableComponent(
                                 "imm_ptl.command.tpme.success",
                                 McHelper.dimensionTypeId(dim).toString() + dest.toString()
                             ),
@@ -1106,23 +1106,23 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("tp")
-            .requires(commandSource -> commandSource.hasPermissionLevel(2))
-            .then(CommandManager.argument("from", EntityArgumentType.entities())
-                .then(CommandManager.argument("to", EntityArgumentType.entity())
+        builder.then(Commands.literal("tp")
+            .requires(commandSource -> commandSource.hasPermission(2))
+            .then(Commands.argument("from", EntityArgument.entities())
+                .then(Commands.argument("to", EntityArgument.entity())
                     .executes(context -> {
                         Collection<? extends Entity> entities =
-                            EntityArgumentType.getEntities(context, "from");
-                        Entity target = EntityArgumentType.getEntity(context, "to");
+                            EntityArgument.getEntities(context, "from");
+                        Entity target = EntityArgument.getEntity(context, "to");
                         
                         int numTeleported = teleport(
                             entities,
-                            target.world.getRegistryKey(),
-                            target.getPos()
+                            target.level.dimension(),
+                            target.position()
                         );
                         
-                        context.getSource().sendFeedback(
-                            new TranslatableText(
+                        context.getSource().sendSuccess(
+                            new TranslatableComponent(
                                 "imm_ptl.command.tp.success",
                                 numTeleported,
                                 target.getDisplayName()
@@ -1133,20 +1133,20 @@ public class PortalCommand {
                         return numTeleported;
                     })
                 )
-                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                .then(Commands.argument("dest", Vec3Argument.vec3())
                     .executes(context -> {
                         Collection<? extends Entity> entities =
-                            EntityArgumentType.getEntities(context, "from");
-                        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+                            EntityArgument.getEntities(context, "from");
+                        Vec3 dest = Vec3Argument.getVec3(context, "dest");
                         
                         int numTeleported = teleport(
                             entities,
-                            context.getSource().getWorld().getRegistryKey(),
+                            context.getSource().getLevel().dimension(),
                             dest
                         );
                         
-                        context.getSource().sendFeedback(
-                            new TranslatableText(
+                        context.getSource().sendSuccess(
+                            new TranslatableComponent(
                                 "imm_ptl.command.tp.success",
                                 numTeleported,
                                 dest.toString()
@@ -1157,25 +1157,25 @@ public class PortalCommand {
                         return numTeleported;
                     })
                 )
-                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                    .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                .then(Commands.argument("dim", DimensionArgument.dimension())
+                    .then(Commands.argument("dest", Vec3Argument.vec3())
                         .executes(context -> {
                             Collection<? extends Entity> entities =
-                                EntityArgumentType.getEntities(context, "from");
-                            RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                                EntityArgument.getEntities(context, "from");
+                            ResourceKey<Level> dim = DimensionArgument.getDimension(
                                 context,
                                 "dim"
-                            ).getRegistryKey();
-                            Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+                            ).dimension();
+                            Vec3 dest = Vec3Argument.getVec3(context, "dest");
                             
                             int numTeleported = teleport(
                                 entities,
-                                context.getSource().getWorld().getRegistryKey(),
+                                context.getSource().getLevel().dimension(),
                                 dest
                             );
                             
-                            context.getSource().sendFeedback(
-                                new TranslatableText(
+                            context.getSource().sendSuccess(
+                                new TranslatableComponent(
                                     "imm_ptl.command.tp.success",
                                     numTeleported,
                                     McHelper.dimensionTypeId(dim).toString() + dest.toString()
@@ -1192,15 +1192,15 @@ public class PortalCommand {
         
         
         // By LoganDark :D
-        builder.then(CommandManager.literal("make_portal")
-            .then(CommandManager.argument("width", DoubleArgumentType.doubleArg())
-                .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
-                    .then(CommandManager.argument("to", DimensionArgumentType.dimension())
-                        .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("make_portal")
+            .then(Commands.argument("width", DoubleArgumentType.doubleArg())
+                .then(Commands.argument("height", DoubleArgumentType.doubleArg())
+                    .then(Commands.argument("to", DimensionArgument.dimension())
+                        .then(Commands.argument("dest", Vec3Argument.vec3(false))
                             .executes(PortalCommand::placePortalAbsolute)
                         )
-                        .then(CommandManager.literal("shift")
-                            .then(CommandManager.argument("dist", DoubleArgumentType.doubleArg())
+                        .then(Commands.literal("shift")
+                            .then(Commands.argument("dist", DoubleArgumentType.doubleArg())
                                 .executes(PortalCommand::placePortalShift)
                             )
                         )
@@ -1209,31 +1209,31 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("goback")
+        builder.then(Commands.literal("goback")
             .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                net.minecraft.util.Pair<RegistryKey<World>, Vec3d> lastPos =
+                ServerPlayer player = context.getSource().getPlayerOrException();
+                net.minecraft.util.Tuple<ResourceKey<Level>, Vec3> lastPos =
                     IPGlobal.serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
                 }
                 else {
                     IPGlobal.serverTeleportationManager.invokeTpmeCommand(
-                        player, lastPos.getLeft(), lastPos.getRight()
+                        player, lastPos.getA(), lastPos.getB()
                     );
                 }
                 return 0;
             })
         );
         
-        builder.then(CommandManager.literal("create_small_inward_wrapping")
-            .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
-                .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("create_small_inward_wrapping")
+            .then(Commands.argument("p1", Vec3Argument.vec3(false))
+                .then(Commands.argument("p2", Vec3Argument.vec3(false))
                     .executes(context -> {
-                        Vec3d p1 = Vec3ArgumentType.getVec3(context, "p1");
-                        Vec3d p2 = Vec3ArgumentType.getVec3(context, "p2");
-                        Box box = new Box(p1, p2);
-                        ServerWorld world = context.getSource().getWorld();
+                        Vec3 p1 = Vec3Argument.getVec3(context, "p1");
+                        Vec3 p2 = Vec3Argument.getVec3(context, "p2");
+                        AABB box = new AABB(p1, p2);
+                        ServerLevel world = context.getSource().getLevel();
                         addSmallWorldWrappingPortals(box, world, true);
                         return 0;
                     })
@@ -1241,14 +1241,14 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("create_small_outward_wrapping")
-            .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
-                .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
+        builder.then(Commands.literal("create_small_outward_wrapping")
+            .then(Commands.argument("p1", Vec3Argument.vec3(false))
+                .then(Commands.argument("p2", Vec3Argument.vec3(false))
                     .executes(context -> {
-                        Vec3d p1 = Vec3ArgumentType.getVec3(context, "p1");
-                        Vec3d p2 = Vec3ArgumentType.getVec3(context, "p2");
-                        Box box = new Box(p1, p2);
-                        ServerWorld world = context.getSource().getWorld();
+                        Vec3 p1 = Vec3Argument.getVec3(context, "p1");
+                        Vec3 p2 = Vec3Argument.getVec3(context, "p2");
+                        AABB box = new AABB(p1, p2);
+                        ServerLevel world = context.getSource().getLevel();
                         addSmallWorldWrappingPortals(box, world, false);
                         return 0;
                     })
@@ -1256,12 +1256,12 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("create_scaled_box_view")
-            .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
-                .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
-                    .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
-                        .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
-                            .then(CommandManager.argument("biWay", BoolArgumentType.bool())
+        builder.then(Commands.literal("create_scaled_box_view")
+            .then(Commands.argument("p1", BlockPosArgument.blockPos())
+                .then(Commands.argument("p2", BlockPosArgument.blockPos())
+                    .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
+                        .then(Commands.argument("placeTargetEntity", EntityArgument.entity())
+                            .then(Commands.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
                                     invokeCreateScaledViewCommand(
                                         context,
@@ -1273,7 +1273,7 @@ public class PortalCommand {
                                     );
                                     return 0;
                                 })
-                                .then(CommandManager.argument("teleportChangesScale", BoolArgumentType.bool())
+                                .then(Commands.argument("teleportChangesScale", BoolArgumentType.bool())
                                     .executes(context -> {
                                         boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
                                         invokeCreateScaledViewCommand(
@@ -1294,11 +1294,11 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("create_scaled_box_view_optimized")
-            .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
-                .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
-                    .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
-                        .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
+        builder.then(Commands.literal("create_scaled_box_view_optimized")
+            .then(Commands.argument("p1", BlockPosArgument.blockPos())
+                .then(Commands.argument("p2", BlockPosArgument.blockPos())
+                    .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
+                        .then(Commands.argument("placeTargetEntity", EntityArgument.entity())
                             .executes(context -> {
                                 invokeCreateScaledViewCommand(
                                     context,
@@ -1316,27 +1316,27 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("create_connected_rooms")
-            .then(CommandManager
+            .then(Commands
                 .literal("roomSize")
-                .then(CommandManager
-                    .argument("roomSize", BlockPosArgumentType.blockPos())
-                    .then(CommandManager
+                .then(Commands
+                    .argument("roomSize", BlockPosArgument.blockPos())
+                    .then(Commands
                         .literal("roomNumber")
-                        .then(CommandManager
+                        .then(Commands
                             .argument("roomNumber", IntegerArgumentType.integer(2, 500))
                             .executes(context -> {
                                 BlockPos roomSize =
-                                    BlockPosArgumentType.getBlockPos(context, "roomSize");
+                                    BlockPosArgument.getSpawnablePos(context, "roomSize");
                                 int roomNumber = IntegerArgumentType.getInteger(context, "roomNumber");
                                 
                                 createConnectedRooms(
-                                    context.getSource().getWorld(),
+                                    context.getSource().getLevel(),
                                     new BlockPos(context.getSource().getPosition()),
                                     roomSize,
                                     roomNumber,
-                                    text -> context.getSource().sendFeedback(text, false)
+                                    text -> context.getSource().sendSuccess(text, false)
                                 );
                                 
                                 return 0;
@@ -1347,22 +1347,22 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("adjust_rotation_to_connect")
-            .then(CommandManager.argument("portal1", EntityArgumentType.entity())
-                .then(CommandManager.argument("portal2", EntityArgumentType.entity())
+        builder.then(Commands.literal("adjust_rotation_to_connect")
+            .then(Commands.argument("portal1", EntityArgument.entity())
+                .then(Commands.argument("portal2", EntityArgument.entity())
                     .executes(context -> {
-                        Entity e1 = EntityArgumentType.getEntity(context, "portal1");
-                        Entity e2 = EntityArgumentType.getEntity(context, "portal2");
+                        Entity e1 = EntityArgument.getEntity(context, "portal1");
+                        Entity e2 = EntityArgument.getEntity(context, "portal2");
                         
                         if (!(e1 instanceof Portal)) {
-                            context.getSource().sendError(
-                                new LiteralText("portal1 is not a portal entity"));
+                            context.getSource().sendFailure(
+                                new TextComponent("portal1 is not a portal entity"));
                             return 0;
                         }
                         
                         if (!(e2 instanceof Portal)) {
-                            context.getSource().sendError(
-                                new LiteralText("portal2 is not a portal entity"));
+                            context.getSource().sendFailure(
+                                new TextComponent("portal2 is not a portal entity"));
                             return 0;
                         }
                         
@@ -1383,15 +1383,15 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("dimension_stack")
-            .requires(commandSource -> commandSource.hasPermissionLevel(2))
+            .requires(commandSource -> commandSource.hasPermission(2))
             .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
+                ServerPlayer player = context.getSource().getPlayerOrException();
                 
                 List<String> dimIdList = new ArrayList<>();
-                for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
-                    dimIdList.add(world.getRegistryKey().getValue().toString());
+                for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+                    dimIdList.add(world.dimension().location().toString());
                 }
                 
                 McRemoteProcedureCall.tellClientToInvoke(
@@ -1404,11 +1404,11 @@ public class PortalCommand {
             })
         );
         
-        builder.then(CommandManager
+        builder.then(Commands
             .literal("wiki")
             .executes(context -> {
                 McRemoteProcedureCall.tellClientToInvoke(
-                    context.getSource().getPlayer(),
+                    context.getSource().getPlayerOrException(),
                     "qouteall.imm_ptl.peripheral.guide.IPGuide.RemoteCallables.showWiki"
                 );
                 return 0;
@@ -1417,11 +1417,11 @@ public class PortalCommand {
     }
     
     private static void createConnectedRooms(
-        ServerWorld world, BlockPos startingPos,
+        ServerLevel world, BlockPos startingPos,
         BlockPos roomSize, int roomNumber,
-        Consumer<Text> feedbackSender
+        Consumer<Component> feedbackSender
     ) {
-        BlockPos roomAreaSize = roomSize.add(2, 2, 2);
+        BlockPos roomAreaSize = roomSize.offset(2, 2, 2);
         
         List<IntBox> roomAreaList = new ArrayList<>();
         
@@ -1433,16 +1433,16 @@ public class PortalCommand {
                 roomNumber,
                 () -> MyTaskList.withDelay(20, MyTaskList.oneShotTask(() -> {
                     
-                    currentSearchingCenter.obj = currentSearchingCenter.obj.add(getRandomShift(20));
+                    currentSearchingCenter.obj = currentSearchingCenter.obj.offset(getRandomShift(20));
                     
                     IntBox airCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-                        roomAreaSize.add(6, 6, 6),
+                        roomAreaSize.offset(6, 6, 6),
                         world,
                         currentSearchingCenter.obj,
                         128
                     );
                     if (airCube == null) {
-                        feedbackSender.accept(new LiteralText("Cannot find space for placing room"));
+                        feedbackSender.accept(new TextComponent("Cannot find space for placing room"));
                         return;
                     }
                     airCube = airCube.getSubBoxInCenter(roomAreaSize);
@@ -1470,13 +1470,13 @@ public class PortalCommand {
                     portal.setOriginPos(room1.getCenterVec().add(
                         roomSize.getX() / 4.0, 0, 0
                     ));
-                    portal.setDestinationDimension(world.getRegistryKey());
+                    portal.setDestinationDimension(world.dimension());
                     portal.setDestination(room2.getCenterVec().add(
                         roomSize.getX() / 4.0, 0, 0
                     ));
                     portal.setOrientationAndSize(
-                        new Vec3d(1, 0, 0),
-                        new Vec3d(0, 1, 0),
+                        new Vec3(1, 0, 0),
+                        new Vec3(0, 1, 0),
                         roomSize.getX() / 2.0,
                         roomSize.getY()
                     );
@@ -1488,7 +1488,7 @@ public class PortalCommand {
                     McHelper.spawnServerEntity(reversePortal);
                 });
                 
-                feedbackSender.accept(new LiteralText("finished"));
+                feedbackSender.accept(new TextComponent("finished"));
             })
         ));
     }
@@ -1498,9 +1498,9 @@ public class PortalCommand {
         
         for (; ; ) {
             Block block = Registry.BLOCK.getRandom(random);
-            BlockState state = block.getDefaultState();
+            BlockState state = block.defaultBlockState();
             Material material = state.getMaterial();
-            if (material.blocksMovement() && material.getPistonBehavior() == PistonBehavior.NORMAL
+            if (material.blocksMotion() && material.getPushReaction() == PushReaction.NORMAL
                 && !material.isLiquid()
             ) {
                 return state;
@@ -1509,19 +1509,19 @@ public class PortalCommand {
     }
     
     private static void fillRoomFrame(
-        ServerWorld world, IntBox roomArea, BlockState blockState
+        ServerLevel world, IntBox roomArea, BlockState blockState
     ) {
         for (Direction direction : Direction.values()) {
             IntBox surface = roomArea.getSurfaceLayer(direction);
             surface.fastStream().forEach(blockPos -> {
-                world.setBlockState(blockPos, blockState);
+                world.setBlockAndUpdate(blockPos, blockState);
             });
         }
     }
     
     
     private static void invokeCreateScaledViewCommand(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         boolean teleportChangesScale,
         boolean outerFuseView,
         boolean outerRenderingMergable,
@@ -1529,17 +1529,17 @@ public class PortalCommand {
         boolean isBiWay
     ) throws CommandSyntaxException {
         
-        BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
-        BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
+        BlockPos bp1 = BlockPosArgument.getSpawnablePos(context, "p1");
+        BlockPos bp2 = BlockPosArgument.getSpawnablePos(context, "p2");
         IntBox intBox = new IntBox(bp1, bp2);
         
         Entity placeTargetEntity =
-            EntityArgumentType.getEntity(context, "placeTargetEntity");
+            EntityArgument.getEntity(context, "placeTargetEntity");
         
-        ServerWorld boxWorld = ((ServerWorld) placeTargetEntity.world);
-        Vec3d boxBottomCenter = placeTargetEntity.getPos();
-        Box area = intBox.toRealNumberBox();
-        ServerWorld areaWorld = context.getSource().getWorld();
+        ServerLevel boxWorld = ((ServerLevel) placeTargetEntity.level);
+        Vec3 boxBottomCenter = placeTargetEntity.position();
+        AABB area = intBox.toRealNumberBox();
+        ServerLevel areaWorld = context.getSource().getLevel();
         
         double scale = DoubleArgumentType.getDouble(context, "scale");
         
@@ -1553,7 +1553,7 @@ public class PortalCommand {
     }
     
     
-    private static void addSmallWorldWrappingPortals(Box box, ServerWorld world, boolean isInward) {
+    private static void addSmallWorldWrappingPortals(AABB box, ServerLevel world, boolean isInward) {
         for (Direction direction : Direction.values()) {
             Portal portal = Portal.entityType.create(world);
             WorldWrappingPortal.initWrappingPortal(
@@ -1564,10 +1564,10 @@ public class PortalCommand {
     }
     
     private static int processPortalArgumentedCBCommand(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         PortalConsumerThrowsCommandSyntaxException invoker
     ) throws CommandSyntaxException {
-        Collection<? extends Entity> entities = EntityArgumentType.getEntities(
+        Collection<? extends Entity> entities = EntityArgument.getEntities(
             context, "portal"
         );
         
@@ -1586,7 +1586,7 @@ public class PortalCommand {
     }
     
     private static void sendEditBiWayPortalWarning(
-        CommandContext<ServerCommandSource> context, Portal portal
+        CommandContext<CommandSourceStack> context, Portal portal
     ) {
         if (!PortalExtension.get(portal).bindCluster) {
             if (PortalManipulation.findReversePortal(portal) != null) {
@@ -1608,7 +1608,7 @@ public class PortalCommand {
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal portal
     ) {
         PortalManipulation.completeBiWayBiFacedPortal(
@@ -1619,13 +1619,13 @@ public class PortalCommand {
     }
     
     private static void invokeCompleteBiFacedPortal(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal portal
     ) {
         PortalManipulation.removeOverlappedPortals(
-            ((ServerWorld) portal.world),
+            ((ServerLevel) portal.level),
             portal.getOriginPos(),
-            portal.getNormal().multiply(-1),
+            portal.getNormal().scale(-1),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
         );
@@ -1638,13 +1638,13 @@ public class PortalCommand {
     }
     
     private static void invokeCompleteBiWayPortal(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal portal
     ) {
         PortalManipulation.removeOverlappedPortals(
-            MiscHelper.getServer().getWorld(portal.dimensionTo),
+            MiscHelper.getServer().getLevel(portal.dimensionTo),
             portal.getDestPos(),
-            portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
+            portal.transformLocalVecNonScale(portal.getNormal().scale(-1)),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
         );
@@ -1657,7 +1657,7 @@ public class PortalCommand {
     }
     
     private static void removeSpecificAccessor(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal portal
     ) {
         portal.specificPlayerId = null;
@@ -1666,32 +1666,32 @@ public class PortalCommand {
     }
     
     private static void setSpecificAccessor(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal portal, Entity player
     ) {
         
-        portal.specificPlayerId = player.getUuid();
+        portal.specificPlayerId = player.getUUID();
         
         sendMessage(
             context,
             "This portal can only be accessed by " +
-                player.getName().asString() + " now"
+                player.getName().getContents() + " now"
         );
         sendMessage(context, portal.toString());
     }
     
     private static void removeMultidestEntry(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal pointedPortal,
-        ServerPlayerEntity player
+        ServerPlayer player
     ) {
         PortalManipulation.getPortalClutter(
-            pointedPortal.world,
+            pointedPortal.level,
             pointedPortal.getOriginPos(),
             pointedPortal.getNormal(),
             p -> true
         ).stream().filter(
-            portal -> player.getUuid().equals(portal.specificPlayerId) || portal.specificPlayerId == null
+            portal -> player.getUUID().equals(portal.specificPlayerId) || portal.specificPlayerId == null
         ).forEach(
             portal -> {
                 PortalManipulation.removeConnectedPortals(
@@ -1705,11 +1705,11 @@ public class PortalCommand {
     }
     
     private static void setMultidestEntry(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         Portal pointedPortal,
-        ServerPlayerEntity player,
-        RegistryKey<World> dimension,
-        Vec3d destination,
+        ServerPlayer player,
+        ResourceKey<Level> dimension,
+        Vec3 destination,
         boolean biFaced,
         boolean biWay
     ) {
@@ -1721,7 +1721,7 @@ public class PortalCommand {
         
         newPortal.dimensionTo = dimension;
         newPortal.setDestination(destination);
-        newPortal.specificPlayerId = player.getUuid();
+        newPortal.specificPlayerId = player.getUUID();
         
         McHelper.spawnServerEntity(newPortal);
         
@@ -1747,10 +1747,10 @@ public class PortalCommand {
         }
     }
     
-    public static void sendPortalInfo(CommandContext<ServerCommandSource> context, Portal portal) {
-        context.getSource().sendFeedback(
+    public static void sendPortalInfo(CommandContext<CommandSourceStack> context, Portal portal) {
+        context.getSource().sendSuccess(
             McHelper.compoundTagToTextSorted(
-                portal.writeNbt(new NbtCompound()),
+                portal.saveWithoutId(new CompoundTag()),
                 " ",
                 0
             ),
@@ -1775,9 +1775,9 @@ public class PortalCommand {
         }
     }
     
-    public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {
-        context.getSource().sendFeedback(
-            new LiteralText(message),
+    public static void sendMessage(CommandContext<CommandSourceStack> context, String message) {
+        context.getSource().sendSuccess(
+            new TextComponent(message),
             false
         );
     }
@@ -1789,12 +1789,12 @@ public class PortalCommand {
      * @return The success message, as a {@link Text}.
      * @author LoganDark
      */
-    private static Text getMakePortalSuccess(Portal portal) {
-        return new TranslatableText(
+    private static Component getMakePortalSuccess(Portal portal) {
+        return new TranslatableComponent(
             "imm_ptl.command.make_portal.success",
             Double.toString(portal.width),
             Double.toString(portal.height),
-            McHelper.dimensionTypeId(portal.world.getRegistryKey()).toString(),
+            McHelper.dimensionTypeId(portal.level.dimension()).toString(),
             portal.getOriginPos().toString(),
             McHelper.dimensionTypeId(portal.dimensionTo).toString(),
             portal.getDestPos().toString()
@@ -1802,13 +1802,13 @@ public class PortalCommand {
     }
     
     // By LoganDark :D
-    private static int placePortalAbsolute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int placePortalAbsolute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
-        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+        ResourceKey<Level> to = DimensionArgument.getDimension(context, "to").dimension();
+        Vec3 dest = Vec3Argument.getVec3(context, "dest");
         
-        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayer());
+        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayerOrException());
         
         if (portal == null) {
             return 0;
@@ -1818,19 +1818,19 @@ public class PortalCommand {
         portal.setDestination(dest);
         McHelper.spawnServerEntity(portal);
         
-        context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
+        context.getSource().sendSuccess(getMakePortalSuccess(portal), true);
         
         return 1;
     }
     
     // By LoganDark :D
-    private static int placePortalShift(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int placePortalShift(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
+        ResourceKey<Level> to = DimensionArgument.getDimension(context, "to").dimension();
         double dist = DoubleArgumentType.getDouble(context, "dist");
         
-        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayer());
+        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayerOrException());
         
         if (portal == null) {
             return 0;
@@ -1838,21 +1838,21 @@ public class PortalCommand {
         
         // unsafe to use getContentDirection before the destination is fully set
         portal.dimensionTo = to;
-        portal.setDestination(portal.getOriginPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist)));
+        portal.setDestination(portal.getOriginPos().add(portal.axisW.cross(portal.axisH).scale(-dist)));
         
         McHelper.spawnServerEntity(portal);
         
-        context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
+        context.getSource().sendSuccess(getMakePortalSuccess(portal), true);
         
         return 1;
     }
     
     public static int teleport(
         Collection<? extends Entity> entities,
-        RegistryKey<World> targetDim,
-        Vec3d targetPos
+        ResourceKey<Level> targetDim,
+        Vec3 targetPos
     ) {
-        ServerWorld targetWorld = MiscHelper.getServer().getWorld(targetDim);
+        ServerLevel targetWorld = MiscHelper.getServer().getLevel(targetDim);
         
         int numTeleported = 0;
         
@@ -1879,20 +1879,20 @@ public class PortalCommand {
     }
     
     public static int processPortalTargetedCommand(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         PortalConsumerThrowsCommandSyntaxException processCommand
     ) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+        CommandSourceStack source = context.getSource();
         Entity entity = source.getEntity();
         
-        if (entity instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = ((ServerPlayerEntity) entity);
+        if (entity instanceof ServerPlayer) {
+            ServerPlayer player = ((ServerPlayer) entity);
             
             Portal portal = getPlayerPointingPortal(player, false);
             
             if (portal == null) {
-                source.sendFeedback(
-                    new LiteralText("You are not pointing to any non-global portal." +
+                source.sendSuccess(
+                    new TextComponent("You are not pointing to any non-global portal." +
                         " (This command cannot process global portals)"),
                     false
                 );
@@ -1906,8 +1906,8 @@ public class PortalCommand {
             processCommand.accept(((Portal) entity));
         }
         else {
-            source.sendFeedback(
-                new LiteralText(
+            source.sendSuccess(
+                new TextComponent(
                     "The command executor should be either a player or a portal entity"
                 ),
                 false
@@ -1918,23 +1918,23 @@ public class PortalCommand {
     }
     
     public static Portal getPlayerPointingPortal(
-        ServerPlayerEntity player, boolean includeGlobalPortal
+        ServerPlayer player, boolean includeGlobalPortal
     ) {
         return getPlayerPointingPortalRaw(player, 1, 100, includeGlobalPortal)
             .map(Pair::getFirst).orElse(null);
     }
     
-    public static Optional<Pair<Portal, Vec3d>> getPlayerPointingPortalRaw(
-        PlayerEntity player, float tickDelta, double maxDistance, boolean includeGlobalPortal
+    public static Optional<Pair<Portal, Vec3>> getPlayerPointingPortalRaw(
+        Player player, float tickDelta, double maxDistance, boolean includeGlobalPortal
     ) {
-        Vec3d from = player.getCameraPosVec(tickDelta);
-        Vec3d to = from.add(player.getRotationVec(tickDelta).multiply(maxDistance));
-        World world = player.world;
+        Vec3 from = player.getEyePosition(tickDelta);
+        Vec3 to = from.add(player.getViewVector(tickDelta).scale(maxDistance));
+        Level world = player.level;
         return raytracePortals(world, from, to, includeGlobalPortal);
     }
     
-    public static Optional<Pair<Portal, Vec3d>> raytracePortals(
-        World world, Vec3d from, Vec3d to, boolean includeGlobalPortal
+    public static Optional<Pair<Portal, Vec3>> raytracePortals(
+        Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
     ) {
         Stream<Portal> portalStream = McHelper.getEntitiesNearby(
             world,
@@ -1950,14 +1950,14 @@ public class PortalCommand {
             );
         }
         return portalStream.map(
-            portal -> new Pair<Portal, Vec3d>(
+            portal -> new Pair<Portal, Vec3>(
                 portal, portal.rayTrace(from, to)
             )
         ).filter(
             portalAndHitPos -> portalAndHitPos.getSecond() != null
         ).min(
             Comparator.comparingDouble(
-                portalAndHitPos -> portalAndHitPos.getSecond().squaredDistanceTo(from)
+                portalAndHitPos -> portalAndHitPos.getSecond().distanceToSqr(from)
             )
         );
     }
@@ -1984,11 +1984,11 @@ public class PortalCommand {
     /**
      * {@link Entity#getRotationVector()}
      */
-    private static Vec3d getRightVec(Entity entity) {
-        float yaw = entity.getYaw() + 90;
+    private static Vec3 getRightVec(Entity entity) {
+        float yaw = entity.getYRot() + 90;
         float radians = -yaw * 0.017453292F;
         
-        return new Vec3d(
+        return new Vec3(
             Math.sin(radians), 0, Math.cos(radians)
         );
     }
@@ -1996,13 +1996,13 @@ public class PortalCommand {
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
         public static void clientAccelerate(double v) {
-            MinecraftClient client = MinecraftClient.getInstance();
+            Minecraft client = Minecraft.getInstance();
             
-            ClientPlayerEntity player = client.player;
+            LocalPlayer player = client.player;
             
             McHelper.setWorldVelocity(
                 player,
-                player.getRotationVec(1).multiply(v / 20)
+                player.getViewVector(1).scale(v / 20)
             );
         }
     }

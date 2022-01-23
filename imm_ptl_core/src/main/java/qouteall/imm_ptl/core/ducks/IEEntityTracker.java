@@ -1,15 +1,15 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public interface IEEntityTracker {
     Entity getEntity_();
     
-    void updateEntityTrackingStatus(ServerPlayerEntity player);
+    void updateEntityTrackingStatus(ServerPlayer player);
     
-    void onPlayerRespawn(ServerPlayerEntity oldPlayer);
+    void onPlayerRespawn(ServerPlayer oldPlayer);
     
     void resendSpawnPacketToTrackers();
     
@@ -17,7 +17,7 @@ public interface IEEntityTracker {
     
     void tickEntry();
     
-    ChunkSectionPos getLastCameraPosition();
+    SectionPos getLastCameraPosition();
     
-    void setLastCameraPosition(ChunkSectionPos arg);
+    void setLastCameraPosition(SectionPos arg);
 }

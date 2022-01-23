@@ -1,10 +1,5 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -13,6 +8,11 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import java.util.function.Predicate;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class VerticalConnectingPortal extends GlobalTrackedPortal {
     public static EntityType<VerticalConnectingPortal> entityType;
@@ -33,37 +33,37 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     
     public VerticalConnectingPortal(
         EntityType<?> entityType_1,
-        World world_1
+        Level world_1
     ) {
         super(entityType_1, world_1);
     }
     
     public static void connect(
-        RegistryKey<World> from,
+        ResourceKey<Level> from,
         ConnectorType connectorType,
-        RegistryKey<World> to
+        ResourceKey<Level> to
     ) {
         connect(from, connectorType, to, false);
     }
     
     public static void connect(
-        RegistryKey<World> from,
+        ResourceKey<Level> from,
         ConnectorType connectorType,
-        RegistryKey<World> to,
+        ResourceKey<Level> to,
         boolean respectSpaceRatio
     ) {
         removeConnectingPortal(connectorType, from);
         
-        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
-        ServerWorld toWorld = MiscHelper.getServer().getWorld(to);
+        ServerLevel fromWorld = MiscHelper.getServer().getLevel(from);
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(to);
         
         VerticalConnectingPortal connectingPortal = createConnectingPortal(
             fromWorld,
             connectorType,
             toWorld,
             respectSpaceRatio ?
-                fromWorld.getDimension().getCoordinateScale() /
-                    toWorld.getDimension().getCoordinateScale()
+                fromWorld.dimensionType().coordinateScale() /
+                    toWorld.dimensionType().coordinateScale()
                 : 1.0,
             false,
             0,
@@ -78,8 +78,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static void connectMutually(
-        RegistryKey<World> up,
-        RegistryKey<World> down,
+        ResourceKey<Level> up,
+        ResourceKey<Level> down,
         boolean respectSpaceRatio
     ) {
         
@@ -88,9 +88,9 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static VerticalConnectingPortal createConnectingPortal(
-        ServerWorld fromWorld,
+        ServerLevel fromWorld,
         ConnectorType connectorType,
-        ServerWorld toWorld,
+        ServerLevel toWorld,
         double scaling,
         boolean inverted,
         double rotationAlongYDegrees,
@@ -100,20 +100,20 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             entityType, fromWorld
         );
         
-        verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
+        verticalConnectingPortal.dimensionTo = toWorld.dimension();
         verticalConnectingPortal.width = 23333333333.0d;
         verticalConnectingPortal.height = 23333333333.0d;
         
         switch (connectorType) {
             case floor:
-                verticalConnectingPortal.setPosition(0, fromWorldMinY, 0);
-                verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
-                verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
+                verticalConnectingPortal.setPos(0, fromWorldMinY, 0);
+                verticalConnectingPortal.axisW = new Vec3(0, 0, 1);
+                verticalConnectingPortal.axisH = new Vec3(1, 0, 0);
                 break;
             case ceil:
-                verticalConnectingPortal.setPosition(0, fromWorldMaxY, 0);
-                verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
-                verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);
+                verticalConnectingPortal.setPos(0, fromWorldMaxY, 0);
+                verticalConnectingPortal.axisW = new Vec3(1, 0, 0);
+                verticalConnectingPortal.axisH = new Vec3(0, 0, 1);
                 break;
         }
     
@@ -121,28 +121,28 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         if (!inverted) {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMaxY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3(0, toWorldMaxY, 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMinY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3(0, toWorldMinY, 0));
                     break;
             }
         }
         else {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMinY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3(0, toWorldMinY, 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMaxY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3(0, toWorldMaxY, 0));
                     break;
             }
         }
         
         DQuaternion inversionRotation = inverted ?
-            DQuaternion.rotationByDegrees(new Vec3d(1, 0, 0), 180) : null;
+            DQuaternion.rotationByDegrees(new Vec3(1, 0, 0), 180) : null;
         DQuaternion additionalRotation = rotationAlongYDegrees != 0 ?
-            DQuaternion.rotationByDegrees(new Vec3d(0, 1, 0), rotationAlongYDegrees) : null;
+            DQuaternion.rotationByDegrees(new Vec3(0, 1, 0), rotationAlongYDegrees) : null;
         DQuaternion rotation = Helper.combineNullable(
             inversionRotation, additionalRotation, DQuaternion::hamiltonProduct
         );
@@ -159,15 +159,15 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     
     public static void removeConnectingPortal(
         ConnectorType connectorType,
-        RegistryKey<World> dimension
+        ResourceKey<Level> dimension
     ) {
         removeConnectingPortal(getPredicate(connectorType), dimension);
     }
     
     private static void removeConnectingPortal(
-        Predicate<Portal> predicate, RegistryKey<World> dimension
+        Predicate<Portal> predicate, ResourceKey<Level> dimension
     ) {
-        ServerWorld endWorld = MiscHelper.getServer().getWorld(dimension);
+        ServerLevel endWorld = MiscHelper.getServer().getLevel(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);
         
         storage.removePortals(
@@ -176,7 +176,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static VerticalConnectingPortal getConnectingPortal(
-        World world, ConnectorType type
+        Level world, ConnectorType type
     ) {
         return (VerticalConnectingPortal) GlobalPortalStorage.getGlobalPortals(world).stream()
             .filter(getPredicate(type))

@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.gl.GlUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 
 import javax.annotation.Nullable;
 
 public interface IEShader {
     @Nullable
-    GlUniform ip_getClippingEquationUniform();
+    Uniform ip_getClippingEquationUniform();
 }

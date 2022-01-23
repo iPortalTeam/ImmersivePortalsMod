@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -23,25 +23,25 @@ public class StaticFieldsSwappingManager<Context> {
     private final Supplier<Context> contextConstructor;
     
     public static class ContextRecord<Ctx> {
-        public RegistryKey<World> dimension;
+        public ResourceKey<Level> dimension;
         public Ctx context;
         
         //sometimes the static fields contain the latest context
         //and our context object contains out-dated info
         public boolean isHoldingLatestContext = false;
         
-        public ContextRecord(RegistryKey<World> dimension, Ctx context, boolean isHoldingLatestContext) {
+        public ContextRecord(ResourceKey<Level> dimension, Ctx context, boolean isHoldingLatestContext) {
             this.dimension = dimension;
             this.context = context;
             this.isHoldingLatestContext = isHoldingLatestContext;
         }
     }
     
-    private RegistryKey<World> outerDimension;
+    private ResourceKey<Level> outerDimension;
     private Stack<ContextRecord<Context>> swappedContext = new Stack<>();
     
     //this will be managed by other classes
-    public final Map<RegistryKey<World>, ContextRecord<Context>> contextMap = new HashMap<>();
+    public final Map<ResourceKey<Level>, ContextRecord<Context>> contextMap = new HashMap<>();
     
     public StaticFieldsSwappingManager(
         Consumer<Context> copyFromObject,
@@ -60,7 +60,7 @@ public class StaticFieldsSwappingManager<Context> {
         return !swappedContext.empty();
     }
     
-    public void setOuterDimension(RegistryKey<World> dim) {
+    public void setOuterDimension(ResourceKey<Level> dim) {
         Validate.isTrue(!isSwapped());
         
         outerDimension = dim;
@@ -74,7 +74,7 @@ public class StaticFieldsSwappingManager<Context> {
         });
     }
     
-    public RegistryKey<World> getCurrentDimension() {
+    public ResourceKey<Level> getCurrentDimension() {
         if (swappedContext.empty()) {
             Validate.notNull(outerDimension);
             return outerDimension;
@@ -84,8 +84,8 @@ public class StaticFieldsSwappingManager<Context> {
         }
     }
     
-    public void pushSwapping(RegistryKey<World> newDimension) {
-        RegistryKey<World> currentDimension = getCurrentDimension();
+    public void pushSwapping(ResourceKey<Level> newDimension) {
+        ResourceKey<Level> currentDimension = getCurrentDimension();
         
         ContextRecord<Context> oldContext = contextMap.get(currentDimension);
         ContextRecord<Context> newContext = contextMap.computeIfAbsent(newDimension, k -> {
@@ -110,7 +110,7 @@ public class StaticFieldsSwappingManager<Context> {
         transferDataFromObjectToStaticFields(innerContext);
     }
     
-    public void swapAndInvoke(RegistryKey<World> newDimension, Runnable func) {
+    public void swapAndInvoke(ResourceKey<Level> newDimension, Runnable func) {
         pushSwapping(newDimension);
         func.run();
         popSwapping();
@@ -145,11 +145,11 @@ public class StaticFieldsSwappingManager<Context> {
     }
     
     //called when player teleports
-    public void updateOuterDimensionAndChangeContext(RegistryKey<World> newDimension) {
+    public void updateOuterDimensionAndChangeContext(ResourceKey<Level> newDimension) {
         Validate.isTrue(!isSwapped());
         Validate.notNull(outerDimension);
         
-        RegistryKey<World> oldDimension = this.outerDimension;
+        ResourceKey<Level> oldDimension = this.outerDimension;
         
         transferDataFromStaticFieldsToObject(contextMap.get(oldDimension));
         

@@ -6,19 +6,19 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.dynamic.RegistryOps;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
@@ -51,51 +51,51 @@ public class CustomPortalGenManagement {
 
         MinecraftServer server = MiscHelper.getServer();
 
-        DynamicRegistryManager.Impl registryTracker =
-            ((DynamicRegistryManager.Impl) server.getRegistryManager());
+        RegistryAccess.RegistryHolder registryTracker =
+            ((RegistryAccess.RegistryHolder) server.registryAccess());
 
-        ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
+        ResourceManager resourceManager = server.resources.getResourceManager();
 
-        RegistryOps<JsonElement> registryOps = RegistryOps.of(
+        RegistryReadOps<JsonElement> registryOps = RegistryReadOps.create(
             JsonOps.INSTANCE,
             resourceManager,
             registryTracker
         );
 
-        SimpleRegistry<CustomPortalGeneration> emptyRegistry = new SimpleRegistry<>(
+        MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
             CustomPortalGeneration.registryRegistryKey,
             Lifecycle.stable()
         );
 
-        DataResult<SimpleRegistry<CustomPortalGeneration>> dataResult =
-            registryOps.loadToRegistry(
+        DataResult<MappedRegistry<CustomPortalGeneration>> dataResult =
+            registryOps.decodeElements(
                 emptyRegistry,
                 CustomPortalGeneration.registryRegistryKey,
                 CustomPortalGeneration.codec.codec()
             );
 
-        SimpleRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
+        MappedRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
 
         if (result == null) {
-            DataResult.PartialResult<SimpleRegistry<CustomPortalGeneration>> r =
+            DataResult.PartialResult<MappedRegistry<CustomPortalGeneration>> r =
                 dataResult.get().right().get();
-            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
                 "Error when parsing custom portal generation\n" +
                     r.message()
             ));
             return;
         }
 
-        result.getEntries().forEach((entry) -> {
+        result.entrySet().forEach((entry) -> {
             CustomPortalGeneration gen = entry.getValue();
-            gen.identifier = entry.getKey().getValue();
+            gen.identifier = entry.getKey().location();
 
             if (!gen.initAndCheck()) {
                 Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
                 return;
             }
 
-            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue());
+            Helper.log("Loaded Custom Portal Gen " + entry.getKey().location());
 
             load(gen);
 
@@ -103,13 +103,13 @@ public class CustomPortalGenManagement {
                 CustomPortalGeneration reverse = gen.getReverse();
 
                 if (reverse != null) {
-                    reverse.identifier = entry.getKey().getValue();
+                    reverse.identifier = entry.getKey().location();
                     if (gen.initAndCheck()) {
                         load(reverse);
                     }
                 }
                 else {
-                    McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+                    McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
                         "Cannot create reverse generation of " + gen
                     ));
                 }
@@ -133,18 +133,18 @@ public class CustomPortalGenManagement {
         }
     }
     
-    public static void onItemUse(ItemUsageContext context, ActionResult actionResult) {
-        if (context.getWorld().isClient()) {
+    public static void onItemUse(UseOnContext context, InteractionResult actionResult) {
+        if (context.getLevel().isClientSide()) {
             return;
         }
         
-        Item item = context.getStack().getItem();
+        Item item = context.getItemInHand().getItem();
         if (useItemGen.containsKey(item)) {
             IPGlobal.serverTaskList.addTask(() -> {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
-                        ((ServerWorld) context.getWorld()),
-                        context.getBlockPos().offset(context.getSide()),
+                        ((ServerLevel) context.getLevel()),
+                        context.getClickedPos().relative(context.getClickedFace()),
                         context.getPlayer()
                     );
                     if (result) {
@@ -152,7 +152,7 @@ public class CustomPortalGenManagement {
                             PortalGenTrigger.UseItemTrigger trigger =
                                 (PortalGenTrigger.UseItemTrigger) gen.trigger;
                             if (trigger.shouldConsume(context)) {
-                                context.getStack().decrement(1);
+                                context.getItemInHand().shrink(1);
                             }
                         }
                         break;
@@ -164,25 +164,25 @@ public class CustomPortalGenManagement {
     }
     
     public static void onItemTick(ItemEntity entity) {
-        if (entity.world.isClient()) {
+        if (entity.level.isClientSide()) {
             return;
         }
         if (entity.getThrower() == null) {
             return;
         }
         
-        if (entity.cannotPickup()) {
-            Item item = entity.getStack().getItem();
+        if (entity.hasPickUpDelay()) {
+            Item item = entity.getItem().getItem();
             if (throwItemGen.containsKey(item)) {
                 IPGlobal.serverTaskList.addTask(() -> {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
-                            ((ServerWorld) entity.world),
-                            entity.getBlockPos(),
+                            ((ServerLevel) entity.level),
+                            entity.blockPosition(),
                             entity
                         );
                         if (result) {
-                            entity.getStack().decrement(1);
+                            entity.getItem().shrink(1);
                             break;
                         }
                     }
@@ -193,19 +193,19 @@ public class CustomPortalGenManagement {
     }
     
     public static void onBeforeConventionalDimensionChange(
-        ServerPlayerEntity player
+        ServerPlayer player
     ) {
-        playerPosBeforeTravel.put(player.getUuid(), new UCoordinate(player));
+        playerPosBeforeTravel.put(player.getUUID(), new UCoordinate(player));
     }
     
     public static void onAfterConventionalDimensionChange(
-        ServerPlayerEntity player
+        ServerPlayer player
     ) {
-        UUID uuid = player.getUuid();
+        UUID uuid = player.getUUID();
         if (playerPosBeforeTravel.containsKey(uuid)) {
             UCoordinate startCoord = playerPosBeforeTravel.get(uuid);
             
-            ServerWorld startWorld = McHelper.getServerWorld(startCoord.dimension);
+            ServerLevel startWorld = McHelper.getServerWorld(startCoord.dimension);
             
             BlockPos startPos = new BlockPos(startCoord.pos);
             

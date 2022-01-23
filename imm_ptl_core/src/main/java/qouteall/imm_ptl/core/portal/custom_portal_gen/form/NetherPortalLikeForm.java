@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
@@ -29,8 +29,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     @Override
     public boolean perform(
         CustomPortalGeneration cpg,
-        ServerWorld fromWorld, BlockPos startingPos,
-        ServerWorld toWorld,
+        ServerLevel fromWorld, BlockPos startingPos,
+        ServerLevel toWorld,
         @Nullable Entity triggeringEntity
     ) {
         if (!NetherPortalGeneration.checkPortalGeneration(fromWorld, startingPos)) {
@@ -61,13 +61,13 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         // clear the area
         if (generateFrameIfNotFound) {
             for (BlockPos areaPos : fromShape.area) {
-                fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
+                fromWorld.setBlockAndUpdate(areaPos, Blocks.AIR.defaultBlockState());
             }
         }
         
         BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());
         
-        Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> frameMatchingFunc =
+        Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> frameMatchingFunc =
             getFrameMatchingFunc(fromWorld, toWorld, fromShape);
         NetherPortalGeneration.startGeneratingPortal(
             fromWorld,
@@ -96,7 +96,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             () -> {
                 // check portal integrity while loading chunk
                 return fromShape.frameAreaWithoutCorner.stream().allMatch(
-                    bp -> !fromWorld.isAir(bp)
+                    bp -> !fromWorld.isEmptyBlock(bp)
                 );
             },
             frameMatchingFunc
@@ -105,13 +105,13 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         return true;
     }
     
-    public Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> getFrameMatchingFunc(
-        ServerWorld fromWorld, ServerWorld toWorld,
+    public Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> getFrameMatchingFunc(
+        ServerLevel fromWorld, ServerLevel toWorld,
         BlockPortalShape fromShape
     ) {
         Predicate<BlockState> areaPredicate = getAreaPredicate();
         Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
-        BlockPos.Mutable temp2 = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos temp2 = new BlockPos.MutableBlockPos();
         return (region) -> (blockPos) -> {
             BlockPortalShape result = fromShape.matchShapeWithMovedFirstFramePos(
                 pos -> areaPredicate.test(region.getBlockState(pos)),
@@ -122,8 +122,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             if (result != null) {
                 if (fromWorld != toWorld || fromShape.anchor != result.anchor) {
                     return new PortalGenInfo(
-                        fromWorld.getRegistryKey(),
-                        toWorld.getRegistryKey(),
+                        fromWorld.dimension(),
+                        toWorld.dimension(),
                         fromShape, result
                     );
                 }
@@ -133,8 +133,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     }
     
     public PortalGenInfo getNewPortalPlacement(
-        ServerWorld toWorld, BlockPos toPos,
-        ServerWorld fromWorld, BlockPortalShape fromShape
+        ServerLevel toWorld, BlockPos toPos,
+        ServerLevel fromWorld, BlockPortalShape fromShape
     ) {
         
         
@@ -149,8 +149,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         );
         
         return new PortalGenInfo(
-            fromWorld.getRegistryKey(),
-            toWorld.getRegistryKey(),
+            fromWorld.dimension(),
+            toWorld.dimension(),
             fromShape,
             placedShape
         );
@@ -162,9 +162,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     }
     
     public abstract void generateNewFrame(
-        ServerWorld fromWorld,
+        ServerLevel fromWorld,
         BlockPortalShape fromShape,
-        ServerWorld toWorld,
+        ServerLevel toWorld,
         BlockPortalShape toShape
     );
     
@@ -174,7 +174,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     
     public abstract Predicate<BlockState> getAreaPredicate();
     
-    public boolean testThisSideShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
+    public boolean testThisSideShape(ServerLevel fromWorld, BlockPortalShape fromShape) {
         return true;
     }
 }

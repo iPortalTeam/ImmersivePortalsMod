@@ -1,23 +1,23 @@
 package qouteall.imm_ptl.core.ducks;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.BuiltChunkStorage;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.ViewArea;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
 
 public interface IEWorldRenderer {
     EntityRenderDispatcher ip_getEntityRenderDispatcher();
     
-    BuiltChunkStorage ip_getBuiltChunkStorage();
+    ViewArea ip_getBuiltChunkStorage();
     
-    ChunkBuilder getChunkBuilder();
+    ChunkRenderDispatcher getChunkBuilder();
     
     void ip_myRenderEntity(
         Entity entity,
@@ -25,17 +25,17 @@ public interface IEWorldRenderer {
         double cameraY,
         double cameraZ,
         float tickDelta,
-        MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider
+        PoseStack matrixStack,
+        MultiBufferSource vertexConsumerProvider
     );
     
-    ShaderEffect portal_getTransparencyShader();
+    PostChain portal_getTransparencyShader();
     
-    void portal_setTransparencyShader(ShaderEffect arg);
+    void portal_setTransparencyShader(PostChain arg);
     
-    BufferBuilderStorage ip_getBufferBuilderStorage();
+    RenderBuffers ip_getBufferBuilderStorage();
     
-    void ip_setBufferBuilderStorage(BufferBuilderStorage arg);
+    void ip_setBufferBuilderStorage(RenderBuffers arg);
     
     Frustum portal_getFrustum();
     
@@ -43,7 +43,7 @@ public interface IEWorldRenderer {
     
     void portal_fullyDispose();
     
-    void portal_setChunkInfoList(ObjectArrayList<WorldRenderer.ChunkInfo> arg);
+    void portal_setChunkInfoList(ObjectArrayList<LevelRenderer.RenderChunkInfo> arg);
     
-    ObjectArrayList<WorldRenderer.ChunkInfo> portal_getChunkInfoList();
+    ObjectArrayList<LevelRenderer.RenderChunkInfo> portal_getChunkInfoList();
 }

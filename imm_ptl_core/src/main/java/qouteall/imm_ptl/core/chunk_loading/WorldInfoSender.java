@@ -1,37 +1,37 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
-import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.Set;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 
 public class WorldInfoSender {
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
             MiscHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
-                for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
-                    Set<RegistryKey<World>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
+                for (ServerPlayer player : McHelper.getCopiedPlayerList()) {
+                    Set<ResourceKey<Level>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
                     
-                    if (player.world.getRegistryKey() != World.OVERWORLD) {
+                    if (player.level.dimension() != Level.OVERWORLD) {
                         sendWorldInfo(
                             player,
-                            MiscHelper.getServer().getWorld(World.OVERWORLD)
+                            MiscHelper.getServer().getLevel(Level.OVERWORLD)
                         );
                     }
                     
-                    MiscHelper.getServer().getWorlds().forEach(thisWorld -> {
+                    MiscHelper.getServer().getAllLevels().forEach(thisWorld -> {
                         if (isNonOverworldSurfaceDimension(thisWorld)) {
-                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
+                            if (visibleDimensions.contains(thisWorld.dimension())) {
                                 sendWorldInfo(
                                     player,
                                     thisWorld
@@ -47,15 +47,15 @@ public class WorldInfoSender {
     }
     
     //send the daytime and weather info to player when player is in nether
-    public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
-        RegistryKey<World> remoteDimension = world.getRegistryKey();
+    public static void sendWorldInfo(ServerPlayer player, ServerLevel world) {
+        ResourceKey<Level> remoteDimension = world.dimension();
         
-        player.networkHandler.sendPacket(
+        player.connection.send(
             IPNetworking.createRedirectedMessage(
                 remoteDimension,
-                new WorldTimeUpdateS2CPacket(
-                    world.getTime(),
-                    world.getTimeOfDay(),
+                new ClientboundSetTimePacket(
+                    world.getGameTime(),
+                    world.getDayTime(),
                     world.getGameRules().getBoolean(
                         GameRules.DO_DAYLIGHT_CYCLE
                     )
@@ -66,10 +66,10 @@ public class WorldInfoSender {
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         
         if (world.isRaining()) {
-            player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
-                world.getRegistryKey(),
-                new GameStateChangeS2CPacket(
-                    GameStateChangeS2CPacket.RAIN_STARTED,
+            player.connection.send(IPNetworking.createRedirectedMessage(
+                world.dimension(),
+                new ClientboundGameEventPacket(
+                    ClientboundGameEventPacket.START_RAINING,
                     0.0F
                 )
             ));
@@ -79,23 +79,23 @@ public class WorldInfoSender {
             //if the weather turned to not raining then elsewhere syncs it
         }
         
-        player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
-            world.getRegistryKey(),
-            new GameStateChangeS2CPacket(
-                GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
-                world.getRainGradient(1.0F)
+        player.connection.send(IPNetworking.createRedirectedMessage(
+            world.dimension(),
+            new ClientboundGameEventPacket(
+                ClientboundGameEventPacket.RAIN_LEVEL_CHANGE,
+                world.getRainLevel(1.0F)
             )
         ));
-        player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
-            world.getRegistryKey(),
-            new GameStateChangeS2CPacket(
-                GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
-                world.getThunderGradient(1.0F)
+        player.connection.send(IPNetworking.createRedirectedMessage(
+            world.dimension(),
+            new ClientboundGameEventPacket(
+                ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE,
+                world.getThunderLevel(1.0F)
             )
         ));
     }
     
-    public static boolean isNonOverworldSurfaceDimension(World world) {
-        return world.getDimension().hasSkyLight() && world.getRegistryKey() != World.OVERWORLD;
+    public static boolean isNonOverworldSurfaceDimension(Level world) {
+        return world.dimensionType().hasSkyLight() && world.dimension() != Level.OVERWORLD;
     }
 }

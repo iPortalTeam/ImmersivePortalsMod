@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -54,10 +54,10 @@ public class IPConfig {
     
     private static File getGameDir() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            return MinecraftClient.getInstance().runDirectory;
+            return Minecraft.getInstance().gameDirectory;
         }
         else {
-            return MiscHelper.getServer().getRunDirectory();
+            return MiscHelper.getServer().getServerDirectory();
         }
     }
     

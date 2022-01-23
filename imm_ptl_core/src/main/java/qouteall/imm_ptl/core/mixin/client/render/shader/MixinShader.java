@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render.shader;
 
-import net.minecraft.client.gl.GlShader;
-import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.render.Shader;
+import com.mojang.blaze3d.shaders.Shader;
+import com.mojang.blaze3d.shaders.Uniform;
+import net.minecraft.client.renderer.ShaderInstance;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,21 +15,21 @@ import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Mixin(Shader.class)
+@Mixin(ShaderInstance.class)
 public abstract class MixinShader implements IEShader {
     @Shadow
     @Nullable
-    public abstract GlUniform getUniform(String name);
+    public abstract Uniform getUniform(String name);
     
     @Shadow
     @Final
-    private List<GlUniform> uniforms;
+    private List<Uniform> uniforms;
     @Shadow
     @Final
     private String name;
     
     @Nullable
-    private GlUniform ip_clippingEquation;
+    private Uniform ip_clippingEquation;
     
 //    @Inject(
 //        method = "<init>",
@@ -43,14 +43,14 @@ public abstract class MixinShader implements IEShader {
 //    }
     
     @Inject(
-        method = "loadReferences",
+        method = "Lnet/minecraft/client/renderer/ShaderInstance;updateLocations()V",
         at = @At("HEAD")
     )
     private void onLoadReferences(CallbackInfo ci) {
-        GlShader this_ = (GlShader) (Object) this;
+        Shader this_ = (Shader) (Object) this;
         
         if (ShaderCodeTransformation.shouldAddUniform(name)) {
-            ip_clippingEquation = new GlUniform(
+            ip_clippingEquation = new Uniform(
                 "imm_ptl_ClippingEquation",
                 7, 4, this_
             );
@@ -60,7 +60,7 @@ public abstract class MixinShader implements IEShader {
     
     @Nullable
     @Override
-    public GlUniform ip_getClippingEquationUniform() {
+    public Uniform ip_getClippingEquationUniform() {
         return ip_clippingEquation;
     }
 }

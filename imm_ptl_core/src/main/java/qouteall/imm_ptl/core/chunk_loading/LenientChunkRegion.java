@@ -1,27 +1,27 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // Lenient means getBlockState does not crash if out of bound
-public class LenientChunkRegion extends ChunkRegion {
+public class LenientChunkRegion extends WorldGenRegion {
     
-    public LenientChunkRegion(ServerWorld world, List<Chunk> chunks) {
+    public LenientChunkRegion(ServerLevel world, List<ChunkAccess> chunks) {
         super(world, chunks, null, 99999);
     }
     
     static LenientChunkRegion createLenientChunkRegion(
-        DimensionalChunkPos center, int radius, ServerWorld world
+        DimensionalChunkPos center, int radius, ServerLevel world
     ) {
-        List<Chunk> chunks = new ArrayList<>();
+        List<ChunkAccess> chunks = new ArrayList<>();
     
         for (int z = center.z - radius; z <= center.z + radius; z++) {
             for (int x = center.x - radius; x <= center.x + radius; x++) {
@@ -36,12 +36,12 @@ public class LenientChunkRegion extends ChunkRegion {
     
     @Override
     public BlockState getBlockState(BlockPos pos) {
-        final Chunk chunk = this.getChunk(
+        final ChunkAccess chunk = this.getChunk(
             pos.getX() >> 4, pos.getZ() >> 4,
             ChunkStatus.FULL, false
         );
         if (chunk == null) {
-            return Blocks.AIR.getDefaultState();
+            return Blocks.AIR.defaultBlockState();
         }
         return chunk.getBlockState(pos);
     }

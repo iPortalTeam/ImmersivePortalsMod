@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -22,10 +22,10 @@ public class GuiPortalRendering {
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     @Nullable
-    private static Framebuffer renderingFrameBuffer = null;
+    private static RenderTarget renderingFrameBuffer = null;
     
     @Nullable
-    public static Framebuffer getRenderingFrameBuffer() {
+    public static RenderTarget getRenderingFrameBuffer() {
         return renderingFrameBuffer;
     }
     
@@ -35,7 +35,7 @@ public class GuiPortalRendering {
     
     private static void renderWorldIntoFrameBuffer(
         WorldRenderInfo worldRenderInfo,
-        Framebuffer framebuffer
+        RenderTarget framebuffer
     ) {
         RenderStates.basicProjectionMatrix = null;
         
@@ -50,13 +50,13 @@ public class GuiPortalRendering {
         
         MyRenderHelper.restoreViewPort();
         
-        Framebuffer mcFb = MyGameRenderer.client.getFramebuffer();
+        RenderTarget mcFb = MyGameRenderer.client.getMainRenderTarget();
         
         Validate.isTrue(mcFb != framebuffer);
         
         ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(framebuffer);
         
-        framebuffer.beginWrite(true);
+        framebuffer.bindWrite(true);
         
         IPCGlobal.renderer.prepareRendering();
         
@@ -66,7 +66,7 @@ public class GuiPortalRendering {
         
         ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(mcFb);
         
-        mcFb.beginWrite(true);
+        mcFb.bindWrite(true);
         
         renderingFrameBuffer = null;
         
@@ -77,17 +77,17 @@ public class GuiPortalRendering {
         RenderStates.basicProjectionMatrix = null;
     }
     
-    private static final HashMap<Framebuffer, WorldRenderInfo> renderingTasks = new HashMap<>();
+    private static final HashMap<RenderTarget, WorldRenderInfo> renderingTasks = new HashMap<>();
     
     public static void submitNextFrameRendering(
         WorldRenderInfo worldRenderInfo,
-        Framebuffer renderTarget
+        RenderTarget renderTarget
     ) {
         Validate.isTrue(!renderingTasks.containsKey(renderTarget));
         
-        Framebuffer mcFB = MinecraftClient.getInstance().getFramebuffer();
-        if (renderTarget.textureWidth != mcFB.textureWidth || renderTarget.textureHeight != mcFB.textureHeight) {
-            renderTarget.resize(mcFB.textureWidth, mcFB.textureHeight, true);
+        RenderTarget mcFB = Minecraft.getInstance().getMainRenderTarget();
+        if (renderTarget.width != mcFB.width || renderTarget.height != mcFB.height) {
+            renderTarget.resize(mcFB.width, mcFB.height, true);
             Helper.log("Resized Framebuffer for GUI Portal Rendering");
         }
         

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import net.minecraft.client.gl.GlDebug;
+import com.mojang.blaze3d.platform.GlDebug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,7 +12,7 @@ public class MixinGlDebug {
     private static int loggedNum = 0;
     
     @Inject(
-        method = "info", at = @At("RETURN")
+        method = "Lcom/mojang/blaze3d/platform/GlDebug;printDebugLog(IIIIIJJ)V", at = @At("RETURN")
     )
     private static void onLogging(
         int source, int type, int id, int severity, int messageLength, long message, long l,
