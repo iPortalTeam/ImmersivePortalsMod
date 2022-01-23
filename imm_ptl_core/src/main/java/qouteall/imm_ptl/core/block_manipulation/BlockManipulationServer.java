@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.block_manipulation;
 
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.block.BlockState;
@@ -66,9 +67,11 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
+        Float playerScale = PehkuiInterface.invoker.computeBlockReachScale(player, 1.0f);
+        
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
-        double distanceSquare = 6 * 6 * 4 * 4;//TODO get pehkui reach scale
+        double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
         if (player.world.getRegistryKey() == dimension) {
             if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
                 return true;
