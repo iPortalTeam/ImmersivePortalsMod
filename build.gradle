@@ -104,9 +104,9 @@ allprojects {
             transitive = false
         }
 
-        modImplementation ("com.jozufozu.flywheel:Flywheel-Fabric:1.18-0.6.0.custom"){
-            exclude(group: "net.fabricmc.fabric-api")
-        }
+//        modImplementation ("com.jozufozu.flywheel:Flywheel-Fabric:1.18-0.6.0.custom"){
+//            exclude(group: "net.fabricmc.fabric-api")
+//        }
     }
 
     afterEvaluate {

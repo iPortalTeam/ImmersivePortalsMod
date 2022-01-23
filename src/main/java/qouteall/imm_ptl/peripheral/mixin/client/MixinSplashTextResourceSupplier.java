@@ -22,10 +22,12 @@ public class MixinSplashTextResourceSupplier {
     private void onApply(
         List<String> list, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci
     ) {
-        splashes.remove("Euclidian!");
-        splashes.remove("Slow acting portals!");
-        splashes.add("Non-Euclidean!");
-        splashes.add("Fast acting portals!");
-        splashes.add("Immersive Portals!");
+        if (splashes.remove("Euclidian!")) {
+            splashes.add("Non-Euclidean!");
+        }
+        if (splashes.remove("Slow acting portals!")) {
+            splashes.add("Fast acting portals!");
+            splashes.add("Immersive Portals!");
+        }
     }
 }

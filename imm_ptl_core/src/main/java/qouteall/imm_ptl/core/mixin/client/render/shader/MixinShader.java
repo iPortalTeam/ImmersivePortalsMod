@@ -31,17 +31,6 @@ public abstract class MixinShader implements IEShader {
     @Nullable
     private Uniform ip_clippingEquation;
     
-//    @Inject(
-//        method = "<init>",
-//        at = @At("RETURN")
-//    )
-//    private void onConstructed(
-//        ResourceFactory factory, String name,
-//        VertexFormat format, CallbackInfo ci
-//    ) {
-//
-//    }
-    
     @Inject(
         method = "Lnet/minecraft/client/renderer/ShaderInstance;updateLocations()V",
         at = @At("HEAD")

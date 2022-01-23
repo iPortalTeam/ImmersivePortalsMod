@@ -1391,8 +1391,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return cullableXStart != cullableXEnd;
     }
     
-    // use canTeleportEntity
-    // TODO remove
+    // it's recommended to use canTeleportEntity
     @Deprecated
     public boolean isTeleportable() {
         return teleportable;

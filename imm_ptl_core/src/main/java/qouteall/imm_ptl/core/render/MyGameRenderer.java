@@ -271,14 +271,12 @@ public class MyGameRenderer {
         McHelper.setPosAndLastTickPos(
             player, RenderStates.originalPlayerPos, RenderStates.originalPlayerLastTickPos
         );
-        ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
         doRenderEntity.run();
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos
         );
-        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
     }
     
     public static void resetFogState() {
