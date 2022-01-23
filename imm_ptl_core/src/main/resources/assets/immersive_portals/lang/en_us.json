@@ -130,7 +130,7 @@
   "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
   "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
   "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes.",
-  "imm_ptl.portal_helper_not_linked": "No compatible portal helper frame can be found nearby. A new frame has been generated. It can only link to a frame with compatible shape. 1x3 can link to 2x6, but 1x2 cannot link to 2x5. It can only link to a frame nearby. If you want it to link to a far place, use commands.",
+  "imm_ptl.portal_helper_not_linked": "No compatible portal helper frame can be found nearby. A new frame has been generated. It can only link to a frame with compatible shape. 1x3 can link to 2x6, but 1x2 cannot link to 2x5. It can only link to a frame nearby. The shape cannot be wider than 20 blocks. If you want it to link to a far place, use commands.",
   "imm_ptl.preview_warning": "You are using a preview version of Immersive Portals mod which is not yet stable. Report issues:",
   "imm_ptl.dim_stack_established": "Dimension stack has been setup. (Existing chunks will remain unchanged)",
   "imm_ptl.dim_stack_removed": "Dimension stack has been removed. (Existing chunks will remain unchanged)",
