@@ -18,7 +18,7 @@ public class MixinSplashTextResourceSupplier {
     @Final
     private List<String> splashes;
     
-    @Inject(method = "Lnet/minecraft/client/resources/SplashManager;apply(Ljava/lang/Object;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At("RETURN"))
+    @Inject(method = "apply(Ljava/util/List;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At("RETURN"))
     private void onApply(
         List<String> list, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci
     ) {

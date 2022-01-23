@@ -57,7 +57,7 @@ public class WorldInfoSender {
                     world.getGameTime(),
                     world.getDayTime(),
                     world.getGameRules().getBoolean(
-                        GameRules.DO_DAYLIGHT_CYCLE
+                        GameRules.RULE_DAYLIGHT
                     )
                 )
             )

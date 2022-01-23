@@ -33,8 +33,12 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     @Final
     private FrameTimer frameTimer;
     
-    @Shadow public abstract ProfilerFiller getProfiler();
+    @Shadow
+    public abstract ProfilerFiller getProfiler();
     
+    @Shadow
+    @Final
+    protected LevelStorageSource.LevelStorageAccess storageSource;
     private boolean portal_areAllWorldsLoaded;
     
     @Inject(

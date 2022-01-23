@@ -72,7 +72,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
                 getX(),
                 getY(),
                 getZ(),
-                SoundEvents.BLOCK_PORTAL_AMBIENT,
+                SoundEvents.PORTAL_AMBIENT,
                 SoundSource.BLOCKS,
                 0.5F,
                 random.nextFloat() * 0.4F + 0.8F,

@@ -80,7 +80,7 @@ public abstract class MixinMinecraftClient extends ReentrantBlockableEventLoop<R
         method = "Lnet/minecraft/client/Minecraft;runTick(Z)V",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/client/Minecraft;fps:LI;",
+            target = "Lnet/minecraft/client/Minecraft;fps:I",
             shift = At.Shift.AFTER
         )
     )

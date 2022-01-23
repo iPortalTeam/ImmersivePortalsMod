@@ -80,9 +80,9 @@ public class BlockPortalShape {
         ListTag list = new ListTag();
         
         area.forEach(blockPos -> {
-            list.method_10531(list.size(), IntTag.valueOf(blockPos.getX()));
-            list.method_10531(list.size(), IntTag.valueOf(blockPos.getY()));
-            list.method_10531(list.size(), IntTag.valueOf(blockPos.getZ()));
+            list.add(list.size(), IntTag.valueOf(blockPos.getX()));
+            list.add(list.size(), IntTag.valueOf(blockPos.getY()));
+            list.add(list.size(), IntTag.valueOf(blockPos.getZ()));
         });
         
         data.put("poses", list);

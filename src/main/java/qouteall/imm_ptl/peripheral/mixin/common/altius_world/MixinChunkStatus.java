@@ -15,7 +15,7 @@ import java.util.List;
 @Mixin(ChunkStatus.class)
 public class MixinChunkStatus {
     @Inject(
-        method = "Lnet/minecraft/world/level/chunk/ChunkStatus;lambda$static$15(Lnet/minecraft/world/level/chunk/ChunkStatus;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Ljava/util/List;Lnet/minecraft/world/level/chunk/ChunkAccess;)V", at = @At("HEAD"),
+        method = "method_17033", at = @At("HEAD"),
         remap = false
     )
     private static void redirectPopulateEntities(

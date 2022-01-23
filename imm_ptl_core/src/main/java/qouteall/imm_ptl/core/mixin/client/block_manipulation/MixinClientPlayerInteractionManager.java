@@ -61,10 +61,10 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
     }
     
     @ModifyArg(
-        method = "interactBlock",
+        method = "useItemOn",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
+            target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
     private Packet<?> redirectSendPacketOnInteractBlock(

@@ -346,7 +346,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Redirect(
-        method = "reload()V",
+        method = "allChanged",
         at = @At(
             value = "NEW",
             target = "net/minecraft/client/renderer/ViewArea"
@@ -486,7 +486,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private static boolean isReloadingOtherWorldRenderers = false;
     
     // sometimes we change renderDistance but we don't want to reload it
-    @Inject(method = "reload()V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "allChanged", at = @At("HEAD"), cancellable = true)
     private void onReloadStarted(CallbackInfo ci) {
         if (WorldRenderInfo.isRendering()) {
             Helper.log("world renderer reloading cancelled during portal rendering");
@@ -495,7 +495,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     //reload other world renderers when the main world renderer is reloaded
-    @Inject(method = "reload()V", at = @At("TAIL"))
+    @Inject(method = "allChanged", at = @At("TAIL"))
     private void onReloadFinished(CallbackInfo ci) {
         LevelRenderer this_ = (LevelRenderer) (Object) this;
         

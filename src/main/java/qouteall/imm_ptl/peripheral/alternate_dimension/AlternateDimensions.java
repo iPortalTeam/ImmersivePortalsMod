@@ -199,7 +199,7 @@ public class AlternateDimensions {
         );
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
-            rm.registryOrThrow(Registry.NOISE_WORLDGEN),
+            rm.registryOrThrow(Registry.NOISE_REGISTRY),
             biomeSource, seed, () -> skylandSetting
         );
         
@@ -209,7 +209,7 @@ public class AlternateDimensions {
         );
         
         NoiseBasedChunkGenerator surfaceChunkGenerator = new NoiseBasedChunkGenerator(
-            rm.registryOrThrow(Registry.NOISE_WORLDGEN),
+            rm.registryOrThrow(Registry.NOISE_REGISTRY),
             biomeSource, seed, () -> surfaceSetting
         );
         

@@ -1,31 +1,35 @@
 accessWidener v2 named
-Accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
-Accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Ljava/nio/file/Path;
-Accessible field net/minecraft/world/dimension/DimensionType THE_NETHER Lnet/minecraft/world/dimension/DimensionType;
-Accessible field net/minecraft/world/dimension/DimensionType THE_END Lnet/minecraft/world/dimension/DimensionType;
 
-Accessible field net/minecraft/world/biome/source/BiomeAccess seed J
-Accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet/minecraft/resource/ServerResourceManager;
-Accessible field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
-Mutable field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
-Accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator settings Ljava/util/function/Supplier;
+Accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 
-Accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
+Accessible field net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess levelPath Ljava/nio/file/Path;
 
-Accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet/minecraft/world/GameRules$Category;Lnet/minecraft/world/GameRules$Type;)Lnet/minecraft/world/GameRules$Key;
-Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
+Accessible field net/minecraft/world/level/dimension/DimensionType DEFAULT_NETHER Lnet/minecraft/world/level/dimension/DimensionType;
 
-accessible class net/minecraft/client/gl/Program$Type
-accessible method net/minecraft/client/gl/Program$Type getGlType ()I
+Accessible field net/minecraft/world/level/dimension/DimensionType DEFAULT_END Lnet/minecraft/world/level/dimension/DimensionType;
 
+Accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
 
-extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;
+Accessible field net/minecraft/server/MinecraftServer resources Lnet/minecraft/server/ServerResources;
 
-accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$Task
-accessible class net/minecraft/client/render/chunk/ChunkBuilder$Result
+Accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
+Mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
 
-accessible class net/minecraft/client/render/WorldRenderer$ChunkInfo
-accessible method net/minecraft/client/render/WorldRenderer$ChunkInfo <init> (Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;Lnet/minecraft/util/math/Direction;I)V
+Accessible field net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator settings Ljava/util/function/Supplier;
+
+Accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+
+Accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
+
+Accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
+
+Accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
+
+extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
+
+accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
+
+accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
 
 
 

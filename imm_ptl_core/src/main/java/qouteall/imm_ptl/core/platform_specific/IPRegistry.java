@@ -38,7 +38,7 @@ public class IPRegistry {
                 .strength(1.0f, 0)
                 .noOcclusion()
                 .noDrops()
-                .lightLevel(15)
+                .lightLevel((s)->15)
         );
         Registry.register(
             Registry.BLOCK,
