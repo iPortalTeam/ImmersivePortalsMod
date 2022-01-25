@@ -18,18 +18,22 @@ public class IPModCompatibilityWarning {
     
     // I do not put these mods into "breaks" so that compatibility can be debugged
     
-    private static List<ModInfo> incompatibleMods = Lists.newArrayList(
+    private static final List<ModInfo> incompatibleMods = Lists.newArrayList(
         new ModInfo("c2me", "C2ME"),
         new ModInfo("mcxr-core", "MCXR"),
         new ModInfo("taterzens", "Taterzens"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
-        new ModInfo("altoclef", "Altoclef")
+        new ModInfo("altoclef", "Altoclef"),
+        new ModInfo("bitsandchisels", "Bits & Chisels"),
+        new ModInfo("create", "Create")
     );
     
-    private static List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
+    private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
         new ModInfo("physicsmod", "Physics Mod"),
         new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("dashloader", "DashLoader"),
+        new ModInfo("cameraoverhaul", "Camera Overhaul"),
+        
 //        new ModInfo("lithium", "Lithium"),
         new ModInfo("requiem", "Requiem")
     );
@@ -82,7 +86,7 @@ public class IPModCompatibilityWarning {
                     MyTaskList.oneShotTask(() -> {
                         CHelper.printChat(new TextComponent(
                             String.format(
-                                "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Major issues may occur.",
+                                "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Issues may occur.",
                                 mod.modName, mod.modId
                             )
                         ).withStyle(ChatFormatting.RED));
