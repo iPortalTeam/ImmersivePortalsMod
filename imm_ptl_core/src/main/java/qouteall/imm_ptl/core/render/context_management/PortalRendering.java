@@ -6,7 +6,9 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.render.PortalRenderer;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -97,10 +99,12 @@ public class PortalRendering {
         return pos;
     }
     
-    public static double getAllScaling() {
+    public static double getAllModelViewScaling() {
         double scale = 1.0;
         for (PortalLike portal : portalLayers) {
-            scale *= portal.getScale();
+            if (!PortalRenderer.shouldApplyScaleToModelView(portal)) {
+                scale *= portal.getScale();
+            }
         }
         return scale;
     }

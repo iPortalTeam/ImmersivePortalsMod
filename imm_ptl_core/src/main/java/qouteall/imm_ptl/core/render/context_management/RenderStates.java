@@ -23,6 +23,7 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.QueryManager;
 import com.mojang.math.Matrix4f;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -172,8 +173,9 @@ public class RenderStates {
         if (!IPGlobal.viewBobbingReduce) {
             return 1;
         }
-    
-        double allScaling = PortalRendering.getAllScaling();
+        
+        double allScaling = PortalRendering.getAllModelViewScaling();
+        
         return viewBobFactor * allScaling;
     }
     
