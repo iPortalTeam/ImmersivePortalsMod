@@ -95,6 +95,10 @@ public class MixinClientWorld_Sound {
         
         LocalPlayer player = minecraft.player;
         
+        if (player == null) {
+            return false;
+        }
+        
         if (this_ != player.level) {
             return false;
         }
