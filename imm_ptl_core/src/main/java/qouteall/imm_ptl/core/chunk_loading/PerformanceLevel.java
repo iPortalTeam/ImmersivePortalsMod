@@ -76,7 +76,7 @@ public enum PerformanceLevel {
             return originalDistance;
         }
         else if (level == medium) {
-            return Math.min(2, originalDistance / 2);
+            return Math.max(2, originalDistance / 2);
         }
         else {
             return 2;
