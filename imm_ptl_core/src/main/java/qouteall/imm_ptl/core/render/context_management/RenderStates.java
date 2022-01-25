@@ -55,7 +55,6 @@ public class RenderStates {
     public static double viewBobFactor;
     
     public static Matrix4f basicProjectionMatrix;
-//    public static Matrix4f fullProjectionMatrix;
     
     public static Camera originalCamera;
     
@@ -68,8 +67,6 @@ public class RenderStates {
     public static boolean isRenderingEntities = false;
     
     public static boolean renderedScalingPortal = false;
-    
-    public static Vec3 viewBobbedCameraPos = Vec3.ZERO;
     
     public static boolean isRenderingPortalWeather = false;
     

@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -130,6 +132,10 @@ public class MyGameRenderer {
         boolean oldChunkCullingEnabled = client.smartCull;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
+        // the projection matrix contains view bobbing.
+        // the view bobbing is related with scale
+        Matrix4f oldProjectionMatrix = RenderSystem.getProjectionMatrix();
+        
         ObjectArrayList<LevelRenderer.RenderChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
@@ -214,6 +220,8 @@ public class MyGameRenderer {
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
         
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
+        
+        RenderSystem.setProjectionMatrix(oldProjectionMatrix);
         
         IrisInterface.invoker.setPipeline(worldRenderer, irisPipeline);
         

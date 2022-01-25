@@ -252,35 +252,6 @@ public class TransformationManager {
     
     public static boolean isCalculatingViewBobbingOffset = false;
     
-    /**
-     * {@link net.minecraft.client.render.GameRenderer#renderWorld(float, long, MatrixStack)}
-     */
-    public static Vec3 getViewBobbingOffset(Camera camera) {
-        Validate.isTrue(!IPGlobal.viewBobbingCameraCorrection);
-        
-        PoseStack matrixStack = new PoseStack();
-        
-        isCalculatingViewBobbingOffset = true;
-        
-        if (client.options.bobView) {
-            ((IEGameRenderer) client.gameRenderer).portal_bobView(matrixStack, RenderStates.tickDelta);
-        }
-        
-        isCalculatingViewBobbingOffset = false;
-        
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
-        
-        WorldRenderInfo.applyAdditionalTransformations(matrixStack);
-        
-        Matrix4f matrix = matrixStack.last().pose();
-        matrix.invert();
-        Vector4f origin = new Vector4f(0, 0, 0, 1);
-        origin.transform(matrix);
-        
-        return new Vec3(origin.x(), origin.y(), origin.z());
-    }
-    
     @Environment(EnvType.CLIENT)
     public static class RemoteCallables {
         public static void enableIsometricView(float viewLength) {
