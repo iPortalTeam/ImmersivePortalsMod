@@ -66,7 +66,11 @@ public class CrossPortalSound {
                 // reduce volume based on distance from the sound source to the portal entry point
                 float volumeToEnterPortal =
                     (float) soundEnterPortalPoint.distanceTo(soundPos) / VOLUME_RADIUS_MULT;
-                float volumeAtPortal = Math.max(0, soundVol - volumeToEnterPortal);
+                
+                float volumeMultiplier =
+                    Math.max(0, 1 - (float) (playerCameraPos.distanceTo(soundExitPortalPoint) / VOLUME_RADIUS_MULT));
+                
+                float volumeAtPortal = Math.max(0, soundVol - volumeToEnterPortal) * volumeMultiplier;
                 
                 return new SimpleSoundInstance(
                     sound,
