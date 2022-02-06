@@ -10,23 +10,11 @@ It's a minecraft mod that provides see-through portals and seamless teleportatio
 
 [Website](https://qouteall.fun/immptl)
 
-This is one of the most complex Minecraft mods. [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details)
-* It eliminates the limitation that only one dimension can be loaded and rendered on client
-* It eliminates the limitation that only the chunks nearby player can be synchronized to client
-* It eliminates the limitation that client can only load and render chunks nearby the player
-* The portal rendering is recursive which needs proper management of minecraft rendering context of multiple dimensions
-* The portal can have rotation, scale and mirror transformations
-* The teleportation is seamless, creating the feel that the space is connected
-* Cross portal collision
-* Cross portal entity rendering
-* Place and break blocks through portal
-* Portal frame matching (supports any shaped portal frame and adaptive matching)
+This is one of the most complex Minecraft mods. [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details) This mod eliminates the limitation that only one dimension can be loaded and rendered on client, eliminates the limitation that only the chunks nearby player can be synchronized to client, eliminates the limitation that client can only load and render chunks nearby the player. The portal rendering is recursive. The portal can have rotation, scale and mirror transformations. The teleportation is seamless, creating the feel that the space is connected.
 
-Many optimizations have been made to portal rendering which includes:
-* Do aggressive frustum culling during portal rendering
-* Do aggressive frustum culling for the sections that are hidden by the portal during outer world rendering
-* Reduce occlusion query stalls by utilizing temporal coherence
-* Merge the rendering of the portals that have the same spacial transformation (for example the scale box end portal)
+## API
+
+This mod also provides some API for other mods to create portals. Also includes other utilities. [API description](https://qouteall.fun/immptl/wiki/API-for-Other-Mods).
 
 
 ## How to run this code
