@@ -174,7 +174,7 @@ public class RenderStates {
             return 1;
         }
         
-        double allScaling = PortalRendering.getAllModelViewScaling();
+        double allScaling = PortalRendering.getExtraModelViewScaling();
         
         return viewBobFactor * allScaling;
     }

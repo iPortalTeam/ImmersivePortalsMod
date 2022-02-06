@@ -33,8 +33,8 @@ public class IPModCompatibilityWarning {
         new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("dashloader", "DashLoader"),
         new ModInfo("cameraoverhaul", "Camera Overhaul"),
-        
-//        new ModInfo("lithium", "Lithium"),
+        new ModInfo("figura", "Figura"),
+        new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("requiem", "Requiem")
     );
     

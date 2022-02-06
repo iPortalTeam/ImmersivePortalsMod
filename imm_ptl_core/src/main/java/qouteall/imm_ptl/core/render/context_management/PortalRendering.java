@@ -99,7 +99,7 @@ public class PortalRendering {
         return pos;
     }
     
-    public static double getAllModelViewScaling() {
+    public static double getExtraModelViewScaling() {
         double scale = 1.0;
         for (PortalLike portal : portalLayers) {
             if (!PortalRenderer.shouldApplyScaleToModelView(portal)) {
