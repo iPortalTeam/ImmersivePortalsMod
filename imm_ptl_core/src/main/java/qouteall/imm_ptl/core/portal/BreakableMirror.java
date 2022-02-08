@@ -108,7 +108,7 @@ public class BreakableMirror extends Mirror {
         }
         
         boolean isPane = isGlassPane(world, glassPos);
-
+        
         if (facing.getAxis() == Direction.Axis.Y && isPane) {
             return null;
         }
@@ -122,7 +122,10 @@ public class BreakableMirror extends Mirror {
         BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
         double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
         
-        AABB wallBox = getWallBox(world, wallArea);
+        AABB wallBox = McHelper.getWallBox(world, wallArea);
+        if (wallBox == null) {
+            wallBox = wallArea.toRealNumberBox();
+        }
         
         Vec3 pos = Helper.getBoxSurfaceInversed(wallBox, facing.getOpposite()).getCenter();
         pos = Helper.putCoordinate(
@@ -130,7 +133,7 @@ public class BreakableMirror extends Mirror {
             pos, facing.getAxis(),
             Helper.getCoordinate(
                 wallArea.getCenterVec().add(
-                     Vec3.atLowerCornerOf(facing.getNormal()).scale(distanceToCenter)
+                    Vec3.atLowerCornerOf(facing.getNormal()).scale(distanceToCenter)
                 ),
                 facing.getAxis()
             )
@@ -146,8 +149,8 @@ public class BreakableMirror extends Mirror {
         double width = Helper.getCoordinate(boxSize, dirs.getA().getAxis());
         double height = Helper.getCoordinate(boxSize, dirs.getB().getAxis());
         
-        breakableMirror.axisW =  Vec3.atLowerCornerOf(dirs.getA().getNormal());
-        breakableMirror.axisH =  Vec3.atLowerCornerOf(dirs.getB().getNormal());
+        breakableMirror.axisW = Vec3.atLowerCornerOf(dirs.getA().getNormal());
+        breakableMirror.axisH = Vec3.atLowerCornerOf(dirs.getB().getNormal());
         breakableMirror.width = width;
         breakableMirror.height = height;
         
@@ -174,15 +177,8 @@ public class BreakableMirror extends Mirror {
         ).filter(
             mirror -> mirror != newMirror
         ).forEach(
-            e->e.remove(RemovalReason.KILLED)
+            e -> e.remove(RemovalReason.KILLED)
         );
     }
     
-    //it's a little bit incorrect with corner glass pane
-    private static AABB getWallBox(ServerLevel world, IntBox glassArea) {
-        return glassArea.stream().map(blockPos ->
-            world.getBlockState(blockPos).getCollisionShape(world, blockPos).bounds()
-                .move( Vec3.atLowerCornerOf(blockPos))
-        ).reduce(AABB::minmax).orElse(null);
-    }
 }

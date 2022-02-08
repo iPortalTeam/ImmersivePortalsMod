@@ -7,10 +7,10 @@ public enum PerformanceLevel {
         int averageFPS,
         int averageFreeMemoryMB
     ) {
-        if (averageFPS > 50 && averageFreeMemoryMB > 1000) {
+        if (averageFPS > 50 && averageFreeMemoryMB > 800) {
             return good;
         }
-        else if (averageFPS > 30 && averageFreeMemoryMB > 400) {
+        else if (averageFPS > 30 && averageFreeMemoryMB > 300) {
             return medium;
         }
         else {

@@ -815,6 +815,66 @@ public class PortalCommand {
                 }))
             )
         );
+        
+        builder.then(Commands.literal("set_portal_size")
+            .then(Commands.argument("width", DoubleArgumentType.doubleArg(0))
+                .then(Commands.argument("height", DoubleArgumentType.doubleArg(0))
+                    .executes(context -> processPortalTargetedCommand(context, portal -> {
+                        double width = DoubleArgumentType.getDouble(context, "width");
+                        double height = DoubleArgumentType.getDouble(context, "height");
+                        
+                        portal.width = width;
+                        portal.height = height;
+                        portal.specialShape = null;
+                        
+                        reloadPortal(portal);
+                    }))
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("adjust_portal_area_to_fit_frame")
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                adjustPortalAreaToFitFrame(portal);
+                
+                reloadPortal(portal);
+            }))
+        );
+    }
+    
+    private static void adjustPortalAreaToFitFrame(Portal portal) {
+        BlockPos origin = new BlockPos(portal.getOriginPos());
+        
+        Direction portalNormalDirection =
+            Direction.getNearest(portal.getNormal().x, portal.getNormal().y, portal.getNormal().z);
+        
+        Level world = portal.level;
+        
+        IntBox boxArea = Helper.expandRectangle(
+            origin, pos -> world.getBlockState(pos).isAir(),
+            portalNormalDirection.getAxis()
+        );
+        
+        AABB portalBox = new AABB(0, 0, 0, 0, 0, 0);
+        for (Direction direction : Direction.values()) {
+            IntBox outerSurface = boxArea.getSurfaceLayer(direction).getMoved(direction.getNormal());
+            AABB collisionBox = McHelper.getWallBox(world, outerSurface);
+            if (collisionBox == null) {
+                collisionBox = outerSurface.toRealNumberBox();
+            }
+            portalBox = Helper.replaceBoxCoordinate(
+                portalBox, direction,
+                Helper.getBoxCoordinate(collisionBox, direction.getOpposite())
+            );
+        }
+        
+        double portalNormalCoordinate = Helper.getCoordinate(portal.getOriginPos(), portalNormalDirection.getAxis());
+
+        portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection, portalNormalCoordinate);
+        portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection.getOpposite(), portalNormalCoordinate);
+        
+        portal.specialShape = null;
+        PortalAPI.setPortalOrthodoxShape(portal, portalNormalDirection, portalBox);
     }
     
     public static void reloadPortal(Portal portal) {
@@ -1685,7 +1745,7 @@ public class PortalCommand {
         Portal pointedPortal,
         ServerPlayer player
     ) {
-        PortalManipulation.getPortalClutter(
+        PortalManipulation.getPortalCluster(
             pointedPortal.level,
             pointedPortal.getOriginPos(),
             pointedPortal.getNormal(),
@@ -1786,7 +1846,7 @@ public class PortalCommand {
      * Gets success message based on the portal {@code portal}.
      *
      * @param portal The portal to send the success message for.
-     * @return The success message, as a {@link Text}.
+     * @return The success message, as a {@link Component}.
      * @author LoganDark
      */
     private static Component getMakePortalSuccess(Portal portal) {

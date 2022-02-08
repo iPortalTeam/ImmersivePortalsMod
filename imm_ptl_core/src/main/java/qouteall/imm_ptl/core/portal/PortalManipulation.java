@@ -251,13 +251,13 @@ public class PortalManipulation {
         Predicate<Portal> predicate,
         Consumer<Portal> informer
     ) {
-        getPortalClutter(world, pos, normal, predicate).forEach(e -> {
+        getPortalCluster(world, pos, normal, predicate).forEach(e -> {
             e.remove(Entity.RemovalReason.KILLED);
             informer.accept(e);
         });
     }
     
-    public static List<Portal> getPortalClutter(
+    public static List<Portal> getPortalCluster(
         Level world,
         Vec3 pos,
         Vec3 normal,

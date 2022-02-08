@@ -39,6 +39,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -51,7 +52,9 @@ import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.IntBox;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -392,6 +395,20 @@ public class McHelper {
         }
         
         entityTracker.broadcastAndSend(packet);
+    }
+    
+    //it's a little bit incorrect with corner glass pane
+    @Nullable
+    public static AABB getWallBox(Level world, IntBox glassArea) {
+        return glassArea.stream().map(blockPos -> {
+            VoxelShape collisionShape = world.getBlockState(blockPos).getCollisionShape(world, blockPos);
+            
+            if (collisionShape.isEmpty()) {
+                return null;
+            }
+            
+            return collisionShape.bounds().move(Vec3.atLowerCornerOf(blockPos));
+        }).filter(b -> b != null).reduce(AABB::minmax).orElse(null);
     }
     
     public static interface ChunkAccessor {
