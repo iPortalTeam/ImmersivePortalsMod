@@ -833,7 +833,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(Commands.literal("adjust_portal_area_to_fit_frame")
+        builder.then(Commands.literal("adjust_portal_to_fit_square_frame")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 adjustPortalAreaToFitFrame(portal);
                 
