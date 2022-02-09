@@ -700,12 +700,40 @@ public class PortalCommand {
         );
         
         builder.then(Commands.literal("set_portal_scale")
-            .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
+            .then(Commands.argument("scale", DoubleArgumentType.doubleArg(0))
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
                         portal.scaling = scale;
+                        
+                        reloadPortal(portal);
+                    }
+                ))
+            )
+        );
+        
+        builder.then(Commands.literal("multiply_portal_scale")
+            .then(Commands.argument("scale", DoubleArgumentType.doubleArg(0))
+                .executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        double scale = DoubleArgumentType.getDouble(context, "scale");
+                        
+                        portal.scaling = portal.scaling * scale;
+                        
+                        reloadPortal(portal);
+                    }
+                ))
+            )
+        );
+        
+        builder.then(Commands.literal("divide_portal_scale")
+            .then(Commands.argument("scale", DoubleArgumentType.doubleArg(0))
+                .executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        double scale = DoubleArgumentType.getDouble(context, "scale");
+                        
+                        portal.scaling = portal.scaling / scale;
                         
                         reloadPortal(portal);
                     }
@@ -869,7 +897,7 @@ public class PortalCommand {
         }
         
         double portalNormalCoordinate = Helper.getCoordinate(portal.getOriginPos(), portalNormalDirection.getAxis());
-
+        
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection, portalNormalCoordinate);
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection.getOpposite(), portalNormalCoordinate);
         
