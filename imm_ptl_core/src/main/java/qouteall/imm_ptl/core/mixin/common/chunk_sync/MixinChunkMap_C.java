@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
-public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvilChunkStorage {
+public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
     @Shadow
     private int viewDistance;
     

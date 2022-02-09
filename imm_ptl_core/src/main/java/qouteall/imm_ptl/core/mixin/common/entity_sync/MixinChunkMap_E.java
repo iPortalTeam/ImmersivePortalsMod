@@ -25,7 +25,7 @@ import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import java.util.List;
 
 @Mixin(ChunkMap.class)
-public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvilChunkStorage {
+public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     
     @Shadow
     @Final

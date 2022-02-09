@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 
 @Mixin(Commands.class)
-public class MixinCommandManager {
+public class MixinCommands {
     @Shadow
     @Final
     private CommandDispatcher<CommandSourceStack> dispatcher;

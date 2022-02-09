@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 
 @Mixin(HangingEntity.class)
-public class MixinAbstractDecorationEntity {
+public class MixinHangingEntity {
     @Inject(
         method = "Lnet/minecraft/world/entity/decoration/HangingEntity;tick()V",
         at = @At("HEAD")

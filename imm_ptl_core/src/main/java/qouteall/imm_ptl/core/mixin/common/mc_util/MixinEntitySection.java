@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 @Mixin(EntitySection.class)
-public class MixinEntityTrackingSection implements IEEntityTrackingSection {
+public class MixinEntitySection implements IEEntityTrackingSection {
     @Shadow
     @Final
     private ClassInstanceMultiMap storage;

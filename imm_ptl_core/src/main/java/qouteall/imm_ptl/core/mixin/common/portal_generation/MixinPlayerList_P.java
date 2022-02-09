@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(PlayerList.class)
-public class MixinPlayerManager_P {
+public class MixinPlayerList_P {
     @Inject(
         method = "Lnet/minecraft/server/players/PlayerList;reloadResources()V",
         at = @At("RETURN")

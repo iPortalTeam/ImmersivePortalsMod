@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mixin(value = ServerEntity.class, priority = 1200)
-public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
+public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     @Shadow
     @Final
     private Entity entity;

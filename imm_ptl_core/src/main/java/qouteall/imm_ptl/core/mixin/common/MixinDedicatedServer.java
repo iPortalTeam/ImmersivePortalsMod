@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 
 @Mixin(DedicatedServer.class)
-public class MixinMinecraftDedicatedServer {
+public class MixinDedicatedServer {
     @Inject(
         method = "<init>", at = @At("RETURN")
     )

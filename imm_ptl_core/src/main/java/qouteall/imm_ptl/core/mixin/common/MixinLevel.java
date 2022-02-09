@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 
 @Mixin(Level.class)
-public abstract class MixinWorld implements IEWorld {
+public abstract class MixinLevel implements IEWorld {
     
     @Shadow
     @Final

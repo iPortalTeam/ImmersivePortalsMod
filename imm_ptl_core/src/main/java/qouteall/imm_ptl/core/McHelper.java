@@ -48,7 +48,7 @@ import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
-import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
+import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -470,7 +470,7 @@ public class McHelper {
         EntityTypeTest<T, T> typeFilter = EntityTypeTest.forClass(entityClass);
         
         EntitySectionStorage<Entity> cache =
-            (EntitySectionStorage<Entity>) ((IESimpleEntityLookup) entityLookup).getCache();
+            (EntitySectionStorage<Entity>) ((IELevelEntityGetterAdapter) entityLookup).getCache();
         
         ((IESectionedEntityCache) cache).forEachSectionInBox(
             chunkXStart, chunkXEnd,

@@ -30,7 +30,7 @@ import java.util.Set;
 
 //NOTE must redirect all packets about entities
 @Mixin(ChunkMap.TrackedEntity.class)
-public abstract class MixinEntityTracker implements IEEntityTracker {
+public abstract class MixinTrackedEntity implements IEEntityTracker {
     @Shadow
     @Final
     private ServerEntity serverEntity;

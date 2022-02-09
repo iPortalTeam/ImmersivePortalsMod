@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerPlayNetworkHandler_E;
+import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
 import javax.annotation.Nullable;
@@ -51,7 +51,7 @@ public class IPCommonNetwork {
     
     /**
      * If it's not null, all sent packets will be wrapped into redirected packet
-     * {@link MixinServerPlayNetworkHandler_E}
+     * {@link MixinServerGamePacketListenerImpl_E}
      */
     @Nullable
     public static ResourceKey<Level> getForceRedirectDimension() {

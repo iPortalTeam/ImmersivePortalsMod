@@ -5,5 +5,5 @@ import org.spongepowered.asm.mixin.Mixin;
 import qouteall.imm_ptl.core.ducks.IEServerEntityManager;
 
 @Mixin(PersistentEntitySectionManager.class)
-public class MixinServerEntityManager implements IEServerEntityManager {
+public class MixinPersistentEntitySectionManager implements IEServerEntityManager {
 }

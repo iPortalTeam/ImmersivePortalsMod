@@ -9,7 +9,7 @@ import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public class MixinServerPlayNetworkHandler_E {
+public class MixinServerGamePacketListenerImpl_E {
     @ModifyVariable(
         method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
         at = @At("HEAD"),

@@ -39,7 +39,7 @@ import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
+import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -400,8 +400,8 @@ public class PortalDebugCommands {
                             world.dimension().location(),
                             NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
                             rec == null ? "null" : rec.size(),
-                            ((IESimpleEntityLookup) entityLookup).getIndex().count(),
-                            ((IESimpleEntityLookup) entityLookup).getCache().count()
+                            ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),
+                            ((IELevelEntityGetterAdapter) entityLookup).getCache().count()
                         ));
                         
                         PersistentEntitySectionManager<Entity> entityManager = ((IEServerWorld) world).ip_getEntityManager();

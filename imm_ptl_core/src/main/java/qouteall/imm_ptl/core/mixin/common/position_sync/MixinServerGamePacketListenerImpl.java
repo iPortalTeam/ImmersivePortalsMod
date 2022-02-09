@@ -36,7 +36,7 @@ import qouteall.q_misc_util.Helper;
 import java.util.Set;
 
 @Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
-public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetworkHandler {
+public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayNetworkHandler {
     @Shadow
     public ServerPlayer player;
     @Shadow

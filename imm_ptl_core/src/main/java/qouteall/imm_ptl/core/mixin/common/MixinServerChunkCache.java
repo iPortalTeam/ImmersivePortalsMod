@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 
 @Mixin(ServerChunkCache.class)
-public abstract class MixinServerChunkManager implements IEServerChunkManager {
+public abstract class MixinServerChunkCache implements IEServerChunkManager {
     @Shadow
     @Final
     private DistanceManager distanceManager;

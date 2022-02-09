@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(PlayerList.class)
-public class MixinPlayerManager {
+public class MixinPlayerList {
     @Shadow
     @Final
     private List<ServerPlayer> players;

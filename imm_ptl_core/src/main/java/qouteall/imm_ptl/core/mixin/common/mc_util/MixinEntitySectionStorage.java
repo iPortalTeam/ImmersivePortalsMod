@@ -14,7 +14,7 @@ import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import java.util.function.Consumer;
 
 @Mixin(EntitySectionStorage.class)
-public class MixinSectionedEntityCache implements IESectionedEntityCache {
+public class MixinEntitySectionStorage implements IESectionedEntityCache {
     
     @Shadow
     @Final

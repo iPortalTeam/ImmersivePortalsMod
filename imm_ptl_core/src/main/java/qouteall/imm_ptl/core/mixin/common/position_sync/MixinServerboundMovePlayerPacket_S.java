@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
 @Mixin(ServerboundMovePlayerPacket.class)
-public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
+public class MixinServerboundMovePlayerPacket_S implements IEPlayerMoveC2SPacket {
     private ResourceKey<Level> playerDimension;
     
     @Override

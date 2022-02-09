@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 
 @Mixin(DistanceManager.class)
-public abstract class MixinChunkTicketManager implements IEChunkTicketManager {
+public abstract class MixinDistanceManager implements IEChunkTicketManager {
     
     @Shadow
     @Final

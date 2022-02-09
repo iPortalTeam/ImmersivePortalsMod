@@ -12,7 +12,7 @@ import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
 @Mixin(ServerboundMovePlayerPacket.Pos.class)
-public class MixinPlayerMoveC2SPacketPositionAndOnGround {
+public class MixinServerboundMovePlayerPacketPos {
     @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos;read(Lnet/minecraft/network/FriendlyByteBuf;)Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos;", at = @At("RETURN"), cancellable = true)
     private static void onRead(
         FriendlyByteBuf buf, CallbackInfoReturnable<ServerboundMovePlayerPacket.Pos> cir

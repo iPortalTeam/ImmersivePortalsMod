@@ -19,7 +19,7 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import java.util.List;
 
 @Mixin(ServerLevel.class)
-public abstract class MixinServerWorld implements IEServerWorld {
+public abstract class MixinServerLevel implements IEServerWorld {
     
     @Shadow
     public abstract DimensionDataStorage getDataStorage();

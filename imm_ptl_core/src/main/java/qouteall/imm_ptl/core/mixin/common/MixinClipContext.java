@@ -23,7 +23,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 @Mixin(ClipContext.class)
-public abstract class MixinRaycastContext implements IERayTraceContext {
+public abstract class MixinClipContext implements IERayTraceContext {
     @Shadow
     @Final
     @Mutable

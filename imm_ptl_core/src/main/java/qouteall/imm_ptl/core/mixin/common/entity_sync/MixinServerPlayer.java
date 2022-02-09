@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 
 @Mixin(ServerPlayer.class)
-public abstract class MixinServerPlayerEntity extends Player implements IEServerPlayerEntity {
+public abstract class MixinServerPlayer extends Player implements IEServerPlayerEntity {
     @Shadow
     public ServerGamePacketListenerImpl connection;
     @Shadow
@@ -27,7 +27,7 @@ public abstract class MixinServerPlayerEntity extends Player implements IEServer
     
     @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);
     
-    public MixinServerPlayerEntity(Level world, BlockPos pos, float yaw, GameProfile profile) {
+    public MixinServerPlayer(Level world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
     
