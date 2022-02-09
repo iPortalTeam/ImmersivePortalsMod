@@ -317,17 +317,5 @@ public class MyGameRenderer {
         Lighting.setupNetherLevel(matrixStack.last().pose());
     }
     
-    public static void pruneRenderList(ObjectList<?> visibleChunks) {
-        if (PortalRendering.isRendering()) {
-            if (IPGlobal.cullSectionsBehind) {
-                // this thing has no optimization effect -_-
-                
-                PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-                
-                renderingPortal.doAdditionalRenderingCull(visibleChunks);
-            }
-        }
-    }
-    
     
 }

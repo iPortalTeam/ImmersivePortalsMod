@@ -118,17 +118,4 @@ public interface PortalLike {
         return maxDimension;
     }
     
-    // the container contains WorldRenderer.ChunkInfo
-    @Environment(EnvType.CLIENT)
-    default void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
-//        MyGameRenderer.cullRenderingSections(visibleChunks, this);
-    }
-
-//    // do additional cull when sodium is present
-//    @Environment(EnvType.CLIENT)
-//    @Nullable
-//    default TriIntPredicate getAdditionalCullPredicateSodium() {
-//        return null;
-//    }
-    
 }
