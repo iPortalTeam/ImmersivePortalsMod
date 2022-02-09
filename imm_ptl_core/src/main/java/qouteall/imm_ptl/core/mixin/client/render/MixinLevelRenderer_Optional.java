@@ -22,7 +22,7 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 // avoid crashing with sodium
 // the overwrite has priority of 1000
 @Mixin(value = LevelRenderer.class, priority = 1100)
-public class MixinWorldRenderer_Optional {
+public class MixinLevelRenderer_Optional {
     @Shadow
     private ViewArea viewArea;
     

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 
 @Mixin(ClientLevel.class)
-public class MixinClientWorld_Sound {
+public class MixinClientLevel_Sound {
     
     @Shadow
     @Final

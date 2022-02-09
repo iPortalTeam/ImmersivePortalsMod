@@ -54,7 +54,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 
 @Mixin(value = LevelRenderer.class)
-public abstract class MixinWorldRenderer implements IEWorldRenderer {
+public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     @Shadow
     private ClientLevel level;

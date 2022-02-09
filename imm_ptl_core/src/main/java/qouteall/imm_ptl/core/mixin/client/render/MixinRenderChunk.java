@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 
 @Mixin(ChunkRenderDispatcher.RenderChunk.class)
-public abstract class MixinBuiltChunk implements IEBuiltChunk {
+public abstract class MixinRenderChunk implements IEBuiltChunk {
     
     private long portal_mark;
     private LevelRenderer.RenderChunkInfo portal_dummyChunkInfo;

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(ShaderInstance.class)
-public class MixinShaderForIris {
+public class MixinShaderInstanceForIris {
     // if iris is present, avoid reusing other dimensions' program in cache
     @Redirect(
         method = "Lnet/minecraft/client/renderer/ShaderInstance;getOrCreate(Lnet/minecraft/server/packs/resources/ResourceProvider;Lcom/mojang/blaze3d/shaders/Program$Type;Ljava/lang/String;)Lcom/mojang/blaze3d/shaders/Program;",

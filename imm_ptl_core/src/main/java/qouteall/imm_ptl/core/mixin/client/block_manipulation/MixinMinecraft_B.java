@@ -14,7 +14,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraftClient_B {
+public abstract class MixinMinecraft_B {
     @Shadow
     protected abstract void pickBlock();
     

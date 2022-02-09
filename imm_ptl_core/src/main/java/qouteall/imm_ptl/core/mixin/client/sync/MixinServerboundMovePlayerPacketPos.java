@@ -16,9 +16,9 @@ import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ServerboundMovePlayerPacket.PosRot.class)
-public class MixinPlayerMoveC2SPacketFull {
-    @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$PosRot;write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
+@Mixin(ServerboundMovePlayerPacket.Pos.class)
+public class MixinServerboundMovePlayerPacketPos {
+    @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos;write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onWrite(FriendlyByteBuf buf, CallbackInfo ci) {
         if (!IPNetworkAdapt.doesServerHasIP()) {return;}
         ResourceKey<Level> playerDimension = ((IEPlayerMoveC2SPacket) this).getPlayerDimension();

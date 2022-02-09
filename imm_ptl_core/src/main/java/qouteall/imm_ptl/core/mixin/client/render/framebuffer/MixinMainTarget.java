@@ -20,9 +20,9 @@ import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 @Mixin(MainTarget.class)
-public abstract class MixinWindowFramebuffer extends RenderTarget {
+public abstract class MixinMainTarget extends RenderTarget {
     
-    public MixinWindowFramebuffer(boolean useDepth) {
+    public MixinMainTarget(boolean useDepth) {
         super(useDepth);
         throw new RuntimeException();
     }

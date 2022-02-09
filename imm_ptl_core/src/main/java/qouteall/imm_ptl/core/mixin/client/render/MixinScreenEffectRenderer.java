@@ -14,7 +14,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 @Mixin(ScreenEffectRenderer.class)
-public class MixinInGameOverlayRenderer {
+public class MixinScreenEffectRenderer {
     //avoid rendering suffocating when colliding with portal
     @Inject(
         method = "Lnet/minecraft/client/renderer/ScreenEffectRenderer;renderTex(Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lcom/mojang/blaze3d/vertex/PoseStack;)V",

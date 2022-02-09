@@ -11,7 +11,7 @@ import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 @Mixin(MultiBufferSource.BufferSource.class)
-public class MixinVertexConsumerProviderImmediate {
+public class MixinMultiBufferSourceBufferSource {
     @Inject(
         method = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
         at = @At("HEAD")

@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkRenderDispatcher.class)
-public abstract class MixinChunkBuilder_Optimization {
+public abstract class MixinChunkRenderDispatcher_Optimization {
     // TODO recover
     
 //    @Shadow

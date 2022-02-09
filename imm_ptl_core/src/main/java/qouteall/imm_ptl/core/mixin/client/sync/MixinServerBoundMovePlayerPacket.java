@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
 @Mixin(ServerboundMovePlayerPacket.class)
-public class MixinPlayerMoveC2SPacket_C {
+public class MixinServerBoundMovePlayerPacket {
     @Inject(
         method = "<init>",
         at = @At("RETURN")

@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 // Optimize cloud rendering by storing the context and
 // avoiding rebuild the cloud mesh every time
 @Mixin(LevelRenderer.class)
-public abstract class MixinWorldRenderer_Clouds {
+public abstract class MixinLevelRenderer_Clouds {
     
     @Shadow
     private int prevCloudX;

@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(ShaderInstance.class)
-public abstract class MixinShader implements IEShader {
+public abstract class MixinShaderInstance implements IEShader {
     @Shadow
     @Nullable
     public abstract Uniform getUniform(String name);

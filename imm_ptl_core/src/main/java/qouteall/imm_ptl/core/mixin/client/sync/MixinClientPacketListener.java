@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Mixin(ClientPacketListener.class)
-public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler {
+public abstract class MixinClientPacketListener implements IEClientPlayNetworkHandler {
     @Shadow
     private ClientLevel level;
     

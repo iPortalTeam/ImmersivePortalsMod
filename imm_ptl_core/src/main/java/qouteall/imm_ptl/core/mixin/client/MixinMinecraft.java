@@ -26,7 +26,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraftClient extends ReentrantBlockableEventLoop<Runnable> implements IEMinecraftClient {
+public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnable> implements IEMinecraftClient {
     @Final
     @Shadow
     @Mutable
@@ -55,7 +55,7 @@ public abstract class MixinMinecraftClient extends ReentrantBlockableEventLoop<R
     @Final
     private RenderBuffers renderBuffers;
     
-    public MixinMinecraftClient(String string) {
+    public MixinMinecraft(String string) {
         super(string);
         throw new RuntimeException();
     }

@@ -13,7 +13,7 @@ import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 
 @Mixin(ClientboundPlayerPositionPacket.class)
-public class MixinPlayerPositionLookS2CPacket_C {
+public class MixinClientboundPlayerPositionPacket {
     @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onRead(FriendlyByteBuf buf, CallbackInfo ci) {
         if (buf.isReadable()) {

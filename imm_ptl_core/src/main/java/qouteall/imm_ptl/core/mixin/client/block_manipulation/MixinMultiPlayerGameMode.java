@@ -23,7 +23,7 @@ import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 
 @Mixin(MultiPlayerGameMode.class)
-public abstract class MixinClientPlayerInteractionManager implements IEClientPlayerInteractionManager {
+public abstract class MixinMultiPlayerGameMode implements IEClientPlayerInteractionManager {
     @Shadow
     @Final
     private ClientPacketListener connection;

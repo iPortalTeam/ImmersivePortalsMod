@@ -20,7 +20,7 @@ import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 @Mixin(ParticleEngine.class)
-public class MixinParticleManager implements IEParticleManager {
+public class MixinParticleEngine implements IEParticleManager {
     @Shadow
     protected ClientLevel level;
     

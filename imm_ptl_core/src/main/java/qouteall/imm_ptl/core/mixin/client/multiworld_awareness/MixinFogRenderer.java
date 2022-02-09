@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 
 @Mixin(value = FogRenderer.class, priority = 1100)
-public class MixinBackgroundRenderer {
+public class MixinFogRenderer {
     @Shadow
     private static float fogRed;
     @Shadow

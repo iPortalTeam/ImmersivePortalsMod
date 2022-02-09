@@ -17,7 +17,7 @@ import qouteall.q_misc_util.Helper;
 import java.util.List;
 
 @Mixin(DebugScreenOverlay.class)
-public class MixinDebugHud {
+public class MixinDebugScreenOverlay {
     @Inject(method = "Lnet/minecraft/client/gui/components/DebugScreenOverlay;getSystemInformation()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         List<String> returnValue = cir.getReturnValue();

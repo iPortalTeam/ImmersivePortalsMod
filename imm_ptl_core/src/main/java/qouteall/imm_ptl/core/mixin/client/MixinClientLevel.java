@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
-public abstract class MixinClientWorld implements IEClientWorld {
+public abstract class MixinClientLevel implements IEClientWorld {
     @Shadow
     @Final
     @Mutable

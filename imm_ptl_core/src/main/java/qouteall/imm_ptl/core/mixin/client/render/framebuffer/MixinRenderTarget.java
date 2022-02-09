@@ -25,7 +25,7 @@ import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 @Mixin(RenderTarget.class)
-public abstract class MixinFrameBuffer implements IEFrameBuffer {
+public abstract class MixinRenderTarget implements IEFrameBuffer {
     
     private boolean isStencilBufferEnabled;
     
