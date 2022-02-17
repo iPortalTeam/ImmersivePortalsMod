@@ -19,7 +19,7 @@ public class IPModCompatibilityWarning {
     // I do not put these mods into "breaks" so that compatibility can be debugged
     
     private static final List<ModInfo> incompatibleMods = Lists.newArrayList(
-        new ModInfo("c2me", "C2ME"),
+//        new ModInfo("c2me", "C2ME"),
         new ModInfo("mcxr-core", "MCXR"),
         new ModInfo("taterzens", "Taterzens"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
