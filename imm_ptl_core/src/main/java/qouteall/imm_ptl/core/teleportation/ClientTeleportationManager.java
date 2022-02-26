@@ -452,7 +452,7 @@ public class ClientTeleportationManager {
             )
         );
         
-        double targetLocalY = collisionUnionLocal.maxY + 0.001;
+        double targetLocalY = collisionUnionLocal.maxY + 0.01;
         double originalLocalY = playerBoxLocal.minY;
         double delta = targetLocalY - originalLocalY;
         

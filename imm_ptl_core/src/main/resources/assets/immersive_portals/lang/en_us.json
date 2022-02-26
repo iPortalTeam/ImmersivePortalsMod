@@ -127,6 +127,8 @@
   "imm_ptl.command_desc.accelerate50": "Fly!",
   "imm_ptl.command.accelerate200": "Accelerate 200",
   "imm_ptl.command_desc.accelerate200": "Fly!",
+  "imm_ptl.command.reverse_accelerate50": "Reverse Accelerate 200",
+  "imm_ptl.command_desc.reverse_accelerate50": "Fly!",
   "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
   "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
   "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes.",

@@ -3,6 +3,7 @@ package qouteall.imm_ptl.peripheral;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -85,8 +86,13 @@ public class PeripheralModMain {
             "accelerate200", "debug accelerate 200"
         );
         registerPortalSubCommandStick(
-            "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
+            "reverse_accelerate50", "debug accelerate -50"
         );
+        if (FabricLoader.getInstance().isModLoaded("gravitychanger")) {
+            registerPortalSubCommandStick(
+                "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
+            );
+        }
         if (O_O.getIsPehkuiPresent()) {
             //PehkuiInterface.isPehkuiPresent may not be initialized in time
             CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
