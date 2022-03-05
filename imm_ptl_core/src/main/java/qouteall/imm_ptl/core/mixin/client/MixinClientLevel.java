@@ -14,6 +14,7 @@ import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTickList;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -30,6 +31,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
@@ -59,6 +61,11 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Shadow
     @Final
     private EntityTickList tickingEntities;
+    
+    @Shadow protected abstract Map<String, MapItemSavedData> getAllMapData();
+    
+    @Shadow protected abstract void addMapData(Map<String, MapItemSavedData> map);
+    
     private List<Portal> portal_globalPortals;
     
     @Override
@@ -151,5 +158,15 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Override
     public EntityTickList ip_getEntityList() {
         return tickingEntities;
+    }
+    
+    @Override
+    public Map<String, MapItemSavedData> ip_getAllMapData() {
+        return getAllMapData();
+    }
+    
+    @Override
+    public void ip_addMapData(Map<String, MapItemSavedData> map) {
+        addMapData(map);
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
@@ -250,6 +251,8 @@ public class ClientWorldLoader {
         
         int chunkLoadDistance = 3;// my own chunk manager doesn't need it
         
+        Map<String, MapItemSavedData> mapData = ((IEClientWorld) client.level).ip_getAllMapData();
+        
         LevelRenderer worldRenderer = new LevelRenderer(client, client.renderBuffers());
         
         ClientLevel newWorld;
@@ -291,6 +294,8 @@ public class ClientWorldLoader {
                 e
             );
         }
+        
+        ((IEClientWorld) newWorld).ip_addMapData(mapData);
         
         worldRenderer.setLevel(newWorld);
         
