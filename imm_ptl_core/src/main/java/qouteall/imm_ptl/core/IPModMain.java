@@ -13,6 +13,7 @@ import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.LifecycleHack;
 
 public class IPModMain {
     
@@ -52,6 +53,9 @@ public class IPModMain {
         VisibleSectionDiscovery.init();
         
         ServerPerformanceMonitor.init();
+        
+        LifecycleHack.markNamespaceStable("immersive_portals");
+        LifecycleHack.markNamespaceStable("imm_ptl");
     }
     
 }

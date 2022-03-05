@@ -7,13 +7,10 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
 public class MiscHelper {
-    public static WeakReference<MinecraftServer> refMinecraftServer =
-        new WeakReference<>(null);
     
     public static <T> MappedRegistry<T> filterAndCopyRegistry(
         MappedRegistry<T> registry, BiPredicate<ResourceKey<T>, T> predicate
@@ -54,7 +51,7 @@ public class MiscHelper {
     }
     
     public static MinecraftServer getServer() {
-        return refMinecraftServer.get();
+        return MiscGlobals.refMinecraftServer.get();
     }
     
     public static void executeOnServerThread(Runnable runnable) {
@@ -67,4 +64,6 @@ public class MiscHelper {
             server.execute(runnable);
         }
     }
+    
+    
 }
