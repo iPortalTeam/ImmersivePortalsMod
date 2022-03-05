@@ -1,11 +1,11 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '0.11-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '0.10-SNAPSHOT' apply(false)
     id 'maven-publish'
 
     id "com.modrinth.minotaur" version "1.2.1"
 
-    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
+//    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
 }
 
 allprojects {
@@ -29,9 +29,6 @@ repositories {
 }
 
 allprojects {
-//    loom {
-//        shareCaches = true
-//    }
 
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -266,5 +263,5 @@ task publishModrinth(type: TaskModrinthUpload) { // Make sure it runs after buil
     // Call this multiple times to add multiple game versions. There are tools that can help you generate the list of versions
     addLoader('fabric')
 
-    versionType = 'RELEASE'
+    versionType = 'ALPHA'
 }
