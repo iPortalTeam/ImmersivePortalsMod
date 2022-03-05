@@ -220,9 +220,8 @@ public class MyBuiltChunkStorage extends ViewArea {
         int minY = McHelper.getMinY(level);
         
         for (int offsetCY = 0; offsetCY < chunkGridSizeY; offsetCY++) {
-            ChunkRenderDispatcher.RenderChunk builtChunk = factory.new RenderChunk(0);
-            
-            builtChunk.setOrigin(
+            ChunkRenderDispatcher.RenderChunk builtChunk = factory.new RenderChunk(
+                0,
                 chunkX << 4, (offsetCY << 4) + minY, chunkZ << 4
             );
             

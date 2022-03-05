@@ -71,7 +71,7 @@ public class CustomPortalGeneration {
     public static MappedRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
         Util.make(() -> {
         MappedRegistry<Codec<CustomPortalGeneration>> registry = new MappedRegistry<>(
-            schemaRegistryKey, Lifecycle.stable()
+            schemaRegistryKey, Lifecycle.stable(), null
         );
         Registry.register(
             registry, new ResourceLocation("imm_ptl:v1"), codecV1

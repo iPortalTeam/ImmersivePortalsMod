@@ -35,8 +35,9 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": ">=0.28.1",
-    "minecraft": "1.18.1",
-    "imm_ptl_core": "*"
+    "minecraft": "1.18.2",
+    "imm_ptl_core": "*",
+    "q_misc_util": "*"
   },
   "breaks": {
     "optifabric": "*",

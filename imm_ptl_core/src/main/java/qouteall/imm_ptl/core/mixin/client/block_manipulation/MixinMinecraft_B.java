@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 
@@ -43,15 +44,15 @@ public abstract class MixinMinecraft_B {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/Minecraft;startAttack()V",
+        method = "startAttack",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onDoAttack(CallbackInfo ci) {
+    private void onDoAttack(CallbackInfoReturnable<Boolean> cir) {
         if (missTime <= 0) {
             if (BlockManipulationClient.isPointingToPortal()) {
-                BlockManipulationClient.myAttackBlock();
-                ci.cancel();
+                boolean result = BlockManipulationClient.myAttackBlock();
+                cir.setReturnValue(result);
             }
         }
     }

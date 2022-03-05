@@ -5,7 +5,7 @@
   "mixins": [
     "MixinMinecraftServer_Misc",
     "dimension.DimensionTypeAccessor",
-    "dimension.MixinGeneratorOptions",
+    "dimension.MixinWorldGenSettings",
     "dimension.MixinLevelProperties_D",
     "dimension.MixinMinecraftServer_D"
   ],

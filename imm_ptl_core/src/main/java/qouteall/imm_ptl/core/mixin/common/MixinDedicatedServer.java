@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.server.ServerResources;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
@@ -24,13 +24,16 @@ public class MixinDedicatedServer {
         method = "<init>", at = @At("RETURN")
     )
     private void onInitEnded(
-        Thread serverThread, RegistryAccess.RegistryHolder registryManager,
-        LevelStorageSource.LevelStorageAccess session, PackRepository dataPackManager,
-        ServerResources serverResourceManager, WorldData saveProperties,
-        DedicatedServerSettings propertiesLoader, DataFixer dataFixer,
-        MinecraftSessionService sessionService, GameProfileRepository gameProfileRepo,
-        GameProfileCache userCache,
-        ChunkProgressListenerFactory worldGenerationProgressListenerFactory,
+        Thread thread,
+        LevelStorageSource.LevelStorageAccess levelStorageAccess,
+        PackRepository packRepository,
+        WorldStem worldStem,
+        DedicatedServerSettings dedicatedServerSettings,
+        DataFixer dataFixer,
+        MinecraftSessionService minecraftSessionService,
+        GameProfileRepository gameProfileRepository,
+        GameProfileCache gameProfileCache,
+        ChunkProgressListenerFactory chunkProgressListenerFactory,
         CallbackInfo ci
     ) {
         // loading it requires getting the server directory

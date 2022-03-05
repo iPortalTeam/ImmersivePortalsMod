@@ -108,12 +108,12 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;onCreate()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/Minecraft;createLevel(Ljava/lang/String;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/core/RegistryAccess$RegistryHolder;Lnet/minecraft/world/level/levelgen/WorldGenSettings;)V"
+            target = "Lnet/minecraft/client/Minecraft;createLevel(Ljava/lang/String;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/level/levelgen/WorldGenSettings;)V"
         )
     )
     private void redirectOnCreateLevel(
-        Minecraft client, String worldName, LevelSettings levelInfo,
-        RegistryAccess.RegistryHolder registryTracker, WorldGenSettings generatorOptions
+        Minecraft client, String resultFolder, LevelSettings levelInfo,
+        RegistryAccess registryTracker, WorldGenSettings generatorOptions
     ) {
         if (altiusScreen != null) {
             AltiusInfo info = altiusScreen.getAltiusInfo();
@@ -128,7 +128,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             }
         }
         
-        client.createLevel(worldName, levelInfo, registryTracker, generatorOptions);
+        client.createLevel(resultFolder, levelInfo, registryTracker, generatorOptions);
     }
     
     private void openAltiusScreen() {
@@ -148,13 +148,17 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     private List<ResourceKey<Level>> portal_getDimensionList() {
         WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.makeSettings(false);
         
-        RegistryAccess.RegistryHolder registryManager = worldGenSettingsComponent.registryHolder();
+        RegistryAccess registryManager = worldGenSettingsComponent.registryHolder();
+
+//        WorldGenSettings populated = WorldCreationDimensionHelper.populateGeneratorOptions1(
+//            rawGeneratorOptions, registryManager,
+//            portal_getResourcePackManager(),
+//            dataPacks
+//        );
         
-        WorldGenSettings populated = WorldCreationDimensionHelper.populateGeneratorOptions1(
-            rawGeneratorOptions, registryManager,
-            portal_getResourcePackManager(),
-            dataPacks
-        );
+        // TODO check it
+        WorldGenSettings populated = rawGeneratorOptions;
+        
         
         // register the alternate dimensions
         DimensionAPI.serverDimensionsLoadEvent.invoker().run(populated, registryManager);

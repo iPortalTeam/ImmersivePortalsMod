@@ -1,6 +1,9 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
@@ -13,10 +16,12 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunk1;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -25,8 +30,13 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
     protected ChunkGenerator delegate;
     protected BiomeSource biomeSource_;
     
-    public DelegatedChunkGenerator(BiomeSource biomeSource, StructureSettings structuresConfig, ChunkGenerator delegate) {
-        super(biomeSource, structuresConfig);
+    public DelegatedChunkGenerator(
+        Registry<StructureSet> structureSets,
+        Optional<HolderSet<StructureSet>> structureOverrides,
+        BiomeSource biomeSource,
+        ChunkGenerator delegate
+    ) {
+        super(structureSets, structureOverrides, biomeSource);
         this.delegate = delegate;
         this.biomeSource_ = biomeSource;
     }
@@ -39,8 +49,9 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public ChunkGenerator withSeed(long seed) {
         return new DelegatedChunkGenerator(
+            structureSets,
+            structureOverrides,
             runtimeBiomeSource.withSeed(seed),
-            getSettings(),
             delegate.withSeed(seed)
         );
     }
@@ -100,44 +111,27 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
         return delegate.getBaseColumn(x, z, world);
     }
     
-    public static class SpecialNoise extends DelegatedChunkGenerator {
-        
-        public final ChunkGenerator noiseDelegate;
-        
-        public SpecialNoise(
-            BiomeSource biomeSource, StructureSettings structuresConfig,
-            ChunkGenerator delegate,
-            ChunkGenerator noiseDelegate
-        ) {
-            super(biomeSource, structuresConfig, delegate);
-            this.noiseDelegate = noiseDelegate;
-        }
-        
-        @Override
-        public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
-//            return delegate.populateNoise(executor, arg, structureAccessor, chunk).thenComposeAsync(
-//                chunk1 -> {
-//                    for (ChunkSection chunkSection : chunk1.getSectionArray()) {
-//                        for (int x = 0; x < 16; x++) {
-//                            for (int y = 0; y < 16; y++) {
-//                                for (int z = 0; z < 16; z++) {
-//                                    chunkSection.setBlockState(x, y, z, Blocks.AIR.getDefaultState(), false);
-//                                }
-//                            }
-//                        }
-//                    }
-//
-////                    for (int y = 0; y < 100; y++) {
-////                        for (int x = 0; x < 16; x++) {
-////                            for (int z = 0; z < 16; z++) {
-////                                chunk1.setBlockState(new BlockPos(x, y, z), Blocks.AIR.getDefaultState(), false);
-////                            }
-////                        }
-////                    }
-//                    return noiseDelegate.populateNoise(executor, arg, structureAccessor, chunk);
-//                }, executor
-//            );
-            return noiseDelegate.fillFromNoise(executor, arg, structureAccessor, chunk);
-        }
+    @Override
+    public void addDebugScreenInfo(List<String> list, BlockPos blockPos) {
+    
     }
+
+//    public static class SpecialNoise extends DelegatedChunkGenerator {
+//
+//        public final ChunkGenerator noiseDelegate;
+//
+//        public SpecialNoise(
+//            BiomeSource biomeSource, StructureSettings structuresConfig,
+//            ChunkGenerator delegate,
+//            ChunkGenerator noiseDelegate
+//        ) {
+//            super(biomeSource, structuresConfig, delegate);
+//            this.noiseDelegate = noiseDelegate;
+//        }
+//
+//        @Override
+//        public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
+//            return noiseDelegate.fillFromNoise(executor, arg, structureAccessor, chunk);
+//        }
+//    }
 }

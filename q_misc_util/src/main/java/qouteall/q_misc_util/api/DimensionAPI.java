@@ -3,6 +3,7 @@ package qouteall.q_misc_util.api;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -41,20 +42,25 @@ public class DimensionAPI {
     
     public static void addDimension(
         long argSeed,
-        MappedRegistry<LevelStem> dimensionOptionsRegistry,
+        Registry<LevelStem> dimensionOptionsRegistry,
         ResourceLocation dimensionId,
-        Supplier<DimensionType> dimensionTypeSupplier,
+        Holder<DimensionType> dimensionTypeHolder,
         ChunkGenerator chunkGenerator
     ) {
-        if (!dimensionOptionsRegistry.keySet().contains(dimensionId)) {
-            dimensionOptionsRegistry.register(
-                ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
-                new LevelStem(
-                    dimensionTypeSupplier,
-                    chunkGenerator
-                ),
-                Lifecycle.experimental()
-            );
+        if (dimensionOptionsRegistry instanceof MappedRegistry mapped) {
+            if (!mapped.keySet().contains(dimensionId)) {
+                mapped.register(
+                    ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
+                    new LevelStem(
+                        dimensionTypeHolder,
+                        chunkGenerator
+                    ),
+                    Lifecycle.experimental()
+                );
+            }
+        }
+        else {
+            throw new RuntimeException("Failed to register the dimension");
         }
     }
     

@@ -1,6 +1,7 @@
 package qouteall.q_misc_util;
 
 import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -15,36 +16,52 @@ public class DimensionMisc {
     
     // fix the issue that nether and end get swallowed by DFU
     public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
-        MappedRegistry<LevelStem> registry = generatorOptions.dimensions();
+        Registry<LevelStem> registry = generatorOptions.dimensions();
         long seed = generatorOptions.seed();
         if (!registry.keySet().contains(LevelStem.NETHER.location())) {
             logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
             
-            MappedRegistry<LevelStem> newOptions =
+            Registry<LevelStem> newOptions =
                 DimensionType.defaultDimensions(registryManager, seed);
             
-            DimensionAPI.addDimension(
-                seed,
-                registry,
-                LevelStem.NETHER.location(),
-                () -> DimensionTypeAccessor._getTheNether(),
-                newOptions.get(LevelStem.NETHER).generator()
-            );
+            LevelStem levelStem = newOptions.get(LevelStem.NETHER);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    seed,
+                    registry,
+                    LevelStem.NETHER.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default nether");
+            }
+            
+            
         }
         
         if (!registry.keySet().contains(LevelStem.END.location())) {
             logger.error("Missing the end. This may be caused by DFU. Trying to fix");
             
-            MappedRegistry<LevelStem> newOptions =
+            Registry<LevelStem> newOptions =
                 DimensionType.defaultDimensions(registryManager, seed);
             
-            DimensionAPI.addDimension(
-                seed,
-                registry,
-                LevelStem.END.location(),
-                () -> DimensionTypeAccessor._getTheEnd(),
-                newOptions.get(LevelStem.END).generator()
-            );
+            LevelStem levelStem = newOptions.get(LevelStem.END);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    seed,
+                    registry,
+                    LevelStem.END.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default end");
+            }
         }
     }
     

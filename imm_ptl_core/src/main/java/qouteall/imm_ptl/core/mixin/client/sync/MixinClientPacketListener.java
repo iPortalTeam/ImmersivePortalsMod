@@ -43,9 +43,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     private ClientLevel level;
     
     @Shadow
-    private boolean started;
-    
-    @Shadow
     private Minecraft minecraft;
     
     @Mutable
@@ -57,10 +54,11 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     public abstract void handleSetEntityPassengersPacket(ClientboundSetPassengersPacket entityPassengersSetS2CPacket_1);
     
     @Shadow
-    private RegistryAccess registryAccess;
-    
-    @Shadow
     protected abstract void applyLightData(int x, int z, ClientboundLightUpdatePacketData data);
+    
+    @Shadow public abstract RegistryAccess registryAccess();
+    
+    @Shadow private RegistryAccess.Frozen registryAccess;
     
     @Override
     public void ip_setWorld(ClientLevel world) {
@@ -109,11 +107,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         CallbackInfo ci
     ) {
         if (!IPNetworkAdapt.doesServerHasIP()) {
-            return;
-        }
-        
-        if (!started) {
-            // the first position packet removes the loading gui
             return;
         }
         
@@ -215,7 +208,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     }
     
     @Override
-    public void portal_setRegistryManager(RegistryAccess arg) {
+    public void portal_setRegistryManager(RegistryAccess.Frozen arg) {
         registryAccess = arg;
     }
 }

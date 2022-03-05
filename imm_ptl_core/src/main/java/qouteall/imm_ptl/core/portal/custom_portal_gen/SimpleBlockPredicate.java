@@ -3,15 +3,20 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagContainer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import qouteall.q_misc_util.MiscHelper;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 // it could be either specified by a block or a block tag
@@ -19,10 +24,10 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     public static final SimpleBlockPredicate pass = new SimpleBlockPredicate();
     
     public final String name;
-    private final Tag<Block> tag;
+    private final TagKey<Block> tag;
     private final Block block;
     
-    public SimpleBlockPredicate(String name, Tag<Block> tag) {
+    public SimpleBlockPredicate(String name, TagKey<Block> tag) {
         this.name = name;
         this.tag = tag;
         this.block = null;
@@ -69,15 +74,19 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             return DataResult.success(new AirPredicate());
         }
         
-        TagContainer tagManager = server.resources.getTags();
         ResourceLocation id = new ResourceLocation(string);
-        Tag<Block> blockTag = tagManager.getOrEmpty(Registry.BLOCK_REGISTRY).getTag(id);
         
-        if (blockTag != null) {
-            return DataResult.success(new SimpleBlockPredicate(string, blockTag), Lifecycle.stable());
+        TagKey<Block> tagKey = TagKey.create(Registry.BLOCK_REGISTRY, id);
+        
+        Registry<Block> blockRegistry = server.registryAccess().registry(Registry.BLOCK_REGISTRY).get();
+        
+        boolean knownTagName = blockRegistry.isKnownTagName(tagKey);
+        
+        if (knownTagName) {
+            return DataResult.success(new SimpleBlockPredicate(string, tagKey));
         }
         
-        if (Registry.BLOCK.keySet().contains(id)) {
+        if (blockRegistry.keySet().contains(id)) {
             Block block = Registry.BLOCK.get(id);
             return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
         }
@@ -103,6 +112,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             SimpleBlockPredicate::serialize
         );
     
+    // handles cave air and void air
     public static class AirPredicate extends SimpleBlockPredicate {
         @Override
         public boolean test(BlockState blockState) {

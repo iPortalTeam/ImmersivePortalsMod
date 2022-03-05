@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -266,9 +267,9 @@ public class ClientWorldLoader {
             RegistryAccess registryManager = mainNetHandler.registryAccess();
             int simulationDistance = client.level.getServerSimulationDistance();
             
-            DimensionType dimensionType = registryManager
-                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(dimensionTypeKey);
-            Validate.notNull(dimensionType);
+            Holder<DimensionType> dimensionType = registryManager
+                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+                .getHolderOrThrow(dimensionTypeKey);
             
             ClientLevel.ClientLevelData properties = new ClientLevel.ClientLevelData(
                 currentProperty.getDifficulty(),

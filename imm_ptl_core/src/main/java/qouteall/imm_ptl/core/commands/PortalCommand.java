@@ -1585,7 +1585,7 @@ public class PortalCommand {
         Random random = new Random();
         
         for (; ; ) {
-            Block block = Registry.BLOCK.getRandom(random);
+            Block block = Registry.BLOCK.getRandom(random).get().value();
             BlockState state = block.defaultBlockState();
             Material material = state.getMaterial();
             if (material.blocksMotion() && material.getPushReaction() == PushReaction.NORMAL

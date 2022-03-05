@@ -41,7 +41,7 @@ public class MixinPlayerList {
         method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;<init>(IZLnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;Ljava/util/Set;Lnet/minecraft/core/RegistryAccess$RegistryHolder;Lnet/minecraft/world/level/dimension/DimensionType;Lnet/minecraft/resources/ResourceKey;JIIIZZZZ)V"
+            target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;<init>(IZLnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;Ljava/util/Set;Lnet/minecraft/core/RegistryAccess$Frozen;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;JIIIZZZZ)V"
         )
     )
     private void onConnectionEstablished(

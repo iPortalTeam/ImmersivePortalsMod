@@ -5,7 +5,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerResources;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
@@ -46,12 +46,17 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerConstruct(
-        Thread thread, RegistryAccess.RegistryHolder impl,
-        LevelStorageSource.LevelStorageAccess session, WorldData saveProperties,
-        PackRepository resourcePackManager, Proxy proxy, DataFixer dataFixer,
-        ServerResources serverResourceManager, MinecraftSessionService minecraftSessionService,
-        GameProfileRepository gameProfileRepository, GameProfileCache userCache,
-        ChunkProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
+        Thread thread,
+        LevelStorageSource.LevelStorageAccess levelStorageAccess,
+        PackRepository packRepository,
+        WorldStem worldStem,
+        Proxy proxy,
+        DataFixer dataFixer,
+        MinecraftSessionService minecraftSessionService,
+        GameProfileRepository gameProfileRepository,
+        GameProfileCache gameProfileCache,
+        ChunkProgressListenerFactory chunkProgressListenerFactory,
+        CallbackInfo ci
     ) {
         O_O.onServerConstructed();
     }

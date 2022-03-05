@@ -68,9 +68,9 @@ public class CommandStickItem extends Item {
                 tag.getString("command"),
                 tag.getString("nameTranslationKey"),
                 tag.getList(
-                    "descriptionTranslationKeys",
-                    StringTag.valueOf("").getId()
-                )
+                        "descriptionTranslationKeys",
+                        StringTag.valueOf("").getId()
+                    )
                     .stream()
                     .map(tag1 -> ((StringTag) tag1).getAsString())
                     .collect(Collectors.toList())
@@ -79,8 +79,7 @@ public class CommandStickItem extends Item {
     }
     
     public static final MappedRegistry<Data> commandStickTypeRegistry = new MappedRegistry<>(
-        registryRegistryKey,
-        Lifecycle.stable()
+        registryRegistryKey, Lifecycle.stable(), null
     );
     
     public static void registerType(String id, Data data) {

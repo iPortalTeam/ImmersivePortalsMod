@@ -4,6 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -14,11 +16,12 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +39,12 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
-    public ErrorTerrainGenerator(long seed, ChunkGenerator delegate, BiomeSource biomeSource) {
-        super(biomeSource, new StructureSettings(true), delegate);
+    public ErrorTerrainGenerator(
+        Registry<StructureSet> structureSets,
+        Optional<HolderSet<StructureSet>> structureOverrides,
+        long seed, ChunkGenerator delegate, BiomeSource biomeSource
+    ) {
+        super(structureSets, structureOverrides, biomeSource, delegate);
         
         cache = CacheBuilder.newBuilder()
             .maximumSize(10000)
@@ -52,7 +59,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     @Override
     public ChunkGenerator withSeed(long seed) {
-        return new ErrorTerrainGenerator(seed, delegate.withSeed(seed), biomeSource_);
+        return new ErrorTerrainGenerator(structureSets, structureOverrides, seed, delegate.withSeed(seed), biomeSource_);
     }
     
     @Override

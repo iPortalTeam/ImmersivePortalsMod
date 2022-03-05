@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -43,7 +45,12 @@ public class MyClientChunkManager extends ClientChunkCache {
     public MyClientChunkManager(ClientLevel clientWorld, int loadDistance) {
         super(clientWorld, loadDistance);
         this.world = clientWorld;
-        this.emptyChunk = new EmptyLevelChunk(clientWorld, new ChunkPos(0, 0));
+        this.emptyChunk = new EmptyLevelChunk(
+            clientWorld, new ChunkPos(0, 0),
+            clientWorld.registryAccess()
+                .registryOrThrow(Registry.BIOME_REGISTRY)
+                .getHolderOrThrow(Biomes.PLAINS)
+        );
         this.lightingProvider = new LevelLightEngine(
             this,
             true,

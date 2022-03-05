@@ -2,13 +2,15 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -24,21 +26,24 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSamplingSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.NoiseSlider;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkGeneratorSettings;
+import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AlternateDimensions {
     
@@ -51,15 +56,22 @@ public class AlternateDimensions {
     private static void initializeAlternateDimensions(
         WorldGenSettings generatorOptions, RegistryAccess registryManager
     ) {
-        MappedRegistry<LevelStem> registry = generatorOptions.dimensions();
+        Registry<LevelStem> registry = generatorOptions.dimensions();
         long seed = generatorOptions.seed();
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
         
-        DimensionType surfaceTypeObject = registryManager.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(new ResourceLocation("immersive_portals:surface_type"));
+        ResourceKey<DimensionType> resourceKey = ResourceKey.create(
+            Registry.DIMENSION_TYPE_REGISTRY,
+            new ResourceLocation("immersive_portals:surface_type")
+        );
+        Holder<DimensionType> surfaceTypeHolder = registryManager
+            .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+            .getHolder(resourceKey)
+            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
         
-        if (surfaceTypeObject == null) {
+        if (surfaceTypeHolder == null) {
             Helper.err("Missing dimension type immersive_portals:surface_type");
             return;
         }
@@ -69,7 +81,7 @@ public class AlternateDimensions {
             seed,
             registry,
             alternate1Option.location(),
-            () -> surfaceTypeObject,
+            surfaceTypeHolder,
             createSkylandGenerator(seed + 1, registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate1Option.location());
@@ -78,7 +90,7 @@ public class AlternateDimensions {
             seed,
             registry,
             alternate2Option.location(),
-            () -> surfaceTypeObject,
+            surfaceTypeHolder,
             createSkylandGenerator(seed, registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate2Option.location());
@@ -88,7 +100,7 @@ public class AlternateDimensions {
             seed,
             registry,
             alternate3Option.location(),
-            () -> surfaceTypeObject,
+            surfaceTypeHolder,
             createErrorTerrainGenerator(seed + 1, registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate3Option.location());
@@ -97,7 +109,7 @@ public class AlternateDimensions {
             seed,
             registry,
             alternate4Option.location(),
-            () -> surfaceTypeObject,
+            surfaceTypeHolder,
             createErrorTerrainGenerator(seed, registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate4Option.location());
@@ -106,7 +118,7 @@ public class AlternateDimensions {
             seed,
             registry,
             alternate5Option.location(),
-            () -> surfaceTypeObject,
+            surfaceTypeHolder,
             createVoidGenerator(registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate5Option.location());
@@ -157,7 +169,6 @@ public class AlternateDimensions {
         Registry.DIMENSION_REGISTRY,
         new ResourceLocation("immersive_portals:alternate5")
     );
-//    public static DimensionType surfaceTypeObject;
     
     public static boolean isAlternateDimension(Level world) {
         final ResourceKey<Level> key = world.dimension();
@@ -168,7 +179,10 @@ public class AlternateDimensions {
             key == alternate5;
     }
     
-    private static void syncWithOverworldTimeWeather(ServerLevel world, ServerLevel overworld) {
+    private static void syncWithOverworldTimeWeather(@Nullable ServerLevel world, ServerLevel overworld) {
+        if (world == null) {
+            return;
+        }
         ((IEWorld) world).portal_setWeather(
             overworld.getRainLevel(1), overworld.getRainLevel(1),
             overworld.getThunderLevel(1), overworld.getThunderLevel(1)
@@ -182,63 +196,42 @@ public class AlternateDimensions {
             biomeRegistry, true
         );
         
-        Registry<NoiseGeneratorSettings> settingsRegistry = rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-        
-        HashMap<StructureFeature<?>, StructureFeatureConfiguration> structureMap = new HashMap<>();
-        structureMap.putAll(StructureSettings.DEFAULTS);
-        structureMap.remove(StructureFeature.MINESHAFT);
-        structureMap.remove(StructureFeature.STRONGHOLD);
-        
-        StructureSettings structuresConfig = new StructureSettings(
-            Optional.empty(), structureMap
-        );
-        
-        NoiseGeneratorSettings skylandSetting = createIslandSettings(
-            structuresConfig, Blocks.STONE.defaultBlockState(),
-            Blocks.WATER.defaultBlockState()
-        );
+        NoiseGeneratorSettings skylandSetting = createIslandSettings();
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
-            rm.registryOrThrow(Registry.NOISE_REGISTRY),
-            biomeSource, seed, () -> skylandSetting
+            rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY), rm.registryOrThrow(Registry.NOISE_REGISTRY),
+            biomeSource, seed, Holder.direct(skylandSetting)
         );
         
-        NoiseGeneratorSettings surfaceSetting = createSurfaceSettings(
-            structuresConfig, Blocks.STONE.defaultBlockState(),
-            Blocks.WATER.defaultBlockState()
-        );
+        return islandChunkGenerator;
         
-        NoiseBasedChunkGenerator surfaceChunkGenerator = new NoiseBasedChunkGenerator(
-            rm.registryOrThrow(Registry.NOISE_REGISTRY),
-            biomeSource, seed, () -> surfaceSetting
-        );
-        
-        return new DelegatedChunkGenerator.SpecialNoise(
-            biomeSource, structuresConfig,
-            surfaceChunkGenerator, islandChunkGenerator
-        );
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
         Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         
-        ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
-        return new ErrorTerrainGenerator(seed, createSkylandGenerator(seed, rm), chaosBiomeSource);
+        List<Holder.Reference<Biome>> biomeHolderList = biomeRegistry.holders().collect(Collectors.toList());
+        
+        ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(
+            HolderSet.direct(biomeHolderList)
+        );
+        return new ErrorTerrainGenerator(
+            rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY), Optional.empty(),
+            seed, createSkylandGenerator(seed, rm), chaosBiomeSource
+        );
     }
     
     public static ChunkGenerator createVoidGenerator(RegistryAccess rm) {
         Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         
-        StructureSettings structuresConfig = new StructureSettings(
-            Optional.of(StructureSettings.DEFAULT_STRONGHOLD),
-            Maps.newHashMap(ImmutableMap.of())
-        );
+        Registry<StructureSet> structureSets = rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
+        
         FlatLevelGeneratorSettings flatChunkGeneratorConfig =
-            new FlatLevelGeneratorSettings(structuresConfig, biomeRegistry);
+            new FlatLevelGeneratorSettings(Optional.empty(), biomeRegistry);
         flatChunkGeneratorConfig.getLayersInfo().add(new FlatLayerInfo(1, Blocks.AIR));
         flatChunkGeneratorConfig.updateLayers();
         
-        return new FlatLevelSource(flatChunkGeneratorConfig);
+        return new FlatLevelSource(structureSets, flatChunkGeneratorConfig);
     }
     
     
@@ -249,64 +242,42 @@ public class AlternateDimensions {
         
         ServerLevel overworld = McHelper.getServerWorld(Level.OVERWORLD);
         
-        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
-        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
-        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
-        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
-        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
+        MinecraftServer server = MiscHelper.getServer();
+        
+        syncWithOverworldTimeWeather(server.getLevel(alternate1), overworld);
+        syncWithOverworldTimeWeather(server.getLevel(alternate2), overworld);
+        syncWithOverworldTimeWeather(server.getLevel(alternate3), overworld);
+        syncWithOverworldTimeWeather(server.getLevel(alternate4), overworld);
+        syncWithOverworldTimeWeather(server.getLevel(alternate5), overworld);
     }
     
-    /**
-     * vanilla copy
-     * {@link ChunkGeneratorSettings}
-     */
-    private static NoiseGeneratorSettings createIslandSettings(
-        StructureSettings structuresConfig, BlockState defaultBlock, BlockState defaultFluid
-    ) {
-        return IEChunkGeneratorSettings.construct(
-            structuresConfig,
-            NoiseSettings.create(
-                0, 128,
-                new NoiseSamplingSettings(
-                    2.0, 1.0, 80.0, 160.0
-                ),
-                new NoiseSlider(-23.4375, 64, -46),
-                new NoiseSlider(-0.234375, 7, 1),
-                2, 1, false, false, false,
-//                VanillaTerrainParametersCreator.createNetherParameters()
-//                VanillaTerrainParametersCreator.createSurfaceParameters(false)
-                TerrainProvider.floatingIslands()
-            ),
-            defaultBlock, defaultFluid,
-            SurfaceRuleData.overworldLike(true, false, false),
-            0, false, false, false, false, false,
-            false
-        );
+    private static NoiseGeneratorSettings createIslandSettings() {
+        return IENoiseGeneratorSettings.ip_floatingIslands();
         
     }
-    
-    private static NoiseGeneratorSettings createSurfaceSettings(
-        StructureSettings structuresConfig, BlockState defaultBlock, BlockState defaultFluid
-    ) {
-        return IEChunkGeneratorSettings.construct(
-            structuresConfig,
-            NoiseSettings.create(
-                0, 128,
-                new NoiseSamplingSettings(
-                    2.0, 1.0, 80.0, 160.0
-                ),
-                new NoiseSlider(-23.4375, 64, -46),
-                new NoiseSlider(-0.234375, 7, 1),
-                2, 1, false, false, false,
-//                VanillaTerrainParametersCreator.createNetherParameters()
-                TerrainProvider.overworld(false)
-//                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
-            ),
-            defaultBlock, defaultFluid,
-            SurfaceRuleData.overworldLike(true, false, false),
-            0, false, false, false, false, false,
-            false
-        );
-        
-    }
+
+//    private static NoiseGeneratorSettings createSurfaceSettings(
+//        StructureSettings structuresConfig, BlockState defaultBlock, BlockState defaultFluid
+//    ) {
+//        return IENoiseGeneratorSettings.construct(
+//            structuresConfig,
+//            NoiseSettings.create(
+//                0, 128,
+//                new NoiseSamplingSettings(
+//                    2.0, 1.0, 80.0, 160.0
+//                ),
+//                new NoiseSlider(-23.4375, 64, -46),
+//                new NoiseSlider(-0.234375, 7, 1),
+//                2, 1, false, false, false,
+////                VanillaTerrainParametersCreator.createNetherParameters()
+//                TerrainProvider.overworld(false)
+////                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
+//            ),
+//            defaultBlock, defaultFluid,
+//            SurfaceRuleData.overworldLike(true, false, false),
+//            0, false, false, false, false, false,
+//            false
+//        );
+//
+//    }
 }

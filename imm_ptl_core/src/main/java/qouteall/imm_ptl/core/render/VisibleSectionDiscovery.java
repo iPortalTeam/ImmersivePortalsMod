@@ -100,7 +100,7 @@ public class VisibleSectionDiscovery {
     
     // NOTE the vanilla frustum culling code may wrongly cull the first section
     private static boolean isVisible(ChunkRenderDispatcher.RenderChunk builtChunk) {
-        AABB box = builtChunk.bb;
+        AABB box = builtChunk.getBoundingBox();
         return vanillaFrustum.isVisible(box);
     }
     

@@ -19,7 +19,7 @@ public abstract class PortalGenForm {
     public static final Registry<Codec<? extends PortalGenForm>> codecRegistry = Util.make(() -> {
         MappedRegistry<Codec<? extends PortalGenForm>> registry = new MappedRegistry<>(
             ResourceKey.createRegistryKey(new ResourceLocation("imm_ptl:custom_portal_gen_form")),
-            Lifecycle.stable()
+            Lifecycle.stable(), null
         );
         
         Registry.register(

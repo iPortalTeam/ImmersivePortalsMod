@@ -20,7 +20,7 @@ public abstract class MixinMinecraftServer_D {
     protected WorldData worldData;
     
     @Shadow
-    public abstract RegistryAccess registryAccess();
+    public abstract RegistryAccess.Frozen registryAccess();
     
     @Inject(method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V", at = @At("HEAD"))
     private void onBeforeCreateWorlds(
@@ -29,7 +29,7 @@ public abstract class MixinMinecraftServer_D {
         WorldGenSettings generatorOptions = worldData.worldGenSettings();
         
         RegistryAccess registryManager = registryAccess();
-    
+        
         DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, registryManager);
         
     }

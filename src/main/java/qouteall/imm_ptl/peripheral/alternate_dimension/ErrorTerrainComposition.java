@@ -132,7 +132,7 @@ public class ErrorTerrainComposition {
             if (((int) funcValue) % 37 == 0) {
                 Block randomBlock = Registry.BLOCK.getRandom(new Random(
                     LinearCongruentialGenerator.next(worldX, LinearCongruentialGenerator.next(worldY, worldZ))
-                ));
+                )).get().value();
                 //player should not get beacon so easily
                 if (randomBlock == Blocks.BEACON) {
                     randomBlock = Blocks.AIR;

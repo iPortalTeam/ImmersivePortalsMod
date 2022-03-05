@@ -1,6 +1,7 @@
 package qouteall.q_misc_util.mixin.dimension;
 
 import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -36,7 +37,7 @@ public class MixinLevelProperties_D {
     ) {
         ((IEGeneratorOptions) worldGenSettings).setDimOptionRegistry(
             DimensionAPI._getAdditionalDimensionsRemoved(
-                worldGenSettings.dimensions()
+                ((MappedRegistry) worldGenSettings.dimensions())
             )
         );
     }

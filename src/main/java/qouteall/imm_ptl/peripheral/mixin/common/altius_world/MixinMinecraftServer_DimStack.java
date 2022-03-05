@@ -20,7 +20,9 @@ public abstract class MixinMinecraftServer_DimStack {
     @Shadow
     public abstract ServerLevel getLevel(ResourceKey<Level> dimensionType);
     
-    @Shadow @Final private Map<ResourceKey<Level>, ServerLevel> levels;
+    @Shadow
+    @Final
+    private Map<ResourceKey<Level>, ServerLevel> levels;
     
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",

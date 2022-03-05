@@ -77,10 +77,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     
     @Shadow
     @Final
-    private static Logger LOGGER;
-    
-    @Shadow
-    @Final
     public Connection connection;
     
     @Shadow
@@ -107,7 +103,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         ResourceKey<Level> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
         
         if (packetDimension == null) {
-            Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have IP");
+            Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
             IPGlobal.serverTaskList.addTask(() -> {
                 player.connection.disconnect(new TextComponent(
                     "The client does not have Immersive Portals mod"

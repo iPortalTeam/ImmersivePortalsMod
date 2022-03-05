@@ -5,7 +5,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerResources;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
@@ -31,12 +31,16 @@ public abstract class MixinMinecraftServer_Misc {
         at = @At("RETURN")
     )
     private void onConstruct(
-        Thread serverThread, RegistryAccess.RegistryHolder registryManager,
-        LevelStorageSource.LevelStorageAccess session, WorldData saveProperties,
-        PackRepository dataPackManager, Proxy proxy, DataFixer dataFixer,
-        ServerResources serverResourceManager, MinecraftSessionService sessionService,
-        GameProfileRepository gameProfileRepo, GameProfileCache userCache,
-        ChunkProgressListenerFactory worldGenerationProgressListenerFactory,
+        Thread thread,
+        LevelStorageSource.LevelStorageAccess levelStorageAccess,
+        PackRepository packRepository,
+        WorldStem worldStem,
+        Proxy proxy,
+        DataFixer dataFixer,
+        MinecraftSessionService minecraftSessionService,
+        GameProfileRepository gameProfileRepository,
+        GameProfileCache gameProfileCache,
+        ChunkProgressListenerFactory chunkProgressListenerFactory,
         CallbackInfo ci
     ) {
         MiscHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));

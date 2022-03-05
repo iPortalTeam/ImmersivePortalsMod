@@ -5,6 +5,7 @@ import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
@@ -94,10 +95,9 @@ public abstract class MixinClientLevel implements IEClientWorld {
         at = @At("RETURN")
     )
     void onConstructed(
-        ClientPacketListener netHandler, ClientLevel.ClientLevelData properties,
-        ResourceKey<Level> registryRef, DimensionType dimensionType, int loadDistance,
-        int simulationDistance, Supplier<ProfilerFiller> profiler, LevelRenderer worldRenderer,
-        boolean debugWorld, long seed, CallbackInfo ci
+        ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData,
+        ResourceKey resourceKey, Holder holder, int loadDistance, int j, Supplier supplier,
+        LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci
     ) {
         ClientLevel clientWorld = (ClientLevel) (Object) this;
         ClientChunkCache myClientChunkManager =

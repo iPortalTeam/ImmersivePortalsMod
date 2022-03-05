@@ -527,10 +527,10 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FLjava/lang/Runnable;)V",
+        method = "renderSky",
         at = @At("HEAD"), cancellable = true
     )
-    private void onRenderSkyBegin(PoseStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
+    private void onRenderSkyBegin(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             if (PortalRendering.getRenderingPortal().isFuseView()) {
                 if (!IrisInterface.invoker.isShaders()) {
@@ -545,10 +545,10 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FLjava/lang/Runnable;)V",
+        method = "renderSky",
         at = @At("RETURN")
     )
-    private void onRenderSkyEnd(PoseStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
+    private void onRenderSkyEnd(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();
     }
     

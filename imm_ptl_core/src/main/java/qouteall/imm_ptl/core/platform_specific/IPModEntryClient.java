@@ -100,32 +100,7 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Iris is not present");
         }
         
-        initWarnings();
-    
         IPModCompatibilityWarning.initClient();
-    }
-    
-    
-    private static boolean checked = false;
-    
-    private static void initWarnings() {
-        IPGlobal.postClientTickSignal.connect(() -> {
-            if (Minecraft.getInstance().level == null) {
-                return;
-            }
-            
-            if (checked) {
-                return;
-            }
-            
-            if (FabricLoader.getInstance().isModLoaded("canvas")) {
-                CHelper.printChat(new TextComponent(
-                    "[Immersive Portals] Warning: Canvas is incompatible with Immersive Portals."
-                ));
-            }
-            
-            checked = true;
-        });
     }
     
 }

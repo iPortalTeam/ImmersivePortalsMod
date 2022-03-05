@@ -10,12 +10,8 @@ Accessible field net/minecraft/world/level/dimension/DimensionType DEFAULT_END L
 
 Accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
 
-Accessible field net/minecraft/server/MinecraftServer resources Lnet/minecraft/server/ServerResources;
-
 Accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
 Mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
-
-Accessible field net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator settings Ljava/util/function/Supplier;
 
 Accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 

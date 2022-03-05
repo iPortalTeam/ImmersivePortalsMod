@@ -6,14 +6,19 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryLoader;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryResourceAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -21,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.UCoordinate;
@@ -37,6 +43,9 @@ public class CustomPortalGenManagement {
     private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
     private static final Map<UUID, UCoordinate> playerPosBeforeTravel = new HashMap<>();
     
+    /**
+     * {@link CreateWorldScreen#tryApplyNewDataPacks(PackRepository)}
+     */
     public static void onDatapackReload() {
         if (!IPGlobal.enableDatapackPortalGen) {
             return;
@@ -46,38 +55,42 @@ public class CustomPortalGenManagement {
         throwItemGen.clear();
         convGen.clear();
         playerPosBeforeTravel.clear();
-
-        Helper.log("Loading custom portal gen");
-
+        
+        Helper.log("Loading custom portal generation");
+        
         MinecraftServer server = MiscHelper.getServer();
-
-        RegistryAccess.RegistryHolder registryTracker =
-            ((RegistryAccess.RegistryHolder) server.registryAccess());
-
-        ResourceManager resourceManager = server.resources.getResourceManager();
-
-        RegistryReadOps<JsonElement> registryOps = RegistryReadOps.create(
+        
+        RegistryAccess registryTracker = server.registryAccess();
+        
+        ResourceManager resourceManager = server.getResourceManager();
+        
+        RegistryOps<JsonElement> registryOps = RegistryOps.create(
             JsonOps.INSTANCE,
-            resourceManager,
             registryTracker
         );
-
+        
         MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
             CustomPortalGeneration.registryRegistryKey,
-            Lifecycle.stable()
+            Lifecycle.stable(), null
         );
-
-        DataResult<MappedRegistry<CustomPortalGeneration>> dataResult =
-            registryOps.decodeElements(
+        
+        RegistryResourceAccess registryResourceAccess = RegistryResourceAccess.forResourceManager(resourceManager);
+        
+        RegistryLoader registryLoader = IERegistryLoader.construct(registryResourceAccess);
+        DataResult<Registry<CustomPortalGeneration>> dataResult =
+            ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
                 emptyRegistry,
                 CustomPortalGeneration.registryRegistryKey,
-                CustomPortalGeneration.codec.codec()
+                CustomPortalGeneration.codec.codec(),
+                registryOps
+            
             );
-
-        MappedRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
-
+        
+        
+        Registry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
+        
         if (result == null) {
-            DataResult.PartialResult<MappedRegistry<CustomPortalGeneration>> r =
+            DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
                 dataResult.get().right().get();
             McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
                 "Error when parsing custom portal generation\n" +
@@ -85,23 +98,23 @@ public class CustomPortalGenManagement {
             ));
             return;
         }
-
+        
         result.entrySet().forEach((entry) -> {
             CustomPortalGeneration gen = entry.getValue();
             gen.identifier = entry.getKey().location();
-
+            
             if (!gen.initAndCheck()) {
                 Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
                 return;
             }
-
+            
             Helper.log("Loaded Custom Portal Gen " + entry.getKey().location());
-
+            
             load(gen);
-
+            
             if (gen.reversible) {
                 CustomPortalGeneration reverse = gen.getReverse();
-
+                
                 if (reverse != null) {
                     reverse.identifier = entry.getKey().location();
                     if (gen.initAndCheck()) {

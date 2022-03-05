@@ -1,9 +1,11 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '0.10-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '0.11-SNAPSHOT' apply(false)
     id 'maven-publish'
 
     id "com.modrinth.minotaur" version "1.2.1"
+
+    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
 }
 
 allprojects {
@@ -187,9 +189,9 @@ dependencies {
     // for testing with dimthread
 //    implementation "com.github.wearblackallday:JavaUtils:bd58640372"
 
-    modRuntimeOnly ("supercoder79:databreaker:0.2.8") {
-        exclude module: "fabric-loader"
-    }
+//    modRuntimeOnly ("supercoder79:databreaker:0.2.8") {
+//        exclude module: "fabric-loader"
+//    }
 
     modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"

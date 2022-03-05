@@ -233,21 +233,19 @@ public class BlockManipulationClient {
         );
     }
     
-    public static void myAttackBlock() {
-//        if (remoteHitResult == null) {
-//            return;
-//        }
-        
-        
+    /**
+     * {@link Minecraft#startAttack()}
+     */
+    public static boolean myAttackBlock() {
         ClientLevel targetWorld =
             ClientWorldLoader.getWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
         
         if (targetWorld.isEmptyBlock(blockPos)) {
-            return;
+            return true;
         }
         
-        IPMcHelper.withSwitchedContext(
+        return IPMcHelper.<Boolean>withSwitchedContext(
             targetWorld,
             () -> {
                 isContextSwitched = true;
@@ -256,15 +254,14 @@ public class BlockManipulationClient {
                         blockPos,
                         ((BlockHitResult) remoteHitResult).getDirection()
                     );
-                    return null; // Must return null for "void" supplier
+                    client.player.swing(InteractionHand.MAIN_HAND);
+                    return client.level.getBlockState(blockPos).isAir();
                 }
                 finally {
                     isContextSwitched = false;
                 }
             }
         );
-        
-        client.player.swing(InteractionHand.MAIN_HAND);
     }
     
     //too lazy to rewrite the whole interaction system so hack there and here

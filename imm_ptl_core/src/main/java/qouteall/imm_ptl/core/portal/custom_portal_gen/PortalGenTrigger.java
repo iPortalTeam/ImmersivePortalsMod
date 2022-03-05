@@ -93,7 +93,7 @@ public abstract class PortalGenTrigger {
     static {
         codecRegistry = new MappedRegistry<>(
             ResourceKey.createRegistryKey(new ResourceLocation("imm_ptl:custom_portal_gen_trigger")),
-            Lifecycle.stable()
+            Lifecycle.stable(), null
         );
         
         Registry.register(
