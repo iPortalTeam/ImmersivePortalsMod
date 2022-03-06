@@ -252,8 +252,6 @@ public class ClientWorldLoader {
         
         int chunkLoadDistance = 3;// my own chunk manager doesn't need it
         
-        Map<String, MapItemSavedData> mapData = ((IEClientWorld) client.level).ip_getAllMapData();
-        
         LevelRenderer worldRenderer = new LevelRenderer(client, client.renderBuffers());
         
         ClientLevel newWorld;
@@ -295,8 +293,6 @@ public class ClientWorldLoader {
                 e
             );
         }
-        
-        ((IEClientWorld) newWorld).ip_addMapData(mapData);
         
         worldRenderer.setLevel(newWorld);
         

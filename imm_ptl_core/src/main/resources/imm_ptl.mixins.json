@@ -10,6 +10,7 @@
     "common.MixinDedicatedServer",
     "common.MixinLevel",
     "common.MixinLivingEntity",
+    "common.MixinMapItemSavedData",
     "common.MixinMinecraftServer",
     "common.MixinPlayerList",
     "common.MixinServerChunkCache",
