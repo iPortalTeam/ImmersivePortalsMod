@@ -43,8 +43,8 @@
     "optifabric": "*",
     "pehkui": "<3.0.0",
     "sodium": [
-      ">0.4.0-alpha6",
-      "<0.4.0-alpha6"
+      ">0.4.1+build.15",
+      "<0.4.1+build.15"
     ],
     "viafabric-mc118": "*",
     "resolutioncontrol": "*",
