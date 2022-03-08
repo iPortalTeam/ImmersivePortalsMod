@@ -99,10 +99,10 @@ allprojects {
 
         modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT')
 
-        modCompileOnly "maven.modrinth:sodium:mc1.18.1-0.4.0-alpha6"
+        modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
 //        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.0'
+        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.1'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
