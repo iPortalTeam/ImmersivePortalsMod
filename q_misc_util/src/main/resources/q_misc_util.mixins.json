@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "qouteall.q_misc_util.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
