@@ -611,7 +611,7 @@ public class Helper {
     }
     
     /**
-     * @param vec  The {@link Vec3d} to get the {@link Direction} of.
+     * @param vec  The {@link Vec3} to get the {@link Direction} of.
      * @param axis The {@link Direction.Axis} of directions to exclude.
      * @return The {@link Direction} of the passed {@code vec}, excluding directions of axis {@code axis}.
      */

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.dimension_sync.DimId;
+import qouteall.q_misc_util.dim_sync.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 
 @Mixin(ClientboundPlayerPositionPacket.class)

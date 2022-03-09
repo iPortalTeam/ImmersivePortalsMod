@@ -18,9 +18,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.dimension_sync.DimId;
-import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
-import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
+import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.dim_sync.DimId;
+import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
+import qouteall.q_misc_util.dim_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
@@ -42,13 +43,7 @@ public class IPNetworkingClient {
             }
         );
         
-        ClientPlayNetworking.registerGlobalReceiver(
-            IPNetworking.id_stcDimSync,
-            (c, handler, buf, responseSender) -> {
-                processDimSync(buf);
-                
-            }
-        );
+        
         
         ClientPlayNetworking.registerGlobalReceiver(
             IPNetworking.id_stcSpawnEntity,
@@ -113,21 +108,6 @@ public class IPNetworkingClient {
         Packet packet = createPacketByType(messageType,buf);
         
         IPCommonNetworkClient.processRedirectedPacket(dimension, packet);
-    }
-    
-    public static void processDimSync(
-        FriendlyByteBuf buf
-    ) {
-        CompoundTag idMap = buf.readNbt();
-        
-        DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMap);
-        
-        CompoundTag typeMap = buf.readNbt();
-        
-        DimensionTypeSync.acceptTypeMapData(typeMap);
-        
-        Helper.log("Received Dimension Int Id Sync");
-        Helper.log("\n" + DimensionIdRecord.clientRecord);
     }
     
     private static void processGlobalPortalUpdate(FriendlyByteBuf buf) {

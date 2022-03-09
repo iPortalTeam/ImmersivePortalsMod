@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.dimension_sync;
+package qouteall.q_misc_util.dim_sync;
 
 import com.google.common.collect.Streams;
 import net.fabricmc.api.EnvType;

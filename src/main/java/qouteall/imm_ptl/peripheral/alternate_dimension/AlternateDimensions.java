@@ -78,7 +78,6 @@ public class AlternateDimensions {
         
         //different seed
         DimensionAPI.addDimension(
-            seed,
             registry,
             alternate1Option.location(),
             surfaceTypeHolder,
@@ -87,7 +86,6 @@ public class AlternateDimensions {
         DimensionAPI.markDimensionNonPersistent(alternate1Option.location());
         
         DimensionAPI.addDimension(
-            seed,
             registry,
             alternate2Option.location(),
             surfaceTypeHolder,
@@ -97,7 +95,6 @@ public class AlternateDimensions {
         
         //different seed
         DimensionAPI.addDimension(
-            seed,
             registry,
             alternate3Option.location(),
             surfaceTypeHolder,
@@ -106,7 +103,6 @@ public class AlternateDimensions {
         DimensionAPI.markDimensionNonPersistent(alternate3Option.location());
         
         DimensionAPI.addDimension(
-            seed,
             registry,
             alternate4Option.location(),
             surfaceTypeHolder,
@@ -115,7 +111,6 @@ public class AlternateDimensions {
         DimensionAPI.markDimensionNonPersistent(alternate4Option.location());
         
         DimensionAPI.addDimension(
-            seed,
             registry,
             alternate5Option.location(),
             surfaceTypeHolder,

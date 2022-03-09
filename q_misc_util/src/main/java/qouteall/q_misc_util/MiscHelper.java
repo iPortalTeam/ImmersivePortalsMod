@@ -2,6 +2,7 @@ package qouteall.q_misc_util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
@@ -63,6 +64,10 @@ public class MiscHelper {
         else {
             server.execute(runnable);
         }
+    }
+    
+    public static boolean isDedicatedServer() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     }
     
     

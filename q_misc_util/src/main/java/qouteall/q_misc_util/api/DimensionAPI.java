@@ -25,7 +25,11 @@ public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
     
     public static interface ServerDimensionsLoadCallback {
-        void run(WorldGenSettings generatorOptions, RegistryAccess registryManager);
+        /**
+         * You can get the registry of dimensions using `worldGenSettings.dimensions()`
+         * For biomes and dimension types, you can get them from the registry access
+         */
+        void run(WorldGenSettings worldGenSettings, RegistryAccess registryAccess);
     }
     
     public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
@@ -41,13 +45,12 @@ public class DimensionAPI {
     private static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     
     public static void addDimension(
-        long argSeed,
-        Registry<LevelStem> dimensionOptionsRegistry,
+        Registry<LevelStem> levelStemRegistry,
         ResourceLocation dimensionId,
         Holder<DimensionType> dimensionTypeHolder,
         ChunkGenerator chunkGenerator
     ) {
-        if (dimensionOptionsRegistry instanceof MappedRegistry mapped) {
+        if (levelStemRegistry instanceof MappedRegistry<LevelStem> mapped) {
             if (!mapped.keySet().contains(dimensionId)) {
                 mapped.register(
                     ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
@@ -62,6 +65,18 @@ public class DimensionAPI {
         else {
             throw new RuntimeException("Failed to register the dimension");
         }
+    }
+    
+    // The "seed" argument is not needed. Use the above one.
+    @Deprecated
+    public static void addDimension(
+        long argSeed,
+        Registry<LevelStem> dimensionOptionsRegistry,
+        ResourceLocation dimensionId,
+        Holder<DimensionType> dimensionTypeHolder,
+        ChunkGenerator chunkGenerator
+    ) {
+        addDimension(dimensionOptionsRegistry, dimensionId, dimensionTypeHolder, chunkGenerator);
     }
     
     public static void markDimensionNonPersistent(ResourceLocation dimensionId) {

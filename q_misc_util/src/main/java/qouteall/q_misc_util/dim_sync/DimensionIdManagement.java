@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.dimension_sync;
+package qouteall.q_misc_util.dim_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -10,12 +10,13 @@ import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
+import qouteall.q_misc_util.mixin.IEMinecraftServer_Misc;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,8 +27,6 @@ import java.util.Set;
 // It used to be able to upgrade the dimension id by reading the id map inside fabric api
 // I removed that because Fabric API changed so the hack broke and very few people use 1.15 now
 public class DimensionIdManagement {
-    private static Field fabric_activeTag_field;
-    
     public static void onServerStarted() {
         DimensionIdRecord ipRecord = readIPDimensionRegistry();
         if (ipRecord == null) {
@@ -85,8 +84,11 @@ public class DimensionIdManagement {
     private static File getIPDimIdFile() {
         MinecraftServer server = MiscHelper.getServer();
         Validate.notNull(server);
-        Path saveDir = server.storageSource.levelPath;
+        Path saveDir =
+            ((IELevelStorageAccess_Misc) ((IEMinecraftServer_Misc) server).ip_getStorageSource())
+                .ip_getLevelPath();
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
+        // we don't use the vanilla data storage here because it's maybe not usable early enough
     }
     
     private static void completeServerIdRecord() {

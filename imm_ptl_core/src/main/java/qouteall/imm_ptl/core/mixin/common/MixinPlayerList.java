@@ -23,6 +23,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.q_misc_util.MiscNetworking;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -36,21 +37,6 @@ public class MixinPlayerList {
     @Shadow
     @Final
     private MinecraftServer server;
-    
-    @Inject(
-        method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;<init>(IZLnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;Ljava/util/Set;Lnet/minecraft/core/RegistryAccess$Frozen;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;JIIIZZZZ)V"
-        )
-    )
-    private void onConnectionEstablished(
-        Connection connection,
-        ServerPlayer player,
-        CallbackInfo ci
-    ) {
-        player.connection.send(IPNetworking.createDimSync());
-    }
     
     @Inject(method = "Lnet/minecraft/server/players/PlayerList;sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayer player, ServerLevel world, CallbackInfo ci) {

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.dimension_sync;
+package qouteall.q_misc_util.dim_sync;
 
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -9,8 +9,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
 
 public class DimId {
     
@@ -32,7 +33,7 @@ public class DimId {
     
     public static ResourceKey<Level> readWorldId(FriendlyByteBuf buf, boolean isClient) {
         if (isClient) {
-            if (O_O.isDedicatedServer()) {
+            if (MiscHelper.isDedicatedServer()) {
                 throw new IllegalStateException("oops");
             }
         }

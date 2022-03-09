@@ -3,11 +3,14 @@
   "package": "qouteall.q_misc_util.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "IELevelStorageAccess_Misc",
+    "IEMinecraftServer_Misc",
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
     "dimension.DimensionTypeAccessor",
     "dimension.MixinLevelProperties_D",
     "dimension.MixinMinecraftServer_D",
+    "dimension.MixinPlayerList_Misc",
     "dimension.MixinWorldGenSettings"
   ],
   "client": [

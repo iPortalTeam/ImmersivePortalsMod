@@ -20,9 +20,9 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
-import qouteall.imm_ptl.core.dimension_sync.DimId;
-import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
-import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
+import qouteall.q_misc_util.dim_sync.DimId;
+import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
+import qouteall.q_misc_util.dim_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -31,8 +31,6 @@ import java.util.UUID;
 public class IPNetworking {
     public static final ResourceLocation id_stcRedirected =
         new ResourceLocation("imm_ptl", "rd");
-    public static final ResourceLocation id_stcDimSync =
-        new ResourceLocation("imm_ptl", "dim_sync");
     public static final ResourceLocation id_ctsTeleport =
         new ResourceLocation("imm_ptl", "teleport");
     public static final ResourceLocation id_stcCustom =
@@ -96,20 +94,6 @@ public class IPNetworking {
         packet.write(buf);
     
         return new ClientboundCustomPayloadPacket(id_stcRedirected, buf);
-    }
-    
-    public static Packet createDimSync() {
-        Validate.notNull(DimensionIdRecord.serverRecord);
-        
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        
-        CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
-        buf.writeNbt(idMapTag);
-        
-        CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
-        buf.writeNbt(typeMapTag);
-        
-        return new ClientboundCustomPayloadPacket(id_stcDimSync, buf);
     }
     
     public static void sendRedirectedMessage(

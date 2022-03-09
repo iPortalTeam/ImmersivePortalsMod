@@ -3,7 +3,7 @@ package qouteall.imm_ptl.peripheral.altius_world;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import qouteall.imm_ptl.core.dimension_sync.DimId;
+import qouteall.q_misc_util.dim_sync.DimId;
 
 import javax.annotation.Nullable;
 
