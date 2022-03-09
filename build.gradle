@@ -1,12 +1,12 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '0.10-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '0.11-SNAPSHOT' apply(false)
     id 'maven-publish'
 
     id "com.modrinth.minotaur" version "1.2.1"
 
-    id 'io.github.juuxel.loom-quiltflower-mini' version '1.2.1'
-//    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
+//    id 'io.github.juuxel.loom-quiltflower-mini' version '1.2.1'
+    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
 }
 
 allprojects {
@@ -115,41 +115,24 @@ allprojects {
 //        }
     }
 
-    afterEvaluate {
-        remapJar {
-            input = file("${project.buildDir}/libs/$archivesBaseName-$version-dev.jar")
-//            archiveName = "${archivesBaseName}-${version}-mc${project.minecraft_version}-fabric.jar"
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
         }
-
-        artifacts {
-//            dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
-        }
-
-        processResources {
-            inputs.property "version", project.version
-
-            filesMatching("fabric.mod.json") {
-                expand "version": project.version
-            }
-        }
-
     }
 
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this task, sources will not be generated.
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        archiveClassifier = "sources"
-        from sourceSets.main.allSource
+    java {
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
     }
+
 }
 
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-}
+
 
 jar {
     from "LICENSE"
@@ -220,6 +203,8 @@ dependencies {
         include project("${it.name}:")
     }
 }
+
+// miscellaneous
 
 task printClasspath {
     doLast {
