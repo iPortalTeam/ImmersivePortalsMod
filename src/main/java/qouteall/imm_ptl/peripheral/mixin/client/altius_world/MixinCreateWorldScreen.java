@@ -132,9 +132,6 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             if (info != null) {
                 AltiusManagement.dimStackToApply = info;
                 
-                GameRules.BooleanValue rule = levelInfo.gameRules().getRule(AltiusGameRule.dimensionStackKey);
-                rule.set(true, null);
-                
                 Helper.log("Generating dimension stack world");
             }
         }

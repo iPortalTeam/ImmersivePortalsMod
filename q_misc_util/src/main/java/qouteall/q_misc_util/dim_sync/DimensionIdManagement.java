@@ -10,8 +10,8 @@ import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
-import qouteall.q_misc_util.mixin.IEMinecraftServer_Misc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +39,10 @@ public class DimensionIdManagement {
             Helper.log("Successfully read IP's dimension id record");
         }
         
+        updateAndSaveServerDimIdRecord();
+    }
+    
+    public static void updateAndSaveServerDimIdRecord() {
         completeServerIdRecord();
         
         try {

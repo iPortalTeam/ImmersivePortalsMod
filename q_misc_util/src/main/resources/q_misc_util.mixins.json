@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "IELevelStorageAccess_Misc",
-    "IEMinecraftServer_Misc",
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
     "dimension.DimensionTypeAccessor",
@@ -14,6 +13,7 @@
     "dimension.MixinWorldGenSettings"
   ],
   "client": [
+    "client.IEClientPacketListener_Misc"
   ],
   "injectors": {
     "defaultRequire": 1

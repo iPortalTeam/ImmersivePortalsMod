@@ -8,6 +8,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DimensionIdRecord {
@@ -84,6 +87,10 @@ public class DimensionIdRecord {
         CompoundTag result = new CompoundTag();
         result.put("intids", intids);
         return result;
+    }
+    
+    public Set<ResourceKey<Level>> getDimIdSet(){
+        return new HashSet<>(idMap.keySet());
     }
     
     

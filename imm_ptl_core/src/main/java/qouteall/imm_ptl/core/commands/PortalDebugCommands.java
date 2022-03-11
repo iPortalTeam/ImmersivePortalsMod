@@ -12,6 +12,7 @@ import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -41,6 +43,7 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.q_misc_util.DynamicDimensionsImpl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -484,6 +487,35 @@ public class PortalDebugCommands {
                 );
                 return 0;
             })
+        );
+        
+        builder.then(Commands
+            .literal("test_clone_dimension")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("templateDimension", DimensionArgument.dimension())
+                .then(Commands.argument("newDimensionID", StringArgumentType.string())
+                    .executes(context -> {
+                        
+                        ServerLevel templateDimension =
+                            DimensionArgument.getDimension(context, "templateDimension");
+                        
+                        String newDimensionId = StringArgumentType.getString(context, "newDimensionID");
+                        
+                        // may throw exception here
+                        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
+                        
+                        DynamicDimensionsImpl.addDimensionDynamically(
+                            newDimId,
+                            new LevelStem(
+                                templateDimension.dimensionTypeRegistration(),
+                                templateDimension.getChunkSource().getGenerator()
+                            )
+                        );
+                        
+                        return 0;
+                    })
+                )
+            )
         );
     }
     

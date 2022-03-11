@@ -33,5 +33,4 @@ public abstract class MixinMinecraftServer_D {
         DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, registryManager);
         
     }
-    
 }

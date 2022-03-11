@@ -51,7 +51,7 @@ public class AltiusScreen extends Screen {
     private final Consumer<AltiusInfo> finishCallback;
     
     public AltiusScreen(
-        Screen parent,
+        @Nullable Screen parent,
         Supplier<List<ResourceKey<Level>>> dimensionListSupplier,
         Consumer<AltiusInfo> finishCallback
     ) {
@@ -329,10 +329,6 @@ public class AltiusScreen extends Screen {
         }
         
         int insertingPosition = position + 1;
-        
-//        Minecraft.getInstance().setScreen(
-//            new GenericDirtMessageScreen(new TranslatableComponent("imm_ptl.loading_datapack_dimensions"))
-//        );
         
         Minecraft.getInstance().setScreen(
             new SelectDimensionScreen(

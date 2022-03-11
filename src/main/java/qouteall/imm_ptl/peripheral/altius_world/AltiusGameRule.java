@@ -4,6 +4,9 @@ import net.minecraft.world.level.GameRules;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscHelper;
 
+// the dimension stack information is stored together with global portal storage now
+// still add the gamerule to ensure that old dim stack worlds can upgrade
+@Deprecated
 public class AltiusGameRule {
     public static GameRules.Key<GameRules.BooleanValue> dimensionStackKey;
     
