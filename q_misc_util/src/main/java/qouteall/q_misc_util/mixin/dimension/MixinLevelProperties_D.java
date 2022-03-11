@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.DimensionMisc;
 import qouteall.q_misc_util.ducks.IEGeneratorOptions;
 
 @Mixin(PrimaryLevelData.class)
@@ -36,7 +36,7 @@ public class MixinLevelProperties_D {
         CompoundTag compoundTag2, CallbackInfo ci
     ) {
         ((IEGeneratorOptions) worldGenSettings).setDimOptionRegistry(
-            DimensionAPI._getAdditionalDimensionsRemoved(
+            DimensionMisc.getAdditionalDimensionsRemoved(
                 ((MappedRegistry) worldGenSettings.dimensions())
             )
         );

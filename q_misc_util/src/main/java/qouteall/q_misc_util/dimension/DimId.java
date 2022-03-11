@@ -1,4 +1,4 @@
-package qouteall.q_misc_util.dim_sync;
+package qouteall.q_misc_util.dimension;
 
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
 
 public class DimId {
     

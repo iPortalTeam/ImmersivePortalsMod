@@ -11,11 +11,9 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.DataPackConfig;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -30,8 +28,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dim_sync.DimId;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
+import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusInfo;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusScreen;
@@ -43,8 +40,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {

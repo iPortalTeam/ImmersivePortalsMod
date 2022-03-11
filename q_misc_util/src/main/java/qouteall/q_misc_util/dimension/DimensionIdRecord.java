@@ -1,4 +1,4 @@
-package qouteall.q_misc_util.dim_sync;
+package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -9,7 +9,6 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

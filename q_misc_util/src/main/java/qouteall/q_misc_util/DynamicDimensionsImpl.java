@@ -1,13 +1,7 @@
 package qouteall.q_misc_util;
 
 import com.google.common.collect.ImmutableList;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,9 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.DerivedLevelData;
@@ -29,15 +21,9 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
-import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.dim_sync.DimId;
-import qouteall.q_misc_util.dim_sync.DimensionIdManagement;
+import qouteall.q_misc_util.dimension.DimId;
+import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
-import qouteall.q_misc_util.mixin.client.IEClientPacketListener_Misc;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DynamicDimensionsImpl {
     
@@ -96,11 +82,12 @@ public class DynamicDimensionsImpl {
         
         worldBorder.applySettings(serverLevelData.getWorldBorder());
         
-        Registry.register(
-            worldGenSettings.dimensions(),
-            dimensionId,
-            levelStem
-        );
+        // don't save it into level.dat
+//        Registry.register(
+//            worldGenSettings.dimensions(),
+//            dimensionId,
+//            levelStem
+//        );
         
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
         

@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,13 +14,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
-import qouteall.q_misc_util.dim_sync.DimId;
-import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
-import qouteall.q_misc_util.dim_sync.DimensionTypeSync;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
+import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.mixin.client.IEClientPacketListener_Misc;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MiscNetworking {
     public static final ResourceLocation id_stcRemote =

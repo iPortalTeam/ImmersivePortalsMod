@@ -17,12 +17,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
-import qouteall.q_misc_util.dim_sync.DimId;
-import qouteall.q_misc_util.dim_sync.DimensionIdRecord;
-import qouteall.q_misc_util.dim_sync.DimensionTypeSync;
+import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.MiscHelper;
 

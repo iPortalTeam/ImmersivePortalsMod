@@ -1,4 +1,4 @@
-package qouteall.q_misc_util.dim_sync;
+package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

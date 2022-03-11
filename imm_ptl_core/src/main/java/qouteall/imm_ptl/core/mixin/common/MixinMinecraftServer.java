@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.dim_sync.DimensionIdManagement;
+import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 

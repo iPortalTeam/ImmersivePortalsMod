@@ -3,6 +3,7 @@ package qouteall.q_misc_util;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -11,7 +12,11 @@ import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.mixin.dimension.DimensionTypeAccessor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class DimensionMisc {
+    public static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     private static final Logger logger = LogManager.getLogger();
     
     // fix the issue that nether and end get swallowed by DFU
@@ -28,7 +33,6 @@ public class DimensionMisc {
             
             if (levelStem != null) {
                 DimensionAPI.addDimension(
-                    seed,
                     registry,
                     LevelStem.NETHER.location(),
                     levelStem.typeHolder(),
@@ -52,7 +56,6 @@ public class DimensionMisc {
             
             if (levelStem != null) {
                 DimensionAPI.addDimension(
-                    seed,
                     registry,
                     LevelStem.END.location(),
                     levelStem.typeHolder(),
@@ -67,5 +70,25 @@ public class DimensionMisc {
     
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(DimensionMisc::addMissingVanillaDimensions);
+    }
+    
+    // This is not API
+    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
+    // then the nether and the end will be swallowed
+    // to fix that, don't store the custom dimensions into level.dat
+    public static MappedRegistry<LevelStem> getAdditionalDimensionsRemoved(
+        MappedRegistry<LevelStem> registry
+    ) {
+        if (nonPersistentDimensions.isEmpty()) {
+            return registry;
+        }
+        
+        return MiscHelper.filterAndCopyRegistry(
+            registry,
+            (key, obj) -> {
+                ResourceLocation identifier = key.location();
+                return !nonPersistentDimensions.contains(identifier);
+            }
+        );
     }
 }

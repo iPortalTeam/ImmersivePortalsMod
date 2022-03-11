@@ -15,11 +15,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.q_misc_util.MiscHelper;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Supplier;
+import qouteall.q_misc_util.DimensionMisc;
 
 public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
@@ -41,8 +37,6 @@ public class DimensionAPI {
                 }
             })
         );
-    
-    static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     
     public static void addDimension(
         Registry<LevelStem> levelStemRegistry,
@@ -79,28 +73,15 @@ public class DimensionAPI {
         addDimension(dimensionOptionsRegistry, dimensionId, dimensionTypeHolder, chunkGenerator);
     }
     
-    public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
-        nonPersistentDimensions.add(dimensionId);
-    }
     
-    // This is not API
-    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
-    // then the nether and the end will be swallowed
-    // to fix that, don't store the custom dimensions into level.dat
-    public static MappedRegistry<LevelStem> _getAdditionalDimensionsRemoved(
-        MappedRegistry<LevelStem> registry
-    ) {
-        if (nonPersistentDimensions.isEmpty()) {
-            return registry;
-        }
-        
-        return MiscHelper.filterAndCopyRegistry(
-            registry,
-            (key, obj) -> {
-                ResourceLocation identifier = key.location();
-                return !nonPersistentDimensions.contains(identifier);
-            }
-        );
+    /**
+     * If you don't mark a dimension non-persistent, then it will be saved into "level.dat" file
+     * Then when you upgrade the world or remove the mod, DFU cannot recognize it
+     *  then the nether and the end will vanish.
+     * It's recommended to mark your own dimension non-persistent
+     */
+    public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
+        DimensionMisc.nonPersistentDimensions.add(dimensionId);
     }
     
 }
