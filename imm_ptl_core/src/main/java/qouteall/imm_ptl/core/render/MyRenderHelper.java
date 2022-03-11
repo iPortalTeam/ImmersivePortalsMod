@@ -237,7 +237,7 @@ public class MyRenderHelper {
     }
     
     /**
-     * {@link Framebuffer#draw(int, int)}
+     * {@link RenderTarget#blitToScreen(int, int)}
      */
     public static void drawScreenFrameBuffer(
         RenderTarget textureProvider,

@@ -178,7 +178,7 @@ public class ImplRemoteProcedureCall {
     }
     
     @Environment(EnvType.CLIENT)
-    public static Runnable clientReadFunctionAndArguments(FriendlyByteBuf buf) {
+    public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);
@@ -203,7 +203,7 @@ public class ImplRemoteProcedureCall {
         };
     }
     
-    public static Runnable serverReadFunctionAndArguments(ServerPlayer player, FriendlyByteBuf buf) {
+    public static Runnable serverReadPacketAndGetHandler(ServerPlayer player, FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);

@@ -148,5 +148,7 @@
   "imm_ptl.missing_gravity_changer": "Gravity Changer mod is not present. Your gravity direction is not changed",
   "imm_ptl.command.bind_cluster": "Bind Portal Cluster",
   "imm_ptl.command_desc.bind_cluster": "Allow Easy Editing of Bi-way Bi-faced Portal",
-  "imm_ptl.enable_mirror_creation": "Enable Mirror Creation"
+  "imm_ptl.enable_mirror_creation": "Enable Mirror Creation",
+  "imm_ptl.command.reverse_accelerate50": "Reverse Accelerate 200",
+  "imm_ptl.command_desc.reverse_accelerate50": "Fly!"
 }

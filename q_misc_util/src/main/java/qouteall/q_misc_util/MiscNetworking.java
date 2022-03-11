@@ -29,7 +29,7 @@ public class MiscNetworking {
             MiscNetworking.id_stcRemote,
             (c, handler, buf, responseSender) -> {
                 MiscHelper.executeOnRenderThread(
-                    ImplRemoteProcedureCall.clientReadFunctionAndArguments(buf)
+                    ImplRemoteProcedureCall.clientReadPacketAndGetHandler(buf)
                 );
             }
         );
@@ -48,7 +48,7 @@ public class MiscNetworking {
             MiscNetworking.id_ctsRemote,
             (server, player, handler, buf, responseSender) -> {
                 MiscHelper.executeOnServerThread(
-                    ImplRemoteProcedureCall.serverReadFunctionAndArguments(player, buf)
+                    ImplRemoteProcedureCall.serverReadPacketAndGetHandler(player, buf)
                 );
             }
         );

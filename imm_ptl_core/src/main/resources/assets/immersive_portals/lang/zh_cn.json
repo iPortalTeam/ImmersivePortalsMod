@@ -148,5 +148,7 @@
   "imm_ptl.missing_gravity_changer": "由于未安装Gravity Changer模组，你的引力方向没有改变。",
   "imm_ptl.command.bind_cluster": "整合传送门实体",
   "imm_ptl.command_desc.bind_cluster": "允许更简单地编辑双面、双向传送门",
-  "imm_ptl.enable_mirror_creation": "允许创建镜子"
+  "imm_ptl.enable_mirror_creation": "允许创建镜子",
+  "imm_ptl.command.reverse_accelerate50": "Reverse Accelerate 200",
+  "imm_ptl.command_desc.reverse_accelerate50": "Fly!"
 }

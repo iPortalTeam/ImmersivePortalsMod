@@ -16,6 +16,7 @@ import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import java.util.function.Consumer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
@@ -91,7 +92,6 @@ public class ViewAreaRenderer {
         
         BufferUploader._endInternal(bufferBuilder);
         
-        // wrong name. unbind
         shader.clear();
         
         GlStateManager._enableTexture();
@@ -187,8 +187,6 @@ public class ViewAreaRenderer {
         }
     }
     
-    //according to https://stackoverflow.com/questions/43002528/when-can-hotspot-allocate-objects-on-the-stack
-    //this will not generate gc pressure
     private static void putIntoLocalVertex(
         Consumer<Vec3> vertexOutput,
         Portal portal,
@@ -196,6 +194,9 @@ public class ViewAreaRenderer {
         Vec3 posInPlayerCoordinate,
         double localX, double localY
     ) {
+        //according to https://stackoverflow.com/questions/43002528/when-can-hotspot-allocate-objects-on-the-stack
+        //this will possibly not generate gc pressure?
+        
         vertexOutput.accept(
             posInPlayerCoordinate
                 .add(portal.axisW.scale(localX))
