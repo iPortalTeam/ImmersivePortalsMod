@@ -4,11 +4,17 @@ import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
+import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
+import qouteall.imm_ptl.peripheral.alternate_dimension.DelegatedChunkGenerator;
+import qouteall.imm_ptl.peripheral.alternate_dimension.ErrorTerrainGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.FormulaGenerator;
+import qouteall.imm_ptl.peripheral.alternate_dimension.NormalSkylandGenerator;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
 import qouteall.imm_ptl.peripheral.guide.IPGuide;
@@ -33,6 +39,23 @@ public class PeripheralModMain {
         AltiusManagement.init();
         
         AlternateDimensions.init();
+        
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new ResourceLocation("immersive_portals:error_terrain_generator"),
+            ErrorTerrainGenerator.codec
+        );
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new ResourceLocation("immersive_portals:normal_skyland_generator"),
+            NormalSkylandGenerator.codec
+        );
+    
+        Registry.register(
+            Registry.BIOME_SOURCE,
+            new ResourceLocation("immersive_portals:chaos_biome_source"),
+            ChaosBiomeSource.CODEC
+        );
     }
     
     public static void registerCommandStickTypes() {

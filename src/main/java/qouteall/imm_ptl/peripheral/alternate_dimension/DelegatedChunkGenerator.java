@@ -1,9 +1,11 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
@@ -25,36 +27,19 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class DelegatedChunkGenerator extends ChunkGenerator {
+public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     
     protected ChunkGenerator delegate;
     protected BiomeSource biomeSource_;
     
     public DelegatedChunkGenerator(
         Registry<StructureSet> structureSets,
-        Optional<HolderSet<StructureSet>> structureOverrides,
         BiomeSource biomeSource,
         ChunkGenerator delegate
     ) {
-        super(structureSets, structureOverrides, biomeSource);
+        super(structureSets, Optional.empty(), biomeSource);
         this.delegate = delegate;
         this.biomeSource_ = biomeSource;
-    }
-    
-    // this codec is wrong. it should never be used.
-    @Override
-    protected Codec<? extends ChunkGenerator> codec() {
-        return NoiseBasedChunkGenerator.CODEC;
-    }
-    
-    @Override
-    public ChunkGenerator withSeed(long seed) {
-        return new DelegatedChunkGenerator(
-            structureSets,
-            structureOverrides,
-            runtimeBiomeSource.withSeed(seed),
-            delegate.withSeed(seed)
-        );
     }
     
     @Override

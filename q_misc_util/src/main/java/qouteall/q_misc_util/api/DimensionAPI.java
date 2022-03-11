@@ -42,7 +42,7 @@ public class DimensionAPI {
             })
         );
     
-    private static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
+    static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     
     public static void addDimension(
         Registry<LevelStem> levelStemRegistry,
@@ -85,7 +85,7 @@ public class DimensionAPI {
     
     // This is not API
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
-    // then the nether and the end will be swallowed (https://github.com/TelepathicGrunt/Bumblezone-Fabric/issues/20)
+    // then the nether and the end will be swallowed
     // to fix that, don't store the custom dimensions into level.dat
     public static MappedRegistry<LevelStem> _getAdditionalDimensionsRemoved(
         MappedRegistry<LevelStem> registry
