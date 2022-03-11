@@ -12,7 +12,9 @@ import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,7 +45,9 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.q_misc_util.DynamicDimensionsImpl;
+import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.dimension.DimId;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -490,7 +494,23 @@ public class PortalDebugCommands {
         );
         
         builder.then(Commands
-            .literal("test_clone_dimension")
+            .literal("purge_level_dat")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+            .executes(context -> {
+                MinecraftServer server = MiscHelper.getServer();
+                for (ServerLevel world : server.getAllLevels()) {
+                    ResourceKey<Level> dimension = world.dimension();
+                    if (dimension != Level.OVERWORLD && dimension != Level.NETHER && dimension != Level.END) {
+                        DimensionAPI.markDimensionNonPersistent(dimension.location());
+                    }
+                }
+                
+                return 0;
+            })
+        );
+        
+        builder.then(Commands
+            .literal("clone_dimension")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("templateDimension", DimensionArgument.dimension())
                 .then(Commands.argument("newDimensionID", StringArgumentType.string())
@@ -504,13 +524,15 @@ public class PortalDebugCommands {
                         // may throw exception here
                         ResourceLocation newDimId = new ResourceLocation(newDimensionId);
                         
-                        DynamicDimensionsImpl.addDimensionDynamically(
+                        DimensionAPI.addDimensionDynamically(
                             newDimId,
                             new LevelStem(
                                 templateDimension.dimensionTypeRegistration(),
                                 templateDimension.getChunkSource().getGenerator()
                             )
                         );
+                        
+                        DimensionAPI.saveDimensionIntoExtraStorage(DimId.idToKey(newDimensionId));
                         
                         return 0;
                     })

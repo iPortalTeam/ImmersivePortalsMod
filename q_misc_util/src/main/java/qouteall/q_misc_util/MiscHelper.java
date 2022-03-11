@@ -7,7 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
+import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
 
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
@@ -71,4 +75,12 @@ public class MiscHelper {
     }
     
     
+    public static Path getWorldSavingDirectory() {
+        MinecraftServer server = getServer();
+        Validate.notNull(server);
+        Path saveDir =
+            ((IELevelStorageAccess_Misc) ((IEMinecraftServer_Misc) server).ip_getStorageSource())
+                .ip_getLevelPath();
+        return saveDir;
+    }
 }

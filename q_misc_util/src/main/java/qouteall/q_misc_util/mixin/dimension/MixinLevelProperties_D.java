@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.DimensionMisc;
+import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.ducks.IEGeneratorOptions;
 
 @Mixin(PrimaryLevelData.class)

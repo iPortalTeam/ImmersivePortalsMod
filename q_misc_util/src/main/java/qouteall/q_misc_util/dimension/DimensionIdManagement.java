@@ -5,13 +5,9 @@ import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
-import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,11 +82,7 @@ public class DimensionIdManagement {
     }
     
     private static File getIPDimIdFile() {
-        MinecraftServer server = MiscHelper.getServer();
-        Validate.notNull(server);
-        Path saveDir =
-            ((IELevelStorageAccess_Misc) ((IEMinecraftServer_Misc) server).ip_getStorageSource())
-                .ip_getLevelPath();
+        Path saveDir = MiscHelper.getWorldSavingDirectory();
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
         // we don't use the vanilla data storage here because it's maybe not usable early enough
     }

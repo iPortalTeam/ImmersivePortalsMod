@@ -1,4 +1,4 @@
-package qouteall.q_misc_util;
+package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.network.protocol.Packet;
@@ -21,15 +21,14 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 
 public class DynamicDimensionsImpl {
     
-    /**
-     * not API for now, don't use!
-     */
     public static void addDimensionDynamically(
         ResourceLocation dimensionId,
         LevelStem levelStem

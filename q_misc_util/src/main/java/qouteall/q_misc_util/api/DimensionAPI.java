@@ -9,13 +9,19 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.q_misc_util.DimensionMisc;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DimId;
+import qouteall.q_misc_util.dimension.DimensionMisc;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
+import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
 
 public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
@@ -38,30 +44,50 @@ public class DimensionAPI {
             })
         );
     
+    /**
+     * Add a new dimension during server initialization.
+     * The added dimension won't be saved into `level.dat`.
+     * Cannot be used when the server is running.
+     */
     public static void addDimension(
         Registry<LevelStem> levelStemRegistry,
         ResourceLocation dimensionId,
         Holder<DimensionType> dimensionTypeHolder,
         ChunkGenerator chunkGenerator
     ) {
+        addDimension(levelStemRegistry, dimensionId, new LevelStem(
+            dimensionTypeHolder,
+            chunkGenerator
+        ));
+    }
+    
+    /**
+     * Add a new dimension during server initialization.
+     * The added dimension won't be saved into `level.dat`.
+     * Cannot be used when the server is running.
+     */
+    private static void addDimension(
+        Registry<LevelStem> levelStemRegistry,
+        ResourceLocation dimensionId,
+        LevelStem levelStem
+    ) {
         if (levelStemRegistry instanceof MappedRegistry<LevelStem> mapped) {
             if (!mapped.keySet().contains(dimensionId)) {
+                
                 mapped.register(
                     ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
-                    new LevelStem(
-                        dimensionTypeHolder,
-                        chunkGenerator
-                    ),
-                    Lifecycle.experimental()
+                    levelStem,
+                    Lifecycle.stable()
                 );
             }
         }
         else {
             throw new RuntimeException("Failed to register the dimension");
         }
+        
+        markDimensionNonPersistent(dimensionId);
     }
     
-    // The "seed" argument is not needed. Use the above one.
     @Deprecated
     public static void addDimension(
         long argSeed,
@@ -75,13 +101,42 @@ public class DimensionAPI {
     
     
     /**
+     * Don't use this for dynamically-added dimensions
+     *
      * If you don't mark a dimension non-persistent, then it will be saved into "level.dat" file
      * Then when you upgrade the world or remove the mod, DFU cannot recognize it
-     *  then the nether and the end will vanish.
+     * then the nether and the end will vanish.
      * It's recommended to mark your own dimension non-persistent
      */
     public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
         DimensionMisc.nonPersistentDimensions.add(dimensionId);
+    }
+    
+    /**
+     * Add a new dimension when the server is running
+     * Cannot be used during server initialization
+     */
+    public static void addDimensionDynamically(
+        ResourceLocation dimensionId,
+        LevelStem levelStem
+    ) {
+        DynamicDimensionsImpl.addDimensionDynamically(dimensionId, levelStem);
+    }
+    
+    /**
+     * Extra dimensions are stored as json files in folder `q_extra_dimensions` in the world saving
+     * We don't store dimensions in `level.dat` because if you uninstall the mod,
+     * DFU will not be able to recognize the chunk generator and cause world data loss (nether and end will vanish)
+     */
+    public static void saveDimensionIntoExtraStorage(ResourceKey<Level> dimension) {
+        ExtraDimensionStorage.saveDimensionIntoExtraStorage(dimension);
+    }
+    
+    /**
+     * Delete the json file in the extra dimension storage
+     */
+    public static boolean removeDimensionFromExtraStorage(ResourceKey<Level> dimension) {
+        return ExtraDimensionStorage.removeDimensionFromExtraStorage(dimension);
     }
     
 }

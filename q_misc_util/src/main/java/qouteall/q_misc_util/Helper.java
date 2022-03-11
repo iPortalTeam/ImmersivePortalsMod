@@ -1,6 +1,8 @@
 package qouteall.q_misc_util;
 
 import com.google.common.collect.Streams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -787,5 +789,7 @@ public class Helper {
             return list.get(0);
         }
     }
+    
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     
 }

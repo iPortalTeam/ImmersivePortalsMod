@@ -1,4 +1,4 @@
-package qouteall.q_misc_util;
+package qouteall.q_misc_util.dimension;
 
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -9,8 +9,9 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.mixin.dimension.DimensionTypeAccessor;
 
 import java.util.HashSet;
 import java.util.Set;
