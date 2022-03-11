@@ -9,6 +9,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -121,6 +122,10 @@ public class DimensionAPI {
         LevelStem levelStem
     ) {
         DynamicDimensionsImpl.addDimensionDynamically(dimensionId, levelStem);
+    }
+    
+    public static void removeDimensionDynamically(ServerLevel world) {
+        DynamicDimensionsImpl.removeDimensionDynamically(world);
     }
     
     /**

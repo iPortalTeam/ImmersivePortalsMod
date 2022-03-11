@@ -46,7 +46,9 @@ public class DimensionIdManagement {
             
             FileOutputStream fileInputStream = new FileOutputStream(file);
             
-            CompoundTag tag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+            CompoundTag tag = DimensionIdRecord.recordToTag(
+                DimensionIdRecord.serverRecord, dim -> true
+            );
             
             NbtIo.writeCompressed(tag, fileInputStream);
             

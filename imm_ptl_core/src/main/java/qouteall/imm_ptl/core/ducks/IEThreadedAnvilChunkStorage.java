@@ -11,24 +11,26 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public interface IEThreadedAnvilChunkStorage {
-    int getWatchDistance();
+    int ip_getWatchDistance();
     
-    ServerLevel getWorld();
+    ServerLevel ip_getWorld();
     
-    ThreadedLevelLightEngine getLightingProvider();
+    ThreadedLevelLightEngine ip_getLightingProvider();
     
-    ChunkHolder getChunkHolder_(long long_1);
+    ChunkHolder ip_getChunkHolder(long long_1);
     
-    void onPlayerRespawn(ServerPlayer oldPlayer);
+    void ip_onPlayerRespawn(ServerPlayer oldPlayer);
     
-    void updateEntityTrackersAfterSendingChunkPacket(
+    void ip_onDimensionRemove();
+    
+    void ip_updateEntityTrackersAfterSendingChunkPacket(
         LevelChunk chunk,
         ServerPlayer playerEntity
     );
     
-    void resendSpawnPacketToTrackers(Entity entity);
+    void ip_resendSpawnPacketToTrackers(Entity entity);
     
     boolean portal_isChunkGenerated(ChunkPos chunkPos);
     
-    Int2ObjectMap<ChunkMap.TrackedEntity> getEntityTrackerMap();
+    Int2ObjectMap<ChunkMap.TrackedEntity> ip_getEntityTrackerMap();
 }

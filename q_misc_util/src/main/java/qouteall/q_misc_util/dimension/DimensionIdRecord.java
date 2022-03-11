@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DimensionIdRecord {
@@ -77,10 +78,14 @@ public class DimensionIdRecord {
         return new DimensionIdRecord(bimap);
     }
     
-    public static CompoundTag recordToTag(DimensionIdRecord record) {
+    public static CompoundTag recordToTag(
+        DimensionIdRecord record, Predicate<ResourceKey<Level>> filter
+    ) {
         CompoundTag intids = new CompoundTag();
         record.idMap.forEach((key, intid) -> {
-            intids.put(key.location().toString(), IntTag.valueOf(intid));
+            if (filter.test(key)) {
+                intids.put(key.location().toString(), IntTag.valueOf(intid));
+            }
         });
         
         CompoundTag result = new CompoundTag();
@@ -88,7 +93,7 @@ public class DimensionIdRecord {
         return result;
     }
     
-    public Set<ResourceKey<Level>> getDimIdSet(){
+    public Set<ResourceKey<Level>> getDimIdSet() {
         return new HashSet<>(idMap.keySet());
     }
     

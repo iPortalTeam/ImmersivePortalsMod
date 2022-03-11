@@ -51,7 +51,8 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     @Final
     private Set<ServerPlayerConnection> seenBy;
     
-    @Shadow private SectionPos lastSectionPos;
+    @Shadow
+    private SectionPos lastSectionPos;
     
     @Redirect(
         method = "Lnet/minecraft/server/level/ChunkMap$TrackedEntity;broadcast(Lnet/minecraft/network/protocol/Packet;)V",
@@ -124,7 +125,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         
         int maxWatchDistance = Math.min(
             this.getEffectiveRange(),
-            (storage.getWatchDistance() - 1) * 16
+            (storage.ip_getWatchDistance() - 1) * 16
         );
         ChunkPos chunkPos = entity.chunkPosition();
         boolean isWatchedNow =
@@ -153,6 +154,14 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     public void onPlayerRespawn(ServerPlayer oldPlayer) {
         seenBy.remove(oldPlayer.connection);
         serverEntity.removePairing(oldPlayer);
+    }
+    
+    @Override
+    public void ip_onDimensionRemove() {
+        for (ServerPlayerConnection connection : seenBy) {
+            serverEntity.removePairing(connection.getPlayer());
+        }
+        seenBy.clear();
     }
     
     @Override

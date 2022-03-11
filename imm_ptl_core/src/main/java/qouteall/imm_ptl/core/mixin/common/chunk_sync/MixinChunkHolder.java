@@ -35,7 +35,7 @@ public class MixinChunkHolder implements IEChunkHolder {
     @Overwrite
     private void broadcast(Packet<?> packet_1, boolean onlyOnRenderDistanceEdge) {
         ResourceKey<Level> dimension =
-            ((IEThreadedAnvilChunkStorage) playerProvider).getWorld().dimension();
+            ((IEThreadedAnvilChunkStorage) playerProvider).ip_getWorld().dimension();
         
         Consumer<ServerPlayer> func = player ->
             player.connection.send(

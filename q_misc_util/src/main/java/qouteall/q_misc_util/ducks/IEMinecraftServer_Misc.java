@@ -16,4 +16,5 @@ public interface IEMinecraftServer_Misc {
     
     void addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world);
     
+    void removeDimensionFromWorldMap(ResourceKey<Level> dimension);
 }

@@ -2,16 +2,19 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ public class EntitySync {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(EntitySync::tick);
+        DynamicDimensionsImpl.removeDimensionSignal.connect(EntitySync::forceRemoveDimension);
     }
     
     /**
@@ -47,7 +51,7 @@ public class EntitySync {
             ChunkMap storage =
                 ((ServerLevel) player.level).getChunkSource().chunkMap;
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
-                ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
+                ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
             
             ChunkMap.TrackedEntity playerItselfTracker =
                 entityTrackerMap.get(player.getId());
@@ -66,7 +70,7 @@ public class EntitySync {
         server.getAllLevels().forEach(world -> {
             ChunkMap storage = world.getChunkSource().chunkMap;
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
-                ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
+                ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
             
             IPCommonNetwork.withForceRedirect(world, () -> {
                 for (ChunkMap.TrackedEntity tracker : entityTrackerMap.values()) {
@@ -97,6 +101,10 @@ public class EntitySync {
     private static void markUnDirty(ChunkMap.TrackedEntity tracker) {
         SectionPos currPos = SectionPos.of(((IEEntityTracker) tracker).getEntity_());
         ((IEEntityTracker) tracker).setLastCameraPosition(currPos);
+    }
+    
+    private static void forceRemoveDimension(ResourceKey<Level> dimension) {
+    
     }
     
 }

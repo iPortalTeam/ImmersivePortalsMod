@@ -11,6 +11,8 @@ public interface IEEntityTracker {
     
     void onPlayerRespawn(ServerPlayer oldPlayer);
     
+    void ip_onDimensionRemove();
+    
     void resendSpawnPacketToTrackers();
     
     void stopTrackingToAllPlayers_();

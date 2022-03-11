@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.Ticket;
@@ -9,11 +10,14 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.util.SortedArraySet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
 import java.util.Comparator;
 import java.util.WeakHashMap;
@@ -93,5 +97,29 @@ public class MyLoadingTicket {
                 );
             }
         }
+    }
+    
+    public static void onDimensionRemove(ResourceKey<Level> dimension) {
+        ServerLevel world = McHelper.getServerWorld(dimension);
+        
+        LongSortedSet longs = loadedChunkRecord.get(world);
+        if (longs == null) {
+            return;
+        }
+        
+        DistanceManager ticketManager = getTicketManager(world);
+        
+        longs.forEach((long pos) -> {
+            ChunkPos chunkPos = new ChunkPos(pos);
+            ticketManager.removeRegionTicket(
+                portalLoadingTicketType, chunkPos, getLoadingRadius(), chunkPos
+            );
+        });
+        
+        loadedChunkRecord.remove(world);
+    }
+    
+    public static void init() {
+        DynamicDimensionsImpl.removeDimensionSignal.connect(MyLoadingTicket::onDimensionRemove);
     }
 }

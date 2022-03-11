@@ -47,10 +47,10 @@ import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimId;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.time.Duration;
@@ -306,7 +306,7 @@ public class PortalDebugCommands {
                                 McHelper.serverLog(player, "server chunk not loaded");
                             }
                             
-                            ChunkHolder chunkHolder = McHelper.getIEStorage(dim.dimension()).getChunkHolder_(
+                            ChunkHolder chunkHolder = McHelper.getIEStorage(dim.dimension()).ip_getChunkHolder(
                                 ChunkPos.asLong(chunkX, chunkZ)
                             );
                             
@@ -537,6 +537,24 @@ public class PortalDebugCommands {
                         return 0;
                     })
                 )
+            )
+        );
+        
+        builder.then(Commands
+            .literal("force_remove_dimension")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("dimension", DimensionArgument.dimension())
+                .executes(context -> {
+                    ServerLevel dimension =
+                        DimensionArgument.getDimension(context, "dimension");
+                    
+                    DimensionAPI.removeDimensionDynamically(dimension);
+                    
+                    DimensionAPI.removeDimensionFromExtraStorage(dimension.dimension());
+                    
+                    return 0;
+                })
+            
             )
         );
     }

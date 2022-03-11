@@ -126,7 +126,7 @@ public class ExtraDimensionStorage {
         
         try {
             if (!file.exists()) {
-                if (file.getParentFile().exists()) {
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
                 file.createNewFile();

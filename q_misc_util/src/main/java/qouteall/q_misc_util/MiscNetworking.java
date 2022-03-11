@@ -44,7 +44,7 @@ public class MiscNetworking {
             MiscNetworking.id_stcDimSync,
             (c, handler, buf, responseSender) -> {
                 // no need to make it run on render thread
-                processDimSync(buf,handler);
+                processDimSync(buf, handler);
             }
         );
     }
@@ -65,7 +65,10 @@ public class MiscNetworking {
         
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         
-        CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+        CompoundTag idMapTag = DimensionIdRecord.recordToTag(
+            DimensionIdRecord.serverRecord,
+            dim -> MiscHelper.getServer().getLevel(dim) != null
+        );
         buf.writeNbt(idMapTag);
         
         CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();

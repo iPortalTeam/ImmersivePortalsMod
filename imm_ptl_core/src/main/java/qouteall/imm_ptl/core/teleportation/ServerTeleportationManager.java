@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.server.players.PlayerList;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -17,10 +18,12 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
@@ -36,6 +39,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +69,15 @@ public class ServerTeleportationManager {
                 });
             }
         );
+        
+        DynamicDimensionsImpl.removeDimensionSignal.connect(dim -> {
+            PlayerList playerList = MiscHelper.getServer().getPlayerList();
+            for (ServerPlayer player : playerList.getPlayers()) {
+                if (player.level.dimension() == dim) {
+                    invokeTpmeCommand(player, Level.OVERWORLD, new Vec3(0, 80, 0));
+                }
+            }
+        });
     }
     
     public static boolean shouldEntityTeleport(Portal portal, Entity entity) {

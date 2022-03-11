@@ -1,6 +1,7 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.ImmutableList;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -26,8 +27,21 @@ import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
+import qouteall.q_misc_util.my_util.SignalArged;
+
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 
 public class DynamicDimensionsImpl {
+    public static final SignalArged<ResourceKey<Level>> removeDimensionSignal = new SignalArged<>();
+    
+    private static WeakHashMap<ServerLevel, WeakReference<BorderChangeListener>> worldBorderListenerMap
+        = new WeakHashMap<>();
+    
+    public static void init() {
+        ServerLifecycleEvents.SERVER_STOPPED.register(s -> worldBorderListenerMap.clear());
+    }
     
     public static void addDimensionDynamically(
         ResourceLocation dimensionId,
@@ -94,6 +108,53 @@ public class DynamicDimensionsImpl {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
         }
+    }
+    
+    public static void removeDimensionDynamically(ServerLevel world) {
+        MinecraftServer server = MiscHelper.getServer();
+        
+        ResourceKey<Level> dimension = world.dimension();
+        
+        if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
+            throw new RuntimeException();
+        }
+        
+        removeDimensionSignal.emit(dimension);
+        
+        /**{@link MinecraftServer#stopServer()}*/
+        
+        while (world.getChunkSource().chunkMap.hasWork()) {
+            world.getChunkSource().removeTicketsOnClosing();
+            world.getChunkSource().tick(() -> true, false);
+        }
+        
+        server.saveAllChunks(false, true, false);
+        
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+        WorldBorder worldBorder = overworld.getWorldBorder();
+        
+        WeakReference<BorderChangeListener> wr = worldBorderListenerMap.get(world);
+        if (wr != null) {
+            BorderChangeListener borderChangeListener = wr.get();
+            if (borderChangeListener != null) {
+                worldBorder.removeListener(borderChangeListener);
+            }
+        }
+        
+        try {
+            world.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        ((IEMinecraftServer_Misc) server).removeDimensionFromWorldMap(dimension);
+        
+        Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            player.connection.send(dimSyncPacket);
+        }
+        
     }
     
     private static class DummyProgressListener implements ChunkProgressListener {

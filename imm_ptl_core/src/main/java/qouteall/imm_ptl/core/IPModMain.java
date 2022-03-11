@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core;
 
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
+import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
@@ -53,6 +54,8 @@ public class IPModMain {
         VisibleSectionDiscovery.init();
         
         ServerPerformanceMonitor.init();
+    
+        MyLoadingTicket.init();
         
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");

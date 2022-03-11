@@ -68,22 +68,22 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
     private ThreadedLevelLightEngine lightEngine;
     
     @Override
-    public int getWatchDistance() {
+    public int ip_getWatchDistance() {
         return viewDistance;
     }
     
     @Override
-    public ServerLevel getWorld() {
+    public ServerLevel ip_getWorld() {
         return level;
     }
     
     @Override
-    public ThreadedLevelLightEngine getLightingProvider() {
+    public ThreadedLevelLightEngine ip_getLightingProvider() {
         return lightEngine;
     }
     
     @Override
-    public ChunkHolder getChunkHolder_(long long_1) {
+    public ChunkHolder ip_getChunkHolder(long long_1) {
         return getVisibleChunkIfPresent(long_1);
     }
     

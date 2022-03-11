@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +19,7 @@ import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
 import java.lang.ref.WeakReference;
@@ -508,6 +510,30 @@ public class NewChunkTrackingGraph {
                 }
             )
         ));
+    }
+    
+    public static void forceRemoveDimension(ResourceKey<Level> dim) {
+        Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> map = data.get(dim);
+        
+        if (map == null) {
+            return;
+        }
+        
+        map.forEach((chunkPos, records) -> {
+            Packet unloadPacket = IPNetworking.createRedirectedMessage(
+                dim, new ClientboundForgetLevelChunkPacket(
+                    ChunkPos.getX(chunkPos),
+                    ChunkPos.getZ(chunkPos)
+                )
+            );
+            for (PlayerWatchRecord record : records) {
+                if (record.isValid && record.isLoadedToPlayer) {
+                    record.player.connection.send(unloadPacket);
+                }
+            }
+        });
+        
+        data.remove(dim);
     }
     
     public static boolean shouldLoadDimension(ResourceKey<Level> dimension) {

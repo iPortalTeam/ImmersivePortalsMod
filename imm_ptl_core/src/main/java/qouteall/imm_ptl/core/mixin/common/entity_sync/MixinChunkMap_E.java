@@ -63,9 +63,16 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     }
     
     @Override
-    public void onPlayerRespawn(ServerPlayer oldPlayer) {
+    public void ip_onPlayerRespawn(ServerPlayer oldPlayer) {
         entityMap.values().forEach(obj -> {
             ((IEEntityTracker) obj).onPlayerRespawn(oldPlayer);
+        });
+    }
+    
+    @Override
+    public void ip_onDimensionRemove() {
+        entityMap.values().forEach(obj -> {
+            ((IEEntityTracker) obj).ip_onDimensionRemove();
         });
     }
     
@@ -73,7 +80,7 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
      * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
     @Override
-    public void updateEntityTrackersAfterSendingChunkPacket(
+    public void ip_updateEntityTrackersAfterSendingChunkPacket(
         LevelChunk chunk, ServerPlayer player
     ) {
         List<Entity> attachedEntityList = Lists.newArrayList();
@@ -110,14 +117,14 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     }
     
     @Override
-    public void resendSpawnPacketToTrackers(Entity entity) {
+    public void ip_resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityMap.get(entity.getId());
         Validate.notNull(tracker, "entity not yet tracked");
         ((IEEntityTracker) tracker).resendSpawnPacketToTrackers();
     }
     
     @Override
-    public Int2ObjectMap<ChunkMap.TrackedEntity> getEntityTrackerMap() {
+    public Int2ObjectMap<ChunkMap.TrackedEntity> ip_getEntityTrackerMap() {
         return entityMap;
     }
 }

@@ -835,7 +835,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             if (level instanceof ServerLevel) {
                 ServerLevel destWorld = MiscHelper.getServer().getLevel(dimensionTo);
                 if (destWorld == null) {
-                    Helper.err("Missing Dimension " + dimensionTo.location());
+                    Helper.err("Portal Dest Dimension Missing " + dimensionTo.location());
                     return false;
                 }
                 boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(new BlockPos(getDestPos()));

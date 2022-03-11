@@ -206,7 +206,7 @@ public class McHelper {
     }
     
     public static int getRenderDistanceOnServer() {
-        return getIEStorage(Level.OVERWORLD).getWatchDistance();
+        return getIEStorage(Level.OVERWORLD).ip_getWatchDistance();
     }
     
     public static void setPosAndLastTickPos(
@@ -286,7 +286,7 @@ public class McHelper {
         ResourceKey<Level> dimension,
         int x, int z
     ) {
-        ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.asLong(x, z));
+        ChunkHolder chunkHolder_ = getIEStorage(dimension).ip_getChunkHolder(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
@@ -298,7 +298,7 @@ public class McHelper {
     ) {
         ChunkHolder chunkHolder_ = ((IEThreadedAnvilChunkStorage) (
             (ServerChunkCache) world.getChunkSource()
-        ).chunkMap).getChunkHolder_(ChunkPos.asLong(x, z));
+        ).chunkMap).ip_getChunkHolder(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
@@ -383,12 +383,12 @@ public class McHelper {
     }
     
     public static void resendSpawnPacketToTrackers(Entity entity) {
-        getIEStorage(entity.level.dimension()).resendSpawnPacketToTrackers(entity);
+        getIEStorage(entity.level.dimension()).ip_resendSpawnPacketToTrackers(entity);
     }
     
     public static void sendToTrackers(Entity entity, Packet<?> packet) {
         ChunkMap.TrackedEntity entityTracker =
-            getIEStorage(entity.level.dimension()).getEntityTrackerMap().get(entity.getId());
+            getIEStorage(entity.level.dimension()).ip_getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
 //            Helper.err("missing entity tracker object");
             return;

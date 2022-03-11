@@ -77,7 +77,24 @@ public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Mis
         newMap.putAll(oldMap);
         newMap.put(dim, world);
         
-        // does not directly mutate the map to avoid concurrency issues
+        // do not directly mutate the map to avoid concurrency issues
+        this.levels = newMap;
+    }
+    
+    @Override
+    public void removeDimensionFromWorldMap(ResourceKey<Level> dimension) {
+        LinkedHashMap<ResourceKey<Level>, ServerLevel> newMap =
+            Maps.<ResourceKey<Level>, ServerLevel>newLinkedHashMap();
+        
+        Map<ResourceKey<Level>, ServerLevel> oldMap = this.levels;
+        
+        for (Map.Entry<ResourceKey<Level>, ServerLevel> entry : oldMap.entrySet()) {
+            if (entry.getKey() != dimension) {
+                newMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        // do not directly mutate the map to avoid concurrency issues
         this.levels = newMap;
     }
     

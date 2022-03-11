@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.world.level.Level;
@@ -15,6 +16,7 @@ import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
 import java.util.function.Supplier;
 
@@ -30,6 +32,10 @@ public class ChunkDataSyncManager {
         );
         NewChunkTrackingGraph.endWatchChunkSignal.connectWithWeakRef(
             this, ChunkDataSyncManager::onEndWatch
+        );
+        
+        DynamicDimensionsImpl.removeDimensionSignal.connectWithWeakRef(
+            this, ChunkDataSyncManager::onDimensionRemove
         );
     }
     
@@ -51,9 +57,9 @@ public class ChunkDataSyncManager {
         DimensionalChunkPos chunkPos,
         IEThreadedAnvilChunkStorage ieStorage
     ) {
-        ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
+        ChunkHolder chunkHolder = ieStorage.ip_getChunkHolder(chunkPos.getChunkPos().toLong());
         
-        ThreadedLevelLightEngine lightingProvider = ieStorage.getLightingProvider();
+        ThreadedLevelLightEngine lightingProvider = ieStorage.ip_getLightingProvider();
         
         if (chunkHolder != null) {
             LevelChunk chunk = chunkHolder.getTickingChunk();
@@ -67,7 +73,7 @@ public class ChunkDataSyncManager {
                     )
                 );
                 
-                ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
+                ieStorage.ip_updateEntityTrackersAfterSendingChunkPacket(chunk, player);
                 
                 MiscHelper.getServer().getProfiler().pop();
                 
@@ -83,8 +89,8 @@ public class ChunkDataSyncManager {
     public void onChunkProvidedDeferred(LevelChunk chunk) {
         ResourceKey<Level> dimension = chunk.getLevel().dimension();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
-        ThreadedLevelLightEngine lightingProvider = ieStorage.getLightingProvider();
-    
+        ThreadedLevelLightEngine lightingProvider = ieStorage.ip_getLightingProvider();
+        
         MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
@@ -99,7 +105,7 @@ public class ChunkDataSyncManager {
         ).forEach(player -> {
             player.connection.send(chunkDataPacketRedirected.get());
             
-            ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
+            ieStorage.ip_updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });
         
         MiscHelper.getServer().getProfiler().pop();
@@ -123,10 +129,20 @@ public class ChunkDataSyncManager {
                 ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
                 IEThreadedAnvilChunkStorage storage =
                     (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
-                storage.onPlayerRespawn(oldPlayer);
+                storage.ip_onPlayerRespawn(oldPlayer);
             });
         
         NewChunkTrackingGraph.forceRemovePlayer(oldPlayer);
     }
     
+    public void onDimensionRemove(ResourceKey<Level> dimension) {
+        ServerLevel world = McHelper.getServerWorld(dimension);
+        
+        ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
+        IEThreadedAnvilChunkStorage storage =
+            (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
+        storage.ip_onDimensionRemove();
+        
+        NewChunkTrackingGraph.forceRemoveDimension(dimension);
+    }
 }
