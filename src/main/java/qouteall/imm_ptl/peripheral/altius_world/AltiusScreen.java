@@ -330,26 +330,28 @@ public class AltiusScreen extends Screen {
         
         int insertingPosition = position + 1;
         
-        Minecraft.getInstance().setScreen(
-            new GenericDirtMessageScreen(new TranslatableComponent("imm_ptl.loading_datapack_dimensions"))
-        );
+//        Minecraft.getInstance().setScreen(
+//            new GenericDirtMessageScreen(new TranslatableComponent("imm_ptl.loading_datapack_dimensions"))
+//        );
         
-        IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
-            Minecraft.getInstance().setScreen(
-                new SelectDimensionScreen(
-                    this,
-                    dimensionType -> {
-                        dimListWidget.entryWidgets.add(
-                            insertingPosition,
-                            createDimEntryWidget(dimensionType)
-                        );
-                        removeDuplicate(insertingPosition);
-                        dimListWidget.update();
-                    }
-                )
-            );
-            return true;
-        }));
+        Minecraft.getInstance().setScreen(
+            new SelectDimensionScreen(
+                this,
+                dimensionType -> {
+                    dimListWidget.entryWidgets.add(
+                        insertingPosition,
+                        createDimEntryWidget(dimensionType)
+                    );
+                    removeDuplicate(insertingPosition);
+                    dimListWidget.update();
+                }
+            )
+        );
+
+//        IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
+//
+//            return true;
+//        }));
     }
     
     private void onRemoveEntry() {

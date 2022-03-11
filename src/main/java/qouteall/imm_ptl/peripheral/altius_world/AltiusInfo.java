@@ -7,6 +7,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +18,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -101,6 +103,16 @@ public class AltiusInfo {
                 "Error: No dimension for dimension stack"
             ));
             return;
+        }
+        
+        MinecraftServer server = MiscHelper.getServer();
+        for (AltiusEntry entry : entries) {
+            if (server.getLevel(entry.dimension) == null) {
+                McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+                    "Failed to apply dimension stack. Missing dimension " + entry.dimension.location()
+                ));
+                return;
+            }
         }
         
         if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).dimension)).isEmpty()) {

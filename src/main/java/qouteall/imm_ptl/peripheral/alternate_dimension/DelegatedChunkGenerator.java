@@ -41,6 +41,7 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
         this.biomeSource_ = biomeSource;
     }
     
+    // this codec is wrong. it should never be used.
     @Override
     protected Codec<? extends ChunkGenerator> codec() {
         return NoiseBasedChunkGenerator.CODEC;

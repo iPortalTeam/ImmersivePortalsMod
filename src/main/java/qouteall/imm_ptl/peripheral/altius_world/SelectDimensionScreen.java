@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -21,25 +23,6 @@ public class SelectDimensionScreen extends Screen {
         this.outerCallback = callback;
     }
     
-//    public static List<RegistryKey<World>> getDimensionList(
-//        Supplier<GeneratorOptions> generatorOptionsSupplier,
-//        DynamicRegistryManager.Impl dynamicRegistryManager
-//    ) {
-//
-//        GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
-//        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
-//
-//        DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
-//
-//        ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
-//
-//        for (Map.Entry<RegistryKey<DimensionOptions>, DimensionOptions> entry : dimensionMap.getEntries()) {
-//            dimList.add(RegistryKey.of(Registry.WORLD_KEY, entry.getKey().getValue()));
-//        }
-//
-//        return dimList;
-//    }
-    
     @Override
     protected void init() {
         dimListWidget = new DimListWidget(
@@ -54,8 +37,10 @@ public class SelectDimensionScreen extends Screen {
         addWidget(dimListWidget);
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
+    
+        List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.get();
         
-        for (ResourceKey<Level> dim : parent.dimensionListSupplier.get()) {
+        for (ResourceKey<Level> dim : dimensionList) {
             dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
         }
         
