@@ -120,6 +120,6 @@ public class MyLoadingTicket {
     }
     
     public static void init() {
-        DynamicDimensionsImpl.removeDimensionSignal.connect(MyLoadingTicket::onDimensionRemove);
+        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(MyLoadingTicket::onDimensionRemove);
     }
 }

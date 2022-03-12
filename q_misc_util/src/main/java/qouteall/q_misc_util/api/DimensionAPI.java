@@ -24,6 +24,9 @@ import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
 
+import java.util.Set;
+import java.util.function.Consumer;
+
 public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
     
@@ -103,7 +106,7 @@ public class DimensionAPI {
     
     /**
      * Don't use this for dynamically-added dimensions
-     *
+     * <p>
      * If you don't mark a dimension non-persistent, then it will be saved into "level.dat" file
      * Then when you upgrade the world or remove the mod, DFU cannot recognize it
      * then the nether and the end will vanish.
@@ -144,4 +147,27 @@ public class DimensionAPI {
         return ExtraDimensionStorage.removeDimensionFromExtraStorage(dimension);
     }
     
+    public static interface DynamicDimensionUpdateListener {
+        void run(Set<ResourceKey<Level>> dimensions);
+    }
+    
+    public static final Event<DynamicDimensionUpdateListener> serverDimensionDynamicUpdateEvent =
+        EventFactory.createArrayBacked(
+            DynamicDimensionUpdateListener.class,
+            arr -> (set) -> {
+                for (DynamicDimensionUpdateListener runnable : arr) {
+                    runnable.run(set);
+                }
+            }
+        );
+    
+    public static final Event<DynamicDimensionUpdateListener> clientDimensionDynamicUpdateEvent =
+        EventFactory.createArrayBacked(
+            DynamicDimensionUpdateListener.class,
+            arr -> (set) -> {
+                for (DynamicDimensionUpdateListener runnable : arr) {
+                    runnable.run(set);
+                }
+            }
+        );
 }

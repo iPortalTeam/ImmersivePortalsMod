@@ -178,6 +178,11 @@ public class NewChunkTrackingGraph {
                     PlayerWatchRecord record = records.pollFirst();
                     if (record.isValid && !record.isLoadedToPlayer) {
                         record.isLoadedToPlayer = true;
+    
+                        if (MiscHelper.getServer().getLevel(record.dimension) == null) {
+                            Helper.err("oops");
+                        }
+                        
                         beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
                             record.dimension, new ChunkPos(record.chunkPos)
                         ));
@@ -499,6 +504,7 @@ public class NewChunkTrackingGraph {
                 records,
                 (r) -> r.player == player,
                 record -> {
+                    record.isValid = false;
                     record.player.connection.send(
                         IPNetworking.createRedirectedMessage(
                             dim, new ClientboundForgetLevelChunkPacket(
@@ -530,6 +536,7 @@ public class NewChunkTrackingGraph {
                 if (record.isValid && record.isLoadedToPlayer) {
                     record.player.connection.send(unloadPacket);
                 }
+                record.isValid = false;
             }
         });
         

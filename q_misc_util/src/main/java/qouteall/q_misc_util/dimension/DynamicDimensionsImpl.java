@@ -1,7 +1,9 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.ImmutableList;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -22,25 +24,25 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscGlobals;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.MiscNetworking;
-import qouteall.q_misc_util.dimension.DimId;
-import qouteall.q_misc_util.dimension.DimensionIdManagement;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
+import qouteall.q_misc_util.mixin.dimension.IEWorldBorder;
+import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.WeakHashMap;
+import java.util.List;
 
 public class DynamicDimensionsImpl {
-    public static final SignalArged<ResourceKey<Level>> removeDimensionSignal = new SignalArged<>();
+    public static final SignalArged<ResourceKey<Level>> beforeRemovingDimensionSignal = new SignalArged<>();
     
-    private static WeakHashMap<ServerLevel, WeakReference<BorderChangeListener>> worldBorderListenerMap
-        = new WeakHashMap<>();
     
     public static void init() {
-        ServerLifecycleEvents.SERVER_STOPPED.register(s -> worldBorderListenerMap.clear());
+    
     }
     
     public static void addDimensionDynamically(
@@ -51,6 +53,8 @@ public class DynamicDimensionsImpl {
         
         MinecraftServer server = MiscHelper.getServer();
         ResourceKey<Level> dimensionResourceKey = DimId.idToKey(dimensionId);
+        
+        Validate.isTrue(server.isSameThread());
         
         if (server.getLevel(dimensionResourceKey) != null) {
             throw new RuntimeException("Dimension " + dimensionId + " already exists.");
@@ -91,16 +95,13 @@ public class DynamicDimensionsImpl {
             new BorderChangeListener.DelegateBorderChangeListener(newWorld.getWorldBorder())
         );
         
-        ((IEMinecraftServer_Misc) server).addDimensionToWorldMap(dimensionResourceKey, newWorld);
+        ((IEMinecraftServer_Misc) server).ip_addDimensionToWorldMap(dimensionResourceKey, newWorld);
         
         worldBorder.applySettings(serverLevelData.getWorldBorder());
         
-        // don't save it into level.dat
-//        Registry.register(
-//            worldGenSettings.dimensions(),
-//            dimensionId,
-//            levelStem
-//        );
+        Helper.log("Added Dimension " + dimensionId);
+        
+        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
         
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
         
@@ -113,48 +114,104 @@ public class DynamicDimensionsImpl {
     public static void removeDimensionDynamically(ServerLevel world) {
         MinecraftServer server = MiscHelper.getServer();
         
+        Validate.isTrue(server.isSameThread());
+        
         ResourceKey<Level> dimension = world.dimension();
         
         if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
             throw new RuntimeException();
         }
         
-        removeDimensionSignal.emit(dimension);
+        Helper.log("Started Removing Dimension " + dimension.location());
         
-        /**{@link MinecraftServer#stopServer()}*/
-        
-        while (world.getChunkSource().chunkMap.hasWork()) {
-            world.getChunkSource().removeTicketsOnClosing();
-            world.getChunkSource().tick(() -> true, false);
-        }
-        
-        server.saveAllChunks(false, true, false);
-        
+        MiscGlobals.serverTaskList.addTask(MyTaskList.oneShotTask(() -> {
+            beforeRemovingDimensionSignal.emit(dimension);
+            
+            evacuatePlayersFromDimension(world);
+            
+            /**{@link MinecraftServer#stopServer()}*/
+            
+            long startTime = System.nanoTime();
+            long lastLogTime = System.nanoTime();
+            
+            while (world.getChunkSource().chunkMap.hasWork()) {
+                world.getChunkSource().removeTicketsOnClosing();
+                world.getChunkSource().tick(() -> true, false);
+                world.getChunkSource().pollTask();
+                
+                if (System.nanoTime() - lastLogTime > Helper.secondToNano(1)) {
+                    lastLogTime = System.nanoTime();
+                    Helper.log("waiting for chunk tasks to finish");
+                }
+                
+                ((IEMinecraftServer_Misc) server).ip_waitUntilNextTick();
+            }
+            
+            Helper.log("Finished chunk tasks in %f seconds"
+                .formatted(Helper.nanoToSecond(System.nanoTime() - startTime))
+            );
+            
+            server.saveAllChunks(false, true, false);
+            
+            try {
+                world.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            ((IEMinecraftServer_Misc) server).ip_removeDimensionFromWorldMap(dimension);
+            
+            resetWorldBorderListener(server);
+            
+            Helper.log("Successfully Removed Dimension " + dimension.location());
+            
+            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
+            
+            Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                player.connection.send(dimSyncPacket);
+            }
+        }));
+    }
+    
+    private static void resetWorldBorderListener(MinecraftServer server) {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         WorldBorder worldBorder = overworld.getWorldBorder();
-        
-        WeakReference<BorderChangeListener> wr = worldBorderListenerMap.get(world);
-        if (wr != null) {
-            BorderChangeListener borderChangeListener = wr.get();
-            if (borderChangeListener != null) {
-                worldBorder.removeListener(borderChangeListener);
+        List<BorderChangeListener> borderChangeListeners = ((IEWorldBorder) worldBorder).ip_getListeners();
+        borderChangeListeners.clear();
+        for (ServerLevel serverWorld : server.getAllLevels()) {
+            if (serverWorld != overworld) {
+                worldBorder.addListener(
+                    new BorderChangeListener.DelegateBorderChangeListener(serverWorld.getWorldBorder())
+                );
             }
         }
+        server.getPlayerList().addWorldborderListener(overworld);
+    }
+    
+    private static void evacuatePlayersFromDimension(ServerLevel world) {
+        MinecraftServer server = MiscHelper.getServer();
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         
-        try {
-            world.close();
+        List<ServerPlayer> players = world.getPlayers(p -> true);
+        
+        BlockPos sharedSpawnPos = overworld.getSharedSpawnPos();
+        
+        for (ServerPlayer player : players) {
+            player.teleportTo(
+                overworld,
+                sharedSpawnPos.getX(), sharedSpawnPos.getY(), sharedSpawnPos.getZ(),
+                0, 0
+            );
+            player.sendMessage(
+                new TextComponent(
+                    "Teleported to spawn pos because dimension %s had been removed"
+                        .formatted(world.dimension().location())
+                ),
+                Util.NIL_UUID
+            );
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        ((IEMinecraftServer_Misc) server).removeDimensionFromWorldMap(dimension);
-        
-        Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            player.connection.send(dimSyncPacket);
-        }
-        
     }
     
     private static class DummyProgressListener implements ChunkProgressListener {

@@ -7,6 +7,7 @@
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
     "dimension.DimensionTypeAccessor",
+    "dimension.IEWorldBorder",
     "dimension.MixinLevelProperties_D",
     "dimension.MixinMinecraftServer_D",
     "dimension.MixinPlayerList_Misc",

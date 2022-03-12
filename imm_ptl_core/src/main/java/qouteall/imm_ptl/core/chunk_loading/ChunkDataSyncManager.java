@@ -34,7 +34,7 @@ public class ChunkDataSyncManager {
             this, ChunkDataSyncManager::onEndWatch
         );
         
-        DynamicDimensionsImpl.removeDimensionSignal.connectWithWeakRef(
+        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connectWithWeakRef(
             this, ChunkDataSyncManager::onDimensionRemove
         );
     }

@@ -43,9 +43,17 @@ public class IPCommonNetworkClient {
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
-                ClientLevel packetWorld = ClientWorldLoader.getWorld(dimension);
+                ClientLevel packetWorld = ClientWorldLoader.getOptionalWorld(dimension);
                 
-                doProcessRedirectedMessage(packetWorld, packet);
+                if (packetWorld != null) {
+                    doProcessRedirectedMessage(packetWorld, packet);
+                }
+                else {
+                    Helper.err(
+                        "Ignoring packet of invalid dimension %s %s"
+                            .formatted(dimension.location(), packet.getClass())
+                    );
+                }
             }
             finally {
                 client.getProfiler().pop();

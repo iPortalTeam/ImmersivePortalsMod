@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.Util;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.players.PlayerList;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -70,14 +72,7 @@ public class ServerTeleportationManager {
             }
         );
         
-        DynamicDimensionsImpl.removeDimensionSignal.connect(dim -> {
-            PlayerList playerList = MiscHelper.getServer().getPlayerList();
-            for (ServerPlayer player : playerList.getPlayers()) {
-                if (player.level.dimension() == dim) {
-                    invokeTpmeCommand(player, Level.OVERWORLD, new Vec3(0, 80, 0));
-                }
-            }
-        });
+        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(this::evacuatePlayersFromDimension);
     }
     
     public static boolean shouldEntityTeleport(Portal portal, Entity entity) {
@@ -697,5 +692,21 @@ public class ServerTeleportationManager {
             },
             () -> {}
         ));
+    }
+    
+    private void evacuatePlayersFromDimension(ResourceKey<Level> dim) {
+        PlayerList playerList = MiscHelper.getServer().getPlayerList();
+        for (ServerPlayer player : playerList.getPlayers()) {
+            if (player.level.dimension() == dim) {
+                ServerLevel overWorld = McHelper.getOverWorldOnServer();
+                BlockPos spawnPos = overWorld.getSharedSpawnPos();
+                
+                invokeTpmeCommand(player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos));
+                
+                player.sendMessage(new TextComponent(
+                    "Teleported to spawn pos because dimension %s had been removed".formatted(dim.location())
+                ), Util.NIL_UUID);
+            }
+        }
     }
 }

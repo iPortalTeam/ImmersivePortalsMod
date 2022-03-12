@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
@@ -27,10 +28,12 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
@@ -56,6 +59,19 @@ public class ClientWorldLoader {
         IPGlobal.postClientTickSignal.connect(ClientWorldLoader::tick);
         
         IPGlobal.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
+        
+        DimensionAPI.clientDimensionDynamicUpdateEvent.register((serverDimensions) -> {
+            if (getIsInitialized()) {
+                List<ResourceKey<Level>> dimensionsToRemove =
+                    clientWorldMap.keySet().stream()
+                        .filter(dim -> !serverDimensions.contains(dim)).toList();
+                
+                for (ResourceKey<Level> dim : dimensionsToRemove) {
+                    disposeDimensionDynamically(dim);
+                }
+                
+            }
+        });
     }
     
     public static boolean getIsInitialized() {
@@ -163,13 +179,7 @@ public class ClientWorldLoader {
     
     private static void cleanUp() {
         worldRendererMap.values().forEach(
-            worldRenderer -> {
-                worldRenderer.setLevel(null);
-                if (worldRenderer != client.levelRenderer) {
-                    worldRenderer.close();
-                    ((IEWorldRenderer) worldRenderer).portal_fullyDispose();
-                }
-            }
+            ClientWorldLoader::disposeWorldRenderer
         );
         
         for (ClientLevel clientWorld : clientWorldMap.values()) {
@@ -182,8 +192,31 @@ public class ClientWorldLoader {
         disposeRenderHelpers();
         
         isInitialized = false;
+    }
+    
+    private static void disposeWorldRenderer(LevelRenderer worldRenderer) {
+        worldRenderer.setLevel(null);
+        if (worldRenderer != client.levelRenderer) {
+            worldRenderer.close();
+            ((IEWorldRenderer) worldRenderer).portal_fullyDispose();
+        }
+    }
+    
+    private static void disposeDimensionDynamically(ResourceKey<Level> dimension) {
+        LevelRenderer worldRenderer = worldRendererMap.get(dimension);
+        disposeWorldRenderer(worldRenderer);
+        worldRendererMap.remove(dimension);
         
+        ClientLevel clientWorld = clientWorldMap.get(dimension);
+        ((IEClientWorld) clientWorld).resetWorldRendererRef();
+        clientWorldMap.remove(dimension);
         
+        DimensionRenderHelper renderHelper = renderHelperMap.remove(dimension);
+        if (renderHelper != null) {
+            renderHelper.cleanUp();
+        }
+        
+        Helper.log("Client Dynamically Removed Dimension " + dimension.location());
     }
     
     //@Nullable
@@ -193,8 +226,14 @@ public class ClientWorldLoader {
         return worldRendererMap.get(dimension);
     }
     
+    
+    /**
+     * Get the client world and create if missing.
+     * If the dimension id is invalid, it will throw an error
+     */
     public static ClientLevel getWorld(ResourceKey<Level> dimension) {
         Validate.notNull(dimension);
+        Validate.isTrue(client.isSameThread());
         
         initializeIfNeeded();
         
@@ -203,6 +242,22 @@ public class ClientWorldLoader {
         }
         
         return clientWorldMap.get(dimension);
+    }
+    
+    /**
+     * Get the client world and create if missing.
+     * If the dimension id is invalid, it will return null
+     */
+    @Nullable
+    public static ClientLevel getOptionalWorld(ResourceKey<Level> dimension) {
+        Validate.notNull(dimension);
+        Validate.isTrue(client.isSameThread());
+        
+        if (getServerDimensions().contains(dimension)) {
+            return getWorld(dimension);
+        }
+        
+        return null;
     }
     
     public static DimensionRenderHelper getDimensionRenderHelper(ResourceKey<Level> dimension) {
@@ -243,7 +298,13 @@ public class ClientWorldLoader {
     }
     
     private static ClientLevel createSecondaryClientWorld(ResourceKey<Level> dimension) {
+        Validate.notNull(client.player);
         Validate.isTrue(client.player.level.dimension() != dimension);
+        
+        Set<ResourceKey<Level>> dimIds = getServerDimensions();
+        if (!dimIds.contains(dimension)) {
+            throw new RuntimeException("Cannot create invalid client dimension " + dimension.location());
+        }
         
         isCreatingClientWorld = true;
         
@@ -310,6 +371,10 @@ public class ClientWorldLoader {
         client.getProfiler().pop();
         
         return newWorld;
+    }
+    
+    public static Set<ResourceKey<Level>> getServerDimensions() {
+        return client.player.connection.levels();
     }
     
     public static Collection<ClientLevel> getClientWorlds() {

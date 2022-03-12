@@ -14,7 +14,11 @@ public interface IEMinecraftServer_Misc {
     
     Executor ip_getExecutor();
     
-    void addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world);
+    void ip_addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world);
     
-    void removeDimensionFromWorldMap(ResourceKey<Level> dimension);
+    void ip_removeDimensionFromWorldMap(ResourceKey<Level> dimension);
+    
+    void ip_waitUntilNextTick();
+    
+    void ip_setStopped(boolean arg);
 }

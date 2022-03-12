@@ -11,8 +11,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import org.apache.commons.lang3.Validate;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -30,7 +32,12 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Mixin(MinecraftServer.class)
-public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Misc {
+public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventLoop implements IEMinecraftServer_Misc {
+    public MixinMinecraftServer_Misc(String string) {
+        super(string);
+        throw new RuntimeException();
+    }
+    
     @Shadow
     public abstract boolean isDedicatedServer();
     
@@ -46,6 +53,12 @@ public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Mis
     @Final
     @Mutable
     private Map<ResourceKey<Level>, ServerLevel> levels;
+    
+    @Shadow
+    protected abstract void waitUntilNextTick();
+    
+    @Shadow
+    private boolean stopped;
     
     @Inject(
         method = "<init>",
@@ -68,7 +81,7 @@ public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Mis
     }
     
     @Override
-    public void addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world) {
+    public void ip_addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world) {
         LinkedHashMap<ResourceKey<Level>, ServerLevel> newMap =
             Maps.<ResourceKey<Level>, ServerLevel>newLinkedHashMap();
         
@@ -82,7 +95,7 @@ public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Mis
     }
     
     @Override
-    public void removeDimensionFromWorldMap(ResourceKey<Level> dimension) {
+    public void ip_removeDimensionFromWorldMap(ResourceKey<Level> dimension) {
         LinkedHashMap<ResourceKey<Level>, ServerLevel> newMap =
             Maps.<ResourceKey<Level>, ServerLevel>newLinkedHashMap();
         
@@ -106,5 +119,19 @@ public abstract class MixinMinecraftServer_Misc implements IEMinecraftServer_Mis
     @Override
     public Executor ip_getExecutor() {
         return executor;
+    }
+    
+    @Override
+    public void ip_waitUntilNextTick() {
+        Validate.isTrue(!runningTask());
+        
+        waitUntilNextTick();
+    }
+    
+    @Override
+    public void ip_setStopped(boolean arg) {
+        Validate.isTrue(!runningTask());
+        
+        stopped = arg;
     }
 }

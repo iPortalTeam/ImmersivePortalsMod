@@ -80,7 +80,7 @@ allprojects {
             officialMojangMappings() {
                 setNameSyntheticMembers(false)
             }
-            parchment("org.parchmentmc.data:parchment-1.18.1:2021.12.19@zip")
+            parchment("org.parchmentmc.data:parchment-1.18.1:2022.03.06@zip")
         }
         
 //        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"

@@ -41,7 +41,6 @@ public class CHelper {
         );
     }
     
-    //do not inline this or it will crash in server
     public static Level getClientWorld(ResourceKey<Level> dimension) {
         return ClientWorldLoader.getWorld(dimension);
     }

@@ -840,13 +840,27 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 }
                 boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(new BlockPos(getDestPos()));
                 if (!inWorldBorder) {
-                    Helper.err("Destination out of world border " + this);
+                    Helper.err("Destination out of World Border " + this);
                     return false;
                 }
             }
+            
+            if (level.isClientSide()) {
+                return isPortalValidClient();
+            }
+            
             return true;
         }
         return false;
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private boolean isPortalValidClient() {
+        boolean contains = ClientWorldLoader.getServerDimensions().contains(dimensionTo);
+        if (!contains) {
+            Helper.err("Client Portal Dest Dimension Missing " + dimensionTo.location());
+        }
+        return contains;
     }
     
     /**

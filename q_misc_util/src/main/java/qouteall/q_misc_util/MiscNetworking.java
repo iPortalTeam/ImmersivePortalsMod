@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.mixin.client.IEClientPacketListener_Misc;
@@ -88,15 +89,17 @@ public class MiscNetworking {
         
         CompoundTag typeMap = buf.readNbt();
         
-        DimensionTypeSync.acceptTypeMapData(typeMap);
-        
-        Helper.log("Received Dimension Int Id Sync");
-        Helper.log("\n" + DimensionIdRecord.clientRecord);
-        
-        // it's used for command completion
-        Set<ResourceKey<Level>> dimIdSet = DimensionIdRecord.clientRecord.getDimIdSet();
-        ((IEClientPacketListener_Misc) packetListener)
-            .ip_setLevels(dimIdSet);
-        
+        MiscHelper.executeOnRenderThread(() -> {
+            DimensionTypeSync.acceptTypeMapData(typeMap);
+            
+            Helper.log("Received Dimension Int Id Sync");
+            Helper.log("\n" + DimensionIdRecord.clientRecord);
+            
+            // it's used for command completion
+            Set<ResourceKey<Level>> dimIdSet = DimensionIdRecord.clientRecord.getDimIdSet();
+            ((IEClientPacketListener_Misc) packetListener).ip_setLevels(dimIdSet);
+            
+            DimensionAPI.clientDimensionDynamicUpdateEvent.invoker().run(dimIdSet);
+        });
     }
 }
