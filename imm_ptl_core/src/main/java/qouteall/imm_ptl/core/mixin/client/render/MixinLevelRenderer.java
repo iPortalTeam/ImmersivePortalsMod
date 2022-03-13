@@ -123,6 +123,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Final
     private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
     
+    @Shadow protected abstract void deinitTransparency();
+    
     // important rendering hooks
     @Inject(
         method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
@@ -668,6 +670,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     @Override
     public void portal_fullyDispose() {
+        deinitTransparency();
+        
         if (starBuffer != null) {
             starBuffer.close();
         }
@@ -682,7 +686,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         }
         
         level = null;
-        
     }
     
     @Override

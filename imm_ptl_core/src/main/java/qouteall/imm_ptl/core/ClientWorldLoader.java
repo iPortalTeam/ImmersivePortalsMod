@@ -38,6 +38,10 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
+    public static final SignalArged<ResourceKey<Level>> clientDimensionDynamicRemoveSignal =
+        new SignalArged<>();
+    public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
+    
     // sent to client by login and respawn packets
     public static boolean isFlatWorld = false;
     
@@ -52,8 +56,6 @@ public class ClientWorldLoader {
     private static boolean isCreatingClientWorld = false;
     
     public static boolean isClientRemoteTicking = false;
-    
-    public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
     
     public static void init() {
         IPGlobal.postClientTickSignal.connect(ClientWorldLoader::tick);
@@ -231,6 +233,10 @@ public class ClientWorldLoader {
         if (clientWorld.getEntityCount() > 0) {
             Helper.err("The entities of that dimension was not cleared before removal");
         }
+        
+        client.gameRenderer.resetData();
+        
+        clientDimensionDynamicRemoveSignal.emit(dimension);
     }
     
     //@Nullable

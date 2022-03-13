@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
@@ -15,6 +16,7 @@ public class PortalAnimationManagement {
     public static void init() {
         IPGlobal.preGameRenderSignal.connect(PortalAnimationManagement::onPreGameRender);
         IPGlobal.clientCleanupSignal.connect(PortalAnimationManagement::cleanup);
+        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
     
     public static void addAnimation(

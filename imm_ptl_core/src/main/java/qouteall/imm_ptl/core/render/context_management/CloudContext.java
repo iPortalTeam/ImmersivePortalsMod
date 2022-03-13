@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
@@ -28,6 +29,7 @@ public class CloudContext {
     
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(CloudContext::cleanup);
+        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
     
     public CloudContext() {

@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
@@ -10,6 +11,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.ArrayDeque;
 import java.util.Stack;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -158,12 +160,18 @@ public class VisibleSectionDiscovery {
     }
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(() -> {
-            listCaches.clear();
-            resultHolder = null;
-            builtChunks = null;
-            vanillaFrustum = null;
+        IPGlobal.clientCleanupSignal.connect(VisibleSectionDiscovery::cleanUp);
+        
+        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect((dim) -> {
+            cleanUp();
         });
+    }
+    
+    private static void cleanUp() {
+        listCaches.clear();
+        resultHolder = null;
+        builtChunks = null;
+        vanillaFrustum = null;
     }
     
 }

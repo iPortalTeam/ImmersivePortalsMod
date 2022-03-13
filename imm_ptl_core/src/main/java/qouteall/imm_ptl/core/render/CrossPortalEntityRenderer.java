@@ -47,6 +47,8 @@ public class CrossPortalEntityRenderer {
         IPGlobal.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
         
         IPGlobal.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
+    
+        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanUp());
     }
     
     private static void cleanUp() {

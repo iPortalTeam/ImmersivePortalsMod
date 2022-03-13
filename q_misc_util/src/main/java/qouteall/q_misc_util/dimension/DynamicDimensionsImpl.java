@@ -40,6 +40,7 @@ import java.util.List;
 public class DynamicDimensionsImpl {
     public static final SignalArged<ResourceKey<Level>> beforeRemovingDimensionSignal = new SignalArged<>();
     
+    public static boolean isRemovingDimension = false;
     
     public static void init() {
     
@@ -134,24 +135,35 @@ public class DynamicDimensionsImpl {
             long startTime = System.nanoTime();
             long lastLogTime = System.nanoTime();
             
-            while (world.getChunkSource().chunkMap.hasWork()) {
-                world.getChunkSource().removeTicketsOnClosing();
-                world.getChunkSource().tick(() -> true, false);
-                world.getChunkSource().pollTask();
-                
-                if (System.nanoTime() - lastLogTime > Helper.secondToNano(1)) {
-                    lastLogTime = System.nanoTime();
-                    Helper.log("waiting for chunk tasks to finish");
+            isRemovingDimension = true;
+            
+            ((IEMinecraftServer_Misc) server).ip_removeDimensionFromWorldMap(dimension);
+            
+            try {
+                while (world.getChunkSource().chunkMap.hasWork()) {
+                    world.getChunkSource().removeTicketsOnClosing();
+                    world.getChunkSource().tick(() -> true, false);
+                    world.getChunkSource().pollTask();
+                    server.pollTask();
+                    
+                    if (System.nanoTime() - lastLogTime > Helper.secondToNano(1)) {
+                        lastLogTime = System.nanoTime();
+                        Helper.log("waiting for chunk tasks to finish");
+                    }
+                    
+                    if (System.nanoTime() - startTime > Helper.secondToNano(15)) {
+                        Helper.err("Waited too long for chunk tasks");
+                        break;
+                    }
+                    
+                    ((IEMinecraftServer_Misc) server).ip_waitUntilNextTick();
                 }
-                
-                if (System.nanoTime() - startTime > Helper.secondToNano(15)) {
-                    Helper.err("Waited too long for chunk tasks. Stopping server");
-                    server.stopServer();
-                    return;
-                }
-                
-                ((IEMinecraftServer_Misc) server).ip_waitUntilNextTick();
             }
+            catch (Throwable e) {
+                e.printStackTrace();
+            }
+            
+            isRemovingDimension = false;
             
             Helper.log("Finished chunk tasks in %f seconds"
                 .formatted(Helper.nanoToSecond(System.nanoTime() - startTime))
@@ -170,8 +182,6 @@ public class DynamicDimensionsImpl {
             catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            ((IEMinecraftServer_Misc) server).ip_removeDimensionFromWorldMap(dimension);
             
             resetWorldBorderListener(server);
             
