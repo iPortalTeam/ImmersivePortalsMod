@@ -24,6 +24,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
@@ -58,46 +59,8 @@ public class CustomPortalGenManagement {
         
         Helper.log("Loading custom portal generation");
         
-        MinecraftServer server = MiscHelper.getServer();
-        
-        RegistryAccess registryTracker = server.registryAccess();
-        
-        ResourceManager resourceManager = server.getResourceManager();
-        
-        RegistryOps<JsonElement> registryOps = RegistryOps.create(
-            JsonOps.INSTANCE,
-            registryTracker
-        );
-        
-        MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
-            CustomPortalGeneration.registryRegistryKey,
-            Lifecycle.stable(), null
-        );
-        
-        RegistryResourceAccess registryResourceAccess = RegistryResourceAccess.forResourceManager(resourceManager);
-        
-        RegistryLoader registryLoader = IERegistryLoader.construct(registryResourceAccess);
-        DataResult<Registry<CustomPortalGeneration>> dataResult =
-            ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
-                emptyRegistry,
-                CustomPortalGeneration.registryRegistryKey,
-                CustomPortalGeneration.codec.codec(),
-                registryOps
-            
-            );
-        
-        
-        Registry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
-        
-        if (result == null) {
-            DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
-                dataResult.get().right().get();
-            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
-                "Error when parsing custom portal generation\n" +
-                    r.message()
-            ));
-            return;
-        }
+        Registry<CustomPortalGeneration> result = loadCustomPortalGenerations();
+        if (result == null) return;
         
         result.entrySet().forEach((entry) -> {
             CustomPortalGeneration gen = entry.getValue();
@@ -128,6 +91,49 @@ public class CustomPortalGenManagement {
                 }
             }
         });
+    }
+    
+    private static Registry<CustomPortalGeneration> loadCustomPortalGenerations() {
+        MinecraftServer server = MiscHelper.getServer();
+        
+        RegistryAccess registryTracker = server.registryAccess();
+        
+        ResourceManager resourceManager = server.getResourceManager();
+        
+        RegistryOps<JsonElement> registryOps = RegistryOps.create(
+            JsonOps.INSTANCE,
+            registryTracker
+        );
+        
+        MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
+            CustomPortalGeneration.registryRegistryKey,
+            Lifecycle.stable(), null
+        );
+        
+        RegistryResourceAccess registryResourceAccess = RegistryResourceAccess.forResourceManager(resourceManager);
+        
+        RegistryLoader registryLoader = IERegistryLoader.construct(registryResourceAccess);
+        DataResult<Registry<CustomPortalGeneration>> dataResult =
+            ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
+                emptyRegistry,
+                CustomPortalGeneration.registryRegistryKey,
+                CustomPortalGeneration.codec.codec(),
+                registryOps
+            
+            );
+        
+        Registry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
+        
+        if (result == null) {
+            DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
+                dataResult.get().right().get();
+            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+                "Error when parsing custom portal generation\n" +
+                    r.message()
+            ));
+            return null;
+        }
+        return result;
     }
     
     private static void load(CustomPortalGeneration gen) {

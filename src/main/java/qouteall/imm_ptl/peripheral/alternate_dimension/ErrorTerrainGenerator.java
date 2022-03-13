@@ -124,7 +124,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     @Override
     public ChunkGenerator withSeed(long seed) {
         return new ErrorTerrainGenerator(
-            seed, structureSets, biomeSource_, delegate.withSeed(seed),
+            seed, structureSets, biomeSource_.withSeed(seed), delegate.withSeed(seed),
             biomeRegistry, noiseRegistry
         );
     }

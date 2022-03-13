@@ -1,23 +1,36 @@
 package qouteall.imm_ptl.core.commands;
 
+import com.google.gson.JsonElement;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.RegistryLoader;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryResourceAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -34,7 +47,6 @@ import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -44,14 +56,14 @@ import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimId;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.time.Duration;
@@ -473,71 +485,6 @@ public class PortalDebugCommands {
                 );
                 return 0;
             })
-        );
-        
-        builder.then(Commands
-            .literal("purge_level_dat")
-            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
-            .executes(context -> {
-                MinecraftServer server = MiscHelper.getServer();
-                for (ServerLevel world : server.getAllLevels()) {
-                    ResourceKey<Level> dimension = world.dimension();
-                    if (dimension != Level.OVERWORLD && dimension != Level.NETHER && dimension != Level.END) {
-                        DimensionAPI.markDimensionNonPersistent(dimension.location());
-                    }
-                }
-                
-                return 0;
-            })
-        );
-        
-        builder.then(Commands
-            .literal("clone_dimension")
-            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
-            .then(Commands.argument("templateDimension", DimensionArgument.dimension())
-                .then(Commands.argument("newDimensionID", StringArgumentType.string())
-                    .executes(context -> {
-                        
-                        ServerLevel templateDimension =
-                            DimensionArgument.getDimension(context, "templateDimension");
-                        
-                        String newDimensionId = StringArgumentType.getString(context, "newDimensionID");
-                        
-                        // may throw exception here
-                        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
-                        
-                        DimensionAPI.addDimensionDynamically(
-                            newDimId,
-                            new LevelStem(
-                                templateDimension.dimensionTypeRegistration(),
-                                templateDimension.getChunkSource().getGenerator()
-                            )
-                        );
-                        
-                        DimensionAPI.saveDimensionIntoExtraStorage(DimId.idToKey(newDimensionId));
-                        
-                        return 0;
-                    })
-                )
-            )
-        );
-        
-        builder.then(Commands
-            .literal("force_remove_dimension")
-            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
-            .then(Commands.argument("dimension", DimensionArgument.dimension())
-                .executes(context -> {
-                    ServerLevel dimension =
-                        DimensionArgument.getDimension(context, "dimension");
-                    
-                    DimensionAPI.removeDimensionDynamically(dimension);
-                    
-                    DimensionAPI.removeDimensionFromExtraStorage(dimension.dimension());
-                    
-                    return 0;
-                })
-            
-            )
         );
     }
     

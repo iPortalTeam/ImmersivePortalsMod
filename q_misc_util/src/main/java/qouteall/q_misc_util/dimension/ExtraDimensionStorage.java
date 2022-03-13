@@ -99,7 +99,7 @@ public class ExtraDimensionStorage {
     private static Path getExtraStorageFolderPath() {
         Path savingDirectory = MiscHelper.getWorldSavingDirectory();
         return savingDirectory
-            .resolve("q_extra_dimensions");
+            .resolve("q_dimension_configs");
     }
     
     private static File getExtraStorageFile(ResourceLocation location) {

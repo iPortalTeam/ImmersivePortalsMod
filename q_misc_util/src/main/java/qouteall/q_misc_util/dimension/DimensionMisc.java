@@ -73,7 +73,6 @@ public class DimensionMisc {
         DimensionAPI.serverDimensionsLoadEvent.register(DimensionMisc::addMissingVanillaDimensions);
     }
     
-    // This is not API
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
     // then the nether and the end will be swallowed
     // to fix that, don't store the custom dimensions into level.dat

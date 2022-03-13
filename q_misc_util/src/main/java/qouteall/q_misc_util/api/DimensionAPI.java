@@ -15,17 +15,13 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
@@ -119,6 +115,8 @@ public class DimensionAPI {
     /**
      * Add a new dimension when the server is running
      * Cannot be used during server initialization
+     * It's recommended to save the dimension config using {@link DimensionAPI#saveDimensionConfiguration(ResourceKey)} ,
+     *   otherwise that dimension will be lost when you restart the server
      */
     public static void addDimensionDynamically(
         ResourceLocation dimensionId,
@@ -127,45 +125,58 @@ public class DimensionAPI {
         DynamicDimensionsImpl.addDimensionDynamically(dimensionId, levelStem);
     }
     
+    /**
+     * Remove a dimension dynamically.
+     * Cannot be used during server initialization. Cannot remove vanilla dimensions.
+     * Does not delete that dimension's world saving files.
+     */
     public static void removeDimensionDynamically(ServerLevel world) {
         DynamicDimensionsImpl.removeDimensionDynamically(world);
     }
     
     /**
-     * Extra dimensions are stored as json files in folder `q_extra_dimensions` in the world saving
+     * Store the dimension configurations as a json file in folder `q_dimension_configs` in the world saving
      * We don't store dimensions in `level.dat` because if you uninstall the mod,
      * DFU will not be able to recognize the chunk generator and cause world data loss (nether and end will vanish)
      */
-    public static void saveDimensionIntoExtraStorage(ResourceKey<Level> dimension) {
+    public static void saveDimensionConfiguration(ResourceKey<Level> dimension) {
         ExtraDimensionStorage.saveDimensionIntoExtraStorage(dimension);
     }
     
     /**
-     * Delete the json file in the extra dimension storage
+     * Delete the dimension configuration json file from folder `q_dimension_configs`
+     * @return True if it finds the file and deleted it successfully
      */
-    public static boolean removeDimensionFromExtraStorage(ResourceKey<Level> dimension) {
+    public static boolean deleteDimensionConfiguration(ResourceKey<Level> dimension) {
         return ExtraDimensionStorage.removeDimensionFromExtraStorage(dimension);
     }
     
-    public static interface DynamicDimensionUpdateListener {
+    public static interface DynamicUpdateListener {
         void run(Set<ResourceKey<Level>> dimensions);
     }
     
-    public static final Event<DynamicDimensionUpdateListener> serverDimensionDynamicUpdateEvent =
+    /**
+     * Will be triggered when the server dynamically add or remove a dimension
+     * Does not get triggered during server initialization
+     */
+    public static final Event<DynamicUpdateListener> serverDimensionDynamicUpdateEvent =
         EventFactory.createArrayBacked(
-            DynamicDimensionUpdateListener.class,
+            DynamicUpdateListener.class,
             arr -> (set) -> {
-                for (DynamicDimensionUpdateListener runnable : arr) {
+                for (DynamicUpdateListener runnable : arr) {
                     runnable.run(set);
                 }
             }
         );
     
-    public static final Event<DynamicDimensionUpdateListener> clientDimensionDynamicUpdateEvent =
+    /**
+     * Will be triggered when the client receives dimension data synchronization
+     */
+    public static final Event<DynamicUpdateListener> clientDimensionUpdateEvent =
         EventFactory.createArrayBacked(
-            DynamicDimensionUpdateListener.class,
+            DynamicUpdateListener.class,
             arr -> (set) -> {
-                for (DynamicDimensionUpdateListener runnable : arr) {
+                for (DynamicUpdateListener runnable : arr) {
                     runnable.run(set);
                 }
             }
