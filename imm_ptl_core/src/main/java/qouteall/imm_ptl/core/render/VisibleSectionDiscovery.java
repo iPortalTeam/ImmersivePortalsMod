@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
@@ -25,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 // discover visible sections by breadth-first traverse, for portal rendering
 // probably faster than vanilla
 // no multi-threading because portal rendering camera views are very dynamic which is not suitable for that
+@Environment(EnvType.CLIENT)
 public class VisibleSectionDiscovery {
     
     private static MyBuiltChunkStorage builtChunks;

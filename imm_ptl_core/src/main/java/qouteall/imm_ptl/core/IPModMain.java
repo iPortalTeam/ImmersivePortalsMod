@@ -51,8 +51,6 @@ public class IPModMain {
         
         GcMonitor.initCommon();
         
-        VisibleSectionDiscovery.init();
-        
         ServerPerformanceMonitor.init();
     
         MyLoadingTicket.init();

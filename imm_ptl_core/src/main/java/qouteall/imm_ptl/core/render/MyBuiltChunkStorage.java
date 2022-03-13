@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.render;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -25,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.LongConsumer;
 
+@Environment(EnvType.CLIENT)
 public class MyBuiltChunkStorage extends ViewArea {
     
     public static class Column {

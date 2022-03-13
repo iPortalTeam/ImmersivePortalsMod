@@ -21,6 +21,7 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
 import qouteall.imm_ptl.core.render.RendererUsingStencil;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
+import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.optimization.GLResourceCache;
@@ -147,6 +148,8 @@ public class IPModMainClient {
         showIntelVideoCardWarning();
         
         PortalAnimationManagement.init();
+        
+        VisibleSectionDiscovery.init();
     }
     
 }
