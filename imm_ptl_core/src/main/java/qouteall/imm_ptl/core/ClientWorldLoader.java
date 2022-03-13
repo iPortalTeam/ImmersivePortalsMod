@@ -203,9 +203,15 @@ public class ClientWorldLoader {
     }
     
     private static void disposeDimensionDynamically(ResourceKey<Level> dimension) {
+        Validate.isTrue(client.level.dimension() != dimension);
+        Validate.isTrue(client.player.level.dimension() != dimension);
+        Validate.isTrue(client.isSameThread());
+        
         LevelRenderer worldRenderer = worldRendererMap.get(dimension);
         disposeWorldRenderer(worldRenderer);
         worldRendererMap.remove(dimension);
+        
+        Validate.isTrue(client.levelRenderer != worldRenderer);
         
         ClientLevel clientWorld = clientWorldMap.get(dimension);
         ((IEClientWorld) clientWorld).resetWorldRendererRef();
@@ -217,6 +223,14 @@ public class ClientWorldLoader {
         }
         
         Helper.log("Client Dynamically Removed Dimension " + dimension.location());
+        
+        if (clientWorld.getChunkSource().getLoadedChunksCount() > 0) {
+            Helper.err("The chunks of that dimension was not cleared before removal");
+        }
+        
+        if (clientWorld.getEntityCount() > 0) {
+            Helper.err("The entities of that dimension was not cleared before removal");
+        }
     }
     
     //@Nullable
@@ -299,7 +313,6 @@ public class ClientWorldLoader {
     
     private static ClientLevel createSecondaryClientWorld(ResourceKey<Level> dimension) {
         Validate.notNull(client.player);
-        Validate.isTrue(client.player.level.dimension() != dimension);
         
         Set<ResourceKey<Level>> dimIds = getServerDimensions();
         if (!dimIds.contains(dimension)) {

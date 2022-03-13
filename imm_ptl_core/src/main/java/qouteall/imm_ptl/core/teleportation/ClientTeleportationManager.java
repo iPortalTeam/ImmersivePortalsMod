@@ -25,6 +25,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -281,6 +282,9 @@ public class ClientTeleportationManager {
         
         moveStartPoint = null;
         disableTeleportFor(20);
+        
+        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
+        MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }
     
     public void changePlayerDimension(
@@ -288,6 +292,7 @@ public class ClientTeleportationManager {
     ) {
         Validate.isTrue(!WorldRenderInfo.isRendering());
         Validate.isTrue(!FrontClipping.isClippingEnabled);
+        Validate.isTrue(!IPCommonNetworkClient.getIsProcessingRedirectedMessage());
         
         Entity vehicle = player.getVehicle();
         player.unRide();
@@ -308,6 +313,10 @@ public class ClientTeleportationManager {
         
         toWorld.addPlayer(player.getId(), player);
         
+        IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
+        gameRenderer.setLightmapTextureManager(ClientWorldLoader
+            .getDimensionRenderHelper(toDimension).lightmapTexture);
+        
         client.level = toWorld;
         ((IEMinecraftClient) client).setWorldRenderer(
             ClientWorldLoader.getWorldRenderer(toDimension)
@@ -321,10 +330,6 @@ public class ClientTeleportationManager {
         }
         
         client.getBlockEntityRenderDispatcher().setLevel(toWorld);
-        
-        IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
-        gameRenderer.setLightmapTextureManager(ClientWorldLoader
-            .getDimensionRenderHelper(toDimension).lightmapTexture);
         
         if (vehicle != null) {
             Vec3 vehiclePos = new Vec3(

@@ -178,7 +178,7 @@ public class NewChunkTrackingGraph {
                     PlayerWatchRecord record = records.pollFirst();
                     if (record.isValid && !record.isLoadedToPlayer) {
                         record.isLoadedToPlayer = true;
-    
+                        
                         if (MiscHelper.getServer().getLevel(record.dimension) == null) {
                             Helper.err("oops");
                         }
@@ -541,6 +541,15 @@ public class NewChunkTrackingGraph {
         });
         
         data.remove(dim);
+        
+        additionalChunkLoaders.removeIf(l -> {
+            ChunkLoader chunkLoader = l.get();
+            return chunkLoader != null && chunkLoader.center.dimension == dim;
+        });
+        
+        for (PlayerInfo playerInfo : playerInfoMap.values()) {
+            playerInfo.additionalChunkLoaders.removeIf(l -> l.center.dimension == dim);
+        }
     }
     
     public static boolean shouldLoadDimension(ResourceKey<Level> dimension) {

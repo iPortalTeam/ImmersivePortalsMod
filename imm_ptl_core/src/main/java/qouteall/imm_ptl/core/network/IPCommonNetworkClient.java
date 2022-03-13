@@ -87,7 +87,7 @@ public class IPCommonNetworkClient {
         }
         catch (Throwable e) {
             limitedLogger.throwException(() -> new IllegalStateException(
-                "handling packet in " + packetWorld.dimension(), e
+                "handling packet in %s %s".formatted(packetWorld.dimension(), packet.getClass()), e
             ));
         }
         finally {

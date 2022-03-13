@@ -144,12 +144,23 @@ public class DynamicDimensionsImpl {
                     Helper.log("waiting for chunk tasks to finish");
                 }
                 
+                if (System.nanoTime() - startTime > Helper.secondToNano(15)) {
+                    Helper.err("Waited too long for chunk tasks. Stopping server");
+                    server.stopServer();
+                    return;
+                }
+                
                 ((IEMinecraftServer_Misc) server).ip_waitUntilNextTick();
             }
             
             Helper.log("Finished chunk tasks in %f seconds"
                 .formatted(Helper.nanoToSecond(System.nanoTime() - startTime))
             );
+            
+            Helper.log("Chunk num:%d Has entities:%s".formatted(
+                world.getChunkSource().chunkMap.size(),
+                world.getAllEntities().iterator().hasNext()
+            ));
             
             server.saveAllChunks(false, true, false);
             

@@ -34,6 +34,7 @@ import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -399,26 +400,7 @@ public class PortalDebugCommands {
                 str.append("Server Tracked Chunks:\n");
                 MiscHelper.getServer().getAllLevels().forEach(
                     world -> {
-                        LongSortedSet rec = MyLoadingTicket.loadedChunkRecord.get(world);
-                        LevelEntityGetter<Entity> entityLookup = ((IEWorld) world).portal_getEntityLookup();
-                        
-                        str.append(String.format(
-                            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nEntities:%s Entity Sections:%s\n",
-                            world.dimension().location(),
-                            NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
-                            rec == null ? "null" : rec.size(),
-                            ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),
-                            ((IELevelEntityGetterAdapter) entityLookup).getCache().count()
-                        ));
-                        
-                        PersistentEntitySectionManager<Entity> entityManager = ((IEServerWorld) world).ip_getEntityManager();
-                        entityManager.saveAll();
-                        str.append(String.format(
-                            "Entity Manager: %s\n",
-                            entityManager.gatherStats()
-                        ));
-                        
-                        str.append("\n");
+                        str.append(getServerWorldResourceConsumption(world));
                     }
                 );
                 
@@ -557,6 +539,35 @@ public class PortalDebugCommands {
             
             )
         );
+    }
+    
+    public static String getServerWorldResourceConsumption(ServerLevel world) {
+        StringBuilder subStr = new StringBuilder();
+        
+        LongSortedSet rec = MyLoadingTicket.loadedChunkRecord.get(world);
+        LevelEntityGetter<Entity> entityLookup = ((IEWorld) world).portal_getEntityLookup();
+        
+        subStr.append(String.format(
+            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
+            world.dimension().location(),
+            NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
+            rec == null ? "null" : rec.size(),
+            world.getChunkSource().chunkMap.size(),
+            ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),
+            ((IELevelEntityGetterAdapter) entityLookup).getCache().count()
+        ));
+        
+        PersistentEntitySectionManager<Entity> entityManager = ((IEServerWorld) world).ip_getEntityManager();
+        entityManager.saveAll();
+        subStr.append(String.format(
+            "Entity Manager: %s\n",
+            entityManager.gatherStats()
+        ));
+        
+        subStr.append("\n");
+        
+        String result = subStr.toString();
+        return result;
     }
     
     public static long toMiB(long bytes) {
