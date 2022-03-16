@@ -38,7 +38,7 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
     
-        List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.get();
+        List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.apply(this);
         
         for (ResourceKey<Level> dim : dimensionList) {
             dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));

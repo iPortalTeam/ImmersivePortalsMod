@@ -137,7 +137,7 @@ public class AltiusManagement {
             
             Minecraft.getInstance().setScreen(new AltiusScreen(
                 null,
-                () -> dimensionList,
+                (screen) -> dimensionList,
                 altiusInfo -> {
                     if (altiusInfo != null) {
                         McRemoteProcedureCall.tellServerToInvoke(

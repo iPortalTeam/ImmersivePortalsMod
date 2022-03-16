@@ -21,6 +21,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -47,12 +48,12 @@ public class AltiusScreen extends Screen {
     public boolean loopEnabled = false;
     public boolean gravityChangeEnabled = false;
     
-    public final Supplier<List<ResourceKey<Level>>> dimensionListSupplier;
+    public final Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier;
     private final Consumer<AltiusInfo> finishCallback;
     
     public AltiusScreen(
         @Nullable Screen parent,
-        Supplier<List<ResourceKey<Level>>> dimensionListSupplier,
+        Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier,
         Consumer<AltiusInfo> finishCallback
     ) {
         super(new TranslatableComponent("imm_ptl.altius_screen"));

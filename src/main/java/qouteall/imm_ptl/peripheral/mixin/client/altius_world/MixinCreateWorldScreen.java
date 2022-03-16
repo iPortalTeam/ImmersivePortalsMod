@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusInfo;
@@ -56,6 +57,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Shadow
     @Final
     public WorldGenSettingsComponent worldGenSettingsComponent;
+    
+    @Shadow
+    protected abstract void tryApplyNewDataPacks(PackRepository repository);
+    
     private Button altiusButton;
     
     @Nullable
@@ -63,6 +68,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     @Nullable
     private WorldGenSettings ip_lastWorldGenSettings;
+    
+    @Nullable
+    private RegistryAccess ip_lastRegistryAccess;
     
     protected MixinCreateWorldScreen(Component title) {
         super(title);
@@ -144,9 +152,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         
         PrimaryLevelData primaryLevelData = returnValue.getFirst();
         
-        WorldGenSettings worldGenSettings = primaryLevelData.worldGenSettings();
+        ip_lastWorldGenSettings = primaryLevelData.worldGenSettings();
         
-        ip_lastWorldGenSettings = worldGenSettings;
+        ip_lastRegistryAccess = returnValue.getSecond();
     }
     
     private void openAltiusScreen() {
@@ -163,8 +171,22 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         Minecraft.getInstance().setScreen(ip_altiusScreen);
     }
     
-    private List<ResourceKey<Level>> portal_getDimensionList() {
+    private List<ResourceKey<Level>> portal_getDimensionList(Screen addDimensionScreen) {
         Helper.log("Getting the dimension list");
+        
+        if (ip_lastWorldGenSettings == null) {
+            // (MC 1.18.2) it will load the pack in render thread
+            tryApplyNewDataPacks(minecraft.getResourcePackRepository());
+            
+            // it will switch to the create world screen, switch back
+            IPGlobal.preTotalRenderTaskList.addTask(() -> {
+                if (minecraft.screen == this) {
+                    minecraft.setScreen(addDimensionScreen);
+                    return true;
+                }
+                return false;
+            });
+        }
         
         // this won't contain custom dimensions
         WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.makeSettings(false);
@@ -178,10 +200,18 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             )
         );
         
-        RegistryAccess registryManager = worldGenSettingsComponent.registryHolder();
-        
-        // register custom dimensions including alternate dimensions
-        DimensionAPI.serverDimensionsLoadEvent.invoker().run(copiedGeneratorOptions, registryManager);
+        try {
+            // register custom dimensions including alternate dimensions
+            if (ip_lastRegistryAccess != null) {
+                DimensionAPI.serverDimensionsLoadEvent.invoker().run(copiedGeneratorOptions, ip_lastRegistryAccess);
+            }
+            else {
+                Helper.err("Null registry access");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         
         HashSet<ResourceKey<Level>> dims = new HashSet<>();
         
@@ -189,6 +219,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             ip_lastWorldGenSettings.dimensions().keySet().forEach(id -> {
                 dims.add(DimId.idToKey(id));
             });
+        }
+        else {
+            Helper.err("Null WorldGen settings");
         }
         
         copiedGeneratorOptions.dimensions().keySet().forEach(id -> {

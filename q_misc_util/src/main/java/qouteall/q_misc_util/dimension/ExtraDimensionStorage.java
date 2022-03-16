@@ -18,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
@@ -35,27 +36,32 @@ public class ExtraDimensionStorage {
     
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(
-            (worldGenSettings, registryAccess) -> {
-                RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
-                Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
-                
-                Path extraStorageFolderPath = getExtraStorageFolderPath();
-                File[] subFiles = extraStorageFolderPath.toFile().listFiles();
-                if (subFiles != null) {
-                    for (File nameSpace : subFiles) {
-                        if (nameSpace.isDirectory()) {
-                            for (File file : nameSpace.listFiles()) {
-                                ResourceLocation id = new ResourceLocation(
-                                    nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
-                                );
-                                
-                                readFile(ops, dimensionRegistry, file, id);
-                            }
+            ExtraDimensionStorage::loadExtraDimensions
+        );
+    }
+    
+    private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
+        MinecraftServer server = MiscHelper.getServer();
+        if (server != null && server.isRunning()) {
+            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
+            Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
+            
+            Path extraStorageFolderPath = getExtraStorageFolderPath();
+            File[] subFiles = extraStorageFolderPath.toFile().listFiles();
+            if (subFiles != null) {
+                for (File nameSpace : subFiles) {
+                    if (nameSpace.isDirectory()) {
+                        for (File file : nameSpace.listFiles()) {
+                            ResourceLocation id = new ResourceLocation(
+                                nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
+                            );
+                            
+                            readFile(ops, dimensionRegistry, file, id);
                         }
                     }
                 }
             }
-        );
+        }
     }
     
     private static void readFile(
