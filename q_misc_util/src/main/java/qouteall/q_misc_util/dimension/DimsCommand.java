@@ -101,21 +101,6 @@ public class DimsCommand {
             )
         );
         
-        builder.then(Commands
-            .literal("purge_level_dat")
-            .executes(context -> {
-                MinecraftServer server = MiscHelper.getServer();
-                for (ServerLevel world : server.getAllLevels()) {
-                    ResourceKey<Level> dimension = world.dimension();
-                    if (dimension != Level.OVERWORLD && dimension != Level.NETHER && dimension != Level.END) {
-                        DimensionAPI.markDimensionNonPersistent(dimension.location());
-                    }
-                }
-                
-                return 0;
-            })
-        );
-        
         dispatcher.register(builder);
     }
     

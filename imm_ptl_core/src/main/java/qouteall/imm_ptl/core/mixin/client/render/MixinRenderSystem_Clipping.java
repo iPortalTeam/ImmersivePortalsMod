@@ -21,15 +21,25 @@ public class MixinRenderSystem_Clipping {
         at = @At("RETURN")
     )
     private static void onSetShader(Supplier<ShaderInstance> supplier, CallbackInfo ci) {
-        if (IPGlobal.enableClippingMechanism && !IrisInterface.invoker.isIrisPresent()) {
-            if (CrossPortalEntityRenderer.isRenderingEntityNormally ||
-                CrossPortalEntityRenderer.isRenderingEntityProjection
-            ) {
-                FrontClipping.updateClippingEquationUniformForCurrentShader(true);
+        if (IPGlobal.enableClippingMechanism) {
+            if (!IrisInterface.invoker.isIrisPresent()) {
+                if (CrossPortalEntityRenderer.isRenderingEntityNormally ||
+                    CrossPortalEntityRenderer.isRenderingEntityProjection
+                ) {
+                    FrontClipping.updateClippingEquationUniformForCurrentShader(true);
+                }
+                else if (RenderStates.isRenderingPortalWeather) {
+                    FrontClipping.updateClippingEquationUniformForCurrentShader(false);
+                }
+                else {
+                    // TODO check will it fix Intel videocard issue
+                    FrontClipping.unsetClippingUniform();
+                }
             }
-            else if (RenderStates.isRenderingPortalWeather) {
-                FrontClipping.updateClippingEquationUniformForCurrentShader(false);
+            else {
+                FrontClipping.unsetClippingUniform();
             }
         }
+        
     }
 }

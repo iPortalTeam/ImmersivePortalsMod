@@ -183,4 +183,21 @@ public class FrontClipping {
             }
         }
     }
+    
+    public static void unsetClippingUniform() {
+        if (!IPGlobal.enableClippingMechanism) {
+            return;
+        }
+        
+        ShaderInstance shader = RenderSystem.getShader();
+        
+        if (shader == null) {
+            return;
+        }
+        
+        Uniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
+        if (clippingEquationUniform != null) {
+            clippingEquationUniform.set(0f, 0f, 0f, 1f);
+        }
+    }
 }
