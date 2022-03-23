@@ -25,12 +25,13 @@ public class IPModCompatibilityWarning {
         new ModInfo("modern_industrialization", "Modern Industrialization"),
         new ModInfo("altoclef", "Altoclef"),
         new ModInfo("bitsandchisels", "Bits & Chisels"),
-        new ModInfo("create", "Create")
+        new ModInfo("create", "Create"),
+        new ModInfo("tweakeroo", "Tweakeroo"),
+        new ModInfo("replaymod", "Replay Mod")
     );
     
     private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
         new ModInfo("physicsmod", "Physics Mod"),
-        new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("dashloader", "DashLoader"),
         new ModInfo("cameraoverhaul", "Camera Overhaul"),
         new ModInfo("figura", "Figura"),

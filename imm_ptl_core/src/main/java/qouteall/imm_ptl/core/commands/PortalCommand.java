@@ -868,6 +868,48 @@ public class PortalCommand {
                 reloadPortal(portal);
             }))
         );
+        
+        builder.then(Commands.literal("rotate_portals_around")
+            .then(Commands.argument("portals", EntityArgument.entities())
+                .then(Commands.argument("origin", Vec3Argument.vec3())
+                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
+                        .then(Commands.argument("angle", DoubleArgumentType.doubleArg())
+                            .executes(context -> {
+                                Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
+                                Vec3 origin = Vec3Argument.getVec3(context, "origin");
+                                Vec3 axis = Vec3Argument.getVec3(context, "axis");
+                                double angle = DoubleArgumentType.getDouble(context, "angle");
+                                
+                                DQuaternion quaternion = DQuaternion.rotationByDegrees(axis.normalize(), angle);
+                                
+                                for (Entity entity : portals) {
+                                    if (entity instanceof Portal portal) {
+                                        Vec3 offset = portal.getOriginPos().subtract(origin);
+                                        Vec3 offsetRotated = quaternion.rotate(offset);
+                                        portal.setOriginPos(offsetRotated.add(origin));
+                                        portal.axisW = quaternion.rotate(portal.axisW);
+                                        portal.axisH = quaternion.rotate(portal.axisH);
+                                        
+                                        portal.setRotationTransformationD(portal.getRotationD().hamiltonProduct(quaternion.getConjugated()));
+                                    }
+                                    else {
+                                        context.getSource().sendFailure(new TextComponent("the entity is not a portal"));
+                                    }
+                                }
+                                
+                                for (Entity entity : portals) {
+                                    if (entity instanceof Portal portal) {
+                                        reloadPortal(portal);
+                                    }
+                                }
+                                
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
     }
     
     private static void adjustPortalAreaToFitFrame(Portal portal) {

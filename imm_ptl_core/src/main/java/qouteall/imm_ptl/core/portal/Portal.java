@@ -474,10 +474,25 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return entity.canChangeDimensions();
     }
     
+    /**
+     * @return the portal's rotation transformation. may be null
+     */
     @Nullable
     @Override
     public Quaternion getRotation() {
         return rotation;
+    }
+    
+    /**
+     * @return the portal's rotation transformation. will not be null.
+     */
+    public DQuaternion getRotationD() {
+        if (rotation == null) {
+            return DQuaternion.identity;
+        }
+        else {
+            return DQuaternion.fromMcQuaternion(rotation);
+        }
     }
     
     @Override
