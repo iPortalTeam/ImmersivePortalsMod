@@ -104,7 +104,7 @@ public class DQuaternion {
         DQuaternion result = this.hamiltonProduct(new DQuaternion(vec.x, vec.y, vec.z, 0))
             .hamiltonProduct(getConjugated());
         
-        return result.getRotatingAxis();
+        return new Vec3(result.x, result.y, result.z);
     }
     
     public double getX() {
