@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -27,6 +29,7 @@ import qouteall.q_misc_util.MiscNetworking;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 @Mixin(PlayerList.class)
 public class MixinPlayerList {
@@ -69,6 +72,24 @@ public class MixinPlayerList {
         }
         
         ci.cancel();
+    }
+    
+    /**
+     * correct the player reference, so that in
+     * {@link qouteall.imm_ptl.core.mixin.common.position_sync.MixinServerGamePacketListenerImpl#teleport(double, double, double, float, float, Set, boolean)}
+     * the player's dimension will be correct
+     */
+    @Redirect(
+        method = "respawn",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;restoreFrom(Lnet/minecraft/server/level/ServerPlayer;Z)V"
+        )
+    )
+    private void onRestoreFrom(ServerPlayer newPlayer, ServerPlayer that, boolean keepEverything) {
+        newPlayer.restoreFrom(that, keepEverything);
+        
+        newPlayer.connection.player = newPlayer;
     }
     
     /**

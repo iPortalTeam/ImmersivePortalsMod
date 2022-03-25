@@ -12,6 +12,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
@@ -191,20 +192,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             Helper.err("wrong velocity update packet " + entity);
         }
     }
-    
-    // add the map data to all client worlds
-//    @Redirect(
-//        method = "handleMapItemData",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/multiplayer/ClientLevel;setMapData(Ljava/lang/String;Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;)V"
-//        )
-//    )
-//    private void redirectSetMapData(ClientLevel instance, String mapId, MapItemSavedData data) {
-//        for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
-//            clientWorld.setMapData(mapId, data);
-//        }
-//    }
     
     @Override
     public void portal_setRegistryManager(RegistryAccess.Frozen arg) {

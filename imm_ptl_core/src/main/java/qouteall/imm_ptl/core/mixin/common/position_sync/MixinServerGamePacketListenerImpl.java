@@ -165,6 +165,12 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     public void teleport(double x, double y, double z, float yaw, float pitch, Set<ClientboundPlayerPositionPacket.RelativeArgument> flags, boolean shouldDismount) {
         // it may request teleport while this.player is marked removed during respawn
         
+        if (player.getRemovalReason() != null) {
+            Helper.err("Tries to send player pos packet to a removed player");
+            new Throwable().printStackTrace();
+            return;
+        }
+        
         double d = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0D;
         double e = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0D;
         double f = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0D;
