@@ -1,120 +1,109 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.util.thread.ProcessorMailbox;
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
+import qouteall.q_misc_util.Helper;
+
+import java.util.Queue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.PriorityBlockingQueue;
 
 @Mixin(ChunkRenderDispatcher.class)
 public abstract class MixinChunkRenderDispatcher_Optimization {
-    // TODO recover
+    @Shadow
+    private volatile int freeBufferCount;
     
-//    @Shadow
-//    @Final
-//    @Mutable
-//    private Queue<BlockBufferBuilderStorage> threadBuffers;
-//
-//    @Shadow
-//    private volatile int bufferCount;
-//
-//    @Shadow
-//    private volatile int queuedTaskCount;
-//
-//    @Shadow
-//    @Final
-//    private Executor executor;
-//
-//    @Shadow
-//    @Final
-//    private TaskExecutor<Runnable> mailbox;
-//
-//    @Redirect(
-//        method = "<init>",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Ljava/lang/Math;max(II)I",
-//            ordinal = 1
-//        ),
-//        require = 0
-//    )
-//    private int redirectMax(int a, int b) {
-//        Validate.isTrue(!OFInterface.isOptifinePresent);
-//        if (IPGlobal.enableSharedBlockMeshBuffers) {
-//            return 0;
-//        }
-//        return Math.max(a, b);
-//    }
-//
-//    // inject on constructor seems to be not working normally
-//    @Redirect(
-//        method = "<init>",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/util/thread/TaskExecutor;create(Ljava/util/concurrent/Executor;Ljava/lang/String;)Lnet/minecraft/util/thread/TaskExecutor;"
-//        ),
-//        require = 0
-//    )
-//    private TaskExecutor redirectCreate(Executor executor, String name) {
-//        if (IPGlobal.enableSharedBlockMeshBuffers && !OFInterface.isOptifinePresent) {
-//            Validate.isTrue(threadBuffers.size() == 0);
-//            threadBuffers = SharedBlockMeshBuffers.getThreadBuffers();
-//            bufferCount = threadBuffers.size();
-//        }
-//
-//        return TaskExecutor.create(executor, name);
-//    }
-//
-//
-//    /**
-//     * @author qouteall
-//     * @reason hard to do with injects and redirects
-//     * VanillaCopy
-//     */
-//    @Overwrite
-//    private void scheduleRunTasks() {
-//        if (this.threadBuffers.isEmpty()) {
-//            IPGlobal.clientTaskList.addTask(() -> {
-//                mailbox.send(this::scheduleRunTasks);
-//                return true;
-//            });
-//            return;
-//        }
-//
-//        ChunkBuilder.BuiltChunk.Task task = (ChunkBuilder.BuiltChunk.Task) this.rebuildQueue.poll();
-//        if (task != null) {
-//            // threadBuffers is being accessed concurrently so pooling may fail
-//            BlockBufferBuilderStorage blockBufferBuilderStorage = (BlockBufferBuilderStorage) this.threadBuffers.poll();
-//            if (blockBufferBuilderStorage == null) {
-//                rebuildQueue.add(task);
-//                IPGlobal.clientTaskList.addTask(() -> {
-//                    mailbox.send(this::scheduleRunTasks);
-//                    return true;
-//                });
-//                return;
-//            }
-//            this.queuedTaskCount = this.rebuildQueue.size();
-//            this.bufferCount = this.threadBuffers.size();
-//            CompletableFuture.runAsync(() -> {
-//            }, this.executor).thenCompose((void_) -> {
-//                return task.run(blockBufferBuilderStorage);
-//            }).whenComplete((result, throwable) -> {
-//                if (throwable != null) {
-//                    CrashReport crashReport = CrashReport.create(throwable, "Batching chunks");
-//                    MinecraftClient.getInstance().setCrashReport(MinecraftClient.getInstance().addDetailsToCrashReport(crashReport));
-//                }
-//                else {
-//                    this.mailbox.send(() -> {
-//                        if (result == ChunkBuilder.Result.SUCCESSFUL) {
-//                            blockBufferBuilderStorage.clear();
-//                        }
-//                        else {
-//                            blockBufferBuilderStorage.reset();
-//                        }
-//
-//                        this.threadBuffers.add(blockBufferBuilderStorage);
-//                        this.bufferCount = this.threadBuffers.size();
-//                        this.scheduleRunTasks();
-//                    });
-//                }
-//            });
-//        }
-//    }
+    @Mutable
+    @Shadow
+    @Final
+    private Queue<ChunkBufferBuilderPack> freeBuffers;
+    
+    @Shadow
+    @Final
+    private ProcessorMailbox<Runnable> mailbox;
+    
+    @Redirect(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/lang/Math;max(II)I",
+            ordinal = 1
+        ),
+        require = 0
+    )
+    private int redirectMax(int a, int b) {
+        if (IPGlobal.enableSharedBlockMeshBuffers) {
+            return 0;
+        }
+        return Math.max(a, b);
+    }
+    
+    // inject on constructor seems to be not working normally, so use redirect
+    @Redirect(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/util/thread/ProcessorMailbox;create(Ljava/util/concurrent/Executor;Ljava/lang/String;)Lnet/minecraft/util/thread/ProcessorMailbox;"
+        ),
+        require = 0
+    )
+    private ProcessorMailbox<Runnable> redirectCreate(Executor dispatcher, String name) {
+        if (IPGlobal.enableSharedBlockMeshBuffers) {
+            Validate.isTrue(freeBufferCount == 0);
+            freeBuffers = SharedBlockMeshBuffers.getThreadBuffers();
+            freeBufferCount = freeBuffers.size();
+        }
+        
+        return ProcessorMailbox.create(dispatcher, name);
+    }
+    
+    @Redirect(
+        method = "runTask",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/Queue;poll()Ljava/lang/Object;"
+        )
+    )
+    private <E> E redirectPoll(Queue<E> queue) {
+        if (!IPGlobal.enableSharedBlockMeshBuffers) {
+            return queue.poll();
+        }
+        
+        E element = queue.poll();
+        
+        if (element != null) {
+            return element;
+        }
+        
+        ChunkBufferBuilderPack newPack = new ChunkBufferBuilderPack();
+        
+        // remove the new buffer pack
+        mailbox.tell(this::ip_disposeOneBufferPack);
+        
+        Helper.log("The chunk render dispatcher buffer packs are drained. Temporarily create a new buffer pack");
+        
+        return (E) newPack;
+    }
+    
+    private void ip_disposeOneBufferPack() {
+        ChunkBufferBuilderPack pack = freeBuffers.poll();
+        if (pack == null) {
+            mailbox.tell(this::ip_disposeOneBufferPack);
+        }
+        else {
+            pack.clearAll();
+            Helper.log("disposed the temporary buffer pack. " + freeBufferCount);
+        }
+    }
 }

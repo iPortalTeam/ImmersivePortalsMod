@@ -8,6 +8,8 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
@@ -16,20 +18,18 @@ import net.minecraft.client.renderer.RenderType;
  * This optimization makes that different dimensions of ChunkBuilders
  * use the same BlockBufferBuilderStorage
  * If enabled, it can avoid OutOfMemory issues
- * However in normal cases it increase memory usage by 10 MB, for unknown reasons
  */
-@Deprecated
 public class SharedBlockMeshBuffers {
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(SharedBlockMeshBuffers::cleanup);
     }
     
     /**
-     * {@link net.minecraft.client.render.chunk.ChunkBuilder}
+     * {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher}
      */
-    private static Queue<ChunkBufferBuilderPack> threadBuffers;
+    private static ConcurrentLinkedQueue<ChunkBufferBuilderPack> threadBuffers;
     
-    public static Queue<ChunkBufferBuilderPack> getThreadBuffers() {
+    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> getThreadBuffers() {
         if (threadBuffers == null) {
             createThreadBuffers();
         }
