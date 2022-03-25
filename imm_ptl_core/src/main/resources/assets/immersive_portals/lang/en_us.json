@@ -107,6 +107,8 @@
   "imm_ptl.command_desc.make_unbreakable": "Used for breakable portals (nether portals)",
   "imm_ptl.command.make_fuse_view": "Make the portal fuse-view",
   "imm_ptl.command_desc.make_fuse_view": "",
+  "imm_ptl.command.enable_pos_adjust": "Enable Post-Teleport Pos Adjustment",
+  "imm_ptl.command_desc.enable_pos_adjust": "Avoid falling through floor after teleportation",
   "imm_ptl.command.disable_rendering_yourself": "Make the portal to not render yourself",
   "imm_ptl.command_desc.disable_rendering_yourself": "",
   "imm_ptl.command.enable_isometric": "Enable isometric view for you",
