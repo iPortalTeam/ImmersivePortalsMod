@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
@@ -50,11 +51,11 @@ public class GravityChangerInterface {
         public void setWorldVelocity(Entity entity, Vec3 newVelocity) {
             entity.setDeltaMovement(newVelocity);
         }
-    
+        
         public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
             return vec3d;
         }
-    
+        
         public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
             return vec3d;
         }
@@ -66,7 +67,9 @@ public class GravityChangerInterface {
     private static void warnGravityChangerNotPresent() {
         if (!warned) {
             warned = true;
-            CHelper.printChat(new TranslatableComponent("imm_ptl.missing_gravity_changer"));
+            CHelper.printChat(new TranslatableComponent("imm_ptl.missing_gravity_changer")
+                .append(McHelper.getLinkText("https://modrinth.com/mod/gravitychanger"))
+            );
         }
     }
     
@@ -128,12 +131,12 @@ public class GravityChangerInterface {
                 super.setWorldVelocity(entity, newVelocity);
             }
         }
-    
+        
         @Override
         public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
             return RotationUtil.vecPlayerToWorld(vec3d, gravity);
         }
-    
+        
         @Override
         public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
             return RotationUtil.vecWorldToPlayer(vec3d, gravity);

@@ -21,11 +21,7 @@ public class PehkuiInterfaceInitializer {
     
     public static class OnPehkuiPresent extends PehkuiInterface.Invoker {
         
-        private boolean loggedGetBaseMessage = false;
-        private boolean loggedSetBaseMessage = false;
-        private boolean loggedComputeThirdPersonMessage = false;
-        private boolean loggedComputeBlockReachMessage = false;
-        private boolean loggedComputeMotionMessage = false;
+        private boolean loggedErrorMessage = false;
         
         @Override
         public boolean isPehkuiPresent() {
@@ -56,8 +52,8 @@ public class PehkuiInterfaceInitializer {
                 return ScaleTypes.BASE.getScaleData(entity).getBaseScale(tickDelta);
             }
             catch (Throwable e) {
-                if (!loggedGetBaseMessage) {
-                    loggedGetBaseMessage = true;
+                if (!loggedErrorMessage) {
+                    loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting scale");
                 }
                 return super.getBaseScale(entity, tickDelta);
@@ -72,8 +68,8 @@ public class PehkuiInterfaceInitializer {
                 data.setBaseScale(scale);
             }
             catch (Throwable e) {
-                if (!loggedSetBaseMessage) {
-                    loggedSetBaseMessage = true;
+                if (!loggedErrorMessage) {
+                    loggedErrorMessage = true;
                     logErrorMessage(entity, e, "setting scale");
                 }
             }
@@ -85,8 +81,8 @@ public class PehkuiInterfaceInitializer {
                 return ScaleTypes.THIRD_PERSON.getScaleData(entity).getScale(tickDelta);
             }
             catch (Throwable e) {
-                if (!loggedComputeThirdPersonMessage) {
-                    loggedComputeThirdPersonMessage = true;
+                if (!loggedErrorMessage) {
+                    loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting third person scale");
                 }
                 return super.computeThirdPersonScale(entity, tickDelta);
@@ -99,8 +95,8 @@ public class PehkuiInterfaceInitializer {
                 return ScaleTypes.BLOCK_REACH.getScaleData(entity).getScale(tickDelta);
             }
             catch (Throwable e) {
-                if (!loggedComputeBlockReachMessage) {
-                    loggedComputeBlockReachMessage = true;
+                if (!loggedErrorMessage) {
+                    loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting reach scale");
                 }
                 return super.computeBlockReachScale(entity, tickDelta);
@@ -113,8 +109,8 @@ public class PehkuiInterfaceInitializer {
                 return ScaleTypes.MOTION.getScaleData(entity).getScale(tickDelta);
             }
             catch (Throwable e) {
-                if (!loggedComputeMotionMessage) {
-                    loggedComputeMotionMessage = true;
+                if (!loggedErrorMessage) {
+                    loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting motion scale");
                 }
                 return super.computeMotionScale(entity, tickDelta);

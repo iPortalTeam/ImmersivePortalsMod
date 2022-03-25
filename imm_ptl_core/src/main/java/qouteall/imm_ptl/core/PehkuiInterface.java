@@ -64,8 +64,9 @@ public class PehkuiInterface {
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {
                 messageShown = true;
-                Minecraft.getInstance().gui.setOverlayMessage(
-                    new TranslatableComponent("imm_ptl.needs_pehkui"), false
+                Minecraft.getInstance().gui.getChat().addMessage(
+                    new TranslatableComponent("imm_ptl.needs_pehkui")
+                        .append(McHelper.getLinkText("https://modrinth.com/mod/pehkui"))
                 );
             }
         }
