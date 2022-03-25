@@ -490,7 +490,7 @@ public class ClientTeleportationManager {
             counter[0]++;
             
             double len = player.position().subtract(anchor).dot(levitationVec);
-            if (len < -1 || len > 1) {
+            if (len < -1 || len > 2) {
                 // stop early
                 return true;
             }
