@@ -93,6 +93,12 @@ public class MyClientChunkManager extends ClientChunkCache {
         }
     }
     
+    public boolean isChunkLoaded(int x,int z) {
+        synchronized (chunkMap) {
+            return chunkMap.containsKey(ChunkPos.asLong(x, z));
+        }
+    }
+    
     @Override
     public BlockGetter getLevel() {
         return this.world;
