@@ -97,7 +97,7 @@ allprojects {
         }
         modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
-        modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT')
+        modCompileOnly('maven.modrinth:pehkui:3.2.0+1.14.4-1.19')
 
         modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
 //        implementation "org.joml:joml:1.10.2" // for sodium
