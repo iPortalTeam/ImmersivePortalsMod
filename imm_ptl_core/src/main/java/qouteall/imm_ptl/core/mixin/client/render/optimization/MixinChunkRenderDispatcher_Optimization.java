@@ -86,6 +86,11 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
             return element;
         }
         
+        // there is a tiny time gap between reading the size and pooling the element
+        // another thread may poll an element during this time
+        // so it may fail to poll
+        // temporarily create a new pack and delete one pack from the queue later
+        
         ChunkBufferBuilderPack newPack = new ChunkBufferBuilderPack();
         
         // remove the new buffer pack
@@ -100,10 +105,11 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         ChunkBufferBuilderPack pack = freeBuffers.poll();
         if (pack == null) {
             mailbox.tell(this::ip_disposeOneBufferPack);
+            Helper.log("Tries to dispose the buffer pack again");
         }
         else {
-            pack.clearAll();
-            Helper.log("disposed the temporary buffer pack. " + freeBufferCount);
+            freeBufferCount = freeBuffers.size();
+            Helper.log("Disposed the temporary buffer pack. " + freeBufferCount);
         }
     }
 }

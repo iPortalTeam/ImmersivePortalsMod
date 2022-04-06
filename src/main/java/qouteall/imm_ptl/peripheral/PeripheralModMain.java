@@ -114,24 +114,20 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "reverse_accelerate50", "debug accelerate -50"
         );
-        if (FabricLoader.getInstance().isModLoaded("gravitychanger")) {
-            registerPortalSubCommandStick(
-                "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
-            );
-        }
-        if (O_O.getIsPehkuiPresent()) {
-            //PehkuiInterface.isPehkuiPresent may not be initialized in time
-            CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
-                "/scale set pehkui:base 1",
-                "imm_ptl.command.reset_scale",
-                Lists.newArrayList("imm_ptl.command_desc.reset_scale")
-            ));
-            CommandStickItem.registerType("imm_ptl:long_reach", new CommandStickItem.Data(
-                "/scale set pehkui:reach 5",
-                "imm_ptl.command.long_reach",
-                Lists.newArrayList("imm_ptl.command_desc.long_reach")
-            ));
-        }
+        registerPortalSubCommandStick(
+            "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
+        );
+        CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
+            "/scale set pehkui:base 1",
+            "imm_ptl.command.reset_scale",
+            Lists.newArrayList("imm_ptl.command_desc.reset_scale")
+        ));
+        CommandStickItem.registerType("imm_ptl:long_reach", new CommandStickItem.Data(
+            "/scale set pehkui:reach 5",
+            "imm_ptl.command.long_reach",
+            Lists.newArrayList("imm_ptl.command_desc.long_reach")
+        ));
+        
         registerPortalSubCommandStick(
             "goback"
         );
