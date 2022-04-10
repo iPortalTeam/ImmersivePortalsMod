@@ -85,7 +85,6 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;
-        DimensionIdManagement.onServerStarted();
     }
     
     @Override

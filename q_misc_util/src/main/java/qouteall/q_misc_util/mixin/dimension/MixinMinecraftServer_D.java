@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
 @Mixin(MinecraftServer.class)
@@ -34,5 +35,15 @@ public abstract class MixinMinecraftServer_D {
         
         DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, registryManager);
         
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
+        at = @At("RETURN")
+    )
+    private void onFinishedLoadingAllWorlds(
+        CallbackInfo ci
+    ) {
+        DimensionIdManagement.onServerStarted();
     }
 }
