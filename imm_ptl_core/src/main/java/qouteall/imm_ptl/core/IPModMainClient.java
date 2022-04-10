@@ -143,7 +143,7 @@ public class IPModMainClient {
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
         
-        showPreviewWarning();
+//        showPreviewWarning();
         
         showIntelVideoCardWarning();
         

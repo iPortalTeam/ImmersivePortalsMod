@@ -60,6 +60,16 @@ public class PortalAnimationManagement {
             
             PortalState currentState = animation.getCurrentState(currTime);
             
+            if (currentState.fromWorld != portal.getOriginDim()) {
+                // stop animation
+                return true;
+            }
+            
+            if (currentState.toWorld != portal.getDestDim()) {
+                // stop animation
+                return true;
+            }
+            
             portal.setPortalState(currentState);
             
             return false;
