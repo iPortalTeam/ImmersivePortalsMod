@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -114,13 +115,15 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
         //chunk data packets will be sent on ChunkDataSyncManager
     }
     
-    /**
-     * @author qouteall
-     * @reason make mod incompatibility fail fast
-     */
-    @Overwrite
-    public void updateChunkTracking(ServerPlayer player, ChunkPos pos, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, boolean oldWithinViewDistance, boolean newWithinViewDistance) {
-        // packets will be sent on ChunkDataSyncManager
+    // packets will be sent on ChunkDataSyncManager
+    @Inject(
+        method = "updateChunkTracking",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onUpdateChunkTracking(ServerPlayer player, ChunkPos chunkPos, MutableObject<ClientboundLevelChunkWithLightPacket> packetCache, boolean wasLoaded, boolean load, CallbackInfo ci){
+        ci.cancel();
+        // Note C2ME redirects getTickingChunk (1.18.2)
     }
     
     //do my packet sending

@@ -77,7 +77,7 @@ public class IPModEntryClient implements ClientModInitializer {
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
                     CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
-                        "The compatibility is not yet stable. Rendering issues may occur.");
+                        "The compatibility is not perfect. Rendering issues may occur.");
                 }
             }));
         }
@@ -92,7 +92,7 @@ public class IPModEntryClient implements ClientModInitializer {
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
                     CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
-                        "The compatibility is not yet stable. Rendering issues may occur.");
+                        "The compatibility is not perfect. Rendering issues may occur.");
                 }
             }));
         }

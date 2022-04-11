@@ -23,7 +23,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("taterzens", "Taterzens"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
         new ModInfo("altoclef", "Altoclef"),
-        new ModInfo("bitsandchisels", "Bits & Chisels"),
+//        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("create", "Create"),
         new ModInfo("tweakeroo", "Tweakeroo"),
         new ModInfo("replaymod", "Replay Mod")
@@ -32,7 +32,7 @@ public class IPModCompatibilityWarning {
     private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
         new ModInfo("c2me", "C2ME"),
         new ModInfo("physicsmod", "Physics Mod"),
-        new ModInfo("dashloader", "DashLoader"),
+//        new ModInfo("dashloader", "DashLoader"),
         new ModInfo("cameraoverhaul", "Camera Overhaul"),
         new ModInfo("figura", "Figura"),
         new ModInfo("dimthread", "Dimensional Threading"),
@@ -70,7 +70,7 @@ public class IPModCompatibilityWarning {
                     MyTaskList.oneShotTask(() -> {
                         CHelper.printChat(new TextComponent(
                             String.format(
-                                "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur. You should uninstall one of the two mods.",
+                                "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur. You should uninstall one of the two mods. (If the two mods become compatible now, report it to qouteall.)",
                                 mod.modName, mod.modId
                             )
                         ).withStyle(ChatFormatting.RED));
@@ -85,16 +85,18 @@ public class IPModCompatibilityWarning {
                 IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                     () -> Minecraft.getInstance().level == null,
                     MyTaskList.oneShotTask(() -> {
-                        CHelper.printChat(new TextComponent(
-                            String.format(
-                                "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Issues may occur.",
-                                mod.modName, mod.modId
-                            )
-                        ).withStyle(ChatFormatting.RED));
+                        String warningMessage = String.format(
+                            "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Issues may occur. (This message can be disabled via config)",
+                            mod.modName, mod.modId
+                        );
+                        if (IPGlobal.enableWarning) {
+                            CHelper.printChat(new TextComponent(warningMessage).withStyle(ChatFormatting.RED));
+                        }
+                        Helper.err(warningMessage);
                     })
                 ));
-                
             }
         }
+        
     }
 }
