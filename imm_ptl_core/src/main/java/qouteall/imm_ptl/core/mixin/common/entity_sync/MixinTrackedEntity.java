@@ -16,7 +16,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
@@ -86,13 +88,11 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
     
-    /**
-     * @author qouteall
-     * @reason make incompat fail fast
-     */
-    @Overwrite
-    public void updatePlayer(ServerPlayer player) {
+    // Note VMP redirects getEffectiveRange()
+    @Inject(method = "updatePlayer", at = @At("HEAD"), cancellable = true)
+    private void onUpdatePlayer(ServerPlayer player, CallbackInfo ci) {
         updateEntityTrackingStatus(player);
+        ci.cancel();
     }
     
     /**
