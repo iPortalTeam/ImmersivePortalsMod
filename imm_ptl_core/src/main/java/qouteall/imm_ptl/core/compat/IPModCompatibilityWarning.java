@@ -36,7 +36,8 @@ public class IPModCompatibilityWarning {
         new ModInfo("cameraoverhaul", "Camera Overhaul"),
         new ModInfo("figura", "Figura"),
         new ModInfo("dimthread", "Dimensional Threading"),
-        new ModInfo("requiem", "Requiem")
+        new ModInfo("requiem", "Requiem"),
+        new ModInfo("vmp", "VMP")
     );
     
     public static record ModInfo(String modId, String modName) {}

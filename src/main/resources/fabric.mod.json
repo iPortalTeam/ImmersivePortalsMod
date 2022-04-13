@@ -49,8 +49,7 @@
     "viafabric-mc118": "*",
     "resolutioncontrol": "*",
     "canvas": "*",
-    "cardboard": "*",
-    "vmp": "*"
+    "cardboard": "*"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
