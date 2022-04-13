@@ -46,6 +46,22 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
         
         NoiseGeneratorSettings skylandSetting = IENoiseGeneratorSettings.ip_floatingIslands();
         
+        // vanilla copy
+        final NoiseSettings END_NOISE_SETTINGS = NoiseSettings.create(
+            0, 128, new NoiseSamplingSettings(2.0D, 1.0D, 80.0D, 160.0D),
+            new NoiseSlider(-23.4375D, 64, -46), new NoiseSlider(-0.234375D, 7, 1),
+            2, 1, TerrainProvider.floatingIslands()
+        );
+        
+        // replace the noise setting
+        skylandSetting = new NoiseGeneratorSettings(
+            END_NOISE_SETTINGS,
+            skylandSetting.defaultBlock(), skylandSetting.defaultFluid(),
+            skylandSetting.noiseRouter(), skylandSetting.surfaceRule(), skylandSetting.seaLevel(),
+            skylandSetting.disableMobGeneration(), skylandSetting.aquifersEnabled(),
+            skylandSetting.oreVeinsEnabled(), skylandSetting.useLegacyRandomSource()
+        );
+        
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
             structureSets, noiseRegistry,
             biomeSource, seed, Holder.direct(skylandSetting)
