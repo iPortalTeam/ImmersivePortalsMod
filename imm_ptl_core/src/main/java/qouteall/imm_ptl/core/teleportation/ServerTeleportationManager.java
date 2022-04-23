@@ -141,6 +141,12 @@ public class ServerTeleportationManager {
         recordLastPosition(player);
         
         Portal portal = findPortal(dimensionBefore, portalId);
+        
+        if (!portal.canTeleportEntity(player)) {
+            Helper.log("The portal cannot teleport the player, but a teleport packet has been received");
+            return;
+        }
+        
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
         Vec3 oldFeetPos = oldEyePos.subtract(McHelper.getEyeOffset(player));
