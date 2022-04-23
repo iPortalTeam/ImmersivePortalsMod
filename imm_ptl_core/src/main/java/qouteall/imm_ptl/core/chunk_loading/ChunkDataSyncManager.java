@@ -65,12 +65,11 @@ public class ChunkDataSyncManager {
             LevelChunk chunk = chunkHolder.getTickingChunk();
             if (chunk != null) {
                 MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
-                
-                player.connection.send(
-                    IPNetworking.createRedirectedMessage(
-                        chunkPos.dimension,
-                        new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
-                    )
+
+                IPNetworking.sendRedirectedMessage(
+                    player,
+                    chunkPos.dimension,
+                    new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
                 );
                 
                 ieStorage.ip_updateEntityTrackersAfterSendingChunkPacket(chunk, player);

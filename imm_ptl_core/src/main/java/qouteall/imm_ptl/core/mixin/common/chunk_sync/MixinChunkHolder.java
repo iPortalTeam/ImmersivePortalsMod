@@ -38,12 +38,10 @@ public class MixinChunkHolder implements IEChunkHolder {
             ((IEThreadedAnvilChunkStorage) playerProvider).ip_getWorld().dimension();
         
         Consumer<ServerPlayer> func = player ->
-            player.connection.send(
-                IPNetworking.createRedirectedMessage(
-                    dimension, packet_1
-                )
+            IPNetworking.sendRedirectedMessage(
+                player, dimension, packet_1
             );
-        
+
         if (onlyOnRenderDistanceEdge) {
             NewChunkTrackingGraph.getFarWatchers(
                 dimension, pos.x, pos.z
