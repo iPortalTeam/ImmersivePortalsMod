@@ -50,15 +50,14 @@ public class WorldInfoSender {
     public static void sendWorldInfo(ServerPlayer player, ServerLevel world) {
         ResourceKey<Level> remoteDimension = world.dimension();
         
-        player.connection.send(
-            IPNetworking.createRedirectedMessage(
-                remoteDimension,
-                new ClientboundSetTimePacket(
-                    world.getGameTime(),
-                    world.getDayTime(),
-                    world.getGameRules().getBoolean(
-                        GameRules.RULE_DAYLIGHT
-                    )
+        IPNetworking.sendRedirectedMessage(
+            player,
+            remoteDimension,
+            new ClientboundSetTimePacket(
+                world.getGameTime(),
+                world.getDayTime(),
+                world.getGameRules().getBoolean(
+                    GameRules.RULE_DAYLIGHT
                 )
             )
         );
@@ -66,33 +65,36 @@ public class WorldInfoSender {
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         
         if (world.isRaining()) {
-            player.connection.send(IPNetworking.createRedirectedMessage(
+            IPNetworking.sendRedirectedMessage(
+                player,
                 world.dimension(),
                 new ClientboundGameEventPacket(
                     ClientboundGameEventPacket.START_RAINING,
                     0.0F
                 )
-            ));
+            );
         }
         else {
             //if the weather is already not raining when the player logs in then no need to sync
             //if the weather turned to not raining then elsewhere syncs it
         }
         
-        player.connection.send(IPNetworking.createRedirectedMessage(
+        IPNetworking.sendRedirectedMessage(
+            player,
             world.dimension(),
             new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.RAIN_LEVEL_CHANGE,
                 world.getRainLevel(1.0F)
             )
-        ));
-        player.connection.send(IPNetworking.createRedirectedMessage(
+        );
+        IPNetworking.sendRedirectedMessage(
+            player,
             world.dimension(),
             new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE,
                 world.getThunderLevel(1.0F)
             )
-        ));
+        );
     }
     
     public static boolean isNonOverworldSurfaceDimension(Level world) {

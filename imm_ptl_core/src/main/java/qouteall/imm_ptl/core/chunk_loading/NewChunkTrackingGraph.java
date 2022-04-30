@@ -505,12 +505,10 @@ public class NewChunkTrackingGraph {
                 (r) -> r.player == player,
                 record -> {
                     record.isValid = false;
-                    record.player.connection.send(
-                        IPNetworking.createRedirectedMessage(
-                            dim, new ClientboundForgetLevelChunkPacket(
-                                ChunkPos.getX(chunkPos),
-                                ChunkPos.getZ(chunkPos)
-                            )
+                    IPNetworking.sendRedirectedMessage(
+                        record.player, dim, new ClientboundForgetLevelChunkPacket(
+                            ChunkPos.getX(chunkPos),
+                            ChunkPos.getZ(chunkPos)
                         )
                     );
                 }
