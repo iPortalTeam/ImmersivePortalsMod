@@ -3,7 +3,6 @@
   "package": "qouteall.imm_ptl.core.platform_specific.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "common.MixinDebugClientPlayNetworkHandler",
     "common.MixinDebugLightUpdateS2CPacket",
     "common.MixinLanguage",
     "common.MixinPlayerManager_MA",
