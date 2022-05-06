@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TextComponent;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
@@ -74,7 +75,7 @@ public class IPModCompatibilityWarning {
                                 "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur. You should uninstall one of the two mods. (If the two mods become compatible now, report it to qouteall.)",
                                 mod.modName, mod.modId
                             )
-                        ).withStyle(ChatFormatting.RED));
+                        ).withStyle(ChatFormatting.RED).append(IPMcHelper.getDisableWarningText()));
                     })
                 ));
                 

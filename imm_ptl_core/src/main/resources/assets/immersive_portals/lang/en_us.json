@@ -152,5 +152,9 @@
   "imm_ptl.loop_disabled": "Loop Disabled",
   "imm_ptl.gravity_change_enabled": "Gravity Change Enabled",
   "imm_ptl.gravity_change_disabled": "Gravity Change Disabled",
-  "imm_ptl.missing_gravity_changer": "Gravity Changer mod is not present. Your gravity direction is not changed"
+  "imm_ptl.missing_gravity_changer": "Gravity Changer mod is not present. Your gravity direction is not changed",
+  "imm_ptl.sodium_warning": "[Immersive Portals] You are using Sodium with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
+  "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
+  "imm_ptl.disable_warning": "Disable warning",
+  "imm_ptl.warning_disabled": "Warning Disabled"
 }

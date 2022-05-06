@@ -6,10 +6,12 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.compat.IPModCompatibilityWarning;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -76,8 +78,10 @@ public class IPModEntryClient implements ClientModInitializer {
             
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
-                    CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
-                        "The compatibility is not perfect. Rendering issues may occur.");
+                    CHelper.printChat(
+                        new TranslatableComponent("imm_ptl.sodium_warning")
+                            .append(IPMcHelper.getDisableWarningText())
+                    );
                 }
             }));
         }
@@ -91,8 +95,10 @@ public class IPModEntryClient implements ClientModInitializer {
             
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
-                    CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
-                        "The compatibility is not perfect. Rendering issues may occur.");
+                    CHelper.printChat(
+                        new TranslatableComponent("imm_ptl.iris_warning")
+                            .append(IPMcHelper.getDisableWarningText())
+                    );
                 }
             }));
         }

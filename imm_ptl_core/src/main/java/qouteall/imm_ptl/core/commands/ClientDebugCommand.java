@@ -18,8 +18,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,6 +51,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -426,6 +429,15 @@ public class ClientDebugCommand {
             })
         );
         
+        builder.then(ClientCommandManager
+            .literal("disable_warning")
+            .executes(context -> {
+                disableWarning();
+                context.getSource().sendFeedback(new TranslatableComponent("imm_ptl.warning_disabled"));
+                return 0;
+            })
+        );
+        
         registerSwitchCommand(
             builder,
             "front_clipping",
@@ -716,4 +728,12 @@ public class ClientDebugCommand {
             );
         });
     }
+    
+    
+    public static void disableWarning() {
+        IPConfig ipConfig = IPConfig.readConfig();
+        ipConfig.enableWarning = false;
+        ipConfig.saveConfigFile();
+    }
+    
 }

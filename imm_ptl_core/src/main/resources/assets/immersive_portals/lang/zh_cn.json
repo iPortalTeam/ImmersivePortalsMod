@@ -130,7 +130,7 @@
   "imm_ptl.dim_stack_established": "已启用位面纵向堆叠。（已生成区块不会变化）",
   "imm_ptl.dim_stack_removed": "已移除位面纵向堆叠。（已生成区块不会变化）",
   "imm_ptl.cannot_connect_to_vanilla_portal": "[空间折叠模组] 注意：该模组的地狱传送门无法连接到原版地狱传送门，只能连接到形状、方向相同的黑曜石框架。",
-  "imm_ptl.fabulous_warning": "[Immersive Portals] With Immersive Portals installed, when graphic mode is \"fabulous\", the transparency rendering may be broken in some hardware. It's not recommended to use \"fabulous\" mode. And shaders make the game more fabulous than the vanilla \"fabulous\" mode.",
+  "imm_ptl.fabulous_warning": "[空间折叠模组] 在使用空间折叠模组时，若图像选项为 \"极佳\"，则在某些硬件上透明物体渲染会出错。 建议不要启用 \"极佳\" 模式. 光影可以使游戏变得比原版\"极佳\" 模式更美丽",
   "imm_ptl.intel_warning": "[空间折叠模组] 你正在使用 Intel 显卡。图形界面渲染可能会异常。",
   "modmenu.descriptionTranslation.immersive_portals": "透视传送门，可以直接走进传送门，无加载界面，让传送门的体验更加自然有沉浸感，产生“非欧几里得几何”的空间现象，产生“空间折叠”的假象",
   "imm_ptl.enable_warning": "启用警告",
@@ -149,6 +149,12 @@
   "imm_ptl.command.bind_cluster": "整合传送门实体",
   "imm_ptl.command_desc.bind_cluster": "允许更简单地编辑双面、双向传送门",
   "imm_ptl.enable_mirror_creation": "允许创建镜子",
-  "imm_ptl.command.reverse_accelerate50": "Reverse Accelerate 200",
-  "imm_ptl.command_desc.reverse_accelerate50": "Fly!"
+  "imm_ptl.command.reverse_accelerate50": "反向加速 200",
+  "imm_ptl.command_desc.reverse_accelerate50": "飞行!",
+  "imm_ptl.command.enable_pos_adjust": "启用传送后调整实体坐标",
+  "imm_ptl.command_desc.enable_pos_adjust": "使传送后不会掉到地板里",
+  "imm_ptl.sodium_warning": "[空间折叠模组] 你正在使用Sodium。兼容不完美，可能会发生渲染错误。",
+  "imm_ptl.iris_warning": "[空间折叠模组] 你正在使用Iris。兼容不完美，可能会发生渲染错误。",
+  "imm_ptl.disable_warning": "关闭警告",
+  "imm_ptl.warning_disabled": "警告已关闭"
 }
