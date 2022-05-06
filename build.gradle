@@ -79,15 +79,12 @@ allprojects {
             transitive = false
         }
 
-        modCompileOnly "maven.modrinth:sodium:mc1.17.1-0.3.3"
-//        implementation "org.joml:joml:1.10.2" // for sodium
+        modImplementation "maven.modrinth:sodium:mc1.17.1-0.3.4"
+        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modCompileOnly 'maven.modrinth:iris:mc1.17.1-1.1.3'
-//        implementation "org.anarres:jcpp:1.4.14"
-//        implementation 'org.slf4j:slf4j-api:1.7.12'
-
-        // local maven
-//        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.3+rev.416f33c"
+        modImplementation 'maven.modrinth:iris:1.17.x-v1.2.4'
+        implementation "org.anarres:jcpp:1.4.14"
+        implementation 'org.slf4j:slf4j-api:1.7.12'
 
         modImplementation ("com.github.qouteall:GravityChanger:f48da21") {
             transitive = false

@@ -42,10 +42,7 @@
     "fabric": ">=0.28.1"
   },
   "breaks": {
-    "sodium": [
-      ">0.3.3",
-      "<0.3.3"
-    ]
+
   },
   "suggests": {
     "flamingo": "*"

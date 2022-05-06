@@ -37,7 +37,11 @@
     "minecraft": "1.17.1"
   },
   "breaks": {
-    "pehkui": "<3.0.0"
+    "pehkui": "<3.0.0",
+    "sodium": [
+      ">0.3.4",
+      "<0.3.4"
+    ]
   },
   "suggests": {
     "flamingo": "*"
