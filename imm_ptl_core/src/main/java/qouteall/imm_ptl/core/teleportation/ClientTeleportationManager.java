@@ -212,7 +212,7 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
         
-        PehkuiInterface.onClientPlayerTeleported.accept(portal);
+        PehkuiInterface.invoker.onClientPlayerTeleported(portal);
         
         player.networkHandler.sendPacket(IPNetworkingClient.createCtsTeleport(
             fromDimension,
