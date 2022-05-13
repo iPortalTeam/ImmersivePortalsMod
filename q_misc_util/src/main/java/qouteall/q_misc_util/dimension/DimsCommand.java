@@ -8,14 +8,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.util.Optional;
@@ -35,7 +31,16 @@ public class DimsCommand {
                             DimensionArgument.getDimension(context, "templateDimension");
                         String newDimensionId = StringArgumentType.getString(context, "newDimensionID");
                         
-                        cloneDimension(templateDimension, newDimensionId, Optional.empty());
+                        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
+                        
+                        if (newDimId.getNamespace().equals("minecraft")) {
+                            context.getSource().sendFailure(new TextComponent("Invalid namespace"));
+                            return 0;
+                        }
+                        
+                        cloneDimension(
+                            templateDimension, Optional.empty(), newDimId
+                        );
                         
                         context.getSource().sendSuccess(
                             new TextComponent("Warning: the dynamic dimension feature is not yet stable now"),
@@ -55,7 +60,14 @@ public class DimsCommand {
                             String newDimensionId = StringArgumentType.getString(context, "newDimensionID");
                             long newSeed = LongArgumentType.getLong(context, "newSeed");
                             
-                            cloneDimension(templateDimension, newDimensionId, Optional.of(newSeed));
+                            ResourceLocation newDimId = new ResourceLocation(newDimensionId);
+                            
+                            if (newDimId.getNamespace().equals("minecraft")) {
+                                context.getSource().sendFailure(new TextComponent("Invalid namespace"));
+                                return 0;
+                            }
+                            
+                            cloneDimension(templateDimension, Optional.of(newSeed), newDimId);
                             
                             context.getSource().sendSuccess(
                                 new TextComponent("Warning: the dynamic dimension feature is not yet stable now"),
@@ -105,11 +117,10 @@ public class DimsCommand {
     }
     
     private static void cloneDimension(
-        ServerLevel templateDimension, String newDimensionId,
-        Optional<Long> newSeed
+        ServerLevel templateDimension,
+        Optional<Long> newSeed, ResourceLocation newDimId
     ) {
         // may throw exception here
-        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
         
         ChunkGenerator generator = templateDimension.getChunkSource().getGenerator();
         if (newSeed.isPresent()) {
@@ -124,7 +135,7 @@ public class DimsCommand {
             )
         );
         
-        DimensionAPI.saveDimensionConfiguration(DimId.idToKey(newDimensionId));
+        DimensionAPI.saveDimensionConfiguration(DimId.idToKey(newDimId));
         
         
     }

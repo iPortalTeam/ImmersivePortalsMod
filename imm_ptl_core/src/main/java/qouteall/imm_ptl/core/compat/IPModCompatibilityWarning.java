@@ -27,7 +27,8 @@ public class IPModCompatibilityWarning {
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("create", "Create"),
         new ModInfo("tweakeroo", "Tweakeroo"),
-        new ModInfo("replaymod", "Replay Mod")
+        new ModInfo("replaymod", "Replay Mod"),
+        new ModInfo("tempad", "Tempad")
     );
     
     private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
@@ -75,7 +76,7 @@ public class IPModCompatibilityWarning {
                                 "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur. You should uninstall one of the two mods. (If the two mods become compatible now, report it to qouteall.)",
                                 mod.modName, mod.modId
                             )
-                        ).withStyle(ChatFormatting.RED).append(IPMcHelper.getDisableWarningText()));
+                        ).withStyle(ChatFormatting.RED));
                     })
                 ));
                 
@@ -92,7 +93,10 @@ public class IPModCompatibilityWarning {
                             mod.modName, mod.modId
                         );
                         if (IPGlobal.enableWarning) {
-                            CHelper.printChat(new TextComponent(warningMessage).withStyle(ChatFormatting.RED));
+                            CHelper.printChat(
+                                new TextComponent(warningMessage).withStyle(ChatFormatting.RED)
+                                    .append(IPMcHelper.getDisableWarningText())
+                            );
                         }
                         Helper.err(warningMessage);
                     })

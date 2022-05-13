@@ -13,6 +13,7 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
@@ -49,7 +50,6 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void doPortalRendering(PoseStack matrixStack) {
-        // maybe fix issue with modern industrialization
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
         

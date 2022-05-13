@@ -406,6 +406,12 @@ public class MyBuiltChunkStorage extends ViewArea {
             k = Mth.positiveModulo(k, this.chunkGridSizeZ);
             int chunkIndex = this.getChunkIndex(i, j, k);
             RenderChunk result = this.chunks[chunkIndex];
+            
+            if (result == null) {
+                Helper.err("Null RenderChunk " + pos);
+                return null;
+            }
+            
             ((IEBuiltChunk) result).portal_setIndex(chunkIndex);
             return result;
         }

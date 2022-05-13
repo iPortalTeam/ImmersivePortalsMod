@@ -23,7 +23,7 @@ public class MixinSplashTextResourceSupplier {
         List<String> list, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci
     ) {
         if (splashes.remove("Euclidian!")) {
-            splashes.add("Non-Euclidean!");
+            splashes.add("Non-Euclidian!");
         }
         if (splashes.remove("Slow acting portals!")) {
             splashes.add("Fast acting portals!");
