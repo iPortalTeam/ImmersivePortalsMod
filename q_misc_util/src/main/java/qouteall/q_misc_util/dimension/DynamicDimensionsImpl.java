@@ -102,14 +102,14 @@ public class DynamicDimensionsImpl {
         
         Helper.log("Added Dimension " + dimensionId);
         
-        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
-        
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
         
         Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
         }
+    
+        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
     }
     
     public static void removeDimensionDynamically(ServerLevel world) {
@@ -187,12 +187,12 @@ public class DynamicDimensionsImpl {
             
             Helper.log("Successfully Removed Dimension " + dimension.location());
             
-            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
-            
             Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 player.connection.send(dimSyncPacket);
             }
+    
+            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
         }));
     }
     

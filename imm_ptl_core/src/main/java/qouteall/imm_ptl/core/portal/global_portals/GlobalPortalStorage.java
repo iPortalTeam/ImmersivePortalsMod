@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +29,7 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.DimensionAPI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +42,7 @@ import java.util.function.Predicate;
 /**
  * Stores global portals.
  * Also stores bedrock replacement block state for dimension stack.
- * */
+ */
 public class GlobalPortalStorage extends SavedData {
     public List<Portal> data;
     public final WeakReference<ServerLevel> world;
@@ -61,6 +63,14 @@ public class GlobalPortalStorage extends SavedData {
         IPGlobal.serverCleanupSignal.connect(() -> {
             for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
                 get(world).onServerClose();
+            }
+        });
+        
+        DimensionAPI.serverDimensionDynamicUpdateEvent.register(dims -> {
+            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+                GlobalPortalStorage gps = get(world);
+                gps.clearAbnormalPortals();
+                gps.syncToAllPlayers();
             }
         });
         
