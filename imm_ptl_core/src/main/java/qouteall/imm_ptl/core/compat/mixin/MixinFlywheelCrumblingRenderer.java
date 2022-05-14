@@ -11,6 +11,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 @Pseudo
 @Mixin(targets = "com.jozufozu.flywheel.core.crumbling.CrumblingRenderer", remap = false)
 public class MixinFlywheelCrumblingRenderer {
+    
     @Inject(
         method = "onReloadRenderers", at = @At("HEAD"),
         cancellable = true

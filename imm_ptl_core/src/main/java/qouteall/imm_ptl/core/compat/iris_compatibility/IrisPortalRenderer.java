@@ -78,7 +78,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         for (SecondaryFrameBuffer deferredFb : deferredFbs) {
             deferredFb.prepare();
 //            ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
-            IPPortingLibCompat.setIsStencilEnabled(deferredFb.fb, false);
+            IPPortingLibCompat.setIsStencilEnabled(deferredFb.fb, true);
             
             deferredFb.fb.bindWrite(true);
             GlStateManager._clearColor(1, 0, 1, 0);

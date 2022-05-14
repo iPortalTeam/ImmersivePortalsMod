@@ -35,11 +35,11 @@ public class IrisInterface {
     
     public static class OnIrisPresent extends Invoker {
         
-        private Field worldRendererPipelineField = Helper.noError(() -> {
-            Field field = LevelRenderer.class.getDeclaredField("pipeline");
-            field.setAccessible(true);
-            return field;
-        });
+//        private Field worldRendererPipelineField = Helper.noError(() -> {
+//            Field field = LevelRenderer.class.getDeclaredField("pipeline");
+//            field.setAccessible(true);
+//            return field;
+//        });
         
         @Override
         public boolean isIrisPresent() {
@@ -58,17 +58,18 @@ public class IrisInterface {
         
         @Override
         public Object getPipeline(LevelRenderer worldRenderer) {
-            return Helper.noError(() ->
-                ((WorldRenderingPipeline) worldRendererPipelineField.get(worldRenderer))
-            );
+            return null;
+//            return Helper.noError(() ->
+//                ((WorldRenderingPipeline) worldRendererPipelineField.get(worldRenderer))
+//            );
         }
         
         @Override
         public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
-            Helper.noError(() -> {
-                worldRendererPipelineField.set(worldRenderer, pipeline);
-                return null;
-            });
+//            Helper.noError(() -> {
+//                worldRendererPipelineField.set(worldRenderer, pipeline);
+//                return null;
+//            });
         }
     
     }
