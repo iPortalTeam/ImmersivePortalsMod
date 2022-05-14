@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
+import qouteall.imm_ptl.core.compat.IPFlywheelCompat;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
@@ -150,6 +151,8 @@ public class IPModMainClient {
         PortalAnimationManagement.init();
         
         VisibleSectionDiscovery.init();
+    
+        IPFlywheelCompat.init();
     }
     
 }

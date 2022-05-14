@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.sodium_compatibility.mixin;
+package qouteall.imm_ptl.core.compat.mixin;
 
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.sodium_compatibility.mixin;
+package qouteall.imm_ptl.core.compat.mixin;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderList;

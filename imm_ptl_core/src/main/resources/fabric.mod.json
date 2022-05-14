@@ -34,7 +34,7 @@
   "mixins": [
     "imm_ptl.mixins.json",
     "imm_ptl_fabric.mixins.json",
-    "imm_ptl_sodium.mixins.json"
+    "imm_ptl_compat.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.4",

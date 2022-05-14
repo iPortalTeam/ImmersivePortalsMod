@@ -1,11 +1,14 @@
 {
   "required": true,
-  "package": "qouteall.imm_ptl.core.compat.sodium_compatibility.mixin",
+  "package": "qouteall.imm_ptl.core.compat.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "qouteall.imm_ptl.core.compat.sodium_compatibility.IPSodiumMixinPlugin",
+  "plugin": "qouteall.imm_ptl.core.compat.IPCompatMixinPlugin",
   "mixins": [
     "IESodiumWorldRenderer",
-    "MixinIrisChunkShaderInterface",
+    "MixinFlywheelCrumblingRenderer",
+    "MixinFlywheelProgramCompiler",
+    "MixinFlywheelQuadConverter",
+    "MixinIrisSodiumChunkShaderInterface",
     "MixinIrisSodiumSodiumTerrainPipeline",
     "MixinSodiumChunkGraphInfo",
     "MixinSodiumChunkShaderInterface",

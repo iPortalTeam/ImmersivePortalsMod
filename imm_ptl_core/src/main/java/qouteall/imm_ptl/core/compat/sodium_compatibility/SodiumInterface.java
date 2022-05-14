@@ -6,7 +6,7 @@ import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import qouteall.imm_ptl.core.compat.sodium_compatibility.mixin.IESodiumWorldRenderer;
+import qouteall.imm_ptl.core.compat.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
 import javax.annotation.Nullable;

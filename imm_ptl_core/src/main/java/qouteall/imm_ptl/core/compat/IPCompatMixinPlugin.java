@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.sodium_compatibility;
+package qouteall.imm_ptl.core.compat;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.util.List;
 import java.util.Set;
 
-public class IPSodiumMixinPlugin implements IMixinConfigPlugin {
+public class IPCompatMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
     
@@ -21,14 +21,25 @@ public class IPSodiumMixinPlugin implements IMixinConfigPlugin {
     
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
         
-        if (mixinClassName.contains("Iris")) {
+        
+        if (mixinClassName.contains("IrisSodium")) {
+            boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
             boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
             return sodiumLoaded && irisLoaded;
         }
         
-        return sodiumLoaded;
+        if (mixinClassName.contains("Sodium")) {
+            boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
+            return sodiumLoaded;
+        }
+        
+        if (mixinClassName.contains("Flywheel")) {
+            boolean flywheelLoaded = FabricLoader.getInstance().isModLoaded("flywheel");
+            return flywheelLoaded;
+        }
+        
+        return false;
     }
     
     @Override

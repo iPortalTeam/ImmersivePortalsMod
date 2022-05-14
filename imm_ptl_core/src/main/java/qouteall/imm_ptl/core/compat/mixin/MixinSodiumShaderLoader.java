@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.sodium_compatibility.mixin;
+package qouteall.imm_ptl.core.compat.mixin;
 
 import com.mojang.blaze3d.shaders.Program;
 import me.jellysquid.mods.sodium.client.gl.shader.GlShader;
