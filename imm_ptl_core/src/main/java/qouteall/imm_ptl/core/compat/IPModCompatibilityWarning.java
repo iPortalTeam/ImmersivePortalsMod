@@ -25,7 +25,6 @@ public class IPModCompatibilityWarning {
         new ModInfo("modern_industrialization", "Modern Industrialization"),
         new ModInfo("altoclef", "Altoclef"),
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
-        new ModInfo("create", "Create"),
         new ModInfo("tweakeroo", "Tweakeroo"),
         new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("tempad", "Tempad")
@@ -39,7 +38,8 @@ public class IPModCompatibilityWarning {
         new ModInfo("figura", "Figura"),
         new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("requiem", "Requiem"),
-        new ModInfo("vmp", "VMP")
+        new ModInfo("vmp", "VMP"),
+        new ModInfo("create", "Create")
     );
     
     public static record ModInfo(String modId, String modName) {}
