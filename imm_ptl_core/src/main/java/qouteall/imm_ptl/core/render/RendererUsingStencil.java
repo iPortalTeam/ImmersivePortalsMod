@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -75,13 +76,15 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void prepareRendering() {
-        IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getMainRenderTarget();
-        if (!ieFrameBuffer.getIsStencilBufferEnabled()) {
-            ieFrameBuffer.setIsStencilBufferEnabledAndReload(true);
+        if (!IPPortingLibCompat.getIsStencilEnabled(client.getMainRenderTarget())) {
+            IPPortingLibCompat.setIsStencilEnabled(client.getMainRenderTarget(), true);
+            
             if (Minecraft.useShaderTransparency()) {
 //                client.worldRenderer.reload();
             }
         }
+        
+        client.getMainRenderTarget().bindWrite(false);
         
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);

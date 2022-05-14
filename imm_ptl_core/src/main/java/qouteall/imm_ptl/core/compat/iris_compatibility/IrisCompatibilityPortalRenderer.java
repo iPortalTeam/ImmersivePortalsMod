@@ -8,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -72,7 +73,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         deferredBuffer.fb.clear(Minecraft.ON_OSX);
         
         RenderTarget mcFb = Minecraft.getInstance().getMainRenderTarget();
-        ((IEFrameBuffer) mcFb).setIsStencilBufferEnabledAndReload(false);
+        IPPortingLibCompat.setIsStencilEnabled(mcFb, false);
+//        ((IEFrameBuffer) mcFb).setIsStencilBufferEnabledAndReload(false);
     }
     
     @Override

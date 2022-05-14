@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -44,8 +45,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         GlStateManager._enableDepthTest();
         
         GL11.glDisable(GL11.GL_STENCIL_TEST);
-        
-        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
+    
+        IPPortingLibCompat.setIsStencilEnabled(client.getMainRenderTarget(), false);
+//        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
     }
     
     @Override

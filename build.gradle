@@ -65,6 +65,22 @@ allprojects {
             url = "https://maven.parchmentmc.org"
         }
 
+        // for test with create
+        maven { url = "https://cursemaven.com" }
+        maven { url = "https://maven.parchmentmc.org" }
+        maven { url = "https://maven.tterrag.com/" }
+        maven { url = "https://storage.googleapis.com/devan-maven/" }
+        maven { url = "https://maven.shedaniel.me/" }
+        maven { url = "https://aperlambda.github.io/maven" }
+        maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
+        maven { url = "https://maven.kotlindiscord.com/repository/terraformers/" }
+        maven { url = "https://mvn.devos.one/releases/" }
+        maven { url = "https://mvn.devos.one/snapshots/" }
+        maven { url = "https://maven.terraformersmc.com/" }
+        maven { url = "https://maven.cafeteria.dev" }
+        maven { url = "https://jitpack.io/" }
+        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }
+        maven { url = "https://maven.gegy.dev" }
 
     }
 
@@ -195,6 +211,19 @@ dependencies {
 ////        modCompileOnly name
 ////        modRuntime name
 //    }
+
+    // for test with create
+//    modImplementation(include("io.github.fabricators_of_create:Porting-Lib:${project.port_lib_version}+${project.minecraft_version}.${project.port_lib_hash}"))
+//    modImplementation(include("me.alphamode:ForgeTags:${project.forge_tags_version}"))
+//    modImplementation(include("com.electronwill.night-config:core:${project.night_config_core_version}"))
+//    modImplementation(include("com.electronwill.night-config:toml:${project.night_config_toml_version}"))
+//    modImplementation(include("curse.maven:forge-config-api-port-fabric-547434:${project.config_api_id}")) { transitive = false }
+//    modImplementation(include("com.tterrag.registrate:Registrate:${project.registrate_version}"))
+//    modImplementation(include("com.jozufozu.flywheel:Flywheel-Fabric:${project.flywheel_version}"))
+//    modImplementation(include("com.jamieswhiteshirt:reach-entity-attributes:${project.reach_entity_attributes_version}"))
+//    modImplementation(include("dev.cafeteria:fake-player-api:${project.fake_player_api_version}"))
+//    modImplementation(include("io.github.tropheusj:milk-lib:${project.milk_lib_version}"))
+//    modImplementation(include("me.luligabi:NoIndium:${project.no_indium_version}"))
 }
 
 dependencies {

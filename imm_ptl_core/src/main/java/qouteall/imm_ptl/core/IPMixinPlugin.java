@@ -21,12 +21,11 @@ public class IPMixinPlugin implements IMixinConfigPlugin {
     
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.contains("MixinChunkBuilder_Optimization")) {
-            if (FabricLoader.getInstance().isModLoaded("optifabric")) {
+        if (FabricLoader.getInstance().isModLoaded("porting_lib")) {
+            if (mixinClassName.contains("MixinRenderTarget") || mixinClassName.contains("MixinMainTarget")) {
                 return false;
             }
         }
-        
         return true;
     }
     

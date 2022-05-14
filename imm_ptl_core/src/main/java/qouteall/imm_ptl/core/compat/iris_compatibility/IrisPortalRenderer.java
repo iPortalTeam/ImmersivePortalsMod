@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -76,7 +77,8 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         for (SecondaryFrameBuffer deferredFb : deferredFbs) {
             deferredFb.prepare();
-            ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
+//            ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
+            IPPortingLibCompat.setIsStencilEnabled(deferredFb.fb, false);
             
             deferredFb.fb.bindWrite(true);
             GlStateManager._clearColor(1, 0, 1, 0);
@@ -90,8 +92,9 @@ public class IrisPortalRenderer extends PortalRenderer {
             
             deferredFb.fb.unbindWrite();
         }
-        
-        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
+    
+        IPPortingLibCompat.setIsStencilEnabled(client.getMainRenderTarget(), false);
+//        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
     }
     
     private void updateNeedsPortalRendering() {

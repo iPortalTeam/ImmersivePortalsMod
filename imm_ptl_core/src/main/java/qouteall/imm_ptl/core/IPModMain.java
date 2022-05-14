@@ -6,6 +6,7 @@ import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
+import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -54,6 +55,8 @@ public class IPModMain {
         ServerPerformanceMonitor.init();
     
         MyLoadingTicket.init();
+    
+        IPPortingLibCompat.init();
         
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");
