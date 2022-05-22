@@ -77,7 +77,6 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         for (SecondaryFrameBuffer deferredFb : deferredFbs) {
             deferredFb.prepare();
-//            ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
             IPPortingLibCompat.setIsStencilEnabled(deferredFb.fb, true);
             
             deferredFb.fb.bindWrite(true);
@@ -94,7 +93,9 @@ public class IrisPortalRenderer extends PortalRenderer {
         }
     
         IPPortingLibCompat.setIsStencilEnabled(client.getMainRenderTarget(), false);
-//        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
+    
+        // Iris now use vanilla framebuffer's depth
+        client.getMainRenderTarget().bindWrite(false);
     }
     
     private void updateNeedsPortalRendering() {

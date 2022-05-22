@@ -125,10 +125,6 @@ allprojects {
         modCompileOnly("maven.modrinth:gravitychanger:0.3.0") {
             transitive = false
         }
-
-//        modImplementation ("com.jozufozu.flywheel:Flywheel-Fabric:1.18-0.6.0.custom"){
-//            exclude(group: "net.fabricmc.fabric-api")
-//        }
     }
 
     processResources {
