@@ -125,17 +125,32 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     @Shadow protected abstract void deinitTransparency();
     
-    // important rendering hooks
     @Inject(
         method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch()V",
-            ordinal = 0,
-            shift = At.Shift.AFTER
+            target = "Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z"
         )
     )
-    private void onBeforeTranslucentRendering(
+    private void onAfterCutoutRendering(
+        PoseStack matrices, float tickDelta, long limitTime,
+        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+        LightTexture lightmapTextureManager, Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+//        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
+        
+        CrossPortalEntityRenderer.onBeginRenderingEntities(matrices);
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/Sheets;translucentCullBlockSheet()Lnet/minecraft/client/renderer/RenderType;"
+        )
+    )
+    private void onMyBeforeTranslucentRendering(
         PoseStack matrices,
         float tickDelta,
         long limitTime,
@@ -162,8 +177,17 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         MyGameRenderer.resetDiffuseLighting(matrices);
         
         FrontClipping.disableClipping();
-        
-        CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
+    }
+    
+    @Inject(
+        method = "renderLevel",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch()V"
+        )
+    )
+    private void onEndRenderingEntities(PoseStack poseStack, float partialTick, long finishNanoTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
+        CrossPortalEntityRenderer.onEndRenderingEntities(poseStack);
     }
     
     @Inject(
@@ -314,24 +338,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                 }
             }
         }
-    }
-    
-    @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z"
-        )
-    )
-    private void onAfterCutoutRendering(
-        PoseStack matrices, float tickDelta, long limitTime,
-        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-        LightTexture lightmapTextureManager, Matrix4f matrix4f,
-        CallbackInfo ci
-    ) {
-//        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
-        
-        CrossPortalEntityRenderer.onBeginRenderingEntities(matrices);
     }
     
     @Redirect(

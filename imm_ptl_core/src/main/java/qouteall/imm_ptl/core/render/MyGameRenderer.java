@@ -314,7 +314,11 @@ public class MyGameRenderer {
     }
     
     public static void resetDiffuseLighting(PoseStack matrixStack) {
-        Lighting.setupNetherLevel(matrixStack.last().pose());
+        if (client.level.effects().constantAmbientLight()) {
+            Lighting.setupNetherLevel(matrixStack.last().pose());
+        } else {
+            Lighting.setupLevel(matrixStack.last().pose());
+        }
     }
     
     
