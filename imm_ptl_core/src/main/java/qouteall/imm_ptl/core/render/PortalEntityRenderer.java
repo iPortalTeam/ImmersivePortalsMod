@@ -29,13 +29,12 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
     ) {
         
         IPCGlobal.renderer.renderPortalInEntityRenderer(portal);
-    
-        if (PortalRendering.isRendering()==false) {
-            if (OverlayRendering.shouldRenderOverlay(portal)) {
-                OverlayRendering.onPortalRendered(portal, matrixStack, vertexConsumerProvider);
-            }
+        
+        if (OverlayRendering.shouldRenderOverlay(portal)) {
+            OverlayRendering.onRenderPortalEntity(portal, matrixStack, vertexConsumerProvider);
         }
-    
+        
+        
         super.render(portal, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
     }
     

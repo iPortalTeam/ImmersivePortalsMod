@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
+import com.mojang.math.Quaternion;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
@@ -27,6 +28,14 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class BreakablePortalEntity extends Portal {
+    public static record OverlayInfo(
+        BlockState blockState,
+        double opacity,
+        double offset,
+        @Nullable Quaternion rotation
+    ) {
+    }
+    
     public BlockPortalShape blockPortalShape;
     public UUID reversePortalId;
     public boolean unbreakable = false;
@@ -34,9 +43,7 @@ public abstract class BreakablePortalEntity extends Portal {
     private boolean shouldBreakPortal = false;
     
     @Nullable
-    public BlockState overlayBlockState;
-    public double overlayOpacity = 0.5;
-    public double overlayOffset = 0;
+    public OverlayInfo overlayInfo;
     
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
@@ -70,15 +77,19 @@ public abstract class BreakablePortalEntity extends Portal {
         unbreakable = compoundTag.getBoolean("unbreakable");
         
         if (compoundTag.contains("overlayBlockState")) {
-            overlayBlockState = NbtUtils.readBlockState(compoundTag.getCompound("overlayBlockState"));
+            BlockState overlayBlockState = NbtUtils.readBlockState(compoundTag.getCompound("overlayBlockState"));
             if (overlayBlockState.isAir()) {
                 overlayBlockState = null;
             }
-            overlayOpacity = compoundTag.getDouble("overlayOpacity");
+            double overlayOpacity = compoundTag.getDouble("overlayOpacity");
             if (overlayOpacity == 0) {
                 overlayOpacity = 0.5;
             }
-            overlayOffset = compoundTag.getDouble("overlayOffset");
+            double overlayOffset = compoundTag.getDouble("overlayOffset");
+    
+            overlayInfo = new OverlayInfo(
+                overlayBlockState, overlayOpacity, overlayOffset, null
+            );
         }
     }
     
@@ -91,10 +102,10 @@ public abstract class BreakablePortalEntity extends Portal {
         Helper.putUuid(compoundTag, "reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
         
-        if (overlayBlockState != null) {
-            compoundTag.put("overlayBlockState", NbtUtils.writeBlockState(overlayBlockState));
-            compoundTag.putDouble("overlayOpacity", overlayOpacity);
-            compoundTag.putDouble("overlayOffset", overlayOffset);
+        if (overlayInfo != null) {
+            compoundTag.put("overlayBlockState", NbtUtils.writeBlockState(overlayInfo.blockState));
+            compoundTag.putDouble("overlayOpacity", overlayInfo.opacity);
+            compoundTag.putDouble("overlayOffset", overlayInfo.offset);
         }
     }
     

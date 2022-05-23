@@ -1,12 +1,17 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -22,6 +27,16 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         Level world_1
     ) {
         super(entityType_1, world_1);
+    }
+    
+    @Override
+    public void tick() {
+        super.tick();
+        
+        if (level.isClientSide()) {
+            updateClientSideOverlayInfo();
+            
+        }
     }
     
     @Override
@@ -81,4 +96,54 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         }
     }
     
+    void updateClientSideOverlayInfo() {
+        if (!IPGlobal.netherPortalOverlay) {
+            overlayInfo = null;
+            return;
+        }
+
+//        if (overlayInfo != null) {
+//            // avoid repeating update every tick
+//            return;
+//        }
+        
+        Direction.Axis axis = blockPortalShape.axis;
+        
+        switch (axis) {
+            case X -> {
+                overlayInfo = new OverlayInfo(
+                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+                        NetherPortalBlock.AXIS,
+                        Direction.Axis.Z
+                    ),
+                    0.5,
+                    0,
+                    null
+                );
+            }
+            case Y -> {
+                double offset = getNormal().y > 0 ? 1 : -1;
+                overlayInfo = new OverlayInfo(
+                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+                        NetherPortalBlock.AXIS,
+                        Direction.Axis.X
+                    ),
+                    0.5,
+                    offset,
+                    new Quaternion(new Vector3f(1, 0, 0), 90, true)
+                );
+            }
+            case Z -> {
+                overlayInfo = new OverlayInfo(
+                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+                        NetherPortalBlock.AXIS,
+                        Direction.Axis.X
+                    ),
+                    0.5,
+                    0,
+                    null
+                );
+            }
+        }
+    }
 }

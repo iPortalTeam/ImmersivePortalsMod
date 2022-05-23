@@ -33,13 +33,6 @@ public class DiligentNetherPortalForm extends AbstractDiligentForm {
     public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         info.generatePlaceholderBlocks();
         BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
-     
-        if (IPGlobal.netherPortalOverlay) {
-            IntrinsicNetherPortalForm.initializeOverlay(portals[0], info.fromShape);
-            IntrinsicNetherPortalForm.initializeOverlay(portals[1], info.fromShape);
-            IntrinsicNetherPortalForm.initializeOverlay(portals[2], info.toShape);
-            IntrinsicNetherPortalForm.initializeOverlay(portals[3], info.toShape);
-        }
         
         return portals;
     }

@@ -37,26 +37,6 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
         }
     }
     
-    public static void initializeOverlay(BreakablePortalEntity portal, BlockPortalShape shape) {
-        Direction.Axis axis = shape.axis;
-        if (axis == Direction.Axis.X) {
-            portal.overlayOpacity = 0.5;
-            portal.overlayBlockState = Blocks.NETHER_PORTAL.defaultBlockState().setValue(
-                NetherPortalBlock.AXIS,
-                Direction.Axis.Z
-            );
-            portal.reloadAndSyncToClient();
-        }
-        else if (axis == Direction.Axis.Z) {
-            portal.overlayOpacity = 0.5;
-            portal.overlayBlockState = Blocks.NETHER_PORTAL.defaultBlockState().setValue(
-                NetherPortalBlock.AXIS,
-                Direction.Axis.X
-            );
-            portal.reloadAndSyncToClient();
-        }
-    }
-    
     @Override
     public PortalGenInfo getNewPortalPlacement(ServerLevel toWorld, BlockPos toPos, ServerLevel fromWorld, BlockPortalShape fromShape) {
         if (encounteredVanillaPortalBlock) {
@@ -85,13 +65,6 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         info.generatePlaceholderBlocks();
         BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
-        
-        if (IPGlobal.netherPortalOverlay) {
-            initializeOverlay(portals[0], info.fromShape);
-            initializeOverlay(portals[1], info.fromShape);
-            initializeOverlay(portals[2], info.toShape);
-            initializeOverlay(portals[3], info.toShape);
-        }
         
         return portals;
     }
