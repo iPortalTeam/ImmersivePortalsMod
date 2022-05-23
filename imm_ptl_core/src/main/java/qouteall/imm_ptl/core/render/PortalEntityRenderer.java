@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 @Environment(EnvType.CLIENT)
 public class PortalEntityRenderer extends EntityRenderer<Portal> {
@@ -28,14 +29,13 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
     ) {
         
         IPCGlobal.renderer.renderPortalInEntityRenderer(portal);
-        
-//        if (portal instanceof BreakablePortalEntity) {
-//            BreakablePortalEntity breakablePortalEntity = (BreakablePortalEntity) portal;
-//            OverlayRendering.renderBreakablePortalOverlay(
-//                breakablePortalEntity, tickDelta, matrixStack, vertexConsumerProvider, light
-//            );
-//        }
-//
+    
+        if (PortalRendering.isRendering()==false) {
+            if (OverlayRendering.shouldRenderOverlay(portal)) {
+                OverlayRendering.onPortalRendered(portal, matrixStack, vertexConsumerProvider);
+            }
+        }
+    
         super.render(portal, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
     }
     

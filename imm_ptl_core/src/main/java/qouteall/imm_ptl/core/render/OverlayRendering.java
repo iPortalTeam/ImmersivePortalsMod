@@ -12,6 +12,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -39,9 +40,6 @@ public class OverlayRendering {
     private static final Random random = new Random();
     
     public static boolean test = false;
-    
-    private static final MultiBufferSource.BufferSource vertexConsumerProvider =
-        MultiBufferSource.immediate(new BufferBuilder(256));
     
     public static class PortalOverlayRenderLayer extends RenderType {
         
@@ -78,7 +76,8 @@ public class OverlayRendering {
     
     public static void onPortalRendered(
         PortalLike portal,
-        PoseStack matrixStack
+        PoseStack matrixStack,
+        MultiBufferSource vertexConsumerProvider
     ) {
         if (portal instanceof BreakablePortalEntity) {
             renderBreakablePortalOverlay(
@@ -115,7 +114,7 @@ public class OverlayRendering {
         BreakablePortalEntity portal,
         float tickDelta,
         PoseStack matrixStack,
-        MultiBufferSource.BufferSource vertexConsumerProvider
+        MultiBufferSource vertexConsumerProvider
     ) {
         BlockState blockState = portal.overlayBlockState;
         
@@ -139,13 +138,13 @@ public class OverlayRendering {
         Vec3 pos = portal.position();
         
         matrixStack.translate(
-            pos.x - cameraPos.x + offset.x,
-            pos.y - cameraPos.y + offset.y,
-            pos.z - cameraPos.z + offset.z
+             offset.x,
+             offset.y,
+             offset.z
         );
         
         BakedModel model = blockRenderManager.getBlockModel(blockState);
-        PortalOverlayRenderLayer renderLayer = OverlayRendering.portalOverlayRenderLayer;
+        RenderType renderLayer = Sheets.translucentCullBlockSheet();
         VertexConsumer buffer = vertexConsumerProvider.getBuffer(renderLayer);
         
         List<BakedQuad> quads = getQuads(model, blockState, portal.getNormal());
@@ -177,8 +176,6 @@ public class OverlayRendering {
         
         matrixStack.popPose();
         
-        vertexConsumerProvider.endBatch(renderLayer);
-        
     }
     
     /**
@@ -199,15 +196,15 @@ public class OverlayRendering {
         Vector3f vector3f = new Vector3f((float) vec3i.getX(), (float) vec3i.getY(), (float) vec3i.getZ());
         Matrix4f matrix4f = matrixEntry.pose();
         vector3f.transform(matrixEntry.normal());
-        
+
         int j = is.length / 8;
         MemoryStack memoryStack = MemoryStack.stackPush();
         Throwable var17 = null;
-        
+
         try {
             ByteBuffer byteBuffer = memoryStack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
             IntBuffer intBuffer = byteBuffer.asIntBuffer();
-            
+
             for (int k = 0; k < j; ++k) {
                 intBuffer.clear();
                 intBuffer.put(is, k * 8, 8);
@@ -232,7 +229,7 @@ public class OverlayRendering {
                     s = brightness * green;
                     t = brightness * blue;
                 }
-                
+
                 int u = lights;
                 v = byteBuffer.getFloat(16);
                 w = byteBuffer.getFloat(20);
@@ -259,7 +256,7 @@ public class OverlayRendering {
                     memoryStack.close();
                 }
             }
-            
+
         }
     }
 }
