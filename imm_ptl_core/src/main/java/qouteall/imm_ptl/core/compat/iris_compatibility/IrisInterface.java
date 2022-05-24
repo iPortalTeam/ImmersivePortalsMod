@@ -64,6 +64,8 @@ public class IrisInterface {
             );
         }
         
+        // the pipeline switching is unnecessary when using shaders
+        // but still necessary with shaders disabled
         @Override
         public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
             Helper.noError(() -> {
