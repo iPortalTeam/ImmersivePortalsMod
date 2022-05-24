@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.system.MemoryStack;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
@@ -135,6 +136,7 @@ public class OverlayRendering {
             }
             
             for (BakedQuad quad : quads) {
+                SodiumInterface.invoker.markSpriteActive(quad.getSprite());
                 renderQuad(
                     buffer,
                     matrixStack.last(),

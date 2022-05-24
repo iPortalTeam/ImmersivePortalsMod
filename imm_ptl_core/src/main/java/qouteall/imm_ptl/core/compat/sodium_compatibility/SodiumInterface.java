@@ -2,10 +2,12 @@ package qouteall.imm_ptl.core.compat.sodium_compatibility;
 
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
+import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
 import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import qouteall.imm_ptl.core.compat.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
@@ -33,6 +35,10 @@ public class SodiumInterface {
         }
         
         public void switchContextWithCurrentWorldRenderer(Object context) {
+        
+        }
+    
+        public void markSpriteActive(TextureAtlasSprite sprite) {
         
         }
     }
@@ -68,6 +74,11 @@ public class SodiumInterface {
                 .ip_swapContext(((SodiumRenderingContext) context));
             
             swr.scheduleTerrainUpdate();
+        }
+        
+        @Override
+        public void markSpriteActive(TextureAtlasSprite sprite) {
+            SpriteUtil.markSpriteActive(sprite);
         }
     }
     
