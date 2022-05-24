@@ -101,11 +101,11 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             overlayInfo = null;
             return;
         }
-
-//        if (overlayInfo != null) {
-//            // avoid repeating update every tick
-//            return;
-//        }
+        
+        if (overlayInfo != null) {
+            // avoid repeating update every tick
+            return;
+        }
         
         Direction.Axis axis = blockPortalShape.axis;
         
