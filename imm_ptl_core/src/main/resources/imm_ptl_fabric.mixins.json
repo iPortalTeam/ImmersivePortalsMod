@@ -3,14 +3,12 @@
   "package": "qouteall.imm_ptl.core.platform_specific.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "common.MixinDebugLightUpdateS2CPacket",
-    "common.MixinLanguage",
     "common.MixinPlayerManager_MA",
     "common.MixinServerPlayerEntity_MA"
   ],
   "client": [
-    "client.MixinClientWorld_MA",
-    "client.MixinFabricClientPlayNetworkAddon"
+    "client.MixinFabricClientPlayNetworkAddon",
+    "client.MixinFabricInvalidateRenderStateCallback"
   ],
   "injectors": {
     "defaultRequire": 1

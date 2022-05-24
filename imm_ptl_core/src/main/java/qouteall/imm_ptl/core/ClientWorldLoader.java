@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -319,6 +320,7 @@ public class ClientWorldLoader {
     
     private static ClientLevel createSecondaryClientWorld(ResourceKey<Level> dimension) {
         Validate.notNull(client.player);
+        Validate.isTrue(client.isSameThread());
         
         Set<ResourceKey<Level>> dimIds = getServerDimensions();
         if (!dimIds.contains(dimension)) {
@@ -402,4 +404,41 @@ public class ClientWorldLoader {
         return clientWorldMap.values();
     }
     
+    private static boolean isReloadingOtherWorldRenderers = false;
+    
+    public static void _onWorldRendererReloaded() {
+        Validate.isTrue(client.isSameThread());
+        if (client.level != null) {
+            Helper.log("WorldRenderer reloaded " + client.level.dimension().location());
+        }
+        
+        if (isReloadingOtherWorldRenderers) {
+            return;
+        }
+        if (PortalRendering.isRendering()) {
+            return;
+        }
+        if (ClientWorldLoader.getIsCreatingClientWorld()) {
+            return;
+        }
+        
+        isReloadingOtherWorldRenderers = true;
+        
+        List<ResourceKey<Level>> toReload = worldRendererMap.keySet().stream()
+            .filter(d -> d != client.level.dimension()).collect(Collectors.toList());
+        
+        for (ResourceKey<Level> dim : toReload) {
+            ClientLevel world = clientWorldMap.get(dim);
+            Validate.notNull(world);
+            IPCommonNetworkClient.withSwitchedWorld(
+                world,
+                () -> {
+                    // cannot be replaced into method reference
+                    client.levelRenderer.allChanged();
+                }
+            );
+        }
+        
+        isReloadingOtherWorldRenderers = false;
+    }
 }

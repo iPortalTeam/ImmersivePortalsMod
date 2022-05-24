@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -123,7 +124,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Final
     private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
     
-    @Shadow protected abstract void deinitTransparency();
+    @Shadow
+    protected abstract void deinitTransparency();
     
     @Inject(
         method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
@@ -491,8 +493,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         return client.shouldEntityAppearGlowing(entity);
     }
     
-    private static boolean isReloadingOtherWorldRenderers = false;
-    
     // sometimes we change renderDistance but we don't want to reload it
     @Inject(method = "allChanged", at = @At("HEAD"), cancellable = true)
     private void onReloadStarted(CallbackInfo ci) {
@@ -507,31 +507,13 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     private void onReloadFinished(CallbackInfo ci) {
         LevelRenderer this_ = (LevelRenderer) (Object) this;
         
-        if (level != null) {
-            Helper.log("WorldRenderer reloaded " + level.dimension().location());
-        }
-        
-        if (isReloadingOtherWorldRenderers) {
-            return;
-        }
-        if (PortalRendering.isRendering()) {
-            return;
-        }
         if (ClientWorldLoader.getIsCreatingClientWorld()) {
             return;
         }
-        if (this_ != Minecraft.getInstance().levelRenderer) {
-            return;
-        }
         
-        isReloadingOtherWorldRenderers = true;
+        Validate.isTrue(Minecraft.getInstance().levelRenderer == this_);
         
-        for (LevelRenderer worldRenderer : ClientWorldLoader.worldRendererMap.values()) {
-            if (worldRenderer != this_) {
-                worldRenderer.allChanged();
-            }
-        }
-        isReloadingOtherWorldRenderers = false;
+        ClientWorldLoader._onWorldRendererReloaded();
     }
     
     @Inject(

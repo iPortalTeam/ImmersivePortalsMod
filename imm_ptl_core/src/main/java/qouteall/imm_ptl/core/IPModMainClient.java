@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core;
 
 import com.mojang.blaze3d.platform.GlUtil;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ChatType;
@@ -153,6 +154,10 @@ public class IPModMainClient {
         VisibleSectionDiscovery.init();
     
         IPFlywheelCompat.init();
+        
+//        InvalidateRenderStateCallback.EVENT.register(()->{
+//            Helper.log("reload levelrenderer " + Minecraft.getInstance().level.dimension().location());
+//        });
     }
     
 }
