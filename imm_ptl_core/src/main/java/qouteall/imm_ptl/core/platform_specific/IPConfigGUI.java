@@ -48,8 +48,8 @@ public class IPConfigGUI {
             currConfig.enableWarning
         ).setDefaultValue(true).build();
         BooleanListEntry entryEnableMirrorCreation = builder.entryBuilder().startBooleanToggle(
-                new TranslatableComponent("imm_ptl.enable_mirror_creation"),
-                currConfig.enableMirrorCreation
+            new TranslatableComponent("imm_ptl.enable_mirror_creation"),
+            currConfig.enableMirrorCreation
         ).setDefaultValue(true).build();
         BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
             new TranslatableComponent("imm_ptl.compatibility_render_mode"),
@@ -122,22 +122,22 @@ public class IPConfigGUI {
             .build();
         clientSide.addEntry(entryMaxPortalLayer);
         clientSide.addEntry(entryLagAttackProof);
+        clientSide.addEntry(entryNetherPortalOverlay);
+        clientSide.addEntry(entryCompatibilityRenderMode);
         clientSide.addEntry(entryReducedPortalRendering);
         clientSide.addEntry(entryPortalRenderLimit);
-        clientSide.addEntry(entryCompatibilityRenderMode);
         clientSide.addEntry(entryVisibilityPrediction);
         clientSide.addEntry(entryCheckGlError);
         clientSide.addEntry(entryPureMirror);
         clientSide.addEntry(entryRenderYourselfInPortal);
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
-    
+        
         commonSide.addEntry(entryEnableWarning);
         commonSide.addEntry(entryEnableMirrorCreation);
         commonSide.addEntry(entryIndirectLoadingRadiusCap);
         commonSide.addEntry(entryNetherPortalMode);
         commonSide.addEntry(entryEndPortalMode);
         commonSide.addEntry(entryEnableAlternateDimensions);
-        commonSide.addEntry(entryNetherPortalOverlay);
         commonSide.addEntry(entryLightVanillaNetherPortalWhenCrouching);
         commonSide.addEntry(entryPortalSearchingRange);
         commonSide.addEntry(entryTeleportDebug);
