@@ -3,6 +3,7 @@ package qouteall.q_misc_util;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.math.Quaternion;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -426,6 +427,30 @@ public class Helper {
             compoundTag.getInt(name + "Y"),
             compoundTag.getInt(name + "Z")
         );
+    }
+    
+    public static void putQuaternion(CompoundTag compoundTag,String name, @Nullable Quaternion quaternion){
+        if(quaternion!=null){
+            compoundTag.putFloat(name + "X", quaternion.i());
+            compoundTag.putFloat(name + "Y", quaternion.j());
+            compoundTag.putFloat(name + "Z", quaternion.k());
+            compoundTag.putFloat(name + "W", quaternion.r());
+        }
+    }
+    
+    @Nullable
+    public static Quaternion getQuaternion(CompoundTag compoundTag,String name){
+        if (compoundTag.contains(name + "X")) {
+            return new Quaternion(
+                compoundTag.getFloat(name + "X"),
+                compoundTag.getFloat(name + "Y"),
+                compoundTag.getFloat(name + "Z"),
+                compoundTag.getFloat(name + "W")
+            );
+        }
+        else{
+            return null;
+        }
     }
     
     public static <T> void compareOldAndNew(

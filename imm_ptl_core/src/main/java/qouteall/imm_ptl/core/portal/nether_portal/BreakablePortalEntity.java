@@ -86,9 +86,10 @@ public abstract class BreakablePortalEntity extends Portal {
                 overlayOpacity = 0.5;
             }
             double overlayOffset = compoundTag.getDouble("overlayOffset");
-    
+            Quaternion rotation = Helper.getQuaternion(compoundTag, "overlayRotation");
+            
             overlayInfo = new OverlayInfo(
-                overlayBlockState, overlayOpacity, overlayOffset, null
+                overlayBlockState, overlayOpacity, overlayOffset, rotation
             );
         }
     }
@@ -106,6 +107,7 @@ public abstract class BreakablePortalEntity extends Portal {
             compoundTag.put("overlayBlockState", NbtUtils.writeBlockState(overlayInfo.blockState));
             compoundTag.putDouble("overlayOpacity", overlayInfo.opacity);
             compoundTag.putDouble("overlayOffset", overlayInfo.offset);
+            Helper.putQuaternion(compoundTag, "overlayRotation", overlayInfo.rotation);
         }
     }
     
