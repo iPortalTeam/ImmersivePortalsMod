@@ -48,14 +48,14 @@ public class CustomPortalGenManagement {
      * {@link CreateWorldScreen#tryApplyNewDataPacks(PackRepository)}
      */
     public static void onDatapackReload() {
-        if (!IPGlobal.enableDatapackPortalGen) {
-            return;
-        }
-        
         useItemGen.clear();
         throwItemGen.clear();
         convGen.clear();
         playerPosBeforeTravel.clear();
+        
+        if (!IPGlobal.enableDatapackPortalGen) {
+            return;
+        }
         
         Helper.log("Loading custom portal generation");
         
@@ -159,6 +159,7 @@ public class CustomPortalGenManagement {
         
         Item item = context.getItemInHand().getItem();
         if (useItemGen.containsKey(item)) {
+            // perform it in the second tick
             IPGlobal.serverTaskList.addTask(() -> {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
