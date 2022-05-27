@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
@@ -358,6 +359,23 @@ public class MyRenderHelper {
                 int updateNum = world.getChunkSource().getLightEngine().runUpdates(
                     1000, true, true
                 );
+            }
+        });
+    }
+    
+    /**
+     * If we don't do this
+     * the future created in {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
+     * may never complete
+     */
+    public static void earlyRemoteUpload() {
+        if (!ClientWorldLoader.getIsInitialized()) {
+            return;
+        }
+        
+        ClientWorldLoader.worldRendererMap.forEach((dim, worldRenderer) -> {
+            if (client.level.dimension() != dim) {
+                worldRenderer.getChunkRenderDispatcher().uploadAllPendingUploads();
             }
         });
     }

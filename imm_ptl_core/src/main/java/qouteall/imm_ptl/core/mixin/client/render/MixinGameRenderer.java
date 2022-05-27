@@ -76,6 +76,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (IPCGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }
+        if (IPCGlobal.earlyRemoteUpload) {
+            MyRenderHelper.earlyRemoteUpload();
+        }
         minecraft.getProfiler().pop();
         
         RenderStates.frameIndex++;

@@ -4,7 +4,6 @@ import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.util.thread.ProcessorMailbox;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -17,7 +16,6 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.PriorityBlockingQueue;
 
 @Mixin(ChunkRenderDispatcher.class)
 public abstract class MixinChunkRenderDispatcher_Optimization {
@@ -61,7 +59,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
     private ProcessorMailbox<Runnable> redirectCreate(Executor dispatcher, String name) {
         if (IPGlobal.enableSharedBlockMeshBuffers) {
             Validate.isTrue(freeBufferCount == 0);
-            freeBuffers = SharedBlockMeshBuffers.getThreadBuffers();
+            freeBuffers = SharedBlockMeshBuffers.acquireThreadBuffers();
             freeBufferCount = freeBuffers.size();
         }
         

@@ -12,6 +12,7 @@ import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.QueryManager;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 import qouteall.q_misc_util.Helper;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public class MixinDebugScreenOverlay {
             ClientPerformanceMonitor.getAverageFps(),
             ClientPerformanceMonitor.getAverageFreeMemoryMB()
         ));
+        
+        returnValue.add(SharedBlockMeshBuffers.getDebugString());
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.addAll(Helper.splitStringByLen(

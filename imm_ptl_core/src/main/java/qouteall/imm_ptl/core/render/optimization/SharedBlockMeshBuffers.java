@@ -27,9 +27,9 @@ public class SharedBlockMeshBuffers {
     /**
      * {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher}
      */
-    private static ConcurrentLinkedQueue<ChunkBufferBuilderPack> threadBuffers;
+    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> threadBuffers;
     
-    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> getThreadBuffers() {
+    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> acquireThreadBuffers() {
         if (threadBuffers == null) {
             createThreadBuffers();
         }
@@ -86,5 +86,12 @@ public class SharedBlockMeshBuffers {
         if (threadBuffers != null) {
             threadBuffers = null;
         }
+    }
+    
+    public static String getDebugString() {
+        if (IPGlobal.enableSharedBlockMeshBuffers) {
+            return "SharedBlockMeshBuffers " + Integer.toString(threadBuffers.size());
+        }
+        return "";
     }
 }

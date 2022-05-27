@@ -33,6 +33,8 @@ public class IPCGlobal {
     // TODO remove this
     public static boolean smoothChunkUnload = true;
     public static boolean earlyClientLightUpdate = true;
+    public static boolean earlyRemoteUpload = true;
+    
     public static boolean useSuperAdvancedFrustumCulling = true;
     public static boolean earlyFrustumCullingPortal = true;
     

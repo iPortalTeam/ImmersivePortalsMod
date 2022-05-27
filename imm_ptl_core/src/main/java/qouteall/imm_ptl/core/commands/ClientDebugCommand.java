@@ -461,6 +461,11 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
+            "early_remote_upload",
+            cond -> IPCGlobal.earlyRemoteUpload = cond
+        );
+        registerSwitchCommand(
+            builder,
             "super_advanced_frustum_culling",
             cond -> IPCGlobal.useSuperAdvancedFrustumCulling = cond
         );
