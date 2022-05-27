@@ -130,7 +130,7 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
         return new PortalGenInfo(
             fromWorld.dimension(),
             toWorld.dimension(),
-            templateShape,
+            fromShape,
             placedShape,
             null,
             getScale()
