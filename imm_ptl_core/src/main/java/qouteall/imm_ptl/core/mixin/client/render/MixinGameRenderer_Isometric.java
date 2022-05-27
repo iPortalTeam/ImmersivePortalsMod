@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.render.TransformationManager;
 
 @Mixin(GameRenderer.class)
-public class MixinGameRenderer_I {
+public class MixinGameRenderer_Isometric {
     @Inject(
         method = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lcom/mojang/math/Matrix4f;",
         at = @At("HEAD"),

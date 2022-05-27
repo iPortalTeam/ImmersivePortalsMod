@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -8,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -21,7 +23,15 @@ import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
+import static org.lwjgl.opengl.GL11.GL_ALWAYS;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
+import static org.lwjgl.opengl.GL11.GL_EQUAL;
+import static org.lwjgl.opengl.GL11.GL_GEQUAL;
+import static org.lwjgl.opengl.GL11.GL_INCR;
+import static org.lwjgl.opengl.GL11.GL_KEEP;
+import static org.lwjgl.opengl.GL11.GL_LEQUAL;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
 public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
@@ -40,6 +50,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
     @Override
     public boolean replaceFrameBufferClearing() {
+        client.getMainRenderTarget().bindWrite(false);
+        
         return false;
     }
     
@@ -53,6 +65,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         modelView.pushPose();
         modelView.last().pose().multiply(matrixStack.last().pose());
         modelView.last().normal().mul(matrixStack.last().normal());
+        
+        GL11.glDisable(GL_STENCIL_TEST);
     }
     
     @Override
@@ -62,7 +76,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
     @Override
     public void finishRendering() {
-    
+        GL11.glDisable(GL_STENCIL_TEST);
     }
     
     @Override
@@ -72,9 +86,12 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
         deferredBuffer.fb.clear(Minecraft.ON_OSX);
         
-        RenderTarget mcFb = Minecraft.getInstance().getMainRenderTarget();
-        IPPortingLibCompat.setIsStencilEnabled(mcFb, false);
-//        ((IEFrameBuffer) mcFb).setIsStencilBufferEnabledAndReload(false);
+        IPPortingLibCompat.setIsStencilEnabled(
+            client.getMainRenderTarget(), false
+        );
+        
+        // Iris now use vanilla framebuffer's depth
+        client.getMainRenderTarget().bindWrite(false);
     }
     
     @Override

@@ -195,6 +195,56 @@ public class MyRenderHelper {
         );
     }
     
+    public static void testOneTriangle(int r, int g, int b, int a) {
+        ShaderInstance shader = GameRenderer.getPositionColorShader();
+        Validate.notNull(shader);
+        
+        Matrix4f identityMatrix = new Matrix4f();
+        identityMatrix.setIdentity();
+        
+        shader.MODEL_VIEW_MATRIX.set(identityMatrix);
+        shader.PROJECTION_MATRIX.set(identityMatrix);
+        
+        shader.apply();
+        
+        RenderSystem.disableTexture();
+        
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+    
+        // upper triangle
+//        bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
+//            .endVertex();
+//        bufferBuilder.vertex(1, 1, 0).color(r, g, b, a)
+//            .endVertex();
+//        bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
+//            .endVertex();
+    
+        // down triangle
+        bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
+            .endVertex();
+        bufferBuilder.vertex(-1, -1, 0).color(r, g, b, a)
+            .endVertex();
+        bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
+            .endVertex();
+    
+        bufferBuilder.vertex(1, 0, 0).color(r, g, b, a)
+            .endVertex();
+        bufferBuilder.vertex(0, 1, 0).color(r, g, b, a)
+            .endVertex();
+        bufferBuilder.vertex(-1, 0, 0).color(r, g, b, a)
+            .endVertex();
+        
+        bufferBuilder.end();
+        
+        BufferUploader._endInternal(bufferBuilder);
+        
+        shader.clear();
+        
+        RenderSystem.enableTexture();
+    }
+    
     public static void renderScreenTriangle(int r, int g, int b, int a) {
         ShaderInstance shader = GameRenderer.getPositionColorShader();
         Validate.notNull(shader);
@@ -231,7 +281,6 @@ public class MyRenderHelper {
         
         BufferUploader._endInternal(bufferBuilder);
         
-        // wrong name. unbind
         shader.clear();
         
         RenderSystem.enableTexture();

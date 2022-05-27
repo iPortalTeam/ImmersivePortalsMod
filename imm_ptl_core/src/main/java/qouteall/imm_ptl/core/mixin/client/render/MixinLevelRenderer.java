@@ -166,7 +166,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         // draw the entity vertices before rendering portal
         // because there is only one additional buffer builder for portal rendering
         /**{@link MyGameRenderer#secondaryBufferBuilderStorage}*/
-        if (WorldRenderInfo.isRendering()) {
+        if (WorldRenderInfo.isRendering() && (!IrisInterface.invoker.isShaders())) {
             minecraft.renderBuffers().bufferSource().endBatch();
         }
         

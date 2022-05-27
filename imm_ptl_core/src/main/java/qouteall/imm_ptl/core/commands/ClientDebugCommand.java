@@ -18,7 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -544,6 +543,21 @@ public class ClientDebugCommand {
             "view_bob_reduce",
             cond -> IPGlobal.viewBobbingReduce = cond
         );
+        registerSwitchCommand(
+            builder,
+            "iris_stencil",
+            cond -> IPCGlobal.debugEnableStencilWithIris = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "another_stencil",
+            cond -> IPCGlobal.useAnotherStencilFormat = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "experimental_iris_portal_renderer",
+            cond -> IPCGlobal.experimentalIrisPortalRenderer = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
@@ -554,8 +568,6 @@ public class ClientDebugCommand {
         );
         
         dispatcher.register(builder);
-        
-        Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
     

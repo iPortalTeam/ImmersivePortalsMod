@@ -38,9 +38,9 @@ public class IPCGlobal {
     public static boolean useSuperAdvancedFrustumCulling = true;
     public static boolean earlyFrustumCullingPortal = true;
     
-    public static enum StencilMode {
-        none, packedWithDepth, separatedStencil
-    }
-    
     public static boolean useAnotherStencilFormat = false;
+    
+    public static boolean experimentalIrisPortalRenderer = false;
+    
+    public static boolean debugEnableStencilWithIris = false;
 }

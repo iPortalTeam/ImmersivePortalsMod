@@ -50,7 +50,7 @@ public class RendererUsingStencil extends PortalRenderer {
         doPortalRendering(matrixStack);
     }
     
-    private void doPortalRendering(PoseStack matrixStack) {
+    protected void doPortalRendering(PoseStack matrixStack) {
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
         
@@ -214,7 +214,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glDepthRange(0, 1);
     }
     
-    private void restoreDepthOfPortalViewArea(
+    protected void restoreDepthOfPortalViewArea(
         PortalLike portal, PoseStack matrixStack
     ) {
         setStencilStateForWorldRendering();

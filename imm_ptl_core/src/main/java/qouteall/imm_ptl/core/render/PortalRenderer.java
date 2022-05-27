@@ -20,12 +20,14 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -280,5 +282,7 @@ public abstract class PortalRenderer {
     public static boolean shouldApplyScaleToModelView(PortalLike portal) {
         return portal.hasScaling() && portal.isFuseView();
     }
+    
+    public void onBeginIrisTranslucentRendering(PoseStack matrixStack) {}
     
 }

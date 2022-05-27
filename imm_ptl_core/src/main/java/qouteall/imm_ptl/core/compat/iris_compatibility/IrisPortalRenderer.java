@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
@@ -93,7 +94,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         }
     
         IPPortingLibCompat.setIsStencilEnabled(client.getMainRenderTarget(), false);
-    
+        
         // Iris now use vanilla framebuffer's depth
         client.getMainRenderTarget().bindWrite(false);
     }
