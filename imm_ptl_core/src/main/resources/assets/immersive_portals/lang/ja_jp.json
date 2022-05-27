@@ -150,5 +150,11 @@
   "imm_ptl.command_desc.bind_cluster": "Allow Easy Editing of Bi-way Bi-faced Portal",
   "imm_ptl.enable_mirror_creation": "Enable Mirror Creation",
   "imm_ptl.command.reverse_accelerate50": "Reverse Accelerate 200",
-  "imm_ptl.command_desc.reverse_accelerate50": "Fly!"
+  "imm_ptl.command_desc.reverse_accelerate50": "Fly!",
+  "imm_ptl.command.enable_pos_adjust": "Enable Post-Teleport Pos Adjustment",
+  "imm_ptl.command_desc.enable_pos_adjust": "Avoid falling through floor after teleportation",
+  "imm_ptl.sodium_warning": "[Immersive Portals] You are using Sodium with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
+  "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
+  "imm_ptl.disable_warning": "Disable warning",
+  "imm_ptl.warning_disabled": "Warning Disabled"
 }

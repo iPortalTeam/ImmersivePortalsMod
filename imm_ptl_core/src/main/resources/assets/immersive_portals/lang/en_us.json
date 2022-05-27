@@ -75,7 +75,7 @@
   "imm_ptl.enabled": "Enabled",
   "imm_ptl.disabled": "Disabled",
   "imm_ptl.loading_datapack_dimensions": "Loading Datapack Dimensions",
-  "imm_ptl.memory_not_enough": "[Immersive Portals] Memory seems not enough. If you experience GC lag, try to shrink render distance or allocate more memory.",
+  "imm_ptl.memory_not_enough": "[Immersive Portals] Memory seems not enough. If you experience GC lag, try to shrink render distance or allocate more memory. How to allocate more memory: ",
   "imm_ptl.command_stick": "Immersive Portals Command Stick",
   "imm_ptl.command.delete_portal": "Delete the portal entity",
   "imm_ptl.command_desc.delete_portal": "Delete the one-way one-faced portal component",

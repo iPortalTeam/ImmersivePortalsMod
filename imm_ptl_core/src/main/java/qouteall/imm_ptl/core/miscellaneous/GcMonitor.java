@@ -8,6 +8,7 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
@@ -118,7 +119,9 @@ public class GcMonitor {
         limitedLogger.invoke(() -> {
             Minecraft.getInstance().gui.handleChat(
                 ChatType.SYSTEM,
-                new TranslatableComponent("imm_ptl.memory_not_enough"),
+                new TranslatableComponent("imm_ptl.memory_not_enough").append(
+                    McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
+                ),
                 Util.NIL_UUID
             );
         });
