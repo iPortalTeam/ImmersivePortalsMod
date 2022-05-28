@@ -26,8 +26,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("altoclef", "Altoclef"),
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("tweakeroo", "Tweakeroo"),
-        new ModInfo("replaymod", "Replay Mod"),
-        new ModInfo("tempad", "Tempad")
+        new ModInfo("replaymod", "Replay Mod")
     );
     
     private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
@@ -39,7 +38,8 @@ public class IPModCompatibilityWarning {
         new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("requiem", "Requiem"),
         new ModInfo("vmp", "VMP"),
-        new ModInfo("create", "Create")
+        new ModInfo("create", "Create"),
+        new ModInfo("tempad", "Tempad")
     );
     
     public static record ModInfo(String modId, String modName) {}
@@ -89,7 +89,7 @@ public class IPModCompatibilityWarning {
                     () -> Minecraft.getInstance().level == null,
                     MyTaskList.oneShotTask(() -> {
                         String warningMessage = String.format(
-                            "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Issues may occur. (This message can be disabled via config)",
+                            "WARNING: Immersive Portals mod maybe has compatibility issues with mod %s(%s).",
                             mod.modName, mod.modId
                         );
                         if (IPGlobal.enableWarning) {

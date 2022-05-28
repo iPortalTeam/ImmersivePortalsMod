@@ -278,5 +278,5 @@ task publishModrinth(type: TaskModrinthUpload) { // Make sure it runs after buil
     // Call this multiple times to add multiple game versions. There are tools that can help you generate the list of versions
     addLoader('fabric')
 
-    versionType = 'ALPHA'
+    versionType = 'RELEASE'
 }
