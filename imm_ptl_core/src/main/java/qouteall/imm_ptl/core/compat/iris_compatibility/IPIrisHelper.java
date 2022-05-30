@@ -1,57 +1,51 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
-public class IPIrisHelper {
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL30C;
 
-//    // may have issue on amd
-//    public static void copyFromIrisShaderFbTo(Framebuffer destFb, int copyComponent) {
-//        GlFramebuffer baselineFramebuffer = getIrisBaselineFramebuffer();
-//        baselineFramebuffer.bindAsReadBuffer();
-//
-//        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
-//
-//        GL30.glBlitFramebuffer(
-//            0, 0, destFb.textureWidth, destFb.textureHeight,
-//            0, 0, destFb.textureWidth, destFb.textureHeight,
-//            copyComponent, GL_NEAREST
-//        );
-//
-//        int errorCode = GL11.glGetError();
-//        if (errorCode != GL_NO_ERROR && IPGlobal.renderMode == IPGlobal.RenderMode.normal) {
-//            String message = "[Immersive Portals] Switch to Compatibility Portal Renderer";
-//            Helper.err("OpenGL Error" + errorCode);
-//            Helper.log(message);
-//            CHelper.printChat(message);
-//
-//            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
-//        }
-//
-//        getIrisBaselineFramebuffer().bind();
-//    }
-//
-//    static GlFramebuffer getIrisBaselineFramebuffer() {
-//        WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipeline();
-//        NewWorldRenderingPipeline newPipeline = (NewWorldRenderingPipeline) pipeline;
-//
-//        GlFramebuffer baselineFramebuffer = newPipeline.getBaselineFramebuffer();
-//        return baselineFramebuffer;
-//    }
-//
-//    @Deprecated
-//    private static void copyDepth(
-//        GlFramebuffer from,
-//        int toTexture,
-//        int width, int height
-//    ) {
-//        doCopyComponent(from, toTexture, width, height, GL20C.GL_DEPTH_COMPONENT);
-//    }
-//
-//    @Deprecated
-//    private static void doCopyComponent(
-//        GlFramebuffer from, int toTexture, int width, int height, int copiedComponent
-//    ) {
-//        from.bindAsReadBuffer();
-//        GlStateManager._bindTexture(toTexture);
-//        GL20C.glCopyTexImage2D(GL20C.GL_TEXTURE_2D, 0, copiedComponent, 0, 0, width, height, 0);
-//        GlStateManager._bindTexture(0);
-//    }
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
+
+public class IPIrisHelper {
+    
+    public static void copyDepthStencil(
+        RenderTarget from, RenderTarget to,
+        boolean copyDepth, boolean copyStencil
+    ) {
+        from.unbindWrite();
+        
+        int mask = 0;
+        
+        if (copyDepth) {
+            if (copyStencil) {
+                mask = GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+            }
+            else {
+                mask = GL_DEPTH_BUFFER_BIT;
+            }
+        }
+        else {
+            if (copyStencil) {
+                mask = GL_STENCIL_BUFFER_BIT;
+            }
+            else {
+                throw new RuntimeException();
+            }
+        }
+        
+        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, from.frameBufferId);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, to.frameBufferId);
+        
+        GL30.glBlitFramebuffer(
+            0, 0, from.width, from.height,
+            0, 0, to.width, to.height,
+            mask, GL_NEAREST
+        );
+        
+        from.unbindWrite();
+    }
 }

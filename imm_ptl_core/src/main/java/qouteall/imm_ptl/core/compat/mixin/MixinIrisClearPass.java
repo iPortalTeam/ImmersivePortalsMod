@@ -11,7 +11,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRen
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 @Mixin(ClearPass.class)
-public class MixinIrisSodiumClearPass {
+public class MixinIrisClearPass {
     @Inject(
         method = "execute", at = @At("HEAD"), cancellable = true
     )

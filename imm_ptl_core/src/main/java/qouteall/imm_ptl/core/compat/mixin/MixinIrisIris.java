@@ -11,7 +11,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
 
 @Mixin(Iris.class)
-public class MixinIrisSodiumIris {
+public class MixinIrisIris {
     // test
     // only overworld
     @Inject(

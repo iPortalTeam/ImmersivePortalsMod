@@ -8,7 +8,9 @@ import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
+import qouteall.imm_ptl.core.compat.mixin.IEIrisNewWorldRenderingPipeline;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -32,8 +34,15 @@ import static org.lwjgl.opengl.GL11.GL_LESS;
 import static org.lwjgl.opengl.GL11.GL_REPLACE;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
+// Iris now use the vanilla framebuffer's depth texture and support stencil
+// So a better portal rendering method for forward-shading shaders is possible
 public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     public static final ExperimentalIrisPortalRenderer instance = new ExperimentalIrisPortalRenderer();
+    
+    public static void init() {
+        IPGlobal.clientCleanupSignal.connect(() -> {
+        });
+    }
     
     @Override
     public boolean replaceFrameBufferClearing() {
@@ -56,6 +65,10 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         client.renderBuffers().bufferSource().endBatch();
         
         doPortalRendering(matrixStack);
+    
+        // Resume Iris world rendering
+        ((IEIrisNewWorldRenderingPipeline) (Object) Iris.getPipelineManager().getPipeline().get())
+            .ip_setIsRenderingWorld(true);
     }
     
     @Override
@@ -90,7 +103,26 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     }
     
     protected void restoreDepthOfPortalViewArea(PortalLike portal, PoseStack matrixStack) {
-        // no restore depth for now
+        client.getMainRenderTarget().bindWrite(false);
+        
+        setStencilStateForWorldRendering();
+        
+        int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
+        
+        GL11.glDepthFunc(GL_ALWAYS);
+        
+        FrontClipping.disableClipping();
+        
+        ViewAreaRenderer.renderPortalArea(
+            portal, Vec3.ZERO,
+            matrixStack.last().pose(),
+            RenderSystem.getProjectionMatrix(),
+            false,
+            false,
+            true
+        );
+        
+        GL11.glDepthFunc(originalDepthFunc);
     }
     
     @Override
@@ -105,6 +137,10 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
                 newWorldRenderingPipeline.isBeforeTranslucent = true;
             }
         });
+        
+        // Avoid Iris from force-disabling depth mask
+        ((IEIrisNewWorldRenderingPipeline) (Object) Iris.getPipelineManager().getPipeline().get())
+            .ip_setIsRenderingWorld(false);
     }
     
     protected void doPortalRendering(PoseStack matrixStack) {
@@ -124,8 +160,12 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        // The main depth buffer that Iris use should not contain the depth of portal itself,
+        //  otherwise it can't read the correct depth, things may not render normally.
+        // However, portals can occlude portals. So we need another framebuffer to hold the
+        //  world depth + portal depth
         
+        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
         List<PortalLike> reallyRenderedPortals = new ArrayList<>();
         
         for (PortalLike portal : portalsToRender) {
@@ -143,7 +183,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         for (PortalLike reallyRenderedPortal : reallyRenderedPortals) {
             renderPortalViewAreaToStencil(reallyRenderedPortal, matrixStack);
         }
-
+        
         setStencilStateForWorldRendering();
     }
     

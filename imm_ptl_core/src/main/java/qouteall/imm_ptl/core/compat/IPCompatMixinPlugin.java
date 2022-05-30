@@ -29,6 +29,11 @@ public class IPCompatMixinPlugin implements IMixinConfigPlugin {
             return sodiumLoaded && irisLoaded;
         }
         
+        if (mixinClassName.contains("Iris")) {
+            boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
+            return irisLoaded;
+        }
+        
         if (mixinClassName.contains("Sodium")) {
             boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
             return sodiumLoaded;

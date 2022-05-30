@@ -10,7 +10,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRen
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 @Mixin(NewWorldRenderingPipeline.class)
-public class MixinIrisSodiumNewWorldRenderingPipeline {
+public class MixinIrisNewWorldRenderingPipeline {
     @Inject(
         method = "finalizeLevelRendering", at = @At("HEAD"), cancellable = true
     )

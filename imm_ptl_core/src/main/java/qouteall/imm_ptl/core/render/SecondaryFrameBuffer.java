@@ -24,7 +24,7 @@ public class SecondaryFrameBuffer {
                 Minecraft.ON_OSX
             );
             fb.checkStatus();
-            Helper.log("Deferred buffer init");
+            Helper.log("Secondary Framebuffer init");
         }
         if (width != fb.viewWidth ||
             height != fb.viewHeight
@@ -33,7 +33,7 @@ public class SecondaryFrameBuffer {
                 width, height, Minecraft.ON_OSX
             );
             fb.checkStatus();
-            Helper.log("Deferred buffer resized");
+            Helper.log("Secondary Framebuffer resized");
         }
     }
     
