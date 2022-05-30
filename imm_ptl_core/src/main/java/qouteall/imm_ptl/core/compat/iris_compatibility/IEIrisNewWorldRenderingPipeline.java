@@ -1,11 +1,12 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
+import net.coderbot.iris.shadows.ShadowRenderTargets;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value = NewWorldRenderingPipeline.class, remap = false)
 public interface IEIrisNewWorldRenderingPipeline {
-    @Accessor("isRenderingWorld")
     void ip_setIsRenderingWorld(boolean cond);
+    
+    ShadowRenderTargets ip_getShadowRenderTargets();
 }

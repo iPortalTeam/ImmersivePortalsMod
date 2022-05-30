@@ -4,13 +4,15 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
+import net.coderbot.iris.pipeline.WorldRenderingPipeline;
+import net.coderbot.iris.pipeline.newshader.CoreWorldRenderingPipeline;
 import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
+import net.coderbot.iris.shadows.ShadowRenderTargets;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
-import qouteall.imm_ptl.core.compat.mixin.IEIrisNewWorldRenderingPipeline;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -65,7 +67,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         client.renderBuffers().bufferSource().endBatch();
         
         doPortalRendering(matrixStack);
-    
+        
         // Resume Iris world rendering
         ((IEIrisNewWorldRenderingPipeline) (Object) Iris.getPipelineManager().getPipeline().get())
             .ip_setIsRenderingWorld(true);
@@ -127,20 +129,41 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     
     @Override
     public void invokeWorldRendering(WorldRenderInfo worldRenderInfo) {
+        WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipeline().get();
+    
+        ShadowMapSwapper.Storage shadowMapCache = null;
+        
+        if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
+            ShadowRenderTargets shadowRenderTargets = ((IEIrisNewWorldRenderingPipeline) newWorldRenderingPipeline).ip_getShadowRenderTargets();
+            
+            if (shadowRenderTargets != null) {
+                ShadowMapSwapper shadowMapSwapper = ((IEIrisShadowRenderTargets) shadowRenderTargets).getShadowMapSwapper();
+                
+                shadowMapCache = shadowMapSwapper.acquireStorage();
+                
+                if (shadowMapCache != null) {
+                    shadowMapCache.copyFromIrisShadowRenderTargets();
+                }
+            }
+        }
+        
         SystemTimeUniforms.COUNTER.beginFrame(); // is it necessary?
         super.invokeWorldRendering(worldRenderInfo);
         SystemTimeUniforms.COUNTER.beginFrame(); // make Iris to update the uniforms
         
-        Iris.getPipelineManager().getPipeline().ifPresent(pipeline -> {
-            if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
-                // this is important to hand rendering
-                newWorldRenderingPipeline.isBeforeTranslucent = true;
-            }
-        });
+        if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
+            // this is important to hand rendering
+            newWorldRenderingPipeline.isBeforeTranslucent = true;
+        }
         
         // Avoid Iris from force-disabling depth mask
-        ((IEIrisNewWorldRenderingPipeline) (Object) Iris.getPipelineManager().getPipeline().get())
+        ((IEIrisNewWorldRenderingPipeline) (Object) pipeline)
             .ip_setIsRenderingWorld(false);
+        
+        if (shadowMapCache != null) {
+            shadowMapCache.copyToIrisShadowRenderTargets();
+            shadowMapCache.restitute();
+        }
     }
     
     protected void doPortalRendering(PoseStack matrixStack) {

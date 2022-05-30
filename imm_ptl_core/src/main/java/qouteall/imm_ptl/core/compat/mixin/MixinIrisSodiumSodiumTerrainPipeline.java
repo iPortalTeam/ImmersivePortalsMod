@@ -25,4 +25,16 @@ public class MixinIrisSodiumSodiumTerrainPipeline {
             )
         ));
     }
+    
+    @Inject(method = "getTranslucentVertexShaderSource", at = @At("RETURN"), cancellable = true)
+    private void onGetTranslucentVertexShaderSource(CallbackInfoReturnable<Optional<String>> cir) {
+        Optional<String> original = cir.getReturnValue();
+        cir.setReturnValue(original.map(code ->
+            ShaderCodeTransformation.transform(
+                Program.Type.VERTEX,
+                "iris_sodium_translucent_vertex",
+                code
+            )
+        ));
+    }
 }

@@ -73,7 +73,8 @@
     "comment": "For iris+sodium",
     "type": "vs",
     "affectedShaders": [
-      "iris_sodium_terrain_vertex"
+      "iris_sodium_terrain_vertex",
+      "iris_sodium_translucent_vertex"
     ],
     "transformations": [
       {
