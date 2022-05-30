@@ -22,11 +22,17 @@ public class MixinIrisSodiumNewWorldRenderingPipeline {
         }
     }
     
-//    @Inject(
-//        method = "beginTranslucents",
-//        at = @At("HEAD")
-//    )
-//    private void onBeginTranslucents(CallbackInfo ci) {
-//        System.out.println("Iris injection");
-//    }
+    @Inject(
+        method = "beginTranslucents",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/coderbot/iris/postprocess/CompositeRenderer;renderAll()V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onAfterDeferredCompositeRendering(CallbackInfo ci) {
+        if (IPCGlobal.renderer instanceof ExperimentalIrisPortalRenderer r) {
+            r.onAfterIrisDeferredCompositeRendering();
+        }
+    }
 }

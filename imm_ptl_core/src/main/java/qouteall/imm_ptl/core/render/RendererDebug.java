@@ -11,6 +11,8 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
+import java.util.List;
+
 public class RendererDebug extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering(PoseStack matrixStack) {
@@ -47,7 +49,6 @@ public class RendererDebug extends PortalRenderer {
         return false;
     }
     
-    @Override
     protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
         if (RenderStates.getRenderedPortalNum() != 0) {
             return;
@@ -84,5 +85,13 @@ public class RendererDebug extends PortalRenderer {
                 true, true,
                 true);
         });
+    }
+    
+    protected void renderPortals(PoseStack matrixStack) {
+        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+    
+        for (PortalLike portal : portalsToRender) {
+            doRenderPortal(portal, matrixStack);
+        }
     }
 }

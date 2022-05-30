@@ -8,13 +8,13 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
-import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
@@ -60,7 +60,16 @@ public class RendererUsingStencil extends PortalRenderer {
             setStencilStateForWorldRendering();
         }
         else {
+            // TODO why not do it in finishRendering()?
             myFinishRendering();
+        }
+    }
+    
+    protected void renderPortals(PoseStack matrixStack) {
+        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        
+        for (PortalLike portal : portalsToRender) {
+            doRenderPortal(portal, matrixStack);
         }
     }
     
@@ -107,7 +116,6 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager._enableDepthTest();
     }
     
-    @Override
     protected void doRenderPortal(
         PortalLike portal,
         PoseStack matrixStack
@@ -278,7 +286,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
     
-    private static boolean shouldSkipRenderingInsideFuseViewPortal(PortalLike portal) {
+    public static boolean shouldSkipRenderingInsideFuseViewPortal(PortalLike portal) {
         if (!PortalRendering.isRendering()) {
             return false;
         }

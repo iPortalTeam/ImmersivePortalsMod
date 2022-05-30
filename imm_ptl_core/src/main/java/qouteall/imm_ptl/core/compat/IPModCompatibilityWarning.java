@@ -38,8 +38,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("requiem", "Requiem"),
         new ModInfo("vmp", "VMP"),
-        new ModInfo("create", "Create"),
-        new ModInfo("tempad", "Tempad")
+        new ModInfo("create", "Create")
     );
     
     public static record ModInfo(String modId, String modName) {}

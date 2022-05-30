@@ -9,11 +9,12 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
-import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+
+import java.util.List;
 
 public class RendererUsingFrameBuffer extends PortalRenderer {
     SecondaryFrameBuffer secondaryFrameBuffer = new SecondaryFrameBuffer();
@@ -50,7 +51,6 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
 //        ((IEFrameBuffer) client.getMainRenderTarget()).setIsStencilBufferEnabledAndReload(false);
     }
     
-    @Override
     protected void doRenderPortal(
         PortalLike portal,
         PoseStack matrixStack
@@ -127,4 +127,11 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         );
     }
     
+    protected void renderPortals(PoseStack matrixStack) {
+        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+    
+        for (PortalLike portal : portalsToRender) {
+            doRenderPortal(portal, matrixStack);
+        }
+    }
 }

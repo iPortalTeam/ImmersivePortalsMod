@@ -9,10 +9,8 @@ import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
-import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -24,6 +22,8 @@ import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -224,7 +224,6 @@ public class IrisPortalRenderer extends PortalRenderer {
         CHelper.checkGlError();
     }
     
-    @Override
     protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
         nextFramePortalRenderingNeeded = true;
         
@@ -319,4 +318,11 @@ public class IrisPortalRenderer extends PortalRenderer {
     
     }
     
+    protected void renderPortals(PoseStack matrixStack) {
+        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+    
+        for (PortalLike portal : portalsToRender) {
+            doRenderPortal(portal, matrixStack);
+        }
+    }
 }

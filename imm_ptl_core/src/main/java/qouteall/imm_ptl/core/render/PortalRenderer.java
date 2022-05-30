@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -60,7 +61,7 @@ public abstract class PortalRenderer {
     // this will also be called in outer world rendering
     public abstract boolean replaceFrameBufferClearing();
     
-    protected final void renderPortals(PoseStack matrixStack) {
+    protected List<PortalLike> getPortalsToRender(PoseStack matrixStack) {
         Validate.isTrue(client.cameraEntity.level == client.level);
         
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
@@ -108,13 +109,10 @@ public abstract class PortalRenderer {
         portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
             portalEntity.getDistanceToNearestPointInPortal(cameraPos)
         ));
-        
-        for (PortalLike portal : portalsToRender) {
-            doRenderPortal(portal, matrixStack);
-        }
+        return portalsToRender;
     }
     
-    private boolean shouldSkipRenderingPortal(Portal portal, Supplier<Frustum> frustumSupplier) {
+    private static boolean shouldSkipRenderingPortal(Portal portal, Supplier<Frustum> frustumSupplier) {
         if (!portal.isPortalValid()) {
             return true;
         }
@@ -154,7 +152,7 @@ public abstract class PortalRenderer {
         return false;
     }
     
-    protected final double getRenderRange() {
+    public static double getRenderRange() {
         double range = client.options.renderDistance * 16;
         if (RenderStates.isLaggy || IPGlobal.reducedPortalRendering) {
             range = 16;
@@ -172,11 +170,6 @@ public abstract class PortalRenderer {
         }
         return range;
     }
-    
-    protected abstract void doRenderPortal(
-        PortalLike portal,
-        PoseStack matrixStack
-    );
     
     protected final void renderPortalContent(
         PortalLike portal

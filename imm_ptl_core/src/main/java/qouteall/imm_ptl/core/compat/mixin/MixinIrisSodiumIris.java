@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.compat.mixin;
 
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.shaderpack.DimensionId;
+import net.fabricmc.loader.api.FabricLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,4 +22,14 @@ public class MixinIrisSodiumIris {
             cir.setReturnValue(DimensionId.OVERWORLD);
         }
     }
+    
+//    // it cannot recognize sodium from jitpack
+//    @Inject(
+//        method = "isSodiumInvalid", at = @At("HEAD"), cancellable = true
+//    )
+//    private static void onIsSodiumInvalid(CallbackInfoReturnable<Boolean> cir) {
+//        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+//            cir.setReturnValue(false);
+//        }
+//    }
 }

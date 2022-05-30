@@ -11,12 +11,12 @@ import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 @Mixin(CompositeRenderer.class)
 public class MixinIrisSodiumCompositeRenderer {
-    @Inject(method = "renderAll", at = @At("HEAD"), cancellable = true)
-    private void onRenderAll(CallbackInfo ci) {
-        if (IPCGlobal.renderer instanceof ExperimentalIrisPortalRenderer) {
-            if (PortalRendering.isRendering()) {
-                ci.cancel();
-            }
-        }
-    }
+//    @Inject(method = "renderAll", at = @At("HEAD"), cancellable = true)
+//    private void onRenderAll(CallbackInfo ci) {
+//        if (IPCGlobal.renderer instanceof ExperimentalIrisPortalRenderer) {
+//            if (PortalRendering.isRendering()) {
+//                ci.cancel();
+//            }
+//        }
+//    }
 }
