@@ -11,9 +11,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -305,6 +307,7 @@ public class McHelper {
         return chunkHolder_.getTickingChunk();
     }
     
+    @Deprecated
     public static <ENTITY extends Entity> Stream<ENTITY> getServerEntitiesNearbyWithoutLoadingChunk(
         Level world,
         Vec3 center,
@@ -558,6 +561,29 @@ public class McHelper {
             consumer
         );
     }
+    
+    public static <T extends Entity> void foreachEntitiesByPointAndRoughRadius(
+        Class<T> entityClass, Level world, Vec3 point, int roughRadius,
+        Consumer<T> consumer
+    ) {
+        SectionPos sectionPos = SectionPos.of(new BlockPos(point));
+        int roughRadiusChunks = roughRadius / 16;
+        if (roughRadiusChunks == 0) {
+            roughRadiusChunks = 1;
+        }
+        
+        foreachEntities(
+            entityClass, ((IEWorld) world).portal_getEntityLookup(),
+            sectionPos.x() - roughRadiusChunks,
+            sectionPos.x() + roughRadiusChunks,
+            sectionPos.y() - roughRadiusChunks,
+            sectionPos.y() + roughRadiusChunks,
+            sectionPos.z() - roughRadiusChunks,
+            sectionPos.z() + roughRadiusChunks,
+            consumer
+        );
+    }
+    
     
     public static ResourceLocation dimensionTypeId(ResourceKey<Level> dimType) {
         return dimType.location();

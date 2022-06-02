@@ -14,7 +14,9 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class CrossPortalSound {
@@ -48,13 +50,11 @@ public class CrossPortalSound {
         );
         
         // find portals in range of the sound
-        SimpleSoundInstance result = IPMcHelper.getNearbyPortals(
-            soundWorld, soundPos, soundRadius
-        ).filter(
-            // keep portals in range of the player
+        SimpleSoundInstance result = IPMcHelper.getNearbyPortalList(
+            soundWorld, soundPos, soundRadius,
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
                 isPlayerInRange(portal, soundPos, soundRadius, playerCameraPos)
-        ).min(
+        ).stream().min(
             // use portal that is closest to the sound
             Comparator.comparingDouble(portal -> getPortalDistance(portal, soundPos))
         ).map(

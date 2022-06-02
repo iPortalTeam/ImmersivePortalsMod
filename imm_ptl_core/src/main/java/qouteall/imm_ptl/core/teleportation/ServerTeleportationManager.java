@@ -379,6 +379,7 @@ public class ServerTeleportationManager {
                 updateForPlayer(tickTimeNow, player);
             }
         }
+        // TODO optimize it
         copiedPlayerList.forEach(player -> {
             McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                 player.level,

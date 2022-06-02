@@ -23,11 +23,50 @@ import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+// TODO reorganize the methods in 1.19
 public class IPMcHelper {
+    // include global portals
+    public static void foreachNearbyPortals(
+        Level world, Vec3 pos, int range, Consumer<Portal> func
+    ) {
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
+        
+        for (Portal globalPortal : globalPortals) {
+            if (globalPortal.getDistanceToNearestPointInPortal(pos) < range * 2) {
+                func.accept(globalPortal);
+            }
+        }
+        
+        McHelper.foreachEntitiesByPointAndRoughRadius(
+            Portal.class, world, pos, range, func
+        );
+    }
+    
+    // include global portals
+    public static List<Portal> getNearbyPortalList(
+        Entity center, double range, Predicate<Portal> predicate
+    ) {
+        return getNearbyPortalList(center.level, center.position(), range, predicate);
+    }
+    
+    // include global portals
+    public static List<Portal> getNearbyPortalList(
+        Level world, Vec3 pos, double range, Predicate<Portal> predicate
+    ) {
+        List<Portal> result = new ArrayList<>();
+        foreachNearbyPortals(world, pos, (int) range, portal -> {
+            if (predicate.test(portal)) {
+                result.add(portal);
+            }
+        });
+        return result;
+    }
+    
     // includes global portals
     public static Stream<Portal> getNearbyPortals(Entity center, double range) {
         return getNearbyPortals(center.level, center.position(), range);
@@ -35,17 +74,7 @@ public class IPMcHelper {
     
     // includes global portals
     public static Stream<Portal> getNearbyPortals(Level world, Vec3 pos, double range) {
-        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
-        
-        Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-            world, pos, Portal.class, range
-        );
-        return Streams.concat(
-            globalPortals.stream().filter(
-                p -> p.getDistanceToNearestPointInPortal(pos) < range * 2
-            ),
-            nearbyPortals
-        );
+        return getNearbyPortalList(world, pos, range, e -> true).stream();
     }
     
     //avoid dedicated server crash
