@@ -108,6 +108,18 @@ public class Helper {
         }
     }
     
+    public static BlockPos putCoordinate(Vec3i v, Direction.Axis axis, int value) {
+        if (axis == Direction.Axis.X) {
+            return new BlockPos(value, v.getY(), v.getZ());
+        }
+        else if (axis == Direction.Axis.Y) {
+            return new BlockPos(v.getX(), value, v.getZ());
+        }
+        else {
+            return new BlockPos(v.getX(), v.getY(), value);
+        }
+    }
+    
     public static double getBoxCoordinate(AABB box, Direction direction) {
         switch (direction) {
             case DOWN -> {return box.minY;}

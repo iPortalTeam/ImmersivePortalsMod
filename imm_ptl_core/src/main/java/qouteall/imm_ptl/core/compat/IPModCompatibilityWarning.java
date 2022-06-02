@@ -26,11 +26,11 @@ public class IPModCompatibilityWarning {
         new ModInfo("altoclef", "Altoclef"),
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("tweakeroo", "Tweakeroo"),
-        new ModInfo("replaymod", "Replay Mod")
+        new ModInfo("replaymod", "Replay Mod"),
+        new ModInfo("c2me", "C2ME")
     );
     
     private static final List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
-        new ModInfo("c2me", "C2ME"),
         new ModInfo("physicsmod", "Physics Mod"),
 //        new ModInfo("dashloader", "DashLoader"),
         new ModInfo("cameraoverhaul", "Camera Overhaul"),

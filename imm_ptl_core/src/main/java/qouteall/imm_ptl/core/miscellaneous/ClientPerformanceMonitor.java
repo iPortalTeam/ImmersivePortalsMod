@@ -39,8 +39,13 @@ public class ClientPerformanceMonitor {
             return;
         }
         
-        long freeMemory = Runtime.getRuntime().freeMemory();
-        int freeMemoryMB = (int) PortalDebugCommands.toMiB(freeMemory);
+        long maxMemoryBytes = Runtime.getRuntime().maxMemory();
+        long totalMemoryBytes = Runtime.getRuntime().totalMemory();
+        long freeMemoryBytes = Runtime.getRuntime().freeMemory();
+        long usedMemoryBytes = totalMemoryBytes - freeMemoryBytes;
+        long actualFreeMemoryBytes = maxMemoryBytes - usedMemoryBytes;
+        
+        int freeMemoryMB = (int) PortalDebugCommands.toMiB(actualFreeMemoryBytes);
         
         records.addLast(new Record(newFps, freeMemoryMB));
         
