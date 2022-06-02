@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.common;
+package qouteall.imm_ptl.core.mixin.common.other_sync;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
