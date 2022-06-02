@@ -130,22 +130,22 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     @Override
     public void invokeWorldRendering(WorldRenderInfo worldRenderInfo) {
         WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipeline().get();
-    
-        ShadowMapSwapper.Storage shadowMapCache = null;
         
-        if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
-            ShadowRenderTargets shadowRenderTargets = ((IEIrisNewWorldRenderingPipeline) newWorldRenderingPipeline).ip_getShadowRenderTargets();
-            
-            if (shadowRenderTargets != null) {
-                ShadowMapSwapper shadowMapSwapper = ((IEIrisShadowRenderTargets) shadowRenderTargets).getShadowMapSwapper();
-                
-                shadowMapCache = shadowMapSwapper.acquireStorage();
-                
-                if (shadowMapCache != null) {
-                    shadowMapCache.copyFromIrisShadowRenderTargets();
-                }
-            }
-        }
+//        ShadowMapSwapper.Storage shadowMapCache = null;
+//
+//        if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
+//            ShadowRenderTargets shadowRenderTargets = ((IEIrisNewWorldRenderingPipeline) newWorldRenderingPipeline).ip_getShadowRenderTargets();
+//
+//            if (shadowRenderTargets != null) {
+//                ShadowMapSwapper shadowMapSwapper = ((IEIrisShadowRenderTargets) shadowRenderTargets).getShadowMapSwapper();
+//
+//                shadowMapCache = shadowMapSwapper.acquireStorage();
+//
+//                if (shadowMapCache != null) {
+//                    shadowMapCache.copyFromIrisShadowRenderTargets();
+//                }
+//            }
+//        }
         
         SystemTimeUniforms.COUNTER.beginFrame(); // is it necessary?
         super.invokeWorldRendering(worldRenderInfo);
@@ -160,10 +160,10 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         ((IEIrisNewWorldRenderingPipeline) (Object) pipeline)
             .ip_setIsRenderingWorld(false);
         
-        if (shadowMapCache != null) {
-            shadowMapCache.copyToIrisShadowRenderTargets();
-            shadowMapCache.restitute();
-        }
+//        if (shadowMapCache != null) {
+//            shadowMapCache.copyToIrisShadowRenderTargets();
+//            shadowMapCache.restitute();
+//        }
     }
     
     protected void doPortalRendering(PoseStack matrixStack) {
@@ -204,7 +204,9 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         // draw the portal areas again to increase stencil
         // to limit the area of Iris deferred composite rendering
         for (PortalLike reallyRenderedPortal : reallyRenderedPortals) {
-            renderPortalViewAreaToStencil(reallyRenderedPortal, matrixStack);
+            if (!reallyRenderedPortal.isFuseView()) {
+                renderPortalViewAreaToStencil(reallyRenderedPortal, matrixStack);
+            }
         }
         
         setStencilStateForWorldRendering();

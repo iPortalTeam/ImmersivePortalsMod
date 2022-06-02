@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface IEIrisNewWorldRenderingPipeline {
     void ip_setIsRenderingWorld(boolean cond);
     
-    ShadowRenderTargets ip_getShadowRenderTargets();
+//    ShadowRenderTargets ip_getShadowRenderTargets();
 }

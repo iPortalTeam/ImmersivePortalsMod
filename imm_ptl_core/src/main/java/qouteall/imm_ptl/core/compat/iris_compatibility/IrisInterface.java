@@ -31,6 +31,8 @@ public class IrisInterface {
         public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
         
         }
+        
+        public void reloadPipelines() {}
     }
     
     public static class OnIrisPresent extends Invoker {
@@ -73,7 +75,11 @@ public class IrisInterface {
                 return null;
             });
         }
-    
+        
+        @Override
+        public void reloadPipelines() {
+            Iris.getPipelineManager().destroyPipeline();
+        }
     }
     
     public static Invoker invoker = new Invoker();

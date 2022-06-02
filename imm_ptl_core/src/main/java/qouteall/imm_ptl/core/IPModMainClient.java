@@ -82,6 +82,10 @@ public class IPModMainClient {
         if (IPCGlobal.renderer != renderer) {
             Helper.log("switched to renderer " + renderer.getClass());
             IPCGlobal.renderer = renderer;
+            
+            if (IrisInterface.invoker.isShaders()) {
+                IrisInterface.invoker.reloadPipelines();
+            }
         }
     }
     
@@ -149,7 +153,7 @@ public class IPModMainClient {
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-        
+
 //        showPreviewWarning();
         
         showIntelVideoCardWarning();
@@ -157,9 +161,9 @@ public class IPModMainClient {
         PortalAnimationManagement.init();
         
         VisibleSectionDiscovery.init();
-    
-        IPFlywheelCompat.init();
         
+        IPFlywheelCompat.init();
+
 //        InvalidateRenderStateCallback.EVENT.register(()->{
 //            Helper.log("reload levelrenderer " + Minecraft.getInstance().level.dimension().location());
 //        });
