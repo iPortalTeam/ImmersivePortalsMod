@@ -71,6 +71,12 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     protected abstract void unsetRemoved();
     
+    @Shadow
+    private Vec3 position;
+    
+    @Shadow
+    private BlockPos blockPosition;
+    
     //maintain collidingPortal field
     @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -270,5 +276,11 @@ public abstract class MixinEntity implements IEEntity {
     @Override
     public void portal_unsetRemoved() {
         unsetRemoved();
+    }
+    
+    @Override
+    public void ip_setPositionWithoutTriggeringCallback(Vec3 newPos) {
+        this.position = newPos;
+        this.blockPosition = new BlockPos(newPos);
     }
 }

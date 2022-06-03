@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.teleportation;
 import net.minecraft.Util;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -239,6 +240,15 @@ public class ServerTeleportationManager {
             .filter(portal -> portal.dimensionTo == dimension)
             .map(portal -> portal.transformPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.distanceToSqr(pos) < 256);
+    }
+    
+    public static boolean canPlayerReachBlockEntity(
+        ServerPlayer player, BlockEntity blockEntity
+    ) {
+        return canPlayerReachPos(
+            player, blockEntity.getLevel().dimension(),
+            Vec3.atCenterOf(blockEntity.getBlockPos())
+        );
     }
     
     public void teleportPlayer(
