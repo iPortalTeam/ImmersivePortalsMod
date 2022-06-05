@@ -27,7 +27,7 @@ jobs:
         MODRINTH: ${{ secrets.MODRINTH }}
       with:
         gradle-version: 7.3
-        arguments: build additionalCopy publishModrinth
+        arguments: build additionalCopy modrinth
 
     - name: Upload assets to GitHub
       uses: AButler/upload-release-assets@v2.0

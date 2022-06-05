@@ -267,6 +267,8 @@ modrinth {
     }
 }
 
+tasks.modrinth.dependsOn(additionalCopy)
+
 //
 //import com.modrinth.minotaur.TaskModrinthUpload
 //
