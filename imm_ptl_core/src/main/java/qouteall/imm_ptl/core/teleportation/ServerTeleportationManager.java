@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.teleportation;
 
 import net.minecraft.Util;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -143,11 +144,6 @@ public class ServerTeleportationManager {
         
         Portal portal = findPortal(dimensionBefore, portalId);
         
-        if (!portal.canTeleportEntity(player)) {
-            Helper.log("The portal cannot teleport the player, but a teleport packet has been received");
-            return;
-        }
-        
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
         Vec3 oldFeetPos = oldEyePos.subtract(McHelper.getEyeOffset(player));
@@ -183,6 +179,7 @@ public class ServerTeleportationManager {
                 player.position(),
                 portal
             ));
+            teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level));
         }
     }
     
@@ -220,9 +217,14 @@ public class ServerTeleportationManager {
         if (player.getVehicle() != null) {
             return true;
         }
-        return canPlayerReachPos(player, dimensionBefore, posBefore) &&
-            portalEntity instanceof Portal &&
-            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20;
+        
+        if (!(portalEntity instanceof Portal portal)) {
+            return false;
+        }
+        
+        return portal.canTeleportEntity(player)
+            && canPlayerReachPos(player, dimensionBefore, posBefore)
+            && portal.getDistanceToPlane(posBefore) < 20;
     }
     
     public static boolean canPlayerReachPos(
@@ -238,6 +240,7 @@ public class ServerTeleportationManager {
         }
         return IPMcHelper.getNearbyPortals(player, 20)
             .filter(portal -> portal.dimensionTo == dimension)
+            .filter(portal -> portal.canTeleportEntity(player))
             .map(portal -> portal.transformPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.distanceToSqr(pos) < 256);
     }
@@ -278,6 +281,7 @@ public class ServerTeleportationManager {
         MiscHelper.getServer().getProfiler().pop();
     }
     
+    // TODO rename
     public void invokeTpmeCommand(
         ServerPlayer player,
         ResourceKey<Level> dimensionTo,
