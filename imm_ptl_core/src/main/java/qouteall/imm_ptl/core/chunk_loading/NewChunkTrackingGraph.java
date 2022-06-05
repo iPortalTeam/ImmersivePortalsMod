@@ -211,26 +211,21 @@ public class NewChunkTrackingGraph {
     private static final Random random = new Random();
     
     private static int getChunkDeliveringLimitPerTick(ServerPlayer player) {
-    
-        // debug
-//        return player.tickCount % 4 == 0 ? 1 : 0;
-        return 99999999;
+        if (player.tickCount < 100) {
+            return 200;
+        }
         
-//        if (player.tickCount < 100) {
-//            return 200;
-//        }
-//
-//        PlayerInfo playerInfo = getPlayerInfo(player);
-//
-//        if (playerInfo.performanceLevel == PerformanceLevel.good) {
-//            return 5;
-//        }
-//        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
-//            return 1;
-//        }
-//        else {
-//            return player.tickCount % 4 == 0 ? 1 : 0;
-//        }
+        PlayerInfo playerInfo = getPlayerInfo(player);
+        
+        if (playerInfo.performanceLevel == PerformanceLevel.good) {
+            return 5;
+        }
+        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
+            return 1;
+        }
+        else {
+            return player.tickCount % 4 == 0 ? 1 : 0;
+        }
     }
     
     private static void updatePlayerForChunkLoader(
