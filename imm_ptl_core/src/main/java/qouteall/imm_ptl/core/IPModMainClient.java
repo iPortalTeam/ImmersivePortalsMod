@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
+import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
@@ -161,6 +162,8 @@ public class IPModMainClient {
         PortalAnimationManagement.init();
         
         VisibleSectionDiscovery.init();
+        
+        MyBuiltChunkStorage.init();
         
         IPFlywheelCompat.init();
 

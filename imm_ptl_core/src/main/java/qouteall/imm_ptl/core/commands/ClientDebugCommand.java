@@ -456,7 +456,7 @@ public class ClientDebugCommand {
         registerSwitchCommand(
             builder,
             "early_light_update",
-            cond -> IPCGlobal.earlyClientLightUpdate = cond
+            cond -> IPCGlobal.lateClientLightUpdate = cond
         );
         registerSwitchCommand(
             builder,

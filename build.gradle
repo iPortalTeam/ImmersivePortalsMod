@@ -115,8 +115,8 @@ allprojects {
 
         modCompileOnly('maven.modrinth:pehkui:3.2.0+1.14.4-1.19')
 
-        modImplementation "maven.modrinth:sodium:mc1.18.2-0.4.1"
-        implementation "org.joml:joml:1.10.2" // for sodium
+        modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
+//        implementation "org.joml:joml:1.10.2" // for sodium
 
         modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.1'
 //        modImplementation 'net.coderbot.iris_mc1_18_2:iris:1.2.5-pre-d7908a32'

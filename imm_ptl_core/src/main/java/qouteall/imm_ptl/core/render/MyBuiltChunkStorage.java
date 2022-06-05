@@ -10,14 +10,18 @@ import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.q_misc_util.Helper;
 
@@ -59,6 +63,21 @@ public class MyBuiltChunkStorage extends ViewArea {
     public final int endSectionY;
     
     private boolean isAlive = true;
+    
+    public static void init() {
+        MyClientChunkManager.clientChunkUnloadSignal.connect(chunk -> {
+            ResourceKey<Level> dimension = chunk.getLevel().dimension();
+            
+            LevelRenderer worldRenderer = ClientWorldLoader.worldRendererMap.get(dimension);
+            
+            if (worldRenderer != null) {
+                ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
+                if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
+                    myBuiltChunkStorage.onChunkUnload(chunk.getPos().x, chunk.getPos().z);
+                }
+            }
+        });
+    }
     
     public MyBuiltChunkStorage(
         ChunkRenderDispatcher chunkBuilder,

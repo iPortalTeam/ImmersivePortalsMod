@@ -73,9 +73,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         RenderStates.updatePreRenderInfo(tickDelta);
         IPCGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
         IPGlobal.preGameRenderSignal.emit();
-        if (IPCGlobal.earlyClientLightUpdate) {
-            MyRenderHelper.earlyUpdateLight();
-        }
         if (IPCGlobal.earlyRemoteUpload) {
             MyRenderHelper.earlyRemoteUpload();
         }
@@ -123,6 +120,12 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         RenderStates.onTotalRenderEnd();
         
         GuiPortalRendering.onGameRenderEnd();
+    
+        if (IPCGlobal.lateClientLightUpdate) {
+            minecraft.getProfiler().push("ip_late_update_light");
+            MyRenderHelper.lateUpdateLight();
+            minecraft.getProfiler().pop();
+        }
     }
     
     //special rendering in third person view

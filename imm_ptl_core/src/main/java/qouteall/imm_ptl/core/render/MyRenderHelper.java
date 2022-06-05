@@ -398,13 +398,14 @@ public class MyRenderHelper {
     // it will remove the light sections that are marked to be removed
     // if not, light data will cause minor memory leak
     // and wrongly remove the light data when the chunks get reloaded to client
-    public static void earlyUpdateLight() {
+    // this should not run before world rendering or the smooth lighting may become abnormal in section edge
+    public static void lateUpdateLight() {
         if (!ClientWorldLoader.getIsInitialized()) {
             return;
         }
         
         ClientWorldLoader.getClientWorlds().forEach(world -> {
-            if (world != Minecraft.getInstance().level) {
+            if (!RenderStates.isDimensionRendered(world.dimension())) {
                 int updateNum = world.getChunkSource().getLightEngine().runUpdates(
                     1000, true, true
                 );
