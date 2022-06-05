@@ -65,7 +65,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             }
         }
         
-        BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());
+        BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter(), fromWorld, toWorld);
         
         Function<WorldGenRegion, Function<BlockPos.MutableBlockPos, PortalGenInfo>> frameMatchingFunc =
             getFrameMatchingFunc(fromWorld, toWorld, fromShape);
@@ -82,7 +82,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             info -> {
                 //generate portal entity
                 Portal[] result = generatePortalEntitiesAndPlaceholder(info);
-    
+                
                 cpg.onPortalsGenerated(result);
             },
             () -> {

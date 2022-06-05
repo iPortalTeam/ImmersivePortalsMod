@@ -53,36 +53,36 @@ public class CustomPortalGeneration {
     
     public static final Codec<CustomPortalGeneration> codecV1 =
         RecordCodecBuilder.create(instance -> {
-        return instance.group(
-            dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
-            Level.RESOURCE_KEY_CODEC.fieldOf("to").forGetter(o -> o.toDimension),
-            Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
-            Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
-            Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
-            PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
-            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
-            stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
-                .forGetter(o -> o.postInvokeCommands),
-            stringListListCodec.optionalFieldOf("commands_on_generated", Collections.emptyList())
-                .forGetter(o -> o.commandsOnGenerated)
-        ).apply(instance, instance.stable(CustomPortalGeneration::new));
-    });
+            return instance.group(
+                dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
+                Level.RESOURCE_KEY_CODEC.fieldOf("to").forGetter(o -> o.toDimension),
+                Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
+                Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
+                Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
+                PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
+                PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
+                stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
+                    .forGetter(o -> o.postInvokeCommands),
+                stringListListCodec.optionalFieldOf("commands_on_generated", Collections.emptyList())
+                    .forGetter(o -> o.commandsOnGenerated)
+            ).apply(instance, instance.stable(CustomPortalGeneration::new));
+        });
     
     public static MappedRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
         Util.make(() -> {
-        MappedRegistry<Codec<CustomPortalGeneration>> registry = new MappedRegistry<>(
-            schemaRegistryKey, Lifecycle.stable(), null
-        );
-        Registry.register(
-            registry, new ResourceLocation("imm_ptl:v1"), codecV1
-        );
-        return registry;
-    });
+            MappedRegistry<Codec<CustomPortalGeneration>> registry = new MappedRegistry<>(
+                schemaRegistryKey, Lifecycle.stable(), null
+            );
+            Registry.register(
+                registry, new ResourceLocation("imm_ptl:v1"), codecV1
+            );
+            return registry;
+        });
     
     public static final MapCodec<CustomPortalGeneration> codec =
         schemaRegistry.byNameCodec().dispatchMap(
-        "schema_version", e -> codecV1, Function.identity()
-    );
+            "schema_version", e -> codecV1, Function.identity()
+        );
     
     public final List<ResourceKey<Level>> fromDimensions;
     public final ResourceKey<Level> toDimension;
@@ -148,8 +148,24 @@ public class CustomPortalGeneration {
         return null;
     }
     
-    public BlockPos mapPosition(BlockPos from) {
-        return Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
+    public BlockPos mapPosition(
+        BlockPos from,
+        ServerLevel fromWorld, ServerLevel toWorld
+    ) {
+        BlockPos newPosition = Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
+        
+        boolean withinBounds = toWorld.getWorldBorder().isWithinBounds(newPosition);
+        if (!withinBounds) {
+            Helper.log("Tries to spawn a portal outside of world border");
+            BlockPos clamped = toWorld.getWorldBorder().clampToBounds(
+                newPosition.getX(), newPosition.getY(), newPosition.getZ()
+            );
+            newPosition = new BlockPos(
+                (int) (clamped.getX() * 0.9), clamped.getY(), (int) (clamped.getZ() * 0.9)
+            );
+        }
+        
+        return newPosition;
     }
     
     public boolean initAndCheck() {

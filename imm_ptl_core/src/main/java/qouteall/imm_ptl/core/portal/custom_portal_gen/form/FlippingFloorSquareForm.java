@@ -109,7 +109,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         
         BlockPos areaSize = fromShape.innerAreaBox.getSize();
         
-        BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.l);
+        BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.l, fromWorld, toWorld);
         
         IntBox placingBox = findPortalPlacement(toWorld, areaSize, toPos);
         
@@ -128,7 +128,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, toShape);
         
         GeneralBreakablePortal[] portals = createPortals(fromWorld, toWorld, fromShape, toShape);
-    
+        
         cpg.onPortalsGenerated(portals);
         
         return true;
