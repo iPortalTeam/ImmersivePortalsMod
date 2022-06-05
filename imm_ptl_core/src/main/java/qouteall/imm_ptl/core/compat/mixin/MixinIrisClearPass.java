@@ -10,7 +10,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
-@Mixin(ClearPass.class)
+@Mixin(value = ClearPass.class, remap = false)
 public class MixinIrisClearPass {
     @Inject(
         method = "execute", at = @At("HEAD"), cancellable = true

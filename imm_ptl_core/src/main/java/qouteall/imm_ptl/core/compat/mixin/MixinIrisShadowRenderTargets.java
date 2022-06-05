@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IEIrisShadowRenderTargets;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ShadowMapSwapper;
 
-@Mixin(ShadowRenderTargets.class)
+@Mixin(value = ShadowRenderTargets.class, remap = false)
 public class MixinIrisShadowRenderTargets implements IEIrisShadowRenderTargets {
 //    ShadowMapSwapper ip_shadowMapSwapper;
 //

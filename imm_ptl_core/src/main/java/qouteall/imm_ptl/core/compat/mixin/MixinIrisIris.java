@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
 
-@Mixin(Iris.class)
+@Mixin(value = Iris.class, remap = false)
 public class MixinIrisIris {
     // test
     // only overworld

@@ -10,7 +10,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
-@Mixin(FinalPassRenderer.class)
+@Mixin(value = FinalPassRenderer.class, remap = false)
 public class MixinIrisFinalPassRenderer {
     @Inject(
         method = "renderFinalPass", at = @At("HEAD")
