@@ -845,7 +845,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             getDestPos() != null &&
             axisW.lengthSqr() > 0.9 &&
             axisH.lengthSqr() > 0.9 &&
-            getY() > -1000;
+            getY() > (McHelper.getMinY(level) - 100);
         if (valid) {
             if (level instanceof ServerLevel) {
                 ServerLevel destWorld = MiscHelper.getServer().getLevel(dimensionTo);
