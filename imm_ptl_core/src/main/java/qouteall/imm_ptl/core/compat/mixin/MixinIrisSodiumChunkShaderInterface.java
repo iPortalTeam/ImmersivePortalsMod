@@ -31,11 +31,8 @@ public class MixinIrisSodiumChunkShaderInterface {
         require = 0
     )
     private void onInit(
-        int handle,
-        ShaderBindingContextExt contextExt,
-        SodiumTerrainPipeline pipeline,
-        boolean isShadowPass,
-        BlendModeOverride blendModeOverride,
+        int handle, ShaderBindingContextExt contextExt, SodiumTerrainPipeline pipeline,
+        boolean isShadowPass, BlendModeOverride blendModeOverride, float alpha,
         CallbackInfo ci
     ) {
         ip_init(handle);
