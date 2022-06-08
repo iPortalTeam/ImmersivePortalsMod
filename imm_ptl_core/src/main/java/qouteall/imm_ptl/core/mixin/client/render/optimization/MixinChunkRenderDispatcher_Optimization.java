@@ -128,7 +128,6 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         ChunkBufferBuilderPack pack = freeBuffers.poll();
         if (pack == null) {
             mailbox.tell(this::ip_disposeOneBufferPack);
-            Helper.log("Tries to dispose the buffer pack again");
         }
         else {
             freeBufferCount = freeBuffers.size();
