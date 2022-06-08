@@ -21,5 +21,5 @@ accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
 
 accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
 
-
+accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 

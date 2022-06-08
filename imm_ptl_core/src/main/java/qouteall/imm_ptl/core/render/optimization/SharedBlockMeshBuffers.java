@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render.optimization;
 
 import com.google.common.collect.Queues;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -15,11 +16,17 @@ import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
 
 /**
- * This optimization makes that different dimensions of ChunkBuilders
- * use the same BlockBufferBuilderStorage
- * If enabled, it can avoid OutOfMemory issues
+ * This optimization makes that different dimensions of ChunkRenderDispatcher
+ *  use the same queue of ChunkBufferBuilderPack.
+ * In vanilla, it will cause OutOfMemory exception then it will allocate fewer buffers.
+ * Some dimension will have no buffer and the chunk cannot rebuild.
  */
 public class SharedBlockMeshBuffers {
+    public static final ThreadLocal<Object> bufferTemp =
+        ThreadLocal.withInitial(() -> null);
+    public static final ThreadLocal<Object> taskTemp =
+        ThreadLocal.withInitial(() -> null);
+    
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(SharedBlockMeshBuffers::cleanup);
     }
