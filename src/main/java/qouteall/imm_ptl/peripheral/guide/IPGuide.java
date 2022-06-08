@@ -38,7 +38,7 @@ public class IPGuide {
             try (FileReader fileReader = new FileReader(storageFile)) {
                 result = IPGlobal.gson.fromJson(fileReader, GuideInfo.class);
             }
-            catch (IOException e) {
+            catch (Throwable e) {
                 e.printStackTrace();
                 return new GuideInfo();
             }
