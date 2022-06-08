@@ -31,6 +31,9 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
     @Final
     private ProcessorMailbox<Runnable> mailbox;
     
+    @Shadow
+    protected abstract void runTask();
+    
     @Redirect(
         method = "<init>",
         at = @At(
@@ -64,6 +67,28 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         }
         
         return ProcessorMailbox.create(dispatcher, name);
+    }
+    
+    // in vanilla, when a task finishes it will call runTask again
+    // when there is no buffer, there must be other tasks running and the runTask will trigger later
+    // but with shared buffers, the buffers may be taken by other dimensions.
+    @Redirect(
+        method = "runTask",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/Queue;isEmpty()Z"
+        )
+    )
+    private boolean onIsEmpty(Queue instance) {
+        boolean empty = instance.isEmpty();
+        
+        if (IPGlobal.enableSharedBlockMeshBuffers) {
+            if (empty) {
+                mailbox.tell(this::runTask);
+            }
+        }
+        
+        return empty;
     }
     
     @Redirect(
