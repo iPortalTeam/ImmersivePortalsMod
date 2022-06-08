@@ -80,7 +80,7 @@ public class MiscHelper {
         Validate.notNull(server);
         Path saveDir =
             ((IELevelStorageAccess_Misc) ((IEMinecraftServer_Misc) server).ip_getStorageSource())
-                .ip_getLevelPath();
+                .ip_getLevelPath().path();
         return saveDir;
     }
 }

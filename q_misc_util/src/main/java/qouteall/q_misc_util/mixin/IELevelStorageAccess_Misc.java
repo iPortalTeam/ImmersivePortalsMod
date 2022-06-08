@@ -8,6 +8,6 @@ import java.nio.file.Path;
 
 @Mixin(LevelStorageSource.LevelStorageAccess.class)
 public interface IELevelStorageAccess_Misc {
-    @Accessor("levelPath")
-    Path ip_getLevelPath();
+    @Accessor("levelDirectory")
+    LevelStorageSource.LevelDirectory ip_getLevelPath();
 }

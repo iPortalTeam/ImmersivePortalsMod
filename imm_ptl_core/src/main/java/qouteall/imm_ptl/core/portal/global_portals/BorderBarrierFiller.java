@@ -4,8 +4,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Streams;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
@@ -39,7 +37,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.displayClientMessage(new TranslatableComponent("imm_ptl.cannot_find_zone"), false);
+            player.displayClientMessage(Component.translatable("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
@@ -60,7 +58,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.displayClientMessage(new TranslatableComponent("imm_ptl.cannot_find_zone"), false);
+            player.displayClientMessage(Component.translatable("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
@@ -85,7 +83,7 @@ public class BorderBarrierFiller {
             double sizeEstimationGB = (totalColumns / 80000.0) * 0.5;
             
             player.displayClientMessage(
-                new TranslatableComponent(
+                Component.translatable(
                     "imm_ptl.clear_border_warning",
                     sizeEstimationGB < 0.01 ? 0 : sizeEstimationGB
                 ),
@@ -96,7 +94,7 @@ public class BorderBarrierFiller {
             warnedPlayers.remove(player);
             
             player.displayClientMessage(
-                new TranslatableComponent("imm_ptl.start_clearing_border"),
+                Component.translatable("imm_ptl.start_clearing_border"),
                 false
             );
             
@@ -146,7 +144,7 @@ public class BorderBarrierFiller {
             },
             columns -> {
                 if (McHelper.getServerGameTime() % 20 == 0) {
-                    informer.accept(new TextComponent(
+                    informer.accept(Component.literal(
                         String.format("Progress: %d / %d", columns, totalColumns)
                     ));
                 }
@@ -156,7 +154,7 @@ public class BorderBarrierFiller {
                 //nothing
             },
             () -> {
-                informer.accept(new TranslatableComponent("imm_ptl.finished_clearing_border"));
+                informer.accept(Component.translatable("imm_ptl.finished_clearing_border"));
             },
             () -> {
             

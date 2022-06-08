@@ -288,6 +288,8 @@ public class MyGameRenderer {
     }
     
     public static void resetFogState() {
+        // vanilla copy
+        
         Camera camera = client.gameRenderer.getMainCamera();
         float g = client.gameRenderer.getRenderDistance();
         
@@ -298,8 +300,12 @@ public class MyGameRenderer {
         
         boolean bl2 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
             client.gui.getBossOverlay().shouldCreateWorldFog();
-        
-        FogRenderer.setupFog(camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
+    
+        boolean bl3 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) || client.gui.getBossOverlay().shouldCreateWorldFog();
+    
+        FogRenderer.setupFog(
+            camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g, 32.0F), bl3, RenderStates.tickDelta
+        );
         FogRenderer.levelFogColor();
     }
     
@@ -308,7 +314,7 @@ public class MyGameRenderer {
             client.gameRenderer.getMainCamera(),
             RenderStates.tickDelta,
             client.level,
-            client.options.renderDistance,
+            client.options.getEffectiveRenderDistance(),
             client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
         );
     }

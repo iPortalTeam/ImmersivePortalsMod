@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal.nether_portal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -129,7 +129,7 @@ public class NetherPortalGeneration {
         fromWorld.addFreshEntity(indicatorEntity);
         
         Runnable onGenerateNewFrame = () -> {
-            indicatorEntity.inform(new TranslatableComponent(
+            indicatorEntity.inform(Component.translatable(
                 "imm_ptl.generating_new_frame"
             ));
             
@@ -184,7 +184,7 @@ public class NetherPortalGeneration {
             int allChunksNeedsLoading = chunkLoader.getChunkNum();
             
             if (loadedChunks < allChunksNeedsLoading) {
-                indicatorEntity.inform(new TranslatableComponent(
+                indicatorEntity.inform(Component.translatable(
                     "imm_ptl.loading_chunks", loadedChunks, allChunksNeedsLoading
                 ));
                 return false;
@@ -200,7 +200,7 @@ public class NetherPortalGeneration {
                 chunkLoader.center, frameSearchingRadius
             ).createChunkRegion();
             
-            indicatorEntity.inform(new TranslatableComponent("imm_ptl.searching_for_frame"));
+            indicatorEntity.inform(Component.translatable("imm_ptl.searching_for_frame"));
             
             BlockPos.MutableBlockPos temp1 = new BlockPos.MutableBlockPos();
             

@@ -13,8 +13,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -126,7 +124,7 @@ public class CommandStickItem extends Item {
             commandManager.performCommand(commandSource, data.command);
         }
         else {
-            sendMessage(player, new TextComponent("No Permission"));
+            sendMessage(player, Component.literal("No Permission"));
         }
     }
     
@@ -145,18 +143,18 @@ public class CommandStickItem extends Item {
         
         Data data = Data.deserialize(stack.getOrCreateTag());
         
-        tooltip.add(new TextComponent(data.command).withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.literal(data.command).withStyle(ChatFormatting.GOLD));
         
         for (String descriptionTranslationKey : data.descriptionTranslationKeys) {
-            tooltip.add(new TranslatableComponent(descriptionTranslationKey).withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.translatable(descriptionTranslationKey).withStyle(ChatFormatting.AQUA));
         }
         
-        tooltip.add(new TranslatableComponent("imm_ptl.command_stick").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("imm_ptl.command_stick").withStyle(ChatFormatting.GRAY));
     }
     
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
-        if (allowdedIn(group)) {
+        if (this.allowedIn(group)) {
             commandStickTypeRegistry.stream().forEach(data -> {
                 ItemStack stack = new ItemStack(instance);
                 data.serialize(stack.getOrCreateTag());
@@ -172,7 +170,7 @@ public class CommandStickItem extends Item {
     }
     
     public static void sendMessage(Player player, Component message) {
-        ((ServerPlayer) player).sendMessage(message, ChatType.GAME_INFO, Util.NIL_UUID);
+        ((ServerPlayer) player).sendSystemMessage(message);
     }
     
     public static void init() {

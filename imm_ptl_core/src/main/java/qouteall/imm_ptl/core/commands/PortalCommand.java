@@ -30,12 +30,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -138,7 +137,7 @@ public class PortalCommand {
                         ColumnPos p2 = ColumnPosArgument.getColumnPos(context, "p2");
                         WorldWrappingPortal.invokeAddWrappingZone(
                             context.getSource().getLevel(),
-                            p1.x, p1.z, p2.x, p2.z,
+                            p1.x(), p1.z(), p2.x(), p2.z(),
                             true,
                             text -> context.getSource().sendSuccess(text, false)
                         );
@@ -156,7 +155,7 @@ public class PortalCommand {
                         ColumnPos p2 = ColumnPosArgument.getColumnPos(context, "p2");
                         WorldWrappingPortal.invokeAddWrappingZone(
                             context.getSource().getLevel(),
-                            p1.x, p1.z, p2.x, p2.z,
+                            p1.x(), p1.z(), p2.x(), p2.z(),
                             false,
                             text -> context.getSource().sendSuccess(text, false)
                         );
@@ -325,7 +324,7 @@ public class PortalCommand {
                 
                 if (portal == null) {
                     context.getSource().sendSuccess(
-                        new TextComponent("You are not pointing to any portal"),
+                        Component.literal("You are not pointing to any portal"),
                         false
                     );
                     return 0;
@@ -333,7 +332,7 @@ public class PortalCommand {
                 
                 if (!portal.getIsGlobal()) {
                     context.getSource().sendSuccess(
-                        new TextComponent("You are not pointing to a global portal"),
+                        Component.literal("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
@@ -341,7 +340,7 @@ public class PortalCommand {
                 
                 if (player.position().distanceTo(portal.getOriginPos()) > 64) {
                     context.getSource().sendSuccess(
-                        new TextComponent("You are too far away from the portal's center " + portal),
+                        Component.literal("You are too far away from the portal's center " + portal),
                         false
                     );
                     return 0;
@@ -360,7 +359,7 @@ public class PortalCommand {
                 
                 if (portal == null) {
                     context.getSource().sendSuccess(
-                        new TextComponent("You are not pointing to any portal"),
+                        Component.literal("You are not pointing to any portal"),
                         false
                     );
                     return 0;
@@ -368,7 +367,7 @@ public class PortalCommand {
                 
                 if (!portal.getIsGlobal()) {
                     context.getSource().sendSuccess(
-                        new TextComponent("You are not pointing to a global portal"),
+                        Component.literal("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
@@ -428,7 +427,7 @@ public class PortalCommand {
                         
                         if (newNbt.contains("commandsOnTeleported")) {
                             if (!context.getSource().hasPermission(2)) {
-                                context.getSource().sendFailure(new TextComponent(
+                                context.getSource().sendFailure(Component.literal(
                                     "You do not have the permission to set commandsOnTeleported"
                                 ));
                                 return;
@@ -436,7 +435,7 @@ public class PortalCommand {
                         }
                         
                         if (newNbt.contains("dimensionTo")) {
-                            context.getSource().sendFailure(new TextComponent(
+                            context.getSource().sendFailure(Component.literal(
                                 "Cannot change tag dimensionTo. use command /portal set_portal_destination"
                             ));
                             return;
@@ -893,7 +892,7 @@ public class PortalCommand {
                                         portal.setRotationTransformationD(portal.getRotationD().hamiltonProduct(quaternion.getConjugated()));
                                     }
                                     else {
-                                        context.getSource().sendFailure(new TextComponent("the entity is not a portal"));
+                                        context.getSource().sendFailure(Component.literal("the entity is not a portal"));
                                     }
                                 }
                                 
@@ -1155,7 +1154,7 @@ public class PortalCommand {
         portal.axisW = rightVec;
         portal.axisH = axisH;
         
-        portal.setCustomName(new TextComponent(portalName));
+        portal.setCustomName(Component.literal(portalName));
         
         McHelper.spawnServerEntity(portal);
     }
@@ -1175,7 +1174,7 @@ public class PortalCommand {
                     );
                     
                     context.getSource().sendSuccess(
-                        new TranslatableComponent(
+                        Component.translatable(
                             "imm_ptl.command.tpme.success",
                             entity.getDisplayName()
                         ),
@@ -1197,7 +1196,7 @@ public class PortalCommand {
                     );
                     
                     context.getSource().sendSuccess(
-                        new TranslatableComponent(
+                        Component.translatable(
                             "imm_ptl.command.tpme.success",
                             dest.toString()
                         ),
@@ -1223,7 +1222,7 @@ public class PortalCommand {
                         );
                         
                         context.getSource().sendSuccess(
-                            new TranslatableComponent(
+                            Component.translatable(
                                 "imm_ptl.command.tpme.success",
                                 McHelper.dimensionTypeId(dim).toString() + dest.toString()
                             ),
@@ -1252,7 +1251,7 @@ public class PortalCommand {
                         );
                         
                         context.getSource().sendSuccess(
-                            new TranslatableComponent(
+                            Component.translatable(
                                 "imm_ptl.command.tp.success",
                                 numTeleported,
                                 target.getDisplayName()
@@ -1276,7 +1275,7 @@ public class PortalCommand {
                         );
                         
                         context.getSource().sendSuccess(
-                            new TranslatableComponent(
+                            Component.translatable(
                                 "imm_ptl.command.tp.success",
                                 numTeleported,
                                 dest.toString()
@@ -1305,7 +1304,7 @@ public class PortalCommand {
                             );
                             
                             context.getSource().sendSuccess(
-                                new TranslatableComponent(
+                                Component.translatable(
                                     "imm_ptl.command.tp.success",
                                     numTeleported,
                                     McHelper.dimensionTypeId(dim).toString() + dest.toString()
@@ -1486,13 +1485,13 @@ public class PortalCommand {
                         
                         if (!(e1 instanceof Portal)) {
                             context.getSource().sendFailure(
-                                new TextComponent("portal1 is not a portal entity"));
+                                Component.literal("portal1 is not a portal entity"));
                             return 0;
                         }
                         
                         if (!(e2 instanceof Portal)) {
                             context.getSource().sendFailure(
-                                new TextComponent("portal2 is not a portal entity"));
+                                Component.literal("portal2 is not a portal entity"));
                             return 0;
                         }
                         
@@ -1572,7 +1571,7 @@ public class PortalCommand {
                         128
                     );
                     if (airCube == null) {
-                        feedbackSender.accept(new TextComponent("Cannot find space for placing room"));
+                        feedbackSender.accept(Component.literal("Cannot find space for placing room"));
                         return;
                     }
                     airCube = airCube.getSubBoxInCenter(roomAreaSize);
@@ -1618,16 +1617,14 @@ public class PortalCommand {
                     McHelper.spawnServerEntity(reversePortal);
                 });
                 
-                feedbackSender.accept(new TextComponent("finished"));
+                feedbackSender.accept(Component.literal("finished"));
             })
         ));
     }
     
     private static BlockState getRandomBlock() {
-        Random random = new Random();
-        
         for (; ; ) {
-            Block block = Registry.BLOCK.getRandom(random).get().value();
+            Block block = Registry.BLOCK.getRandom(RandomSource.create()).get().value();
             BlockState state = block.defaultBlockState();
             Material material = state.getMaterial();
             if (material.blocksMotion() && material.getPushReaction() == PushReaction.NORMAL
@@ -1907,7 +1904,7 @@ public class PortalCommand {
     
     public static void sendMessage(CommandContext<CommandSourceStack> context, String message) {
         context.getSource().sendSuccess(
-            new TextComponent(message),
+            Component.literal(message),
             false
         );
     }
@@ -1920,7 +1917,7 @@ public class PortalCommand {
      * @author LoganDark
      */
     private static Component getMakePortalSuccess(Portal portal) {
-        return new TranslatableComponent(
+        return Component.translatable(
             "imm_ptl.command.make_portal.success",
             Double.toString(portal.width),
             Double.toString(portal.height),
@@ -2022,7 +2019,7 @@ public class PortalCommand {
             
             if (portal == null) {
                 source.sendSuccess(
-                    new TextComponent("You are not pointing to any non-global portal." +
+                    Component.literal("You are not pointing to any non-global portal." +
                         " (This command cannot process global portals)"),
                     false
                 );
@@ -2037,7 +2034,7 @@ public class PortalCommand {
         }
         else {
             source.sendSuccess(
-                new TextComponent(
+                Component.literal(
                     "The command executor should be either a player or a portal entity"
                 ),
                 false

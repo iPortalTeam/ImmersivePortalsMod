@@ -153,7 +153,7 @@ public abstract class PortalRenderer {
     }
     
     public static double getRenderRange() {
-        double range = client.options.renderDistance * 16;
+        double range = client.options.getEffectiveRenderDistance() * 16;
         if (RenderStates.isLaggy || IPGlobal.reducedPortalRendering) {
             range = 16;
         }
@@ -206,17 +206,19 @@ public abstract class PortalRenderer {
     }
     
     private static int getPortalRenderDistance(PortalLike portal) {
+        int mcRenderDistance = client.options.getEffectiveRenderDistance();
+        
         if (portal.getScale() > 2) {
             double radiusBlocks = portal.getDestAreaRadiusEstimation() * 1.4;
             
             radiusBlocks = Math.min(radiusBlocks, 32 * 16);
             
-            return Math.max((int) (radiusBlocks / 16), client.options.renderDistance);
+            return Math.max((int) (radiusBlocks / 16), mcRenderDistance);
         }
         if (IPGlobal.reducedPortalRendering) {
-            return client.options.renderDistance / 3;
+            return mcRenderDistance / 3;
         }
-        return client.options.renderDistance;
+        return mcRenderDistance;
     }
     
     public void invokeWorldRendering(

@@ -282,7 +282,7 @@ public class TransformationManager {
         }
         
         Quaternion rotation = camera.rotation();
-        Vector3f vec = new Vector3f(0, 0, client.options.renderDistance * -10);
+        Vector3f vec = new Vector3f(0, 0, client.options.getEffectiveRenderDistance() * -10);
         vec.transform(rotation);
         
         return cameraPos.add(vec.x(), vec.y(), vec.z());

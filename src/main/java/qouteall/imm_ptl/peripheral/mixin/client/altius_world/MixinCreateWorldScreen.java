@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -96,7 +95,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         
         altiusButton = (Button) this.addRenderableWidget(new Button(
             width / 2 + 5, 151, 150, 20,
-            new TranslatableComponent("imm_ptl.altius_screen_button"),
+            Component.translatable("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
                 openAltiusScreen();
             }
@@ -118,28 +117,20 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         }
     }
     
-    @Redirect(
-        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;onCreate()V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/Minecraft;createLevel(Ljava/lang/String;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/level/levelgen/WorldGenSettings;)V"
-        )
+    @Inject(
+        method = "createNewWorld",
+        at = @At("HEAD")
     )
-    private void redirectOnCreateLevel(
-        Minecraft client, String resultFolder, LevelSettings levelInfo,
-        RegistryAccess registryTracker, WorldGenSettings generatorOptions
-    ) {
+    private void onCreateNewWorld(CallbackInfo ci) {
         if (ip_altiusScreen != null) {
             AltiusInfo info = ip_altiusScreen.getAltiusInfo();
-            
+        
             if (info != null) {
                 AltiusManagement.dimStackToApply = info;
-                
+            
                 Helper.log("Generating dimension stack world");
             }
         }
-        
-        client.createLevel(resultFolder, levelInfo, registryTracker, generatorOptions);
     }
     
     
@@ -189,10 +180,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         }
         
         // this won't contain custom dimensions
-        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.makeSettings(false);
+        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.createFinalSettings(false).worldGenSettings();
         
         WorldGenSettings copiedGeneratorOptions = new WorldGenSettings(
-            rawGeneratorOptions.seed(), rawGeneratorOptions.generateFeatures(),
+            rawGeneratorOptions.seed(), rawGeneratorOptions.generateStructures(),
             rawGeneratorOptions.generateBonusChest(),
             MiscHelper.filterAndCopyRegistry(
                 ((MappedRegistry<LevelStem>) rawGeneratorOptions.dimensions()),

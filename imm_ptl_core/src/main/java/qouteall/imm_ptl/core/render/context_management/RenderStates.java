@@ -4,7 +4,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -134,7 +134,7 @@ public class RenderStates {
             if (lastPortalRenderInfos.size() > 10) {
                 if (ClientPerformanceMonitor.getAverageFps() < 8 || ClientPerformanceMonitor.getMinimumFps() < 6) {
                     MyRenderHelper.client.gui.setOverlayMessage(
-                        new TranslatableComponent("imm_ptl.laggy"),
+                        Component.translatable("imm_ptl.laggy"),
                         false
                     );
                     isLaggy = true;

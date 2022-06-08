@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
@@ -18,7 +18,7 @@ public class SelectDimensionScreen extends Screen {
     private Consumer<ResourceKey<Level>> outerCallback;
     
     protected SelectDimensionScreen(AltiusScreen parent, Consumer<ResourceKey<Level>> callback) {
-        super(new TranslatableComponent("imm_ptl.select_dimension"));
+        super(Component.translatable("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
     }
@@ -48,7 +48,7 @@ public class SelectDimensionScreen extends Screen {
         
         confirmButton = (Button) addRenderableWidget(new Button(
             this.width / 2 - 75, this.height - 28, 150, 20,
-            new TranslatableComponent("imm_ptl.confirm_select_dimension"),
+            Component.translatable("imm_ptl.confirm_select_dimension"),
             (buttonWidget) -> {
                 DimEntryWidget selected = dimListWidget.getSelected();
                 if (selected == null) {
@@ -75,8 +75,9 @@ public class SelectDimensionScreen extends Screen {
         
         super.render(matrixStack, mouseX, mouseY, delta);
         
+        
         this.drawCenteredString(
-            matrixStack, this.font, this.title.getContents(), this.width / 2, 20, -1
+            matrixStack, this.font, this.title.getString(), this.width / 2, 20, -1
         );
     }
 }

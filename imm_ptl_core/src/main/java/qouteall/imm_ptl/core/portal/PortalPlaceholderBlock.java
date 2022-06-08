@@ -123,18 +123,6 @@ public class PortalPlaceholderBlock extends Block {
         );
     }
     
-    //copied from PortalBlock
-    @Override
-    public void animateTick(
-        BlockState blockState_1,
-        Level world_1,
-        BlockPos blockPos_1,
-        Random random_1
-    ) {
-        //nothing
-    }
-    
-    
     //---------These are copied from BlockBarrier
     @Override
     public boolean propagatesSkylightDown(

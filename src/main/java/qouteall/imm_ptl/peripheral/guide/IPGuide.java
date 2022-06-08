@@ -6,9 +6,9 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
@@ -81,7 +81,7 @@ public class IPGuide {
                     writeToFile(guideInfo);
                     informWithURL(
                         "https://qouteall.fun/immptl/wiki/Portal-Customization",
-                        new TranslatableComponent("imm_ptl.inform_wiki")
+                        Component.translatable("imm_ptl.inform_wiki")
                     );
                 }
             }
@@ -92,10 +92,8 @@ public class IPGuide {
                     writeToFile(guideInfo);
                     
                     IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
-                        Minecraft.getInstance().gui.handleChat(
-                            ChatType.SYSTEM,
-                            new TranslatableComponent("imm_ptl.about_lag"),
-                            Util.NIL_UUID
+                        CHelper.printChat(
+                            Component.translatable("imm_ptl.about_lag")
                         );
                         return true;
                     }));
@@ -111,18 +109,16 @@ public class IPGuide {
             
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
-                new TranslatableComponent("imm_ptl.inform_portal_helper")
+                Component.translatable("imm_ptl.inform_portal_helper")
             );
         }
     }
     
     private static void informWithURL(String link, MutableComponent text) {
-        Minecraft.getInstance().gui.handleChat(
-            ChatType.SYSTEM,
+        CHelper.printChat(
             text.append(
                 McHelper.getLinkText(link)
-            ),
-            Util.NIL_UUID
+            )
         );
     }
     
@@ -131,7 +127,7 @@ public class IPGuide {
         public static void showWiki() {
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Commands-Reference",
-                new TextComponent("")
+                Component.literal("")
             );
         }
     }

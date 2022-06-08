@@ -2,12 +2,14 @@ package qouteall.imm_ptl.core.platform_specific.mixin.client;
 
 import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 
-@Mixin(InvalidateRenderStateCallback.class)
+@Pseudo
+@Mixin(value = InvalidateRenderStateCallback.class, remap = false)
 public interface MixinFabricInvalidateRenderStateCallback {
     @Inject(
         method = "lambda$static$0",

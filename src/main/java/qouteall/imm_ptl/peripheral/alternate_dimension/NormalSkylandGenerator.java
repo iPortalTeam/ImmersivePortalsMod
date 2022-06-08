@@ -13,9 +13,7 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseSamplingSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
-import net.minecraft.world.level.levelgen.NoiseSlider;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
@@ -47,24 +45,22 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
         NoiseGeneratorSettings skylandSetting = IENoiseGeneratorSettings.ip_floatingIslands();
         
         // vanilla copy
-        final NoiseSettings END_NOISE_SETTINGS = NoiseSettings.create(
-            0, 128, new NoiseSamplingSettings(2.0D, 1.0D, 80.0D, 160.0D),
-            new NoiseSlider(-23.4375D, 64, -46), new NoiseSlider(-0.234375D, 7, 1),
-            2, 1, TerrainProvider.floatingIslands()
-        );
+        final NoiseSettings END_NOISE_SETTINGS = NoiseSettings.create(0, 128, 2, 1);
         
         // replace the noise setting
         skylandSetting = new NoiseGeneratorSettings(
             END_NOISE_SETTINGS,
             skylandSetting.defaultBlock(), skylandSetting.defaultFluid(),
-            skylandSetting.noiseRouter(), skylandSetting.surfaceRule(), skylandSetting.seaLevel(),
+            skylandSetting.noiseRouter(), skylandSetting.surfaceRule(),
+            skylandSetting.spawnTarget(),
+            skylandSetting.seaLevel(),
             skylandSetting.disableMobGeneration(), skylandSetting.aquifersEnabled(),
             skylandSetting.oreVeinsEnabled(), skylandSetting.useLegacyRandomSource()
         );
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
             structureSets, noiseRegistry,
-            biomeSource, seed, Holder.direct(skylandSetting)
+            biomeSource, Holder.direct(skylandSetting)
         );
         
         return new NormalSkylandGenerator(
@@ -93,13 +89,5 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
     @Override
     protected Codec<? extends ChunkGenerator> codec() {
         return codec;
-    }
-    
-    @Override
-    public ChunkGenerator withSeed(long seed) {
-        return new NormalSkylandGenerator(
-            seed, structureSets, biomeSource.withSeed(seed),
-            delegate.withSeed(seed), biomeRegistry, noiseRegistry
-        );
     }
 }

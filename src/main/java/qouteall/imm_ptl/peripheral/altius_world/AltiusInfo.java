@@ -3,8 +3,7 @@ package qouteall.imm_ptl.peripheral.altius_world;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -99,7 +98,7 @@ public class AltiusInfo {
     public void apply() {
         
         if (entries.isEmpty()) {
-            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
                 "Error: No dimension for dimension stack"
             ));
             return;
@@ -108,7 +107,7 @@ public class AltiusInfo {
         MinecraftServer server = MiscHelper.getServer();
         for (AltiusEntry entry : entries) {
             if (server.getLevel(entry.dimension) == null) {
-                McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+                McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
                     "Failed to apply dimension stack. Missing dimension " + entry.dimension.location()
                 ));
                 return;
@@ -149,7 +148,7 @@ public class AltiusInfo {
         AltiusManagement.bedrockReplacementMap = bedrockReplacementMap;
         
         McHelper.sendMessageToFirstLoggedPlayer(
-            new TranslatableComponent("imm_ptl.dim_stack_initialized")
+            Component.translatable("imm_ptl.dim_stack_initialized")
         );
     }
     

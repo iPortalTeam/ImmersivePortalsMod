@@ -9,7 +9,7 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
@@ -18,6 +18,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunk1;
@@ -43,23 +44,13 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public Climate.Sampler climateSampler() {
-        if (delegate == null) {
-            return null;
-        }
-        return delegate.climateSampler();
+    public void applyCarvers(WorldGenRegion worldGenRegion, long l, RandomState randomState, BiomeManager biomeManager, StructureManager structureManager, ChunkAccess chunkAccess, GenerationStep.Carving carving) {
+        delegate.applyCarvers(worldGenRegion, l, randomState, biomeManager, structureManager, chunkAccess, carving);
     }
     
     @Override
-    public void applyCarvers(WorldGenRegion chunkRegion, long seed, BiomeManager biomeAccess, StructureFeatureManager structureAccessor, ChunkAccess chunk, GenerationStep.Carving generationStep) {
-        delegate.applyCarvers(chunkRegion, seed, biomeAccess, structureAccessor, chunk, generationStep);
-    }
-    
-    @Override
-    public void buildSurface(WorldGenRegion region, StructureFeatureManager structures, ChunkAccess chunk) {
-        ((IEChunk1) chunk).ip_setChunkNoiseSampler(null);
-        
-        delegate.buildSurface(region, structures, chunk);
+    public void buildSurface(WorldGenRegion worldGenRegion, StructureManager structureManager, RandomState randomState, ChunkAccess chunkAccess) {
+        delegate.buildSurface(worldGenRegion, structureManager, randomState, chunkAccess);
     }
     
     @Override
@@ -73,8 +64,8 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
-        return delegate.fillFromNoise(executor, arg, structureAccessor, chunk);
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
+        return delegate.fillFromNoise(executor, blender, randomState, structureManager, chunkAccess);
     }
     
     @Override
@@ -88,36 +79,17 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world) {
-        return delegate.getBaseHeight(x, z, heightmap, world);
+    public int getBaseHeight(int i, int j, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
+        return delegate.getBaseHeight(i, j, types, levelHeightAccessor, randomState);
     }
     
     @Override
-    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor world) {
-        return delegate.getBaseColumn(x, z, world);
+    public NoiseColumn getBaseColumn(int i, int j, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
+        return delegate.getBaseColumn(i, j, levelHeightAccessor, randomState);
     }
     
     @Override
-    public void addDebugScreenInfo(List<String> list, BlockPos blockPos) {
-    
+    public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos blockPos) {
+        delegate.addDebugScreenInfo(list, randomState, blockPos);
     }
-
-//    public static class SpecialNoise extends DelegatedChunkGenerator {
-//
-//        public final ChunkGenerator noiseDelegate;
-//
-//        public SpecialNoise(
-//            BiomeSource biomeSource, StructureSettings structuresConfig,
-//            ChunkGenerator delegate,
-//            ChunkGenerator noiseDelegate
-//        ) {
-//            super(biomeSource, structuresConfig, delegate);
-//            this.noiseDelegate = noiseDelegate;
-//        }
-//
-//        @Override
-//        public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
-//            return noiseDelegate.fillFromNoise(executor, arg, structureAccessor, chunk);
-//        }
-//    }
 }

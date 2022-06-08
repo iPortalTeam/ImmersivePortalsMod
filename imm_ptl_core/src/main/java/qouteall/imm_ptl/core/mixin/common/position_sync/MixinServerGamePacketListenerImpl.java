@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.mixin.common.position_sync;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -105,7 +104,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (packetDimension == null) {
             Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
             IPGlobal.serverTaskList.addTask(() -> {
-                player.connection.disconnect(new TextComponent(
+                player.connection.disconnect(Component.literal(
                     "The client does not have Immersive Portals mod"
                 ));
                 return true;

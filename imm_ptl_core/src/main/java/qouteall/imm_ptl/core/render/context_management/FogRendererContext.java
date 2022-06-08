@@ -87,7 +87,7 @@ public class FogRendererContext {
                 newCamera,
                 RenderStates.tickDelta,
                 destWorld,
-                client.options.renderDistance,
+                client.options.getEffectiveRenderDistance(),
                 client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
             );
             

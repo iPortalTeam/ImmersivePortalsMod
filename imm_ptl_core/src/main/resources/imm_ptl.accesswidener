@@ -2,12 +2,6 @@ accessWidener v2 named
 
 Accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 
-Accessible field net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess levelPath Ljava/nio/file/Path;
-
-Accessible field net/minecraft/world/level/dimension/DimensionType DEFAULT_NETHER Lnet/minecraft/world/level/dimension/DimensionType;
-
-Accessible field net/minecraft/world/level/dimension/DimensionType DEFAULT_END Lnet/minecraft/world/level/dimension/DimensionType;
-
 Accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
 
 Accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J

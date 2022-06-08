@@ -6,8 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -262,8 +260,8 @@ public class IPMcHelper {
     }
     
     public static Component getDisableWarningText() {
-        return new TextComponent(" ").append(
-            new TranslatableComponent("imm_ptl.disable_warning").withStyle(
+        return Component.literal(" ").append(
+            Component.translatable("imm_ptl.disable_warning").withStyle(
                 style -> style.withClickEvent(new ClickEvent(
                     ClickEvent.Action.RUN_COMMAND, "/imm_ptl_client_debug disable_warning"
                 )).withUnderlined(true)

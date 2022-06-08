@@ -53,11 +53,6 @@ public class ChaosBiomeSource extends BiomeSource {
     }
     
     @Override
-    public BiomeSource withSeed(long seed) {
-        return this;
-    }
-    
-    @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler) {
         return getRandomBiome(x, z);
     }

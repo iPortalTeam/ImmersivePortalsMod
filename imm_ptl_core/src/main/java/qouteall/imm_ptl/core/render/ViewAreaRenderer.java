@@ -82,20 +82,12 @@ public class ViewAreaRenderer {
         
         shader.apply();
         
-        Tesselator tessellator = RenderSystem.renderThreadTesselator();
-        BufferBuilder bufferBuilder = tessellator.getBuilder();
-        
         ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
             fogColor,
             portal,
-            bufferBuilder,
             CHelper.getCurrentCameraPos(),
             RenderStates.tickDelta
         );
-    
-        boolean realDepthMask = glGetBoolean(GL_DEPTH_WRITEMASK);
-        
-        BufferUploader._endInternal(bufferBuilder);
         
         shader.clear();
         
@@ -114,20 +106,23 @@ public class ViewAreaRenderer {
     }
     
     public static void buildPortalViewAreaTrianglesBuffer(
-        Vec3 fogColor, PortalLike portal, BufferBuilder bufferbuilder,
+        Vec3 fogColor, PortalLike portal,
         Vec3 cameraPos, float tickDelta
     ) {
-        bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        Tesselator tessellator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferBuilder = tessellator.getBuilder();
+        
+        bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         
         Vec3 posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
         
         Consumer<Vec3> vertexOutput = p -> putIntoVertex(
-            bufferbuilder, p, fogColor
+            bufferBuilder, p, fogColor
         );
         
         portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
         
-        bufferbuilder.end();
+        BufferUploader.draw(bufferBuilder.end());
     }
     
     public static void generateViewAreaTriangles(Portal portal, Vec3 posInPlayerCoordinate, Consumer<Vec3> vertexOutput) {
@@ -255,7 +250,7 @@ public class ViewAreaRenderer {
         double cameraLocalX = cameraPosLocal.dot(portal.axisW);
         double cameraLocalY = cameraPosLocal.dot(portal.axisH);
         
-        double r = Minecraft.getInstance().options.renderDistance * 16 - 16;
+        double r = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16 - 16;
         if (TransformationManager.isIsometricView) {
             r *= 2;
         }

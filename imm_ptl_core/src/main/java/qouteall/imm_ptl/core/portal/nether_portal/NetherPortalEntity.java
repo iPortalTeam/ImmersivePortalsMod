@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -59,7 +60,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             return;
         }
         
-        Random random = level.getRandom();
+        RandomSource random = level.getRandom();
         
         for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
             if (random.nextInt(10) == 0) {

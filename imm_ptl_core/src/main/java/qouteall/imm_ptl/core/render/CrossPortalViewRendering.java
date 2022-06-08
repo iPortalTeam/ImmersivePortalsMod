@@ -86,7 +86,7 @@ public class CrossPortalViewRendering {
             ClientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos, portal.getAdditionalCameraTransformation(),
             false, null,
-            client.options.renderDistance,
+            client.options.getEffectiveRenderDistance(),
             ((IEGameRenderer) client.gameRenderer).getDoRenderHand()
         );
         
@@ -104,7 +104,7 @@ public class CrossPortalViewRendering {
     }
     
     /**
-     * {@link Camera#update(BlockView, Entity, boolean, boolean, float)}
+     * {@link Camera#getMaxZoom(double)}
      */
     private static Vec3 getThirdPersonCameraPos(Vec3 endPos, Portal portal, Vec3 startPos) {
         Vec3 rtStart = portal.transformPoint(startPos);

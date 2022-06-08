@@ -9,6 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
@@ -37,7 +39,7 @@ public class IPRegistry {
                 .sound(SoundType.GLASS)
                 .strength(1.0f, 0)
                 .noOcclusion()
-                .noDrops()
+                .noLootTable()
                 .lightLevel((s)->15)
         );
         Registry.register(

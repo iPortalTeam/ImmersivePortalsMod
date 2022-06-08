@@ -2,11 +2,9 @@ package qouteall.imm_ptl.core.miscellaneous;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
@@ -117,13 +115,9 @@ public class GcMonitor {
     @Environment(EnvType.CLIENT)
     private static void informMemoryNotEnoughClient() {
         limitedLogger.invoke(() -> {
-            Minecraft.getInstance().gui.handleChat(
-                ChatType.SYSTEM,
-                new TranslatableComponent("imm_ptl.memory_not_enough").append(
-                    McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
-                ),
-                Util.NIL_UUID
-            );
+            CHelper.printChat(Component.translatable("imm_ptl.memory_not_enough").append(
+                        McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
+                    ));
         });
     }
     

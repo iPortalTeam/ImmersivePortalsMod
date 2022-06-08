@@ -7,7 +7,7 @@ import me.andrew.gravitychanger.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -67,7 +67,7 @@ public class GravityChangerInterface {
     private static void warnGravityChangerNotPresent() {
         if (!warned) {
             warned = true;
-            CHelper.printChat(new TranslatableComponent("imm_ptl.missing_gravity_changer")
+            CHelper.printChat(Component.translatable("imm_ptl.missing_gravity_changer")
                 .append(McHelper.getLinkText("https://modrinth.com/mod/gravitychanger"))
             );
         }

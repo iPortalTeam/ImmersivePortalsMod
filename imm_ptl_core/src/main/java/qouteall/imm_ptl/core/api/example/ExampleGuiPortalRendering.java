@@ -9,7 +9,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -125,7 +125,7 @@ public class ExampleGuiPortalRendering {
         private final Vec3 viewingPosition;
         
         public GuiPortalScreen(ResourceKey<Level> viewingDimension, Vec3 viewingPosition) {
-            super(new TextComponent("GUI Portal Example"));
+            super(Component.literal("GUI Portal Example"));
             this.viewingDimension = viewingDimension;
             this.viewingPosition = viewingPosition;
         }
@@ -169,7 +169,7 @@ public class ExampleGuiPortalRendering {
                 cameraTransformation,// the camera transformation
                 true,// does not apply this transformation to the existing player camera
                 null,
-                minecraft.options.renderDistance// render distance
+                minecraft.options.getEffectiveRenderDistance()// render distance
             );
             
             // Ask it to render the world into the framebuffer the next frame

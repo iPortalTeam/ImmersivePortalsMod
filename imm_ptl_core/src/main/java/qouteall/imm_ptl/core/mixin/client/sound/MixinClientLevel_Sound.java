@@ -25,13 +25,20 @@ public class MixinClientLevel_Sound {
     private Minecraft minecraft;
     
     @Inject(
-        method = "Lnet/minecraft/client/multiplayer/ClientLevel;playLocalSound(DDDLnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FFZ)V",
+        method = "playSound",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onPlaySound(
-        double x, double y, double z,
-        SoundEvent sound, SoundSource category, float volume, float pitch, boolean repeat,
+        double x,
+        double y,
+        double z,
+        SoundEvent soundEvent,
+        SoundSource soundSource,
+        float volume,
+        float pitch,
+        boolean distanceDelay,
+        long seed,
         CallbackInfo ci
     ) {
         ClientLevel this_ = (ClientLevel) (Object) this;
@@ -39,10 +46,10 @@ public class MixinClientLevel_Sound {
         
         if (!portal_isPosNearPlayer(soundPos)) {
             SimpleSoundInstance crossPortalSound = CrossPortalSound.createCrossPortalSound(
-                this_, sound, category, soundPos, volume, pitch
+                this_, soundEvent, soundSource, soundPos, volume, pitch, this_.random.nextLong()
             );
             if (crossPortalSound != null) {
-                portal_playSound(crossPortalSound, repeat);
+                portal_playSound(crossPortalSound, distanceDelay);
                 ci.cancel();
             }
             else if (!CrossPortalSound.isPlayerWorld(this_)) {
@@ -52,32 +59,7 @@ public class MixinClientLevel_Sound {
         }
     }
     
-    @Inject(
-        method = "Lnet/minecraft/client/multiplayer/ClientLevel;playSound(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onPlaySoundFromEntity(
-        Player player, Entity entity,
-        SoundEvent sound, SoundSource category, float volume, float pitch, CallbackInfo ci
-    ) {
-        ClientLevel this_ = (ClientLevel) (Object) this;
-        
-        if (!portal_isPosNearPlayer(entity.position())) {
-            SimpleSoundInstance crossPortalSound = CrossPortalSound.createCrossPortalSound(
-                this_, sound, category, entity.position(), volume, pitch
-            );
-            
-            if (crossPortalSound != null) {
-                minecraft.getSoundManager().play(crossPortalSound);
-                ci.cancel();
-            }
-            else if (!CrossPortalSound.isPlayerWorld(this_)) {
-                // do not play remote sound when no portal can transfer the sound
-                ci.cancel();
-            }
-        }
-    }
+    // TODO also modify playSeededSound
     
     private void portal_playSound(SimpleSoundInstance sound, boolean repeat) {
         double d = minecraft.gameRenderer.getMainCamera().getPosition().distanceToSqr(sound.getX(), sound.getY(), sound.getZ());

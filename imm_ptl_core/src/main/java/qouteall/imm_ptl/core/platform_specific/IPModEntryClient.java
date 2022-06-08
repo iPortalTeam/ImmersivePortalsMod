@@ -1,12 +1,11 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
@@ -51,13 +50,13 @@ public class IPModEntryClient implements ClientModInitializer {
         }).peek(
             Validate::notNull
         ).forEach(
-            entityType -> EntityRendererRegistry.INSTANCE.register(
+            entityType -> EntityRendererRegistry.register(
                 entityType,
                 (EntityRendererProvider) PortalEntityRenderer::new
             )
         );
         
-        EntityRendererRegistry.INSTANCE.register(
+        EntityRendererRegistry.register(
             LoadingIndicatorEntity.entityType,
             LoadingIndicatorRenderer::new
         );
@@ -80,7 +79,7 @@ public class IPModEntryClient implements ClientModInitializer {
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
                     CHelper.printChat(
-                        new TranslatableComponent("imm_ptl.sodium_warning")
+                        Component.translatable("imm_ptl.sodium_warning")
                             .append(IPMcHelper.getDisableWarningText())
                     );
                 }
@@ -98,7 +97,7 @@ public class IPModEntryClient implements ClientModInitializer {
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
                     CHelper.printChat(
-                        new TranslatableComponent("imm_ptl.iris_warning")
+                        Component.translatable("imm_ptl.iris_warning")
                             .append(IPMcHelper.getDisableWarningText())
                     );
                 }

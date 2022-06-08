@@ -5,8 +5,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;

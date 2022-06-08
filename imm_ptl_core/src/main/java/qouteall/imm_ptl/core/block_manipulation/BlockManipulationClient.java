@@ -301,10 +301,14 @@ public class BlockManipulationClient {
         }
         
         if (!itemStack.isEmpty()) {
-            InteractionResult actionResult3 = client.gameMode.useItem(
-                client.player,
+            InteractionResult actionResult3 = IPMcHelper.withSwitchedContext(
                 targetWorld,
-                hand
+                () -> {
+                    return client.gameMode.useItem(
+                        client.player,
+                        hand
+                    );
+                }
             );
             if (actionResult3.consumesAction()) {
                 if (actionResult3.shouldSwing()) {
@@ -332,7 +336,7 @@ public class BlockManipulationClient {
                 isContextSwitched = true;
                 try {
                     return client.gameMode.useItemOn(
-                        client.player, targetWorld, hand, blockHitResult
+                        client.player, hand, blockHitResult
                     );
                 }
                 finally {

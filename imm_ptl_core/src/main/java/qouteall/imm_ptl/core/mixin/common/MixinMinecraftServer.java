@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -37,6 +38,8 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     @Shadow
     @Final
     protected LevelStorageSource.LevelStorageAccess storageSource;
+    
+    
     private boolean portal_areAllWorldsLoaded;
     
     @Inject(
@@ -50,9 +53,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         WorldStem worldStem,
         Proxy proxy,
         DataFixer dataFixer,
-        MinecraftSessionService minecraftSessionService,
-        GameProfileRepository gameProfileRepository,
-        GameProfileCache gameProfileCache,
+        Services services,
         ChunkProgressListenerFactory chunkProgressListenerFactory,
         CallbackInfo ci
     ) {

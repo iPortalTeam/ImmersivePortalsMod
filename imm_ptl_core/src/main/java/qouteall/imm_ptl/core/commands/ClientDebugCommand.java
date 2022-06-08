@@ -8,8 +8,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,8 +19,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -178,7 +176,7 @@ public class ClientDebugCommand {
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(IPCGlobal.renderInfoNumMap.entrySet().stream());
-                context.getSource().getPlayer().displayClientMessage(new TextComponent(str), false);
+                context.getSource().getPlayer().displayClientMessage(Component.literal(str), false);
                 return 0;
             })
         );
@@ -387,7 +385,7 @@ public class ClientDebugCommand {
                         }
                         
                         context.getSource().sendFeedback(
-                            new TextComponent(
+                            Component.literal(
                                 "has light section " +
                                     (allZero ? "all zero" : "not all zero") +
                                     (uninitialized ? " uninitialized" : " fine")
@@ -396,7 +394,7 @@ public class ClientDebugCommand {
                     }
                     else {
                         context.getSource().sendFeedback(
-                            new TextComponent("does not have light section")
+                            Component.literal("does not have light section")
                         );
                     }
                 });
@@ -432,7 +430,7 @@ public class ClientDebugCommand {
             .literal("disable_warning")
             .executes(context -> {
                 disableWarning();
-                context.getSource().sendFeedback(new TranslatableComponent("imm_ptl.warning_disabled"));
+                context.getSource().sendFeedback(Component.translatable("imm_ptl.warning_disabled"));
                 return 0;
             })
         );
@@ -711,8 +709,8 @@ public class ClientDebugCommand {
             CompoundTag compoundTag, Component text, int[] intArray
         ) {
             Helper.log(
-                player.getName().getContents() + uuid + block + blockState + item + itemStack
-                    + compoundTag + text + Arrays.toString(intArray)
+                player.getName().getString() + uuid + block + blockState + item + itemStack
+                    + compoundTag + text.getString() + Arrays.toString(intArray)
             );
         }
     }
@@ -729,7 +727,7 @@ public class ClientDebugCommand {
                 Items.COMPASS,
                 new ItemStack(Items.ACACIA_LOG, 2),
                 compoundTag,
-                new TextComponent("test"),
+                Component.literal("test"),
                 new int[]{777, 765}
             );
         });

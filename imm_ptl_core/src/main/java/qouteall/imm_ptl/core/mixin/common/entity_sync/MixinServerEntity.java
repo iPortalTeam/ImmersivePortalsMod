@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,8 +31,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     @Shadow
     public abstract void sendPairingData(Consumer<Packet<?>> consumer_1);
     
-    @Shadow
-    protected abstract void updateSentPos();
+    @Shadow @Final private VecDeltaCodec positionCodec;
     
     // make sure that the packet is being redirected
     @Inject(
@@ -103,6 +103,6 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     
     @Override
     public void ip_updateTrackedEntityPosition() {
-        updateSentPos();
+        positionCodec.setBase(entity.trackingPosition());
     }
 }

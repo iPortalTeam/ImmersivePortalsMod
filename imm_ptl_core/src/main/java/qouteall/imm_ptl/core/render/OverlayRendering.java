@@ -21,6 +21,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.system.MemoryStack;
@@ -40,7 +41,7 @@ import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class OverlayRendering {
-    private static final Random random = new Random();
+    private static final RandomSource random = RandomSource.create();
     
     
     public static boolean shouldRenderOverlay(PortalLike portal) {

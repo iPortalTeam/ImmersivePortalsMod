@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -70,7 +70,7 @@ public class IPModCompatibilityWarning {
                 IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                     () -> Minecraft.getInstance().level == null,
                     MyTaskList.oneShotTask(() -> {
-                        CHelper.printChat(new TextComponent(
+                        CHelper.printChat(Component.literal(
                             String.format(
                                 "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur. You should uninstall one of the two mods. (If the two mods become compatible now, report it to qouteall.)",
                                 mod.modName, mod.modId
@@ -93,7 +93,7 @@ public class IPModCompatibilityWarning {
                         );
                         if (IPGlobal.enableWarning) {
                             CHelper.printChat(
-                                new TextComponent(warningMessage).withStyle(ChatFormatting.RED)
+                                Component.literal(warningMessage).withStyle(ChatFormatting.RED)
                                     .append(IPMcHelper.getDisableWarningText())
                             );
                         }

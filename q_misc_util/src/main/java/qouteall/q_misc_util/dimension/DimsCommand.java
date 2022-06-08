@@ -7,7 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -34,7 +34,7 @@ public class DimsCommand {
                         ResourceLocation newDimId = new ResourceLocation(newDimensionId);
                         
                         if (newDimId.getNamespace().equals("minecraft")) {
-                            context.getSource().sendFailure(new TextComponent("Invalid namespace"));
+                            context.getSource().sendFailure(Component.literal("Invalid namespace"));
                             return 0;
                         }
                         
@@ -43,11 +43,11 @@ public class DimsCommand {
                         );
                         
                         context.getSource().sendSuccess(
-                            new TextComponent("Warning: the dynamic dimension feature is not yet stable now"),
+                            Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
                             false
                         );
                         
-                        context.getSource().sendSuccess(new TextComponent(
+                        context.getSource().sendSuccess(Component.literal(
                             "Dynamically added dimension %s".formatted(newDimensionId)
                         ), true);
                         return 0;
@@ -63,18 +63,18 @@ public class DimsCommand {
                             ResourceLocation newDimId = new ResourceLocation(newDimensionId);
                             
                             if (newDimId.getNamespace().equals("minecraft")) {
-                                context.getSource().sendFailure(new TextComponent("Invalid namespace"));
+                                context.getSource().sendFailure(Component.literal("Invalid namespace"));
                                 return 0;
                             }
                             
                             cloneDimension(templateDimension, Optional.of(newSeed), newDimId);
                             
                             context.getSource().sendSuccess(
-                                new TextComponent("Warning: the dynamic dimension feature is not yet stable now"),
+                                Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
                                 false
                             );
                             
-                            context.getSource().sendSuccess(new TextComponent(
+                            context.getSource().sendSuccess(Component.literal(
                                 "Dynamically added dimension %s with seed %s"
                                     .formatted(newDimensionId, newSeed)
                             ), true);
@@ -98,11 +98,11 @@ public class DimsCommand {
                     DimensionAPI.deleteDimensionConfiguration(dimension.dimension());
                     
                     context.getSource().sendSuccess(
-                        new TextComponent("Warning: the dynamic dimension feature is not yet stable now"),
+                        Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
                         false
                     );
                     
-                    context.getSource().sendSuccess(new TextComponent(
+                    context.getSource().sendSuccess(Component.literal(
                         "Dynamically removed dimension %s . Its world file is not yet deleted."
                             .formatted(dimension.dimension().location())
                     ), true);
@@ -124,7 +124,8 @@ public class DimsCommand {
         
         ChunkGenerator generator = templateDimension.getChunkSource().getGenerator();
         if (newSeed.isPresent()) {
-            generator = generator.withSeed(newSeed.get());
+            // TODO check how to change the seed
+            throw new RuntimeException("Does not support using another seed now.");
         }
         
         DimensionAPI.addDimensionDynamically(

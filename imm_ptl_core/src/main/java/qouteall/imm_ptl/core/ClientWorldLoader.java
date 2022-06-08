@@ -333,7 +333,12 @@ public class ClientWorldLoader {
         
         int chunkLoadDistance = 3;// my own chunk manager doesn't need it
         
-        LevelRenderer worldRenderer = new LevelRenderer(client, client.renderBuffers());
+        LevelRenderer worldRenderer = new LevelRenderer(
+            client,
+            client.getEntityRenderDispatcher(),
+            client.getBlockEntityRenderDispatcher(),
+            client.renderBuffers()
+        );
         
         ClientLevel newWorld;
         try {

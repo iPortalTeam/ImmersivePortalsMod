@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -40,9 +40,8 @@ public class PehkuiInterfaceInitializer {
         
         private void logErrorMessage(Entity entity, Throwable e, String situation) {
             e.printStackTrace();
-            entity.sendMessage(
-                new TextComponent("Something went wrong with Pehkui (" + situation + ")"),
-                Util.NIL_UUID
+            entity.sendSystemMessage(
+                Component.literal("Something went wrong with Pehkui (" + situation + ")")
             );
         }
         
@@ -160,9 +159,8 @@ public class PehkuiInterfaceInitializer {
         
         if (!entity.level.isClientSide && isScaleIllegal(newScale)) {
             newScale = 1;
-            entity.sendMessage(
-                new TextComponent("Scale out of range"),
-                Util.NIL_UUID
+            entity.sendSystemMessage(
+                Component.literal("Scale out of range")
             );
         }
         

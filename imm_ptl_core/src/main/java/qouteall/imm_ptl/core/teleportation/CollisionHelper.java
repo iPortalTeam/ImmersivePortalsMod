@@ -5,8 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -499,13 +498,13 @@ public class CollisionHelper {
     private static void updateClientStagnateStatus() {
         if (thisTickStagnate && lastTickStagnate) {
             Minecraft.getInstance().gui.setOverlayMessage(
-                new TranslatableComponent("imm_ptl.stagnate_movement"),
+                Component.translatable("imm_ptl.stagnate_movement"),
                 false
             );
         }
         else if (!thisTickStagnate && lastTickStagnate) {
             Minecraft.getInstance().gui.setOverlayMessage(
-                new TextComponent(""),
+                Component.literal(""),
                 false
             );
         }

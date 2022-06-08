@@ -11,7 +11,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -23,6 +23,7 @@ import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -68,7 +69,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
             structureSets, noiseRegistry,
-            chaosBiomeSource, seed, Holder.direct(skylandSetting)
+            chaosBiomeSource, Holder.direct(skylandSetting)
         );
         
         return new ErrorTerrainGenerator(
@@ -122,16 +123,8 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     }
     
     @Override
-    public ChunkGenerator withSeed(long seed) {
-        return new ErrorTerrainGenerator(
-            seed, structureSets, biomeSource_.withSeed(seed), delegate.withSeed(seed),
-            biomeRegistry, noiseRegistry
-        );
-    }
-    
-    @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender arg, StructureFeatureManager structureAccessor, ChunkAccess chunk) {
-        LevelChunkSection[] sectionArray = chunk.getSections();
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
+        LevelChunkSection[] sectionArray = chunkAccess.getSections();
         ArrayList<LevelChunkSection> locked = new ArrayList<>();
         for (LevelChunkSection chunkSection : sectionArray) {
             if (chunkSection != null) {
@@ -140,13 +133,13 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             }
         }
         return CompletableFuture.supplyAsync(() -> {
-            doPopulateNoise(chunk);
-            return chunk;
+            doPopulateNoise(chunkAccess);
+            return chunkAccess;
         }, executor).thenApplyAsync((chunkx) -> {
             for (LevelChunkSection chunkSection : locked) {
                 chunkSection.release();
             }
-            
+        
             return chunkx;
         }, executor);
     }

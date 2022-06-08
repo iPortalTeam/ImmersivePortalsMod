@@ -13,8 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
@@ -217,7 +215,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         for (WrappingZone zone : wrappingZones) {
             if (!zone.isValid()) {
-                feedbackSender.accept(new TranslatableComponent(
+                feedbackSender.accept(Component.translatable(
                     "imm_ptl.removed_invalid_wrapping_portals",
                     Helper.myToString(zone.portals.stream())
                 ));
@@ -256,7 +254,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
         
         wrappingZones.forEach(wrappingZone -> {
-            feedbackSender.accept(new TextComponent(wrappingZone.toString()));
+            feedbackSender.accept(Component.literal(wrappingZone.toString()));
         });
     }
     
@@ -273,10 +271,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         if (zone != null) {
             zone.removeFromWorld();
-            feedbackSender.accept(new TranslatableComponent("imm_ptl.removed_portal", zone.toString()));
+            feedbackSender.accept(Component.translatable("imm_ptl.removed_portal", zone.toString()));
         }
         else {
-            feedbackSender.accept(new TranslatableComponent("imm_ptl.not_in_wrapping_zone"));
+            feedbackSender.accept(Component.translatable("imm_ptl.not_in_wrapping_zone"));
         }
     }
     
@@ -293,10 +291,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         if (zone != null) {
             zone.removeFromWorld();
-            feedbackSender.accept(new TranslatableComponent("imm_ptl.removed_portal", zone.toString()));
+            feedbackSender.accept(Component.translatable("imm_ptl.removed_portal", zone.toString()));
         }
         else {
-            feedbackSender.accept(new TranslatableComponent("imm_ptl.cannot_find_zone"));
+            feedbackSender.accept(Component.translatable("imm_ptl.cannot_find_zone"));
         }
     }
     

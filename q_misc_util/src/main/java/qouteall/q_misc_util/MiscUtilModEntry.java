@@ -1,7 +1,7 @@
 package qouteall.q_misc_util;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import qouteall.q_misc_util.dimension.DimensionMisc;
@@ -24,7 +24,7 @@ public class MiscUtilModEntry implements ModInitializer {
             MiscGlobals.serverTaskList.processTasks();
         });
         
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             DimsCommand.register(dispatcher);
         });
     }

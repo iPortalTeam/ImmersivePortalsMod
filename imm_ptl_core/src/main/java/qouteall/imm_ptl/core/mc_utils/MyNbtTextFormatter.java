@@ -22,7 +22,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagVisitor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +55,7 @@ public class MyNbtTextFormatter
     private static final String NEW_LINE = "\n";
     private final String prefix;
     private final int indentationLevel;
-    private Component result = TextComponent.EMPTY;
+    private Component result = Component.literal("");
     
     public MyNbtTextFormatter(String prefix, int indentationLevel) {
         this.prefix = prefix;
@@ -72,61 +71,61 @@ public class MyNbtTextFormatter
     public void visitString(StringTag element) {
         String string = StringTag.quoteAndEscape(element.getAsString());
         String string2 = string.substring(0, 1);
-        MutableComponent text = new TextComponent(string.substring(1, string.length() - 1)).withStyle(STRING_COLOR);
-        this.result = new TextComponent(string2).append(text).append(string2);
+        MutableComponent text = Component.literal(string.substring(1, string.length() - 1)).withStyle(STRING_COLOR);
+        this.result = Component.literal(string2).append(text).append(string2);
     }
     
     @Override
     public void visitByte(ByteTag element) {
         if (element.getAsByte() == 0) {
-            result = new TextComponent("false").withStyle(NUMBER_COLOR);
+            result = Component.literal("false").withStyle(NUMBER_COLOR);
             return;
         }
         else if (element.getAsByte() == 1) {
-            result = new TextComponent("true").withStyle(NUMBER_COLOR);
+            result = Component.literal("true").withStyle(NUMBER_COLOR);
             return;
         }
         
-        MutableComponent text = new TextComponent("b").withStyle(TYPE_SUFFIX_COLOR);
-        this.result = new TextComponent(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
+        MutableComponent text = Component.literal("b").withStyle(TYPE_SUFFIX_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitShort(ShortTag element) {
-        MutableComponent text = new TextComponent("s").withStyle(TYPE_SUFFIX_COLOR);
-        this.result = new TextComponent(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
+        MutableComponent text = Component.literal("s").withStyle(TYPE_SUFFIX_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitInt(IntTag element) {
-        this.result = new TextComponent(String.valueOf(element.getAsNumber())).withStyle(NUMBER_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsNumber())).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitLong(LongTag element) {
-        MutableComponent text = new TextComponent("L").withStyle(TYPE_SUFFIX_COLOR);
-        this.result = new TextComponent(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
+        MutableComponent text = Component.literal("L").withStyle(TYPE_SUFFIX_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsNumber())).append(text).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitFloat(FloatTag element) {
-        MutableComponent text = new TextComponent("f").withStyle(TYPE_SUFFIX_COLOR);
-        this.result = new TextComponent(String.valueOf(element.getAsFloat())).append(text).withStyle(NUMBER_COLOR);
+        MutableComponent text = Component.literal("f").withStyle(TYPE_SUFFIX_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsFloat())).append(text).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitDouble(DoubleTag element) {
-        MutableComponent text = new TextComponent("d").withStyle(TYPE_SUFFIX_COLOR);
-        this.result = new TextComponent(String.valueOf(element.getAsDouble())).append(text).withStyle(NUMBER_COLOR);
+        MutableComponent text = Component.literal("d").withStyle(TYPE_SUFFIX_COLOR);
+        this.result = Component.literal(String.valueOf(element.getAsDouble())).append(text).withStyle(NUMBER_COLOR);
     }
     
     @Override
     public void visitByteArray(ByteArrayTag element) {
-        MutableComponent text = new TextComponent("B").withStyle(TYPE_SUFFIX_COLOR);
-        MutableComponent mutableText = new TextComponent(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
+        MutableComponent text = Component.literal("B").withStyle(TYPE_SUFFIX_COLOR);
+        MutableComponent mutableText = Component.literal(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
         byte[] bs = element.getAsByteArray();
         for (int i = 0; i < bs.length; ++i) {
-            MutableComponent mutableText2 = new TextComponent(String.valueOf(bs[i])).withStyle(NUMBER_COLOR);
+            MutableComponent mutableText2 = Component.literal(String.valueOf(bs[i])).withStyle(NUMBER_COLOR);
             mutableText.append(SPACE).append(mutableText2).append(text);
             if (i == bs.length - 1) continue;
             mutableText.append(ENTRY_SEPARATOR);
@@ -137,11 +136,11 @@ public class MyNbtTextFormatter
     
     @Override
     public void visitIntArray(IntArrayTag element) {
-        MutableComponent text = new TextComponent("I").withStyle(TYPE_SUFFIX_COLOR);
-        MutableComponent mutableText = new TextComponent(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
+        MutableComponent text = Component.literal("I").withStyle(TYPE_SUFFIX_COLOR);
+        MutableComponent mutableText = Component.literal(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
         int[] is = element.getAsIntArray();
         for (int i = 0; i < is.length; ++i) {
-            mutableText.append(SPACE).append(new TextComponent(String.valueOf(is[i])).withStyle(NUMBER_COLOR));
+            mutableText.append(SPACE).append(Component.literal(String.valueOf(is[i])).withStyle(NUMBER_COLOR));
             if (i == is.length - 1) continue;
             mutableText.append(ENTRY_SEPARATOR);
         }
@@ -151,11 +150,11 @@ public class MyNbtTextFormatter
     
     @Override
     public void visitLongArray(LongArrayTag element) {
-        MutableComponent text = new TextComponent("L").withStyle(TYPE_SUFFIX_COLOR);
-        MutableComponent mutableText = new TextComponent(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
+        MutableComponent text = Component.literal("L").withStyle(TYPE_SUFFIX_COLOR);
+        MutableComponent mutableText = Component.literal(SQUARE_OPEN_BRACKET).append(text).append(SEMICOLON);
         long[] ls = element.getAsLongArray();
         for (int i = 0; i < ls.length; ++i) {
-            MutableComponent text2 = new TextComponent(String.valueOf(ls[i])).withStyle(NUMBER_COLOR);
+            MutableComponent text2 = Component.literal(String.valueOf(ls[i])).withStyle(NUMBER_COLOR);
             mutableText.append(SPACE).append(text2).append(text);
             if (i == ls.length - 1) continue;
             mutableText.append(ENTRY_SEPARATOR);
@@ -167,12 +166,12 @@ public class MyNbtTextFormatter
     @Override
     public void visitList(ListTag element) {
         if (element.isEmpty()) {
-            this.result = new TextComponent("[]");
+            this.result = Component.literal("[]");
             return;
         }
         if (SINGLE_LINE_ELEMENT_TYPES.contains(element.getElementType()) && element.size() <= 8) {
             String string = ENTRY_SEPARATOR + SPACE;
-            TextComponent mutableText = new TextComponent(SQUARE_OPEN_BRACKET);
+            MutableComponent mutableText = Component.literal(SQUARE_OPEN_BRACKET);
             for (int i = 0; i < element.size(); ++i) {
                 if (i != 0) {
                     mutableText.append(string);
@@ -183,12 +182,12 @@ public class MyNbtTextFormatter
             this.result = mutableText;
             return;
         }
-        TextComponent string = new TextComponent(SQUARE_OPEN_BRACKET);
+        MutableComponent string = Component.literal(SQUARE_OPEN_BRACKET);
 //        if (!this.prefix.isEmpty()) {
 //            string.append(NEW_LINE);
 //        }
         for (int mutableText = 0; mutableText < element.size(); ++mutableText) {
-            TextComponent i = new TextComponent(Strings.repeat(this.prefix, this.indentationLevel + 1));
+            MutableComponent i = Component.literal(Strings.repeat(this.prefix, this.indentationLevel + 1));
             i.append(new MyNbtTextFormatter(this.prefix, this.indentationLevel + 1).apply(element.get(mutableText)));
             if (mutableText != element.size() - 1) {
                 i.append(ENTRY_SEPARATOR).append(SPACE);
@@ -206,10 +205,10 @@ public class MyNbtTextFormatter
     public void visitCompound(CompoundTag compound) {
         List<String> list;
         if (compound.isEmpty()) {
-            this.result = new TextComponent("{}");
+            this.result = Component.literal("{}");
             return;
         }
-        TextComponent mutableText = new TextComponent(CURLY_OPEN_BRACKET);
+        MutableComponent mutableText = Component.literal(CURLY_OPEN_BRACKET);
         Collection<String> collection = compound.getAllKeys();
         list = Lists.newArrayList(compound.getAllKeys());
         Collections.sort(list);
@@ -220,7 +219,7 @@ public class MyNbtTextFormatter
         Iterator<String> iterator = collection.iterator();
         while (iterator.hasNext()) {
             String string = (String) iterator.next();
-            MutableComponent mutableText2 = new TextComponent(Strings.repeat(this.prefix, this.indentationLevel + 1))
+            MutableComponent mutableText2 = Component.literal(Strings.repeat(this.prefix, this.indentationLevel + 1))
                 .append(escapeName(string))
                 .append(KEY_VALUE_SEPARATOR).append(SPACE)
                 .append(new MyNbtTextFormatter(this.prefix, this.indentationLevel + 1).apply(compound.get(string)));
@@ -238,17 +237,17 @@ public class MyNbtTextFormatter
     
     protected static Component escapeName(String name) {
         if (SIMPLE_NAME.matcher(name).matches()) {
-            return new TextComponent(name).withStyle(NAME_COLOR);
+            return Component.literal(name).withStyle(NAME_COLOR);
         }
         String string = StringTag.quoteAndEscape(name);
         String string2 = string.substring(0, 1);
-        MutableComponent text = new TextComponent(string.substring(1, string.length() - 1)).withStyle(NAME_COLOR);
-        return new TextComponent(string2).append(text).append(string2);
+        MutableComponent text = Component.literal(string.substring(1, string.length() - 1)).withStyle(NAME_COLOR);
+        return Component.literal(string2).append(text).append(string2);
     }
     
     @Override
     public void visitEnd(EndTag element) {
-        this.result = TextComponent.EMPTY;
+//        this.result = MutableComponent.EMPTY;
     }
 }
 

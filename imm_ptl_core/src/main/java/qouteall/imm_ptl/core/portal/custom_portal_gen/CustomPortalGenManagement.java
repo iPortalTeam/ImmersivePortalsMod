@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryLoader;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.RegistryResourceAccess;
@@ -85,7 +85,7 @@ public class CustomPortalGenManagement {
                     }
                 }
                 else {
-                    McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+                    McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
                         "Cannot create reverse generation of " + gen
                     ));
                 }
@@ -127,7 +127,7 @@ public class CustomPortalGenManagement {
         if (result == null) {
             DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
                 dataResult.get().right().get();
-            McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
+            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
                 "Error when parsing custom portal generation\n" +
                     r.message()
             ));

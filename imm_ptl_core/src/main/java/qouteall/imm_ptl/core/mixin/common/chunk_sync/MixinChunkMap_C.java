@@ -61,10 +61,6 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
     private ProcessorHandle<ChunkTaskPriorityQueueSorter.Message<Runnable>> mainThreadMailbox;
     
     @Shadow
-    @Nullable
-    protected abstract CompoundTag readChunk(ChunkPos pos) throws IOException;
-    
-    @Shadow
     @Final
     private ThreadedLevelLightEngine lightEngine;
     
@@ -90,18 +86,21 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
     
     @Override
     public boolean portal_isChunkGenerated(ChunkPos chunkPos) {
-        if (level.getChunkSource().hasChunk(chunkPos.x, chunkPos.z)) {
-            return true;
-        }
+        // TODO recover
+        return true;
         
-        try {
-            CompoundTag tag = readChunk(chunkPos);
-            return tag != null;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+//        if (level.getChunkSource().hasChunk(chunkPos.x, chunkPos.z)) {
+//            return true;
+//        }
+//
+//        try {
+//            CompoundTag tag = readChunk(chunkPos);
+//            return tag != null;
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
     }
     
     /**

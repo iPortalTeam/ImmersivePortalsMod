@@ -3,7 +3,7 @@ package qouteall.imm_ptl.peripheral.portal_generation;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
@@ -51,7 +51,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
                 );
                 for (ServerPlayer player : nearbyPlayers) {
                     player.displayClientMessage(
-                        new TranslatableComponent("imm_ptl.cannot_connect_to_vanilla_portal"),
+                        Component.translatable("imm_ptl.cannot_connect_to_vanilla_portal"),
                         false
                     );
                 }

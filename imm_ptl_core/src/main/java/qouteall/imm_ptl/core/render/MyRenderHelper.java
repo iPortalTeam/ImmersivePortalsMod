@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -104,11 +105,13 @@ public class MyRenderHelper {
         });
     }
     
+    // vanilla hardcodes the shader namespace to be "minecraft"
     private static ResourceProvider getResourceFactory(ResourceManager resourceManager) {
         ResourceProvider resourceFactory = new ResourceProvider() {
             @Override
-            public Resource getResource(ResourceLocation id) throws IOException {
-                ResourceLocation corrected = new ResourceLocation("immersive_portals", id.getPath());
+            public Optional<Resource> getResource(ResourceLocation resourceLocation) {
+                ResourceLocation corrected = new ResourceLocation(
+                    "immersive_portals", resourceLocation.getPath());
                 return resourceManager.getResource(corrected);
             }
         };
@@ -165,20 +168,14 @@ public class MyRenderHelper {
         
         shader.apply();
         
-        Tesselator tessellator = RenderSystem.renderThreadTesselator();
-        BufferBuilder bufferBuilder = tessellator.getBuilder();
-        
         ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
             Vec3.ZERO,//fog
             portal,
-            bufferBuilder,
             CHelper.getCurrentCameraPos(),
             RenderStates.tickDelta
         );
+    
         
-        BufferUploader._endInternal(bufferBuilder);
-        
-        // wrong name. unbind
         shader.clear();
     }
     
@@ -236,9 +233,7 @@ public class MyRenderHelper {
         bufferBuilder.vertex(-1, 0, 0).color(r, g, b, a)
             .endVertex();
         
-        bufferBuilder.end();
-        
-        BufferUploader._endInternal(bufferBuilder);
+        BufferUploader.draw(bufferBuilder.end());
         
         shader.clear();
         
@@ -277,9 +272,7 @@ public class MyRenderHelper {
         bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
             .endVertex();
         
-        bufferBuilder.end();
-        
-        BufferUploader._endInternal(bufferBuilder);
+        BufferUploader.draw(bufferBuilder.end());
         
         shader.clear();
         
@@ -381,8 +374,7 @@ public class MyRenderHelper {
             .uv(0.0F, textureYScale)
             .color(255, 255, 255, 255).endVertex();
         
-        bufferBuilder.end();
-        BufferUploader._endInternal(bufferBuilder);
+        BufferUploader.draw(bufferBuilder.end());
         
         // unbind
         shader.clear();

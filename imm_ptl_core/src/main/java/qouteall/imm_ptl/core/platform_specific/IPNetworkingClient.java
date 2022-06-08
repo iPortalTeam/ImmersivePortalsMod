@@ -4,7 +4,6 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.ConnectionProtocol;
@@ -40,11 +39,10 @@ public class IPNetworkingClient {
         );
         
         
-        
         ClientPlayNetworking.registerGlobalReceiver(
             IPNetworking.id_stcSpawnEntity,
             (c, handler, buf, responseSender) -> {
-                processStcSpawnEntity(null, buf);
+                processStcSpawnEntity(buf);
                 
             }
         );
@@ -52,7 +50,7 @@ public class IPNetworkingClient {
         ClientPlayNetworking.registerGlobalReceiver(
             IPNetworking.id_stcDimensionConfirm,
             (c, handler, buf, responseSender) -> {
-                processStcDimensionConfirm(null, buf);
+                processStcDimensionConfirm(buf);
             }
         );
         
@@ -63,11 +61,10 @@ public class IPNetworkingClient {
             }
         );
         
-       
         
     }
     
-    private static void processStcSpawnEntity(PacketContext context, FriendlyByteBuf buf) {
+    private static void processStcSpawnEntity(FriendlyByteBuf buf) {
         String entityTypeString = buf.readUtf();
         
         int entityId = buf.readInt();
@@ -79,7 +76,7 @@ public class IPNetworkingClient {
         IPCommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
-    private static void processStcDimensionConfirm(PacketContext context, FriendlyByteBuf buf) {
+    private static void processStcDimensionConfirm(FriendlyByteBuf buf) {
         
         ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
         Vec3 pos = new Vec3(
@@ -101,7 +98,7 @@ public class IPNetworkingClient {
     ) {
         ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
         int messageType = buf.readInt();
-        Packet packet = createPacketByType(messageType,buf);
+        Packet packet = createPacketByType(messageType, buf);
         
         IPCommonNetworkClient.processRedirectedPacket(dimension, packet);
     }

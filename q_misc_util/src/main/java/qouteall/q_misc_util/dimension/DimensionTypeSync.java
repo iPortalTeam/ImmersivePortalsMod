@@ -10,6 +10,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -74,7 +75,7 @@ public class DimensionTypeSync {
                             Helper.err("Missing dim type id for " + w.dimension());
                             Helper.err("Registered dimension types " +
                                 Helper.myToString(dimensionTypes.keySet().stream()));
-                            return DimensionType.OVERWORLD_LOCATION;
+                            return BuiltinDimensionTypes.OVERWORLD;
                         }
                         return idToDimType(id);
                     }
@@ -98,22 +99,22 @@ public class DimensionTypeSync {
     @Environment(EnvType.CLIENT)
     public static ResourceKey<DimensionType> getDimensionTypeKey(ResourceKey<Level> worldKey) {
         if (worldKey == Level.OVERWORLD) {
-            return DimensionType.OVERWORLD_LOCATION;
+            return BuiltinDimensionTypes.OVERWORLD;
         }
         
         if (worldKey == Level.NETHER) {
-            return DimensionType.NETHER_LOCATION;
+            return BuiltinDimensionTypes.NETHER;
         }
         
         if (worldKey == Level.END) {
-            return DimensionType.END_LOCATION;
+            return BuiltinDimensionTypes.END;
         }
         
         ResourceKey<DimensionType> obj = clientTypeMap.get(worldKey);
         
         if (obj == null) {
             Helper.err("Missing Dimension Type For " + worldKey);
-            return DimensionType.OVERWORLD_LOCATION;
+            return BuiltinDimensionTypes.OVERWORLD;
         }
         
         return obj;

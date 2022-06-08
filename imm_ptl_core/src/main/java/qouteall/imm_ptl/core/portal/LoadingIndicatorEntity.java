@@ -10,16 +10,17 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -77,7 +78,7 @@ public class LoadingIndicatorEntity extends Entity {
         if (portalShape != null) {
             IntBox box = portalShape.innerAreaBox;
             BlockPos size = box.getSize();
-            Random random = level.getRandom();
+            RandomSource random = level.getRandom();
             
             for (int i = 0; i < num; i++) {
                 Vec3 p = new Vec3(
@@ -101,7 +102,7 @@ public class LoadingIndicatorEntity extends Entity {
     
     @Override
     protected void defineSynchedData() {
-        getEntityData().define(text, new TextComponent("Loading..."));
+        getEntityData().define(text, Component.literal("Loading..."));
     }
     
     @Override
@@ -138,10 +139,8 @@ public class LoadingIndicatorEntity extends Entity {
     @Environment(EnvType.CLIENT)
     private void showMessageClient() {
         Gui inGameHud = Minecraft.getInstance().gui;
-        inGameHud.handleChat(
-            ChatType.GAME_INFO,
-            getText(),
-            Util.NIL_UUID
+        inGameHud.setOverlayMessage(
+            getText(), false
         );
     }
 }

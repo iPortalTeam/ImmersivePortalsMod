@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.compat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -66,7 +66,7 @@ public class PehkuiInterface {
             if (!messageShown) {
                 messageShown = true;
                 Minecraft.getInstance().gui.getChat().addMessage(
-                    new TranslatableComponent("imm_ptl.needs_pehkui")
+                    Component.translatable("imm_ptl.needs_pehkui")
                         .append(McHelper.getLinkText("https://modrinth.com/mod/pehkui"))
                 );
             }

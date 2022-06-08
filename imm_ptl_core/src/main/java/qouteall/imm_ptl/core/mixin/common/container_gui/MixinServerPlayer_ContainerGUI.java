@@ -4,8 +4,10 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,9 +17,8 @@ import qouteall.imm_ptl.core.portal.Portal;
 
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer_ContainerGUI extends Player implements IEServerPlayerEntity {
-    public MixinServerPlayer_ContainerGUI(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile);
-        throw new RuntimeException();
+    public MixinServerPlayer_ContainerGUI(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
+        super(level, blockPos, f, gameProfile, profilePublicKey);
     }
     
     private boolean immptl_overrideDistance = false;

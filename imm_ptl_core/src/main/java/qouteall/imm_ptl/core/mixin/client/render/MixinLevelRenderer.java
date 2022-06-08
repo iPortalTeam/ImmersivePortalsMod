@@ -346,7 +346,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V",
+            remap = false
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {

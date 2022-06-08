@@ -20,7 +20,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -99,7 +98,7 @@ public class McHelper {
         String text
     ) {
         Helper.log(text);
-        player.displayClientMessage(new TextComponent(text), false);
+        player.displayClientMessage(Component.literal(text), false);
     }
     
     public static long getServerGameTime() {
@@ -365,7 +364,7 @@ public class McHelper {
     // because withUnderline is client only
     @Environment(EnvType.CLIENT)
     public static MutableComponent getLinkText(String link) {
-        return new TextComponent(link).withStyle(
+        return Component.literal(link).withStyle(
             style -> style.withClickEvent(new ClickEvent(
                 ClickEvent.Action.OPEN_URL, link
             )).withUnderlined(true)
@@ -747,7 +746,7 @@ public class McHelper {
             InputStream inputStream =
                 Minecraft.getInstance().getResourceManager().getResource(
                     identifier
-                ).getInputStream();
+                ).get().open();
             
             result = IOUtils.toString(inputStream, Charset.defaultCharset());
         }

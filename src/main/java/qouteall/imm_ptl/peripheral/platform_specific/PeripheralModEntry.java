@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -45,7 +44,7 @@ public class PeripheralModEntry implements ModInitializer {
         public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
             super.appendHoverText(stack, world, tooltip, context);
             
-            tooltip.add(new TranslatableComponent("imm_ptl.portal_helper_tooltip"));
+            tooltip.add(Component.translatable("imm_ptl.portal_helper_tooltip"));
         }
     }
     

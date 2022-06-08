@@ -1,11 +1,12 @@
 package qouteall.imm_ptl.core;
 
 import com.mojang.blaze3d.platform.GlUtil;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.compat.IPFlywheelCompat;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
@@ -35,8 +36,6 @@ import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import java.util.UUID;
-
 public class IPModMainClient {
     
     private static boolean fabulousWarned = false;
@@ -47,10 +46,10 @@ public class IPModMainClient {
             return;
         }
         
-        if (Minecraft.getInstance().options.graphicsMode == GraphicsStatus.FABULOUS) {
+        if (Minecraft.getInstance().options.graphicsMode().get() == GraphicsStatus.FABULOUS) {
             if (!fabulousWarned) {
                 fabulousWarned = true;
-                CHelper.printChat(new TranslatableComponent("imm_ptl.fabulous_warning"));
+                CHelper.printChat(Component.translatable("imm_ptl.fabulous_warning"));
             }
         }
         
@@ -96,13 +95,11 @@ public class IPModMainClient {
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
-                    Minecraft.getInstance().gui.handleChat(
-                        ChatType.CHAT,
-                        new TranslatableComponent("imm_ptl.preview_warning").append(
-                            McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
-                        ),
-                        UUID.randomUUID()
+                    MutableComponent text = Component.translatable("imm_ptl.preview_warning").append(
+                        McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
                     );
+                    
+                    CHelper.printChat(text);
                 }
             })
         ));
@@ -113,7 +110,7 @@ public class IPModMainClient {
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (GlUtil.getVendor().toLowerCase().contains("intel")) {
-                    CHelper.printChat(new TranslatableComponent("imm_ptl.intel_warning"));
+                    CHelper.printChat(Component.translatable("imm_ptl.intel_warning"));
                 }
             })
         ));
@@ -154,9 +151,11 @@ public class IPModMainClient {
         
         GcMonitor.initClient();
         
-        ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-
-//        showPreviewWarning();
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            ClientDebugCommand.register(dispatcher);
+        });
+        
+        showPreviewWarning();
         
         showIntelVideoCardWarning();
         

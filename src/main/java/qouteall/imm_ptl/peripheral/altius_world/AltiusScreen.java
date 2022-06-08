@@ -8,8 +8,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.CHelper;
@@ -56,14 +55,14 @@ public class AltiusScreen extends Screen {
         Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier,
         Consumer<AltiusInfo> finishCallback
     ) {
-        super(new TranslatableComponent("imm_ptl.altius_screen"));
+        super(Component.translatable("imm_ptl.altius_screen"));
         this.parent = parent;
         this.dimensionListSupplier = dimensionListSupplier;
         this.finishCallback = finishCallback;
         
         toggleButton = new Button(
             0, 0, 150, 20,
-            new TranslatableComponent("imm_ptl.altius_toggle_false"),
+            Component.translatable("imm_ptl.altius_toggle_false"),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
             }
@@ -71,10 +70,10 @@ public class AltiusScreen extends Screen {
         
         loopButton = new Button(
             0, 0, 150, 20,
-            new TranslatableComponent("imm_ptl.loop_disabled"),
+            Component.translatable("imm_ptl.loop_disabled"),
             (buttonWidget) -> {
                 loopEnabled = !loopEnabled;
-                buttonWidget.setMessage(new TranslatableComponent(
+                buttonWidget.setMessage(Component.translatable(
                     loopEnabled ? "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
                 ));
             }
@@ -82,10 +81,10 @@ public class AltiusScreen extends Screen {
         
         gravityChangeButton = new Button(
             0, 0, 150, 20,
-            new TranslatableComponent("imm_ptl.gravity_change_disabled"),
+            Component.translatable("imm_ptl.gravity_change_disabled"),
             (buttonWidget) -> {
                 gravityChangeEnabled = !gravityChangeEnabled;
-                buttonWidget.setMessage(new TranslatableComponent(
+                buttonWidget.setMessage(Component.translatable(
                     gravityChangeEnabled ? "imm_ptl.gravity_change_enabled" :
                         "imm_ptl.gravity_change_disabled"
                 ));
@@ -94,7 +93,7 @@ public class AltiusScreen extends Screen {
         
         finishButton = new Button(
             0, 0, 72, 20,
-            new TranslatableComponent("imm_ptl.finish"),
+            Component.translatable("imm_ptl.finish"),
             (buttonWidget) -> {
                 Minecraft.getInstance().setScreen(parent);
                 finishCallback.accept(getAltiusInfo());
@@ -102,14 +101,14 @@ public class AltiusScreen extends Screen {
         );
         addDimensionButton = new Button(
             0, 0, 72, 20,
-            new TranslatableComponent("imm_ptl.dim_stack_add"),
+            Component.translatable("imm_ptl.dim_stack_add"),
             (buttonWidget) -> {
                 onAddEntry();
             }
         );
         removeDimensionButton = new Button(
             0, 0, 72, 20,
-            new TranslatableComponent("imm_ptl.dim_stack_remove"),
+            Component.translatable("imm_ptl.dim_stack_remove"),
             (buttonWidget) -> {
                 onRemoveEntry();
             }
@@ -117,7 +116,7 @@ public class AltiusScreen extends Screen {
         
         editButton = new Button(
             0, 0, 72, 20,
-            new TranslatableComponent("imm_ptl.dim_stack_edit"),
+            Component.translatable("imm_ptl.dim_stack_edit"),
             (buttonWidget) -> {
                 onEditEntry();
             }
@@ -147,7 +146,7 @@ public class AltiusScreen extends Screen {
     public static Button createHelpButton(Screen parent) {
         return new Button(
             0, 0, 30, 20,
-            new TextComponent("?"),
+            Component.literal("?"),
             button -> {
                 CHelper.openLinkConfirmScreen(
                     parent, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
@@ -302,10 +301,10 @@ public class AltiusScreen extends Screen {
     private void setEnabled(boolean cond) {
         isEnabled = cond;
         if (isEnabled) {
-            toggleButton.setMessage(new TranslatableComponent("imm_ptl.altius_toggle_true"));
+            toggleButton.setMessage(Component.translatable("imm_ptl.altius_toggle_true"));
         }
         else {
-            toggleButton.setMessage(new TranslatableComponent("imm_ptl.altius_toggle_false"));
+            toggleButton.setMessage(Component.translatable("imm_ptl.altius_toggle_false"));
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;

@@ -22,51 +22,53 @@ public class DimensionMisc {
     
     // fix the issue that nether and end get swallowed by DFU
     public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
-        Registry<LevelStem> registry = generatorOptions.dimensions();
-        long seed = generatorOptions.seed();
-        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
-            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
-            
-            Registry<LevelStem> newOptions =
-                DimensionType.defaultDimensions(registryManager, seed);
-            
-            LevelStem levelStem = newOptions.get(LevelStem.NETHER);
-            
-            if (levelStem != null) {
-                DimensionAPI.addDimension(
-                    registry,
-                    LevelStem.NETHER.location(),
-                    levelStem.typeHolder(),
-                    levelStem.generator()
-                );
-            }
-            else {
-                Helper.err("cannot create default nether");
-            }
-            
-            
-        }
+        // probably no longer needed
         
-        if (!registry.keySet().contains(LevelStem.END.location())) {
-            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
-            
-            Registry<LevelStem> newOptions =
-                DimensionType.defaultDimensions(registryManager, seed);
-            
-            LevelStem levelStem = newOptions.get(LevelStem.END);
-            
-            if (levelStem != null) {
-                DimensionAPI.addDimension(
-                    registry,
-                    LevelStem.END.location(),
-                    levelStem.typeHolder(),
-                    levelStem.generator()
-                );
-            }
-            else {
-                Helper.err("cannot create default end");
-            }
-        }
+//        Registry<LevelStem> registry = generatorOptions.dimensions();
+//        long seed = generatorOptions.seed();
+//        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
+//            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
+//
+//            Registry<LevelStem> newOptions =
+//                DimensionType.defaultDimensions(registryManager, seed);
+//
+//            LevelStem levelStem = newOptions.get(LevelStem.NETHER);
+//
+//            if (levelStem != null) {
+//                DimensionAPI.addDimension(
+//                    registry,
+//                    LevelStem.NETHER.location(),
+//                    levelStem.typeHolder(),
+//                    levelStem.generator()
+//                );
+//            }
+//            else {
+//                Helper.err("cannot create default nether");
+//            }
+//
+//
+//        }
+//
+//        if (!registry.keySet().contains(LevelStem.END.location())) {
+//            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
+//
+//            Registry<LevelStem> newOptions =
+//                DimensionType.defaultDimensions(registryManager, seed);
+//
+//            LevelStem levelStem = newOptions.get(LevelStem.END);
+//
+//            if (levelStem != null) {
+//                DimensionAPI.addDimension(
+//                    registry,
+//                    LevelStem.END.location(),
+//                    levelStem.typeHolder(),
+//                    levelStem.generator()
+//                );
+//            }
+//            else {
+//                Helper.err("cannot create default end");
+//            }
+//        }
     }
     
     public static void init() {

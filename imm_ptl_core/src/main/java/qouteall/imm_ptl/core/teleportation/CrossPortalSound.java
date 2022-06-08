@@ -7,6 +7,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -30,11 +31,12 @@ public class CrossPortalSound {
     @Nullable
     public static SimpleSoundInstance createCrossPortalSound(
         ClientLevel soundWorld,
-        SoundEvent sound,
-        SoundSource category,
+        SoundEvent soundEvent,
+        SoundSource soundSource,
         Vec3 soundPos,
         float soundVol,
-        float soundPitch
+        float soundPitch,
+        long seed
     ) {
         Minecraft client = Minecraft.getInstance();
         
@@ -73,10 +75,11 @@ public class CrossPortalSound {
                 float volumeAtPortal = Math.max(0, soundVol - volumeToEnterPortal) * volumeMultiplier;
                 
                 return new SimpleSoundInstance(
-                    sound,
-                    category,
+                    soundEvent,
+                    soundSource,
                     volumeAtPortal,
                     soundPitch,
+                    RandomSource.create(seed),
                     soundExitPortalPoint.x(),
                     soundExitPortalPoint.y(),
                     soundExitPortalPoint.z()

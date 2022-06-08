@@ -19,7 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryLoader;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.RegistryResourceAccess;
@@ -169,7 +169,7 @@ public class PortalDebugCommands {
                     long o = m - n;
                     
                     context.getSource().sendSuccess(
-                        new TextComponent(
+                        Component.literal(
                             String.format("Memory: % 2d%% %03d/%03dMB", o * 100L / l, toMiB(o), toMiB(l))
                         ),
                         false

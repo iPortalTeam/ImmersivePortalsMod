@@ -3,7 +3,7 @@ package qouteall.q_misc_util.dimension;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -83,9 +83,8 @@ public class DynamicDimensionsImpl {
             ((IEMinecraftServer_Misc) server).ip_getStorageSource(),
             derivedLevelData,
             dimensionResourceKey,
-            levelStem.typeHolder(),
+            levelStem,
             new DummyProgressListener(),
-            levelStem.generator(),
             false, // isDebug
             obfuscatedSeed,
             ImmutableList.of(),
@@ -108,7 +107,7 @@ public class DynamicDimensionsImpl {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
         }
-    
+        
         DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
     }
     
@@ -191,7 +190,7 @@ public class DynamicDimensionsImpl {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 player.connection.send(dimSyncPacket);
             }
-    
+            
             DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
         }));
     }
@@ -225,12 +224,11 @@ public class DynamicDimensionsImpl {
                 sharedSpawnPos.getX(), sharedSpawnPos.getY(), sharedSpawnPos.getZ(),
                 0, 0
             );
-            player.sendMessage(
-                new TextComponent(
+            player.sendSystemMessage(
+                Component.literal(
                     "Teleported to spawn pos because dimension %s had been removed"
                         .formatted(world.dimension().location())
-                ),
-                Util.NIL_UUID
+                )
             );
         }
     }

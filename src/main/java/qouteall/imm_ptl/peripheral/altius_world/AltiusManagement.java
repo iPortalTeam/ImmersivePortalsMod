@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -169,7 +169,7 @@ public class AltiusManagement {
             altiusInfo.apply();
             
             player.displayClientMessage(
-                new TranslatableComponent("imm_ptl.dim_stack_established"),
+                Component.translatable("imm_ptl.dim_stack_established"),
                 false
             );
         }
@@ -185,7 +185,7 @@ public class AltiusManagement {
             clearDimStackPortals();
             
             player.displayClientMessage(
-                new TranslatableComponent("imm_ptl.dim_stack_removed"),
+                Component.translatable("imm_ptl.dim_stack_removed"),
                 false
             );
         }

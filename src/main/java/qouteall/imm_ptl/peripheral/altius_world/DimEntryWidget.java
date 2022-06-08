@@ -10,16 +10,16 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
 import qouteall.q_misc_util.Helper;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 // extending EntryListWidget.Entry is also fine
@@ -60,10 +60,9 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         
         this.dimensionName = getDimensionName(dimension);
         
-        try {
-            Minecraft.getInstance().getResourceManager().getResource(dimIconPath);
-        }
-        catch (IOException e) {
+        Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(dimIconPath);
+        
+        if (resource.isEmpty()) {
             Helper.err("Cannot load texture " + dimIconPath);
             dimensionIconPresent = false;
         }
@@ -134,23 +133,23 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     
     private Component getText1() {
         MutableComponent scaleText = entry.scale != 1.0 ?
-            new TranslatableComponent("imm_ptl.scale")
-                .append(new TextComponent(":" + Double.toString(entry.scale)))
-            : new TextComponent("");
+            Component.translatable("imm_ptl.scale")
+                .append(Component.literal(":" + Double.toString(entry.scale)))
+            : Component.literal("");
         
         return scaleText;
     }
     
     private Component getText2() {
         MutableComponent horizontalRotationText = entry.horizontalRotation != 0 ?
-            new TranslatableComponent("imm_ptl.horizontal_rotation")
-                .append(new TextComponent(":" + Double.toString(entry.horizontalRotation)))
-                .append(new TextComponent(" "))
-            : new TextComponent("");
+            Component.translatable("imm_ptl.horizontal_rotation")
+                .append(Component.literal(":" + Double.toString(entry.horizontalRotation)))
+                .append(Component.literal(" "))
+            : Component.literal("");
         
         MutableComponent flippedText = entry.flipped ?
-            new TranslatableComponent("imm_ptl.flipped")
-            : new TextComponent("");
+            Component.translatable("imm_ptl.flipped")
+            : Component.literal("");
         
         return horizontalRotationText.append(flippedText);
     }
@@ -173,8 +172,8 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         );
     }
     
-    private static TranslatableComponent getDimensionName(ResourceKey<Level> dimension) {
-        return new TranslatableComponent(
+    private static Component getDimensionName(ResourceKey<Level> dimension) {
+        return Component.translatable(
             "dimension." + dimension.location().getNamespace() + "."
                 + dimension.location().getPath()
         );

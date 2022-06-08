@@ -2,7 +2,7 @@ package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
@@ -38,7 +38,7 @@ public class PortalHelperForm extends AbstractDiligentForm {
             e -> true
         ).forEach(player -> {
             player.displayClientMessage(
-                new TranslatableComponent("imm_ptl.portal_helper_not_linked"),
+                Component.translatable("imm_ptl.portal_helper_not_linked"),
                 false
             );
         });

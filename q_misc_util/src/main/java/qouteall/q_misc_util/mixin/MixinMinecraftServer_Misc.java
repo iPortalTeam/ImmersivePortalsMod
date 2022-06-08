@@ -6,6 +6,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
@@ -65,17 +66,7 @@ public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventL
         at = @At("RETURN")
     )
     private void onConstruct(
-        Thread thread,
-        LevelStorageSource.LevelStorageAccess levelStorageAccess,
-        PackRepository packRepository,
-        WorldStem worldStem,
-        Proxy proxy,
-        DataFixer dataFixer,
-        MinecraftSessionService minecraftSessionService,
-        GameProfileRepository gameProfileRepository,
-        GameProfileCache gameProfileCache,
-        ChunkProgressListenerFactory chunkProgressListenerFactory,
-        CallbackInfo ci
+        Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci
     ) {
         MiscGlobals.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
     }

@@ -6,15 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(DimensionType.class)
 public interface DimensionTypeAccessor {
-    @Accessor("DEFAULT_NETHER")
-    public static DimensionType _getTheNether() {
-        throw new RuntimeException();
-    }
-    
-    @Accessor("DEFAULT_END")
-    public static DimensionType _getTheEnd() {
-        throw new RuntimeException();
-    }
     
     
 }

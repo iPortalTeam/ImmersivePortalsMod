@@ -41,7 +41,7 @@ public class GLResourceCache {
     }
     
     private int getExpectedBufferSize() {
-        int viewDistance = client.options.renderDistance;
+        int viewDistance = client.options.getEffectiveRenderDistance();
         int diameter = viewDistance * 2 + 1;
         
         //every column has 16 sections, every section has 5 layers

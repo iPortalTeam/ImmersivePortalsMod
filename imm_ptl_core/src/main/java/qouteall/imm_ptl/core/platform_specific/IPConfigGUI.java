@@ -8,7 +8,7 @@ import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import qouteall.imm_ptl.core.IPGlobal;
 
 @Environment(EnvType.CLIENT)
@@ -18,95 +18,95 @@ public class IPConfigGUI {
         
         ConfigBuilder builder = ConfigBuilder.create();
         ConfigCategory commonSide = builder.getOrCreateCategory(
-            new TranslatableComponent("imm_ptl.common_config")
+            Component.translatable("imm_ptl.common_config")
         );
         ConfigCategory clientSide = builder.getOrCreateCategory(
-            new TranslatableComponent("imm_ptl.client_side_config")
+            Component.translatable("imm_ptl.client_side_config")
         );
         
         IntegerSliderEntry entryMaxPortalLayer = builder.entryBuilder().startIntSlider(
-            new TranslatableComponent("imm_ptl.max_portal_layer"),
+            Component.translatable("imm_ptl.max_portal_layer"),
             currConfig.maxPortalLayer,
             0, 15
         ).setDefaultValue(5).build();
         BooleanListEntry entryLagAttackProof = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.lag_attack_proof"),
+            Component.translatable("imm_ptl.lag_attack_proof"),
             currConfig.lagAttackProof
         ).setDefaultValue(true).build();
         IntegerSliderEntry entryPortalRenderLimit = builder.entryBuilder().startIntSlider(
-            new TranslatableComponent("imm_ptl.portal_render_limit"),
+            Component.translatable("imm_ptl.portal_render_limit"),
             currConfig.portalRenderLimit,
             0, 1000
         ).setDefaultValue(200).build();
         IntegerSliderEntry entryIndirectLoadingRadiusCap = builder.entryBuilder().startIntSlider(
-            new TranslatableComponent("imm_ptl.indirect_loading_radius_cap"),
+            Component.translatable("imm_ptl.indirect_loading_radius_cap"),
             currConfig.indirectLoadingRadiusCap,
             1, 32
         ).setDefaultValue(8).build();
         BooleanListEntry entryEnableWarning = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.enable_warning"),
+            Component.translatable("imm_ptl.enable_warning"),
             currConfig.enableWarning
         ).setDefaultValue(true).build();
         BooleanListEntry entryEnableMirrorCreation = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.enable_mirror_creation"),
+            Component.translatable("imm_ptl.enable_mirror_creation"),
             currConfig.enableMirrorCreation
         ).setDefaultValue(true).build();
         BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.compatibility_render_mode"),
+            Component.translatable("imm_ptl.compatibility_render_mode"),
             currConfig.compatibilityRenderMode
         ).setDefaultValue(false).build();
         BooleanListEntry entryCheckGlError = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.check_gl_error"),
+            Component.translatable("imm_ptl.check_gl_error"),
             currConfig.doCheckGlError
         ).setDefaultValue(false).build();
         IntegerSliderEntry entryPortalSearchingRange = builder.entryBuilder().startIntSlider(
-            new TranslatableComponent("imm_ptl.portal_searching_range"),
+            Component.translatable("imm_ptl.portal_searching_range"),
             currConfig.portalSearchingRange,
             32, 1000
         ).setDefaultValue(128).build();
         BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.render_yourself_in_portal"),
+            Component.translatable("imm_ptl.render_yourself_in_portal"),
             currConfig.renderYourselfInPortal
         ).setDefaultValue(true).build();
         BooleanListEntry entryTeleportDebug = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.teleportation_debug"),
+            Component.translatable("imm_ptl.teleportation_debug"),
             currConfig.teleportationDebug
         ).setDefaultValue(false).build();
         BooleanListEntry entryCorrectCrossPortalEntityRendering = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.correct_cross_portal_entity_rendering"),
+            Component.translatable("imm_ptl.correct_cross_portal_entity_rendering"),
             currConfig.correctCrossPortalEntityRendering
         ).setDefaultValue(true).build();
         BooleanListEntry entryPureMirror = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.pure_mirror"),
+            Component.translatable("imm_ptl.pure_mirror"),
             currConfig.pureMirror
         ).setDefaultValue(false).build();
         BooleanListEntry entryEnableAlternateDimensions = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.enable_alternate_dimensions"),
+            Component.translatable("imm_ptl.enable_alternate_dimensions"),
             currConfig.enableAlternateDimensions
         ).setDefaultValue(true).build();
         BooleanListEntry entryReducedPortalRendering = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.reduced_portal_rendering"),
+            Component.translatable("imm_ptl.reduced_portal_rendering"),
             currConfig.reducedPortalRendering
         ).setDefaultValue(false).build();
         BooleanListEntry entryLooseMovementCheck = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.loose_movement_check"),
+            Component.translatable("imm_ptl.loose_movement_check"),
             currConfig.looseMovementCheck
         ).setDefaultValue(false).build();
         BooleanListEntry entryVisibilityPrediction = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.visibility_prediction"),
+            Component.translatable("imm_ptl.visibility_prediction"),
             currConfig.visibilityPrediction
         ).setDefaultValue(true).build();
         BooleanListEntry entryNetherPortalOverlay = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.enable_nether_portal_overlay"),
+            Component.translatable("imm_ptl.enable_nether_portal_overlay"),
             currConfig.netherPortalOverlay
         ).setDefaultValue(false).build();
         BooleanListEntry entryLightVanillaNetherPortalWhenCrouching = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.light_vanilla_nether_portal_when_crouching"),
+            Component.translatable("imm_ptl.light_vanilla_nether_portal_when_crouching"),
             currConfig.lightVanillaNetherPortalWhenCrouching
         ).setDefaultValue(false).build();
         EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
             .startEnumSelector(
-                new TranslatableComponent("imm_ptl.nether_portal_mode"),
+                Component.translatable("imm_ptl.nether_portal_mode"),
                 IPGlobal.NetherPortalMode.class,
                 currConfig.netherPortalMode
             )
@@ -114,7 +114,7 @@ public class IPConfigGUI {
             .build();
         EnumListEntry<IPGlobal.EndPortalMode> entryEndPortalMode = builder.entryBuilder()
             .startEnumSelector(
-                new TranslatableComponent("imm_ptl.end_portal_mode"),
+                Component.translatable("imm_ptl.end_portal_mode"),
                 IPGlobal.EndPortalMode.class,
                 currConfig.endPortalMode
             )

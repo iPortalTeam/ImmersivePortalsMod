@@ -5,8 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
 public class AltiusEditScreen extends Screen {
@@ -34,14 +33,14 @@ public class AltiusEditScreen extends Screen {
     private final Button helpButton;
     
     protected AltiusEditScreen(AltiusScreen parent, DimEntryWidget editing) {
-        super(new TranslatableComponent("imm_ptl.dim_stack_edit_screen"));
+        super(Component.translatable("imm_ptl.dim_stack_edit_screen"));
         
         this.parent = parent;
         this.editing = editing;
         
         scaleField = new EditBox(
             Minecraft.getInstance().font,
-            0, 0, 0, 20, new TextComponent("heh")
+            0, 0, 0, 20, Component.literal("you cannot see me")
         );
         scaleField.setValue(Double.toString(editing.entry.scale));
         scaleField.setHighlightPos(0);//without this the text won't render. mc gui is bugged
@@ -49,11 +48,11 @@ public class AltiusEditScreen extends Screen {
         
         flipButton = new Button(
             0, 0, 0, 20,
-            new TranslatableComponent(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+            Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
             button -> {
                 editing.entry.flipped = !editing.entry.flipped;
                 button.setMessage(
-                    new TranslatableComponent(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                    Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
                 );
             }
         );
@@ -61,7 +60,7 @@ public class AltiusEditScreen extends Screen {
         horizontalRotationField = new EditBox(
             Minecraft.getInstance().font,
             0, 0, 0, 20,
-            new TextComponent("you cannot see me")
+            Component.literal("you cannot see me")
         );
         horizontalRotationField.setValue(Double.toString(editing.entry.horizontalRotation));
         horizontalRotationField.setCursorPosition(0);
@@ -70,7 +69,7 @@ public class AltiusEditScreen extends Screen {
         topYField = new EditBox(
             Minecraft.getInstance().font,
             0, 0, 0, 20,
-            new TextComponent("you cannot see me")
+            Component.literal("you cannot see me")
         );
         if (editing.entry.topY != null) {
             topYField.setValue(Integer.toString(editing.entry.topY));
@@ -81,7 +80,7 @@ public class AltiusEditScreen extends Screen {
         bottomYField = new EditBox(
             Minecraft.getInstance().font,
             0, 0, 0, 20,
-            new TextComponent("you cannot see me")
+            Component.literal("you cannot see me")
         );
         if (editing.entry.bottomY != null) {
             bottomYField.setValue(Integer.toString(editing.entry.bottomY));
@@ -92,7 +91,7 @@ public class AltiusEditScreen extends Screen {
         bedrockBlockField = new EditBox(
             Minecraft.getInstance().font,
             0, 0, 0, 20,
-            new TextComponent("you cannot see me")
+            Component.literal("you cannot see me")
         );
         bedrockBlockField.setMaxLength(200);
         if (editing.entry.bedrockReplacementStr != null) {
@@ -102,7 +101,7 @@ public class AltiusEditScreen extends Screen {
         bedrockBlockField.setHighlightPos(0);
         
         finishButton = new Button(
-            0, 0, 0, 20, new TranslatableComponent("imm_ptl.finish"),
+            0, 0, 0, 20, Component.translatable("imm_ptl.finish"),
             button -> {
                 try {
                     editing.entry.horizontalRotation = Double.parseDouble(horizontalRotationField.getValue());
@@ -280,11 +279,11 @@ public class AltiusEditScreen extends Screen {
         bottomYField.render(matrices, mouseX, mouseY, delta);
         bedrockBlockField.render(matrices, mouseX, mouseY, delta);
         
-        scaleLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.scale"), matrices);
-        flipLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.flipped"), matrices);
-        horizontalRotationLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.horizontal_rotation"), matrices);
-        topYLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.top_y"), matrices);
-        bottomYLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.bottom_y"), matrices);
-        bedrockLabelRect.renderTextLeft(new TranslatableComponent("imm_ptl.bedrock_replacement"), matrices);
+        scaleLabelRect.renderTextLeft(Component.translatable("imm_ptl.scale"), matrices);
+        flipLabelRect.renderTextLeft(Component.translatable("imm_ptl.flipped"), matrices);
+        horizontalRotationLabelRect.renderTextLeft(Component.translatable("imm_ptl.horizontal_rotation"), matrices);
+        topYLabelRect.renderTextLeft(Component.translatable("imm_ptl.top_y"), matrices);
+        bottomYLabelRect.renderTextLeft(Component.translatable("imm_ptl.bottom_y"), matrices);
+        bedrockLabelRect.renderTextLeft(Component.translatable("imm_ptl.bedrock_replacement"), matrices);
     }
 }

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.teleportation;
 
 import net.minecraft.Util;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.Validate;
@@ -723,9 +723,9 @@ public class ServerTeleportationManager {
                 
                 invokeTpmeCommand(player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos));
                 
-                player.sendMessage(new TextComponent(
+                player.sendSystemMessage(Component.literal(
                     "Teleported to spawn pos because dimension %s had been removed".formatted(dim.location())
-                ), Util.NIL_UUID);
+                ));
             }
         }
     }

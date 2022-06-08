@@ -30,55 +30,53 @@ public abstract class MixinMultiPlayerGameMode implements IEClientPlayerInteract
     
     @Shadow
     @Final
-    private Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions;
-    
-    @Shadow
-    @Final
     private Minecraft minecraft;
     
-    // vanilla copy
-    @Inject(
-        method = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;sendBlockAction(Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onSendPlayerAction(
-        ServerboundPlayerActionPacket.Action action,
-        BlockPos blockPos,
-        Direction direction,
-        CallbackInfo ci
-    ) {
-        if (BlockManipulationClient.isContextSwitched) {
-            this.unAckedActions.put(Pair.of(blockPos, action), minecraft.player.position());
-            this.connection.send(
-                IPNetworkingClient.createCtsPlayerAction(
-                    BlockManipulationClient.remotePointedDim,
-                    new ServerboundPlayerActionPacket(action, blockPos, direction)
-                )
-            );
-            ci.cancel();
-        }
-    }
+    // TODO recover
     
-    @ModifyArg(
-        method = "useItemOn",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
-        )
-    )
-    private Packet<?> redirectSendPacketOnInteractBlock(
-        Packet<?> packet
-    ) {
-        if (BlockManipulationClient.isContextSwitched) {
-            return IPNetworkingClient.createCtsRightClick(
-                BlockManipulationClient.remotePointedDim,
-                ((ServerboundUseItemOnPacket) packet)
-            );
-        }
-        else {
-            return packet;
-        }
-    }
+//    // vanilla copy
+//    @Inject(
+//        method = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;sendBlockAction(Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onSendPlayerAction(
+//        ServerboundPlayerActionPacket.Action action,
+//        BlockPos blockPos,
+//        Direction direction,
+//        CallbackInfo ci
+//    ) {
+//        if (BlockManipulationClient.isContextSwitched) {
+//            this.unAckedActions.put(Pair.of(blockPos, action), minecraft.player.position());
+//            this.connection.send(
+//                IPNetworkingClient.createCtsPlayerAction(
+//                    BlockManipulationClient.remotePointedDim,
+//                    new ServerboundPlayerActionPacket(action, blockPos, direction)
+//                )
+//            );
+//            ci.cancel();
+//        }
+//    }
+//
+//    @ModifyArg(
+//        method = "useItemOn",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
+//        )
+//    )
+//    private Packet<?> redirectSendPacketOnInteractBlock(
+//        Packet<?> packet
+//    ) {
+//        if (BlockManipulationClient.isContextSwitched) {
+//            return IPNetworkingClient.createCtsRightClick(
+//                BlockManipulationClient.remotePointedDim,
+//                ((ServerboundUseItemOnPacket) packet)
+//            );
+//        }
+//        else {
+//            return packet;
+//        }
+//    }
     
 }

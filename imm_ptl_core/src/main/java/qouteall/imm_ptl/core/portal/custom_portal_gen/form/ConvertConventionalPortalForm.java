@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -130,7 +130,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         if (portalGenInfo == null) {
             Helper.err("Shapes are incompatible");
             player.displayClientMessage(
-                new TranslatableComponent(
+                Component.translatable(
                     "imm_ptl.incompatible_shape"
                 ), false
             );

@@ -144,7 +144,7 @@ public class WorldRenderInfo {
     
     public static int getRenderDistance() {
         if (renderInfoStack.isEmpty()) {
-            return Minecraft.getInstance().options.renderDistance;
+            return Minecraft.getInstance().options.getEffectiveRenderDistance();
         }
         
         return renderInfoStack.peek().renderDistance;
