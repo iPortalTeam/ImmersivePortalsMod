@@ -133,8 +133,6 @@ public class IPModMainClient {
             IPCGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
         
-        O_O.loadConfigFabric();
-        
         DubiousThings.init();
         
         CrossPortalEntityRenderer.init();

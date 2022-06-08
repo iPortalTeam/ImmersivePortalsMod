@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 public class IPConfig {
@@ -55,12 +56,9 @@ public class IPConfig {
 //    public boolean enableServerCollision = true;
     
     private static File getGameDir() {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            return Minecraft.getInstance().gameDirectory;
-        }
-        else {
-            return MiscHelper.getServer().getServerDirectory();
-        }
+        Path gameDir = FabricLoader.getInstance().getGameDir();
+        
+        return gameDir.toFile();
     }
     
     public static IPConfig readConfig() {

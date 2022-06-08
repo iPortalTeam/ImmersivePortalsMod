@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.q_misc_util.Helper;
 
 public class O_O {
     public static boolean isDimensionalThreadingPresent = false;
@@ -63,6 +64,7 @@ public class O_O {
     }
     
     public static void loadConfigFabric() {
+        Helper.log("Loading Immersive Portals config");
         IPConfig ipConfig = IPConfig.readConfig();
         ipConfig.onConfigChanged();
         ipConfig.saveConfigFile();
