@@ -11,7 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.PehkuiInterface;
+import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.portal.Portal;
 import virtuoel.pehkui.api.ScaleData;

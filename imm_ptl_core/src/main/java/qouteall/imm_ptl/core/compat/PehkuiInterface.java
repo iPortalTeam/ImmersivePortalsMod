@@ -1,10 +1,11 @@
-package qouteall.imm_ptl.core;
+package qouteall.imm_ptl.core.compat;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 
 public class PehkuiInterface {

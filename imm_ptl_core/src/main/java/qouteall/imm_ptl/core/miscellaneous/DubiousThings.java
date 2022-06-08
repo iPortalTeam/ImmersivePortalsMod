@@ -1,9 +1,10 @@
-package qouteall.imm_ptl.core;
+package qouteall.imm_ptl.core.miscellaneous;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
 // temporary work around for bugs
@@ -22,19 +23,9 @@ public class DubiousThings {
             return;
         }
         if (world.getGameTime() % 233 == 34) {
-//            doUpdateLight(player);
             checkClientPlayerState();
         }
     }
-
-//    @Deprecated
-//    private static void doUpdateLight(ClientPlayerEntity player) {
-//        MinecraftClient.getInstance().getProfiler().push("my_light_update");
-//        MyClientChunkManager.updateLightStatus(player.world.getChunk(
-//            player.chunkX, player.chunkZ
-//        ));
-//        MinecraftClient.getInstance().getProfiler().pop();
-//    }
     
     private static void checkClientPlayerState() {
         Minecraft client = Minecraft.getInstance();

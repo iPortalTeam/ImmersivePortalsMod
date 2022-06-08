@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
 import net.minecraft.Util;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -9,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.PehkuiInterface;
+import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;

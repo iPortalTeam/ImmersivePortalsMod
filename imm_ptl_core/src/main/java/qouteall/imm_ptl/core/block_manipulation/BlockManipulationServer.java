@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.PehkuiInterface;
+import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
