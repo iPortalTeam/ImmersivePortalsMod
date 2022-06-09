@@ -121,7 +121,14 @@ public class CommandStickItem extends Item {
             
             Commands commandManager = MiscHelper.getServer().getCommands();
             
-            commandManager.performCommand(commandSource, data.command);
+            String command = data.command;
+            
+            if (command.startsWith("/")) {
+                // it seems not accepting "/" in the beginning
+                command = command.substring(1);
+            }
+            
+            commandManager.performCommand(commandSource, command);
         }
         else {
             sendMessage(player, Component.literal("No Permission"));

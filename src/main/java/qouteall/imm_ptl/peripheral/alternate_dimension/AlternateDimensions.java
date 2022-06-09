@@ -2,6 +2,7 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -162,10 +164,16 @@ public class AlternateDimensions {
     }
     
     public static ChunkGenerator createSkylandGenerator(RegistryAccess rm) {
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry = rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+        Registry<StructureSet> structureSets = rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
+        Registry<NormalNoise.NoiseParameters> noiseRegistry = rm.registryOrThrow(Registry.NOISE_REGISTRY);
+        
         return NormalSkylandGenerator.create(
             rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
             rm.registryOrThrow(Registry.BIOME_REGISTRY),
-            rm.registryOrThrow(Registry.NOISE_REGISTRY)
+            rm.registryOrThrow(Registry.NOISE_REGISTRY),
+            rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY)
         );
     }
     

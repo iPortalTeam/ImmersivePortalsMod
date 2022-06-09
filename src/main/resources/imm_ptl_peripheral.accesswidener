@@ -23,3 +23,7 @@ accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <i
 
 accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 
+extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
+
+
+
