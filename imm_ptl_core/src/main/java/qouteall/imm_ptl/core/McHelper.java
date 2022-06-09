@@ -38,6 +38,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -59,6 +60,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -356,9 +358,20 @@ public class McHelper {
         return newPortal;
     }
     
-    public static boolean getIsServerChunkGenerated(ResourceKey<Level> toDimension, BlockPos toPos) {
-        return getIEStorage(toDimension)
-            .portal_isChunkGenerated(new ChunkPos(toPos));
+    /**
+     * {@link net.minecraft.world.level.chunk.storage.RegionFileStorage}
+     * MC does not provide a clean interface to tell whether a chunk exists.
+     * Only check whether the region file exists now.
+     */
+    public static boolean getDoesRegionFileExist(ResourceKey<Level> toDimension, BlockPos toPos) {
+        ChunkPos chunkPos = new ChunkPos(toPos);
+        
+        LevelStorageSource.LevelStorageAccess storageSource = MiscHelper.getServer().storageSource;
+        
+        Path regionFilePath = storageSource.getDimensionPath(toDimension).resolve("region")
+            .resolve("r." + chunkPos.getRegionX() + "." + chunkPos.getRegionZ() + ".mca");
+        
+        return regionFilePath.toFile().exists();
     }
     
     // because withUnderline is client only

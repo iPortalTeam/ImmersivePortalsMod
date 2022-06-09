@@ -84,25 +84,6 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
         return getVisibleChunkIfPresent(long_1);
     }
     
-    @Override
-    public boolean portal_isChunkGenerated(ChunkPos chunkPos) {
-        // TODO recover
-        return true;
-        
-//        if (level.getChunkSource().hasChunk(chunkPos.x, chunkPos.z)) {
-//            return true;
-//        }
-//
-//        try {
-//            CompoundTag tag = readChunk(chunkPos);
-//            return tag != null;
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-    }
-    
     /**
      * @author qouteall
      * @reason make mod incompatibility fail fast

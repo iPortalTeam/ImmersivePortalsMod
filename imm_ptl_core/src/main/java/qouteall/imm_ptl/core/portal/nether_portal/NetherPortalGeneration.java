@@ -144,7 +144,7 @@ public class NetherPortalGeneration {
             }
         };
         
-        boolean otherSideChunkAlreadyGenerated = McHelper.getIsServerChunkGenerated(toDimension, toPos);
+        boolean otherSideChunkAlreadyGenerated = McHelper.getDoesRegionFileExist(toDimension, toPos);
         
         int frameSearchingRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
         

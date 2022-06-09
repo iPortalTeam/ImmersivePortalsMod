@@ -135,7 +135,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     // Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;method_40209(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/world/level/DataPackConfig;)Lcom/mojang/datafixers/util/Pair
     @Inject(
-        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;method_40209(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/world/level/DataPackConfig;)Lcom/mojang/datafixers/util/Pair",
+        method = "method_40209",
         at = @At("RETURN")
     )
     private void onTryingApplyNewDatapackLoading(ResourceManager resourceManager, DataPackConfig dataPackConfig, CallbackInfoReturnable<Pair> cir) {

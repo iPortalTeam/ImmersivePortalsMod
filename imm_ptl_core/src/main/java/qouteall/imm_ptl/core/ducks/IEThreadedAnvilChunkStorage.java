@@ -30,7 +30,5 @@ public interface IEThreadedAnvilChunkStorage {
     
     void ip_resendSpawnPacketToTrackers(Entity entity);
     
-    boolean portal_isChunkGenerated(ChunkPos chunkPos);
-    
     Int2ObjectMap<ChunkMap.TrackedEntity> ip_getEntityTrackerMap();
 }
