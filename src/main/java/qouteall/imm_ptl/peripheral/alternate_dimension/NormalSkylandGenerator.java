@@ -25,8 +25,6 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
     
     public static final Codec<NormalSkylandGenerator> codec = RecordCodecBuilder.create(
         instance -> instance.group(
-                Codec.LONG.fieldOf("seed").stable().forGetter(g -> g.seed),
-                
                 RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
                 RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
                 RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry)
@@ -35,7 +33,7 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
     );
     
     public static NormalSkylandGenerator create(
-        Long seed, Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
+        Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
         Registry<NormalNoise.NoiseParameters> noiseRegistry
     ) {
         MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(
@@ -64,24 +62,21 @@ public class NormalSkylandGenerator extends DelegatedChunkGenerator {
         );
         
         return new NormalSkylandGenerator(
-            seed, structureSets, biomeSource, islandChunkGenerator,
+            structureSets, biomeSource, islandChunkGenerator,
             biomeRegistry, noiseRegistry
         );
     }
     
-    public final long seed;
     public final Registry<Biome> biomeRegistry;
     public final Registry<NormalNoise.NoiseParameters> noiseRegistry;
     
     public NormalSkylandGenerator(
-        long seed,
         Registry<StructureSet> structureSets,
         BiomeSource biomeSource, ChunkGenerator delegate,
         Registry<Biome> biomeRegistry,
         Registry<NormalNoise.NoiseParameters> noiseRegistry
     ) {
         super(structureSets, biomeSource, delegate);
-        this.seed = seed;
         this.biomeRegistry = biomeRegistry;
         this.noiseRegistry = noiseRegistry;
     }

@@ -70,7 +70,7 @@ public class MixinLevelRenderer_Optional {
         method = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/vertex/BufferUploader;reset()V"
+            target = "Lnet/minecraft/client/renderer/ShaderInstance;apply()V"
         ),
         require = 0
     )

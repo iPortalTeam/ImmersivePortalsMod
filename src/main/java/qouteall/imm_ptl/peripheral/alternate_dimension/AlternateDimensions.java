@@ -78,7 +78,7 @@ public class AlternateDimensions {
             registry,
             alternate1.location(),
             surfaceTypeHolder,
-            createSkylandGenerator(seed + 1, registryManager)
+            createSkylandGenerator(registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate1.location());
         
@@ -86,7 +86,7 @@ public class AlternateDimensions {
             registry,
             alternate2.location(),
             surfaceTypeHolder,
-            createSkylandGenerator(seed, registryManager)
+            createSkylandGenerator(registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate2.location());
         
@@ -161,9 +161,8 @@ public class AlternateDimensions {
         );
     }
     
-    public static ChunkGenerator createSkylandGenerator(long seed, RegistryAccess rm) {
+    public static ChunkGenerator createSkylandGenerator(RegistryAccess rm) {
         return NormalSkylandGenerator.create(
-            seed,
             rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
             rm.registryOrThrow(Registry.BIOME_REGISTRY),
             rm.registryOrThrow(Registry.NOISE_REGISTRY)
@@ -172,7 +171,6 @@ public class AlternateDimensions {
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
         return ErrorTerrainGenerator.create(
-            seed,
             rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
             rm.registryOrThrow(Registry.BIOME_REGISTRY),
             rm.registryOrThrow(Registry.NOISE_REGISTRY)

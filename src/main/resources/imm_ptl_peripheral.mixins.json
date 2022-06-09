@@ -5,6 +5,7 @@
   "mixins": [
     "common.alternate_dimension.IEChunk1",
     "common.alternate_dimension.IENoiseGeneratorSettings",
+    "common.alternate_dimension.MixinServerLevel_ModifySeed",
     "common.altius_world.MixinChunkStatus",
     "common.altius_world.MixinLevelInfo",
     "common.altius_world.MixinLevelProperties",

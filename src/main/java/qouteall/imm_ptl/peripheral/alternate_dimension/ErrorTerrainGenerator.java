@@ -43,8 +43,6 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     public static final Codec<ErrorTerrainGenerator> codec = RecordCodecBuilder.create(
         instance -> instance.group(
-                Codec.LONG.fieldOf("seed").stable().forGetter(g -> g.seed),
-                
                 RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
                 RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
                 RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry)
@@ -53,7 +51,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     );
     
     public static ErrorTerrainGenerator create(
-        Long seed, Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
+        Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
         Registry<NormalNoise.NoiseParameters> noiseRegistry
     ) {
         List<Holder.Reference<Biome>> biomeHolderList = biomeRegistry.holders()
@@ -73,7 +71,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
         );
         
         return new ErrorTerrainGenerator(
-            seed, structureSets, chaosBiomeSource, islandChunkGenerator,
+            structureSets, chaosBiomeSource, islandChunkGenerator,
             biomeRegistry, noiseRegistry
         );
     }
@@ -88,13 +86,10 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
-    public final long seed;
-    
     public final Registry<Biome> biomeRegistry;
     public final Registry<NormalNoise.NoiseParameters> noiseRegistry;
     
     public ErrorTerrainGenerator(
-        long seed,
         Registry<StructureSet> structureSets,
         BiomeSource biomeSource, ChunkGenerator delegate,
         Registry<Biome> biomeRegistry,
@@ -108,11 +103,15 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             .build(
                 new CacheLoader<ChunkPos, RegionErrorTerrainGenerator>() {
                     public RegionErrorTerrainGenerator load(ChunkPos key) {
-                        return new RegionErrorTerrainGenerator(key.x, key.z, seed);
+                        return new RegionErrorTerrainGenerator(
+                            key.x, key.z,
+                            System.nanoTime()
+                            // use the system time as seed
+                            // there is no need to keep the error terrain generation consistent
+                        );
                     }
                 });
         
-        this.seed = seed;
         this.biomeRegistry = biomeRegistry;
         this.noiseRegistry = noiseRegistry;
     }

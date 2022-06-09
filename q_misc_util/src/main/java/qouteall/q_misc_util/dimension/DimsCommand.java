@@ -39,7 +39,7 @@ public class DimsCommand {
                         }
                         
                         cloneDimension(
-                            templateDimension, Optional.empty(), newDimId
+                            templateDimension, newDimId
                         );
                         
                         context.getSource().sendSuccess(
@@ -52,36 +52,6 @@ public class DimsCommand {
                         ), true);
                         return 0;
                     })
-                    .then(Commands
-                        .argument("newSeed", LongArgumentType.longArg())
-                        .executes(context -> {
-                            ServerLevel templateDimension =
-                                DimensionArgument.getDimension(context, "templateDimension");
-                            String newDimensionId = StringArgumentType.getString(context, "newDimensionID");
-                            long newSeed = LongArgumentType.getLong(context, "newSeed");
-                            
-                            ResourceLocation newDimId = new ResourceLocation(newDimensionId);
-                            
-                            if (newDimId.getNamespace().equals("minecraft")) {
-                                context.getSource().sendFailure(Component.literal("Invalid namespace"));
-                                return 0;
-                            }
-                            
-                            cloneDimension(templateDimension, Optional.of(newSeed), newDimId);
-                            
-                            context.getSource().sendSuccess(
-                                Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
-                                false
-                            );
-                            
-                            context.getSource().sendSuccess(Component.literal(
-                                "Dynamically added dimension %s with seed %s"
-                                    .formatted(newDimensionId, newSeed)
-                            ), true);
-                            
-                            return 0;
-                        })
-                    )
                 )
             )
         );
@@ -117,16 +87,11 @@ public class DimsCommand {
     }
     
     private static void cloneDimension(
-        ServerLevel templateDimension,
-        Optional<Long> newSeed, ResourceLocation newDimId
+        ServerLevel templateDimension, ResourceLocation newDimId
     ) {
         // may throw exception here
         
         ChunkGenerator generator = templateDimension.getChunkSource().getGenerator();
-        if (newSeed.isPresent()) {
-            // TODO check how to change the seed
-            throw new RuntimeException("Does not support using another seed now.");
-        }
         
         DimensionAPI.addDimensionDynamically(
             newDimId,
@@ -137,8 +102,6 @@ public class DimsCommand {
         );
         
         DimensionAPI.saveDimensionConfiguration(DimId.idToKey(newDimId));
-        
-        
     }
     
 }
