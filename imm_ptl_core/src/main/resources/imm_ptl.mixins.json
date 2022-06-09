@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.core.IPMixinPlugin",
   "mixins": [
+    "client.render.optimization.IEChunkCompileTask",
     "common.IERegistryLoader",
     "common.MixinClipContext",
     "common.MixinCommands",

@@ -91,14 +91,14 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
     
     /**
      * Multiple chunk render dispatchers can manipulate the buffer queue now,
-     *  so checking isEmpty and poll it after will not work.
+     * so checking isEmpty and poll it after will not work.
      * The logic of runTask has changed as follows:
      * 1. if there is no buffer, isEmpty returns true
      * 2. if there is a buffer but no task, isEmpty still returns true
      * 3. if there is a buffer and a task, isEmpty will return false
      * 4. pollTask will not return null
      * 5. the buffer object and task object are passed by thread local
-     *    (Mixin seems does not allow local capture or modifying local variable in redirect)
+     * (Mixin seems does not allow local capture or modifying local variable in redirect)
      */
     @Redirect(
         method = "runTask",
@@ -115,22 +115,29 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         Object buffer = bufferQueue.poll();
         
         if (buffer != null) {
-            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask polledTask = pollTask();
-            
-            if (polledTask != null) {
-                SharedBlockMeshBuffers.bufferTemp.set(buffer);
-                SharedBlockMeshBuffers.taskTemp.set(polledTask);
+            for (; ; ) {
+                ChunkRenderDispatcher.RenderChunk.ChunkCompileTask polledTask = pollTask();
                 
-                // continue
-                return false;
-            }
-            else {
-                // no task to run
-                // put the buffer back to the queue
-                bufferQueue.add(buffer);
-                
-                // exit runTasks
-                return true;
+                if (polledTask != null) {
+                    if (((IEChunkCompileTask) polledTask).getIsCancelled().get()) {
+                        // if the task is cancelled, discard this task and continue
+                        continue;
+                    }
+                    
+                    SharedBlockMeshBuffers.bufferTemp.set(buffer);
+                    SharedBlockMeshBuffers.taskTemp.set(polledTask);
+                    
+                    // will launch the task
+                    return false;
+                }
+                else {
+                    // no task to run
+                    // put the buffer back to the queue
+                    bufferQueue.add(buffer);
+                    
+                    // exit runTasks
+                    return true;
+                }
             }
         }
         else {
