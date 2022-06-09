@@ -124,10 +124,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     private void onCreateNewWorld(CallbackInfo ci) {
         if (ip_altiusScreen != null) {
             AltiusInfo info = ip_altiusScreen.getAltiusInfo();
-        
+            
             if (info != null) {
                 AltiusManagement.dimStackToApply = info;
-            
+                
                 Helper.log("Generating dimension stack world");
             }
         }
