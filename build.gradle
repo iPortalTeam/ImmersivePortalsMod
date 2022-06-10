@@ -114,10 +114,10 @@ allprojects {
 
         modCompileOnly('maven.modrinth:pehkui:3.2.0+1.14.4-1.19')
 
-        modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
+        modCompileOnly "maven.modrinth:sodium:mc1.19-0.4.2"
 //        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.5'
+        modCompileOnly 'maven.modrinth:iris:1.19.x-v1.2.5'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
