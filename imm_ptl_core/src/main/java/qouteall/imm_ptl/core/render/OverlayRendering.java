@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.system.MemoryStack;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
@@ -52,11 +53,22 @@ public class OverlayRendering {
         return false;
     }
     
+    private static boolean shaderOverlayWarned = false;
+    
     public static void onRenderPortalEntity(
         PortalLike portal,
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
+        if (IrisInterface.invoker.isShaders()) {
+            if (!shaderOverlayWarned) {
+                shaderOverlayWarned = true;
+                CHelper.printChat("[Immersive Portals] Portal overlay cannot be rendered with shaders");
+            }
+            
+            return;
+        }
+        
         if (portal instanceof BreakablePortalEntity) {
             renderBreakablePortalOverlay(
                 ((BreakablePortalEntity) portal),
