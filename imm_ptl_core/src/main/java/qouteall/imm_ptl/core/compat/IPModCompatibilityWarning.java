@@ -22,7 +22,6 @@ public class IPModCompatibilityWarning {
     private static final List<ModInfo> incompatibleMods = Lists.newArrayList(
         new ModInfo("mcxr-core", "MCXR"),
         new ModInfo("taterzens", "Taterzens"),
-        new ModInfo("modern_industrialization", "Modern Industrialization"),
         new ModInfo("altoclef", "Altoclef"),
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("tweakeroo", "Tweakeroo"),
@@ -38,6 +37,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("requiem", "Requiem"),
         new ModInfo("vmp", "VMP"),
+        new ModInfo("modern_industrialization", "Modern Industrialization"),
         new ModInfo("create", "Create")
     );
     
