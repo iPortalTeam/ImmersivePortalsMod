@@ -503,7 +503,7 @@ public class ServerTeleportationManager {
     }
     
     private static Vec3 getRegularEntityTeleportedEyePos(Entity entity, Portal portal) {
-        Vec3 eyePosNextTick = McHelper.getEyePos(entity).add(entity.getDeltaMovement());
+        Vec3 eyePosNextTick = McHelper.getEyePos(entity);
         if (entity instanceof Projectile) {
             Vec3 collidingPoint = portal.rayTrace(
                 eyePosNextTick.subtract(entity.getDeltaMovement().normalize().scale(5)),
