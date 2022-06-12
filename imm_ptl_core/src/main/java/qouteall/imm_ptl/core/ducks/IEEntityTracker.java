@@ -9,8 +9,6 @@ public interface IEEntityTracker {
     
     void updateEntityTrackingStatus(ServerPlayer player);
     
-    void onPlayerRespawn(ServerPlayer oldPlayer);
-    
     void ip_onDimensionRemove();
     
     void resendSpawnPacketToTrackers();
@@ -22,4 +20,7 @@ public interface IEEntityTracker {
     SectionPos getLastCameraPosition();
     
     void setLastCameraPosition(SectionPos arg);
+    
+    @Deprecated
+    void ip_onPlayerDisconnect(ServerPlayer player);
 }

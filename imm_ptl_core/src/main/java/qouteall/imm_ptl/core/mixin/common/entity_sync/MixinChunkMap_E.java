@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkMap.TrackedEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +30,7 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     
     @Shadow
     @Final
-    public Int2ObjectMap<ChunkMap.TrackedEntity> entityMap;
+    public Int2ObjectMap<TrackedEntity> entityMap;
     
     @Shadow
     abstract void updatePlayerStatus(ServerPlayer player, boolean added);
@@ -63,9 +64,16 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     }
     
     @Override
-    public void ip_onPlayerRespawn(ServerPlayer oldPlayer) {
+    public void ip_onPlayerUnload(ServerPlayer oldPlayer) {
         entityMap.values().forEach(obj -> {
-            ((IEEntityTracker) obj).onPlayerRespawn(oldPlayer);
+            obj.removePlayer(oldPlayer);
+        });
+    }
+    
+    @Override
+    public void ip_onPlayerDisconnected(ServerPlayer player) {
+        entityMap.values().forEach(trackedEntity -> {
+            ((IEEntityTracker) trackedEntity).ip_onPlayerDisconnect(player);
         });
     }
     
@@ -124,7 +132,7 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     }
     
     @Override
-    public Int2ObjectMap<ChunkMap.TrackedEntity> ip_getEntityTrackerMap() {
+    public Int2ObjectMap<TrackedEntity> ip_getEntityTrackerMap() {
         return entityMap;
     }
 }

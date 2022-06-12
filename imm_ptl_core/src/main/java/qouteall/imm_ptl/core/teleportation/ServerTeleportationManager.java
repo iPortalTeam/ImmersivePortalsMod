@@ -318,6 +318,8 @@ public class ServerTeleportationManager {
         ServerLevel toWorld,
         Vec3 newEyePos
     ) {
+        // avoid the player from untracking all entities when removing from the old world
+        // see MixinChunkMap_E
         teleportingEntities.add(player);
         
         Entity vehicle = player.getVehicle();

@@ -65,7 +65,7 @@ public class ChunkDataSyncManager {
             LevelChunk chunk = chunkHolder.getTickingChunk();
             if (chunk != null) {
                 MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
-
+                
                 IPNetworking.sendRedirectedMessage(
                     player,
                     chunkPos.dimension,
@@ -122,16 +122,28 @@ public class ChunkDataSyncManager {
         );
     }
     
-    public void onPlayerRespawn(ServerPlayer oldPlayer) {
+    // if the player object is recreated, input the old player
+    public void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
         MiscHelper.getServer().getAllLevels()
             .forEach(world -> {
                 ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
                 IEThreadedAnvilChunkStorage storage =
                     (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
-                storage.ip_onPlayerRespawn(oldPlayer);
+                storage.ip_onPlayerUnload(oldPlayer);
             });
         
         NewChunkTrackingGraph.forceRemovePlayer(oldPlayer);
+    }
+    
+    @Deprecated
+    public void removePlayerFromEntityTrackersWithoutSendingPacket(ServerPlayer player) {
+        MiscHelper.getServer().getAllLevels()
+            .forEach(world -> {
+                ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
+                IEThreadedAnvilChunkStorage storage =
+                    (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
+                storage.ip_onPlayerDisconnected(player);
+            });
     }
     
     public void onDimensionRemove(ResourceKey<Level> dimension) {

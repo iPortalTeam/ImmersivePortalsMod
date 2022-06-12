@@ -42,7 +42,7 @@ public class MixinServerPlayerEntity_MA {
     
     private static void onBeforeDimensionTravel(ServerPlayer player) {
         CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
-        IPGlobal.chunkDataSyncManager.onPlayerRespawn(player);
+        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(player);
         
         IPGlobal.serverTaskList.addTask(() -> {
             CustomPortalGenManagement.onAfterConventionalDimensionChange(player);
