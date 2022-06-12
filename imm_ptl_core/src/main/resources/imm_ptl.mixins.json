@@ -8,6 +8,7 @@
     "common.IERegistryLoader",
     "common.MixinClipContext",
     "common.MixinCommands",
+    "common.MixinConnection_Debug",
     "common.MixinDedicatedServer",
     "common.MixinLevel",
     "common.MixinLivingEntity",

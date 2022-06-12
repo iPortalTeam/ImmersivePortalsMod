@@ -5,6 +5,7 @@ import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 
@@ -15,10 +16,18 @@ public class MixinPlayerManager_MA {
         at = @At("HEAD")
     )
     private void onPlayerRespawn(
-        ServerPlayer player,
+        ServerPlayer oldPlayer,
         boolean bl,
         CallbackInfoReturnable<ServerPlayer> cir
     ) {
-        IPGlobal.chunkDataSyncManager.onPlayerRespawn(player);
+        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(oldPlayer);
+    }
+    
+    @Inject(
+        method = "remove",
+        at = @At("HEAD")
+    )
+    private void onPlayerDisconnect(ServerPlayer player, CallbackInfo ci) {
+        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(player);
     }
 }

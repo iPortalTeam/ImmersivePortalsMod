@@ -151,12 +151,6 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     }
     
     @Override
-    public void onPlayerRespawn(ServerPlayer oldPlayer) {
-        seenBy.remove(oldPlayer.connection);
-        serverEntity.removePairing(oldPlayer);
-    }
-    
-    @Override
     public void ip_onDimensionRemove() {
         for (ServerPlayerConnection connection : seenBy) {
             serverEntity.removePairing(connection.getPlayer());
@@ -194,5 +188,17 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     @Override
     public void setLastCameraPosition(SectionPos arg) {
         lastSectionPos = arg;
+    }
+    
+    /**
+     * Similar to {@link ChunkMap.TrackedEntity#removePlayer(ServerPlayer)}
+     * but does not send entity unload packet
+     * because in this stage the connection was already closed
+     */
+    @Override
+    public void ip_onPlayerDisconnect(ServerPlayer player) {
+        if (seenBy.remove(player.connection)) {
+            entity.stopSeenByPlayer(player);
+        }
     }
 }

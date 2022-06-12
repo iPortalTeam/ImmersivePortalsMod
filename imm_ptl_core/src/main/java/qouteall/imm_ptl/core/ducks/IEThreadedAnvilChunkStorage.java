@@ -19,7 +19,10 @@ public interface IEThreadedAnvilChunkStorage {
     
     ChunkHolder ip_getChunkHolder(long long_1);
     
-    void ip_onPlayerRespawn(ServerPlayer oldPlayer);
+    void ip_onPlayerUnload(ServerPlayer oldPlayer);
+    
+    @Deprecated
+    void ip_onPlayerDisconnected(ServerPlayer player);
     
     void ip_onDimensionRemove();
     
