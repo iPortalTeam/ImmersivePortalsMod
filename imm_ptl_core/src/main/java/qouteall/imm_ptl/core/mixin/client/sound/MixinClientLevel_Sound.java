@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 
 @Mixin(ClientLevel.class)
@@ -41,6 +42,10 @@ public class MixinClientLevel_Sound {
         long seed,
         CallbackInfo ci
     ) {
+        if (!IPGlobal.enableCrossPortalSound) {
+            return;
+        }
+        
         ClientLevel this_ = (ClientLevel) (Object) this;
         Vec3 soundPos = new Vec3(x, y, z);
         
