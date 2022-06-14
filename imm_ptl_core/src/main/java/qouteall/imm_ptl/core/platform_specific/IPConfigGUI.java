@@ -104,6 +104,10 @@ public class IPConfigGUI {
             new TranslatableComponent("imm_ptl.light_vanilla_nether_portal_when_crouching"),
             currConfig.lightVanillaNetherPortalWhenCrouching
         ).setDefaultValue(false).build();
+        BooleanListEntry entryEnableCrossPortalSound = builder.entryBuilder().startBooleanToggle(
+            new TranslatableComponent("imm_ptl.enable_cross_portal_sound"),
+            currConfig.enableCrossPortalSound
+        ).setDefaultValue(true).build();
         EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
             .startEnumSelector(
                 new TranslatableComponent("imm_ptl.nether_portal_mode"),
@@ -124,6 +128,7 @@ public class IPConfigGUI {
         clientSide.addEntry(entryLagAttackProof);
         clientSide.addEntry(entryNetherPortalOverlay);
         clientSide.addEntry(entryCompatibilityRenderMode);
+        clientSide.addEntry(entryEnableCrossPortalSound);
         clientSide.addEntry(entryReducedPortalRendering);
         clientSide.addEntry(entryPortalRenderLimit);
         clientSide.addEntry(entryVisibilityPrediction);
@@ -168,6 +173,7 @@ public class IPConfigGUI {
                 newConfig.lightVanillaNetherPortalWhenCrouching = entryLightVanillaNetherPortalWhenCrouching.getValue();
                 newConfig.enableWarning = entryEnableWarning.getValue();
                 newConfig.enableMirrorCreation = entryEnableMirrorCreation.getValue();
+                newConfig.enableCrossPortalSound = entryEnableCrossPortalSound.getValue();
                 
                 newConfig.saveConfigFile();
                 newConfig.onConfigChanged();

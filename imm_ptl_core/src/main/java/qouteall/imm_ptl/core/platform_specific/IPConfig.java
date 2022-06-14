@@ -28,6 +28,7 @@ public class IPConfig {
     public boolean lagAttackProof = true;
     public int portalRenderLimit = 200;
     public int indirectLoadingRadiusCap = 8;
+    public boolean enableCrossPortalSound = true;
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
@@ -160,6 +161,7 @@ public class IPConfig {
         IPGlobal.enableNetherPortalEffect = enableNetherPortalEffect;
         IPGlobal.enableClientPerformanceAdjustment = enableClientPerformanceAdjustment;
         IPGlobal.enableServerPerformanceAdjustment = enableServerPerformanceAdjustment;
+        IPGlobal.enableCrossPortalSound = enableCrossPortalSound;
         
         if (enableDepthClampForPortalRendering) {
             IPGlobal.enableDepthClampForPortalRendering = true;
