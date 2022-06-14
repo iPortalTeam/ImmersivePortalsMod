@@ -119,6 +119,7 @@ allprojects {
 //        implementation "org.joml:joml:1.10.2" // for sodium
 
         modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.5'
+//        modImplementation 'net.coderbot.iris_mc1_18_2:iris:1.2.5-8cb47806'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
