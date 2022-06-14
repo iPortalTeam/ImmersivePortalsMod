@@ -119,7 +119,6 @@ public class IPCommonNetworkClient {
         Validate.notNull(newWorldRenderer);
         
         client.level = newWorld;
-        client.player.level = newWorld;
         ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
@@ -136,7 +135,6 @@ public class IPCommonNetworkClient {
             }
             
             client.level = originalWorld;
-            client.player.level = originalWorld;
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleEngine).ip_setWorld(originalWorld);
             ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
