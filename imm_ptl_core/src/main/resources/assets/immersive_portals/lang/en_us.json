@@ -138,7 +138,7 @@
   "imm_ptl.preview_warning": "You are using a preview version of Immersive Portals mod which is not yet stable. Report issues:",
   "imm_ptl.dim_stack_established": "Dimension stack has been setup. (Existing chunks will remain unchanged)",
   "imm_ptl.dim_stack_removed": "Dimension stack has been removed. (Existing chunks will remain unchanged)",
-  "imm_ptl.cannot_connect_to_vanilla_portal": "[Immersive Portals] Note: The nether portal cannot connect to a vanilla portal. It can only link to an empty obsidian frame with the same shape and orientation.",
+  "imm_ptl.cannot_connect_to_vanilla_portal": "[Immersive Portals] Note: The immersive nether portal won't connect to an existing vanilla nether portal. It can only link to an empty obsidian frame with the same shape and orientation.",
   "imm_ptl.fabulous_warning": "[Immersive Portals] With Immersive Portals installed, when graphic mode is \"fabulous\", the transparency rendering may be broken in some hardware. It's not recommended to use \"fabulous\" mode. And shaders make the game more fabulous than the vanilla \"fabulous\" mode.",
   "imm_ptl.intel_warning": "[Immersive Portals] You are using Intel videocard. GUI rendering may be abnormal. The issue is still under investigation.",
   "modmenu.descriptionTranslation.immersive_portals": "See through portals and teleport seamlessly.",
