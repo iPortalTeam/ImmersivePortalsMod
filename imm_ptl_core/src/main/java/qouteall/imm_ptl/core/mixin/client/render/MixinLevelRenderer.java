@@ -20,6 +20,8 @@ import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -34,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -594,6 +597,33 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         IPCommonNetworkClient.withSwitchedWorld(
             world, world::pollLightUpdates
         );
+    }
+    
+    /**
+     * when rendering portal, it won't call {@link ViewArea#repositionCamera(double, double)}
+     * So {@link ViewArea#getRenderChunkAt(BlockPos)} will return incorrect result
+     */
+    @Inject(
+        method = "isChunkCompiled",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onIsChunkCompiled(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
+        if (PortalRendering.isRendering()) {
+            if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
+                cir.setReturnValue(ip_isChunkCompiled(myBuiltChunkStorage, blockPos));
+            }
+        }
+    }
+    
+    private boolean ip_isChunkCompiled(MyBuiltChunkStorage myBuiltChunkStorage, BlockPos blockPos) {
+        SectionPos sectionPos = SectionPos.of(blockPos);
+        ChunkRenderDispatcher.RenderChunk renderChunk = myBuiltChunkStorage.rawGet(
+            sectionPos.x(), sectionPos.y(), sectionPos.z()
+        );
+        
+        return renderChunk != null
+            && renderChunk.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED;
     }
     
     @Override

@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.render;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -28,6 +29,7 @@ import qouteall.q_misc_util.Helper;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.LongConsumer;
 
@@ -119,8 +121,11 @@ public class MyBuiltChunkStorage extends ViewArea {
         isAlive = false;
     }
     
-    // it will only be called during vanilla outer world rendering
-    // won't be called in portal rendering
+    /**
+     * It will only be called during vanilla outer world rendering
+     * Won't be called in portal rendering
+     * In {@link LevelRenderer#initializeQueueForFullUpdate(Camera, Queue)} it reads the RenderChunks in another thread.
+     */
     @Override
     public void repositionCamera(double playerX, double playerZ) {
         Minecraft.getInstance().getProfiler().push("built_chunk_storage");
@@ -452,6 +457,24 @@ public class MyBuiltChunkStorage extends ViewArea {
         
         int yOffset = cy - minSectionY;
         
+        return column.chunks[yOffset];
+    }
+    
+    @Nullable
+    public RenderChunk rawGet(int cx, int cy, int cz) {
+        if (cy < minSectionY || cy >= endSectionY) {
+            return null;
+        }
+    
+        long l = ChunkPos.asLong(cx, cz);
+        Column column = columnMap.get(l);
+    
+        if (column == null) {
+            return null;
+        }
+    
+        int yOffset = cy - minSectionY;
+    
         return column.chunks[yOffset];
     }
 }
