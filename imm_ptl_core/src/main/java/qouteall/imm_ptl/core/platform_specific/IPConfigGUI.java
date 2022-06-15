@@ -105,7 +105,7 @@ public class IPConfigGUI {
             currConfig.lightVanillaNetherPortalWhenCrouching
         ).setDefaultValue(false).build();
         BooleanListEntry entryEnableCrossPortalSound = builder.entryBuilder().startBooleanToggle(
-            new TranslatableComponent("imm_ptl.enable_cross_portal_sound"),
+            Component.translatable("imm_ptl.enable_cross_portal_sound"),
             currConfig.enableCrossPortalSound
         ).setDefaultValue(true).build();
         EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
