@@ -38,6 +38,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("requiem", "Requiem"),
         new ModInfo("vmp", "VMP"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
+        new ModInfo("journeymap", "JourneyMap"),
         new ModInfo("create", "Create")
     );
     
