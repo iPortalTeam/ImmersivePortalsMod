@@ -64,6 +64,12 @@ allprojects {
             url = "https://maven.parchmentmc.org"
         }
 
+        // for cardinal components that fusions gravity api uses
+        maven {
+            name = 'Ladysnake Mods'
+            url = 'https://ladysnake.jfrog.io/artifactory/mods'
+        }
+
         // for test with create
 //        maven { url = "https://cursemaven.com" }
 //        maven { url = "https://maven.parchmentmc.org" }
@@ -121,9 +127,11 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
-        modCompileOnly("maven.modrinth:gravitychanger:0.3.0") {
+        modCompileOnly("maven.modrinth:fusions-gravity-api:0.7.11+fabric") {
             transitive = false
         }
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
     }
 
     processResources {

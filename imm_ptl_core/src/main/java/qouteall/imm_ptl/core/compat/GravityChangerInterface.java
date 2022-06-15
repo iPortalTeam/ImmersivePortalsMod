@@ -1,9 +1,7 @@
 package qouteall.imm_ptl.core.compat;
 
-import me.andrew.gravitychanger.accessor.EntityAccessor;
-import me.andrew.gravitychanger.accessor.RotatableEntityAccessor;
-import me.andrew.gravitychanger.api.GravityChangerAPI;
-import me.andrew.gravitychanger.util.RotationUtil;
+import com.fusionflux.fusions_gravity_api.api.GravityChangerAPI;
+import com.fusionflux.fusions_gravity_api.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
@@ -16,6 +14,8 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GravityChangerInterface {
     public static Invoker invoker = new Invoker();
@@ -92,12 +92,12 @@ public class GravityChangerInterface {
         
         @Override
         public Direction getGravityDirection(Player entity) {
-            return ((EntityAccessor) entity).gravitychanger$getAppliedGravityDirection();
+            return GravityChangerAPI.getGravityDirection(entity);
         }
         
         @Override
         public void setGravityDirection(Entity entity, Direction direction) {
-            ((RotatableEntityAccessor) entity).gravitychanger$setGravityDirection(direction, false);
+            GravityChangerAPI.setDefaultGravityDirection(entity, direction);
         }
         
         @Nullable
