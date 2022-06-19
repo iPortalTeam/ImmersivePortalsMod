@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.block_manipulation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
@@ -95,11 +96,21 @@ public class BlockManipulationServer {
     ) {
         ServerLevel destWorld = MiscHelper.getServer().getLevel(dimension);
         ServerLevel oldWorld = player.getLevel();
-        player.gameMode.setLevel(destWorld);
-        player.gameMode.destroyBlock(
-            packet.getPos()
-        );
-        player.gameMode.setLevel(oldWorld);
+        
+        BlockPos blockPos = packet.getPos();
+        
+        if (destWorld.mayInteract(player, blockPos)) {
+            player.gameMode.setLevel(destWorld);
+            player.gameMode.destroyBlock(
+                blockPos
+            );
+            player.gameMode.setLevel(oldWorld);
+        }
+        else {
+            ClientboundBlockBreakAckPacket ackPacket = new ClientboundBlockBreakAckPacket(
+                blockPos, destWorld.getBlockState(blockPos), packet.getAction(), false, "may not interact");
+            player.connection.send(IPNetworking.createRedirectedMessage(dimension, ackPacket));
+        }
     }
     
     private static boolean canInstantMine(
@@ -169,7 +180,7 @@ public class BlockManipulationServer {
     // vanilla copy
     
     /**
-     * {@link net.minecraft.server.network.ServerPlayNetworkHandler#onPlayerInteractBlock(PlayerInteractBlockC2SPacket)}
+     * {@link net.minecraft.server.network.ServerGamePacketListenerImpl#handleUseItemOn(ServerboundUseItemOnPacket)}
      */
     public static void doProcessRightClick(
         ResourceKey<Level> dimension,
