@@ -156,5 +156,6 @@
   "imm_ptl.sodium_warning": "[沉浸传送门] 你正在使用Sodium。兼容不完美，可能会发生渲染错误。",
   "imm_ptl.iris_warning": "[沉浸传送门] 你正在使用Iris。兼容不完美，可能会发生渲染错误。",
   "imm_ptl.disable_warning": "关闭警告",
-  "imm_ptl.warning_disabled": "警告已关闭"
+  "imm_ptl.warning_disabled": "警告已关闭",
+  "imm_ptl.enable_cross_portal_sound": "启用跨传送门声音"
 }

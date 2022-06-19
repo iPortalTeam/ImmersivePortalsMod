@@ -16,6 +16,7 @@
   "imm_ptl.active_loading": "Actively Load Remote Chunks",
   "imm_ptl.teleportation_debug": "Teleportation Debug",
   "imm_ptl.correct_cross_portal_entity_rendering": "Cross Portal Entity Rendering",
+  "imm_ptl.enable_cross_portal_sound": "Enable Cross Portal Sound",
   "imm_ptl.render_redirect": "Dimension Render Redirect",
   "imm_ptl.enable_alternate_dimensions": "Enable Alternate Dimensions",
   "imm_ptl.altius_screen_button": "Dimension Stack",
