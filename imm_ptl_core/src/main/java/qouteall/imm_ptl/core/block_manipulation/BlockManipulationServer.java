@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.block_manipulation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
@@ -107,8 +106,9 @@ public class BlockManipulationServer {
             player.gameMode.setLevel(oldWorld);
         }
         else {
-            ClientboundBlockBreakAckPacket ackPacket = new ClientboundBlockBreakAckPacket(
-                blockPos, destWorld.getBlockState(blockPos), packet.getAction(), false, "may not interact");
+            ClientboundBlockUpdatePacket ackPacket = new ClientboundBlockUpdatePacket(
+                blockPos, destWorld.getBlockState(blockPos)
+            );
             player.connection.send(IPNetworking.createRedirectedMessage(dimension, ackPacket));
         }
     }
