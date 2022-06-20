@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.peripheral.mixin.client.altius_world;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Lifecycle;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,6 +40,7 @@ import qouteall.q_misc_util.api.DimensionAPI;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -138,14 +141,14 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         method = "method_40209",
         at = @At("RETURN")
     )
-    private void onTryingApplyNewDatapackLoading(ResourceManager resourceManager, DataPackConfig dataPackConfig, CallbackInfoReturnable<Pair> cir) {
-        Pair<PrimaryLevelData, RegistryAccess> returnValue = cir.getReturnValue();
+    private void onTryingApplyNewDatapackLoading(
+        ResourceManager resourceManager,
+        DataPackConfig dataPackConfig,
+        CallbackInfoReturnable<Pair<Pair<WorldGenSettings, Lifecycle>, RegistryAccess.Frozen>> cir
+    ) {
+        ip_lastWorldGenSettings = cir.getReturnValue().getFirst().getFirst();
         
-        PrimaryLevelData primaryLevelData = returnValue.getFirst();
-        
-        ip_lastWorldGenSettings = primaryLevelData.worldGenSettings();
-        
-        ip_lastRegistryAccess = returnValue.getSecond();
+        ip_lastRegistryAccess = cir.getReturnValue().getSecond();
     }
     
     private void openAltiusScreen() {
@@ -166,7 +169,13 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         Helper.log("Getting the dimension list");
         
         if (ip_lastWorldGenSettings == null) {
-            // (MC 1.18.2) it will load the pack in render thread
+            Helper.log("Start reloading datapacks for getting the dimension list");
+            
+            // if the enabled datapack list does not change, it will not reload
+            // ensure that it really reloads
+            this.dataPacks = new DataPackConfig(new ArrayList<>(), new ArrayList<>());
+            
+            // it will load the pack in render thread
             tryApplyNewDataPacks(minecraft.getResourcePackRepository());
             
             // it will switch to the create world screen, switch back
