@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 
 @Mixin(ClientLevel.ClientLevelData.class)
-public class MixinClientWorldProperties {
+public class MixinClientLevelData {
     @Inject(
         method = "Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;getHorizonHeight(Lnet/minecraft/world/level/LevelHeightAccessor;)D",
         at = @At("HEAD"),

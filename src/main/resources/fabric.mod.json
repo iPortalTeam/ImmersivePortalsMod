@@ -29,8 +29,7 @@
     ]
   },
   "mixins": [
-    "imm_ptl_peripheral.mixins.json",
-    "imm_ptl_peripheral_fabric.mixins.json"
+    "imm_ptl_peripheral.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.4",
