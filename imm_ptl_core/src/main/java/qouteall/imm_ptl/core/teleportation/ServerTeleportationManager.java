@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalTrackedPortal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -43,7 +44,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +68,7 @@ public class ServerTeleportationManager {
         Portal.serverPortalTickSignal.connectWithWeakRef(
             this, (this_, portal) -> {
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                    this_.tryToTeleportRegularEntity(portal, entity);
+                    this_.startTeleportingRegularEntity(portal, entity);
                 });
             }
         );
@@ -77,16 +77,15 @@ public class ServerTeleportationManager {
     }
     
     public static boolean shouldEntityTeleport(Portal portal, Entity entity) {
-        return entity.level == portal.level &&
-            portal.canTeleportEntity(entity) &&
-            portal.isMovedThroughPortal(
-                entity.getEyePosition(0),
-                entity.getEyePosition(1).add(McHelper.getWorldVelocity(entity))
-            );
+        if (entity.level != portal.level) {return false;}
+        if (!portal.canTeleportEntity(entity)) {return false;}
+        Vec3 lastEyePos = entity.getEyePosition(0);
+        Vec3 nextEyePos = entity.getEyePosition(1).add(McHelper.getWorldVelocity(entity));
+        boolean movedThroughPortal = portal.isMovedThroughPortal(lastEyePos, nextEyePos);
+        return movedThroughPortal;
     }
     
-    
-    public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
+    public void startTeleportingRegularEntity(Portal portal, Entity entity) {
         if (entity instanceof ServerPlayer) {
             return;
         }
@@ -310,7 +309,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link ServerPlayerEntity#moveToWorld(ServerWorld)}
+     * {@link ServerPlayer#changeDimension(ServerLevel)}
      */
     private void changePlayerDimension(
         ServerPlayer player,
@@ -387,33 +386,27 @@ public class ServerTeleportationManager {
     private void tick() {
         teleportingEntities = new HashSet<>();
         long tickTimeNow = McHelper.getServerGameTime();
-        ArrayList<ServerPlayer> copiedPlayerList =
-            McHelper.getCopiedPlayerList();
         if (tickTimeNow % 30 == 7) {
-            for (ServerPlayer player : copiedPlayerList) {
+            for (ServerPlayer player : McHelper.getRawPlayerList()) {
                 updateForPlayer(tickTimeNow, player);
             }
         }
-        // TODO optimize it
-        copiedPlayerList.forEach(player -> {
-            McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-                player.level,
-                player.position(),
-                Entity.class,
-                32
-            ).filter(
-                entity -> !(entity instanceof ServerPlayer)
-            ).forEach(entity -> {
-                GlobalPortalStorage.getGlobalPortals(entity.level).stream()
-                    .filter(
-                        globalPortal -> shouldEntityTeleport(globalPortal, entity)
-                    )
-                    .findFirst()
-                    .ifPresent(
-                        globalPortal -> tryToTeleportRegularEntity(globalPortal, entity)
-                    );
-            });
-        });
+        
+        manageGlobalPortalTeleportation();
+    }
+    
+    private void manageGlobalPortalTeleportation() {
+        for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+            for (Entity entity : world.getAllEntities()) {
+                Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+                
+                if (collidingPortal instanceof GlobalTrackedPortal globalPortal) {
+                    if (globalPortal.canTeleportEntity(entity)) {
+                        startTeleportingRegularEntity(globalPortal, entity);
+                    }
+                }
+            }
+        }
     }
     
     private void updateForPlayer(long tickTimeNow, ServerPlayer player) {
@@ -449,7 +442,7 @@ public class ServerTeleportationManager {
         
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
-        if (currGameTime - lastTeleportGameTime <= 1) {
+        if (currGameTime - lastTeleportGameTime <= 3) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
@@ -522,7 +515,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link Entity#moveToWorld(ServerWorld)}
+     * {@link Entity#changeDimension(ServerLevel)}
      * Sometimes resuing the same entity object is problematic
      * because entity's AI related things may have world reference inside
      */

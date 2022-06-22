@@ -773,6 +773,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         CollisionHelper.notifyCollidingPortals(this);
+        
+        super.tick();
     }
     
     @Override
