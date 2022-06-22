@@ -610,8 +610,10 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     )
     private void onIsChunkCompiled(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
         if (PortalRendering.isRendering()) {
-            if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
-                cir.setReturnValue(ip_isChunkCompiled(myBuiltChunkStorage, blockPos));
+            if (!SodiumInterface.invoker.isSodiumPresent()) {
+                if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
+                    cir.setReturnValue(ip_isChunkCompiled(myBuiltChunkStorage, blockPos));
+                }
             }
         }
     }
