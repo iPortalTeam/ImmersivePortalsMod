@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.miscellaneous;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.CHelper;
@@ -119,7 +120,7 @@ public class GcMonitor {
             if (client.player.tickCount > 40) {
                 limitedLogger.invoke(() -> {
                     CHelper.printChat(
-                        new TranslatableComponent("imm_ptl.memory_not_enough").append(
+                        Component.translatable("imm_ptl.memory_not_enough").append(
                             McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
                         )
                     );
