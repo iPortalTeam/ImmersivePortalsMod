@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.compat;
 
-import com.fusionflux.fusions_gravity_api.api.GravityChangerAPI;
-import com.fusionflux.fusions_gravity_api.util.RotationUtil;
+import com.fusionflux.gravity_api.api.GravityChangerAPI;
+import com.fusionflux.gravity_api.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
@@ -68,7 +68,7 @@ public class GravityChangerInterface {
         if (!warned) {
             warned = true;
             CHelper.printChat(Component.translatable("imm_ptl.missing_gravity_changer")
-                .append(McHelper.getLinkText("https://modrinth.com/mod/gravitychanger"))
+//                .append(McHelper.getLinkText("https://modrinth.com/mod/gravitychanger"))
             );
         }
     }
@@ -97,7 +97,7 @@ public class GravityChangerInterface {
         
         @Override
         public void setGravityDirection(Entity entity, Direction direction) {
-            GravityChangerAPI.setDefaultGravityDirection(entity, direction);
+            GravityChangerAPI.setDefaultGravityDirection(entity, direction, 0);
         }
         
         @Nullable

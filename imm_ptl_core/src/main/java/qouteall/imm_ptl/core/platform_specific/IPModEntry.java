@@ -37,12 +37,12 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("fusions_gravity_api")) {
+        if (FabricLoader.getInstance().isModLoaded("gravity_api")) {
             GravityChangerInterface.invoker = new GravityChangerInterface.OnGravityChangerPresent();
-            Helper.log("Fusions Gravity API is present");
+            Helper.log("Gravity API is present");
         }
         else {
-            Helper.log("Fusions Gravity API is not present");
+            Helper.log("Gravity API is not present");
         }
         
     }

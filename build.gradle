@@ -127,11 +127,11 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
-        modCompileOnly("maven.modrinth:gravity-api:0.7.11+fabric") {
+        modImplementation("com.github.qouteall:GravityChanger:af19ca7") {
             transitive = false
         }
-//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
-//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
     }
 
     processResources {
