@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BossHealthOverlay.class)
-public class MixinBossBarHud {
+public class MixinBossHealthOverlay {
     // the boss info does not get synced through portal
     // so when the player jumps into end portal the fog will abruptly become thick
     // avoid thicken fog to make the teleportation seamless

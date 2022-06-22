@@ -18,15 +18,12 @@
     "common.portal_generation.MixinNetherPortalBlock"
   ],
   "client": [
-    "client.MixinBossBarHud",
-    "client.MixinSplashTextResourceSupplier",
-    "client.alternate_dimension.MixinBackgroundRenderer_A",
-    "client.alternate_dimension.MixinClientWorld_A",
-    "client.alternate_dimension.MixinClientWorldProperties",
+    "client.MixinBossHealthOverlay",
+    "client.MixinSplashManager",
+    "client.alternate_dimension.MixinFogRenderer_A",
+    "client.alternate_dimension.MixinClientLevelData",
     "client.alternate_dimension.MixinWorldRenderer_A",
-    "client.altius_world.IEMoreOptionsDialog",
     "client.altius_world.MixinCreateWorldScreen",
-    "client.altius_world.MixinWorldRenderer_A"
   ],
   "injectors": {
     "defaultRequire": 1
