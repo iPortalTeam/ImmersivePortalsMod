@@ -38,6 +38,7 @@
     "common.mc_util.MixinEntity_U",
     "common.mc_util.MixinEntitySection",
     "common.mc_util.MixinEntitySectionStorage",
+    "common.miscellaneous.MixinMob",
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayerList",
     "common.portal_generation.MixinItemEntity_P",
