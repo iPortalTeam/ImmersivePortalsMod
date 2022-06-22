@@ -116,15 +116,20 @@ public class GcMonitor {
     
     @Environment(EnvType.CLIENT)
     private static void informMemoryNotEnoughClient() {
-        limitedLogger.invoke(() -> {
-            Minecraft.getInstance().gui.handleChat(
-                ChatType.SYSTEM,
-                new TranslatableComponent("imm_ptl.memory_not_enough").append(
-                    McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
-                ),
-                Util.NIL_UUID
-            );
-        });
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null) {
+            if (client.player.tickCount > 40) {
+                limitedLogger.invoke(() -> {
+                    client.gui.handleChat(
+                        ChatType.SYSTEM,
+                        new TranslatableComponent("imm_ptl.memory_not_enough").append(
+                            McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
+                        ),
+                        Util.NIL_UUID
+                    );
+                });
+            }
+        }
     }
     
     public static boolean isMemoryNotEnough() {
