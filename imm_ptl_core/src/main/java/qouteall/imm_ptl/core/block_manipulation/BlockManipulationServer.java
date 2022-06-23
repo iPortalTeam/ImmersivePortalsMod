@@ -109,7 +109,7 @@ public class BlockManipulationServer {
         else {
             ClientboundBlockBreakAckPacket ackPacket = new ClientboundBlockBreakAckPacket(
                 blockPos, destWorld.getBlockState(blockPos), packet.getAction(), false, "may not interact");
-            player.connection.send(IPNetworking.createRedirectedMessage(dimension, ackPacket));
+            player.connection.send(PacketRedirection.createRedirectedMessage(dimension, ackPacket));
         }
     }
     

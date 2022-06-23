@@ -152,7 +152,7 @@ public class IPNetworkingClient {
             );
             entity.load(compoundTag);
             entity.setId(entityId);
-            entity.syncPacketPositionCodec(entity.getX(), entity.getY(), entity.getZ());
+            entity.setPacketCoordinates(entity.getX(), entity.getY(), entity.getZ());
             world.putNonPlayerEntity(entityId, entity);
             
             //do not create client world while rendering or gl states will be disturbed
