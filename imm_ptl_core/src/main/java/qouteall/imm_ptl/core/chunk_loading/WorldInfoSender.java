@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.Set;
@@ -50,7 +50,7 @@ public class WorldInfoSender {
     public static void sendWorldInfo(ServerPlayer player, ServerLevel world) {
         ResourceKey<Level> remoteDimension = world.dimension();
         
-        IPNetworking.sendRedirectedMessage(
+        PacketRedirection.sendRedirectedMessage(
             player,
             remoteDimension,
             new ClientboundSetTimePacket(
@@ -65,7 +65,7 @@ public class WorldInfoSender {
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         
         if (world.isRaining()) {
-            IPNetworking.sendRedirectedMessage(
+            PacketRedirection.sendRedirectedMessage(
                 player,
                 world.dimension(),
                 new ClientboundGameEventPacket(
@@ -79,7 +79,7 @@ public class WorldInfoSender {
             //if the weather turned to not raining then elsewhere syncs it
         }
         
-        IPNetworking.sendRedirectedMessage(
+        PacketRedirection.sendRedirectedMessage(
             player,
             world.dimension(),
             new ClientboundGameEventPacket(
@@ -87,7 +87,7 @@ public class WorldInfoSender {
                 world.getRainLevel(1.0F)
             )
         );
-        IPNetworking.sendRedirectedMessage(
+        PacketRedirection.sendRedirectedMessage(
             player,
             world.dimension(),
             new ClientboundGameEventPacket(

@@ -44,7 +44,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
@@ -594,7 +593,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         )
     )
     private void redirectRunQueuedChunkUpdates(ClientLevel world) {
-        IPCommonNetworkClient.withSwitchedWorld(
+        ClientWorldLoader.withSwitchedWorld(
             world, world::pollLightUpdates
         );
     }

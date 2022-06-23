@@ -113,7 +113,9 @@ allprojects {
         }
         modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
-        modCompileOnly('maven.modrinth:pehkui:3.2.0+1.14.4-1.19')
+        modApi("com.github.Virtuoel:Pehkui:3.3.2", {
+            exclude group: "net.fabricmc.fabric-api"
+        })
 
         modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
 //        implementation "org.joml:joml:1.10.2" // for sodium

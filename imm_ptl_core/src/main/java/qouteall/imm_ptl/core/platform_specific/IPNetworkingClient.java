@@ -6,30 +6,35 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.SignalArged;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class IPNetworkingClient {
     
-    private static Minecraft client = Minecraft.getInstance();
+    public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
+    private static final Minecraft client = Minecraft.getInstance();
     
     public static void init() {
         
@@ -68,7 +73,7 @@ public class IPNetworkingClient {
         
         CompoundTag compoundTag = buf.readNbt();
         
-        IPCommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
+        processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, FriendlyByteBuf buf) {
@@ -130,4 +135,33 @@ public class IPNetworkingClient {
         return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsTeleport, buf);
     }
     
+    public static void processEntitySpawn(String entityTypeString, int entityId, ResourceKey<Level> dim, CompoundTag compoundTag) {
+        Optional<EntityType<?>> entityType = EntityType.byString(entityTypeString);
+        if (!entityType.isPresent()) {
+            Helper.err("unknown entity type " + entityTypeString);
+            return;
+        }
+        
+        MiscHelper.executeOnRenderThread(() -> {
+            client.getProfiler().push("ip_spawn_entity");
+            
+            ClientLevel world = ClientWorldLoader.getWorld(dim);
+            
+            Entity entity = entityType.get().create(
+                world
+            );
+            entity.load(compoundTag);
+            entity.setId(entityId);
+            entity.syncPacketPositionCodec(entity.getX(), entity.getY(), entity.getZ());
+            world.putNonPlayerEntity(entityId, entity);
+            
+            //do not create client world while rendering or gl states will be disturbed
+            if (entity instanceof Portal) {
+                ClientWorldLoader.getWorld(((Portal) entity).dimensionTo);
+                clientPortalSpawnSignal.emit(((Portal) entity));
+            }
+            
+            client.getProfiler().pop();
+        });
+    }
 }

@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import com.google.common.collect.Streams;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,7 +15,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
@@ -155,7 +153,7 @@ public class IPMcHelper {
      */
     public static <T> T withSwitchedContext(Level world, Supplier<T> func) {
         if (world.isClientSide) {
-            return IPCommonNetworkClient.withSwitchedWorld((ClientLevel) world, func);
+            return ClientWorldLoader.withSwitchedWorld((ClientLevel) world, func);
         }
         else {
             return func.get();

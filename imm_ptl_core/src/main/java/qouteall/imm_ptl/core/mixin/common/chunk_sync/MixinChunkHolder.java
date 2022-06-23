@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEChunkHolder;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.function.Consumer;
 
@@ -38,7 +38,7 @@ public class MixinChunkHolder implements IEChunkHolder {
             ((IEThreadedAnvilChunkStorage) playerProvider).ip_getWorld().dimension();
         
         Consumer<ServerPlayer> func = player ->
-            IPNetworking.sendRedirectedMessage(
+            PacketRedirection.sendRedirectedMessage(
                 player, dimension, packet_1
             );
 

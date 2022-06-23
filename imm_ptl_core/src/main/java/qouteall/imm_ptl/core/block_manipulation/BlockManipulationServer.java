@@ -20,7 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
@@ -222,7 +222,7 @@ public class BlockManipulationServer {
             }
         }
         
-        IPNetworking.sendRedirectedMessage(
+        PacketRedirection.sendRedirectedMessage(
             player,
             dimension,
             new ClientboundBlockUpdatePacket(targetWorld, blockPos)
@@ -230,7 +230,7 @@ public class BlockManipulationServer {
         
         BlockPos offseted = blockPos.relative(direction);
         if (offseted.getY() >= targetWorld.getMinBuildHeight() && offseted.getY() < targetWorld.getMaxBuildHeight()) {
-            IPNetworking.sendRedirectedMessage(
+            PacketRedirection.sendRedirectedMessage(
                 player,
                 dimension,
                 new ClientboundBlockUpdatePacket(targetWorld, offseted)

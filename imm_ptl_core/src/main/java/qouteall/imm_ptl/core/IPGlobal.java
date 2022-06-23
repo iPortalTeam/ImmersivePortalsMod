@@ -112,8 +112,6 @@ public class IPGlobal {
     
     public static boolean enableNetherPortalEffect = true;
     
-    public static boolean useThreadLocalServerPacketRedirect = true;
-    
     public static boolean tickOnlyIfChunkLoaded = true;
     
     public static boolean allowClientEntityPosInterpolation = true;

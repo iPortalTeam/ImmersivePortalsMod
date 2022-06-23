@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -23,9 +22,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.MiscNetworking;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -62,7 +60,7 @@ public class MixinPlayerList {
     public void sendToDimension(Packet<?> packet, ResourceKey<Level> dimension, CallbackInfo ci) {
         for (ServerPlayer player : players) {
             if (player.level.dimension() == dimension) {
-                IPNetworking.sendRedirectedMessage(
+                PacketRedirection.sendRedirectedMessage(
                     player,
                     dimension,
                     packet
@@ -110,7 +108,7 @@ public class MixinPlayerList {
             playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
         )).forEach(playerEntity -> {
             if (playerEntity != excludingPlayer) {
-                IPNetworking.sendRedirectedMessage(
+                PacketRedirection.sendRedirectedMessage(
                     playerEntity, dimension, packet
                 );
             }

@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
@@ -66,7 +66,7 @@ public class ChunkDataSyncManager {
             if (chunk != null) {
                 MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
-                IPNetworking.sendRedirectedMessage(
+                PacketRedirection.sendRedirectedMessage(
                     player,
                     chunkPos.dimension,
                     new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
@@ -93,7 +93,7 @@ public class ChunkDataSyncManager {
         MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
-            () -> IPNetworking.createRedirectedMessage(
+            () -> PacketRedirection.createRedirectedMessage(
                 dimension,
                 new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
             )
@@ -113,7 +113,7 @@ public class ChunkDataSyncManager {
     private void onEndWatch(ServerPlayer player, DimensionalChunkPos chunkPos) {
         
         player.connection.send(
-            IPNetworking.createRedirectedMessage(
+            PacketRedirection.createRedirectedMessage(
                 chunkPos.dimension,
                 new ClientboundForgetLevelChunkPacket(
                     chunkPos.x, chunkPos.z

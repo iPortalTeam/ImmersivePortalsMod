@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.imm_ptl.core.network.PacketRedirectionClient;
 import qouteall.q_misc_util.Helper;
 
 @Mixin(Minecraft.class)
@@ -29,7 +29,7 @@ public abstract class MixinMinecraft_RedirectedPacket extends ReentrantBlockable
     private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
         Minecraft this_ = (Minecraft) (Object) this;
         
-        ResourceKey<Level> redirectedDimension = IPCommonNetworkClient.taskRedirection.get();
+        ResourceKey<Level> redirectedDimension = PacketRedirectionClient.clientTaskRedirection.get();
         if (redirectedDimension != null) {
             Runnable newRunnable = () -> {
                 ClientLevel world = ClientWorldLoader.getOptionalWorld(redirectedDimension);
@@ -42,7 +42,7 @@ public abstract class MixinMinecraft_RedirectedPacket extends ReentrantBlockable
                     return;
                 }
                 
-                IPCommonNetworkClient.withSwitchedWorld(world, runnable);
+                ClientWorldLoader.withSwitchedWorld(world, runnable);
             };
             cir.setReturnValue(newRunnable);
         }
@@ -56,7 +56,7 @@ public abstract class MixinMinecraft_RedirectedPacket extends ReentrantBlockable
         boolean onThread = isSameThread();
         
         if (onThread) {
-            if (IPCommonNetworkClient.getIsProcessingRedirectedMessage()) {
+            if (PacketRedirectionClient.getIsProcessingRedirectedMessage()) {
                 return false;
             }
         }
