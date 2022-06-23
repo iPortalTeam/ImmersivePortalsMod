@@ -2,13 +2,17 @@ package qouteall.imm_ptl.core.block_manipulation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -24,6 +28,8 @@ import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+
+import java.util.function.Supplier;
 
 public class BlockManipulationClient {
     private static final Minecraft client = Minecraft.getInstance();
@@ -186,11 +192,7 @@ public class BlockManipulationClient {
     }
     
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
-//        if (remoteHitResult == null) {
-//            return;
-//        }
-        
-        
+
         if (!client.player.isUsingItem()) {
             if (isKeyPressed && isPointingToPortal()) {
                 BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
@@ -219,16 +221,10 @@ public class BlockManipulationClient {
     ) {
         ClientLevel targetWorld = ClientWorldLoader.getWorld(remotePointedDim);
         
-        return IPMcHelper.withSwitchedContext(
+        return withWorldSwitchedAndPlayerDimensionSwitched(
             targetWorld,
             () -> {
-                isContextSwitched = true;
-                try {
-                    return client.gameMode.continueDestroyBlock(blockPos, direction);
-                }
-                finally {
-                    isContextSwitched = false;
-                }
+                return client.gameMode.continueDestroyBlock(blockPos, direction);
             }
         );
     }
@@ -245,31 +241,20 @@ public class BlockManipulationClient {
             return true;
         }
         
-        return IPMcHelper.<Boolean>withSwitchedContext(
+        return withWorldSwitchedAndPlayerDimensionSwitched(
             targetWorld,
             () -> {
-                isContextSwitched = true;
-                try {
-                    client.gameMode.startDestroyBlock(
-                        blockPos,
-                        ((BlockHitResult) remoteHitResult).getDirection()
-                    );
-                    client.player.swing(InteractionHand.MAIN_HAND);
-                    return client.level.getBlockState(blockPos).isAir();
-                }
-                finally {
-                    isContextSwitched = false;
-                }
+                client.gameMode.startDestroyBlock(
+                    blockPos,
+                    ((BlockHitResult) remoteHitResult).getDirection()
+                );
+                client.player.swing(InteractionHand.MAIN_HAND);
+                return client.level.getBlockState(blockPos).isAir();
             }
         );
     }
     
-    //too lazy to rewrite the whole interaction system so hack there and here
     public static void myItemUse(InteractionHand hand) {
-//        if (remoteHitResult == null) {
-//            return;
-//        }
-        
         ClientLevel targetWorld =
             ClientWorldLoader.getWorld(remotePointedDim);
         
@@ -326,24 +311,39 @@ public class BlockManipulationClient {
         ClientLevel targetWorld,
         BlockHitResult blockHitResult
     ) {
-//        if (remoteHitResult == null) {
-//            return null;
-//        }
-        
+        return withWorldSwitchedAndPlayerDimensionSwitched(
+            targetWorld,
+            () -> client.gameMode.useItemOn(
+                client.player, targetWorld, hand, blockHitResult
+            )
+        );
+    }
+    
+    /**
+     * In {@link MultiPlayerGameMode#useItemOn(LocalPlayer, ClientLevel, InteractionHand, BlockHitResult)}
+     * {@link UseOnContext#UseOnContext(Player, InteractionHand, BlockHitResult)}
+     * It will use the player's current dimension which may be wrong when interacting another dimension's block
+     * So also switch the player's dimension
+     */
+    private static <T> T withWorldSwitchedAndPlayerDimensionSwitched(
+        ClientLevel targetWorld,
+        Supplier<T> supplier
+    ) {
         return IPMcHelper.withSwitchedContext(
             targetWorld,
             () -> {
+                Level oldWorld = client.player.level;
+    
                 isContextSwitched = true;
+                client.player.level = targetWorld;
                 try {
-                    return client.gameMode.useItemOn(
-                        client.player, hand, blockHitResult
-                    );
+                    return supplier.get();
                 }
                 finally {
                     isContextSwitched = false;
+                    client.player.level = oldWorld;
                 }
             }
         );
     }
-    
 }
