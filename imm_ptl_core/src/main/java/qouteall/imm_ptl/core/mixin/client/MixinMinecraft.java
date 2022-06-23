@@ -26,7 +26,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnable> implements IEMinecraftClient {
+public abstract class MixinMinecraft implements IEMinecraftClient {
     @Final
     @Shadow
     @Mutable
@@ -54,11 +54,6 @@ public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnabl
     @Shadow
     @Final
     private RenderBuffers renderBuffers;
-    
-    public MixinMinecraft(String string) {
-        super(string);
-        throw new RuntimeException();
-    }
     
     @Inject(
         method = "Lnet/minecraft/client/Minecraft;tick()V",
@@ -102,42 +97,6 @@ public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnabl
         if (WorldRenderInfo.isRendering()) {
             cir.setReturnValue(false);
         }
-    }
-    
-    // when processing redirected message, a mod packet processing may call execute()
-    // then the task gets delayed. keep the hacky redirect after delaying
-    @Inject(
-        method = "Lnet/minecraft/client/Minecraft;wrapRunnable(Ljava/lang/Runnable;)Ljava/lang/Runnable;",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
-        Minecraft this_ = (Minecraft) (Object) this;
-        if (this_.isSameThread()) {
-            if (IPCommonNetworkClient.getIsProcessingRedirectedMessage()) {
-                ClientLevel currWorld = this_.level;
-                Runnable newRunnable = () -> {
-                    IPCommonNetworkClient.withSwitchedWorld(currWorld, runnable);
-                };
-                cir.setReturnValue(newRunnable);
-            }
-        }
-    }
-    
-    /**
-     * Make sure that the redirected packet handling won't be delayed
-     */
-    @Override
-    public boolean scheduleExecutables() {
-        boolean onThread = isSameThread();
-        
-        if (onThread) {
-            if (IPCommonNetworkClient.isProcessingRedirectedMessage) {
-                return false;
-            }
-        }
-        
-        return this.runningTask() || !onThread;
     }
     
     @Override

@@ -108,7 +108,10 @@ allprojects {
 
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}") {
+            exclude module: "fabric-gametest-api-v1"
+            // for now, the gametest module makes client unable to login dev env server
+        }
 
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
@@ -127,11 +130,12 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
-        modImplementation("com.github.qouteall:GravityChanger:af19ca7") {
+        modCompileOnly("com.github.qouteall:GravityChanger:af19ca7") {
             transitive = false
+            exclude(group: "net.fabricmc.fabric-api")
         }
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
     }
 
     processResources {
@@ -199,7 +203,10 @@ dependencies {
 //        exclude module: "fabric-loader"
 //    }
 
-    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+    modImplementation ("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
+        transitive = false
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
     fileTree(dir: 'deps', include: '*.jar').each {

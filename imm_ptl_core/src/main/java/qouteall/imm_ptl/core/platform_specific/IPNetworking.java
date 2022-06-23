@@ -7,6 +7,7 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
+import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.MiscHelper;
@@ -28,6 +30,11 @@ import java.util.UUID;
 public class IPNetworking {
     public static final ResourceLocation id_stcRedirected =
         new ResourceLocation("imm_ptl", "rd");
+    
+    public static boolean isPacketIdOfRedirection(ResourceLocation packetTypeId) {
+        return packetTypeId.getNamespace().equals("imm_ptl") && packetTypeId.getPath().equals("rd");
+    }
+    
     public static final ResourceLocation id_ctsTeleport =
         new ResourceLocation("imm_ptl", "teleport");
     public static final ResourceLocation id_stcCustom =
@@ -66,31 +73,32 @@ public class IPNetworking {
         );
         
         
-        
     }
     
-    // TODO the packet is being serialized in server thread which may impact performance
-    // create a new vanilla packet type to allow it to be serialized in networking thread
-    public static Packet createRedirectedMessage(
+    // Mixin does not allow cancelling in constructor
+    // so use a dummy argument instead of null
+    private static final FriendlyByteBuf dummyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
+    
+    public static Packet<ClientGamePacketListener> createRedirectedMessage(
         ResourceKey<Level> dimension,
-        Packet packet
+        Packet<ClientGamePacketListener> packet
     ) {
-        int messageType = 0;
+        ClientboundCustomPayloadPacket result =
+            new ClientboundCustomPayloadPacket(id_stcRedirected, dummyByteBuf);
+        
+        ((IECustomPayloadPacket) result).ip_setRedirectedDimension(dimension);
+        ((IECustomPayloadPacket) result).ip_setRedirectedPacket(packet);
+        
+        return result;
+    }
+    
+    public static int getPacketId(Packet packet) {
         try {
-            messageType = ConnectionProtocol.PLAY.getPacketId(PacketFlow.CLIENTBOUND, packet);
+            return ConnectionProtocol.PLAY.getPacketId(PacketFlow.CLIENTBOUND, packet);
         }
         catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        
-        DimId.writeWorldId(buf, dimension, false);
-        
-        buf.writeInt(messageType);
-    
-        packet.write(buf);
-    
-        return new ClientboundCustomPayloadPacket(id_stcRedirected, buf);
     }
     
     public static void sendRedirectedMessage(
@@ -185,4 +193,9 @@ public class IPNetworking {
         });
     }
     
+    public static Packet createPacketById(
+        int messageType, FriendlyByteBuf buf
+    ) {
+        return ConnectionProtocol.PLAY.createPacket(PacketFlow.CLIENTBOUND, messageType, buf);
+    }
 }

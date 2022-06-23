@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
@@ -83,7 +84,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     )
     private void onSendToNearbyPlayers(
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        Packet<?> packet_1
+        Packet packet_1
     ) {
         IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
@@ -163,8 +164,8 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         // avoid sending wrong position delta update packet
         ((IEEntityTrackerEntry) serverEntity).ip_updateTrackedEntityPosition();
         
-        Packet<?> spawnPacket = entity.getAddEntityPacket();
-        Packet redirected = IPNetworking.createRedirectedMessage(entity.level.dimension(), spawnPacket);
+        Packet spawnPacket = entity.getAddEntityPacket();
+        Packet<ClientGamePacketListener> redirected = IPNetworking.createRedirectedMessage(entity.level.dimension(), spawnPacket);
         seenBy.forEach(handler -> {
             handler.send(redirected);
         });
