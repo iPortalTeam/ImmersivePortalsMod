@@ -25,7 +25,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.imm_ptl.core.network.PacketRedirectionClient;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -292,7 +292,7 @@ public class ClientTeleportationManager {
     ) {
         Validate.isTrue(!WorldRenderInfo.isRendering());
         Validate.isTrue(!FrontClipping.isClippingEnabled);
-        Validate.isTrue(!IPCommonNetworkClient.getIsProcessingRedirectedMessage());
+        Validate.isTrue(!PacketRedirectionClient.getIsProcessingRedirectedMessage());
         
         Entity vehicle = player.getVehicle();
         player.unRide();

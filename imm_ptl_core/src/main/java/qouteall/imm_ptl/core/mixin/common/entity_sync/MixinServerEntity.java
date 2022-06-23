@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -39,7 +39,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         at = @At("HEAD")
     )
     private void onTick(CallbackInfo ci) {
-        IPCommonNetwork.validateForceRedirecting();
+        PacketRedirection.validateForceRedirecting();
     }
     
     /**
@@ -48,7 +48,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
      */
     @Overwrite
     public void removePairing(ServerPlayer player) {
-        IPCommonNetwork.withForceRedirect(
+        PacketRedirection.withForceRedirect(
             ((ServerLevel) entity.level), () -> {
                 entity.stopSeenByPlayer(player);
                 player.connection.send(new ClientboundRemoveEntitiesPacket(entity.getId()));
@@ -62,7 +62,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
      */
     @Overwrite
     public void addPairing(ServerPlayer player) {
-        IPCommonNetwork.withForceRedirect(
+        PacketRedirection.withForceRedirect(
             ((ServerLevel) entity.level), () -> {
                 ServerGamePacketListenerImpl networkHandler = player.connection;
                 Objects.requireNonNull(networkHandler);
@@ -98,7 +98,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet packet_1
     ) {
-        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
     
     @Override

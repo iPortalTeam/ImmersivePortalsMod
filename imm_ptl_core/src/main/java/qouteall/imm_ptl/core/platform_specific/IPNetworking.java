@@ -28,12 +28,6 @@ import qouteall.q_misc_util.MiscHelper;
 import java.util.UUID;
 
 public class IPNetworking {
-    public static final ResourceLocation id_stcRedirected =
-        new ResourceLocation("imm_ptl", "rd");
-    
-    public static boolean isPacketIdOfRedirection(ResourceLocation packetTypeId) {
-        return packetTypeId.getNamespace().equals("imm_ptl") && packetTypeId.getPath().equals("rd");
-    }
     
     public static final ResourceLocation id_ctsTeleport =
         new ResourceLocation("imm_ptl", "teleport");
@@ -73,40 +67,6 @@ public class IPNetworking {
         );
         
         
-    }
-    
-    // Mixin does not allow cancelling in constructor
-    // so use a dummy argument instead of null
-    private static final FriendlyByteBuf dummyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
-    
-    public static Packet<ClientGamePacketListener> createRedirectedMessage(
-        ResourceKey<Level> dimension,
-        Packet<ClientGamePacketListener> packet
-    ) {
-        ClientboundCustomPayloadPacket result =
-            new ClientboundCustomPayloadPacket(id_stcRedirected, dummyByteBuf);
-        
-        ((IECustomPayloadPacket) result).ip_setRedirectedDimension(dimension);
-        ((IECustomPayloadPacket) result).ip_setRedirectedPacket(packet);
-        
-        return result;
-    }
-    
-    public static int getPacketId(Packet packet) {
-        try {
-            return ConnectionProtocol.PLAY.getPacketId(PacketFlow.CLIENTBOUND, packet);
-        }
-        catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-    
-    public static void sendRedirectedMessage(
-        ServerPlayer player,
-        ResourceKey<Level> dimension,
-        Packet packet
-    ) {
-        player.connection.send(createRedirectedMessage(dimension, packet));
     }
     
     public static Packet createStcDimensionConfirm(
@@ -193,9 +153,4 @@ public class IPNetworking {
         });
     }
     
-    public static Packet createPacketById(
-        int messageType, FriendlyByteBuf buf
-    ) {
-        return ConnectionProtocol.PLAY.createPacket(PacketFlow.CLIENTBOUND, messageType, buf);
-    }
 }

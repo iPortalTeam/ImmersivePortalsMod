@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
 
@@ -108,7 +108,7 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
             }
         }
         
-        IPCommonNetwork.withForceRedirect(
+        PacketRedirection.withForceRedirect(
             level,
             () -> {
                 for (Entity entity : attachedEntityList) {

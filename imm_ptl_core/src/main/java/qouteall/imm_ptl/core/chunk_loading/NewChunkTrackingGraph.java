@@ -16,10 +16,9 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
 import java.lang.ref.WeakReference;
@@ -505,7 +504,7 @@ public class NewChunkTrackingGraph {
                 (r) -> r.player == player,
                 record -> {
                     record.isValid = false;
-                    IPNetworking.sendRedirectedMessage(
+                    PacketRedirection.sendRedirectedMessage(
                         record.player, dim, new ClientboundForgetLevelChunkPacket(
                             ChunkPos.getX(chunkPos),
                             ChunkPos.getZ(chunkPos)
@@ -524,7 +523,7 @@ public class NewChunkTrackingGraph {
         }
         
         map.forEach((chunkPos, records) -> {
-            Packet unloadPacket = IPNetworking.createRedirectedMessage(
+            Packet unloadPacket = PacketRedirection.createRedirectedMessage(
                 dim, new ClientboundForgetLevelChunkPacket(
                     ChunkPos.getX(chunkPos),
                     ChunkPos.getZ(chunkPos)

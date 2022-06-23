@@ -15,6 +15,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
+import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
+import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
@@ -22,7 +25,6 @@ import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.q_misc_util.Helper;
@@ -35,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
@@ -132,7 +135,7 @@ public class ClientWorldLoader {
     private static void tickRemoteWorld(ClientLevel newWorld) {
         List<Portal> nearbyPortals = CHelper.getClientNearbyPortals(10).collect(Collectors.toList());
         
-        IPCommonNetworkClient.withSwitchedWorld(newWorld, () -> {
+        withSwitchedWorld(newWorld, () -> {
             try {
                 newWorld.tickEntities();
                 newWorld.tick(() -> true);
@@ -435,7 +438,7 @@ public class ClientWorldLoader {
         for (ResourceKey<Level> dim : toReload) {
             ClientLevel world = clientWorldMap.get(dim);
             Validate.notNull(world);
-            IPCommonNetworkClient.withSwitchedWorld(
+            withSwitchedWorld(
                 world,
                 () -> {
                     // cannot be replaced into method reference
@@ -445,5 +448,48 @@ public class ClientWorldLoader {
         }
         
         isReloadingOtherWorldRenderers = false;
+    }
+    
+    public static <T> T withSwitchedWorld(ClientLevel newWorld, Supplier<T> supplier) {
+        Validate.isTrue(client.isSameThread());
+        Validate.isTrue(client.player != null);
+        
+        ClientPacketListener networkHandler = client.getConnection();
+        
+        ClientLevel originalWorld = client.level;
+        LevelRenderer originalWorldRenderer = client.levelRenderer;
+        ClientLevel originalNetHandlerWorld = networkHandler.getLevel();
+        
+        LevelRenderer newWorldRenderer = getWorldRenderer(newWorld.dimension());
+        
+        Validate.notNull(newWorldRenderer);
+        
+        client.level = newWorld;
+        ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
+        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
+        ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
+        
+        try {
+            return supplier.get();
+        }
+        finally {
+            if (client.level != newWorld) {
+                Helper.err("Respawn packet should not be redirected");
+                originalWorld = client.level;
+                originalWorldRenderer = client.levelRenderer;
+            }
+            
+            client.level = originalWorld;
+            ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
+            ((IEParticleManager) client.particleEngine).ip_setWorld(originalWorld);
+            ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
+        }
+    }
+    
+    public static void withSwitchedWorld(ClientLevel newWorld, Runnable runnable) {
+        withSwitchedWorld(newWorld, () -> {
+            runnable.run();
+            return null;
+        });
     }
 }

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 @Mixin(MapItemSavedData.class)
 public class MixinMapItemSavedData {
@@ -28,7 +28,7 @@ public class MixinMapItemSavedData {
     private void onGetUpdatePacket(int mapId, Player player, CallbackInfoReturnable<@Nullable Packet<?>> cir) {
         Packet packet = cir.getReturnValue();
         if (packet != null) {
-            cir.setReturnValue(IPNetworking.createRedirectedMessage(dimension, packet));
+            cir.setReturnValue(PacketRedirection.createRedirectedMessage(dimension, packet));
         }
     }
 }

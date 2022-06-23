@@ -25,8 +25,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
 import java.util.Set;
@@ -67,7 +66,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     private void onSendToOtherNearbyPlayers(
         ServerPlayerConnection entityTrackingListener, Packet<?> packet
     ) {
-        IPCommonNetwork.withForceRedirect(
+        PacketRedirection.withForceRedirect(
             ((ServerLevel) entity.level),
             () -> {
                 entityTrackingListener.send(packet);
@@ -86,7 +85,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet packet_1
     ) {
-        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
     
     // Note VMP redirects getEffectiveRange()
@@ -165,7 +164,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         ((IEEntityTrackerEntry) serverEntity).ip_updateTrackedEntityPosition();
         
         Packet spawnPacket = entity.getAddEntityPacket();
-        Packet<ClientGamePacketListener> redirected = IPNetworking.createRedirectedMessage(entity.level.dimension(), spawnPacket);
+        Packet<ClientGamePacketListener> redirected = PacketRedirection.createRedirectedMessage(entity.level.dimension(), spawnPacket);
         seenBy.forEach(handler -> {
             handler.send(redirected);
         });

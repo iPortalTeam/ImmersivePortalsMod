@@ -2,16 +2,14 @@ package qouteall.imm_ptl.peripheral.guide;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.io.File;
@@ -72,7 +70,7 @@ public class IPGuide {
     public static void initClient() {
         guideInfo = readFromFile();
         
-        IPCommonNetworkClient.clientPortalSpawnSignal.connect(p -> {
+        IPNetworkingClient.clientPortalSpawnSignal.connect(p -> {
             LocalPlayer player = Minecraft.getInstance().player;
             
             if (!guideInfo.wikiInformed) {

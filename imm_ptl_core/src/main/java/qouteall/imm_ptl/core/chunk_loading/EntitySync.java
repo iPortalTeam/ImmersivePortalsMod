@@ -12,7 +12,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
@@ -72,7 +72,7 @@ public class EntitySync {
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
             
-            IPCommonNetwork.withForceRedirect(world, () -> {
+            PacketRedirection.withForceRedirect(world, () -> {
                 for (ChunkMap.TrackedEntity tracker : entityTrackerMap.values()) {
                     ((IEEntityTracker) tracker).tickEntry();
                     

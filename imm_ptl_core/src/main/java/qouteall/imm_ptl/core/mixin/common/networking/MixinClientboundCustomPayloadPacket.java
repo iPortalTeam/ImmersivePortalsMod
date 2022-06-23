@@ -17,9 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ClientboundCustomPayloadPacket.class)
@@ -51,11 +49,11 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
     private void readTheActualRedirectedPacket(
         FriendlyByteBuf _buf, CallbackInfo ci
     ) {
-        if (IPNetworking.isPacketIdOfRedirection(identifier)) {
+        if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
             ResourceKey<Level> dimension = DimId.readWorldId(data, true);
             
             int packetId = data.readInt();
-            Packet packet = IPNetworking.createPacketById(packetId, data);
+            Packet packet = PacketRedirection.createPacketById(packetId, data);
             
             ip_redirectedDimension = dimension;
             ip_redirectedPacket = (Packet<ClientGamePacketListener>) packet;
@@ -71,13 +69,13 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         cancellable = true
     )
     private void writeTheActualRedirectedPacket(FriendlyByteBuf buffer, CallbackInfo ci) {
-        if (IPNetworking.isPacketIdOfRedirection(identifier)) {
+        if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
             Validate.isTrue(ip_redirectedDimension != null, "ip_redirectedDimension is null");
             Validate.isTrue(ip_redirectedPacket != null, "ip_redirectedPacket is null");
             
             DimId.writeWorldId(buffer, ip_redirectedDimension, false);
             
-            int packetId = IPNetworking.getPacketId(ip_redirectedPacket);
+            int packetId = PacketRedirection.getPacketId(ip_redirectedPacket);
             buffer.writeInt(packetId);
             
             ip_redirectedPacket.write(buffer);
@@ -93,8 +91,8 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         cancellable = true
     )
     private void onHandle(ClientGamePacketListener handler, CallbackInfo ci) {
-        if (IPNetworking.isPacketIdOfRedirection(identifier)) {
-            IPCommonNetwork.do_handleRedirectedPacketFromNetworkingThread(
+        if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
+            PacketRedirection.do_handleRedirectedPacketFromNetworkingThread(
                 ip_redirectedDimension, ip_redirectedPacket, handler
             );
             ci.cancel();

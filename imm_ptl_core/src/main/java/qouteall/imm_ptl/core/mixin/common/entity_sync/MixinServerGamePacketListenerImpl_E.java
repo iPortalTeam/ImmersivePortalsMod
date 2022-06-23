@@ -5,8 +5,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class MixinServerGamePacketListenerImpl_E {
@@ -16,10 +15,10 @@ public class MixinServerGamePacketListenerImpl_E {
         argsOnly = true
     )
     private Packet modifyPacket(Packet originalPacket) {
-        if (IPCommonNetwork.getForceRedirectDimension() == null) {
+        if (PacketRedirection.getForceRedirectDimension() == null) {
             return originalPacket;
         }
         
-        return IPNetworking.createRedirectedMessage(IPCommonNetwork.getForceRedirectDimension(), originalPacket);
+        return PacketRedirection.createRedirectedMessage(PacketRedirection.getForceRedirectDimension(), originalPacket);
     }
 }
