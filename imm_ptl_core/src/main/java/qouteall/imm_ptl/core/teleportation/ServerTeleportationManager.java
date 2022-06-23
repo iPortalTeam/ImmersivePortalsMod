@@ -80,7 +80,12 @@ public class ServerTeleportationManager {
         if (entity.level != portal.level) {return false;}
         if (!portal.canTeleportEntity(entity)) {return false;}
         Vec3 lastEyePos = entity.getEyePosition(0);
-        Vec3 nextEyePos = entity.getEyePosition(1).add(McHelper.getWorldVelocity(entity));
+        Vec3 nextEyePos = entity.getEyePosition(1);
+        
+        if (entity instanceof Projectile) {
+            nextEyePos = nextEyePos.add(McHelper.getWorldVelocity(entity));
+        }
+        
         boolean movedThroughPortal = portal.isMovedThroughPortal(lastEyePos, nextEyePos);
         return movedThroughPortal;
     }
@@ -496,22 +501,25 @@ public class ServerTeleportationManager {
     }
     
     private static Vec3 getRegularEntityTeleportedEyePos(Entity entity, Portal portal) {
-        Vec3 eyePosNextTick = McHelper.getEyePos(entity);
-        if (entity instanceof Projectile) {
-            Vec3 collidingPoint = portal.rayTrace(
-                eyePosNextTick.subtract(entity.getDeltaMovement().normalize().scale(5)),
-                eyePosNextTick
-            );
-            
-            if (collidingPoint == null) {
-                collidingPoint = eyePosNextTick;
-            }
-            
-            return portal.transformPoint(collidingPoint).add(portal.getContentDirection().scale(0.01));
+        // the teleportation is delayed by 1 tick
+        // the entity may be behind the portal or in front of the portal at this time
+        
+        Vec3 eyePosThisTick = McHelper.getEyePos(entity);
+        Vec3 eyePosLastTick = McHelper.getLastTickEyePos(entity);
+        
+        Vec3 deltaMovement = eyePosThisTick.subtract(eyePosLastTick);
+        Vec3 deltaMovementDirection = deltaMovement.normalize();
+        
+        Vec3 collidingPoint = portal.rayTrace(
+            eyePosThisTick.subtract(deltaMovementDirection.scale(5)),
+            eyePosThisTick.add(deltaMovementDirection)
+        );
+        
+        if (collidingPoint == null) {
+            collidingPoint = portal.getPointProjectedToPlane(eyePosThisTick);
         }
-        else {
-            return portal.transformPoint(eyePosNextTick);
-        }
+        
+        return portal.transformPoint(collidingPoint).add(portal.getContentDirection().scale(0.05));
     }
     
     /**
