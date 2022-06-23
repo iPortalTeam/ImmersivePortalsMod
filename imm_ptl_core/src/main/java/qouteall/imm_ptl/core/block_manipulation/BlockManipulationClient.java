@@ -314,7 +314,7 @@ public class BlockManipulationClient {
         return withWorldSwitchedAndPlayerDimensionSwitched(
             targetWorld,
             () -> client.gameMode.useItemOn(
-                client.player, targetWorld, hand, blockHitResult
+                client.player, hand, blockHitResult
             )
         );
     }
