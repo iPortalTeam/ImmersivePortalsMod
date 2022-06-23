@@ -286,14 +286,12 @@ public class BlockManipulationClient {
         }
         
         if (!itemStack.isEmpty()) {
-            InteractionResult actionResult3 = IPMcHelper.withSwitchedContext(
+            InteractionResult actionResult3 = withWorldSwitchedAndPlayerDimensionSwitched(
                 targetWorld,
-                () -> {
-                    return client.gameMode.useItem(
-                        client.player,
-                        hand
-                    );
-                }
+                () -> client.gameMode.useItem(
+                    client.player,
+                    hand
+                )
             );
             if (actionResult3.consumesAction()) {
                 if (actionResult3.shouldSwing()) {
