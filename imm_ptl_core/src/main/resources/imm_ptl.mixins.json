@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.core.IPMixinPlugin",
   "mixins": [
-    "client.render.optimization.IEChunkCompileTask",
     "common.IERegistryLoader",
     "common.MixinClipContext",
     "common.MixinCommands",
@@ -17,7 +16,6 @@
     "common.MixinServerLevel",
     "common.chunk_sync.MixinChunkHolder",
     "common.chunk_sync.MixinChunkMap_C",
-    "common.chunk_sync.MixinClientboundCustomPayloadPacket",
     "common.chunk_sync.MixinDistanceManager",
     "common.chunk_sync.MixinServerPlayer",
     "common.collision.MixinAbstractMinecartEntity",
@@ -39,6 +37,7 @@
     "common.mc_util.MixinEntitySection",
     "common.mc_util.MixinEntitySectionStorage",
     "common.miscellaneous.MixinMob",
+    "common.networking.MixinClientboundCustomPayloadPacket",
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayerList",
     "common.portal_generation.MixinItemEntity_P",
@@ -54,6 +53,8 @@
     "common.position_sync.MixinServerGamePacketListenerImpl"
   ],
   "client": [
+    "client.render.optimization.IEChunkCompileTask",
+    "client.sync.MixinMinecraft_RedirectedPacket",
     "client.MixinClientConnection",
     "client.MixinClientLevel",
     "client.MixinDebugScreenOverlay",

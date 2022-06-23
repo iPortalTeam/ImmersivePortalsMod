@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.network;
 
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.Level;
@@ -66,7 +68,7 @@ public class IPCommonNetwork {
     // avoid duplicate redirect nesting
     public static void sendRedirectedPacket(
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        Packet<?> packet,
+        Packet<ClientGamePacketListener> packet,
         ResourceKey<Level> dimension
     ) {
         if (getForceRedirectDimension() == dimension) {
@@ -85,4 +87,14 @@ public class IPCommonNetwork {
     public static void validateForceRedirecting() {
         Validate.isTrue(getForceRedirectDimension() != null);
     }
+    
+    // avoid crash in dedicated server
+    public static void do_handleRedirectedPacketFromNetworkingThread(
+        ResourceKey<Level> dimension,
+        Packet<ClientGamePacketListener> packet,
+        ClientGamePacketListener handler
+    ) {
+        IPCommonNetworkClient.handleRedirectedPacketFromNetworkingThread(dimension, packet, handler);
+    }
+    
 }

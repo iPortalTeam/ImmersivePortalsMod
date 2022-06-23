@@ -8,16 +8,5 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ClientPlayNetworkAddon.class)
 public class MixinFabricClientPlayNetworkAddon {
-    // The new Fabric API ignores all mod packets on render thread
-    // but this mod's packet redirect hack requires handling portal spawn packet on render thread
-    @Redirect(
-        method = "handle",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/Minecraft;isSameThread()Z"
-        )
-    )
-    private boolean redirectIsOnThread(Minecraft minecraftClient) {
-        return false;
-    }
+
 }

@@ -26,7 +26,7 @@ public class MixinMapItemSavedData {
         cancellable = true
     )
     private void onGetUpdatePacket(int mapId, Player player, CallbackInfoReturnable<@Nullable Packet<?>> cir) {
-        Packet<?> packet = cir.getReturnValue();
+        Packet packet = cir.getReturnValue();
         if (packet != null) {
             cir.setReturnValue(IPNetworking.createRedirectedMessage(dimension, packet));
         }

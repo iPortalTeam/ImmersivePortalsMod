@@ -11,6 +11,7 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
@@ -31,15 +32,6 @@ public class IPNetworkingClient {
     private static Minecraft client = Minecraft.getInstance();
     
     public static void init() {
-        
-        ClientPlayNetworking.registerGlobalReceiver(
-            IPNetworking.id_stcRedirected,
-            (c, handler, buf, responseSender) -> {
-                processRedirectedMessage(buf);
-            }
-        );
-        
-        
         
         ClientPlayNetworking.registerGlobalReceiver(
             IPNetworking.id_stcSpawnEntity,
@@ -96,16 +88,6 @@ public class IPNetworkingClient {
         });
     }
     
-    public static void processRedirectedMessage(
-        FriendlyByteBuf buf
-    ) {
-        ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
-        int messageType = buf.readInt();
-        Packet packet = createPacketByType(messageType,buf);
-        
-        IPCommonNetworkClient.processRedirectedPacket(dimension, packet);
-    }
-    
     private static void processGlobalPortalUpdate(FriendlyByteBuf buf) {
         ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readNbt();
@@ -148,9 +130,4 @@ public class IPNetworkingClient {
         return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsTeleport, buf);
     }
     
-    private static Packet createPacketByType(
-        int messageType, FriendlyByteBuf buf
-    ) {
-        return ConnectionProtocol.PLAY.createPacket(PacketFlow.CLIENTBOUND, messageType, buf);
-    }
 }

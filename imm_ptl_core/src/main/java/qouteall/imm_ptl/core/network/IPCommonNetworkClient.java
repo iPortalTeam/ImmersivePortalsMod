@@ -7,8 +7,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketUtils;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -18,6 +23,7 @@ import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
+import qouteall.imm_ptl.core.mixin.client.sync.MixinMinecraft_RedirectedPacket;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -35,42 +41,22 @@ public class IPCommonNetworkClient {
     public static final Minecraft client = Minecraft.getInstance();
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
-    public static boolean isProcessingRedirectedMessage = false;
-    
-    
-    public static void processRedirectedPacket(ResourceKey<Level> dimension, Packet packet) {
-        Runnable func = () -> {
-            try {
-                client.getProfiler().push("process_redirected_packet");
-                
-                ClientLevel packetWorld = ClientWorldLoader.getOptionalWorld(dimension);
-                
-                if (packetWorld != null) {
-                    doProcessRedirectedMessage(packetWorld, packet);
-                }
-                else {
-                    Helper.err(
-                        "Ignoring packet of invalid dimension %s %s"
-                            .formatted(dimension.location(), packet.getClass())
-                    );
-                }
-            }
-            finally {
-                client.getProfiler().pop();
-            }
-        };
-        
-        MiscHelper.executeOnRenderThread(func);
-    }
+    /**
+     * This ensures that when it calls client.execute(...)
+     * the task will be executed with redirected dimension.
+     * {@link MixinMinecraft_RedirectedPacket}
+     * This is also used in networking threads.
+     */
+    public static final ThreadLocal<ResourceKey<Level>> taskRedirection =
+        ThreadLocal.withInitial(() -> null);
     
     
     public static void doProcessRedirectedMessage(
         ClientLevel packetWorld,
         Packet packet
     ) {
-        boolean oldIsProcessing = isProcessingRedirectedMessage;
-        
-        isProcessingRedirectedMessage = true;
+        ResourceKey<Level> oldTaskRedirection = taskRedirection.get();
+        taskRedirection.set(packetWorld.dimension());
         
         ClientPacketListener netHandler = ((IEClientWorld) packetWorld).getNetHandler();
         
@@ -93,14 +79,14 @@ public class IPCommonNetworkClient {
         finally {
             client.getProfiler().pop();
             
-            isProcessingRedirectedMessage = oldIsProcessing;
+            taskRedirection.set(oldTaskRedirection);
         }
     }
     
     public static void withSwitchedWorld(ClientLevel newWorld, Runnable runnable) {
         withSwitchedWorld(newWorld, () -> {
             runnable.run();
-            return null; // Must return null for "void" supplier
+            return null;
         });
     }
     
@@ -131,7 +117,6 @@ public class IPCommonNetworkClient {
                 Helper.err("Respawn packet should not be redirected");
                 originalWorld = client.level;
                 originalWorldRenderer = client.levelRenderer;
-                throw new RuntimeException("Respawn packet should not be redirected");
             }
             
             client.level = originalWorld;
@@ -172,6 +157,31 @@ public class IPCommonNetworkClient {
     }
     
     public static boolean getIsProcessingRedirectedMessage() {
-        return isProcessingRedirectedMessage;
+        return taskRedirection.get() != null;
+    }
+    
+    /**
+     * For vanilla packets, in {@link PacketUtils#ensureRunningOnSameThread(Packet, PacketListener, BlockableEventLoop)}
+     * it will resubmit the task
+     * and the task will be redirected in {@link MixinMinecraft_RedirectedPacket}
+     *
+     * For mod packets ({@link ClientboundCustomPayloadPacket}),
+     * handled in {@link net.fabricmc.fabric.mixin.networking.client.ClientPlayNetworkHandlerMixin},
+     * the mod will also handle the packet using {@link Minecraft#execute(Runnable)} (If not, that mod has the bug)
+     */
+    public static void handleRedirectedPacketFromNetworkingThread(
+        ResourceKey<Level> dimension,
+        Packet<ClientGamePacketListener> packet,
+        ClientGamePacketListener handler
+    ) {
+        ResourceKey<Level> oldTaskRedirection = taskRedirection.get();
+        taskRedirection.set(dimension);
+    
+        try {
+            packet.handle(handler);
+        }
+        finally {
+            taskRedirection.set(oldTaskRedirection);
+        }
     }
 }

@@ -96,7 +96,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     )
     private void onSendToWatcherAndSelf(
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        Packet<?> packet_1
+        Packet packet_1
     ) {
         IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
     }
