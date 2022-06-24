@@ -2109,7 +2109,7 @@ public class PortalCommand {
     }
     
     /**
-     * {@link Entity#getRotationVector()}
+     * {@link Vec3#directionFromRotation(float, float)} ()}
      */
     private static Vec3 getRightVec(Entity entity) {
         float yaw = entity.getYRot() + 90;

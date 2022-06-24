@@ -406,7 +406,7 @@ public class ServerTeleportationManager {
                 Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
                 
                 if (collidingPortal instanceof GlobalTrackedPortal globalPortal) {
-                    if (globalPortal.canTeleportEntity(entity)) {
+                    if (shouldEntityTeleport(globalPortal, entity)) {
                         startTeleportingRegularEntity(globalPortal, entity);
                     }
                 }
