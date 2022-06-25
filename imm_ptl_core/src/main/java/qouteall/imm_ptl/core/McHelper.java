@@ -74,7 +74,7 @@ public class McHelper {
     
     public static IEThreadedAnvilChunkStorage getIEStorage(ResourceKey<Level> dimension) {
         return (IEThreadedAnvilChunkStorage) (
-            (ServerChunkCache) MiscHelper.getServer().getLevel(dimension).getChunkSource()
+            (ServerChunkCache) getServerWorld(dimension).getChunkSource()
         ).chunkMap;
     }
     
