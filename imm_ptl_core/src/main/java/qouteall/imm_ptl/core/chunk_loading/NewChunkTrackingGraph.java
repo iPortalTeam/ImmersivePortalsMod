@@ -178,28 +178,31 @@ public class NewChunkTrackingGraph {
                     if (record.isValid && !record.isLoadedToPlayer) {
                         record.isLoadedToPlayer = true;
                         
-                        if (MiscHelper.getServer().getLevel(record.dimension) == null) {
-                            Helper.err("oops");
-                        }
-                        
-                        beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
-                            record.dimension, new ChunkPos(record.chunkPos)
-                        ));
-                        if (!record.isDirectLoading) {
-                            MyLoadingTicket.addTicketIfNotLoaded(
-                                McHelper.getServerWorld(record.dimension),
-                                new ChunkPos(record.chunkPos)
+                        if (MiscHelper.getServer().getLevel(record.dimension) != null) {
+                            beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
+                                record.dimension, new ChunkPos(record.chunkPos)
+                            ));
+                            if (!record.isDirectLoading) {
+                                MyLoadingTicket.addTicketIfNotLoaded(
+                                    McHelper.getServerWorld(record.dimension),
+                                    new ChunkPos(record.chunkPos)
+                                );
+                            }
+                            watchStatusChangeSignal.emit(
+                                record.dimension, record.chunkPos
                             );
-                        }
-                        watchStatusChangeSignal.emit(
-                            record.dimension, record.chunkPos
-                        );
-                        
-                        if (!record.isDirectLoading) {
-                            loaded++;
+                            
+                            if (!record.isDirectLoading) {
+                                loaded++;
+                            }
+                            else {
+                                directLoaded++;
+                            }
                         }
                         else {
-                            directLoaded++;
+                            Helper.err(
+                                "Missing dimension when flushing pending loading " + record.dimension.location()
+                            );
                         }
                     }
                 }
