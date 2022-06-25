@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -90,5 +91,19 @@ public class DimensionMisc {
                 return !nonPersistentDimensions.contains(identifier);
             }
         );
+    }
+    
+    public static void ensureRegistryNotFrozen(WorldGenSettings worldGenSettings) {
+        Registry<LevelStem> dimensions = worldGenSettings.dimensions();
+        
+        ((IEMappedRegistry) dimensions).ip_setIsFrozen(false);
+    }
+    
+    public static void ensureRegistryFrozen(WorldGenSettings worldGenSettings) {
+        Registry<LevelStem> dimensions = worldGenSettings.dimensions();
+        
+        if (!((IEMappedRegistry) dimensions).ip_getIsFrozen()) {
+            dimensions.freeze();
+        }
     }
 }

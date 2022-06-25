@@ -40,6 +40,7 @@ public class DimensionAPI {
             ServerDimensionsLoadCallback.class,
             (listeners) -> ((generatorOptions, registryManager) -> {
                 for (ServerDimensionsLoadCallback listener : listeners) {
+                    DimensionMisc.ensureRegistryNotFrozen(generatorOptions);
                     listener.run(generatorOptions, registryManager);
                 }
             })
