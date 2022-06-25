@@ -403,11 +403,13 @@ public class ServerTeleportationManager {
     private void manageGlobalPortalTeleportation() {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             for (Entity entity : world.getAllEntities()) {
-                Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-                
-                if (collidingPortal instanceof GlobalTrackedPortal globalPortal) {
-                    if (shouldEntityTeleport(globalPortal, entity)) {
-                        startTeleportingRegularEntity(globalPortal, entity);
+                if (!(entity instanceof ServerPlayer)) {
+                    Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+                    
+                    if (collidingPortal instanceof GlobalTrackedPortal globalPortal) {
+                        if (shouldEntityTeleport(globalPortal, entity)) {
+                            startTeleportingRegularEntity(globalPortal, entity);
+                        }
                     }
                 }
             }
@@ -445,9 +447,14 @@ public class ServerTeleportationManager {
             return;
         }
         
+        if (portal.getDistanceToNearestPointInPortal(entity.getEyePosition()) > 5) {
+            Helper.err("Entity is too far to teleport " + entity + portal);
+            return;
+        }
+        
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
-        if (currGameTime - lastTeleportGameTime <= 3) {
+        if (currGameTime - lastTeleportGameTime <= 0) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
@@ -519,7 +526,8 @@ public class ServerTeleportationManager {
             collidingPoint = portal.getPointProjectedToPlane(eyePosThisTick);
         }
         
-        return portal.transformPoint(collidingPoint).add(portal.getContentDirection().scale(0.05));
+        Vec3 result = portal.transformPoint(collidingPoint).add(portal.getContentDirection().scale(0.05));
+        return result;
     }
     
     /**
