@@ -26,30 +26,4 @@ public class MixinLivingEntity {
             }
         }
     }
-    
-    @Inject(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hasLineOfSight(Lnet/minecraft/world/entity/Entity;)Z",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (entity.level != ((Entity) (Object) this).level) {
-            cir.setReturnValue(false);
-            return;
-        }
-    }
-    
-//    @Inject(
-//        method = "canSee",
-//        at = @At("RETURN"),
-//        cancellable = true
-//    )
-//    private void onCanSeeReturns(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-//        LivingEntity this_ = (LivingEntity) (Object) this;
-//        if (cir.getReturnValue()) {
-//            if (Portal.doesPortalBlockEntityView(this_, entity)) {
-//                cir.setReturnValue(false);
-//            }
-//        }
-//    }
 }
