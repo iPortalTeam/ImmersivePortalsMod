@@ -16,6 +16,7 @@ import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-// TODO reorganize the methods in 1.19
 public class IPMcHelper {
+    public static final LimitedLogger limitedLogger = new LimitedLogger(20);
+    
     // include global portals
     public static void foreachNearbyPortals(
         Level world, Vec3 pos, int range, Consumer<Portal> func

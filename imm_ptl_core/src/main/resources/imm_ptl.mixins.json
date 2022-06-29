@@ -36,6 +36,7 @@
     "common.mc_util.MixinEntity_U",
     "common.mc_util.MixinEntitySection",
     "common.mc_util.MixinEntitySectionStorage",
+    "common.miscellaneous.MixinBlockGetter",
     "common.miscellaneous.MixinMob",
     "common.networking.MixinClientboundCustomPayloadPacket",
     "common.other_sync.MixinMapItemSavedData",
@@ -53,8 +54,6 @@
     "common.position_sync.MixinServerGamePacketListenerImpl"
   ],
   "client": [
-    "client.render.optimization.IEChunkCompileTask",
-    "client.sync.MixinMinecraft_RedirectedPacket",
     "client.MixinClientConnection",
     "client.MixinClientLevel",
     "client.MixinDebugScreenOverlay",
@@ -87,6 +86,7 @@
     "client.render.MixinShaderInstanceForIris",
     "client.render.framebuffer.MixinMainTarget",
     "client.render.framebuffer.MixinRenderTarget",
+    "client.render.optimization.IEChunkCompileTask",
     "client.render.optimization.MixinChunkRenderDispatcher_Optimization",
     "client.render.optimization.MixinFrustum",
     "client.render.optimization.MixinLevelRenderer_Clouds",
@@ -96,6 +96,7 @@
     "client.sound.MixinClientLevel_Sound",
     "client.sync.MixinClientboundPlayerPositionPacket",
     "client.sync.MixinClientPacketListener",
+    "client.sync.MixinMinecraft_RedirectedPacket",
     "client.sync.MixinReceivingLevelScreen",
     "client.sync.MixinServerBoundMovePlayerPacket",
     "client.sync.MixinServerboundMovePlayerPacketPos",
