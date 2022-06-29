@@ -132,7 +132,7 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
-        modCompileOnly("com.github.qouteall:GravityChanger:af19ca7") {
+        modCompileOnly("maven.modrinth:gravity-api:0.7.12+fabric") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
