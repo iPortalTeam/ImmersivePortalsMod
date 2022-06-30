@@ -6,8 +6,8 @@ body:
     attributes:
       label: Does the issue ocur with only Immersive Portals mod and Farbic API?
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
     validations:
       required: true
   - type: markdown
