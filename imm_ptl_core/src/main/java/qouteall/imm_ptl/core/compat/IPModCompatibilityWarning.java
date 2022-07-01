@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class IPModCompatibilityWarning {
     
@@ -42,7 +44,8 @@ public class IPModCompatibilityWarning {
         new ModInfo("create", "Create")
     );
     
-    public static record ModInfo(String modId, String modName) {}
+    public static record ModInfo(String modId, String modName) {
+    }
     
     public static void initDedicatedServer() {
         for (ModInfo mod : incompatibleMods) {
@@ -103,6 +106,24 @@ public class IPModCompatibilityWarning {
                 ));
             }
         }
+        
+        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> Minecraft.getInstance().level == null,
+            MyTaskList.oneShotTask(() -> {
+                if (IPGlobal.enableWarning && !FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                    List<ModContainer> topLevelMods = FabricLoader.getInstance().getAllMods().stream()
+                        .filter(modContainer -> modContainer.getContainingMod().isEmpty())
+                        .collect(Collectors.toList());
+                    
+                    if (topLevelMods.size() > 20) {
+                        CHelper.printChat(new TextComponent(
+                            "[Immersive Portals] WARNING: You are using many mods. It's likely that one of them has compatibility issues with Immersive Portals. " +
+                                "If you are sure that there is no compatibility issue, disable this warning."
+                        ).withStyle(ChatFormatting.RED).append(IPMcHelper.getDisableWarningText()));
+                    }
+                }
+            })
+        ));
         
     }
 }
