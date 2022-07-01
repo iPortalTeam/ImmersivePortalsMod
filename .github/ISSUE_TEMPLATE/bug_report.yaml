@@ -3,8 +3,7 @@ description: File a bug report
 body:
   - type: markdown
     attributes:
-      value: |
-        To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation.
+      value: "To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation."
   - type: dropdown
     id: only_immptl
     attributes:
