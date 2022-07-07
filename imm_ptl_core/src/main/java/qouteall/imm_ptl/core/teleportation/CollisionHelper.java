@@ -14,11 +14,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.mixin.common.collision.IEEntity_Collision;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -28,6 +30,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -75,6 +78,21 @@ public class CollisionHelper {
         return new AABB(afterBeingPushed, staticPos);
     }
     
+    
+    public static boolean isBoxBehindPlane(Vec3 planePos, Vec3 planeNormal, AABB box) {
+        boolean xForward = planeNormal.x > 0;
+        boolean yForward = planeNormal.y > 0;
+        boolean zForward = planeNormal.z > 0;
+        
+        Vec3 testingPos = new Vec3(
+            xForward ? box.maxX : box.minX,
+            yForward ? box.maxY : box.minY,
+            zForward ? box.maxZ : box.minZ
+        );
+        
+        return testingPos.subtract(planePos).dot(planeNormal) < 0;
+    }
+    
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
         if (portal.canTeleportEntity(entity)) {
             Vec3 cameraPosVec = entity.getEyePosition(tickDelta);
@@ -104,7 +122,7 @@ public class CollisionHelper {
         
         Vec3 thisSideMove = getThisSideMove(
             entity, attemptedMove, collidingPortal,
-            handleCollisionFunc, originalBoundingBox
+            originalBoundingBox
         );
         
         if (thisSideMove.y > 0 && attemptedMove.y < 0) {
@@ -240,22 +258,34 @@ public class CollisionHelper {
         Entity entity,
         Vec3 attemptedMove,
         Portal collidingPortal,
-        Function<Vec3, Vec3> handleCollisionFunc,
         AABB originalBoundingBox
     ) {
-        AABB boxThisSide = getCollisionBoxThisSide(
-            collidingPortal, originalBoundingBox, attemptedMove
-        );
-        if (boxThisSide == null) {
-            return attemptedMove;
+        AABB boundingBox = entity.getBoundingBox();
+        AABB expandedBox = boundingBox.expandTowards(attemptedMove);
+        List<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, expandedBox);
+        Iterable<VoxelShape> blockCollisions = entity.level.getBlockCollisions(entity, expandedBox);
+        
+        List<VoxelShape> validCollisions = new ArrayList<>();
+        for (VoxelShape entityCollision : entityCollisions) {
+            boolean boxBehindPlane = isBoxBehindPlane(
+                collidingPortal.getOriginPos(), collidingPortal.getNormal(), entityCollision.bounds()
+            );
+            if (!boxBehindPlane) {
+                validCollisions.add(entityCollision);
+            }
         }
         
-        entity.setBoundingBox(boxThisSide);
-        Vec3 move1 = handleCollisionFunc.apply(attemptedMove);
+        for (VoxelShape blockCollision : blockCollisions) {
+            boolean boxBehindPlane = isBoxBehindPlane(
+                collidingPortal.getOriginPos(), collidingPortal.getNormal(), blockCollision.bounds()
+            );
+            if (!boxBehindPlane) {
+                validCollisions.add(blockCollision);
+            }
+        }
         
-        entity.setBoundingBox(originalBoundingBox);
-        
-        return move1;
+        Vec3 result = IEEntity_Collision.ip_CollideWithShapes(attemptedMove, boundingBox, validCollisions);
+        return result;
     }
     
     private static AABB getCollisionBoxThisSide(
@@ -309,8 +339,7 @@ public class CollisionHelper {
             }
             
             return box;
-        }
-        else {
+        } else {
             PortalGroup portalGroup = (PortalGroup) portalLike;
             return transformBox(portalGroup.getFirstPortal(), originalBox);
         }
@@ -319,30 +348,15 @@ public class CollisionHelper {
     private static AABB transformBox(Portal portal, AABB originalBox) {
         if (portal.rotation == null && portal.scaling == 1) {
             return originalBox.move(portal.getDestPos().subtract(portal.getOriginPos()));
-        }
-        else {
-//            if (portal.teleportChangesScale) {
+        } else {
             return Helper.transformBox(originalBox, portal::transformPoint);
-//            }
-//            else {
-//                Vec3d boxSize = Helper.getBoxSize(originalBox);
-//                Vec3d centerToAnchor =
-//                    portal.getNormal().multiply(boxSize.dotProduct(portal.getNormal()) * -0.5);
-//                Vec3d boxCenter = originalBox.getCenter();
-//                Vec3d boxAnchor = boxCenter.add(centerToAnchor);
-//                Box boxMovedToOrigin = originalBox.offset(boxAnchor.multiply(-1));
-//                Box rotatedBox = Helper.transformBox(boxMovedToOrigin, portal::transformLocalVecNonScale);
-//                Vec3d transformedBoxCenter = portal.transformPoint(boxAnchor);
-//                return rotatedBox.offset(transformedBoxCenter);
-//            }
         }
     }
     
     public static Level getWorld(boolean isClient, ResourceKey<Level> dimension) {
         if (isClient) {
             return CHelper.getClientWorld(dimension);
-        }
-        else {
+        } else {
             return MiscHelper.getServer().getLevel(dimension);
         }
     }
@@ -361,12 +375,10 @@ public class CollisionHelper {
             );
             if (thisSideBox != null) {
                 return thisSideBox;
-            }
-            else {
+            } else {
                 return new AABB(0, 0, 0, 0, 0, 0);
             }
-        }
-        else {
+        } else {
             return entity.getBoundingBox();
         }
     }
@@ -502,8 +514,7 @@ public class CollisionHelper {
                 new TranslatableComponent("imm_ptl.stagnate_movement"),
                 false
             );
-        }
-        else if (!thisTickStagnate && lastTickStagnate) {
+        } else if (!thisTickStagnate && lastTickStagnate) {
             Minecraft.getInstance().gui.setOverlayMessage(
                 new TextComponent(""),
                 false
@@ -520,8 +531,7 @@ public class CollisionHelper {
         }
         if (portal.level.isClientSide()) {
             return getCollisionHandlingUnitClient(portal);
-        }
-        else {
+        } else {
             return portal;
         }
     }
