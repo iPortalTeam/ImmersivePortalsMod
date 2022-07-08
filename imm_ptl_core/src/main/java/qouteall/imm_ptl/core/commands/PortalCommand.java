@@ -1525,7 +1525,7 @@ public class PortalCommand {
                 
                 McRemoteProcedureCall.tellClientToInvoke(
                     player,
-                    "qouteall.imm_ptl.peripheral.altius_world.AltiusManagement.RemoteCallables.clientOpenScreen",
+                    "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.clientOpenScreen",
                     dimIdList
                 );
                 

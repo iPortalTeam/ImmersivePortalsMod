@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
@@ -6,7 +6,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -15,17 +14,15 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.q_misc_util.my_util.GuiHelper;
-import qouteall.q_misc_util.my_util.MyTaskList;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
-public class AltiusScreen extends Screen {
+public class DimStackScreen extends Screen {
     @org.jetbrains.annotations.Nullable
     public final Screen parent;
     private final Button finishButton;
@@ -37,7 +34,7 @@ public class AltiusScreen extends Screen {
     private final Button helpButton;
     
     private final Button loopButton;
-    private final Button gravityChangeButton;
+    private final Button gravityModeButton;
     
     private int titleY;
     
@@ -45,15 +42,15 @@ public class AltiusScreen extends Screen {
     public final DimListWidget dimListWidget;
     
     public boolean loopEnabled = false;
-    public boolean gravityChangeEnabled = false;
+    public boolean localGravityEnabled = false;
     
     public final Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier;
-    private final Consumer<AltiusInfo> finishCallback;
+    private final Consumer<DimStackInfo> finishCallback;
     
-    public AltiusScreen(
+    public DimStackScreen(
         @Nullable Screen parent,
         Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier,
-        Consumer<AltiusInfo> finishCallback
+        Consumer<DimStackInfo> finishCallback
     ) {
         super(Component.translatable("imm_ptl.altius_screen"));
         this.parent = parent;
@@ -79,14 +76,14 @@ public class AltiusScreen extends Screen {
             }
         );
         
-        gravityChangeButton = new Button(
+        gravityModeButton = new Button(
             0, 0, 150, 20,
-            Component.translatable("imm_ptl.gravity_change_disabled"),
+            new TranslatableComponent("imm_ptl.dim_stack.gravity_transform_disabled"),
             (buttonWidget) -> {
-                gravityChangeEnabled = !gravityChangeEnabled;
-                buttonWidget.setMessage(Component.translatable(
-                    gravityChangeEnabled ? "imm_ptl.gravity_change_enabled" :
-                        "imm_ptl.gravity_change_disabled"
+                localGravityEnabled = !localGravityEnabled;
+                buttonWidget.setMessage(new TranslatableComponent(
+                    localGravityEnabled ? "imm_ptl.dim_stack.gravity_transform_enabled" :
+                        "imm_ptl.dim_stack.gravity_transform_disabled"
                 ));
             }
         );
@@ -96,7 +93,7 @@ public class AltiusScreen extends Screen {
             Component.translatable("imm_ptl.finish"),
             (buttonWidget) -> {
                 Minecraft.getInstance().setScreen(parent);
-                finishCallback.accept(getAltiusInfo());
+                finishCallback.accept(getDimStackInfo());
             }
         );
         addDimensionButton = new Button(
@@ -160,14 +157,14 @@ public class AltiusScreen extends Screen {
     }
     
     @Nullable
-    public AltiusInfo getAltiusInfo() {
+    public DimStackInfo getDimStackInfo() {
         if (isEnabled) {
-            return new AltiusInfo(
+            return new DimStackInfo(
                 dimListWidget.entryWidgets.stream().map(
                     dimEntryWidget -> dimEntryWidget.entry
                 ).collect(Collectors.toList()),
                 loopEnabled,
-                gravityChangeEnabled
+                localGravityEnabled
             );
         }
         else {
@@ -186,7 +183,7 @@ public class AltiusScreen extends Screen {
         addRenderableWidget(editButton);
         addRenderableWidget(helpButton);
         addRenderableWidget(loopButton);
-        addRenderableWidget(gravityChangeButton);
+        addRenderableWidget(gravityModeButton);
         
         setEnabled(isEnabled);
         
@@ -207,7 +204,7 @@ public class AltiusScreen extends Screen {
                 GuiHelper.combine(
                     GuiHelper.layoutButtonVertically(toggleButton),
                     GuiHelper.layoutButtonVertically(loopButton),
-                    GuiHelper.layoutButtonVertically(gravityChangeButton)
+                    GuiHelper.layoutButtonVertically(gravityModeButton)
                 )
             ),
             GuiHelper.blankSpace(5),
@@ -263,7 +260,7 @@ public class AltiusScreen extends Screen {
             ),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(
-                false, 10, GuiHelper.layoutButtonHorizontally(gravityChangeButton)
+                false, 10, GuiHelper.layoutButtonHorizontally(gravityModeButton)
             ),
             GuiHelper.blankSpace(10)
         );
@@ -310,7 +307,7 @@ public class AltiusScreen extends Screen {
         removeDimensionButton.visible = isEnabled;
         editButton.visible = isEnabled;
         loopButton.visible = isEnabled;
-        gravityChangeButton.visible = isEnabled;
+        gravityModeButton.visible = isEnabled;
     }
     
     private void onAddEntry() {
@@ -372,7 +369,7 @@ public class AltiusScreen extends Screen {
             return;
         }
         
-        Minecraft.getInstance().setScreen(new AltiusEditScreen(
+        Minecraft.getInstance().setScreen(new DimStackEntryEditScreen(
             this, selected
         ));
     }

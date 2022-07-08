@@ -143,8 +143,6 @@
   "imm_ptl.common_config": "通用设置",
   "imm_ptl.loop_enabled": "启用循环",
   "imm_ptl.loop_disabled": "禁用循环",
-  "imm_ptl.gravity_change_enabled": "启用引力改变",
-  "imm_ptl.gravity_change_disabled": "禁用引力改变",
   "imm_ptl.missing_gravity_changer": "由于未安装Gravity Changer模组，你的引力方向没有改变。",
   "imm_ptl.command.bind_cluster": "整合传送门实体",
   "imm_ptl.command_desc.bind_cluster": "允许更简单地编辑双面、双向传送门",
@@ -157,5 +155,7 @@
   "imm_ptl.iris_warning": "[沉浸传送门] 你正在使用Iris。兼容不完美，可能会发生渲染错误。",
   "imm_ptl.disable_warning": "关闭警告",
   "imm_ptl.warning_disabled": "警告已关闭",
-  "imm_ptl.enable_cross_portal_sound": "启用跨传送门声音"
+  "imm_ptl.enable_cross_portal_sound": "启用跨传送门声音",
+  "imm_ptl.dim_stack.gravity_transform_enabled": "引力: 相对于视角",
+  "imm_ptl.dim_stack.gravity_transform_disabled": "引力: 相对于世界"
 }

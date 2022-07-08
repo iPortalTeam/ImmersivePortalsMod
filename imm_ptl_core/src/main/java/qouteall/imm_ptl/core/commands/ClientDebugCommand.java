@@ -564,6 +564,16 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+    
+        builder.then(ClientCommandManager
+            .literal("test_invalid_rpc")
+            .executes(context -> {
+                McRemoteProcedureCall.tellServerToInvoke(
+                    "aaa.bbb.WrongClassRemoteCallable.method"
+                );
+                return 0;
+            })
+        );
         
         dispatcher.register(builder);
     }

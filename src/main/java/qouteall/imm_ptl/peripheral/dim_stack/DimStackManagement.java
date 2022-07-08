@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class AltiusManagement {
+public class DimStackManagement {
     // This is for client dimension stack initialization
-    public static AltiusInfo dimStackToApply = null;
+    public static DimStackInfo dimStackToApply = null;
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
     public static void init() {
@@ -44,8 +44,8 @@ public class AltiusManagement {
         Map<ResourceKey<Level>, BlockState> newMap = new HashMap<>();
         
         if (dimStackToApply != null) {
-            for (AltiusEntry entry : dimStackToApply.entries) {
-                newMap.put(entry.dimension, AltiusInfo.parseBlockString(entry.bedrockReplacementStr));
+            for (DimStackEntry entry : dimStackToApply.entries) {
+                newMap.put(entry.dimension, DimStackInfo.parseBlockString(entry.bedrockReplacementStr));
             }
         }
         
@@ -62,7 +62,7 @@ public class AltiusManagement {
             updateBedrockReplacementFromStorage(server);
             
             GameRules gameRules = server.getGameRules();
-            GameRules.BooleanValue o = gameRules.getRule(AltiusGameRule.dimensionStackKey);
+            GameRules.BooleanValue o = gameRules.getRule(DimStackGameRule.dimensionStackKey);
             if (o.get()) {
                 // legacy dimension stack
                 
@@ -135,19 +135,19 @@ public class AltiusManagement {
             List<ResourceKey<Level>> dimensionList =
                 dimensions.stream().map(DimId::idToKey).collect(Collectors.toList());
             
-            Minecraft.getInstance().setScreen(new AltiusScreen(
+            Minecraft.getInstance().setScreen(new DimStackScreen(
                 null,
                 (screen) -> dimensionList,
-                altiusInfo -> {
-                    if (altiusInfo != null) {
+                dimStackInfo -> {
+                    if (dimStackInfo != null) {
                         McRemoteProcedureCall.tellServerToInvoke(
-                            "qouteall.imm_ptl.peripheral.altius_world.AltiusManagement.RemoteCallables.serverSetupDimStack",
-                            altiusInfo.toNbt()
+                            "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.serverSetupDimStack",
+                            dimStackInfo.toNbt()
                         );
                     }
                     else {
                         McRemoteProcedureCall.tellServerToInvoke(
-                            "qouteall.imm_ptl.peripheral.altius_world.AltiusManagement.RemoteCallables.serverRemoveDimStack"
+                            "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.serverRemoveDimStack"
                         );
                     }
                 })
@@ -162,11 +162,11 @@ public class AltiusManagement {
                 return;
             }
             
-            AltiusInfo altiusInfo = AltiusInfo.fromNbt(infoTag);
+            DimStackInfo dimStackInfo = DimStackInfo.fromNbt(infoTag);
             
             clearDimStackPortals();
             
-            altiusInfo.apply();
+            dimStackInfo.apply();
             
             player.displayClientMessage(
                 Component.translatable("imm_ptl.dim_stack_established"),

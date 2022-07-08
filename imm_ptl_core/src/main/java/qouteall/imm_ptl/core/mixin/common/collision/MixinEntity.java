@@ -133,8 +133,7 @@ public abstract class MixinEntity implements IEEntity {
         Vec3 result = CollisionHelper.handleCollisionHalfwayInPortal(
             (Entity) (Object) this,
             attemptedMove,
-            getCollidingPortal(),
-            attemptedMove1 -> collide(attemptedMove1)
+            getCollidingPortal()
         );
         return result;
     }
