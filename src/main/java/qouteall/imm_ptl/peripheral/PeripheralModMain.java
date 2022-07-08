@@ -3,20 +3,17 @@ package qouteall.imm_ptl.peripheral;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
-import qouteall.imm_ptl.peripheral.alternate_dimension.DelegatedChunkGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ErrorTerrainGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.FormulaGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.NormalSkylandGenerator;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackGameRule;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPGuide;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
@@ -35,8 +32,8 @@ public class PeripheralModMain {
         
         IntrinsicPortalGeneration.init();
         
-        AltiusGameRule.init();
-        AltiusManagement.init();
+        DimStackGameRule.init();
+        DimStackManagement.init();
         
         AlternateDimensions.init();
         

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -9,10 +9,10 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
-public class AltiusEditScreen extends Screen {
+public class DimStackEntryEditScreen extends Screen {
     
     
-    private final AltiusScreen parent;
+    private final DimStackScreen parent;
     private final DimEntryWidget editing;
     
     private final EditBox scaleField;
@@ -33,7 +33,7 @@ public class AltiusEditScreen extends Screen {
     
     private final Button helpButton;
     
-    protected AltiusEditScreen(AltiusScreen parent, DimEntryWidget editing) {
+    protected DimStackEntryEditScreen(DimStackScreen parent, DimEntryWidget editing) {
         super(new TranslatableComponent("imm_ptl.dim_stack_edit_screen"));
         
         this.parent = parent;
@@ -152,7 +152,7 @@ public class AltiusEditScreen extends Screen {
             }
         );
         
-        this.helpButton = AltiusScreen.createHelpButton(this);
+        this.helpButton = DimStackScreen.createHelpButton(this);
     }
     
     @Override

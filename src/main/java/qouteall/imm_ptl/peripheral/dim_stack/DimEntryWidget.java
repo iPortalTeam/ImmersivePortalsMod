@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -32,7 +32,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     private final Component dimensionName;
     private boolean dimensionIconPresent = true;
     private final Type type;
-    public final AltiusEntry entry;
+    public final DimStackEntry entry;
     
     public final static int widgetHeight = 50;
     
@@ -68,7 +68,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
             dimensionIconPresent = false;
         }
         
-        entry = new AltiusEntry(dimension);
+        entry = new DimStackEntry(dimension);
     }
     
     private final List<GuiEventListener> children = new ArrayList<>();

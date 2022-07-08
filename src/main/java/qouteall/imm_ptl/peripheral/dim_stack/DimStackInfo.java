@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -27,13 +27,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AltiusInfo {
+public class DimStackInfo {
     
     public final boolean loop;
     public final boolean gravityChange;
-    public final List<AltiusEntry> entries;
+    public final List<DimStackEntry> entries;
     
-    public AltiusInfo(List<AltiusEntry> entries, boolean loop, boolean gravityChange) {
+    public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityChange) {
         this.entries = entries;
         this.loop = loop;
         this.gravityChange = gravityChange;
@@ -46,7 +46,7 @@ public class AltiusInfo {
     }
     
     public static void createConnectionBetween(
-        AltiusEntry a, AltiusEntry b, boolean gravityChange
+        DimStackEntry a, DimStackEntry b, boolean gravityChange
     ) {
         ServerLevel fromWorld = McHelper.getServerWorld(a.dimension);
         ServerLevel toWorld = McHelper.getServerWorld(b.dimension);
@@ -106,7 +106,7 @@ public class AltiusInfo {
         }
         
         MinecraftServer server = MiscHelper.getServer();
-        for (AltiusEntry entry : entries) {
+        for (DimStackEntry entry : entries) {
             if (server.getLevel(entry.dimension) == null) {
                 McHelper.sendMessageToFirstLoggedPlayer(new TextComponent(
                     "Failed to apply dimension stack. Missing dimension " + entry.dimension.location()
@@ -134,7 +134,7 @@ public class AltiusInfo {
         }
         
         Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
-        for (AltiusEntry entry : entries) {
+        for (DimStackEntry entry : entries) {
             String bedrockReplacementStr = entry.bedrockReplacementStr;
             
             BlockState bedrockReplacement = parseBlockString(bedrockReplacementStr);
@@ -146,7 +146,7 @@ public class AltiusInfo {
             gps.bedrockReplacement = bedrockReplacement;
             gps.onDataChanged();
         }
-        AltiusManagement.bedrockReplacementMap = bedrockReplacementMap;
+        DimStackManagement.bedrockReplacementMap = bedrockReplacementMap;
         
         McHelper.sendMessageToFirstLoggedPlayer(
             new TranslatableComponent("imm_ptl.dim_stack_initialized")
@@ -158,20 +158,20 @@ public class AltiusInfo {
         nbtCompound.putBoolean("loop", loop);
         nbtCompound.putBoolean("gravityChange", gravityChange);
         ListTag list = new ListTag();
-        for (AltiusEntry entry : entries) {
+        for (DimStackEntry entry : entries) {
             list.add(entry.toNbt());
         }
         nbtCompound.put("entries", list);
         return nbtCompound;
     }
     
-    public static AltiusInfo fromNbt(CompoundTag compound) {
+    public static DimStackInfo fromNbt(CompoundTag compound) {
         boolean loop = compound.getBoolean("loop");
         boolean gravityChange = compound.getBoolean("gravityChange");
         ListTag list = compound.getList("entries", new CompoundTag().getId());
-        List<AltiusEntry> entries = list.stream()
-            .map(n -> AltiusEntry.fromNbt(((CompoundTag) n))).collect(Collectors.toList());
-        return new AltiusInfo(entries, loop, gravityChange);
+        List<DimStackEntry> entries = list.stream()
+            .map(n -> DimStackEntry.fromNbt(((CompoundTag) n))).collect(Collectors.toList());
+        return new DimStackInfo(entries, loop, gravityChange);
     }
     
     @Nullable

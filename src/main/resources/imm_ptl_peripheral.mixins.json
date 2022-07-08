@@ -5,10 +5,10 @@
   "mixins": [
     "common.alternate_dimension.IEChunk1",
     "common.alternate_dimension.IENoiseGeneratorSettings",
-    "common.altius_world.MixinChunkStatus",
-    "common.altius_world.MixinLevelInfo",
-    "common.altius_world.MixinLevelProperties",
-    "common.altius_world.MixinMinecraftServer_DimStack",
+    "common.dim_stack.MixinChunkStatus",
+    "common.dim_stack.MixinLevelInfo",
+    "common.dim_stack.MixinLevelProperties",
+    "common.dim_stack.MixinMinecraftServer_DimStack",
     "common.fix_concurrency.MixinWeightedList",
     "common.portal_generation.MixinAbstractFireBlock",
     "common.portal_generation.MixinEnderEyeItem",
@@ -21,7 +21,7 @@
     "client.alternate_dimension.MixinFogRenderer_A",
     "client.alternate_dimension.MixinClientLevelData",
     "client.alternate_dimension.MixinWorldRenderer_A",
-    "client.altius_world.MixinCreateWorldScreen",
+    "client.dim_stack.MixinCreateWorldScreen"
   ],
   "injectors": {
     "defaultRequire": 1

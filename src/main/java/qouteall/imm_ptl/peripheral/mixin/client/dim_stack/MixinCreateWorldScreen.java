@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.client.altius_world;
+package qouteall.imm_ptl.peripheral.mixin.client.dim_stack;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
@@ -30,9 +30,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DimId;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusInfo;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusScreen;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackScreen;
 import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.DimensionAPI;
@@ -61,10 +61,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Shadow
     protected abstract void tryApplyNewDataPacks(PackRepository repository);
     
-    private Button altiusButton;
+    private Button dimStackButton;
     
     @Nullable
-    private AltiusScreen ip_altiusScreen;
+    private DimStackScreen ip_dimStackScreen;
     
     @Nullable
     private WorldGenSettings ip_lastWorldGenSettings;
@@ -94,14 +94,14 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     )
     private void onInitEnded(CallbackInfo ci) {
         
-        altiusButton = (Button) this.addRenderableWidget(new Button(
+        dimStackButton = (Button) this.addRenderableWidget(new Button(
             width / 2 + 5, 151, 150, 20,
             new TranslatableComponent("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
-                openAltiusScreen();
+                openDimStackScreen();
             }
         ));
-        altiusButton.visible = false;
+        dimStackButton.visible = false;
         
     }
     
@@ -111,10 +111,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     )
     private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {
         if (moreOptionsOpen) {
-            altiusButton.visible = true;
+            dimStackButton.visible = true;
         }
         else {
-            altiusButton.visible = false;
+            dimStackButton.visible = false;
         }
     }
     
@@ -129,11 +129,11 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         Minecraft client, String resultFolder, LevelSettings levelInfo,
         RegistryAccess registryTracker, WorldGenSettings generatorOptions
     ) {
-        if (ip_altiusScreen != null) {
-            AltiusInfo info = ip_altiusScreen.getAltiusInfo();
+        if (ip_dimStackScreen != null) {
+            DimStackInfo info = ip_dimStackScreen.getDimStackInfo();
             
             if (info != null) {
-                AltiusManagement.dimStackToApply = info;
+                DimStackManagement.dimStackToApply = info;
                 
                 Helper.log("Generating dimension stack world");
             }
@@ -157,9 +157,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         ip_lastRegistryAccess = returnValue.getSecond();
     }
     
-    private void openAltiusScreen() {
-        if (ip_altiusScreen == null) {
-            ip_altiusScreen = new AltiusScreen(
+    private void openDimStackScreen() {
+        if (ip_dimStackScreen == null) {
+            ip_dimStackScreen = new DimStackScreen(
                 (CreateWorldScreen) (Object) this,
                 this::portal_getDimensionList,
                 a -> {
@@ -168,7 +168,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             );
         }
         
-        Minecraft.getInstance().setScreen(ip_altiusScreen);
+        Minecraft.getInstance().setScreen(ip_dimStackScreen);
     }
     
     private List<ResourceKey<Level>> portal_getDimensionList(Screen addDimensionScreen) {

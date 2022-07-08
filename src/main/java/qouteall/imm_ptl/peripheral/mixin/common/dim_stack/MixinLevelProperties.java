@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
+package qouteall.imm_ptl.peripheral.mixin.common.dim_stack;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackGameRule;
 
 @Mixin(PrimaryLevelData.class)
 public class MixinLevelProperties {
@@ -26,6 +26,7 @@ public class MixinLevelProperties {
     @Final
     private WorldGenSettings worldGenSettings;
     
+    // used for upgrading legacy dimension stack
     @Inject(
         method = "Lnet/minecraft/world/level/storage/PrimaryLevelData;parse(Lcom/mojang/serialization/Dynamic;Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/world/level/storage/LevelVersion;Lnet/minecraft/world/level/levelgen/WorldGenSettings;Lcom/mojang/serialization/Lifecycle;)Lnet/minecraft/world/level/storage/PrimaryLevelData;",
         at = @At("RETURN"),
@@ -48,7 +49,7 @@ public class MixinLevelProperties {
         
         Tag altiusTag = dynamic.getElement("altius", null);
         if (altiusTag != null) {
-            AltiusGameRule.upgradeOldDimensionStack();
+            DimStackGameRule.upgradeOldDimensionStack();
         }
     }
     

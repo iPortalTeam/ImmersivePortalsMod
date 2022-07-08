@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
+package qouteall.imm_ptl.peripheral.mixin.common.dim_stack;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public abstract class MixinMinecraftServer_DimStack {
         )
     )
     private void onBeforeSetupSpawn(ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci) {
-        AltiusManagement.onServerEarlyInit((MinecraftServer) (Object) this);
+        DimStackManagement.onServerEarlyInit((MinecraftServer) (Object) this);
     }
     
     @Inject(
@@ -42,6 +42,6 @@ public abstract class MixinMinecraftServer_DimStack {
     private void onCreateWorldsFinishes(
         ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci
     ) {
-        AltiusManagement.onServerCreatedWorlds((MinecraftServer) (Object) this);
+        DimStackManagement.onServerCreatedWorlds((MinecraftServer) (Object) this);
     }
 }

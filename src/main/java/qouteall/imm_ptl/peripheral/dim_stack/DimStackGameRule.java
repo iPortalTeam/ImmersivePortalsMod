@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import net.minecraft.world.level.GameRules;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -7,7 +7,7 @@ import qouteall.q_misc_util.MiscHelper;
 // the dimension stack information is stored together with global portal storage now
 // still add the gamerule to ensure that old dim stack worlds can upgrade
 @Deprecated
-public class AltiusGameRule {
+public class DimStackGameRule {
     public static GameRules.Key<GameRules.BooleanValue> dimensionStackKey;
     
     
@@ -20,12 +20,12 @@ public class AltiusGameRule {
             GameRules.BooleanValue.create(false)
         );
         
-        IPGlobal.postServerTickSignal.connect(AltiusGameRule::serverTick);
+        IPGlobal.postServerTickSignal.connect(DimStackGameRule::serverTick);
     }
     
     private static void serverTick() {
         if (doUpgradeOldDimensionStack) {
-            AltiusManagement.upgradeLegacyDimensionStack(MiscHelper.getServer());
+            DimStackManagement.upgradeLegacyDimensionStack(MiscHelper.getServer());
             doUpgradeOldDimensionStack = false;
         }
     }

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.altius_world;
+package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -12,12 +12,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public class SelectDimensionScreen extends Screen {
-    public final AltiusScreen parent;
+    public final DimStackScreen parent;
     private DimListWidget dimListWidget;
     private Button confirmButton;
     private Consumer<ResourceKey<Level>> outerCallback;
     
-    protected SelectDimensionScreen(AltiusScreen parent, Consumer<ResourceKey<Level>> callback) {
+    protected SelectDimensionScreen(DimStackScreen parent, Consumer<ResourceKey<Level>> callback) {
         super(new TranslatableComponent("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;

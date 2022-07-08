@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
+package qouteall.imm_ptl.peripheral.mixin.common.dim_stack;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 
 import java.util.List;
 
@@ -22,6 +22,6 @@ public class MixinChunkStatus {
         ChunkStatus var1, ServerLevel world, ChunkGenerator var3, List<ChunkAccess> var4, ChunkAccess chunk,
         CallbackInfo ci
     ) {
-        AltiusManagement.replaceBedrock(world, chunk);
+        DimStackManagement.replaceBedrock(world, chunk);
     }
 }
