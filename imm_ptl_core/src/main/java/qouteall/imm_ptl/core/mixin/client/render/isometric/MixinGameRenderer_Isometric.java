@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.client.render;
+package qouteall.imm_ptl.core.mixin.client.render.isometric;
 
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.GameRenderer;
