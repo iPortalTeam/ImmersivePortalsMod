@@ -135,8 +135,7 @@ public class McHelper {
                     else {
                         finishBehavior.obj = onNotFound;
                     }
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     t.printStackTrace();
                     finishBehavior.obj = () -> {
                         t.printStackTrace();
@@ -487,7 +486,6 @@ public class McHelper {
         );
     }
     
-    //faster
     public static <T extends Entity> List<T> findEntitiesRough(
         Class<T> entityClass,
         Level world,
@@ -495,9 +493,13 @@ public class McHelper {
         int radiusChunks,
         Predicate<T> predicate
     ) {
-        // the minimun is 1
-        if (radiusChunks == 0) {
+        // the minimum is 1
+        if (radiusChunks <= 0) {
             radiusChunks = 1;
+        }
+        
+        if (radiusChunks > 32) {
+            radiusChunks = 32;
         }
         
         ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
@@ -750,8 +752,7 @@ public class McHelper {
                 ).getInputStream();
             
             result = IOUtils.toString(inputStream, Charset.defaultCharset());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Error loading " + identifier, e);
         }
         return result;
