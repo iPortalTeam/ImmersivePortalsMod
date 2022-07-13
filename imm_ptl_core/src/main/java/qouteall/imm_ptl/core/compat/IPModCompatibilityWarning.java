@@ -27,7 +27,6 @@ public class IPModCompatibilityWarning {
         new ModInfo("altoclef", "Altoclef"),
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("tweakeroo", "Tweakeroo"),
-        new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("twilightforest", "Twilight Forest"),
         new ModInfo("c2me", "C2ME")
     );
@@ -41,6 +40,7 @@ public class IPModCompatibilityWarning {
         new ModInfo("requiem", "Requiem"),
         new ModInfo("vmp", "VMP"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
+        new ModInfo("replaymod", "Replay Mod"),
         new ModInfo("create", "Create")
     );
     
