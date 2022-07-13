@@ -28,6 +28,7 @@ public class IPModCompatibilityWarning {
 //        new ModInfo("bitsandchisels", "Bits & Chisels"),
         new ModInfo("tweakeroo", "Tweakeroo"),
         new ModInfo("replaymod", "Replay Mod"),
+        new ModInfo("twilightforest", "Twilight Forest"),
         new ModInfo("c2me", "C2ME")
     );
     
