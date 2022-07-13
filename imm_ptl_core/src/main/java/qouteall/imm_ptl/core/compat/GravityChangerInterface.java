@@ -67,7 +67,7 @@ public class GravityChangerInterface {
     private static void warnGravityChangerNotPresent() {
         if (!warned) {
             warned = true;
-            CHelper.printChat(new TranslatableComponent("imm_ptl.missing_gravity_changer")
+            CHelper.printChat(Component.translatable("imm_ptl.missing_gravity_changer")
                 .append(McHelper.getLinkText("https://github.com/qouteall/GravityChanger/releases/tag/v0.3.1"))
             );
         }

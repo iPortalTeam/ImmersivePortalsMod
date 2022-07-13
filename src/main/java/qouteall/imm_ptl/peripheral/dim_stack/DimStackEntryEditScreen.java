@@ -33,7 +33,7 @@ public class DimStackEntryEditScreen extends Screen {
     private final Button helpButton;
     
     protected DimStackEntryEditScreen(DimStackScreen parent, DimEntryWidget editing) {
-        super(new TranslatableComponent("imm_ptl.dim_stack_edit_screen"));
+        super(Component.translatable("imm_ptl.dim_stack_edit_screen"));
         
         this.parent = parent;
         this.editing = editing;

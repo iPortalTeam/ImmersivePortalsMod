@@ -18,7 +18,7 @@ public class SelectDimensionScreen extends Screen {
     private Consumer<ResourceKey<Level>> outerCallback;
     
     protected SelectDimensionScreen(DimStackScreen parent, Consumer<ResourceKey<Level>> callback) {
-        super(new TranslatableComponent("imm_ptl.select_dimension"));
+        super(Component.translatable("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
     }

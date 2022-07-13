@@ -125,8 +125,8 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         at = @At("HEAD")
     )
     private void onCreateNewWorld(CallbackInfo ci) {
-        if (ip_altiusScreen != null) {
-            AltiusInfo info = ip_altiusScreen.getAltiusInfo();
+        if (ip_dimStackScreen != null) {
+            DimStackInfo info = ip_dimStackScreen.getDimStackInfo();
             
             if (info != null) {
                 DimStackManagement.dimStackToApply = info;

@@ -78,10 +78,10 @@ public class DimStackScreen extends Screen {
         
         gravityModeButton = new Button(
             0, 0, 150, 20,
-            new TranslatableComponent("imm_ptl.dim_stack.gravity_transform_disabled"),
+            Component.translatable("imm_ptl.dim_stack.gravity_transform_disabled"),
             (buttonWidget) -> {
                 localGravityEnabled = !localGravityEnabled;
-                buttonWidget.setMessage(new TranslatableComponent(
+                buttonWidget.setMessage(Component.translatable(
                     localGravityEnabled ? "imm_ptl.dim_stack.gravity_transform_enabled" :
                         "imm_ptl.dim_stack.gravity_transform_disabled"
                 ));
