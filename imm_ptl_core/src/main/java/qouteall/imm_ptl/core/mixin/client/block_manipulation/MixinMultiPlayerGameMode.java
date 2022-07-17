@@ -36,73 +36,72 @@ public abstract class MixinMultiPlayerGameMode implements IEClientPlayerInteract
     @Final
     private Minecraft minecraft;
     
-    @Redirect(
+    @ModifyArg(
         method = "startPrediction",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
-    private void onStartPrediction(ClientPacketListener instance, Packet<?> packet) {
+    private Packet modifyPacketInStartPrediction(Packet<?> packet) {
         if (BlockManipulationClient.isContextSwitched) {
             if (packet instanceof ServerboundPlayerActionPacket playerActionPacket) {
-                instance.send(IPNetworkingClient.createCtsPlayerAction(
+                return IPNetworkingClient.createCtsPlayerAction(
                     BlockManipulationClient.remotePointedDim, playerActionPacket
-                ));
+                );
             }
             else if (packet instanceof ServerboundUseItemOnPacket useItemOnPacket) {
-                instance.send(IPNetworkingClient.createCtsRightClick(
+                return IPNetworkingClient.createCtsRightClick(
                     BlockManipulationClient.remotePointedDim, useItemOnPacket
-                ));
+                );
             }
             else {
                 Helper.err("Unknown packet in startPrediction");
-                instance.send(packet);
+                return packet;
             }
         }
         else {
-            instance.send(packet);
+            return packet;
         }
     }
     
-    @Redirect(
+    @ModifyArg(
         method = "startDestroyBlock",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
-    private void redirectSendInStartDestroyBlock(ClientPacketListener instance, Packet packet) {
+    private Packet redirectSendInStartDestroyBlock(Packet packet) {
         if (BlockManipulationClient.isContextSwitched) {
-            instance.send(IPNetworkingClient.createCtsPlayerAction(
+            return IPNetworkingClient.createCtsPlayerAction(
                 BlockManipulationClient.remotePointedDim, (ServerboundPlayerActionPacket) packet
-            ));
+            );
         }
         else {
-            instance.send(packet);
+            return packet;
         }
     }
     
-    @Redirect(
+    @ModifyArg(
         method = "stopDestroyBlock",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
         )
     )
-    private void redirectSendInStopDestroyBlock(ClientPacketListener instance, Packet packet) {
+    private Packet redirectSendInStopDestroyBlock(Packet packet) {
         if (BlockManipulationClient.isContextSwitched) {
-            instance.send(IPNetworkingClient.createCtsPlayerAction(
+            return IPNetworkingClient.createCtsPlayerAction(
                 BlockManipulationClient.remotePointedDim, (ServerboundPlayerActionPacket) packet
-            ));
+            );
         }
         else {
-            instance.send(packet);
+            return packet;
         }
     }
     
     // TODO should inject releaseUsingItem?
-    
     
     
 }

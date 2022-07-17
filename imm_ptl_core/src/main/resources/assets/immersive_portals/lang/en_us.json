@@ -157,5 +157,8 @@
   "imm_ptl.sodium_warning": "[Immersive Portals] You are using Sodium with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
   "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
   "imm_ptl.disable_warning": "Disable warning",
-  "imm_ptl.warning_disabled": "Warning Disabled"
+  "imm_ptl.warning_disabled": "Warning Disabled",
+
+  "entity.immersive_portals.portal": "Portal",
+  "entity.immersive_portals.nether_portal_new": "Nether Portal"
 }

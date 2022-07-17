@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity {
     
-    //maybe avoid memory leak???
     @Inject(method = "Lnet/minecraft/world/entity/LivingEntity;tick()V", at = @At("RETURN"))
     private void onTickEnded(CallbackInfo ci) {
         LivingEntity this_ = (LivingEntity) (Object) this;
