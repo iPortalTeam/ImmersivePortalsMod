@@ -218,11 +218,11 @@ public class PortalRenderInfo {
         
         boolean decision;
         if (IPGlobal.offsetOcclusionQuery && portal instanceof Portal) {
-            PortalRenderInfo presentation = get(((Portal) portal));
+            PortalRenderInfo renderInfo = get(((Portal) portal));
             
             List<UUID> renderingDescription = WorldRenderInfo.getRenderingDescription();
             
-            Visibility visibility = presentation.getVisibility(renderingDescription);
+            Visibility visibility = renderInfo.getVisibility(renderingDescription);
             
             GlQueryObject lastFrameQuery = visibility.lastFrameQuery;
             GlQueryObject thisFrameQuery = visibility.acquireThisFrameQuery();
@@ -230,7 +230,7 @@ public class PortalRenderInfo {
             thisFrameQuery.performQueryAnySamplePassed(queryRendering);
             
             boolean noPredict =
-                presentation.isFrequentlyMispredicted() ||
+                renderInfo.isFrequentlyMispredicted() ||
                     QueryManager.queryStallCounter <= 3;
             
             if (lastFrameQuery != null) {
@@ -244,7 +244,7 @@ public class PortalRenderInfo {
                 }
                 else {
                     decision = lastFrameVisible;
-                    presentation.updatePredictionStatus(visibility, decision);
+                    renderInfo.updatePredictionStatus(visibility, decision);
                 }
             }
             else {
