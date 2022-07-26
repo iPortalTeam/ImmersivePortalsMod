@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
@@ -125,14 +126,24 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         at = @At("HEAD")
     )
     private void onCreateNewWorld(CallbackInfo ci) {
-        if (ip_dimStackScreen != null) {
-            DimStackInfo info = ip_dimStackScreen.getDimStackInfo();
+        DimStackInfo info = ip_getEffectiveDimStackInfoForWorldCreation();
+        
+        if (info != null) {
+            DimStackManagement.dimStackToApply = info;
             
-            if (info != null) {
-                DimStackManagement.dimStackToApply = info;
-                
-                Helper.log("Generating dimension stack world");
-            }
+            Helper.log("Generating dimension stack world");
+        }
+    }
+    
+    @Nullable
+    private DimStackInfo ip_getEffectiveDimStackInfoForWorldCreation() {
+        if (ip_dimStackScreen != null) {
+            return ip_dimStackScreen.getDimStackInfo();
+        }
+        else {
+            // if the dimension stack button is not clicked,
+            // it will not create the screen object
+            return IPOuterClientMisc.getDimStackPreset();
         }
     }
     
@@ -208,8 +219,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             else {
                 Helper.err("Null registry access");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
 public class DimStackEntryEditScreen extends Screen {

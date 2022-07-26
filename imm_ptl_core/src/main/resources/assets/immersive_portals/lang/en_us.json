@@ -158,6 +158,8 @@
   "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
   "imm_ptl.disable_warning": "Disable warning",
   "imm_ptl.warning_disabled": "Warning Disabled",
+  "imm_ptl.set_as_dim_stack_default": "Set as Default",
+  "imm_ptl.dim_stack_default_updated": "Default Dimension Stack Configuration Updated",
 
   "entity.immersive_portals.portal": "Portal",
   "entity.immersive_portals.nether_portal_new": "Nether Portal"

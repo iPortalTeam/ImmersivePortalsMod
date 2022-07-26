@@ -26,8 +26,20 @@ public class DimStackEntry {
     
     public DimStackEntry() {}
     
-    ResourceKey<Level> getDimension() {
+    public ResourceKey<Level> getDimension() {
         Validate.notNull(dimensionIdStr);
         return DimId.idToKey(dimensionIdStr);
+    }
+    
+    public DimStackEntry copy() {
+        DimStackEntry copy = new DimStackEntry();
+        copy.dimensionIdStr = dimensionIdStr;
+        copy.scale = scale;
+        copy.flipped = flipped;
+        copy.horizontalRotation = horizontalRotation;
+        copy.topY = topY;
+        copy.bottomY = bottomY;
+        copy.bedrockReplacementStr = bedrockReplacementStr;
+        return copy;
     }
 }

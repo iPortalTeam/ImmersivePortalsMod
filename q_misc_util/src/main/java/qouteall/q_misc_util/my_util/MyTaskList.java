@@ -115,6 +115,14 @@ public class MyTaskList {
         };
     }
     
+    public static MyTask withTimeDelayedFromNow(double seconds, MyTask task) {
+        long startTime = System.nanoTime();
+        return withDelayCondition(
+            () -> System.nanoTime() - startTime < Helper.secondToNano(seconds),
+            task
+        );
+    }
+    
     public static MyTask withRetryNumberLimit(int retryNumberLimit, MyTask task, Runnable onLimitReached) {
         return new MyTask() {
             private int retryNumber = 0;

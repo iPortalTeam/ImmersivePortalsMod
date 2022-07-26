@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
-import qouteall.imm_ptl.peripheral.guide.IPGuide;
+import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -33,7 +33,7 @@ public class PeripheralModEntry implements ModInitializer {
         public InteractionResult useOn(UseOnContext context) {
             if (context.getLevel().isClientSide()) {
                 if (context.getPlayer() != null) {
-                    IPGuide.onClientPlacePortalHelper();
+                    IPOuterClientMisc.onClientPlacePortalHelper();
                 }
             }
             

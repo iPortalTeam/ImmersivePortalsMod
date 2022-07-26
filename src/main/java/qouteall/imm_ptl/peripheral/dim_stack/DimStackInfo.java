@@ -27,15 +27,15 @@ import java.util.Optional;
 public class DimStackInfo {
     
     public boolean loop;
-    public boolean gravityChange;
+    public boolean gravityTransform;
     public List<DimStackEntry> entries;
     
     public DimStackInfo(){}
     
-    public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityChange) {
+    public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityTransform) {
         this.entries = entries;
         this.loop = loop;
-        this.gravityChange = gravityChange;
+        this.gravityTransform = gravityTransform;
     }
     
     public static void initializeFuseViewProperty(Portal portal) {
@@ -122,14 +122,14 @@ public class DimStackInfo {
         Helper.wrapAdjacentAndMap(
             entries.stream(),
             (before, after) -> {
-                createConnectionBetween(before, after, gravityChange);
+                createConnectionBetween(before, after, gravityTransform);
                 return null;
             }
         ).forEach(k -> {
         });
         
         if (loop) {
-            createConnectionBetween(entries.get(entries.size() - 1), entries.get(0), gravityChange);
+            createConnectionBetween(entries.get(entries.size() - 1), entries.get(0), gravityTransform);
         }
         
         Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();

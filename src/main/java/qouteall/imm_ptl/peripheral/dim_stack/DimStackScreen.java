@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -13,7 +14,9 @@ import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
+import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.q_misc_util.my_util.GuiHelper;
+import qouteall.q_misc_util.my_util.MyTaskList;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -32,6 +35,7 @@ public class DimStackScreen extends Screen {
     private final Button editButton;
     
     private final Button helpButton;
+    private final Button setAsPresetButton;
     
     private final Button loopButton;
     private final Button gravityModeButton;
@@ -42,7 +46,7 @@ public class DimStackScreen extends Screen {
     public final DimListWidget dimListWidget;
     
     public boolean loopEnabled = false;
-    public boolean localGravityEnabled = false;
+    public boolean gravityTransformEnabled = false;
     
     public final Function<Screen, List<ResourceKey<Level>>> dimensionListSupplier;
     private final Consumer<DimStackInfo> finishCallback;
@@ -59,7 +63,7 @@ public class DimStackScreen extends Screen {
         
         toggleButton = new Button(
             0, 0, 150, 20,
-            Component.translatable("imm_ptl.altius_toggle_false"),
+            Component.literal("..."),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
             }
@@ -67,24 +71,19 @@ public class DimStackScreen extends Screen {
         
         loopButton = new Button(
             0, 0, 150, 20,
-            Component.translatable("imm_ptl.loop_disabled"),
+            Component.literal("..."),
             (buttonWidget) -> {
                 loopEnabled = !loopEnabled;
-                buttonWidget.setMessage(Component.translatable(
-                    loopEnabled ? "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
-                ));
+                updateButtonText();
             }
         );
         
         gravityModeButton = new Button(
             0, 0, 150, 20,
-            Component.translatable("imm_ptl.dim_stack.gravity_transform_disabled"),
-            (buttonWidget) -> {
-                localGravityEnabled = !localGravityEnabled;
-                buttonWidget.setMessage(Component.translatable(
-                    localGravityEnabled ? "imm_ptl.dim_stack.gravity_transform_enabled" :
-                        "imm_ptl.dim_stack.gravity_transform_disabled"
-                ));
+            Component.literal("..."),
+            (gravityModeButton) -> {
+                gravityTransformEnabled = !gravityTransformEnabled;
+                updateButtonText();
             }
         );
         
@@ -129,15 +128,59 @@ public class DimStackScreen extends Screen {
             DimListWidget.Type.mainDimensionList
         );
         
-        Consumer<DimEntryWidget> callback = getElementSelectCallback();
-        if (IPGlobal.enableAlternateDimensions) {
-            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate5));
-            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate1));
-        }
-        dimListWidget.entryWidgets.add(createDimEntryWidget(Level.OVERWORLD));
-        dimListWidget.entryWidgets.add(createDimEntryWidget(Level.NETHER));
-        
         helpButton = createHelpButton(this);
+        
+        this.setAsPresetButton = new Button(
+            0, 0, 30, 20,
+            Component.translatable("imm_ptl.set_as_dim_stack_default"),
+            button -> {
+                onSetAsDefault();
+            }
+        );
+        
+        loadDimensionStackPreset();
+        
+        updateButtonText();
+    }
+    
+    private void loadDimensionStackPreset() {
+        DimStackInfo preset = IPOuterClientMisc.getDimStackPreset();
+        
+        if (preset != null) {
+            setEnabled(true);
+            
+            loopEnabled = preset.loop;
+            gravityTransformEnabled = preset.gravityTransform;
+            dimListWidget.entryWidgets.clear();
+            for (DimStackEntry entry : preset.entries) {
+                dimListWidget.entryWidgets.add(createDimEntryWidget(entry));
+            }
+        }
+        else {
+            setEnabled(false);
+            
+            if (IPGlobal.enableAlternateDimensions) {
+                dimListWidget.entryWidgets.add(createDimEntryWidget(
+                    new DimStackEntry(AlternateDimensions.alternate5)
+                ));
+                dimListWidget.entryWidgets.add(createDimEntryWidget(
+                    new DimStackEntry(AlternateDimensions.alternate1)
+                ));
+            }
+            dimListWidget.entryWidgets.add(createDimEntryWidget(new DimStackEntry(Level.OVERWORLD)));
+            dimListWidget.entryWidgets.add(createDimEntryWidget(new DimStackEntry(Level.NETHER)));
+        }
+    }
+    
+    private void updateButtonText() {
+        loopButton.setMessage(Component.translatable(
+            loopEnabled ? "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
+        ));
+        
+        gravityModeButton.setMessage(Component.translatable(
+            gravityTransformEnabled ? "imm_ptl.dim_stack.gravity_transform_enabled" :
+                "imm_ptl.dim_stack.gravity_transform_disabled"
+        ));
     }
     
     public static Button createHelpButton(Screen parent) {
@@ -152,8 +195,14 @@ public class DimStackScreen extends Screen {
         );
     }
     
-    private DimEntryWidget createDimEntryWidget(ResourceKey<Level> dimension) {
-        return new DimEntryWidget(dimension, dimListWidget, getElementSelectCallback(), DimEntryWidget.Type.withAdvancedOptions);
+    private DimEntryWidget createDimEntryWidget(DimStackEntry entry) {
+        return new DimEntryWidget(
+            entry.getDimension(),
+            dimListWidget,
+            getElementSelectCallback(),
+            DimEntryWidget.Type.withAdvancedOptions,
+            entry
+        );
     }
     
     @Nullable
@@ -164,7 +213,7 @@ public class DimStackScreen extends Screen {
                     dimEntryWidget -> dimEntryWidget.entry
                 ).collect(Collectors.toList()),
                 loopEnabled,
-                localGravityEnabled
+                gravityTransformEnabled
             );
         }
         else {
@@ -182,6 +231,7 @@ public class DimStackScreen extends Screen {
         
         addRenderableWidget(editButton);
         addRenderableWidget(helpButton);
+        addRenderableWidget(setAsPresetButton);
         addRenderableWidget(loopButton);
         addRenderableWidget(gravityModeButton);
         
@@ -195,9 +245,13 @@ public class DimStackScreen extends Screen {
             0, height,
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(true, 20, (from, to) -> {
-                helpButton.x = width - 50;
+                helpButton.x = width - 30;
                 helpButton.y = from;
-                helpButton.setWidth(30);
+                helpButton.setWidth(20);
+                
+                setAsPresetButton.x = width - 125;
+                setAsPresetButton.y = from;
+                setAsPresetButton.setWidth(90);
             }),
             new GuiHelper.LayoutElement(
                 true, 20,
@@ -333,7 +387,7 @@ public class DimStackScreen extends Screen {
                 dimensionType -> {
                     dimListWidget.entryWidgets.add(
                         insertingPosition,
-                        createDimEntryWidget(dimensionType)
+                        createDimEntryWidget(new DimStackEntry(dimensionType))
                     );
                     removeDuplicate(insertingPosition);
                     dimListWidget.update();
@@ -383,6 +437,23 @@ public class DimStackScreen extends Screen {
                 }
             }
         }
+    }
+    
+    private void onSetAsDefault() {
+        IPOuterClientMisc.setDimStackPreset(getDimStackInfo());
+        
+        DimStackScreen currentScreen = this;
+        
+        Minecraft.getInstance().setScreen(new GenericDirtMessageScreen(
+            Component.translatable("imm_ptl.dim_stack_default_updated")
+        ));
+        
+        IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withTimeDelayedFromNow(
+            1,
+            MyTaskList.oneShotTask(() -> {
+                Minecraft.getInstance().setScreen(currentScreen);
+            })
+        ));
     }
     
 }

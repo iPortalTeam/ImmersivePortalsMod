@@ -16,7 +16,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
 import qouteall.q_misc_util.Helper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +48,8 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         ResourceKey<Level> dimension,
         DimListWidget parent,
         Consumer<DimEntryWidget> selectCallback,
-        Type type
+        Type type,
+        DimStackEntry entry
     ) {
         this.dimension = dimension;
         this.parent = parent;
@@ -67,7 +67,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
             dimensionIconPresent = false;
         }
         
-        entry = new DimStackEntry(dimension);
+        this.entry = entry;
     }
     
     private final List<GuiEventListener> children = new ArrayList<>();

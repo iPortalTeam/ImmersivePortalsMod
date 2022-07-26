@@ -14,7 +14,7 @@ import qouteall.imm_ptl.peripheral.alternate_dimension.FormulaGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.NormalSkylandGenerator;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackGameRule;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
-import qouteall.imm_ptl.peripheral.guide.IPGuide;
+import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 public class PeripheralModMain {
@@ -24,7 +24,7 @@ public class PeripheralModMain {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        IPGuide.initClient();
+        IPOuterClientMisc.initClient();
     }
     
     public static void init() {

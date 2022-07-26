@@ -10,73 +10,78 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 @Environment(EnvType.CLIENT)
-public class IPGuide {
-    public static class GuideInfo {
+public class IPOuterClientMisc {
+    public static class OuterConfig {
         public boolean wikiInformed = false;
         public boolean portalHelperInformed = false;
         public boolean lagInformed = false;
         
-        public GuideInfo() {}
+        // the dimension stack feature is not in imm_ptl_core
+        // so put the config here
+        @Nullable
+        public DimStackInfo dimensionStackDefault = null;
+        
+        public OuterConfig() {}
     }
     
-    private static GuideInfo readFromFile() {
+    private static OuterConfig readFromFile() {
         File storageFile = getStorageFile();
         
         if (storageFile.exists()) {
             
-            GuideInfo result = null;
+            OuterConfig result = null;
             try (FileReader fileReader = new FileReader(storageFile)) {
-                result = IPGlobal.gson.fromJson(fileReader, GuideInfo.class);
-            }
-            catch (Throwable e) {
+                result = IPGlobal.gson.fromJson(fileReader, OuterConfig.class);
+            } catch (Throwable e) {
                 e.printStackTrace();
-                return new GuideInfo();
+                return new OuterConfig();
             }
             
             if (result == null) {
-                return new GuideInfo();
+                return new OuterConfig();
             }
             
             return result;
         }
         
-        return new GuideInfo();
+        return new OuterConfig();
     }
     
     private static File getStorageFile() {
         return new File(Minecraft.getInstance().gameDirectory, "imm_ptl_state.json");
     }
     
-    private static void writeToFile(GuideInfo guideInfo) {
+    private static void writeToFile(OuterConfig outerConfig) {
         try (FileWriter fileWriter = new FileWriter(getStorageFile())) {
             
-            IPGlobal.gson.toJson(guideInfo, fileWriter);
-        }
-        catch (IOException e) {
+            IPGlobal.gson.toJson(outerConfig, fileWriter);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
-    private static GuideInfo guideInfo = new GuideInfo();
+    private static OuterConfig outerConfig = new OuterConfig();
     
     public static void initClient() {
-        guideInfo = readFromFile();
+        outerConfig = readFromFile();
         
         IPNetworkingClient.clientPortalSpawnSignal.connect(p -> {
             LocalPlayer player = Minecraft.getInstance().player;
             
-            if (!guideInfo.wikiInformed) {
+            if (!outerConfig.wikiInformed) {
                 if (player != null && player.isCreative()) {
-                    guideInfo.wikiInformed = true;
-                    writeToFile(guideInfo);
+                    outerConfig.wikiInformed = true;
+                    writeToFile(outerConfig);
                     informWithURL(
                         "https://qouteall.fun/immptl/wiki/Portal-Customization",
                         Component.translatable("imm_ptl.inform_wiki")
@@ -84,10 +89,10 @@ public class IPGuide {
                 }
             }
             
-            if (!guideInfo.lagInformed) {
+            if (!outerConfig.lagInformed) {
                 if (player != null) {
-                    guideInfo.lagInformed = true;
-                    writeToFile(guideInfo);
+                    outerConfig.lagInformed = true;
+                    writeToFile(outerConfig);
                     
                     IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
                         CHelper.printChat(
@@ -101,9 +106,9 @@ public class IPGuide {
     }
     
     public static void onClientPlacePortalHelper() {
-        if (!guideInfo.portalHelperInformed) {
-            guideInfo.portalHelperInformed = true;
-            writeToFile(guideInfo);
+        if (!outerConfig.portalHelperInformed) {
+            outerConfig.portalHelperInformed = true;
+            writeToFile(outerConfig);
             
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
@@ -118,6 +123,16 @@ public class IPGuide {
                 McHelper.getLinkText(link)
             )
         );
+    }
+    
+    @Nullable
+    public static DimStackInfo getDimStackPreset() {
+        return outerConfig.dimensionStackDefault;
+    }
+    
+    public static void setDimStackPreset(@Nullable DimStackInfo info) {
+        outerConfig.dimensionStackDefault = info;
+        writeToFile(outerConfig);
     }
     
     @Environment(EnvType.CLIENT)
