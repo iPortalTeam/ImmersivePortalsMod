@@ -44,12 +44,12 @@ public class DimStackScreen extends Screen {
     public boolean loopEnabled = false;
     public boolean localGravityEnabled = false;
     
-    public final Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier;
+    public final Function<Screen, List<ResourceKey<Level>>> dimensionListSupplier;
     private final Consumer<DimStackInfo> finishCallback;
     
     public DimStackScreen(
         @Nullable Screen parent,
-        Function<Screen,List<ResourceKey<Level>>> dimensionListSupplier,
+        Function<Screen, List<ResourceKey<Level>>> dimensionListSupplier,
         Consumer<DimStackInfo> finishCallback
     ) {
         super(Component.translatable("imm_ptl.altius_screen"));

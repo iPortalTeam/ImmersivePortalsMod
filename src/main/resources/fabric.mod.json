@@ -41,7 +41,7 @@
   "breaks": {
     "optifabric": "*",
     "pehkui": "<3.0.0",
-    "viafabric-mc118": "*",
+    "viafabric-mc119": "*",
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",

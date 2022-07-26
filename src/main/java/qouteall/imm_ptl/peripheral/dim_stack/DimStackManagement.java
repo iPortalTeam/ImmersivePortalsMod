@@ -45,7 +45,7 @@ public class DimStackManagement {
         
         if (dimStackToApply != null) {
             for (DimStackEntry entry : dimStackToApply.entries) {
-                newMap.put(entry.dimension, DimStackInfo.parseBlockString(entry.bedrockReplacementStr));
+                newMap.put(entry.getDimension(), DimStackInfo.parseBlockString(entry.bedrockReplacementStr));
             }
         }
         
@@ -142,7 +142,7 @@ public class DimStackManagement {
                     if (dimStackInfo != null) {
                         McRemoteProcedureCall.tellServerToInvoke(
                             "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.serverSetupDimStack",
-                            dimStackInfo.toNbt()
+                            dimStackInfo
                         );
                     }
                     else {
@@ -155,14 +155,12 @@ public class DimStackManagement {
         }
         
         public static void serverSetupDimStack(
-            ServerPlayer player, CompoundTag infoTag
+            ServerPlayer player, DimStackInfo dimStackInfo
         ) {
             if (!player.hasPermissions(2)) {
                 Helper.err("one player without permission tries to change dimension stack");
                 return;
             }
-            
-            DimStackInfo dimStackInfo = DimStackInfo.fromNbt(infoTag);
             
             clearDimStackPortals();
             

@@ -1,8 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -24,13 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+// will be serialized by GSON
 public class DimStackInfo {
     
-    public final boolean loop;
-    public final boolean gravityChange;
-    public final List<DimStackEntry> entries;
+    public boolean loop;
+    public boolean gravityChange;
+    public List<DimStackEntry> entries;
+    
+    public DimStackInfo(){}
     
     public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityChange) {
         this.entries = entries;
@@ -47,8 +47,8 @@ public class DimStackInfo {
     public static void createConnectionBetween(
         DimStackEntry a, DimStackEntry b, boolean gravityChange
     ) {
-        ServerLevel fromWorld = McHelper.getServerWorld(a.dimension);
-        ServerLevel toWorld = McHelper.getServerWorld(b.dimension);
+        ServerLevel fromWorld = McHelper.getServerWorld(a.getDimension());
+        ServerLevel toWorld = McHelper.getServerWorld(b.getDimension());
         
         boolean xorFlipped = a.flipped ^ b.flipped;
         
@@ -106,15 +106,15 @@ public class DimStackInfo {
         
         MinecraftServer server = MiscHelper.getServer();
         for (DimStackEntry entry : entries) {
-            if (server.getLevel(entry.dimension) == null) {
+            if (server.getLevel(entry.getDimension()) == null) {
                 McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
-                    "Failed to apply dimension stack. Missing dimension " + entry.dimension.location()
+                    "Failed to apply dimension stack. Missing dimension " + entry.dimensionIdStr
                 ));
                 return;
             }
         }
         
-        if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).dimension)).isEmpty()) {
+        if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).getDimension())).isEmpty()) {
             Helper.err("There are already global portals when initializing dimension stack");
             return;
         }
@@ -139,9 +139,9 @@ public class DimStackInfo {
             BlockState bedrockReplacement = parseBlockString(bedrockReplacementStr);
             
             if (bedrockReplacement != null) {
-                bedrockReplacementMap.put(entry.dimension, bedrockReplacement);
+                bedrockReplacementMap.put(entry.getDimension(), bedrockReplacement);
             }
-            GlobalPortalStorage gps = GlobalPortalStorage.get(McHelper.getServerWorld(entry.dimension));
+            GlobalPortalStorage gps = GlobalPortalStorage.get(McHelper.getServerWorld(entry.getDimension()));
             gps.bedrockReplacement = bedrockReplacement;
             gps.onDataChanged();
         }
@@ -150,27 +150,6 @@ public class DimStackInfo {
         McHelper.sendMessageToFirstLoggedPlayer(
             Component.translatable("imm_ptl.dim_stack_initialized")
         );
-    }
-    
-    public CompoundTag toNbt() {
-        CompoundTag nbtCompound = new CompoundTag();
-        nbtCompound.putBoolean("loop", loop);
-        nbtCompound.putBoolean("gravityChange", gravityChange);
-        ListTag list = new ListTag();
-        for (DimStackEntry entry : entries) {
-            list.add(entry.toNbt());
-        }
-        nbtCompound.put("entries", list);
-        return nbtCompound;
-    }
-    
-    public static DimStackInfo fromNbt(CompoundTag compound) {
-        boolean loop = compound.getBoolean("loop");
-        boolean gravityChange = compound.getBoolean("gravityChange");
-        ListTag list = compound.getList("entries", new CompoundTag().getId());
-        List<DimStackEntry> entries = list.stream()
-            .map(n -> DimStackEntry.fromNbt(((CompoundTag) n))).collect(Collectors.toList());
-        return new DimStackInfo(entries, loop, gravityChange);
     }
     
     @Nullable
@@ -185,8 +164,7 @@ public class DimStackInfo {
         try {
             Optional<Block> block = Registry.BLOCK.getOptional(new ResourceLocation(str));
             return block.map(Block::defaultBlockState).orElse(null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
