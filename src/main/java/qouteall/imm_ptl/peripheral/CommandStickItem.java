@@ -128,7 +128,7 @@ public class CommandStickItem extends Item {
                 command = command.substring(1);
             }
             
-            commandManager.performCommand(commandSource, command);
+            commandManager.performPrefixedCommand(commandSource, command);
         }
         else {
             sendMessage(player, Component.literal("No Permission"));

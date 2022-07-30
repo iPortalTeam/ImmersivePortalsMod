@@ -392,7 +392,7 @@ public class McHelper {
         Commands commandManager = MiscHelper.getServer().getCommands();
         
         for (String command : commandList) {
-            commandManager.performCommand(commandSource, command);
+            commandManager.performPrefixedCommand(commandSource, command);
         }
     }
     
@@ -465,7 +465,7 @@ public class McHelper {
     
     /**
      * the range is inclusive on both ends
-     * similar to {@link SectionedEntityCache#forEachInBox(Box, Consumer)}
+     * similar to {@link EntitySectionStorage#forEachAccessibleNonEmptySection(AABB, Consumer)}
      * but without hardcoding the max entity radius
      */
     public static <T extends Entity> void foreachEntities(
