@@ -10,7 +10,7 @@ import qouteall.imm_ptl.core.network.PacketRedirection;
 @Mixin(ServerGamePacketListenerImpl.class)
 public class MixinServerGamePacketListenerImpl_E {
     @ModifyVariable(
-        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
+        method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
         at = @At("HEAD"),
         argsOnly = true
     )
