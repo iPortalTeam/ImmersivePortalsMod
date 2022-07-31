@@ -346,6 +346,10 @@ public class PortalRenderInfo {
         if (IPGlobal.forceMergePortalRendering) {
             return true;
         }
+        if (!p.isVisible()) {
+            return false;
+        }
+        
         return p.isRenderingMergable();
     }
     

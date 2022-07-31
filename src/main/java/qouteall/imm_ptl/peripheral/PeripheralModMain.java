@@ -114,6 +114,12 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
         );
+        registerPortalSubCommandStick(
+            "make_invisible", "set_portal_nbt {isVisible:false}"
+        );
+        registerPortalSubCommandStick(
+            "make_visible", "set_portal_nbt {isVisible:true}"
+        );
         CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
             "/scale set pehkui:base 1",
             "imm_ptl.command.reset_scale",

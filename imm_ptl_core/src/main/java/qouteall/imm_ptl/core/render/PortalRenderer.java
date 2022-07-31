@@ -117,6 +117,11 @@ public abstract class PortalRenderer {
             return true;
         }
         
+        // if max portal layer is 0, the invisible portals will be force rendered
+        if (!portal.isVisible() && IPGlobal.maxPortalLayer != 0) {
+            return true;
+        }
+        
         if (RenderStates.getRenderedPortalNum() >= IPGlobal.portalRenderLimit) {
             return true;
         }

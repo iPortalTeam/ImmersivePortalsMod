@@ -205,6 +205,11 @@ public class PortalGroup implements PortalLike {
         return false;
     }
     
+    @Override
+    public boolean isVisible() {
+        return true;
+    }
+    
     @Nullable
     @Override
     public Vec3[] getOuterFrustumCullingVertices() {

@@ -67,7 +67,8 @@ public class BlockManipulationClient {
         PortalCommand.getPlayerPointingPortalRaw(
             client.player, tickDelta, reachDistance, true
         ).ifPresent(pair -> {
-            if (pair.getFirst().isInteractable()) {
+            Portal portal = pair.getFirst();
+            if (portal.isInteractable() && portal.isVisible()) {
                 double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
                 if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
                     client.hitResult = createMissedHitResult(cameraPos, pair.getSecond());
@@ -78,7 +79,7 @@ public class BlockManipulationClient {
                         client.player.level.dimension(),
                         distanceToPortalPointing,
                         reachDistance,
-                        pair.getFirst()
+                        portal
                     );
                 }
             }

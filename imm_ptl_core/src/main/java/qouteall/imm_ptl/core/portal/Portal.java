@@ -194,6 +194,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      */
     public boolean doRenderPlayer = true;
     
+    /**
+     * If it's invisible, it will not be rendered. But collision, teleportation and chunk loading will still work.
+     */
+    protected boolean visible = true;
+    
     @Nullable
     public List<String> commandsOnTeleported;
     
@@ -445,6 +450,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return isGlobalPortal;
     }
     
+    @Override
+    public boolean isVisible() {
+        return visible;
+    }
+    
+    public void setIsVisible(boolean visible) {
+        this.visible = visible;
+    }
+    
     /**
      * @return Can the portal teleport this entity.
      */
@@ -649,6 +663,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             doRenderPlayer = compoundTag.getBoolean("doRenderPlayer");
         }
         
+        if (compoundTag.contains("isVisible")) {
+            visible = compoundTag.getBoolean("isVisible");
+        }
+        else {
+            visible = true;
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -706,6 +727,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
         
         compoundTag.putBoolean("doRenderPlayer", doRenderPlayer);
+        
+        compoundTag.putBoolean("isVisible", visible);
         
         if (commandsOnTeleported != null) {
             ListTag list = new ListTag();
@@ -1414,6 +1437,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public boolean canDoOuterFrustumCulling() {
         if (isFuseView()) {
+            return false;
+        }
+        if (!isVisible()) {
             return false;
         }
         if (specialShape == null) {

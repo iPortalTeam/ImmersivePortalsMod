@@ -71,6 +71,8 @@ public interface PortalLike {
     
     boolean getIsGlobal();
     
+    boolean isVisible();
+    
     // used for super advanced frustum culling
     @Nullable
     Vec3[] getOuterFrustumCullingVertices();
