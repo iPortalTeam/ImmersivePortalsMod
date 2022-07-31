@@ -28,6 +28,7 @@ import org.lwjgl.system.MemoryStack;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
@@ -171,10 +172,10 @@ public class OverlayRendering {
     }
     
     /**
-     * vanilla copy
      * {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, int, int)}
      * it hardcoded alpha to 1. change it to my customized alpha
      */
+    @IPVanillaCopy
     public static void renderQuad(
         VertexConsumer vertexConsumer,
         PoseStack.Pose poseEntry, BakedQuad quad,

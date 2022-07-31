@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
 import java.io.IOException;
@@ -20,8 +21,8 @@ public class MixinProgram {
     /**
      * @author qouteall
      * @reason make the logic clear (Iris redirects it)
-     * vanilla copy
      */
+    @IPVanillaCopy
     @Overwrite
     public static int compileShaderInternal(
         Program.Type type, String name, InputStream stream,

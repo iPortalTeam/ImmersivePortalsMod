@@ -21,6 +21,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.collision.IEEntity_Collision;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -267,6 +268,7 @@ public class CollisionHelper {
      * Vanilla copy {@link Entity#collide(Vec3)}
      * But filters collisions behind the clipping plane
      */
+    @IPVanillaCopy
     private static Vec3 handleCollisionWithClipping(
         Entity entity, Vec3 attemptedMove, Vec3 clippingPlanePos, Vec3 clippingPlaneNormal
     ) {

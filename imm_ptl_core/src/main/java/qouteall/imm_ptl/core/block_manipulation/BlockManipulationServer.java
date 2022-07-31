@@ -19,6 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -177,11 +178,10 @@ public class BlockManipulationServer {
         doProcessRightClick(dimension, player, hand, blockHitResult);
     }
     
-    // vanilla copy
-    
     /**
      * {@link net.minecraft.server.network.ServerGamePacketListenerImpl#handleUseItemOn(ServerboundUseItemOnPacket)}
      */
+    @IPVanillaCopy
     public static void doProcessRightClick(
         ResourceKey<Level> dimension,
         ServerPlayer player,

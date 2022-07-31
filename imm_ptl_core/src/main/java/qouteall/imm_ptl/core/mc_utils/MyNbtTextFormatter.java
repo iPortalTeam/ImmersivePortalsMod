@@ -24,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,8 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-// vanilla copy
 // copy to avoid mixin or access widener
+@IPVanillaCopy
 public class MyNbtTextFormatter
     implements TagVisitor {
     private static final Logger LOGGER = LogManager.getLogger();
