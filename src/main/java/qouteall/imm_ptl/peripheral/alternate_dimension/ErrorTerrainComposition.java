@@ -123,6 +123,10 @@ public class ErrorTerrainComposition {
     public static final RegionErrorTerrainGenerator.Composition treasured = (
         worldY, funcValue, middle, upMiddle, downMiddle, worldX, worldZ
     ) -> {
+        if (worldY > 32) {
+            return air;
+        }
+        
         double upPoint = Math.max(middle, Math.max(upMiddle, downMiddle));
         double splitPoint = Mth.lerp(
             Math.abs(worldY - 32) / 32.0,

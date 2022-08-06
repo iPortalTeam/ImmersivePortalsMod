@@ -31,8 +31,6 @@ public class IPNetworking {
     
     public static final ResourceLocation id_ctsTeleport =
         new ResourceLocation("imm_ptl", "teleport");
-    public static final ResourceLocation id_stcCustom =
-        new ResourceLocation("imm_ptl", "stc_custom");
     public static final ResourceLocation id_stcSpawnEntity =
         new ResourceLocation("imm_ptl", "spawn_entity");
     public static final ResourceLocation id_stcDimensionConfirm =
