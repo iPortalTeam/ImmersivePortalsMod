@@ -590,8 +590,7 @@ public class PortalCommand {
                                 portal.getZ() + offset.z
                             );
                             reloadPortal(portal);
-                        }
-                        catch (CommandSyntaxException e) {
+                        } catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
                         }
                     }
@@ -620,8 +619,7 @@ public class PortalCommand {
                                 portal.transformLocalVecNonScale(offset)
                             ));
                             reloadPortal(portal);
-                        }
-                        catch (CommandSyntaxException e) {
+                        } catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
                         }
                     }
@@ -1476,6 +1474,37 @@ public class PortalCommand {
             )
         );
         
+        builder.then(Commands
+            .literal("create_cube_surface_unwrapping")
+            .then(Commands
+                .argument("boxL", BlockPosArgument.blockPos())
+                .then(Commands
+                    .argument("boxH", BlockPosArgument.blockPos())
+                    .then(Commands
+                        .argument("length", IntegerArgumentType.integer(1, 100))
+                        .executes(context -> {
+                            BlockPos boxL = BlockPosArgument.getSpawnablePos(context, "boxL");
+                            BlockPos boxH = BlockPosArgument.getSpawnablePos(context, "boxH");
+                            
+                            IntBox box = new IntBox(boxL, boxH);
+                            
+                            int length = IntegerArgumentType.getInteger(context, "length");
+                            
+                            BlockPos size = box.getSize();
+                            
+                            createCubeSurfaceUnwrapping(
+                                context.getSource().getLevel(),
+                                box.toRealNumberBox(),
+                                length
+                            );
+                            
+                            return 0;
+                        })
+                    )
+                )
+            )
+        );
+        
         builder.then(Commands.literal("adjust_rotation_to_connect")
             .then(Commands.argument("portal1", EntityArgument.entity())
                 .then(Commands.argument("portal2", EntityArgument.entity())
@@ -1543,6 +1572,45 @@ public class PortalCommand {
                 return 0;
             })
         );
+    }
+    
+    private static void createCubeSurfaceUnwrapping(ServerLevel world, AABB box, double length) {
+        Vec3 boxSize = Helper.getBoxSize(box);
+        Vec3 boxCenter = box.getCenter();
+        for (Direction face : Direction.values()) {
+            Vec3 facingVec = Vec3.atLowerCornerOf(face.getNormal());
+            for (Direction sideDirection : Helper.getAnotherFourDirections(face.getAxis())) {
+                Vec3 sideDirectionVec = Vec3.atLowerCornerOf(sideDirection.getNormal());
+                Vec3 edgeCenter = facingVec.scale(0.5)
+                    .add(sideDirectionVec.scale(0.5))
+                    .multiply(boxSize)
+                    .add(boxCenter);
+                
+                Vec3 portalOrigin = edgeCenter.add(facingVec.scale(length / 2));
+                Vec3 portalDestination = edgeCenter.add(sideDirectionVec.scale(length / 2));
+                
+                Vec3 portalWAxis = sideDirectionVec.cross(facingVec);
+                Vec3 portalHAxis = facingVec;
+                
+                double width = Math.abs(boxSize.dot(portalWAxis));
+                double height = length;
+                
+                DQuaternion rotationTransform = DQuaternion.getRotationBetween(
+                    facingVec, sideDirectionVec
+                );
+                
+                Portal portal = Portal.entityType.create(world);
+                portal.setOriginPos(portalOrigin);
+                portal.setDestination(portalDestination);
+                portal.setDestinationDimension(world.dimension());
+                portal.setOrientationAndSize(portalWAxis, portalHAxis, width, height);
+                portal.setRotationTransformationD(rotationTransform);
+                portal.setTeleportChangesGravity(true);
+                PortalExtension.get(portal).adjustPositionAfterTeleport = true;
+                portal.portalTag = "imm_ptl:cube_surface_unwrapping";
+                McHelper.spawnServerEntity(portal);
+            }
+        }
     }
     
     private static void createConnectedRooms(
