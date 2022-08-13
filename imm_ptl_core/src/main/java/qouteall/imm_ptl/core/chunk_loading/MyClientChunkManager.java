@@ -21,6 +21,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.my_util.SignalArged;
 
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 
 // allow storing chunks that are far away from the player
 @Environment(EnvType.CLIENT)
+@IPVanillaCopy
 public class MyClientChunkManager extends ClientChunkCache {
     private static final Logger LOGGER = LogManager.getLogger();
     protected final LevelChunk emptyChunk;

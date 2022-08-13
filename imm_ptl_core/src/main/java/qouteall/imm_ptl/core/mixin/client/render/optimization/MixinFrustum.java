@@ -21,6 +21,10 @@ public class MixinFrustum implements IEFrustum {
     @Shadow
     private double camZ;
     
+    private double portal_camX;
+    private double portal_camY;
+    private double portal_camZ;
+    
     private FrustumCuller portal_frustumCuller;
     
     @Inject(
@@ -36,6 +40,13 @@ public class MixinFrustum implements IEFrustum {
             portal_frustumCuller = new FrustumCuller();
         }
         portal_frustumCuller.update(camX, camY, camZ);
+        
+        // the camX, camY, camZ may get changed in offsetToFullyIncludeCameraCube()
+        // normal frustums can be moved back without wrongly culling anything
+        // but the portal frustum may be tilted and moving it back may be wrong
+        portal_camX = camX;
+        portal_camY = camY;
+        portal_camZ = camZ;
     }
     
     
@@ -62,8 +73,8 @@ public class MixinFrustum implements IEFrustum {
             return false;
         }
         return portal_frustumCuller.canDetermineInvisibleWithCameraCoord(
-            minX - camX, minY - camY, minZ - camZ,
-            maxX - camX, maxY - camY, maxZ - camZ
+            minX - portal_camX, minY - portal_camY, minZ - portal_camZ,
+            maxX - portal_camX, maxY - portal_camY, maxZ - portal_camZ
         );
     }
 }

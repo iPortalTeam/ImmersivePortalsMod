@@ -86,7 +86,7 @@
     "client.render.MixinShaderInstanceForIris",
     "client.render.framebuffer.MixinMainTarget",
     "client.render.framebuffer.MixinRenderTarget",
-    "client.render.isometric.MixinFrustum_Isometric",
+    "client.render.MixinFrustum_FixDeadLoop",
     "client.render.isometric.MixinGameRenderer_Isometric",
     "client.render.optimization.IEChunkCompileTask",
     "client.render.optimization.MixinChunkRenderDispatcher_Optimization",
