@@ -827,6 +827,6 @@ public class Helper {
         }
     }
     
-    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
     
 }

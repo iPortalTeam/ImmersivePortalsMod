@@ -157,5 +157,17 @@
   "imm_ptl.warning_disabled": "警告已关闭",
   "imm_ptl.enable_cross_portal_sound": "启用跨传送门声音",
   "imm_ptl.dim_stack.gravity_transform_enabled": "引力: 相对于视角",
-  "imm_ptl.dim_stack.gravity_transform_disabled": "引力: 相对于世界"
+  "imm_ptl.dim_stack.gravity_transform_disabled": "引力: 相对于世界",
+  "imm_ptl.command.make_invisible": "让传送门不可见",
+  "imm_ptl.command_desc.make_invisible": "",
+  "imm_ptl.command.make_visible": "让传送门可见",
+  "imm_ptl.command_desc.make_visible": "",
+  "imm_ptl.set_as_dim_stack_default": "设置为默认",
+  "imm_ptl.dim_stack_default_updated": "默认位面纵向堆叠设置已更改",
+  "imm_ptl.new_version_available": "沉浸传送门(Immersive Portals)模组有新版本: %s (for MC %s) 。建议更新新版本。 下载: ",
+  "imm_ptl.severely_incompatible": "警告: 沉浸传送门(Immersive Portals)模组不兼容 %1$s(%2$s). 游戏将出现严重问题，应该将卸载其中一个模组。 (如果两个模组现在兼容，请报告给qouteall)",
+  "imm_ptl.severely_incompatible_within_version": "警告: 沉浸传送门(Immersive Portals)模组不兼容 %1$s(%2$s) 的版本 %3$s。 游戏将出现严重问题。应该安装另一个版本的 %1$s",
+  "imm_ptl.incompatible": "警告: 沉浸传送门(Immersive Portals)模组与 %1$s(%2$s) 有兼容性问题",
+  "entity.immersive_portals.portal": "传送门",
+  "entity.immersive_portals.nether_portal_new": "地狱传送门"
 }

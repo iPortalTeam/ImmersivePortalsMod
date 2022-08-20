@@ -4,6 +4,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
@@ -15,6 +20,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.q_misc_util.Helper;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class O_O {
     public static boolean isDimensionalThreadingPresent = false;
@@ -29,7 +37,7 @@ public class O_O {
     ) {
         RequiemCompat.onPlayerTeleportedClient();
     }
-    
+
 //    @Environment(EnvType.CLIENT)
 //    public static void segregateClientEntity(
 //        ClientWorld fromWorld,
@@ -107,5 +115,67 @@ public class O_O {
     
     public static boolean getIsPehkuiPresent() {
         return FabricLoader.getInstance().isModLoaded("pehkui");
+    }
+    
+    @Nullable
+    public static String getImmPtlModInfoUrl() {
+        String gameVersion = SharedConstants.getCurrentVersion().getName();
+        
+        int lastDotIndex = gameVersion.lastIndexOf('.');
+        
+        String majorGameVersion = gameVersion.substring(0, lastDotIndex);
+        
+        return "https://qouteall.fun/immptl_info/%s.x.json".formatted(majorGameVersion);
+    }
+    
+    public static boolean isModLoadedWithinVersion(String modId, @Nullable String startVersion, @Nullable String endVersion) {
+        Optional<ModContainer> modContainer = FabricLoader.getInstance().getModContainer(modId);
+        if (modContainer.isPresent()) {
+            Version version = modContainer.get().getMetadata().getVersion();
+            
+            try {
+                if (startVersion != null) {
+                    int i = Version.parse(startVersion).compareTo(version);
+                    if (i > 0) {
+                        return false;
+                    }
+                }
+                
+                if (endVersion != null) {
+                    int i = Version.parse(endVersion).compareTo(version);
+                    if (i < 0) {
+                        return false;
+                    }
+                }
+            } catch (VersionParsingException e) {
+                e.printStackTrace();
+            }
+            
+            return true;
+            
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public static boolean shouldUpdateImmPtl(String latestReleaseVersion) {
+        Version currentVersion = FabricLoader.getInstance()
+            .getModContainer("imm_ptl_core").get().getMetadata().getVersion();
+        try {
+            Version latestVersion = Version.parse(latestReleaseVersion);
+            
+            if (latestVersion.compareTo(currentVersion) > 0) {
+                return true;
+            }
+        } catch (VersionParsingException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    public static String getModDownloadLink() {
+        return "https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod";
     }
 }

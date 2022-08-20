@@ -14,8 +14,11 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import virtuoel.pehkui.api.ScaleData;
 import virtuoel.pehkui.api.ScaleTypes;
+import virtuoel.pehkui.util.ScaleUtils;
 
 public class PehkuiInterfaceInitializer {
     
@@ -64,7 +67,6 @@ public class PehkuiInterfaceInitializer {
             try {
                 final ScaleData data = ScaleTypes.BASE.getScaleData(entity);
                 data.setScale(scale);
-                data.setBaseScale(scale);
             }
             catch (Throwable e) {
                 if (!loggedErrorMessage) {
@@ -167,11 +169,11 @@ public class PehkuiInterfaceInitializer {
         PehkuiInterface.invoker.setBaseScale(entity, newScale);
         
         if (!entity.level.isClientSide) {
-            IPGlobal.serverTaskList.addTask(() -> {
-                McHelper.setEyePos(entity, eyePos, lastTickEyePos);
-                McHelper.updateBoundingBox(entity);
-                return true;
-            });
+            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
+            McHelper.updateBoundingBox(entity);
+    
+            float scaleTest = ScaleUtils.getEyeHeightScale(entity, 0.5f);
+            Validate.isTrue(scaleTest >0.0001);
         }
         else {
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);

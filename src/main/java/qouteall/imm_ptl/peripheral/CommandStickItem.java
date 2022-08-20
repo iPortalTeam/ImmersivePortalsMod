@@ -98,6 +98,7 @@ public class CommandStickItem extends Item {
         super(settings);
     }
     
+    // display enchantment glint
     @Override
     public boolean isFoil(ItemStack stack) {
         return true;

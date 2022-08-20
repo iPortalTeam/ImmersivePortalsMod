@@ -52,6 +52,7 @@ public class IPConfig {
     public boolean enableNetherPortalEffect = true;
     public boolean enableClientPerformanceAdjustment = true;
     public boolean enableServerPerformanceAdjustment = true;
+    public boolean checkModInfoFromInternet = true;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
 //    public boolean enableServerCollision = true;
@@ -158,6 +159,7 @@ public class IPConfig {
         IPGlobal.enableClientPerformanceAdjustment = enableClientPerformanceAdjustment;
         IPGlobal.enableServerPerformanceAdjustment = enableServerPerformanceAdjustment;
         IPGlobal.enableCrossPortalSound = enableCrossPortalSound;
+        IPGlobal.checkModInfoFromInternet = checkModInfoFromInternet;
         
         if (enableDepthClampForPortalRendering) {
             IPGlobal.enableDepthClampForPortalRendering = true;

@@ -38,6 +38,8 @@ public abstract class MixinFrustum_FixDeadLoop {
      * I still don't know the exact condition to reproduce the deadloop.
      * So simply limit the loop count for now.
      *
+     * For a normal frustum matrix, m32 should not be 0
+     *
      * @author qouteall
      * @reason Hard to do by injection or redirection
      */
@@ -50,9 +52,9 @@ public abstract class MixinFrustum_FixDeadLoop {
         double maxX = Math.ceil(this.camX / (double) gridSize) * (double) gridSize;
         double maxY = Math.ceil(this.camY / (double) gridSize) * (double) gridSize;
         double maxZ = Math.ceil(this.camZ / (double) gridSize) * (double) gridSize;
-        
+
         int countLimit = 10; // limit the loop count
-        
+
         while (!this.cubeCompletelyInFrustum((float) (minX - this.camX), (float) (minY - this.camY), (float) (minZ - this.camZ), (float) (maxX - this.camX), (float) (maxY - this.camY), (float) (maxZ - this.camZ))) {
             this.camX -= (double) (this.viewVector.x() * 4.0F);
             this.camY -= (double) (this.viewVector.y() * 4.0F);
@@ -62,7 +64,7 @@ public abstract class MixinFrustum_FixDeadLoop {
                 break;
             }
         }
-        
+
         return (Frustum) (Object) this;
     }
 }
