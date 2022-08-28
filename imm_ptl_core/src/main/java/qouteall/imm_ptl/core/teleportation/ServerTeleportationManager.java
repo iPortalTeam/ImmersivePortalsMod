@@ -118,8 +118,7 @@ public class ServerTeleportationManager {
         IPGlobal.serverTaskList.addTask(() -> {
             try {
                 teleportRegularEntity(entity, portal);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
             return true;
@@ -414,9 +413,9 @@ public class ServerTeleportationManager {
                 if (!(entity instanceof ServerPlayer)) {
                     Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
                     
-                    if (collidingPortal instanceof GlobalTrackedPortal globalPortal) {
-                        if (shouldEntityTeleport(globalPortal, entity)) {
-                            startTeleportingRegularEntity(globalPortal, entity);
+                    if (collidingPortal != null && collidingPortal.getIsGlobal()) {
+                        if (shouldEntityTeleport(collidingPortal, entity)) {
+                            startTeleportingRegularEntity(collidingPortal, entity);
                         }
                     }
                 }
