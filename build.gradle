@@ -115,7 +115,7 @@ allprojects {
         }
         modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
-        modApi("com.github.Virtuoel:Pehkui:3.3.3", {
+        modApi("com.github.Virtuoel:Pehkui:3.4.1", {
             exclude group: "net.fabricmc.fabric-api"
         })
 

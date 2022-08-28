@@ -52,8 +52,7 @@ public class PehkuiInterfaceInitializer {
         public float getBaseScale(Entity entity, float tickDelta) {
             try {
                 return ScaleTypes.BASE.getScaleData(entity).getBaseScale(tickDelta);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 if (!loggedErrorMessage) {
                     loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting scale");
@@ -67,8 +66,7 @@ public class PehkuiInterfaceInitializer {
             try {
                 final ScaleData data = ScaleTypes.BASE.getScaleData(entity);
                 data.setScale(scale);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 if (!loggedErrorMessage) {
                     loggedErrorMessage = true;
                     logErrorMessage(entity, e, "setting scale");
@@ -80,8 +78,7 @@ public class PehkuiInterfaceInitializer {
         public float computeThirdPersonScale(Entity entity, float tickDelta) {
             try {
                 return ScaleTypes.THIRD_PERSON.getScaleData(entity).getScale(tickDelta);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 if (!loggedErrorMessage) {
                     loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting third person scale");
@@ -94,8 +91,7 @@ public class PehkuiInterfaceInitializer {
         public float computeBlockReachScale(Entity entity, float tickDelta) {
             try {
                 return ScaleTypes.BLOCK_REACH.getScaleData(entity).getScale(tickDelta);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 if (!loggedErrorMessage) {
                     loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting reach scale");
@@ -108,8 +104,7 @@ public class PehkuiInterfaceInitializer {
         public float computeMotionScale(Entity entity, float tickDelta) {
             try {
                 return ScaleTypes.MOTION.getScaleData(entity).getScale(tickDelta);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 if (!loggedErrorMessage) {
                     loggedErrorMessage = true;
                     logErrorMessage(entity, e, "getting motion scale");
@@ -171,9 +166,10 @@ public class PehkuiInterfaceInitializer {
         if (!entity.level.isClientSide) {
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
             McHelper.updateBoundingBox(entity);
-    
+            
+            // test whether Pehkui gives wrong scale
             float scaleTest = ScaleUtils.getEyeHeightScale(entity, 0.5f);
-            Validate.isTrue(scaleTest >0.0001);
+            Validate.isTrue(scaleTest > 0.0001);
         }
         else {
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);

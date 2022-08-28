@@ -40,7 +40,7 @@
   },
   "breaks": {
     "optifabric": "*",
-    "pehkui": "<3.0.0",
+    "pehkui": "<3.4.1",
     "viafabric-mc119": "*",
     "resolutioncontrol": "*",
     "canvas": "*",
