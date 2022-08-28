@@ -60,26 +60,27 @@ public class AlternateDimensions {
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
-        
-        ResourceKey<DimensionType> resourceKey = ResourceKey.create(
-            Registry.DIMENSION_TYPE_REGISTRY,
-            new ResourceLocation("immersive_portals:surface_type")
-        );
+    
         Holder<DimensionType> surfaceTypeHolder = registryManager
             .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
-            .getHolder(resourceKey)
+            .getHolder(ResourceKey.create(
+                Registry.DIMENSION_TYPE_REGISTRY,
+                new ResourceLocation("immersive_portals:surface_type")
+            ))
             .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
+    
+        Holder<DimensionType> surfaceTypeBrightHolder = registryManager
+            .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+            .getHolder(ResourceKey.create(
+                Registry.DIMENSION_TYPE_REGISTRY,
+                new ResourceLocation("immersive_portals:surface_type_bright")
+            ))
+            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type_bright"));
         
-        if (surfaceTypeHolder == null) {
-            Helper.err("Missing dimension type immersive_portals:surface_type");
-            return;
-        }
-        
-        //different seed
         DimensionAPI.addDimension(
             registry,
             alternate1.location(),
-            surfaceTypeHolder,
+            surfaceTypeBrightHolder,
             createSkylandGenerator(registryManager)
         );
         DimensionAPI.markDimensionNonPersistent(alternate1.location());
@@ -92,7 +93,6 @@ public class AlternateDimensions {
         );
         DimensionAPI.markDimensionNonPersistent(alternate2.location());
         
-        //different seed
         DimensionAPI.addDimension(
             registry,
             alternate3.location(),
