@@ -123,6 +123,8 @@ public class O_O {
         
         int lastDotIndex = gameVersion.lastIndexOf('.');
         
+        // only take the major version
+        // if it's 1.19.2, the major version is 1.19
         String majorGameVersion = gameVersion.substring(0, lastDotIndex);
         
         return "https://qouteall.fun/immptl_info/%s.x.json".formatted(majorGameVersion);

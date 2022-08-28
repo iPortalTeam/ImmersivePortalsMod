@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class IPModCompatibilityWarning {
+public class IPModInfoChecking {
     
     // GSON does not support records https://github.com/google/gson/issues/1794
     public static final class ModEntry {
@@ -143,7 +143,7 @@ public class IPModCompatibilityWarning {
             try (CloseableHttpResponse httpResponse = httpClient.execute(request)) {
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
                 if (statusCode != 200) {
-                    Helper.log("Failed to fetch immptl mod info " + statusCode);
+                    Helper.err("Failed to fetch immptl mod info " + statusCode);
                     return null;
                 }
                 
@@ -232,32 +232,32 @@ public class IPModCompatibilityWarning {
                     for (ModEntry mod : immPtlInfo.severelyIncompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
                             if (mod.startVersion != null || mod.endVersion != null) {
-                                CHelper.printChat(Component.translatable(
-                                    "imm_ptl.severely_incompatible_within_version", mod.modName, mod.modId,
-                                    mod.getVersionRangeStr()
-                                ).withStyle(ChatFormatting.RED));
+                                CHelper.printChat(
+                                    Component.translatable(
+                                        "imm_ptl.severely_incompatible_within_version",
+                                        mod.modName, mod.modId,
+                                        mod.getVersionRangeStr()
+                                    ).withStyle(ChatFormatting.RED)
+                                );
                             }
                             else {
-                                CHelper.printChat(Component.translatable(
-                                    "imm_ptl.severely_incompatible", mod.modName, mod.modId
-                                ).withStyle(ChatFormatting.RED));
+                                CHelper.printChat(
+                                    Component.translatable("imm_ptl.severely_incompatible", mod.modName, mod.modId)
+                                        .withStyle(ChatFormatting.RED)
+                                );
                             }
                         }
                     }
                     
                     for (ModEntry mod : immPtlInfo.incompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
-                            String warningMessage = String.format(
-                                "WARNING: Immersive Portals mod maybe has compatibility issues with mod %s(%s).",
-                                mod.modName, mod.modId
-                            );
                             if (IPGlobal.enableWarning) {
                                 CHelper.printChat(
-                                    Component.literal(warningMessage).withStyle(ChatFormatting.RED)
+                                    Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
+                                        .withStyle(ChatFormatting.RED)
                                         .append(IPMcHelper.getDisableWarningText())
                                 );
                             }
-                            Helper.err(warningMessage);
                         }
                     }
                 })

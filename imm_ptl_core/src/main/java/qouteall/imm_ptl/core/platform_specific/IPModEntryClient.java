@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.platform_specific;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -12,7 +11,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPModMainClient;
-import qouteall.imm_ptl.core.compat.IPModCompatibilityWarning;
+import qouteall.imm_ptl.core.compat.IPModInfoChecking;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
@@ -107,7 +106,7 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Iris is not present");
         }
         
-        IPModCompatibilityWarning.initClient();
+        IPModInfoChecking.initClient();
     }
     
 }
