@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import com.fusionflux.gravity_api.api.GravityChangerAPI;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.players.PlayerList;
@@ -150,6 +151,9 @@ public class ServerTeleportationManager {
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
         Vec3 oldFeetPos = oldEyePos.subtract(McHelper.getEyeOffset(player));
+        
+        // Verify teleportation, prevent a hacked client from teleporting through any portal.
+        // Well I guess no one will make the hacked ImmPtl client.
         if (canPlayerTeleport(player, dimensionBefore, oldFeetPos, portal)) {
             if (isTeleporting(player)) {
                 Helper.log(player.toString() + "is teleporting frequently");
@@ -168,7 +172,7 @@ public class ServerTeleportationManager {
             
             if (portal.getTeleportChangesGravity()) {
                 Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
-                GravityChangerInterface.invoker.setGravityDirection(
+                GravityChangerInterface.invoker.setGravityDirectionServer(
                     player, portal.getTransformedGravityDirection(oldGravityDir)
                 );
             }
@@ -183,6 +187,10 @@ public class ServerTeleportationManager {
                 portal
             ));
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level));
+            PehkuiInterface.invoker.setBaseScale(player, PehkuiInterface.invoker.getBaseScale(player));
+            GravityChangerInterface.invoker.setGravityDirectionServer(
+                player, GravityChangerInterface.invoker.getGravityDirection(player)
+            );
         }
     }
     

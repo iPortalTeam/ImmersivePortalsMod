@@ -45,9 +45,7 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "gravity_api": [
-      "<0.7.12", ">0.7.12"
-    ]
+    "gravity_api": "<0.7.18"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

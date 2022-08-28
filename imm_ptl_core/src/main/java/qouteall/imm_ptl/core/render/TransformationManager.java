@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -13,10 +12,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMatrix4f;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -139,7 +135,7 @@ public class TransformationManager {
                 portal.getTransformedGravityDirection(oldGravityDir) : oldGravityDir;
             
             if (newGravityDir != oldGravityDir) {
-                GravityChangerInterface.invoker.setGravityDirection(
+                GravityChangerInterface.invoker.setClientPlayerGravityDirection(
                     player, newGravityDir
                 );
             }

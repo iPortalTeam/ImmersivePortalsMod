@@ -1,21 +1,35 @@
 package qouteall.imm_ptl.core.compat;
 
 import com.fusionflux.gravity_api.api.GravityChangerAPI;
+import com.fusionflux.gravity_api.api.RotationParameters;
+import com.fusionflux.gravity_api.util.GravityChannel;
+import com.fusionflux.gravity_api.util.GravityComponent;
 import com.fusionflux.gravity_api.util.RotationUtil;
+import com.fusionflux.gravity_api.util.packet.DefaultGravityPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GravityChangerInterface {
     public static Invoker invoker = new Invoker();
@@ -33,10 +47,12 @@ public class GravityChangerInterface {
             return Direction.DOWN;
         }
         
-        public void setGravityDirection(Entity entity, Direction direction) {
-            if (entity instanceof Player && entity.level.isClientSide()) {
-                warnGravityChangerNotPresent();
-            }
+        public void setClientPlayerGravityDirection(Player player, Direction direction) {
+            warnGravityChangerNotPresent();
+        }
+        
+        public void setGravityDirectionServer(Entity entity, Direction direction) {
+            // nothing
         }
         
         @Nullable
@@ -75,6 +91,10 @@ public class GravityChangerInterface {
     
     public static class OnGravityChangerPresent extends Invoker {
         
+        
+        public OnGravityChangerPresent() {
+        }
+        
         @Override
         public boolean isGravityChangerPresent() {
             return true;
@@ -96,8 +116,35 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public void setGravityDirection(Entity entity, Direction direction) {
-            GravityChangerAPI.setDefaultGravityDirection(entity, direction, 0);
+        public void setGravityDirectionServer(Entity entity, Direction direction) {
+            GravityChangerAPI.setDefaultGravityDirection(
+                entity,
+                direction,
+                (new RotationParameters()).rotationTime(0)
+            );
+        }
+        
+        @Override
+        public void setClientPlayerGravityDirection(Player player, Direction direction) {
+            setClientPlayerGravityDirectionClientOnly(player, direction);
+        }
+        
+        @Environment(EnvType.CLIENT)
+        private void setClientPlayerGravityDirectionClientOnly(
+            Player player, Direction direction
+        ) {
+            Validate.isTrue(Minecraft.getInstance().isSameThread());
+            
+            GravityComponent gravityComponent = GravityChangerAPI.getGravityComponent(player);
+            gravityComponent.setDefaultGravityDirection(
+                direction,
+                (new RotationParameters()).rotationTime(0),
+                false // not initial gravity
+            );
+            
+            // it does not use GravityChangerAPI.setDefaultGravityDirectionClient
+            // because immptl has its own verification logic
+            // see ServerTeleportationManager
         }
         
         @Nullable
