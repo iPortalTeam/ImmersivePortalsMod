@@ -221,14 +221,16 @@ public class IPModInfoChecking {
             IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
                 MyTaskList.oneShotTask(() -> {
-                    if (O_O.shouldUpdateImmPtl(immPtlInfo.latestRelease.modVersion)) {
-                        CHelper.printChat(Component.translatable(
-                            "imm_ptl.new_version_available",
-                            immPtlInfo.latestRelease.modVersion,
-                            immPtlInfo.latestRelease.mcVersion
-                        ).append(McHelper.getLinkText(O_O.getModDownloadLink())));
+                    if (IPGlobal.enableUpdateNotification) {
+                        if (O_O.shouldUpdateImmPtl(immPtlInfo.latestRelease.modVersion)) {
+                            CHelper.printChat(Component.translatable(
+                                "imm_ptl.new_version_available",
+                                immPtlInfo.latestRelease.modVersion,
+                                immPtlInfo.latestRelease.mcVersion
+                            ).append(McHelper.getLinkText(O_O.getModDownloadLink())));
+                        }
                     }
-                    
+    
                     for (ModEntry mod : immPtlInfo.severelyIncompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
                             if (mod.startVersion != null || mod.endVersion != null) {

@@ -127,6 +127,8 @@ public class IPGlobal {
     
     public static boolean checkModInfoFromInternet = true;
     
+    public static boolean enableUpdateNotification = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,
