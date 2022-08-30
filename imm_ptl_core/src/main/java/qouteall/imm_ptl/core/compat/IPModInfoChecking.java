@@ -128,6 +128,7 @@ public class IPModInfoChecking {
     
     // NOTE do not run it on render thread
     @Nullable
+    @Environment(EnvType.CLIENT) // TODO do it on dedicated server
     public static ImmPtlInfo fetchImmPtlInfoFromInternet() {
         String url = O_O.getImmPtlModInfoUrl();
         
@@ -164,43 +165,44 @@ public class IPModInfoChecking {
     }
     
     public static void initDedicatedServer() {
-        Util.backgroundExecutor().execute(() -> {
-            if (!IPGlobal.checkModInfoFromInternet) {
-                return;
-            }
-            
-            ImmPtlInfo immPtlInfo = fetchImmPtlInfoFromInternet();
-            
-            if (immPtlInfo == null) {
-                return;
-            }
-            
-            if (O_O.shouldUpdateImmPtl(immPtlInfo.latestRelease.modVersion)) {
-                Helper.log("A new version of Immersive Portals is available: %s (for MC %s)".formatted(
-                    immPtlInfo.latestRelease.modVersion,
-                    immPtlInfo.latestRelease.mcVersion
-                ));
-            }
-            
-            for (ModEntry mod : immPtlInfo.severelyIncompatible) {
-                if (mod.isModLoadedWithinVersion()) {
-                    Helper.err(String.format(
-                        "ERROR: This mod is incompatible with Immersive Portals: %s(%s). Severe issues will occur!" +
-                            " (If the two mods become compatible, contact qouteall)",
-                        mod.modName, mod.modId
-                    ));
-                }
-            }
-            
-            for (ModEntry mod : immPtlInfo.incompatible) {
-                if (mod.isModLoadedWithinVersion()) {
-                    Helper.err(String.format(
-                        "WARNING: This mod has compatibility issues with Immersive Portals: %s(%s)",
-                        mod.modName, mod.modId
-                    ));
-                }
-            }
-        });
+        // TODO use another way to send HTTP request in dedicated server
+//        Util.backgroundExecutor().execute(() -> {
+//            if (!IPGlobal.checkModInfoFromInternet) {
+//                return;
+//            }
+//
+//            ImmPtlInfo immPtlInfo = fetchImmPtlInfoFromInternet();
+//
+//            if (immPtlInfo == null) {
+//                return;
+//            }
+//
+//            if (O_O.shouldUpdateImmPtl(immPtlInfo.latestRelease.modVersion)) {
+//                Helper.log("A new version of Immersive Portals is available: %s (for MC %s)".formatted(
+//                    immPtlInfo.latestRelease.modVersion,
+//                    immPtlInfo.latestRelease.mcVersion
+//                ));
+//            }
+//
+//            for (ModEntry mod : immPtlInfo.severelyIncompatible) {
+//                if (mod.isModLoadedWithinVersion()) {
+//                    Helper.err(String.format(
+//                        "ERROR: This mod is incompatible with Immersive Portals: %s(%s). Severe issues will occur!" +
+//                            " (If the two mods become compatible, contact qouteall)",
+//                        mod.modName, mod.modId
+//                    ));
+//                }
+//            }
+//
+//            for (ModEntry mod : immPtlInfo.incompatible) {
+//                if (mod.isModLoadedWithinVersion()) {
+//                    Helper.err(String.format(
+//                        "WARNING: This mod has compatibility issues with Immersive Portals: %s(%s)",
+//                        mod.modName, mod.modId
+//                    ));
+//                }
+//            }
+//        });
         
         
     }
