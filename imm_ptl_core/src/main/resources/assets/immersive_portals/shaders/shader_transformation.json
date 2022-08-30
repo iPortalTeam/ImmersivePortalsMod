@@ -109,8 +109,8 @@
         ]
       },
       {
-        "pattern": "\\}(?!.*\\})",
-        "comment": "match the last }. use the modelview-transformed coordinate",
+        "pattern": "\\}(?![\\S\\s]*\\})",
+        "comment": "match the last } ([\\S\\s] matches any character). use the modelview-transformed coordinate",
         "replacement": [
           "gl_ClipDistance[0] = dot((u_ModelViewMatrix * vec4(position, 1.0)).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;}"
         ]
