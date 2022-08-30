@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-// inherit NoiseBasedChunkGenerator because I want to use my custom codec
 public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     
     public static final Codec<NormalSkylandGenerator> codec = RecordCodecBuilder.create(
@@ -76,29 +75,48 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         
         BiomeSource chaosBiomeSource = new ChaosBiomeSource(HolderSet.direct(new ArrayList<>(overworldBiomes)));
         
-        NoiseGeneratorSettings overworldNGSettings = IENoiseGeneratorSettings.ip_overworld(false, false);
+        NoiseGeneratorSettings overworldNG = IENoiseGeneratorSettings.ip_overworld(false, false);
         
-        NoiseGeneratorSettings skylandNGSettings = IENoiseGeneratorSettings.ip_floatingIslands();
+        NoiseGeneratorSettings skylandNG = IENoiseGeneratorSettings.ip_floatingIslands();
+    
+        NoiseGeneratorSettings endNG = IENoiseGeneratorSettings.ip_end();
+    
+        NoiseGeneratorSettings mixedNG = new NoiseGeneratorSettings(
+            skylandNG.noiseSettings(),
+            skylandNG.defaultBlock(),
+            skylandNG.defaultFluid(),
+            IENoiseRouterData.ip_noNewCaves(
+                BuiltinRegistries.DENSITY_FUNCTION,
+                IENoiseRouterData.ip_slideEndLike(IENoiseRouterData.ip_getFunction(BuiltinRegistries.DENSITY_FUNCTION, IENoiseRouterData.get_BASE_3D_NOISE_END()), 0, 128)
+            ),
+            skylandNG.surfaceRule(),
+            skylandNG.spawnTarget(),
+            skylandNG.seaLevel(),
+            skylandNG.disableMobGeneration(),
+            skylandNG.aquifersEnabled(),
+            skylandNG.oreVeinsEnabled(),
+            skylandNG.useLegacyRandomSource()
+        );
         
         NoiseBasedChunkGenerator skylandChunkGenerator = new NoiseBasedChunkGenerator(
             structureSets, noiseRegistry,
-            overworldBiomeSource, Holder.direct(skylandNGSettings)
+            overworldBiomeSource, Holder.direct(skylandNG)
         );
         
         NoiseBasedChunkGenerator overworldGenerator = new NoiseBasedChunkGenerator(
             structureSets, noiseRegistry,
-            overworldBiomeSource, Holder.direct(overworldNGSettings)
+            overworldBiomeSource, Holder.direct(overworldNG)
         );
         
         return new NormalSkylandGenerator(
             structureSets,
             noiseRegistry,
             overworldBiomeSource,
-            Holder.direct(skylandNGSettings),
+            Holder.direct(mixedNG),
             biomeRegistry,
             noiseGeneratorSettingsRegistry,
             overworldGenerator,
-            overworldNGSettings
+            overworldNG
         );
     }
     
@@ -112,4 +130,12 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     protected Codec<? extends ChunkGenerator> codec() {
         return codec;
     }
+    
+//    @Override
+//    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
+//        CompletableFuture<ChunkAccess> original = super.fillFromNoise(executor, blender, randomState, structureManager, chunkAccess);
+//        return original.thenComposeAsync(chunkAccess1 -> {
+//             return delegate.createBiomes(biomeRegistry, executor, randomState, blender, structureManager, chunkAccess1);
+//        });
+//    }
 }
