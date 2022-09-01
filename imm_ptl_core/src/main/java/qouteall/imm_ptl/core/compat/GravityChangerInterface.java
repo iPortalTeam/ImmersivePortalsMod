@@ -84,7 +84,7 @@ public class GravityChangerInterface {
         if (!warned) {
             warned = true;
             CHelper.printChat(Component.translatable("imm_ptl.missing_gravity_changer")
-                .append(McHelper.getLinkText("https://modrinth.com/mod/gravity-api/version/0.7.12%2Bfabric"))
+                .append(McHelper.getLinkText("https://modrinth.com/mod/gravity-api"))
             );
         }
     }
