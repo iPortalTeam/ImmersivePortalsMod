@@ -19,6 +19,8 @@ public class DimStackEntry {
     public Integer bottomY = null;
     @Nullable
     public String bedrockReplacementStr = "minecraft:obsidian";
+    public boolean connectsPrevious = true;
+    public boolean connectsNext = true;
     
     public DimStackEntry(ResourceKey<Level> dimension) {
         this.dimensionIdStr = dimension.location().toString();
@@ -40,6 +42,8 @@ public class DimStackEntry {
         copy.topY = topY;
         copy.bottomY = bottomY;
         copy.bedrockReplacementStr = bedrockReplacementStr;
+        copy.connectsPrevious = connectsPrevious;
+        copy.connectsNext = connectsNext;
         return copy;
     }
 }

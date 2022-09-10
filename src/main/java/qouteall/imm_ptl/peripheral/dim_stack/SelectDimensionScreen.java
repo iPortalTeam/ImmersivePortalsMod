@@ -77,7 +77,7 @@ public class SelectDimensionScreen extends Screen {
         
         
         this.drawCenteredString(
-            matrixStack, this.font, this.title.getString(), this.width / 2, 20, -1
+            matrixStack, this.font, this.title.getString(), this.width / 2, 10, -1
         );
     }
 }

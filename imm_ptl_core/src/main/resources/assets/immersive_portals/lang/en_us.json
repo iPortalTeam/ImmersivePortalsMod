@@ -152,6 +152,8 @@
   "imm_ptl.top_y": "Top Y",
   "imm_ptl.bottom_y": "Bottom Y",
   "imm_ptl.bedrock_replacement": "Bedrock Replacement",
+  "imm_ptl.connects_previous": "Connects Previous",
+  "imm_ptl.connects_next": "Connects Next",
   "imm_ptl.light_vanilla_nether_portal_when_crouching": "Light vanilla portal when crouching",
   "imm_ptl.loop_enabled": "Loop Enabled",
   "imm_ptl.loop_disabled": "Loop Disabled",

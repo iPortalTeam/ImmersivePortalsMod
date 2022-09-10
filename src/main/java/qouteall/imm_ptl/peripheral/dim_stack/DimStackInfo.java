@@ -30,7 +30,7 @@ public class DimStackInfo {
     public boolean gravityTransform;
     public List<DimStackEntry> entries;
     
-    public DimStackInfo(){}
+    public DimStackInfo() {}
     
     public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityTransform) {
         this.entries = entries;
@@ -91,8 +91,13 @@ public class DimStackInfo {
             reverse.setTeleportChangesGravity(true);
         }
         
-        PortalAPI.addGlobalPortal(fromWorld, connectingPortal);
-        PortalAPI.addGlobalPortal(toWorld, reverse);
+        if (a.connectsNext) {
+            PortalAPI.addGlobalPortal(fromWorld, connectingPortal);
+        }
+        
+        if (b.connectsPrevious) {
+            PortalAPI.addGlobalPortal(toWorld, reverse);
+        }
     }
     
     public void apply() {

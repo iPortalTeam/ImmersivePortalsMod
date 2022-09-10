@@ -21,6 +21,8 @@ public class DimStackEntryEditScreen extends Screen {
     private final EditBox topYField;
     private final EditBox bottomYField;
     private final EditBox bedrockBlockField;
+    private final Button connectsPreviousButton;
+    private final Button connectsNextButton;
     
     private final Button finishButton;
     
@@ -30,6 +32,8 @@ public class DimStackEntryEditScreen extends Screen {
     private final GuiHelper.Rect topYLabelRect = new GuiHelper.Rect();
     private final GuiHelper.Rect bottomYLabelRect = new GuiHelper.Rect();
     private final GuiHelper.Rect bedrockLabelRect = new GuiHelper.Rect();
+    private final GuiHelper.Rect connectsPreviousRect = new GuiHelper.Rect();
+    private final GuiHelper.Rect connectsNextRect = new GuiHelper.Rect();
     
     private final Button helpButton;
     
@@ -100,6 +104,28 @@ public class DimStackEntryEditScreen extends Screen {
         }
         bedrockBlockField.setCursorPosition(0);
         bedrockBlockField.setHighlightPos(0);
+    
+        connectsPreviousButton = new Button(
+            0, 0, 0, 20,
+            Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+            button -> {
+                editing.entry.connectsPrevious = !editing.entry.connectsPrevious;
+                button.setMessage(
+                    Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                );
+            }
+        );
+        
+        connectsNextButton = new Button(
+            0, 0, 0, 20,
+            Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+            button -> {
+                editing.entry.connectsNext = !editing.entry.connectsNext;
+                button.setMessage(
+                    Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                );
+            }
+        );
         
         finishButton = new Button(
             0, 0, 0, 20, Component.translatable("imm_ptl.finish"),
@@ -170,12 +196,14 @@ public class DimStackEntryEditScreen extends Screen {
         addWidget(topYField);
         addWidget(bottomYField);
         addWidget(bedrockBlockField);
+        addWidget(connectsPreviousButton);
+        addWidget(connectsNextButton);
         addRenderableWidget(finishButton);
         addRenderableWidget(helpButton);
         
         GuiHelper.layout(
             0, height,
-            GuiHelper.blankSpace(20),
+            GuiHelper.blankSpace(5),
             GuiHelper.fixedLength(20,
                 GuiHelper.combine(
                     GuiHelper.layoutRectVertically(scaleLabelRect),
@@ -218,8 +246,22 @@ public class DimStackEntryEditScreen extends Screen {
                 )
             ),
             GuiHelper.elasticBlankSpace(),
+            GuiHelper.fixedLength(20,
+                GuiHelper.combine(
+                    GuiHelper.layoutRectVertically(connectsPreviousRect),
+                    GuiHelper.layoutButtonVertically(connectsPreviousButton)
+                )
+            ),
+            GuiHelper.elasticBlankSpace(),
+            GuiHelper.fixedLength(20,
+                GuiHelper.combine(
+                    GuiHelper.layoutRectVertically(connectsNextRect),
+                    GuiHelper.layoutButtonVertically(connectsNextButton)
+                )
+            ),
+            GuiHelper.elasticBlankSpace(),
             GuiHelper.fixedLength(20, GuiHelper.layoutButtonVertically(finishButton)),
-            GuiHelper.blankSpace(20)
+            GuiHelper.blankSpace(5)
         );
         
         GuiHelper.layout(
@@ -232,7 +274,9 @@ public class DimStackEntryEditScreen extends Screen {
                     GuiHelper.layoutRectHorizontally(horizontalRotationLabelRect),
                     GuiHelper.layoutRectHorizontally(topYLabelRect),
                     GuiHelper.layoutRectHorizontally(bottomYLabelRect),
-                    GuiHelper.layoutRectHorizontally(bedrockLabelRect)
+                    GuiHelper.layoutRectHorizontally(bedrockLabelRect),
+                    GuiHelper.layoutRectHorizontally(connectsPreviousRect),
+                    GuiHelper.layoutRectHorizontally(connectsNextRect)
                 )
             ),
             GuiHelper.blankSpace(20),
@@ -243,7 +287,9 @@ public class DimStackEntryEditScreen extends Screen {
                     GuiHelper.layoutButtonHorizontally(horizontalRotationField),
                     GuiHelper.layoutButtonHorizontally(topYField),
                     GuiHelper.layoutButtonHorizontally(bottomYField),
-                    GuiHelper.layoutButtonHorizontally(bedrockBlockField)
+                    GuiHelper.layoutButtonHorizontally(bedrockBlockField),
+                    GuiHelper.layoutButtonHorizontally(connectsPreviousButton),
+                    GuiHelper.layoutButtonHorizontally(connectsNextButton)
                 )
             ),
             GuiHelper.elasticBlankSpace()
@@ -279,6 +325,8 @@ public class DimStackEntryEditScreen extends Screen {
         topYField.render(matrices, mouseX, mouseY, delta);
         bottomYField.render(matrices, mouseX, mouseY, delta);
         bedrockBlockField.render(matrices, mouseX, mouseY, delta);
+        connectsPreviousButton.render(matrices, mouseX, mouseY, delta);
+        connectsNextButton.render(matrices, mouseX, mouseY, delta);
         
         scaleLabelRect.renderTextLeft(Component.translatable("imm_ptl.scale"), matrices);
         flipLabelRect.renderTextLeft(Component.translatable("imm_ptl.flipped"), matrices);
@@ -286,5 +334,7 @@ public class DimStackEntryEditScreen extends Screen {
         topYLabelRect.renderTextLeft(Component.translatable("imm_ptl.top_y"), matrices);
         bottomYLabelRect.renderTextLeft(Component.translatable("imm_ptl.bottom_y"), matrices);
         bedrockLabelRect.renderTextLeft(Component.translatable("imm_ptl.bedrock_replacement"), matrices);
+        connectsPreviousRect.renderTextLeft(Component.translatable("imm_ptl.connects_previous"), matrices);
+        connectsNextRect.renderTextLeft(Component.translatable("imm_ptl.connects_next"), matrices);
     }
 }

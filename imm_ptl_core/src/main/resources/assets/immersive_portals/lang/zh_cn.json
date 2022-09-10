@@ -169,5 +169,7 @@
   "imm_ptl.severely_incompatible_within_version": "警告: 沉浸传送门(Immersive Portals)模组不兼容 %1$s(%2$s) 的版本 %3$s。 游戏将出现严重问题。应该安装另一个版本的 %1$s",
   "imm_ptl.incompatible": "警告: 沉浸传送门(Immersive Portals)模组与 %1$s(%2$s) 有兼容性问题",
   "entity.immersive_portals.portal": "传送门",
-  "entity.immersive_portals.nether_portal_new": "地狱传送门"
+  "entity.immersive_portals.nether_portal_new": "地狱传送门",
+  "imm_ptl.connects_previous": "连接上一个位面",
+  "imm_ptl.connects_next": "连接下一个位面"
 }
