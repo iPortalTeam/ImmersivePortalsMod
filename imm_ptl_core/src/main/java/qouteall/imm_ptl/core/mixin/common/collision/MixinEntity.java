@@ -12,9 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -109,11 +107,6 @@ public abstract class MixinEntity implements IEEntity {
                 Helper.err("Entity moves too fast " + entity + attemptedMove + entity.level.getGameTime());
                 new Throwable().printStackTrace();
             });
-
-//            if (entity instanceof ServerPlayerEntity) {
-//                ServerTeleportationManager.sendPositionConfirmMessage(((ServerPlayerEntity) entity));
-//                Helper.log("position confirm message sent " + entity);
-//            }
             
             return attemptedMove;
         }
@@ -139,6 +132,7 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     //don't burn when jumping into end portal
+    // TODO make it work for all portals
     @Inject(
         method = "Lnet/minecraft/world/entity/Entity;fireImmune()Z",
         at = @At("HEAD"),
@@ -170,7 +164,7 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    //for teleportation debug
+    // for teleportation debug
     @Inject(
         method = "Lnet/minecraft/world/entity/Entity;setPosRaw(DDD)V",
         at = @At("HEAD")
@@ -195,15 +189,23 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    // Avoid instant crouching when crossing a scaling portal
-    @Inject(method = "Lnet/minecraft/world/entity/Entity;canEnterPose(Lnet/minecraft/world/entity/Pose;)Z", at = @At("HEAD"), cancellable = true)
-    private void onWouldPoseNotCollide(Pose pose, CallbackInfoReturnable<Boolean> cir) {
+    // when going through a portal with scaling, it sometimes wrongly crouch
+    // because of floating-point inaccuracy with bounding box
+    // NOTE even it does not crouch, the player is slightly inside the block, and the collision won't always work
+    // TODO find the correct way of fixing floating-point inaccuracy of collision box after teleportation
+    @ModifyConstant(
+        method = "canEnterPose",
+        constant = @Constant(doubleValue = 1.0E-7)
+    )
+    double modifyShrinkNum(double originalValue) {
         if (isRecentlyCollidingWithPortal()) {
-            cir.setReturnValue(true);
+            return 0.01;
         }
+        
+        return originalValue;
     }
     
-    //fix climbing onto ladder cross portal
+    // fix climbing onto ladder cross portal
     @Inject(method = "Lnet/minecraft/world/entity/Entity;getFeetBlockState()Lnet/minecraft/world/level/block/state/BlockState;", at = @At("HEAD"), cancellable = true)
     private void onGetBlockState(CallbackInfoReturnable<BlockState> cir) {
         Portal collidingPortal = ((IEEntity) this).getCollidingPortal();

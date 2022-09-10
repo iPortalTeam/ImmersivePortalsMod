@@ -39,6 +39,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
