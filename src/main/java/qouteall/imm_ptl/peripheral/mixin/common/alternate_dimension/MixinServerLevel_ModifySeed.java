@@ -14,7 +14,7 @@ public class MixinServerLevel_ModifySeed {
     @Inject(method = "getSeed", at = @At("RETURN"), cancellable = true)
     private void onGetSeed(CallbackInfoReturnable<Long> cir) {
         Level world = (Level) ((Object) this);
-    
+        
         ResourceKey<Level> dimension = world.dimension();
         if (dimension == AlternateDimensions.alternate2) {
             cir.setReturnValue(cir.getReturnValue() + 1);

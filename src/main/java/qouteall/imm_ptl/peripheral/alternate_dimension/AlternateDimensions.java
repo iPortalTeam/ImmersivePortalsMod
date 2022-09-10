@@ -60,7 +60,7 @@ public class AlternateDimensions {
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
-    
+        
         Holder<DimensionType> surfaceTypeHolder = registryManager
             .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
             .getHolder(ResourceKey.create(
@@ -68,7 +68,7 @@ public class AlternateDimensions {
                 new ResourceLocation("immersive_portals:surface_type")
             ))
             .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
-    
+        
         Holder<DimensionType> surfaceTypeBrightHolder = registryManager
             .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
             .getHolder(ResourceKey.create(
@@ -81,7 +81,7 @@ public class AlternateDimensions {
             registry,
             alternate1.location(),
             surfaceTypeBrightHolder,
-            createSkylandGenerator(registryManager)
+            createSkylandGenerator(registryManager, seed)
         );
         DimensionAPI.markDimensionNonPersistent(alternate1.location());
         
@@ -89,7 +89,7 @@ public class AlternateDimensions {
             registry,
             alternate2.location(),
             surfaceTypeHolder,
-            createSkylandGenerator(registryManager)
+            createSkylandGenerator(registryManager, seed + 1) // different seed
         );
         DimensionAPI.markDimensionNonPersistent(alternate2.location());
         
@@ -163,7 +163,7 @@ public class AlternateDimensions {
         );
     }
     
-    public static ChunkGenerator createSkylandGenerator(RegistryAccess rm) {
+    public static ChunkGenerator createSkylandGenerator(RegistryAccess rm, long seed) {
         Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry = rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
         Registry<StructureSet> structureSets = rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
@@ -173,7 +173,8 @@ public class AlternateDimensions {
             rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
             rm.registryOrThrow(Registry.BIOME_REGISTRY),
             rm.registryOrThrow(Registry.NOISE_REGISTRY),
-            rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY)
+            rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY),
+            seed
         );
     }
     
