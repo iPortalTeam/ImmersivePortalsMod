@@ -119,12 +119,12 @@ allprojects {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.19.2-0.4.4"
-        implementation "org.joml:joml:1.10.2" // for sodium
+        modCompileOnly "maven.modrinth:sodium:mc1.19.2-0.4.4"
+//        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modImplementation 'maven.modrinth:iris:1.19.x-v1.2.8'
-        implementation "org.anarres:jcpp:1.4.14" // for iris
-        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
+        modCompileOnly 'maven.modrinth:iris:1.19.x-v1.2.8'
+//        implementation "org.anarres:jcpp:1.4.14" // for iris
+//        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
         modImplementation("maven.modrinth:gravity-api:0.7.18+fabric") {
             transitive = false
