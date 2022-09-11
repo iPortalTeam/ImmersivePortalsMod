@@ -18,13 +18,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ComponentArgument;
-import net.minecraft.commands.arguments.CompoundTagArgument;
-import net.minecraft.commands.arguments.DimensionArgument;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
-import net.minecraft.commands.arguments.coordinates.ColumnPosArgument;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.commands.arguments.*;
+import net.minecraft.commands.arguments.coordinates.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -67,13 +62,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -905,6 +894,94 @@ public class PortalCommand {
                         )
                     )
                 )
+            )
+        );
+        
+        builder.then(Commands.literal("add_command_on_teleported")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("subCommand", SubCommandArgumentType.instance)
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    String subCommand = SubCommandArgumentType.get(context, "subCommand");
+                    if (portal.commandsOnTeleported == null) {
+                        portal.commandsOnTeleported = new ArrayList<>();
+                    }
+                    portal.commandsOnTeleported.add(subCommand);
+                    portal.reloadAndSyncToClient();
+                    sendPortalInfo(context, portal);
+                }))
+            )
+        );
+        
+        builder.then(Commands.literal("remove_command_on_teleported_at")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("indexStartingFromZero", IntegerArgumentType.integer(0, 100))
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    if (portal.commandsOnTeleported == null) {
+                        return;
+                    }
+                    
+                    int index = IntegerArgumentType.getInteger(context, "indexStartingFromZero");
+                    
+                    if (index >= portal.commandsOnTeleported.size()) {
+                        context.getSource().sendFailure(Component.literal("Index out of range"));
+                        return;
+                    }
+                    
+                    portal.commandsOnTeleported.remove(index);
+                    portal.reloadAndSyncToClient();
+                    sendPortalInfo(context, portal);
+                }))
+            )
+        );
+    
+        // The code of command "set_command_on_teleported_at" is fully written by GitHub Copilot!!!!!!!!
+        // The AI is so smart!!!!
+        builder.then(Commands.literal("set_command_on_teleported_at")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("indexStartingFromZero", IntegerArgumentType.integer(0, 100))
+                .then(Commands.argument("subCommand", SubCommandArgumentType.instance)
+                    .executes(context -> processPortalTargetedCommand(context, portal -> {
+                        if (portal.commandsOnTeleported == null) {
+                            return;
+                        }
+                        
+                        int index = IntegerArgumentType.getInteger(context, "indexStartingFromZero");
+                        
+                        if (index >= portal.commandsOnTeleported.size()) {
+                            context.getSource().sendFailure(Component.literal("Index out of range"));
+                            return;
+                        }
+                        
+                        String subCommand = SubCommandArgumentType.get(context, "subCommand");
+                        
+                        portal.commandsOnTeleported.set(index, subCommand);
+                        portal.reloadAndSyncToClient();
+                        sendPortalInfo(context, portal);
+                    }))
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("clear_commands_on_teleported")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                portal.commandsOnTeleported = null;
+                portal.reloadAndSyncToClient();
+                sendPortalInfo(context, portal);
+            }))
+        );
+    
+        builder.then(Commands
+            .literal("create_command_stick")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("command", SubCommandArgumentType.instance)
+                .executes(context -> {
+                    PortalCommand.createCommandStickCommandSignal.emit(
+                        context.getSource().getPlayerOrException(),
+                        SubCommandArgumentType.get(context, "command")
+                    );
+                    return 0;
+                })
             )
         );
     }

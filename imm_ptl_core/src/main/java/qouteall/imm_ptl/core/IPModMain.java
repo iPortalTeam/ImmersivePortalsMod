@@ -12,6 +12,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.commands.PortalCommand;
+import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -70,6 +71,7 @@ public class IPModMain {
         CommandRegistrationCallback.EVENT.register(
             (dispatcher, registryAccess, environment) -> PortalCommand.register(dispatcher)
         );
+        SubCommandArgumentType.init();
         
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");
