@@ -304,7 +304,7 @@ public class PortalManipulation {
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.hasCrossPortalCollision = from.hasCrossPortalCollision;
         PortalExtension.get(to).bindCluster = PortalExtension.get(from).bindCluster;
-        to.animation = from.animation.copy();
+        to.defaultAnimation = from.defaultAnimation.copy();
         to.setIsVisible(from.isVisible());
         
         if (includeSpecialProperties) {

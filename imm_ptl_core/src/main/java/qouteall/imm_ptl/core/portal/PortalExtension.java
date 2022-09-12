@@ -140,7 +140,7 @@ public class PortalExtension {
     
     public void rectifyClusterPortals(Portal portal) {
         
-        portal.animation.inverseScale = false;
+        portal.defaultAnimation.inverseScale = false;
         
         if (flippedPortal != null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
@@ -167,7 +167,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
-            flippedPortal.animation.inverseScale = false;
+            flippedPortal.defaultAnimation.inverseScale = false;
             
             flippedPortal.reloadAndSyncToClient();
         }
@@ -202,7 +202,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
-            reversePortal.animation.inverseScale = true;
+            reversePortal.defaultAnimation.inverseScale = true;
             
             reversePortal.reloadAndSyncToClient();
         }
@@ -237,7 +237,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             
-            parallelPortal.animation.inverseScale = true;
+            parallelPortal.defaultAnimation.inverseScale = true;
             
             parallelPortal.reloadAndSyncToClient();
         }

@@ -209,7 +209,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     PortalRenderInfo portalRenderInfo;
     
     @NotNull
-    protected DefaultPortalAnimation animation = DefaultPortalAnimation.createDefault();
+    protected DefaultPortalAnimation defaultAnimation = DefaultPortalAnimation.createDefault();
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -555,11 +555,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        if (compoundTag.contains("animation")) {
-            animation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+        if (compoundTag.contains("defaultAnimation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
+        }
+        else if (compoundTag.contains("animation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
         }
         else {
-            animation = DefaultPortalAnimation.createDefault();
+            defaultAnimation = DefaultPortalAnimation.createDefault();
         }
         
         width = compoundTag.getDouble("width");
@@ -681,7 +684,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("animation", animation.toNbt());
+        compoundTag.put("defaultAnimation", defaultAnimation.toNbt());
         
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
@@ -1568,9 +1571,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return;
         }
         
-        Validate.notNull(animation);
+        Validate.notNull(defaultAnimation);
         
-        PortalAnimationManagement.addAnimation(this, animationStartState, newState, animation);
+        PortalAnimationManagement.addAnimation(this, animationStartState, newState, defaultAnimation);
         
         // multiple animations may start at the same tick. correct the current state
         setPortalState(animationStartState);
@@ -1583,7 +1586,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         setPos(pos);
         readAdditionalSaveData(customData);
         
-        if (animation.durationTicks > 0) {
+        if (defaultAnimation.durationTicks > 0) {
             startAnimationClient(oldState);
         }
     }
