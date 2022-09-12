@@ -37,6 +37,8 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
+import qouteall.imm_ptl.core.portal.animation.PortalAnimationManagement;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -207,7 +209,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     PortalRenderInfo portalRenderInfo;
     
     @NotNull
-    protected PortalAnimation animation = PortalAnimation.createDefault();
+    protected DefaultPortalAnimation animation = DefaultPortalAnimation.createDefault();
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -554,10 +556,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         if (compoundTag.contains("animation")) {
-            animation = PortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+            animation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
         }
         else {
-            animation = PortalAnimation.createDefault();
+            animation = DefaultPortalAnimation.createDefault();
         }
         
         width = compoundTag.getDouble("width");

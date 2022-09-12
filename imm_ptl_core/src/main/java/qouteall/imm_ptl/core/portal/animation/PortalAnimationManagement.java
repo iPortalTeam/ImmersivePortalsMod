@@ -1,9 +1,11 @@
-package qouteall.imm_ptl.core.portal;
+package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class PortalAnimationManagement {
         Portal portal,
         PortalState fromState,
         PortalState toState,
-        PortalAnimation animation
+        DefaultPortalAnimation animation
     ) {
         if (animation.durationTicks <= 0) {
             return;
@@ -35,7 +37,7 @@ public class PortalAnimationManagement {
             toState,
             currTime,
             currTime + Helper.secondToNano(animation.durationTicks / 20.0),
-            animation.curve,
+            animation.timingFunction,
             animation.inverseScale
         );
         animatedPortals.put(portal, runningAnimation);
@@ -85,19 +87,19 @@ public class PortalAnimationManagement {
         public PortalState toState;
         public long startTimeNano;
         public long toTimeNano;
-        public PortalAnimation.Curve curve;
+        public TimingFunction timingFunction;
         public boolean inverseScale;
         
         public RunningAnimation(
             PortalState fromState, PortalState toState, long startTimeNano, long toTimeNano,
-            PortalAnimation.Curve curve,
+            TimingFunction timingFunction,
             boolean inverseScale
         ) {
             this.fromState = fromState;
             this.toState = toState;
             this.startTimeNano = startTimeNano;
             this.toTimeNano = toTimeNano;
-            this.curve = curve;
+            this.timingFunction = timingFunction;
             this.inverseScale = inverseScale;
         }
         
@@ -111,7 +113,7 @@ public class PortalAnimationManagement {
                 progress = 0;
             }
             
-            progress = PortalAnimation.mapProgress(progress, this.curve);
+            progress = this.timingFunction.mapProgress(progress);
             
             PortalState currState = PortalState.interpolate(
                 this.fromState, this.toState, progress, inverseScale
