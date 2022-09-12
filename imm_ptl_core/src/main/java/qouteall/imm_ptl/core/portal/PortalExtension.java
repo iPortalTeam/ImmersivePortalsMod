@@ -98,19 +98,11 @@ public class PortalExtension {
     }
     
     private void tick(Portal portal) {
-        if (portal.level.isClientSide()) {
-            tickClient(portal);
-        }
-        else {
-            updateClusterStatus(portal);
-        }
+        updateClusterStatus(portal);
     }
     
-    @Environment(EnvType.CLIENT)
-    private void tickClient(Portal portal) {
-    
-    }
-    
+    // TODO bind portal cluster during portal creation? That may break compatibility.
+    // update portal cluster status, both in client and server
     private void updateClusterStatus(Portal portal) {
         if (bindCluster) {
             flippedPortal = PortalManipulation.findFlippedPortal(portal);

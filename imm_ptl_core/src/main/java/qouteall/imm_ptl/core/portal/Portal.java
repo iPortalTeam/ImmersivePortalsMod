@@ -38,6 +38,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
+import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationManagement;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
@@ -210,6 +211,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @NotNull
     protected DefaultPortalAnimation defaultAnimation = DefaultPortalAnimation.createDefault();
+    @Nullable
+    protected PortalAnimationDriver animationDriver;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -535,6 +538,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         updateCache();
     }
     
+    public void setOrientationRotation(DQuaternion quaternion) {
+        setOrientation(
+            quaternion.rotate(new Vec3(1, 0, 0)),
+            quaternion.rotate(new Vec3(0, 1, 0))
+        );
+    }
+    
     public void setRotationTransformation(@Nullable Quaternion quaternion) {
         rotation = quaternion;
         updateCache();
@@ -555,16 +565,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        if (compoundTag.contains("defaultAnimation")) {
-            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
-        }
-        else if (compoundTag.contains("animation")) {
-            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
-        }
-        else {
-            defaultAnimation = DefaultPortalAnimation.createDefault();
-        }
-        
         width = compoundTag.getDouble("width");
         height = compoundTag.getDouble("height");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
@@ -677,6 +677,23 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             visible = true;
         }
         
+        if (compoundTag.contains("defaultAnimation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
+        }
+        else if (compoundTag.contains("animation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+        }
+        else {
+            defaultAnimation = DefaultPortalAnimation.createDefault();
+        }
+        
+        if (compoundTag.contains("animationDriver")) {
+            animationDriver = PortalAnimationDriver.fromTag(compoundTag.getCompound("animationDriver"));
+        }
+        else {
+            animationDriver = null;
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -684,8 +701,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("defaultAnimation", defaultAnimation.toNbt());
-        
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         Helper.putVec3d(compoundTag, "axisW", axisW);
@@ -746,6 +761,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 "commandsOnTeleported",
                 list
             );
+        }
+        
+        compoundTag.put("defaultAnimation", defaultAnimation.toNbt());
+        
+        if (animationDriver != null) {
+            compoundTag.put("animationDriver", animationDriver.toTag());
         }
         
         writePortalDataSignal.emit(this, compoundTag);
@@ -1603,6 +1624,22 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void rectifyClusterPortals() {
         PortalExtension.get(this).rectifyClusterPortals(this);
+    }
+    
+    private void tickAnimationDriver() {
+        if (level.isClientSide()) {
+            tickAnimationDriverClient();
+        }
+        else {
+            if (animationDriver != null) {
+                animationDriver.update(this, level.getGameTime(), 0);
+            }
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void tickAnimationDriverClient() {
+        // TODO
     }
     
     public static class RemoteCallables {

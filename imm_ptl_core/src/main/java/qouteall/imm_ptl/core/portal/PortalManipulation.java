@@ -434,10 +434,7 @@ public class PortalManipulation {
     public static void setPortalOrientationQuaternion(
         Portal portal, DQuaternion quaternion
     ) {
-        portal.setOrientation(
-            quaternion.rotate(new Vec3(1, 0, 0)),
-            quaternion.rotate(new Vec3(0, 1, 0))
-        );
+        portal.setOrientationRotation(quaternion);
     }
     
     public static void adjustRotationToConnect(Portal portalA, Portal portalB) {
