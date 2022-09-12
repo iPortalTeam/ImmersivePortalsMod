@@ -7,9 +7,9 @@ public class PortalAnimation {
         linear, sine, circle
     }
     
-    public final Curve curve;
-    public final int durationTicks;
-    public final boolean inverseScale;
+    public Curve curve;
+    public int durationTicks;
+    public boolean inverseScale;
     
     public PortalAnimation(Curve curve, int durationTicks, boolean inverseScale) {
         this.curve = curve;
@@ -17,8 +17,9 @@ public class PortalAnimation {
         this.inverseScale = inverseScale;
     }
     
-    public static final PortalAnimation defaultAnimation =
-        new PortalAnimation(Curve.sine, 10, false);
+    public static PortalAnimation createDefault() {
+        return new PortalAnimation(Curve.sine, 10, false);
+    }
     
     public static PortalAnimation fromNbt(CompoundTag nbt) {
         String c = nbt.getString("curve");
@@ -42,8 +43,8 @@ public class PortalAnimation {
         return nbtCompound;
     }
     
-    public PortalAnimation updateInverseScale(boolean newValue) {
-        return new PortalAnimation(curve, durationTicks, newValue);
+    PortalAnimation copy() {
+        return new PortalAnimation(curve, durationTicks, inverseScale);
     }
     
     public static double mapProgress(double progress, Curve curve) {

@@ -30,6 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -205,7 +206,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Environment(EnvType.CLIENT)
     PortalRenderInfo portalRenderInfo;
     
-    protected PortalAnimation animation = PortalAnimation.defaultAnimation;
+    @NotNull
+    protected PortalAnimation animation = PortalAnimation.createDefault();
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -555,7 +557,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             animation = PortalAnimation.fromNbt(compoundTag.getCompound("animation"));
         }
         else {
-            animation = PortalAnimation.defaultAnimation;
+            animation = PortalAnimation.createDefault();
         }
         
         width = compoundTag.getDouble("width");
