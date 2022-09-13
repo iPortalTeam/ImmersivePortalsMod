@@ -30,7 +30,7 @@ public class RotationAnimation implements PortalAnimationDriver {
     public Vec3 otherSideRotationCenter;
     @Nullable
     public Vec3 otherSideRotationAxis;
-    public double angularVelocity; // radians per tick
+    public double angularVelocity; // degrees per tick
     public long startGameTime;
     public long endGameTime;
     
@@ -90,7 +90,7 @@ public class RotationAnimation implements PortalAnimationDriver {
         
         double angle = angularVelocity * passedTicks;
         if (thisSideRotationCenter != null && thisSideRotationAxis != null) {
-            DQuaternion rotation = DQuaternion.rotationByRadians(thisSideRotationAxis, angle);
+            DQuaternion rotation = DQuaternion.rotationByDegrees(thisSideRotationAxis, angle);
             
             Vec3 offset = initialPortalOrigin.subtract(thisSideRotationCenter);
             Vec3 rotatedOffset = rotation.rotate(offset);

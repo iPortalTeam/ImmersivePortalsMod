@@ -39,7 +39,7 @@ import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
-import qouteall.imm_ptl.core.portal.animation.PortalAnimationManagement;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -538,6 +538,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         updateCache();
     }
     
+    public DQuaternion getOrientationRotation() {
+        return PortalManipulation.getPortalOrientationQuaternion(axisW, axisH);
+    }
+    
     public void setOrientationRotation(DQuaternion quaternion) {
         setOrientation(
             quaternion.rotate(new Vec3(1, 0, 0)),
@@ -822,6 +826,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
             serverPortalTickSignal.emit(this);
         }
+        
+        tickAnimationDriver();
         
         CollisionHelper.notifyCollidingPortals(this);
         
@@ -1552,7 +1558,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             getDestPos(),
             getScale(),
             getRotation() == null ? DQuaternion.identity : DQuaternion.fromMcQuaternion(getRotation()),
-            PortalManipulation.getPortalOrientationQuaternion(axisW, axisH),
+            getOrientationRotation(),
             width, height
         );
     }
@@ -1594,7 +1600,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         
         Validate.notNull(defaultAnimation);
         
-        PortalAnimationManagement.addAnimation(this, animationStartState, newState, defaultAnimation);
+        ClientPortalAnimationManagement.addDefaultAnimation(this, animationStartState, newState, defaultAnimation);
         
         // multiple animations may start at the same tick. correct the current state
         setPortalState(animationStartState);
@@ -1632,14 +1638,29 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         else {
             if (animationDriver != null) {
-                animationDriver.update(this, level.getGameTime(), 0);
+                boolean finishes = animationDriver.update(this, level.getGameTime(), 0);
+                rectifyClusterPortals();
+                if (finishes) {
+                    animationDriver = null;
+                }
             }
         }
     }
     
     @Environment(EnvType.CLIENT)
     private void tickAnimationDriverClient() {
-        // TODO
+        if (animationDriver != null) {
+            ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(this);
+        }
+    }
+    
+    @Nullable
+    public PortalAnimationDriver getAnimationDriver() {
+        return animationDriver;
+    }
+    
+    public void setAnimationDriver(@Nullable PortalAnimationDriver driver) {
+        animationDriver = driver;
     }
     
     public static class RemoteCallables {

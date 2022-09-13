@@ -134,7 +134,7 @@ public class PortalExtension {
         
         portal.defaultAnimation.inverseScale = false;
         
-        if (flippedPortal != null) {
+        if (flippedPortal != null && flippedPortal.getAnimationDriver() == null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 flippedPortal,
                 portal.level.dimension(),
@@ -160,11 +160,13 @@ public class PortalExtension {
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
             flippedPortal.defaultAnimation.inverseScale = false;
-            
-            flippedPortal.reloadAndSyncToClient();
+    
+            if (!flippedPortal.level.isClientSide()) {
+                flippedPortal.reloadAndSyncToClient();
+            }
         }
         
-        if (reversePortal != null) {
+        if (reversePortal != null && reversePortal.getAnimationDriver() == null) {
             reversePortal = ServerTeleportationManager.teleportRegularEntityTo(
                 reversePortal,
                 portal.getDestDim(),
@@ -196,10 +198,12 @@ public class PortalExtension {
             
             reversePortal.defaultAnimation.inverseScale = true;
             
-            reversePortal.reloadAndSyncToClient();
+            if (!reversePortal.level.isClientSide()) {
+                reversePortal.reloadAndSyncToClient();
+            }
         }
         
-        if (parallelPortal != null) {
+        if (parallelPortal != null && parallelPortal.getAnimationDriver() == null) {
             parallelPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 parallelPortal,
                 portal.getDestDim(),
@@ -231,7 +235,9 @@ public class PortalExtension {
             
             parallelPortal.defaultAnimation.inverseScale = true;
             
-            parallelPortal.reloadAndSyncToClient();
+            if (!parallelPortal.level.isClientSide()) {
+                parallelPortal.reloadAndSyncToClient();
+            }
         }
     }
     

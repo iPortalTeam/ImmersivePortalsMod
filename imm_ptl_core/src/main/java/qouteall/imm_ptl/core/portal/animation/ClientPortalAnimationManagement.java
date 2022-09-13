@@ -6,22 +6,25 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
-public class PortalAnimationManagement {
-    private static final Map<Portal, RunningAnimation> animatedPortals = new HashMap<>();
+public class ClientPortalAnimationManagement {
+    private static final Map<Portal, RunningAnimation> defaultAnimatedPortals = new HashMap<>();
+    private static final HashSet<Portal> customAnimatedPortals = new HashSet<>();
     
     public static void init() {
-        IPGlobal.preGameRenderSignal.connect(PortalAnimationManagement::onPreGameRender);
-        IPGlobal.clientCleanupSignal.connect(PortalAnimationManagement::cleanup);
+        IPGlobal.preGameRenderSignal.connect(ClientPortalAnimationManagement::onPreGameRender);
+        IPGlobal.clientCleanupSignal.connect(ClientPortalAnimationManagement::cleanup);
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
     
-    public static void addAnimation(
+    public static void addDefaultAnimation(
         Portal portal,
         PortalState fromState,
         PortalState toState,
@@ -40,13 +43,17 @@ public class PortalAnimationManagement {
             animation.timingFunction,
             animation.inverseScale
         );
-        animatedPortals.put(portal, runningAnimation);
+        defaultAnimatedPortals.put(portal, runningAnimation);
+    }
+    
+    public static void markRequiresCustomAnimationUpdate(Portal portal) {
+        customAnimatedPortals.add(portal);
     }
     
     private static void onPreGameRender() {
         long currTime = System.nanoTime();
         
-        animatedPortals.entrySet().removeIf(entry -> {
+        defaultAnimatedPortals.entrySet().removeIf(entry -> {
             Portal portal = entry.getKey();
             RunningAnimation animation = entry.getValue();
             
@@ -76,10 +83,32 @@ public class PortalAnimationManagement {
             
             return false;
         });
+        
+        customAnimatedPortals.removeIf(portal -> {
+            if (portal.isRemoved()) {
+                return true;
+            }
+            PortalAnimationDriver animationDriver = portal.getAnimationDriver();
+            if (animationDriver == null) {
+                return true;
+            }
+            
+            boolean finished = animationDriver.update(
+                portal, portal.level.getGameTime(), RenderStates.tickDelta
+            );
+            portal.rectifyClusterPortals();
+            
+            if (finished) {
+                portal.setAnimationDriver(null);
+            }
+            
+            return finished;
+        });
     }
     
     private static void cleanup() {
-        animatedPortals.clear();
+        defaultAnimatedPortals.clear();
+        customAnimatedPortals.clear();
     }
     
     public static class RunningAnimation {

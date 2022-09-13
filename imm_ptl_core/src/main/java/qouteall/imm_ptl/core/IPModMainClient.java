@@ -15,7 +15,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
-import qouteall.imm_ptl.core.portal.animation.PortalAnimationManagement;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
@@ -155,7 +155,7 @@ public class IPModMainClient {
         
         showIntelVideoCardWarning();
         
-        PortalAnimationManagement.init();
+        ClientPortalAnimationManagement.init();
         
         VisibleSectionDiscovery.init();
         
