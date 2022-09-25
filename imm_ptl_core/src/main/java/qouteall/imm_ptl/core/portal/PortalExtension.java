@@ -98,19 +98,11 @@ public class PortalExtension {
     }
     
     private void tick(Portal portal) {
-        if (portal.level.isClientSide()) {
-            tickClient(portal);
-        }
-        else {
-            updateClusterStatus(portal);
-        }
+        updateClusterStatus(portal);
     }
     
-    @Environment(EnvType.CLIENT)
-    private void tickClient(Portal portal) {
-    
-    }
-    
+    // TODO bind portal cluster during portal creation? That may break compatibility.
+    // update portal cluster status, both in client and server
     private void updateClusterStatus(Portal portal) {
         if (bindCluster) {
             flippedPortal = PortalManipulation.findFlippedPortal(portal);
@@ -140,9 +132,9 @@ public class PortalExtension {
     
     public void rectifyClusterPortals(Portal portal) {
         
-        portal.animation = portal.animation.updateInverseScale(false);
+        portal.defaultAnimation.inverseScale = false;
         
-        if (flippedPortal != null) {
+        if (flippedPortal != null && flippedPortal.getAnimationDriver() == null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 flippedPortal,
                 portal.level.dimension(),
@@ -166,13 +158,15 @@ public class PortalExtension {
             
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
-    
-            flippedPortal.animation = flippedPortal.animation.updateInverseScale(false);
             
-            flippedPortal.reloadAndSyncToClient();
+            flippedPortal.defaultAnimation.inverseScale = false;
+    
+            if (!flippedPortal.level.isClientSide()) {
+                flippedPortal.reloadAndSyncToClient();
+            }
         }
         
-        if (reversePortal != null) {
+        if (reversePortal != null && reversePortal.getAnimationDriver() == null) {
             reversePortal = ServerTeleportationManager.teleportRegularEntityTo(
                 reversePortal,
                 portal.getDestDim(),
@@ -198,16 +192,18 @@ public class PortalExtension {
                 reversePortal.width = portal.width * portal.getScale();
                 reversePortal.height = portal.height * portal.getScale();
             }
-    
+            
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
-    
-            reversePortal.animation = reversePortal.animation.updateInverseScale(true);
             
-            reversePortal.reloadAndSyncToClient();
+            reversePortal.defaultAnimation.inverseScale = true;
+            
+            if (!reversePortal.level.isClientSide()) {
+                reversePortal.reloadAndSyncToClient();
+            }
         }
         
-        if (parallelPortal != null) {
+        if (parallelPortal != null && parallelPortal.getAnimationDriver() == null) {
             parallelPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 parallelPortal,
                 portal.getDestDim(),
@@ -233,13 +229,15 @@ public class PortalExtension {
                 parallelPortal.width = portal.width * portal.getScale();
                 parallelPortal.height = portal.height * portal.getScale();
             }
-    
+            
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
-    
-            parallelPortal.animation = parallelPortal.animation.updateInverseScale(true);
             
-            parallelPortal.reloadAndSyncToClient();
+            parallelPortal.defaultAnimation.inverseScale = true;
+            
+            if (!parallelPortal.level.isClientSide()) {
+                parallelPortal.reloadAndSyncToClient();
+            }
         }
     }
     
