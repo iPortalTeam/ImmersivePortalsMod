@@ -18,7 +18,6 @@ import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalExtension;
-import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
@@ -73,9 +72,6 @@ public class IPModMain {
             (dispatcher, registryAccess, environment) -> PortalCommand.register(dispatcher)
         );
         SubCommandArgumentType.init();
-        
-        // intrinsic animation driver types
-        RotationAnimation.init();
         
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");

@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core;
 
 import com.mojang.blaze3d.platform.GlUtil;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,8 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
-import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.portal.PortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
@@ -155,7 +157,7 @@ public class IPModMainClient {
         
         showIntelVideoCardWarning();
         
-        ClientPortalAnimationManagement.init();
+        PortalAnimationManagement.init();
         
         VisibleSectionDiscovery.init();
         

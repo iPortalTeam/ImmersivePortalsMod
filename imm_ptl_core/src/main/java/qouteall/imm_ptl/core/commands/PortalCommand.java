@@ -47,7 +47,6 @@ import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
-import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -84,11 +83,6 @@ public class PortalCommand {
             .requires(PortalCommand::canUsePortalCommand);
         
         registerPortalTargetedCommands(builder);
-        
-        LiteralArgumentBuilder<CommandSourceStack> animate =
-            Commands.literal("animation");
-        registerPortalAnimationCommands(animate);
-        builder.then(animate);
         
         registerCBPortalCommands(builder);
         
@@ -869,10 +863,10 @@ public class PortalCommand {
                             .executes(context -> {
                                 Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
                                 Vec3 origin = Vec3Argument.getVec3(context, "origin");
-                                Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
+                                Vec3 axis = Vec3Argument.getVec3(context, "axis");
                                 double angle = DoubleArgumentType.getDouble(context, "angle");
                                 
-                                DQuaternion quaternion = DQuaternion.rotationByDegrees(axis, angle);
+                                DQuaternion quaternion = DQuaternion.rotationByDegrees(axis.normalize(), angle);
                                 
                                 for (Entity entity : portals) {
                                     if (entity instanceof Portal portal) {
@@ -939,7 +933,7 @@ public class PortalCommand {
                 }))
             )
         );
-        
+    
         // The code of command "set_command_on_teleported_at" is fully written by GitHub Copilot!!!!!!!!
         // The AI is so smart!!!!
         builder.then(Commands.literal("set_command_on_teleported_at")
@@ -976,7 +970,7 @@ public class PortalCommand {
                 sendPortalInfo(context, portal);
             }))
         );
-        
+    
         builder.then(Commands
             .literal("create_command_stick")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
@@ -988,61 +982,6 @@ public class PortalCommand {
                     );
                     return 0;
                 })
-            )
-        );
-    }
-    
-    private static void registerPortalAnimationCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
-        builder.then(Commands.literal("stop")
-            .executes(context -> processPortalTargetedCommand(context, portal -> {
-                portal.setAnimationDriver(null);
-                reloadPortal(portal);
-            }))
-        );
-        
-        builder.then(Commands.literal("rotate")
-            .then(Commands.argument("portals", EntityArgument.entities())
-                .then(Commands.argument("rotationCenter", Vec3Argument.vec3())
-                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
-                        .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
-                            .executes(context -> {
-                                Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
-                                Vec3 rotationCenter = Vec3Argument.getVec3(context, "rotationCenter");
-                                Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
-                                double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        RotationAnimation animation = new RotationAnimation();
-                                        animation.initialPortalOrigin = portal.getOriginPos();
-                                        animation.initialPortalDestination = portal.getDestPos();
-                                        animation.initialPortalOrientation = portal.getOrientationRotation();
-                                        animation.initialPortalRotation = portal.getRotationD();
-                                        animation.thisSideRotationCenter = rotationCenter;
-                                        animation.thisSideRotationAxis = axis;
-                                        animation.otherSideRotationCenter = null;
-                                        animation.otherSideRotationAxis = null;
-                                        animation.angularVelocity = angularVelocity;
-                                        animation.startGameTime = portal.level.getGameTime();
-                                        animation.endGameTime = Long.MAX_VALUE;
-                                        portal.setAnimationDriver(animation);
-                                    }
-                                    else {
-                                        context.getSource().sendFailure(Component.literal("the entity is not a portal"));
-                                    }
-                                }
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        reloadPortal(portal);
-                                    }
-                                }
-                                
-                                return 0;
-                            })
-                        )
-                    )
-                )
             )
         );
     }

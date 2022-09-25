@@ -304,7 +304,7 @@ public class PortalManipulation {
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.hasCrossPortalCollision = from.hasCrossPortalCollision;
         PortalExtension.get(to).bindCluster = PortalExtension.get(from).bindCluster;
-        to.defaultAnimation = from.defaultAnimation.copy();
+        to.animation = from.animation;
         to.setIsVisible(from.isVisible());
         
         if (includeSpecialProperties) {
@@ -434,7 +434,10 @@ public class PortalManipulation {
     public static void setPortalOrientationQuaternion(
         Portal portal, DQuaternion quaternion
     ) {
-        portal.setOrientationRotation(quaternion);
+        portal.setOrientation(
+            quaternion.rotate(new Vec3(1, 0, 0)),
+            quaternion.rotate(new Vec3(0, 1, 0))
+        );
     }
     
     public static void adjustRotationToConnect(Portal portalA, Portal portalB) {

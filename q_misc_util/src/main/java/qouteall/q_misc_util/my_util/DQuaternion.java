@@ -2,8 +2,6 @@ package qouteall.q_misc_util.my_util;
 
 
 import com.mojang.math.Quaternion;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 
@@ -379,26 +377,5 @@ public class DQuaternion {
         double cos = from.dot(to);
         double angle = Math.acos(cos);
         return DQuaternion.rotationByRadians(axis, angle);
-    }
-    
-    public Tag toTag() {
-        CompoundTag tag = new CompoundTag();
-        tag.putDouble("x", x);
-        tag.putDouble("y", y);
-        tag.putDouble("z", z);
-        tag.putDouble("w", w);
-        return tag;
-    }
-    
-    public static DQuaternion fromTag(Tag tag) {
-        if (!(tag instanceof CompoundTag compoundTag)) {
-            return DQuaternion.identity;
-        }
-        return new DQuaternion(
-            compoundTag.getDouble("x"),
-            compoundTag.getDouble("y"),
-            compoundTag.getDouble("z"),
-            compoundTag.getDouble("w")
-        );
     }
 }
