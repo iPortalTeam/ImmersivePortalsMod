@@ -1,11 +1,13 @@
 package qouteall.imm_ptl.core.portal;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class PortalState {
@@ -29,6 +31,35 @@ public class PortalState {
         this.orientation = orientation;
         this.width = width;
         this.height = height;
+    }
+    
+    public CompoundTag toTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("fromWorld", fromWorld.location().toString());
+        tag.putString("toWorld", toWorld.location().toString());
+        Helper.putVec3d(tag, "fromPos", fromPos);
+        Helper.putVec3d(tag, "toPos", toPos);
+        tag.putDouble("scaling", scaling);
+        tag.putDouble("width", width);
+        tag.putDouble("height", height);
+        tag.put("rotation", rotation.toTag());
+        tag.put("orientation", orientation.toTag());
+        return tag;
+    }
+    
+    public static PortalState fromTag(CompoundTag tag) {
+        ResourceKey<Level> fromWorld = DimId.idToKey(tag.getString("fromWorld"));
+        ResourceKey<Level> toWorld = DimId.idToKey(tag.getString("toWorld"));
+        Vec3 fromPos = Helper.getVec3d(tag, "fromPos");
+        Vec3 toPos = Helper.getVec3d(tag, "toPos");
+        double scaling = tag.getDouble("scaling");
+        double width = tag.getDouble("width");
+        double height = tag.getDouble("height");
+        DQuaternion rotation = DQuaternion.fromTag(tag.getCompound("rotation"));
+        DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
+        return new PortalState(
+            fromWorld, fromPos, toWorld, toPos, scaling, rotation, orientation, width, height
+        );
     }
     
     public static PortalState interpolate(

@@ -347,8 +347,7 @@ public class Helper {
     ) {
         try {
             func.run();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -427,6 +426,16 @@ public class Helper {
         );
     }
     
+    @Nullable
+    public static Vec3 getVec3dOptional(CompoundTag compoundTag, String name) {
+        if (compoundTag.contains(name + "X")) {
+            return getVec3d(compoundTag, name);
+        }
+        else {
+            return null;
+        }
+    }
+    
     public static void putVec3i(CompoundTag compoundTag, String name, Vec3i vec3i) {
         compoundTag.putInt(name + "X", vec3i.getX());
         compoundTag.putInt(name + "Y", vec3i.getY());
@@ -441,8 +450,8 @@ public class Helper {
         );
     }
     
-    public static void putQuaternion(CompoundTag compoundTag,String name, @Nullable Quaternion quaternion){
-        if(quaternion!=null){
+    public static void putQuaternion(CompoundTag compoundTag, String name, @Nullable Quaternion quaternion) {
+        if (quaternion != null) {
             compoundTag.putFloat(name + "X", quaternion.i());
             compoundTag.putFloat(name + "Y", quaternion.j());
             compoundTag.putFloat(name + "Z", quaternion.k());
@@ -451,7 +460,7 @@ public class Helper {
     }
     
     @Nullable
-    public static Quaternion getQuaternion(CompoundTag compoundTag,String name){
+    public static Quaternion getQuaternion(CompoundTag compoundTag, String name) {
         if (compoundTag.contains(name + "X")) {
             return new Quaternion(
                 compoundTag.getFloat(name + "X"),
@@ -460,7 +469,7 @@ public class Helper {
                 compoundTag.getFloat(name + "W")
             );
         }
-        else{
+        else {
             return null;
         }
     }
@@ -526,8 +535,7 @@ public class Helper {
     public static <T> T noError(Callable<T> func) {
         try {
             return func.call();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
