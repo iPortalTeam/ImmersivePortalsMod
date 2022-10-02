@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.AABB;
@@ -472,6 +473,27 @@ public class Helper {
         else {
             return null;
         }
+    }
+    
+    public static ListTag getCompoundList(CompoundTag tag, String name) {
+        return tag.getList(name, 10);
+    }
+    
+    public static <X> List<X> listTagToList(ListTag listTag, Function<CompoundTag, X> deserializer) {
+        List<X> result = new ArrayList<>();
+        listTag.forEach(tag -> {
+            CompoundTag compoundTag = (CompoundTag) tag;
+            result.add(deserializer.apply(compoundTag));
+        });
+        return result;
+    }
+    
+    public static <X> ListTag listToListTag(List<X> list, Function<X, CompoundTag> serializer) {
+        ListTag listTag = new ListTag();
+        for (X x : list) {
+            listTag.add(serializer.apply(x));
+        }
+        return listTag;
     }
     
     public static <T> void compareOldAndNew(

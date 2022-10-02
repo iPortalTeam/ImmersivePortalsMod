@@ -31,8 +31,13 @@ public interface PortalAnimationDriver {
             Helper.err("Unknown animation type " + type);
             return null;
         }
-        
-        return deserializer.apply(tag);
+    
+        try {
+            return deserializer.apply(tag);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     CompoundTag toTag();

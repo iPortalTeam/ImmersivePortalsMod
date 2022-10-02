@@ -1083,25 +1083,25 @@ public class PortalCommand {
                 }
                 
                 PortalState portalState = portal.getPortalState();
-                NormalAnimation animation = new NormalAnimation();
-                animation.startingState = new PortalState(
-                    portalState.fromWorld,
-                    portalState.fromPos,
-                    portalState.toWorld,
-                    portalState.toPos,
-                    portalState.scaling * multiplier,
-                    portalState.rotation,
-                    portalState.orientation,
-                    portalState.width / multiplier,
-                    portalState.height / multiplier
-                );
-                animation.endingState = portalState;
-                animation.startGameTime = portal.level.getGameTime() + 1;
-                animation.endGameTime = portal.level.getGameTime() + 1 + durationTicks;
-                animation.doRectifyCluster = false;
-                animation.inverseScale = true;
-                animation.timingFunction = portal.getDefaultAnimation().timingFunction;
-                portal.setAnimationDriver(animation);
+                portal.setAnimationDriver(NormalAnimation.createOnePhaseAnimation(
+                    new PortalState(
+                        portalState.fromWorld,
+                        portalState.fromPos,
+                        portalState.toWorld,
+                        portalState.toPos,
+                        portalState.scaling * multiplier,
+                        portalState.rotation,
+                        portalState.orientation,
+                        portalState.width / multiplier,
+                        portalState.height / multiplier
+                    ),
+                    portalState,
+                    portal.level.getGameTime() + 1,
+                    durationTicks,
+                    true,
+                    false,
+                    portal.getDefaultAnimation().timingFunction
+                ));
                 reloadPortal(portal);
             }))
         

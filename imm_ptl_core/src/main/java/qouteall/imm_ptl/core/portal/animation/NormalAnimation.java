@@ -4,6 +4,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.q_misc_util.Helper;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class NormalAnimation implements PortalAnimationDriver {
     public static void init() {
@@ -13,24 +17,56 @@ public class NormalAnimation implements PortalAnimationDriver {
         );
     }
     
-    public PortalState startingState;
-    public PortalState endingState;
-    public long startGameTime;
-    public long endGameTime;
+    public static class Phase {
+        public long durationTicks;
+        public PortalState targetState;
+        public TimingFunction timingFunction;
+        public boolean inverseScale;
+        
+        public static Phase fromTag(CompoundTag compoundTag) {
+            Phase phase = new Phase();
+            phase.durationTicks = compoundTag.getLong("durationTicks");
+            phase.targetState = PortalState.fromTag(compoundTag.getCompound("targetState"));
+            phase.timingFunction = TimingFunction.fromString(compoundTag.getString("timingFunction"));
+            phase.inverseScale = compoundTag.getBoolean("inverseScale");
+            return phase;
+        }
+        
+        public CompoundTag toTag() {
+            CompoundTag tag = new CompoundTag();
+            tag.putLong("durationTicks", durationTicks);
+            tag.put("targetState", targetState.toTag());
+            tag.putString("timingFunction", timingFunction.toString());
+            tag.putBoolean("inverseScale", inverseScale);
+            return tag;
+        }
+    }
+    
+    public PortalState initialState;
+    public List<Phase> phases;
     public boolean doRectifyCluster;
-    public boolean inverseScale;
-    public TimingFunction timingFunction;
+    public long startingGameTime;
+    public int loopCount;
+    
+    @Nullable
+    private Long ticksPerRound;
     
     private static NormalAnimation deserialize(CompoundTag compoundTag) {
-        NormalAnimation normalAnimation = new NormalAnimation();
-        normalAnimation.startingState = PortalState.fromTag(compoundTag.getCompound("startingState"));
-        normalAnimation.endingState = PortalState.fromTag(compoundTag.getCompound("endingState"));
-        normalAnimation.startGameTime = compoundTag.getLong("startGameTime");
-        normalAnimation.endGameTime = compoundTag.getLong("endGameTime");
-        normalAnimation.doRectifyCluster = compoundTag.getBoolean("doRectifyCluster");
-        normalAnimation.inverseScale = compoundTag.getBoolean("inverseScale");
-        normalAnimation.timingFunction = TimingFunction.fromString(compoundTag.getString("timingFunction"));
-        return normalAnimation;
+        NormalAnimation animation = new NormalAnimation();
+        animation.initialState = PortalState.fromTag(compoundTag.getCompound("initialState"));
+        animation.phases = Helper.listTagToList(
+            Helper.getCompoundList(compoundTag, "phases"),
+            Phase::fromTag
+        );
+        animation.doRectifyCluster = compoundTag.getBoolean("doRectifyCluster");
+        animation.startingGameTime = compoundTag.getLong("startingGameTime");
+        animation.loopCount = compoundTag.getInt("loopCount");
+        
+        if (animation.phases.isEmpty() || animation.loopCount < 0) {
+            throw new RuntimeException("invalid NormalAnimation");
+        }
+        
+        return animation;
     }
     
     @Override
@@ -38,33 +74,66 @@ public class NormalAnimation implements PortalAnimationDriver {
         CompoundTag tag = new CompoundTag();
         
         tag.putString("type", "imm_ptl:normal");
-        tag.put("startingState", startingState.toTag());
-        tag.put("endingState", endingState.toTag());
-        tag.putLong("startGameTime", startGameTime);
-        tag.putLong("endGameTime", endGameTime);
+        tag.put("initialState", initialState.toTag());
+        tag.put("phases", Helper.listToListTag(phases, Phase::toTag));
         tag.putBoolean("doRectifyCluster", doRectifyCluster);
-        tag.putBoolean("inverseScale", inverseScale);
-        tag.putString("timingFunction", timingFunction.toString());
+        tag.putLong("startingGameTime", startingGameTime);
+        tag.putInt("loopCount", loopCount);
         
         return tag;
     }
     
-    @Override
-    public boolean update(Portal portal, long tickTime, float tickDelta) {
-        double passedTicks = ((double) (tickTime - startGameTime)) + tickDelta;
-        
-        boolean ends = false;
-        if (passedTicks > (endGameTime - startGameTime)) {
-            ends = true;
-            passedTicks = endGameTime - startGameTime;
+    private long getTicksPerRound() {
+        if (ticksPerRound == null) {
+            ticksPerRound = phases.stream().mapToLong(p -> p.durationTicks).sum();
+        }
+        return ticksPerRound;
+    }
+    
+    private long getTotalDuration() {
+        if (loopCount > 10000) {
+            return Long.MAX_VALUE;
         }
         
-        double progress = passedTicks / (endGameTime - startGameTime);
-        progress = timingFunction.mapProgress(progress);
-        PortalState currentState = PortalState.interpolate(startingState, endingState, progress, inverseScale);
-        portal.setPortalState(currentState);
+        return getTicksPerRound() * loopCount;
+    }
+    
+    @Override
+    public boolean update(Portal portal, long tickTime, float tickDelta) {
+        double passedTicks = ((double) (tickTime - startingGameTime)) + tickDelta;
+        long totalDuration = getTotalDuration();
         
-        return ends;
+        boolean ends = false;
+        if (passedTicks >= totalDuration) {
+            portal.setPortalState(getEndingState());
+            return true;
+        }
+        
+        // modulo works for double!
+        double passedTicksInRound = passedTicks % ((double) getTicksPerRound());
+        
+        long traversedTicks = 0;
+        PortalState phaseStartingState = initialState;
+        for (Phase phase : phases) {
+            if (passedTicksInRound <= traversedTicks + phase.durationTicks) {
+                double phaseProgress = (passedTicksInRound - traversedTicks) / (double) phase.durationTicks;
+                phaseProgress = phase.timingFunction.mapProgress(phaseProgress);
+                PortalState currentState = PortalState.interpolate(
+                    phaseStartingState, phase.targetState, phaseProgress, phase.inverseScale
+                );
+                portal.setPortalState(currentState);
+                break;
+            }
+            traversedTicks += phase.durationTicks;
+            phaseStartingState = phase.targetState;
+        }
+        
+        return false;
+    }
+    
+    private PortalState getEndingState() {
+        Phase lastPhase = phases.get(phases.size() - 1);
+        return lastPhase.targetState;
     }
     
     @Override
@@ -74,6 +143,29 @@ public class NormalAnimation implements PortalAnimationDriver {
     
     @Override
     public void serverSideForceStop(Portal portal, long tickTime) {
-        portal.setPortalState(endingState);
+        portal.setPortalState(getEndingState());
+    }
+    
+    public static NormalAnimation createOnePhaseAnimation(
+        PortalState fromState, PortalState toState,
+        long startingGameTime, long durationTicks,
+        boolean inverseScale, boolean doRectifyCluster,
+        TimingFunction timingFunction
+    ) {
+        NormalAnimation animation = new NormalAnimation();
+        animation.initialState = fromState;
+        animation.doRectifyCluster = doRectifyCluster;
+        
+        Phase phase = new Phase();
+        phase.durationTicks = durationTicks;
+        phase.targetState = toState;
+        phase.inverseScale = inverseScale;
+        phase.timingFunction = timingFunction;
+        animation.phases = List.of(phase);
+        
+        animation.startingGameTime = startingGameTime;
+        animation.loopCount = 1;
+        
+        return animation;
     }
 }
