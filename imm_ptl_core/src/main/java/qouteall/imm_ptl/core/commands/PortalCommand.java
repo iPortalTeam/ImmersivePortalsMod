@@ -1701,7 +1701,6 @@ public class PortalCommand {
                 portal.setOrientationAndSize(portalWAxis, portalHAxis, width, height);
                 portal.setRotationTransformationD(rotationTransform);
                 portal.setTeleportChangesGravity(true);
-                PortalExtension.get(portal).adjustPositionAfterTeleport = true;
                 portal.portalTag = "imm_ptl:cube_surface_unwrapping";
                 McHelper.spawnServerEntity(portal);
             }

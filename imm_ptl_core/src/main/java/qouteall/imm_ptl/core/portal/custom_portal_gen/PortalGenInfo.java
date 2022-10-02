@@ -78,10 +78,6 @@ public class PortalGenInfo {
         portal.scaling = scale;
         portal.rotation = rotation;
         
-        if (portal.hasScaling() || portal.rotation != null) {
-            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
-        }
-        
         return portal;
     }
     

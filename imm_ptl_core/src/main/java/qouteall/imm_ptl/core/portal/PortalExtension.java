@@ -52,7 +52,7 @@ public class PortalExtension {
      * If true, when the player comes out from the portal and get stuck in block
      * the player will be smoothly levitated to avoid falling through floor
      */
-    public boolean adjustPositionAfterTeleport = false;
+    public boolean adjustPositionAfterTeleport = true;
     
     public boolean bindCluster = false;
     
@@ -78,7 +78,7 @@ public class PortalExtension {
             adjustPositionAfterTeleport = compoundTag.getBoolean("adjustPositionAfterTeleport");
         }
         else {
-            adjustPositionAfterTeleport = false;
+            adjustPositionAfterTeleport = true;
         }
         
         if (compoundTag.contains("bindCluster")) {

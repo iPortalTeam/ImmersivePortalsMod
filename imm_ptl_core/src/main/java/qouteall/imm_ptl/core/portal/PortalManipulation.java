@@ -339,7 +339,6 @@ public class PortalManipulation {
             portal.renderingMergable = outerRenderingMergable;
             portal.hasCrossPortalCollision = hasCrossPortalCollision;
             portal.portalTag = "imm_ptl:scale_box";
-            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntity(portal);
             
