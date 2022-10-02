@@ -1072,7 +1072,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(Commands.literal("expand_from_point")
+        builder.then(Commands.literal("expand_from_center")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 portal.setAnimationDriver(null);
                 

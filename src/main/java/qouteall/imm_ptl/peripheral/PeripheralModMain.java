@@ -84,16 +84,16 @@ public class PeripheralModMain {
             "rotate_z", "rotate_portal_rotation_along z 15"
         );
         registerPortalSubCommandStick(
-            "make_unbreakable", "set_portal_nbt {unbreakable:true}"
+            "make_unbreakable", "nbt {unbreakable:true}"
         );
         registerPortalSubCommandStick(
-            "make_fuse_view", "set_portal_nbt {fuseView:true}"
+            "make_fuse_view", "nbt {fuseView:true}"
         );
         registerPortalSubCommandStick(
-            "enable_pos_adjust", "set_portal_nbt {adjustPositionAfterTeleport:true}"
+            "enable_pos_adjust", "nbt {adjustPositionAfterTeleport:true}"
         );
         registerPortalSubCommandStick(
-            "disable_rendering_yourself", "set_portal_nbt {doRenderPlayer:false}"
+            "disable_rendering_yourself", "nbt {doRenderPlayer:false}"
         );
         registerPortalSubCommandStick(
             "enable_isometric", "debug isometric_enable 50"
@@ -114,13 +114,25 @@ public class PeripheralModMain {
             "reverse_accelerate50", "debug accelerate -50"
         );
         registerPortalSubCommandStick(
-            "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
+            "enable_gravity_change", "nbt {teleportChangesGravity:true}"
         );
         registerPortalSubCommandStick(
-            "make_invisible", "set_portal_nbt {isVisible:false}"
+            "make_invisible", "nbt {isVisible:false}"
         );
         registerPortalSubCommandStick(
-            "make_visible", "set_portal_nbt {isVisible:true}"
+            "make_visible", "nbt {isVisible:true}"
+        );
+        registerPortalSubCommandStick(
+            "disable_default_animation", "nbt {defaultAnimation:{durationTicks:0}}"
+        );
+        registerPortalSubCommandStick(
+            "rotate_around_me", "animation rotate_infinitely @s 0 1 0 2.5"
+        );
+        registerPortalSubCommandStick(
+            "expand_from_center", "animation expand_from_center"
+        );
+        registerPortalSubCommandStick(
+            "stop_animation", "animation stop"
         );
         CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
             "/scale set pehkui:base 1",
