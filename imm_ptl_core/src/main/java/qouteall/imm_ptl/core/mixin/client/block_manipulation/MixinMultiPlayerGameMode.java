@@ -56,6 +56,7 @@ public abstract class MixinMultiPlayerGameMode implements IEClientPlayerInteract
                 );
             }
             else {
+                // TODO ServerboundUseItemPacket
                 Helper.err("Unknown packet in startPrediction");
                 return packet;
             }

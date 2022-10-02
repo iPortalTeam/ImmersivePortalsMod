@@ -248,13 +248,6 @@ public abstract class BreakablePortalEntity extends Portal {
         }
     }
     
-    private boolean isOtherSideChunkLoaded() {
-        ChunkPos destChunkPos = new ChunkPos(new BlockPos(getDestPos()));
-        return McHelper.getServerChunkIfPresent(
-            dimensionTo, destChunkPos.x, destChunkPos.z
-        ) != null;
-    }
-    
     
     public static <T extends Portal> List<T> findReversePortals(T portal) {
         List<T> revs = McHelper.findEntitiesByBox(

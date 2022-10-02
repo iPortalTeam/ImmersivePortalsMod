@@ -37,7 +37,7 @@ public class RotationAnimation implements PortalAnimationDriver {
     @Override
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-    
+        
         tag.putString("type", "imm_ptl:rotation");
         Helper.putVec3d(tag, "initialPortalOrigin", initialPortalOrigin);
         Helper.putVec3d(tag, "initialPortalDestination", initialPortalDestination);
@@ -89,25 +89,33 @@ public class RotationAnimation implements PortalAnimationDriver {
         }
         
         double angle = angularVelocity * passedTicks;
+        
+        DQuaternion thisSideRotation = DQuaternion.identity;
+        
         if (thisSideRotationCenter != null && thisSideRotationAxis != null) {
-            DQuaternion rotation = DQuaternion.rotationByDegrees(thisSideRotationAxis, angle);
-            
-            Vec3 offset = initialPortalOrigin.subtract(thisSideRotationCenter);
-            Vec3 rotatedOffset = rotation.rotate(offset);
-            portal.setOriginPos(thisSideRotationCenter.add(rotatedOffset));
-            
-            portal.setOrientationRotation(rotation.hamiltonProduct(initialPortalOrientation));
+            thisSideRotation = DQuaternion.rotationByDegrees(thisSideRotationAxis, angle);
+            Vec3 thisSideOffset = initialPortalOrigin.subtract(thisSideRotationCenter);
+            Vec3 rotatedThisSideOffset = thisSideRotation.rotate(thisSideOffset);
+            portal.setOriginPos(thisSideRotationCenter.add(rotatedThisSideOffset));
         }
         
+        portal.setOrientationRotation(thisSideRotation.hamiltonProduct(initialPortalOrientation));
+        
+        DQuaternion otherSideRotation = DQuaternion.identity;
         if (otherSideRotationCenter != null && otherSideRotationAxis != null) {
-            DQuaternion rotation = DQuaternion.rotationByRadians(otherSideRotationAxis, angle);
-            
-            Vec3 offset = initialPortalDestination.subtract(otherSideRotationCenter);
-            Vec3 rotatedOffset = rotation.rotate(offset);
-            portal.setDestination(otherSideRotationCenter.add(rotatedOffset));
-            
-            portal.setRotationTransformationD(rotation.hamiltonProduct(initialPortalRotation));
+            otherSideRotation = DQuaternion.rotationByRadians(otherSideRotationAxis, angle);
+            Vec3 otherSideOffset = initialPortalDestination.subtract(otherSideRotationCenter);
+            Vec3 rotatedOtherSideOffset = otherSideRotation.rotate(otherSideOffset);
+            portal.setDestination(otherSideRotationCenter.add(rotatedOtherSideOffset));
         }
+        
+        DQuaternion initialPortalDestOrientation =
+            initialPortalRotation.hamiltonProduct(initialPortalOrientation);
+        
+        DQuaternion destOrientation = otherSideRotation.hamiltonProduct(initialPortalDestOrientation);
+        portal.setRotationTransformationD(
+            destOrientation.hamiltonProduct(portal.getOrientationRotation().getConjugated())
+        );
         
         return ends;
     }

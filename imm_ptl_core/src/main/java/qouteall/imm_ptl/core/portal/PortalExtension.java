@@ -1,11 +1,15 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 // the additional features of a portal
 public class PortalExtension {
@@ -56,6 +60,15 @@ public class PortalExtension {
     
     public boolean bindCluster = false;
     
+    // these are stored in data
+    @Nullable
+    public UUID reversePortalId;
+    @Nullable
+    public UUID flippedPortalId;
+    @Nullable
+    public UUID parallelPortalId;
+    
+    // these are initialized at runtime
     @Nullable
     public Portal reversePortal;
     @Nullable
@@ -87,6 +100,25 @@ public class PortalExtension {
         else {
             bindCluster = false;
         }
+        
+        if (compoundTag.contains("reversePortalId")) {
+            reversePortalId = compoundTag.getUUID("reversePortalId");
+        }
+        else {
+            reversePortalId = null;
+        }
+        if (compoundTag.contains("flippedPortalId")) {
+            flippedPortalId = compoundTag.getUUID("flippedPortalId");
+        }
+        else {
+            flippedPortalId = null;
+        }
+        if (compoundTag.contains("parallelPortalId")) {
+            parallelPortalId = compoundTag.getUUID("parallelPortalId");
+        }
+        else {
+            parallelPortalId = null;
+        }
     }
     
     private void writeToNbt(CompoundTag compoundTag) {
@@ -95,32 +127,168 @@ public class PortalExtension {
         }
         compoundTag.putBoolean("adjustPositionAfterTeleport", adjustPositionAfterTeleport);
         compoundTag.putBoolean("bindCluster", bindCluster);
+        if (reversePortalId != null) {
+            compoundTag.putUUID("reversePortalId", reversePortalId);
+        }
+        if (flippedPortalId != null) {
+            compoundTag.putUUID("flippedPortalId", flippedPortalId);
+        }
+        if (parallelPortalId != null) {
+            compoundTag.putUUID("parallelPortalId", parallelPortalId);
+        }
     }
     
     private void tick(Portal portal) {
-        updateClusterStatus(portal);
+        if (portal.level.isClientSide()) {
+            updateClusterStatusClient(portal);
+        }
+        else {
+            updateClusterStatusServer(portal);
+        }
     }
     
-    // TODO bind portal cluster during portal creation? That may break compatibility.
-    // update portal cluster status, both in client and server
-    private void updateClusterStatus(Portal portal) {
+    private void updateClusterStatusServer(Portal portal) {
+        boolean needsUpdate = false;
+        
         if (bindCluster) {
-            flippedPortal = PortalManipulation.findFlippedPortal(portal);
-            
             if (flippedPortal != null) {
-                PortalExtension.get(flippedPortal).bindCluster = true;
+                if (flippedPortal.isRemoved()) {
+                    flippedPortal = null;
+                }
             }
-            
-            reversePortal = PortalManipulation.findReversePortal(portal);
-            
             if (reversePortal != null) {
-                PortalExtension.get(reversePortal).bindCluster = true;
+                if (reversePortal.isRemoved()) {
+                    reversePortal = null;
+                }
+            }
+            if (parallelPortal != null) {
+                if (parallelPortal.isRemoved()) {
+                    parallelPortal = null;
+                }
             }
             
-            parallelPortal = PortalManipulation.findParallelPortal(portal);
+            if (flippedPortalId != null) {
+                // if the id is not null, find the portal entity
+                if (flippedPortal == null) {
+                    Entity e = ((IEWorld) portal.level).portal_getEntityLookup().get(flippedPortalId);
+                    if (e instanceof Portal p) {
+                        flippedPortal = p;
+                    }
+                    else {
+                        flippedPortalId = null;
+                        needsUpdate = true;
+                    }
+                }
+            }
+            if (flippedPortalId == null) {
+                // if the id is null, find the portal from world
+                flippedPortal = PortalManipulation.findFlippedPortal(portal);
+                if (flippedPortal != null) {
+                    flippedPortalId = flippedPortal.getUUID();
+                    needsUpdate = true;
+                }
+            }
             
-            if (parallelPortal != null) {
-                PortalExtension.get(parallelPortal).bindCluster = true;
+            if (reversePortalId != null) {
+                if (reversePortal == null) {
+                    Entity e = ((IEWorld) portal.getDestWorld()).portal_getEntityLookup().get(reversePortalId);
+                    if (e instanceof Portal p) {
+                        reversePortal = p;
+                    }
+                    else {
+                        if (portal.isOtherSideChunkLoaded()) {
+                            reversePortalId = null;
+                            needsUpdate = true;
+                        }
+                    }
+                }
+            }
+            if (reversePortalId == null) {
+                reversePortal = PortalManipulation.findReversePortal(portal);
+                if (reversePortal != null) {
+                    reversePortalId = reversePortal.getUUID();
+                    needsUpdate = true;
+                }
+            }
+            
+            if (parallelPortalId != null) {
+                if (parallelPortal == null) {
+                    Entity e = ((IEWorld) portal.getDestWorld()).portal_getEntityLookup().get(parallelPortalId);
+                    if (e instanceof Portal p) {
+                        parallelPortal = p;
+                    }
+                    else {
+                        if (portal.isOtherSideChunkLoaded()) {
+                            parallelPortalId = null;
+                            needsUpdate = true;
+                        }
+                    }
+                }
+            }
+            if (parallelPortalId == null) {
+                parallelPortal = PortalManipulation.findParallelPortal(portal);
+                if (parallelPortal != null) {
+                    parallelPortalId = parallelPortal.getUUID();
+                    needsUpdate = true;
+                }
+            }
+        }
+        else {
+            flippedPortal = null;
+            reversePortal = null;
+            parallelPortal = null;
+            flippedPortalId = null;
+            reversePortalId = null;
+            parallelPortalId = null;
+        }
+        
+        if (flippedPortal != null) {
+            PortalExtension.get(flippedPortal).bindCluster = true;
+        }
+        if (reversePortal != null) {
+            PortalExtension.get(reversePortal).bindCluster = true;
+        }
+        if (parallelPortal != null) {
+            PortalExtension.get(parallelPortal).bindCluster = true;
+        }
+        
+        if (needsUpdate) {
+            portal.reloadAndSyncToClient();
+        }
+    }
+    
+    
+    private void updateClusterStatusClient(Portal portal) {
+        if (bindCluster) {
+            if (flippedPortalId != null) {
+                // if the id is not null, find the portal
+                Entity e = ((IEWorld) portal.level).portal_getEntityLookup().get(flippedPortalId);
+                if (e instanceof Portal p) {
+                    flippedPortal = p;
+                }
+            }
+            else {
+                flippedPortal = null;
+            }
+            
+            if (reversePortalId != null) {
+                Entity e = ((IEWorld) portal.getDestWorld()).portal_getEntityLookup().get(reversePortalId);
+                if (e instanceof Portal p) {
+                    reversePortal = p;
+                }
+            }
+            else {
+                reversePortal = null;
+            }
+            
+            if (parallelPortalId != null) {
+                Entity e = ((IEWorld) portal.getDestWorld()).portal_getEntityLookup().get(parallelPortalId);
+                if (e instanceof Portal p) {
+                    parallelPortal = p;
+                }
+            }
+            else {
+                parallelPortal = null;
             }
         }
         else {
@@ -130,6 +298,7 @@ public class PortalExtension {
         }
     }
     
+    // works on both client and server
     public void rectifyClusterPortals(Portal portal) {
         
         portal.defaultAnimation.inverseScale = false;
@@ -160,7 +329,7 @@ public class PortalExtension {
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
             flippedPortal.defaultAnimation.inverseScale = false;
-    
+            
             if (!flippedPortal.level.isClientSide()) {
                 flippedPortal.reloadAndSyncToClient();
             }
@@ -172,6 +341,7 @@ public class PortalExtension {
                 portal.getDestDim(),
                 portal.getDestPos()
             );
+            reversePortalId = reversePortal.getUUID();
             
             reversePortal.dimensionTo = portal.getOriginDim();
             reversePortal.setOriginPos(portal.getDestPos());
@@ -209,6 +379,7 @@ public class PortalExtension {
                 portal.getDestDim(),
                 portal.getDestPos()
             );
+            parallelPortalId = parallelPortal.getUUID();
             
             parallelPortal.dimensionTo = portal.getOriginDim();
             parallelPortal.setOriginPos(portal.getDestPos());

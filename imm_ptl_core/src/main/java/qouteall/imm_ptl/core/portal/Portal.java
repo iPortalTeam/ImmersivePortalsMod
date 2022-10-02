@@ -26,6 +26,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -1661,6 +1662,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void setAnimationDriver(@Nullable PortalAnimationDriver driver) {
         animationDriver = driver;
+    }
+    
+    public boolean isOtherSideChunkLoaded() {
+        Validate.isTrue(!level.isClientSide());
+        ChunkPos destChunkPos = new ChunkPos(new BlockPos(getDestPos()));
+        return McHelper.getServerChunkIfPresent(
+            dimensionTo, destChunkPos.x, destChunkPos.z
+        ) != null;
     }
     
     public static class RemoteCallables {

@@ -1016,7 +1016,7 @@ public class PortalCommand {
                                         animation.otherSideRotationCenter = null;
                                         animation.otherSideRotationAxis = null;
                                         animation.angularVelocity = angularVelocity;
-                                        animation.startGameTime = portal.level.getGameTime();
+                                        animation.startGameTime = portal.level.getGameTime() + 1;
                                         animation.endGameTime = Long.MAX_VALUE;
                                         portal.setAnimationDriver(animation);
                                     }
