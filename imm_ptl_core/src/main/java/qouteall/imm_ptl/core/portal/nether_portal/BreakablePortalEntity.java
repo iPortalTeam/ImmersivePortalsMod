@@ -43,7 +43,7 @@ public abstract class BreakablePortalEntity extends Portal {
     private boolean shouldBreakPortal = false;
     
     @Nullable
-    public OverlayInfo overlayInfo;
+    protected OverlayInfo overlayInfo;
     
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
@@ -79,18 +79,23 @@ public abstract class BreakablePortalEntity extends Portal {
         if (compoundTag.contains("overlayBlockState")) {
             BlockState overlayBlockState = NbtUtils.readBlockState(compoundTag.getCompound("overlayBlockState"));
             if (overlayBlockState.isAir()) {
-                overlayBlockState = null;
+                overlayInfo = null;
             }
-            double overlayOpacity = compoundTag.getDouble("overlayOpacity");
-            if (overlayOpacity == 0) {
-                overlayOpacity = 0.5;
+            else {
+                double overlayOpacity = compoundTag.getDouble("overlayOpacity");
+                if (overlayOpacity == 0) {
+                    overlayOpacity = 0.5;
+                }
+                double overlayOffset = compoundTag.getDouble("overlayOffset");
+                Quaternion rotation = Helper.getQuaternion(compoundTag, "overlayRotation");
+                
+                overlayInfo = new OverlayInfo(
+                    overlayBlockState, overlayOpacity, overlayOffset, rotation
+                );
             }
-            double overlayOffset = compoundTag.getDouble("overlayOffset");
-            Quaternion rotation = Helper.getQuaternion(compoundTag, "overlayRotation");
-            
-            overlayInfo = new OverlayInfo(
-                overlayBlockState, overlayOpacity, overlayOffset, rotation
-            );
+        }
+        else {
+            overlayInfo = null;
         }
     }
     
@@ -271,4 +276,7 @@ public abstract class BreakablePortalEntity extends Portal {
         reversePortalId = Util.NIL_UUID;
     }
     
+    public OverlayInfo getActualOverlay() {
+        return overlayInfo;
+    }
 }

@@ -17,6 +17,8 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
+import java.util.List;
+
 public class PeripheralModMain {
     
     public static Block portalHelperBlock;
@@ -129,6 +131,11 @@ public class PeripheralModMain {
             "/scale set pehkui:reach 5",
             "imm_ptl.command.long_reach",
             Lists.newArrayList("imm_ptl.command_desc.long_reach")
+        ));
+        CommandStickItem.registerType("imm_ptl:night_vision", new CommandStickItem.Data(
+            "/effect give @s minecraft:night_vision 9999 1 true",
+            "imm_ptl.command.night_vision",
+            List.of()
         ));
         
         registerPortalSubCommandStick(

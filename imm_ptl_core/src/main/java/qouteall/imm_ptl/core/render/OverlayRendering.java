@@ -48,7 +48,7 @@ public class OverlayRendering {
     
     public static boolean shouldRenderOverlay(PortalLike portal) {
         if (portal instanceof BreakablePortalEntity breakablePortalEntity) {
-            if (breakablePortalEntity.overlayInfo != null) {
+            if (breakablePortalEntity.getActualOverlay() != null) {
                 return breakablePortalEntity.isInFrontOfPortal(CHelper.getCurrentCameraPos());
             }
         }
@@ -108,7 +108,8 @@ public class OverlayRendering {
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
-        BlockState blockState = portal.overlayInfo.blockState();
+        BreakablePortalEntity.OverlayInfo overlay = portal.getActualOverlay();
+        BlockState blockState = overlay.blockState();
         
         Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
@@ -125,7 +126,7 @@ public class OverlayRendering {
         
         matrixStack.pushPose();
         
-        Vec3 offset = portal.getNormal().scale(portal.overlayInfo.offset());
+        Vec3 offset = portal.getNormal().scale(overlay.offset());
         
         Vec3 pos = portal.position();
         
@@ -145,8 +146,8 @@ public class OverlayRendering {
                 blockPos.getX() - pos.x, blockPos.getY() - pos.y, blockPos.getZ() - pos.z
             );
             
-            if (portal.overlayInfo.rotation() != null) {
-                matrixStack.mulPose(portal.overlayInfo.rotation());
+            if (overlay.rotation() != null) {
+                matrixStack.mulPose(overlay.rotation());
             }
             
             for (BakedQuad quad : quads) {
@@ -160,7 +161,7 @@ public class OverlayRendering {
                     new int[]{14680304, 14680304, 14680304, 14680304},//packed light value
                     OverlayTexture.NO_OVERLAY,
                     true,
-                    ((float) portal.overlayInfo.opacity())
+                    ((float) overlay.opacity())
                 );
             }
             

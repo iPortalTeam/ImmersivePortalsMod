@@ -18,9 +18,45 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
-import java.util.Random;
-
 public class NetherPortalEntity extends BreakablePortalEntity {
+    private static final OverlayInfo overlay_x = new OverlayInfo(
+        Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+            NetherPortalBlock.AXIS,
+            Direction.Axis.Z
+        ),
+        0.5,
+        0,
+        null
+    );
+    private static final OverlayInfo overlay_y_up = new OverlayInfo(
+        Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+            NetherPortalBlock.AXIS,
+            Direction.Axis.X
+        ),
+        0.5,
+        1,
+        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+    );
+    private static final OverlayInfo overlay_y_down = new OverlayInfo(
+        Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+            NetherPortalBlock.AXIS,
+            Direction.Axis.X
+        ),
+        0.5,
+        -1,
+        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+    );
+    private static final OverlayInfo overlay_z = new OverlayInfo(
+        Blocks.NETHER_PORTAL.defaultBlockState().setValue(
+            NetherPortalBlock.AXIS,
+            Direction.Axis.X
+        ),
+        0.5,
+        0,
+        null
+    );
+    
+    
     public static EntityType<NetherPortalEntity> entityType;
     
     public NetherPortalEntity(
@@ -33,11 +69,6 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     @Override
     public void tick() {
         super.tick();
-        
-        if (level.isClientSide()) {
-            updateClientSideOverlayInfo();
-            
-        }
     }
     
     @Override
@@ -97,54 +128,16 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         }
     }
     
-    void updateClientSideOverlayInfo() {
-        if (!IPGlobal.netherPortalOverlay) {
-            overlayInfo = null;
-            return;
-        }
-        
-        if (overlayInfo != null) {
-            // avoid repeating update every tick
-            return;
-        }
-        
-        Direction.Axis axis = blockPortalShape.axis;
-        
-        switch (axis) {
-            case X -> {
-                overlayInfo = new OverlayInfo(
-                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
-                        NetherPortalBlock.AXIS,
-                        Direction.Axis.Z
-                    ),
-                    0.5,
-                    0,
-                    null
-                );
-            }
-            case Y -> {
-                double offset = getNormal().y > 0 ? 1 : -1;
-                overlayInfo = new OverlayInfo(
-                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
-                        NetherPortalBlock.AXIS,
-                        Direction.Axis.X
-                    ),
-                    0.5,
-                    offset,
-                    new Quaternion(new Vector3f(1, 0, 0), 90, true)
-                );
-            }
-            case Z -> {
-                overlayInfo = new OverlayInfo(
-                    Blocks.NETHER_PORTAL.defaultBlockState().setValue(
-                        NetherPortalBlock.AXIS,
-                        Direction.Axis.X
-                    ),
-                    0.5,
-                    0,
-                    null
-                );
+    @Override
+    public OverlayInfo getActualOverlay() {
+        if (IPGlobal.netherPortalOverlay) {
+            switch (blockPortalShape.axis) {
+                case X -> {return overlay_x;}
+                case Y -> {return getNormal().y > 0 ? overlay_y_up : overlay_y_down;}
+                case Z -> {return overlay_z;}
             }
         }
+        
+        return super.getActualOverlay();
     }
 }
