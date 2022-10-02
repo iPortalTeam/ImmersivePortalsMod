@@ -96,8 +96,10 @@ public class ClientPortalAnimationManagement {
             boolean finished = animationDriver.update(
                 portal, portal.level.getGameTime(), RenderStates.tickDelta
             );
-            portal.rectifyClusterPortals();
-            
+            if (animationDriver.shouldRectifyCluster()) {
+                portal.rectifyClusterPortals();
+            }
+    
             if (finished) {
                 portal.setAnimationDriver(null);
             }

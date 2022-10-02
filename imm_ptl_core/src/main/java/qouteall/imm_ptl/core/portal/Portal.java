@@ -682,11 +682,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             visible = true;
         }
         
-        if (compoundTag.contains("defaultAnimation")) {
-            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
-        }
-        else if (compoundTag.contains("animation")) {
+        if (compoundTag.contains("animation")) {
             defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+        }
+        else if (compoundTag.contains("defaultAnimation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
         }
         else {
             defaultAnimation = DefaultPortalAnimation.createDefault();
@@ -1640,7 +1640,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         else {
             if (animationDriver != null) {
                 boolean finishes = animationDriver.update(this, level.getGameTime(), 0);
-                rectifyClusterPortals();
+                if (animationDriver.shouldRectifyCluster()) {
+                    rectifyClusterPortals();
+                }
                 if (finishes) {
                     animationDriver = null;
                 }
@@ -1661,7 +1663,21 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setAnimationDriver(@Nullable PortalAnimationDriver driver) {
+        if (driver == animationDriver) {
+            return;
+        }
+        
+        if (!level.isClientSide()) {
+            if (animationDriver != null) {
+                animationDriver.serverSideForceStop(this, level.getGameTime());
+            }
+        }
+        
         animationDriver = driver;
+    }
+    
+    public DefaultPortalAnimation getDefaultAnimation() {
+        return defaultAnimation;
     }
     
     public boolean isOtherSideChunkLoaded() {

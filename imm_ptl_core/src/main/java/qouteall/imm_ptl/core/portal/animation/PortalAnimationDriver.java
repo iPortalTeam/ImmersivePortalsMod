@@ -11,8 +11,15 @@ import java.util.Map;
 import java.util.function.Function;
 
 public interface PortalAnimationDriver {
-    public static final Map<ResourceLocation, Function<CompoundTag, PortalAnimationDriver>> deserializerRegistry =
+    static final Map<ResourceLocation, Function<CompoundTag, PortalAnimationDriver>> deserializerRegistry =
         new HashMap<>();
+    
+    public static void registerDeserializer(ResourceLocation key, Function<CompoundTag, PortalAnimationDriver> deserializer) {
+        PortalAnimationDriver.deserializerRegistry.put(
+            key,
+            deserializer
+        );
+    }
     
     @Nullable
     public static PortalAnimationDriver fromTag(CompoundTag tag) {
@@ -31,13 +38,18 @@ public interface PortalAnimationDriver {
     CompoundTag toTag();
     
     /**
+     * Invoked on both client side and server side.
+     * Note: don't need to call `rectifyPortalCluster()` here.
      * @param portal
      * @param tickTime
      * @param tickDelta
      * @return whether the animation finishes
-     * Note: don't need to call `rectifyPortalCluster()` here
      */
     boolean update(Portal portal, long tickTime, float tickDelta);
     
+    default boolean shouldRectifyCluster() {
+        return true;
+    }
     
+    default void serverSideForceStop(Portal portal, long tickTime) {}
 }

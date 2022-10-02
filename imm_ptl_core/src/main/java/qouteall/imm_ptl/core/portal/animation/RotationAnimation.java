@@ -8,14 +8,14 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
 
 public class RotationAnimation implements PortalAnimationDriver {
     public static void init() {
-        PortalAnimationDriver.deserializerRegistry.put(
+        PortalAnimationDriver.registerDeserializer(
             new ResourceLocation("imm_ptl:rotation"),
             RotationAnimation::deserialize
         );
-        
     }
     
     public Vec3 initialPortalOrigin;

@@ -43,11 +43,10 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalExtension;
-import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.core.portal.*;
+import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
+import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -993,7 +992,40 @@ public class PortalCommand {
             }))
         );
         
-        builder.then(Commands.literal("rotate")
+        builder.then(Commands.literal("rotate_infinitely")
+            .then(Commands.argument("rotationCenterEntity", EntityArgument.entity())
+                .then(Commands.argument("rotationAxis", Vec3Argument.vec3(false))
+                    .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
+                        .executes(context -> processPortalTargetedCommand(context, portal -> {
+                            portal.setAnimationDriver(null);
+                            
+                            Entity rotationCenterEntity = EntityArgument.getEntity(context, "rotationCenterEntity");
+                            Vec3 rotationCenter = rotationCenterEntity.position();
+                            Vec3 axis = Vec3Argument.getVec3(context, "rotationAxis").normalize();
+                            double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
+                            
+                            RotationAnimation animation = new RotationAnimation();
+                            animation.initialPortalOrigin = portal.getOriginPos();
+                            animation.initialPortalDestination = portal.getDestPos();
+                            animation.initialPortalOrientation = portal.getOrientationRotation();
+                            animation.initialPortalRotation = portal.getRotationD();
+                            animation.thisSideRotationCenter = rotationCenter;
+                            animation.thisSideRotationAxis = axis;
+                            animation.otherSideRotationCenter = null;
+                            animation.otherSideRotationAxis = null;
+                            animation.angularVelocity = angularVelocity;
+                            animation.startGameTime = portal.level.getGameTime() + 1;
+                            animation.endGameTime = Long.MAX_VALUE;
+                            portal.setAnimationDriver(animation);
+                            
+                            reloadPortal(portal);
+                        }))
+                    )
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("rotate_portals_infinitely")
             .then(Commands.argument("portals", EntityArgument.entities())
                 .then(Commands.argument("rotationCenter", Vec3Argument.vec3())
                     .then(Commands.argument("axis", Vec3Argument.vec3(false))
@@ -1006,6 +1038,7 @@ public class PortalCommand {
                                 
                                 for (Entity entity : portals) {
                                     if (entity instanceof Portal portal) {
+                                        portal.setAnimationDriver(null);
                                         RotationAnimation animation = new RotationAnimation();
                                         animation.initialPortalOrigin = portal.getOriginPos();
                                         animation.initialPortalDestination = portal.getDestPos();
@@ -1037,6 +1070,41 @@ public class PortalCommand {
                     )
                 )
             )
+        );
+        
+        builder.then(Commands.literal("expand_from_point")
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                portal.setAnimationDriver(null);
+                
+                double multiplier = 10;
+                int durationTicks = portal.getDefaultAnimation().durationTicks;
+                if (durationTicks <= 0) {
+                    durationTicks = 100;
+                }
+                
+                PortalState portalState = portal.getPortalState();
+                NormalAnimation animation = new NormalAnimation();
+                animation.startingState = new PortalState(
+                    portalState.fromWorld,
+                    portalState.fromPos,
+                    portalState.toWorld,
+                    portalState.toPos,
+                    portalState.scaling * multiplier,
+                    portalState.rotation,
+                    portalState.orientation,
+                    portalState.width / multiplier,
+                    portalState.height / multiplier
+                );
+                animation.endingState = portalState;
+                animation.startGameTime = portal.level.getGameTime() + 1;
+                animation.endGameTime = portal.level.getGameTime() + 1 + durationTicks;
+                animation.doRectifyCluster = false;
+                animation.inverseScale = true;
+                animation.timingFunction = portal.getDefaultAnimation().timingFunction;
+                portal.setAnimationDriver(animation);
+                reloadPortal(portal);
+            }))
+        
         );
     }
     
