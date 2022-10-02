@@ -165,13 +165,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        // draw the entity vertices before rendering portal
-        // because there is only one additional buffer builder for portal rendering
-        /**{@link MyGameRenderer#secondaryBufferBuilderStorage}*/
-        if (WorldRenderInfo.isRendering() && (!IrisInterface.invoker.isShaders())) {
-            minecraft.renderBuffers().bufferSource().endBatch();
-        }
-        
         IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
         MyGameRenderer.updateFogColor();
@@ -669,12 +662,12 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public RenderBuffers ip_getBufferBuilderStorage() {
+    public RenderBuffers ip_getRenderBuffers() {
         return renderBuffers;
     }
     
     @Override
-    public void ip_setBufferBuilderStorage(RenderBuffers arg) {
+    public void ip_setRenderBuffers(RenderBuffers arg) {
         renderBuffers = arg;
     }
     

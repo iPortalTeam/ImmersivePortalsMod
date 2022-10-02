@@ -113,7 +113,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     }
     
     @Override
-    public void setBufferBuilderStorage(RenderBuffers arg) {
+    public void ip_setRenderBuffers(RenderBuffers arg) {
         renderBuffers = arg;
     }
 }

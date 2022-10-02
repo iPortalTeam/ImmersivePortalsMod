@@ -12,5 +12,5 @@ public interface IEMinecraftClient {
     
     void setWorldRenderer(LevelRenderer r);
     
-    void setBufferBuilderStorage(RenderBuffers arg);
+    void ip_setRenderBuffers(RenderBuffers arg);
 }

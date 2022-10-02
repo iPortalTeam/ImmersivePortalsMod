@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
@@ -37,17 +36,16 @@ import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
-import qouteall.imm_ptl.core.ducks.IEPlayerListEntry;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
+import javax.annotation.Nullable;
+import java.util.Stack;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -57,13 +55,39 @@ public class MyGameRenderer {
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     // portal rendering and outer world rendering uses different buffer builder storages
-    // theoretically every layer of portal rendering should have its own buffer builder storage
-    private static RenderBuffers secondaryBufferBuilderStorage = new RenderBuffers();
+    private static Stack<RenderBuffers> secondaryRenderBuffers = new Stack<>();
+    private static int usingRenderBuffersObjectNum = 0;
     
     // the vanilla visibility sections discovery code is multi-threaded
     // when the player teleports through a portal, on the first frame it will not work normally
     // so use IP's non-multi-threaded algorithm at the first frame
     public static int vanillaTerrainSetupOverride = 0;
+    
+    public static void init() {
+        IPGlobal.clientCleanupSignal.connect(() -> {
+            secondaryRenderBuffers.clear();
+        });
+    }
+    
+    @Nullable
+    private static RenderBuffers acquireRenderBuffersObject() {
+        if (usingRenderBuffersObjectNum >= 2) {
+            return null;
+        }
+        usingRenderBuffersObjectNum--;
+        
+        if (secondaryRenderBuffers.isEmpty()) {
+            return new RenderBuffers();
+        }
+        else {
+            return secondaryRenderBuffers.pop();
+        }
+    }
+    
+    private static void returnRenderBuffersObject(RenderBuffers renderBuffers) {
+        usingRenderBuffersObjectNum++;
+        secondaryRenderBuffers.push(renderBuffers);
+    }
     
     public static void renderWorldNew(
         WorldRenderInfo worldRenderInfo,
@@ -128,8 +152,8 @@ public class MyGameRenderer {
         HitResult oldCrosshairTarget = client.hitResult;
         Camera oldCamera = client.gameRenderer.getMainCamera();
         PostChain oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
-        RenderBuffers oldBufferBuilder = ((IEWorldRenderer) worldRenderer).ip_getBufferBuilderStorage();
-        RenderBuffers oldClientBufferBuilder = client.renderBuffers();
+        RenderBuffers oldRenderBuffers = ((IEWorldRenderer) worldRenderer).ip_getRenderBuffers();
+        RenderBuffers oldClientRenderBuffers = client.renderBuffers();
         boolean oldChunkCullingEnabled = client.smartCull;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
@@ -157,10 +181,12 @@ public class MyGameRenderer {
             client.hitResult = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
-        
+    
+        RenderBuffers newRenderBuffers = null;
         if (IPGlobal.useSecondaryEntityVertexConsumer) {
-            ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(secondaryBufferBuilderStorage);
-            ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+            newRenderBuffers = acquireRenderBuffersObject();
+            ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(newRenderBuffers);
+            ((IEMinecraftClient) client).ip_setRenderBuffers(newRenderBuffers);
         }
         
         Object newSodiumContext = SodiumInterface.invoker.createNewContext();
@@ -190,8 +216,7 @@ public class MyGameRenderer {
                 );
                 client.getProfiler().pop();
             });
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             limitedLogger.invoke(e::printStackTrace);
         }
         
@@ -217,8 +242,11 @@ public class MyGameRenderer {
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(oldChunkInfoList);
         VisibleSectionDiscovery.returnList(newChunkInfoList);
         
-        ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(oldBufferBuilder);
-        ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
+        ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(oldRenderBuffers);
+        ((IEMinecraftClient) client).ip_setRenderBuffers(oldClientRenderBuffers);
+        if (newRenderBuffers != null) {
+            returnRenderBuffersObject(newRenderBuffers);
+        }
         
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
         
@@ -300,9 +328,9 @@ public class MyGameRenderer {
         
         boolean bl2 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
             client.gui.getBossOverlay().shouldCreateWorldFog();
-    
+        
         boolean bl3 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) || client.gui.getBossOverlay().shouldCreateWorldFog();
-    
+        
         FogRenderer.setupFog(
             camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g, 32.0F), bl3, RenderStates.tickDelta
         );
@@ -322,7 +350,8 @@ public class MyGameRenderer {
     public static void resetDiffuseLighting(PoseStack matrixStack) {
         if (client.level.effects().constantAmbientLight()) {
             Lighting.setupNetherLevel(matrixStack.last().pose());
-        } else {
+        }
+        else {
             Lighting.setupLevel(matrixStack.last().pose());
         }
     }

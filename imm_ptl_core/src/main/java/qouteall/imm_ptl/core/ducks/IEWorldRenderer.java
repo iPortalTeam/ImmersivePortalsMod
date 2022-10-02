@@ -33,9 +33,9 @@ public interface IEWorldRenderer {
     
     void portal_setTransparencyShader(PostChain arg);
     
-    RenderBuffers ip_getBufferBuilderStorage();
+    RenderBuffers ip_getRenderBuffers();
     
-    void ip_setBufferBuilderStorage(RenderBuffers arg);
+    void ip_setRenderBuffers(RenderBuffers arg);
     
     Frustum portal_getFrustum();
     
