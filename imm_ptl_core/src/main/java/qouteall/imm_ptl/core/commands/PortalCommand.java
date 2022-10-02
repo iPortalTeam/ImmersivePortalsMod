@@ -410,29 +410,22 @@ public class PortalCommand {
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
-                        CompoundTag newNbt = CompoundTagArgument.getCompoundTag(
-                            context, "nbt"
-                        );
+                        CompoundTag newNbt = CompoundTagArgument.getCompoundTag(context, "nbt");
                         
-                        if (newNbt.contains("commandsOnTeleported")) {
-                            if (!context.getSource().hasPermission(2)) {
-                                context.getSource().sendFailure(Component.literal(
-                                    "You do not have the permission to set commandsOnTeleported"
-                                ));
-                                return;
-                            }
-                        }
+                        invokeSetPortalNbt(context, portal, newNbt);
+                    }
+                ))
+            )
+        );
+        
+        builder.then(Commands.literal("nbt")
+            .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
+                .executes(context -> processPortalTargetedCommand(
+                    context,
+                    portal -> {
+                        CompoundTag newNbt = CompoundTagArgument.getCompoundTag(context, "nbt");
                         
-                        if (newNbt.contains("dimensionTo")) {
-                            context.getSource().sendFailure(Component.literal(
-                                "Cannot change tag dimensionTo. use command /portal set_portal_destination"
-                            ));
-                            return;
-                        }
-                        
-                        setPortalNbt(portal, newNbt);
-                        
-                        sendPortalInfo(context, portal);
+                        invokeSetPortalNbt(context, portal, newNbt);
                     }
                 ))
             )
@@ -933,7 +926,7 @@ public class PortalCommand {
                 }))
             )
         );
-    
+        
         // The code of command "set_command_on_teleported_at" is fully written by GitHub Copilot!!!!!!!!
         // The AI is so smart!!!!
         builder.then(Commands.literal("set_command_on_teleported_at")
@@ -970,7 +963,7 @@ public class PortalCommand {
                 sendPortalInfo(context, portal);
             }))
         );
-    
+        
         builder.then(Commands
             .literal("create_command_stick")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
@@ -984,6 +977,31 @@ public class PortalCommand {
                 })
             )
         );
+    }
+    
+    private static void invokeSetPortalNbt(
+        CommandContext<CommandSourceStack> context,
+        Portal portal, CompoundTag newNbt
+    ) {
+        if (newNbt.contains("commandsOnTeleported")) {
+            if (!context.getSource().hasPermission(2)) {
+                context.getSource().sendFailure(Component.literal(
+                    "You do not have the permission to set commandsOnTeleported"
+                ));
+                return;
+            }
+        }
+        
+        if (newNbt.contains("dimensionTo")) {
+            context.getSource().sendFailure(Component.literal(
+                "Cannot change tag dimensionTo. use command /portal set_portal_destination"
+            ));
+            return;
+        }
+        
+        setPortalNbt(portal, newNbt);
+        
+        sendPortalInfo(context, portal);
     }
     
     private static void adjustPortalAreaToFitFrame(Portal portal) {
