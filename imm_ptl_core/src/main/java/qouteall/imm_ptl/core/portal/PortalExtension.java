@@ -412,4 +412,34 @@ public class PortalExtension {
         }
     }
     
+    // f1's reverse is t1
+    public static void initializeClusterBind(
+        Portal f1, Portal f2,
+        Portal t1, Portal t2
+    ) {
+        get(f1).bindCluster = true;
+        get(f2).bindCluster = true;
+        get(t1).bindCluster = true;
+        get(t2).bindCluster = true;
+        
+        get(f1).flippedPortalId = f2.getUUID();
+        get(f2).flippedPortalId = f1.getUUID();
+        
+        get(t1).flippedPortalId = t2.getUUID();
+        get(t2).flippedPortalId = t1.getUUID();
+        
+        get(f1).reversePortalId = t1.getUUID();
+        get(t1).reversePortalId = f1.getUUID();
+        
+        get(f2).reversePortalId = t2.getUUID();
+        get(t2).reversePortalId = f2.getUUID();
+        
+        get(f1).parallelPortalId = t2.getUUID();
+        get(t2).parallelPortalId = f1.getUUID();
+        
+        get(f2).parallelPortalId = t1.getUUID();
+        get(t1).parallelPortalId = f2.getUUID();
+        
+    }
+    
 }

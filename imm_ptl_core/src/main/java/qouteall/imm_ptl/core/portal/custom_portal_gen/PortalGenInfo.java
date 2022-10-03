@@ -104,12 +104,14 @@ public class PortalGenInfo {
         f2.reversePortalId = t2.getUUID();
         t2.reversePortalId = f2.getUUID();
         
+        PortalExtension.initializeClusterBind(f1, f2, t1, t2);
+        
         McHelper.spawnServerEntity(f1);
         McHelper.spawnServerEntity(f2);
         McHelper.spawnServerEntity(t1);
         McHelper.spawnServerEntity(t2);
         
-        return ( new BreakablePortalEntity[]{f1, f2, t1, t2});
+        return (new BreakablePortalEntity[]{f1, f2, t1, t2});
     }
     
     public void generatePlaceholderBlocks() {
