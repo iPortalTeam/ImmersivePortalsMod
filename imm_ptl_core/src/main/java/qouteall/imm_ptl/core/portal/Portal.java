@@ -215,6 +215,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Nullable
     protected PortalAnimationDriver animationDriver;
     
+    private boolean reloadAndSyncNextTick = false;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -307,6 +309,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         );
         
         McHelper.sendToTrackers(this, packet);
+    }
+    
+    public void reloadAndSyncToClientNextTick() {
+        Validate.isTrue(!level.isClientSide(), "must be used on server side");
+        reloadAndSyncNextTick = true;
     }
     
     /**
@@ -816,7 +823,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             Helper.err("Abnormal bounding box " + this);
         }
         
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             clientPortalTickSignal.emit(this);
         }
         else {
@@ -833,6 +840,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         CollisionHelper.notifyCollidingPortals(this);
         
         super.tick();
+        
+        if (!level.isClientSide()) {
+            if (reloadAndSyncNextTick) {
+                reloadAndSyncNextTick = false;
+                reloadAndSyncToClient();
+            }
+        }
     }
     
     @Override
@@ -1674,6 +1688,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         animationDriver = driver;
+        
+        if (!level.isClientSide()) {
+            reloadAndSyncToClientNextTick();
+        }
     }
     
     public DefaultPortalAnimation getDefaultAnimation() {

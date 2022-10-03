@@ -853,48 +853,6 @@ public class PortalCommand {
             }))
         );
         
-        builder.then(Commands.literal("rotate_portals_around")
-            .then(Commands.argument("portals", EntityArgument.entities())
-                .then(Commands.argument("origin", Vec3Argument.vec3())
-                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
-                        .then(Commands.argument("angle", DoubleArgumentType.doubleArg())
-                            .executes(context -> {
-                                Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
-                                Vec3 origin = Vec3Argument.getVec3(context, "origin");
-                                Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
-                                double angle = DoubleArgumentType.getDouble(context, "angle");
-                                
-                                DQuaternion quaternion = DQuaternion.rotationByDegrees(axis, angle);
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        Vec3 offset = portal.getOriginPos().subtract(origin);
-                                        Vec3 offsetRotated = quaternion.rotate(offset);
-                                        portal.setOriginPos(offsetRotated.add(origin));
-                                        portal.axisW = quaternion.rotate(portal.axisW);
-                                        portal.axisH = quaternion.rotate(portal.axisH);
-                                        
-                                        portal.setRotationTransformationD(portal.getRotationD().hamiltonProduct(quaternion.getConjugated()));
-                                    }
-                                    else {
-                                        context.getSource().sendFailure(Component.literal("the entity is not a portal"));
-                                    }
-                                }
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        reloadPortal(portal);
-                                    }
-                                }
-                                
-                                return 0;
-                            })
-                        )
-                    )
-                )
-            )
-        );
-        
         builder.then(Commands.literal("add_command_on_teleported")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("subCommand", SubCommandArgumentType.instance)
@@ -1072,6 +1030,32 @@ public class PortalCommand {
             )
         );
         
+        builder.then(Commands.literal("rotate_along_normal")
+            .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
+                    
+                    portal.setAnimationDriver(null);
+                    
+                    RotationAnimation animation = new RotationAnimation();
+                    animation.initialPortalOrigin = portal.getOriginPos();
+                    animation.initialPortalDestination = portal.getDestPos();
+                    animation.initialPortalOrientation = portal.getOrientationRotation();
+                    animation.initialPortalRotation = portal.getRotationD();
+                    animation.thisSideRotationCenter = portal.getOriginPos();
+                    animation.thisSideRotationAxis = portal.getNormal();
+                    animation.otherSideRotationCenter = null;
+                    animation.otherSideRotationAxis = null;
+                    animation.angularVelocity = angularVelocity;
+                    animation.startGameTime = portal.level.getGameTime() + 1;
+                    animation.endGameTime = Long.MAX_VALUE;
+                    portal.setAnimationDriver(animation);
+                    
+                    reloadPortal(portal);
+                }))
+            )
+        );
+        
         builder.then(Commands.literal("expand_from_center")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 portal.setAnimationDriver(null);
@@ -1104,8 +1088,9 @@ public class PortalCommand {
                 ));
                 reloadPortal(portal);
             }))
-        
         );
+        
+        
     }
     
     private static void invokeSetPortalNbt(
@@ -1761,6 +1746,94 @@ public class PortalCommand {
                         
                         return 0;
                     })
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("rotate_portals_around")
+            .then(Commands.argument("portals", EntityArgument.entities())
+                .then(Commands.argument("origin", Vec3Argument.vec3())
+                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
+                        .then(Commands.argument("angle", DoubleArgumentType.doubleArg())
+                            .executes(context -> {
+                                Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
+                                Vec3 origin = Vec3Argument.getVec3(context, "origin");
+                                Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
+                                double angle = DoubleArgumentType.getDouble(context, "angle");
+                                
+                                DQuaternion quaternion = DQuaternion.rotationByDegrees(axis, angle);
+                                
+                                for (Entity entity : portals) {
+                                    if (entity instanceof Portal portal) {
+                                        Vec3 offset = portal.getOriginPos().subtract(origin);
+                                        Vec3 offsetRotated = quaternion.rotate(offset);
+                                        portal.setOriginPos(offsetRotated.add(origin));
+                                        portal.axisW = quaternion.rotate(portal.axisW);
+                                        portal.axisH = quaternion.rotate(portal.axisH);
+                                        
+                                        portal.setRotationTransformationD(portal.getRotationD().hamiltonProduct(quaternion.getConjugated()));
+                                    }
+                                    else {
+                                        context.getSource().sendFailure(Component.literal("the entity is not a portal"));
+                                    }
+                                }
+                                
+                                for (Entity entity : portals) {
+                                    if (entity instanceof Portal portal) {
+                                        reloadPortal(portal);
+                                    }
+                                }
+                                
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("scale_portals_relative_to_point")
+            .then(Commands.argument("portals", EntityArgument.entities())
+                .then(Commands.argument("origin", Vec3Argument.vec3())
+                    .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
+                        .executes(context -> {
+                            Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
+                            Vec3 origin = Vec3Argument.getVec3(context, "origin");
+                            double scale = DoubleArgumentType.getDouble(context, "scale");
+                            
+                            List<Portal> portalsToReload = new ArrayList<>();
+                            for (Entity entity : portals) {
+                                if (entity instanceof Portal portal) {
+                                    Vec3 offset = portal.getOriginPos().subtract(origin);
+                                    Vec3 newOrigin = offset.scale(scale).add(origin);
+                                    
+                                    PortalExtension extension = PortalExtension.get(portal);
+                                    // bindCluster cannot change other side scale if this side size changes
+                                    // but can change other side size if this side scale changes
+                                    if (extension.reversePortal != null) {
+                                        extension.reversePortal.setDestination(newOrigin);
+                                        extension.reversePortal.scaling /= scale;
+                                        portalsToReload.add(extension.reversePortal);
+                                    }
+                                    else {
+                                        portal.setOriginPos(newOrigin);
+                                        portal.width = portal.width * scale;
+                                        portal.height = portal.height * scale;
+                                        portalsToReload.add(portal);
+                                    }
+                                }
+                                else {
+                                    context.getSource().sendFailure(Component.literal("the entity is not a portal"));
+                                }
+                            }
+                            
+                            for (Portal portal : portalsToReload) {
+                                reloadPortal(portal);
+                            }
+                            
+                            return 0;
+                        })
+                    )
                 )
             )
         );
