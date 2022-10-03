@@ -31,7 +31,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -39,8 +38,8 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
+import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
-import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -52,12 +51,7 @@ import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.my_util.BoxPredicate;
-import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.q_misc_util.my_util.Plane;
-import qouteall.q_misc_util.my_util.RotationHelper;
-import qouteall.q_misc_util.my_util.SignalArged;
-import qouteall.q_misc_util.my_util.SignalBiArged;
+import qouteall.q_misc_util.my_util.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -141,7 +135,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * The rotating transformation of the portal
      */
     @Nullable
-    public Quaternion rotation;
+    public Quaternion rotation; // TODO make it DQuaternion in MC 1.20 to increase precision
     
     /**
      * The scaling transformation of the portal
@@ -210,10 +204,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Environment(EnvType.CLIENT)
     PortalRenderInfo portalRenderInfo;
     
-    @NotNull
-    protected DefaultPortalAnimation defaultAnimation = DefaultPortalAnimation.createDefault();
+    public final PortalAnimation animation = new PortalAnimation();
+    
     @Nullable
-    protected PortalAnimationDriver animationDriver;
+    private PortalState lastTickPortalState;
+    @Nullable
+    private PortalState thisTickPortalState;
     
     private boolean reloadAndSyncNextTick = false;
     
@@ -333,6 +329,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         exactBoundingBoxCache = null;
         normal = null;
         contentDirection = null;
+        thisTickPortalState = null;
         
         if (updates) {
             portalCacheUpdateSignal.emit(this);
@@ -552,8 +549,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void setOrientationRotation(DQuaternion quaternion) {
         setOrientation(
-            quaternion.rotate(new Vec3(1, 0, 0)),
-            quaternion.rotate(new Vec3(0, 1, 0))
+            McHelper.getAxisWFromOrientation(quaternion),
+            McHelper.getAxisHFromOrientation(quaternion)
         );
     }
     
@@ -690,20 +687,20 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         if (compoundTag.contains("animation")) {
-            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+            animation.defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
         }
         else if (compoundTag.contains("defaultAnimation")) {
-            defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
+            animation.defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
         }
         else {
-            defaultAnimation = DefaultPortalAnimation.createDefault();
+            animation.defaultAnimation = DefaultPortalAnimation.createDefault();
         }
         
         if (compoundTag.contains("animationDriver")) {
-            animationDriver = PortalAnimationDriver.fromTag(compoundTag.getCompound("animationDriver"));
+            animation.animationDriver = PortalAnimationDriver.fromTag(compoundTag.getCompound("animationDriver"));
         }
         else {
-            animationDriver = null;
+            animation.animationDriver = null;
         }
         
         readPortalDataSignal.emit(this, compoundTag);
@@ -775,10 +772,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             );
         }
         
-        compoundTag.put("defaultAnimation", defaultAnimation.toNbt());
+        compoundTag.put("defaultAnimation", animation.defaultAnimation.toNbt());
         
-        if (animationDriver != null) {
-            compoundTag.put("animationDriver", animationDriver.toTag());
+        if (animation.animationDriver != null) {
+            compoundTag.put("animationDriver", animation.animationDriver.toTag());
         }
         
         writePortalDataSignal.emit(this, compoundTag);
@@ -823,6 +820,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             Helper.err("Abnormal bounding box " + this);
         }
         
+        if (thisTickPortalState == null) {
+            thisTickPortalState = getPortalState();
+        }
+        lastTickPortalState = thisTickPortalState;
+        
         if (level.isClientSide()) {
             clientPortalTickSignal.emit(this);
         }
@@ -835,7 +837,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             serverPortalTickSignal.emit(this);
         }
         
-        tickAnimationDriver();
+        animation.tick(this);
         
         CollisionHelper.notifyCollidingPortals(this);
         
@@ -978,6 +980,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         );
     }
     
+    // TODO in 1.20 change this method to: Vec3 transformVelocity(Entity, Vec3)
+    //  to handle animated portal teleportation more elegantly
     public void transformVelocity(Entity entity) {
         Vec3 oldVelocity = McHelper.getWorldVelocity(entity);
         if (PehkuiInterface.invoker.isPehkuiPresent()) {
@@ -1164,6 +1168,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         double yInPlane = offset.dot(axisH);
         double xInPlane = offset.dot(axisW);
         
+        return isLocalXYOnPortal(xInPlane, yInPlane);
+    }
+    
+    public boolean isLocalXYOnPortal(double xInPlane, double yInPlane) {
         boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.001) &&
             Math.abs(yInPlane) < (height / 2 + 0.001);
         
@@ -1177,6 +1185,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return roughResult;
     }
     
+    /**
+     * NOTE: This does not count animation into consideration.
+     */
     public boolean isMovedThroughPortal(
         Vec3 lastTickPos,
         Vec3 pos
@@ -1521,7 +1532,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return !viewBlockingPortals.isEmpty();
     }
     
-    // only for one-faced portal
+    // I don't know why I added this method. Let's keep it false.
     public boolean allowOverlappedTeleport() {
         return false;
     }
@@ -1598,28 +1609,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         setScaleTransformation(state.scaling);
     }
     
-    @Environment(EnvType.CLIENT)
-    private void startAnimationClient(PortalState animationStartState) {
-        PortalState newState = getPortalState();
-        
-        if (newState == null) {
-            Helper.err("portal animation state abnormal");
-            return;
-        }
-        
-        if (newState.fromWorld != animationStartState.fromWorld ||
-            newState.toWorld != animationStartState.toWorld
-        ) {
-            return;
-        }
-        
-        Validate.notNull(defaultAnimation);
-        
-        ClientPortalAnimationManagement.addDefaultAnimation(this, animationStartState, newState, defaultAnimation);
-        
-        // multiple animations may start at the same tick. correct the current state
-        setPortalState(animationStartState);
-    }
     
     @Environment(EnvType.CLIENT)
     private void acceptDataSync(Vec3 pos, CompoundTag customData) {
@@ -1628,8 +1617,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         setPos(pos);
         readAdditionalSaveData(customData);
         
-        if (defaultAnimation.durationTicks > 0) {
-            startAnimationClient(oldState);
+        if (animation.defaultAnimation.durationTicks > 0) {
+            animation.defaultAnimation.startClientDefaultAnimation(this, oldState);
         }
     }
     
@@ -1647,55 +1636,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         PortalExtension.get(this).rectifyClusterPortals(this);
     }
     
-    private void tickAnimationDriver() {
-        if (level.isClientSide()) {
-            tickAnimationDriverClient();
-        }
-        else {
-            if (animationDriver != null) {
-                boolean finishes = animationDriver.update(this, level.getGameTime(), 0);
-                if (animationDriver.shouldRectifyCluster()) {
-                    rectifyClusterPortals();
-                }
-                if (finishes) {
-                    animationDriver = null;
-                }
-            }
-        }
-    }
-    
-    @Environment(EnvType.CLIENT)
-    private void tickAnimationDriverClient() {
-        if (animationDriver != null) {
-            ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(this);
-        }
-    }
-    
     @Nullable
     public PortalAnimationDriver getAnimationDriver() {
-        return animationDriver;
+        return animation.animationDriver;
     }
     
-    public void setAnimationDriver(@Nullable PortalAnimationDriver driver) {
-        if (driver == animationDriver) {
-            return;
-        }
-        
-        if (!level.isClientSide()) {
-            if (animationDriver != null) {
-                animationDriver.serverSideForceStop(this, level.getGameTime());
-            }
-        }
-        
-        animationDriver = driver;
-        
-        if (!level.isClientSide()) {
-            reloadAndSyncToClientNextTick();
-        }
+    public void setAnimationDriver(PortalAnimationDriver driver) {
+        animation.setAnimationDriver(this, driver);
     }
     
     public DefaultPortalAnimation getDefaultAnimation() {
-        return defaultAnimation;
+        return animation.defaultAnimation;
     }
     
     public boolean isOtherSideChunkLoaded() {
@@ -1704,6 +1655,37 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return McHelper.getServerChunkIfPresent(
             dimensionTo, destChunkPos.x, destChunkPos.z
         ) != null;
+    }
+    
+    // return null if the portal is not yet initialized
+    @Nullable
+    public PortalState getLastTickPortalState() {
+        if (lastTickPortalState == null) {
+            return getThisTickPortalState();
+        }
+        return lastTickPortalState;
+    }
+    
+    // return null if the portal is not yet initialized
+    @Nullable
+    public PortalState getThisTickPortalState() {
+        if (thisTickPortalState == null) {
+            thisTickPortalState = getPortalState();
+        }
+        return thisTickPortalState;
+    }
+    
+    public Vec3 transformFromPortalLocalToWorld(Vec3 localPos) {
+        return axisW.scale(localPos.x).add(axisH.scale(localPos.y)).add(getNormal().scale(localPos.z)).add(getOriginPos());
+    }
+    
+    public Vec3 transformFromWorldToPortalLocal(Vec3 worldPos) {
+        Vec3 relativePos = worldPos.subtract(getOriginPos());
+        return new Vec3(
+            relativePos.dot(axisW),
+            relativePos.dot(axisH),
+            relativePos.dot(getNormal())
+        );
     }
     
     public static class RemoteCallables {

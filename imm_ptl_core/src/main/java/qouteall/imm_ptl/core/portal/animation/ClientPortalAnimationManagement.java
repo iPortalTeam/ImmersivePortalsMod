@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
@@ -15,11 +16,10 @@ import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class ClientPortalAnimationManagement {
-    private static final Map<Portal, RunningAnimation> defaultAnimatedPortals = new HashMap<>();
+    private static final Map<Portal, RunningDefaultAnimation> defaultAnimatedPortals = new HashMap<>();
     private static final HashSet<Portal> customAnimatedPortals = new HashSet<>();
     
     public static void init() {
-        IPGlobal.preGameRenderSignal.connect(ClientPortalAnimationManagement::onPreGameRender);
         IPGlobal.clientCleanupSignal.connect(ClientPortalAnimationManagement::cleanup);
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
@@ -35,7 +35,7 @@ public class ClientPortalAnimationManagement {
         }
         
         long currTime = System.nanoTime();
-        RunningAnimation runningAnimation = new RunningAnimation(
+        RunningDefaultAnimation runningDefaultAnimation = new RunningDefaultAnimation(
             fromState,
             toState,
             currTime,
@@ -43,19 +43,19 @@ public class ClientPortalAnimationManagement {
             animation.timingFunction,
             animation.inverseScale
         );
-        defaultAnimatedPortals.put(portal, runningAnimation);
+        defaultAnimatedPortals.put(portal, runningDefaultAnimation);
     }
     
     public static void markRequiresCustomAnimationUpdate(Portal portal) {
         customAnimatedPortals.add(portal);
     }
     
-    private static void onPreGameRender() {
+    public static void onPreGameRender() {
         long currTime = System.nanoTime();
         
         defaultAnimatedPortals.entrySet().removeIf(entry -> {
             Portal portal = entry.getKey();
-            RunningAnimation animation = entry.getValue();
+            RunningDefaultAnimation animation = entry.getValue();
             
             if (portal.isRemoved()) {
                 return true;
@@ -88,18 +88,36 @@ public class ClientPortalAnimationManagement {
             if (portal.isRemoved()) {
                 return true;
             }
+            
             PortalAnimationDriver animationDriver = portal.getAnimationDriver();
             if (animationDriver == null) {
                 return true;
             }
+    
+            portal.animation.recordClientLastPortalState(portal);
             
             boolean finished = animationDriver.update(
                 portal, portal.level.getGameTime(), RenderStates.tickDelta
             );
+            portal.animation.thisTickRealAnimated = true;
             if (animationDriver.shouldRectifyCluster()) {
+                PortalExtension extension = PortalExtension.get(portal);
+                if (extension.flippedPortal != null) {
+                    extension.flippedPortal.animation.recordClientLastPortalState(extension.flippedPortal);
+                    extension.flippedPortal.animation.thisTickRealAnimated = true;
+                }
+                if (extension.reversePortal != null) {
+                    extension.reversePortal.animation.recordClientLastPortalState(extension.reversePortal);
+                    extension.reversePortal.animation.thisTickRealAnimated = true;
+                }
+                if (extension.parallelPortal != null) {
+                    extension.parallelPortal.animation.recordClientLastPortalState(extension.parallelPortal);
+                    extension.parallelPortal.animation.thisTickRealAnimated = true;
+                }
+                
                 portal.rectifyClusterPortals();
             }
-    
+            
             if (finished) {
                 portal.setAnimationDriver(null);
             }
@@ -113,7 +131,7 @@ public class ClientPortalAnimationManagement {
         customAnimatedPortals.clear();
     }
     
-    public static class RunningAnimation {
+    public static class RunningDefaultAnimation {
         public PortalState fromState;
         public PortalState toState;
         public long startTimeNano;
@@ -121,7 +139,7 @@ public class ClientPortalAnimationManagement {
         public TimingFunction timingFunction;
         public boolean inverseScale;
         
-        public RunningAnimation(
+        public RunningDefaultAnimation(
             PortalState fromState, PortalState toState, long startTimeNano, long toTimeNano,
             TimingFunction timingFunction,
             boolean inverseScale

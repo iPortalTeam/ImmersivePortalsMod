@@ -49,7 +49,7 @@ public class CrossPortalViewRendering {
         Vec3 isometricAdjustedOriginalCameraPos =
             TransformationManager.getIsometricAdjustedCameraPos(camera);
         
-        Vec3 physicalPlayerHeadPos = ClientTeleportationManager.getPlayerHeadPos(RenderStates.tickDelta);
+        Vec3 physicalPlayerHeadPos = ClientTeleportationManager.getPlayerEyePos(RenderStates.tickDelta);
         
         Pair<Portal, Vec3> portalHit = PortalCommand.raytracePortals(
             client.level, physicalPlayerHeadPos, isometricAdjustedOriginalCameraPos, true

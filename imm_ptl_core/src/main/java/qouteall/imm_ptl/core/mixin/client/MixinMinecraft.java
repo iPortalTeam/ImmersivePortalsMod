@@ -19,7 +19,9 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 
 import javax.annotation.Nullable;
 
@@ -53,6 +55,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     @Final
     private RenderBuffers renderBuffers;
     
+    // this happens after ticking client world and entities
     @Inject(
         method = "Lnet/minecraft/client/Minecraft;tick()V",
         at = @At(
@@ -65,8 +68,10 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         getProfiler().push("imm_ptl_tick_signal");
         IPGlobal.postClientTickSignal.emit();
         getProfiler().pop();
-        
-        IPCGlobal.clientTeleportationManager.manageTeleportation(0);
+    
+        // immediately after ticking
+        RenderStates.tickDelta = 0;
+        ClientTeleportationManager.managePortalAnimationAndTeleportation();
     }
     
     @Inject(

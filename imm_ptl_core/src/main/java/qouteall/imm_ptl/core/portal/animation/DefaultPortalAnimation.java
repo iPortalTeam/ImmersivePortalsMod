@@ -1,6 +1,12 @@
 package qouteall.imm_ptl.core.portal.animation;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
+import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.q_misc_util.Helper;
 
 public class DefaultPortalAnimation {
     
@@ -25,6 +31,27 @@ public class DefaultPortalAnimation {
         boolean inverseScale = nbt.getBoolean("inverseScale");
         
         return new DefaultPortalAnimation(timingFunction, durationTicks, inverseScale);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public void startClientDefaultAnimation(Portal portal, PortalState animationStartState) {
+        PortalState newState = portal.getPortalState();
+        
+        if (newState == null) {
+            Helper.err("portal animation state abnormal");
+            return;
+        }
+        
+        if (newState.fromWorld != animationStartState.fromWorld ||
+            newState.toWorld != animationStartState.toWorld
+        ) {
+            return;
+        }
+        
+        ClientPortalAnimationManagement.addDefaultAnimation(portal, animationStartState, newState, this);
+        
+        // multiple animations may start at the same tick. correct the current state
+        portal.setPortalState(animationStartState);
     }
     
     public CompoundTag toNbt() {

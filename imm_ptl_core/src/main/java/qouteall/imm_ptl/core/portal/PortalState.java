@@ -3,13 +3,18 @@ package qouteall.imm_ptl.core.portal;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
+/**
+ * The animatable states of a portal.
+ */
 public class PortalState {
     public final ResourceKey<Level> fromWorld;
     public final Vec3 fromPos;
@@ -90,4 +95,68 @@ public class PortalState {
         }
     }
     
+    public Vec3 getPointOnSurface(double localX, double localY) {
+        Vec3 axisW = McHelper.getAxisWFromOrientation(orientation);
+        Vec3 axisH = McHelper.getAxisHFromOrientation(orientation);
+        
+        return axisW.scale(localX).add(axisH.scale(localY)).add(fromPos);
+    }
+    
+    /**
+     * NOTE this does not consider mirror.
+     * This should only be used for teleportation calculation. (Mirrors cannot teleport)
+     */
+    public Vec3 transformPoint(Vec3 pos) {
+        Vec3 offset = pos.subtract(fromPos);
+        Vec3 rotated = rotation.rotate(offset);
+        Vec3 scaled = rotated.scale(scaling);
+        return scaled.add(toPos);
+    }
+    
+    /**
+     * NOTE this does not consider mirror.
+     * This should only be used for teleportation calculation. (Mirrors cannot teleport)
+     */
+    public Vec3 transformVec(Vec3 vec) {
+        Vec3 rotated = rotation.rotate(vec);
+        Vec3 scaled = rotated.scale(scaling);
+        return scaled;
+    }
+    
+    /**
+     * We have to carefully calculate the relative velocity between a moving player and a moving portal.
+     * The velocity in each point is different if the portal is rotating.
+     */
+    public static Tuple<Vec3, Vec3> getThisSideVelocityAndOtherSideVelocityAtPoint(
+        PortalState lastState,
+        PortalState currentState,
+        double localX,
+        double localY,
+        double timeInterval
+    ) {
+        Validate.isTrue(timeInterval > 0);
+        
+        Vec3 lastThisSidePos = lastState.getPointOnSurface(localX, localY);
+        Vec3 currentThisSidePos = currentState.getPointOnSurface(localX, localY);
+        Vec3 thisSideVelocity = currentThisSidePos.subtract(lastThisSidePos).scale(1.0 / timeInterval);
+        
+        Vec3 lastOtherSidePos = lastState.transformPoint(lastThisSidePos);
+        Vec3 currentOtherSidePos = currentState.transformPoint(currentThisSidePos);
+        Vec3 otherSideVelocity = currentOtherSidePos.subtract(lastOtherSidePos).scale(1.0 / timeInterval);
+        
+        return new Tuple<>(thisSideVelocity, otherSideVelocity);
+    }
+    
+    // the returned pos is in a portal-local coordinate where X is axisW, Y is axisH and Z is normal
+    public Vec3 getPortalLocalPos(Vec3 worldPos) {
+        Vec3 axisW = McHelper.getAxisWFromOrientation(this.orientation);
+        Vec3 axisH = McHelper.getAxisHFromOrientation(this.orientation);
+        Vec3 origin = this.fromPos;
+        Vec3 offset = worldPos.subtract(origin);
+        return new Vec3(
+            offset.dot(axisW),
+            offset.dot(axisH),
+            offset.dot(axisW.cross(axisH))
+        );
+    }
 }
