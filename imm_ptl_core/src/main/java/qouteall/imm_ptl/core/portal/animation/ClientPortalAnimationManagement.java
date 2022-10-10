@@ -94,7 +94,7 @@ public class ClientPortalAnimationManagement {
                 return true;
             }
     
-            portal.animation.recordClientLastPortalState(portal);
+//            portal.animation.recordClientLastPortalState(portal);
             
             boolean finished = animationDriver.update(
                 portal, portal.level.getGameTime(), RenderStates.tickDelta
@@ -103,15 +103,15 @@ public class ClientPortalAnimationManagement {
             if (animationDriver.shouldRectifyCluster()) {
                 PortalExtension extension = PortalExtension.get(portal);
                 if (extension.flippedPortal != null) {
-                    extension.flippedPortal.animation.recordClientLastPortalState(extension.flippedPortal);
+//                    extension.flippedPortal.animation.recordClientLastPortalState(extension.flippedPortal);
                     extension.flippedPortal.animation.thisTickRealAnimated = true;
                 }
                 if (extension.reversePortal != null) {
-                    extension.reversePortal.animation.recordClientLastPortalState(extension.reversePortal);
+//                    extension.reversePortal.animation.recordClientLastPortalState(extension.reversePortal);
                     extension.reversePortal.animation.thisTickRealAnimated = true;
                 }
                 if (extension.parallelPortal != null) {
-                    extension.parallelPortal.animation.recordClientLastPortalState(extension.parallelPortal);
+//                    extension.parallelPortal.animation.recordClientLastPortalState(extension.parallelPortal);
                     extension.parallelPortal.animation.thisTickRealAnimated = true;
                 }
                 

@@ -71,7 +71,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     
         // immediately after ticking
         RenderStates.tickDelta = 0;
-        ClientTeleportationManager.managePortalAnimationAndTeleportation();
+        IPCGlobal.clientTeleportationManager.manageTeleportation();
     }
     
     @Inject(

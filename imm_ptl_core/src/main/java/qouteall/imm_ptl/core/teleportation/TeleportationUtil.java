@@ -21,10 +21,11 @@ public class TeleportationUtil {
         double tOfCollision, Vec3 collidingPos,
         PortalState collidingPortalState, // for a moving portal, it's the portal state at the time of collision
         PortalState immediateLastState, PortalState immediateCurrentState,
-        Vec3 thisSidePortalPointVelocity, Vec3 otherSidePortalPointVelocity
+        Vec3 thisSidePortalPointVelocity, Vec3 otherSidePortalPointVelocity,
+        double timeIntervalTicks
     ) {}
     
-    private static record Temp(
+    private static record CollisionInfo(
         double portalLocalX, double portalLocalY,
         double tOfCollision, Vec3 collisionPos
     ) {}
@@ -32,16 +33,16 @@ public class TeleportationUtil {
     // check teleportation to an un-animated portal
     @Nullable
     public static Teleportation checkStaticTeleportation(
-        Portal portal, Vec3 lastPos, Vec3 currentPos
+        Portal portal, Vec3 lastPos, Vec3 currentPos, double timeIntervalTicks
     ) {
         Vec3 lastLocalPos = portal.transformFromWorldToPortalLocal(lastPos);
         Vec3 currentLocalPos = portal.transformFromWorldToPortalLocal(currentPos);
         
-        Temp temp = checkTeleportationByPortalLocalPos(
+        CollisionInfo collisionInfo = checkTeleportationByPortalLocalPos(
             portal, lastLocalPos, currentLocalPos
         );
         
-        if (temp == null) {
+        if (collisionInfo == null) {
             return null;
         }
         
@@ -49,11 +50,12 @@ public class TeleportationUtil {
         return new Teleportation(
             portal,
             lastPos, currentPos,
-            temp.portalLocalX, temp.portalLocalY,
-            temp.tOfCollision, temp.collisionPos,
+            collisionInfo.portalLocalX, collisionInfo.portalLocalY,
+            collisionInfo.tOfCollision, collisionInfo.collisionPos,
             portalState,
             portalState, portalState,
-            Vec3.ZERO, Vec3.ZERO
+            Vec3.ZERO, Vec3.ZERO,
+            timeIntervalTicks
         );
     }
     
@@ -68,37 +70,38 @@ public class TeleportationUtil {
         Vec3 lastLocalPos = lastState.getPortalLocalPos(lastPos);
         Vec3 currentLocalPos = currentState.getPortalLocalPos(currentPos);
         
-        Temp temp = checkTeleportationByPortalLocalPos(portal, lastLocalPos, currentLocalPos);
+        CollisionInfo collisionInfo = checkTeleportationByPortalLocalPos(portal, lastLocalPos, currentLocalPos);
         
-        if (temp == null) {
+        if (collisionInfo == null) {
             return null;
         }
         
         Tuple<Vec3, Vec3> thisSideVelocityAndOtherSideVelocityAtPoint =
             PortalState.getThisSideVelocityAndOtherSideVelocityAtPoint(
                 lastState, currentState,
-                temp.portalLocalX, temp.portalLocalY,
+                collisionInfo.portalLocalX, collisionInfo.portalLocalY,
                 timeIntervalTicks
             );
         
         PortalState interpolatedPortalState =
-            PortalState.interpolate(lastState, currentState, temp.tOfCollision, false);
+            PortalState.interpolate(lastState, currentState, collisionInfo.tOfCollision, false);
         
         return new Teleportation(
             portal,
             lastPos, currentPos,
-            temp.portalLocalX, temp.portalLocalY,
-            temp.tOfCollision, temp.collisionPos,
+            collisionInfo.portalLocalX, collisionInfo.portalLocalY,
+            collisionInfo.tOfCollision, collisionInfo.collisionPos,
             interpolatedPortalState,
             lastState, currentState,
             thisSideVelocityAndOtherSideVelocityAtPoint.getA(),
-            thisSideVelocityAndOtherSideVelocityAtPoint.getB()
+            thisSideVelocityAndOtherSideVelocityAtPoint.getB(),
+            timeIntervalTicks
         );
     }
     
     // use the portal-local coordinate to simplify teleportation check
     @Nullable
-    private static Temp checkTeleportationByPortalLocalPos(
+    private static CollisionInfo checkTeleportationByPortalLocalPos(
         Portal portal, Vec3 lastLocalPos, Vec3 currentLocalPos
     ) {
         boolean movedThrough = lastLocalPos.z > 0 && currentLocalPos.z < 0;
@@ -119,7 +122,7 @@ public class TeleportationUtil {
         boolean inProjection = portal.isLocalXYOnPortal(collidingPoint.x, collidingPoint.y);
         
         if (inProjection) {
-            return new Temp(
+            return new CollisionInfo(
                 collidingPoint.x, collidingPoint.y,
                 t, portal.transformFromPortalLocalToWorld(collidingPoint)
             );
@@ -173,12 +176,6 @@ public class TeleportationUtil {
         
         Vec3 movement = thisTickPos.subtract(lastTickPos);
         Vec3 preMovement = teleportation.collidingPos.subtract(lastTickPos);
-        
-        // check
-        double cross = movement.cross(preMovement).length();
-        if (cross < 0.0001) {
-            Helper.err("oops");
-        }
         
         Vec3 remainingMovement = thisTickPos.subtract(teleportation.collidingPos);
         

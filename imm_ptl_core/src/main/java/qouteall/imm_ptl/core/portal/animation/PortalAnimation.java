@@ -30,21 +30,17 @@ public class PortalAnimation {
     public boolean lastTickRealAnimated = false;
     public boolean thisTickRealAnimated = false;
     
-    // used for client player teleportation
+    // for client player teleportation
     @Environment(EnvType.CLIENT)
     @Nullable
-    public PortalState lastImmediatePortalState = null;
+    public PortalState clientLastPortalState;
     @Environment(EnvType.CLIENT)
-    public long lastPortalStateGameTime;
-    @Environment(EnvType.CLIENT)
-    public double lastPortalStateTickDelta;
+    public long clientLastPortalStateCounter = -1;
     @Environment(EnvType.CLIENT)
     @Nullable
-    public PortalState currentImmediatePortalState = null;
+    public PortalState clientCurrentPortalState;
     @Environment(EnvType.CLIENT)
-    public long currentPortalStateGameTime;
-    @Environment(EnvType.CLIENT)
-    public double currentPortalStateTickDelta;
+    public long clientCurrentPortalStateCounter = -1;
     
     public boolean isRunningRealAnimation() {
         return lastTickRealAnimated || thisTickRealAnimated || animationDriver != null;
@@ -104,15 +100,16 @@ public class PortalAnimation {
         }
     }
     
-    @Environment(EnvType.CLIENT)
-    public void recordClientLastPortalState(Portal portal) {
-        lastImmediatePortalState = currentImmediatePortalState;
-        lastPortalStateGameTime = currentPortalStateGameTime;
-        lastPortalStateTickDelta = currentPortalStateTickDelta;
+    public void updateClientState(Portal portal, long currentTeleportationCounter) {
+        if (currentTeleportationCounter == clientCurrentPortalStateCounter) {
+            return;
+        }
         
-        currentImmediatePortalState = portal.getPortalState();
-        currentPortalStateGameTime = portal.level.getGameTime();
-        currentPortalStateTickDelta = RenderStates.tickDelta;
+        clientLastPortalState = clientCurrentPortalState;
+        clientLastPortalStateCounter = clientCurrentPortalStateCounter;
+        
+        clientCurrentPortalState = portal.getPortalState();
+        clientCurrentPortalStateCounter = currentTeleportationCounter;
     }
     
     static void updateAndCheckAnimationStatus(Portal secondaryPortal) {

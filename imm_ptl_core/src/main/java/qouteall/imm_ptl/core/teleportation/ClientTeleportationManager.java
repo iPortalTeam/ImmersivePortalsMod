@@ -57,7 +57,8 @@ public class ClientTeleportationManager {
     public static boolean isTeleportingFrame = false;
     
     private static final int teleportLimitPerFrame = 1;
-    private static double timePassedSinceLastUpdate;
+    
+    private static long teleportationCounter = 0;
     
     public ClientTeleportationManager() {
         IPGlobal.postClientTickSignal.connectWithWeakRef(
@@ -95,36 +96,15 @@ public class ClientTeleportationManager {
         }
     }
     
-    /**
-     * This is both invoked before rendering and after ticking.
-     *
-     * To make teleportation seamless, we have to do the teleportation immediately when the camera moves
-     *  through the portal. Teleporting during ticking is too late.
-     * To avoid skipping teleportation when it's so laggy that ticking happens multiple times between two frames,
-     *  we also do teleportation during ticking.
-     *
-     * To make the teleportation seamless with animated portals,
-     *  we do animation first and then check teleportation.
-     * The time interval between the last check is important for relative velocity calculation.
-     *
-     * It uses {@link RenderStates#tickDelta} (it's very important)
-     */
-    public static void managePortalAnimationAndTeleportation(
-    ) {
-        // NOTE the tickDelta here may be inconsistent with RenderStates.tickDelta
-        
-        ClientPortalAnimationManagement.onPreGameRender(); // must be before teleportation check
-        
-        IPCGlobal.clientTeleportationManager.manageTeleportation();
-    }
-    
-    private void manageTeleportation() {
+    public void manageTeleportation() {
         if (IPGlobal.disableTeleportation) {
             return;
         }
         
+        teleportationCounter++;
+        
         isTeleportingFrame = false;
-    
+        
         float tickDelta = RenderStates.tickDelta;
         
         if (client.level == null || client.player == null) {
@@ -138,7 +118,7 @@ public class ClientTeleportationManager {
             
             client.getProfiler().push("ip_teleport");
     
-            timePassedSinceLastUpdate = (int) (client.level.getGameTime() - lastRecordGameTime)
+            double timePassedSinceLastUpdate = (int) (client.level.getGameTime() - lastRecordGameTime)
                 + tickDelta - lastRecordTickDelta;
             if (timePassedSinceLastUpdate < 0) {
                 Helper.err("time flows backward?");
@@ -163,7 +143,7 @@ public class ClientTeleportationManager {
             
             lastPlayerEyePos = getPlayerEyePos(tickDelta);
             lastRecordGameTime = client.level.getGameTime();
-            lastRecordTickDelta = RenderStates.tickDelta;
+            lastRecordTickDelta = tickDelta;
             
             client.getProfiler().pop();
         }
@@ -188,17 +168,20 @@ public class ClientTeleportationManager {
         TeleportationUtil.Teleportation rec = CHelper.getClientNearbyPortals(32)
             .flatMap(portal -> {
                 if (portal.canTeleportEntity(player)) {
-                    long deltaTime = lastRecordGameTime - portal.animation.lastPortalStateGameTime;
-                    PortalState lastImmediatePortalState = portal.animation.lastImmediatePortalState;
-                    if (deltaTime <= 1 && deltaTime >= -1 && lastImmediatePortalState != null) {
+                    portal.animation.updateClientState(portal, teleportationCounter);
+                    
+                    // TODO check whether it can teleport at the very beginning of portal animation
+                    if (portal.animation.clientLastPortalStateCounter == teleportationCounter - 1
+                        && portal.animation.clientLastPortalState != null
+                    ) {
                         // the portal is running a real animation
-                        PortalState currentState = portal.getPortalState();
+                        PortalState currentState = portal.animation.clientCurrentPortalState;
                         Validate.isTrue(currentState != null);
                         
                         TeleportationUtil.Teleportation teleportation =
                             TeleportationUtil.checkDynamicTeleportation(
                                 portal,
-                                lastImmediatePortalState,
+                                portal.animation.clientLastPortalState,
                                 currentState,
                                 lastPlayerEyePos,
                                 newEyePos,
@@ -215,7 +198,8 @@ public class ClientTeleportationManager {
                             TeleportationUtil.checkStaticTeleportation(
                                 portal,
                                 lastPlayerEyePos,
-                                newEyePos
+                                newEyePos,
+                                timePassedSinceLastUpdate
                             );
                         if (teleportation != null) {
                             return Stream.of(teleportation);
