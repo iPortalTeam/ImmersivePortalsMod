@@ -84,10 +84,10 @@ public class PortalCommand {
         
         registerPortalTargetedCommands(builder);
         
-        LiteralArgumentBuilder<CommandSourceStack> animate =
-            Commands.literal("animation");
-        registerPortalAnimationCommands(animate);
-        builder.then(animate);
+//        LiteralArgumentBuilder<CommandSourceStack> animate =
+//            Commands.literal("animation");
+//        registerPortalAnimationCommands(animate);
+//        builder.then(animate);
         
         registerCBPortalCommands(builder);
         
