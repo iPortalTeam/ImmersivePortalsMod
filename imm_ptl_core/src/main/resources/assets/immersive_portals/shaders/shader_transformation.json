@@ -48,28 +48,6 @@
     "debugOutput": false
   },
   {
-    "comment": "For iris",
-    "type": "vs",
-    "affectedShaders": [
-      "gbuffers_terrain_solid",
-      "gbuffers_terrain_cutout",
-      "gbuffers_terrain_cutout_mipped",
-      "gbuffers_translucent",
-      "gbuffers_water"
-    ],
-    "transformations": [
-      {
-        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
-        "replacement": [
-          "uniform vec4 imm_ptl_ClippingEquation;",
-          "void main() {",
-          "    gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
-        ]
-      }
-    ],
-    "debugOutput": false
-  },
-  {
     "comment": "For iris+sodium",
     "type": "vs",
     "affectedShaders": [
@@ -85,14 +63,14 @@
         ]
       },
       {
-        "pattern": "irisMain\\(\\);",
+        "pattern": "\\}(?![\\S\\s]*\\})",
+        "comment": "match the last } ([\\S\\s] matches any character). use the modelview-transformed coordinate",
         "replacement": [
-          "irisMain();",
-          "gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "gl_ClipDistance[0] = dot((iris_ModelViewMatrix * getVertexPosition()).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;}"
         ]
       }
     ],
-    "debugOutput": false
+    "debugOutput": true
   },
   {
     "comment": "For sodium",
