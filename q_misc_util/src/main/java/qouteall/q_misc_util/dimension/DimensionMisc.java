@@ -3,10 +3,13 @@ package qouteall.q_misc_util.dimension;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.Helper;
@@ -24,52 +27,52 @@ public class DimensionMisc {
     // fix the issue that nether and end get swallowed by DFU
     public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
         // probably no longer needed
-
-//        Registry<LevelStem> registry = generatorOptions.dimensions();
-//        long seed = generatorOptions.seed();
-//        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
-//            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
-//
-//            Registry<LevelStem> newOptions =
-//                DimensionType.defaultDimensions(registryManager, seed);
-//
-//            LevelStem levelStem = newOptions.get(LevelStem.NETHER);
-//
-//            if (levelStem != null) {
-//                DimensionAPI.addDimension(
-//                    registry,
-//                    LevelStem.NETHER.location(),
-//                    levelStem.typeHolder(),
-//                    levelStem.generator()
-//                );
-//            }
-//            else {
-//                Helper.err("cannot create default nether");
-//            }
-//
-//
-//        }
-//
-//        if (!registry.keySet().contains(LevelStem.END.location())) {
-//            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
-//
-//            Registry<LevelStem> newOptions =
-//                DimensionType.defaultDimensions(registryManager, seed);
-//
-//            LevelStem levelStem = newOptions.get(LevelStem.END);
-//
-//            if (levelStem != null) {
-//                DimensionAPI.addDimension(
-//                    registry,
-//                    LevelStem.END.location(),
-//                    levelStem.typeHolder(),
-//                    levelStem.generator()
-//                );
-//            }
-//            else {
-//                Helper.err("cannot create default end");
-//            }
-//        }
+        
+        Registry<LevelStem> registry = generatorOptions.dimensions();
+        long seed = generatorOptions.seed();
+        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
+            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
+            
+            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
+            
+            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
+            
+            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.NETHER);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    registry,
+                    LevelStem.NETHER.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default nether");
+            }
+        }
+        
+        if (!registry.keySet().contains(LevelStem.END.location())) {
+            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
+            
+            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
+            
+            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
+            
+            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.END);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    registry,
+                    LevelStem.END.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default end");
+            }
+        }
     }
     
     public static void init() {
