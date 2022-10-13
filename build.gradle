@@ -117,13 +117,13 @@ allprojects {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.18.2-0.4.1"
-        implementation "org.joml:joml:1.10.2" // for sodium
+        modCompileOnly "maven.modrinth:sodium:mc1.18.2-0.4.1"
+//        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modImplementation 'maven.modrinth:iris:1.18.x-v1.4.0'
-        implementation "org.anarres:jcpp:1.4.14" // for iris
-        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
-        implementation 'io.github.douira:glsl-transformer:1.0.0-pre21.2' // for iris
+        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.4.0'
+//        implementation "org.anarres:jcpp:1.4.14" // for iris
+//        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
+//        implementation 'io.github.douira:glsl-transformer:1.0.0-pre21.2' // for iris
 
         modImplementation('com.github.qouteall:GravityChanger:v0.3.1') {
             transitive = false
