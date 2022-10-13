@@ -70,7 +70,7 @@
         ]
       }
     ],
-    "debugOutput": true
+    "debugOutput": false
   },
   {
     "comment": "For sodium",

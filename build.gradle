@@ -81,6 +81,27 @@ allprojects {
 //        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }
 //        maven { url = "https://maven.gegy.dev" }
 
+...        // for test with twilight forest
+//        maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
+//        maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Suggestion Tweaker
+//        maven { url = "https://maven.shedaniel.me/" } // Cloth Config
+//        maven { url = "https://maven.wispforest.io" } // TOP
+//        maven { url = "https://storage.googleapis.com/devan-maven/" }
+//        maven { url = "https://maven.terraformersmc.com/releases/" } // Mod Menu, Trinkets, EMI
+//        maven { url = "https://mvn.devos.one/snapshots/" } // Porting Lib, Forge Tags, Tinkers, Mantle
+//        maven { url = "https://ladysnake.jfrog.io/artifactory/mods" } // Cardinal Components API
+//        maven { url = "https://maven.parchmentmc.net/" } // Parchment
+//        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
+//        maven { url = "https://jitpack.io" } // Fabric ASM, Mixin Extras
+//        maven { url = "https://dvs1.progwml6.com/files/maven/" } // JEI
+//        maven { url 'https://maven.blamejared.com' } // Botany Pots, Bookself
+//        maven { // Jade
+//            url "https://www.cursemaven.com"
+//            content {
+//                includeGroup "curse.maven"
+//            }
+//        }
+
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -239,6 +260,11 @@ dependencies {
 //    modImplementation(include("me.luligabi:NoIndium:${project.no_indium_version}"))
 //
 //    modImplementation("com.simibubi:Create:mc1.18.2_v0.4.1")
+
+    // twilight forest
+//    modImplementation("com.github.teamtwilight.twilightforest:twilightforest-fabric:4.2"){
+//        exclude(group:"com.terraformersmc")
+//    }
 }
 
 dependencies {
