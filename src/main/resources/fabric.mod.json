@@ -45,13 +45,13 @@
       ">0.4.1+build.15",
       "<0.4.1+build.15"
     ],
-    "iris": [
-      "<=1.2.4"
-    ],
     "viafabric-mc118": "*",
     "resolutioncontrol": "*",
     "canvas": "*",
-    "cardboard": "*"
+    "cardboard": "*",
+    "iris": [
+      ">1.4.0", "<1.4.0"
+    ]
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

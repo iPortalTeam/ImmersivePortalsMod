@@ -93,7 +93,7 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private Vec3 redirectHandleCollisions(Entity entity, Vec3 attemptedMove) {
-        if (!IPGlobal.enableServerCollision) {
+        if (!IPGlobal.enableCollision) {
             if (!entity.level.isClientSide()) {
                 if (entity instanceof Player) {
                     return attemptedMove;

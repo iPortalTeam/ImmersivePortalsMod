@@ -85,10 +85,9 @@
         ]
       },
       {
-        "pattern": "irisMain\\(\\);",
+        "pattern": "\\}(?![\\S\\s]*\\})",
         "replacement": [
-          "irisMain();",
-          "gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "gl_ClipDistance[0] = dot((iris_ModelViewMatrix * getVertexPosition()).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;}"
         ]
       }
     ],

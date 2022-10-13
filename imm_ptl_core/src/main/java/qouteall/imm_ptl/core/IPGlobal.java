@@ -94,7 +94,7 @@ public class IPGlobal {
     
     public static boolean enableDepthClampForPortalRendering = false;
     
-    public static boolean enableServerCollision = true;
+    public static boolean enableCollision = true;
     
     public static boolean enableSharedBlockMeshBuffers = true;
     
