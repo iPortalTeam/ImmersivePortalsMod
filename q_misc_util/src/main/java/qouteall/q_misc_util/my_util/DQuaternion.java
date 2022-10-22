@@ -10,9 +10,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 
 /**
- * Quaternion but in double and immutable
- * Immutability reduce the change of having bugs
- * Minecraft's quaternion {@link Quaternion} uses float and is mutable
+ * Quaternion but in double and immutable.
+ * Immutability reduce the chance of having bugs (you have to manually copy everywhere to avoid unintended mutation).
+ * Minecraft's quaternion {@link Quaternion} uses float and is mutable.
  */
 public class DQuaternion {
     public final double x;
@@ -392,6 +392,9 @@ public class DQuaternion {
     
     public static DQuaternion fromTag(Tag tag) {
         if (!(tag instanceof CompoundTag compoundTag)) {
+            return DQuaternion.identity;
+        }
+        if (!compoundTag.contains("x")) {
             return DQuaternion.identity;
         }
         return new DQuaternion(

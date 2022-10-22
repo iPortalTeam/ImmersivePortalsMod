@@ -45,17 +45,22 @@ public class Helper {
     
     private static final Logger logger = LogManager.getLogger("Portal");
     
-    //get the intersect point of a line and a plane
-    //a line: p = lineCenter + t * lineDirection
-    //get the t of the colliding point
-    //normal and lineDirection have to be normalized
+    /**
+     * Get the intersection point of a line and a plane.
+     * The line: p = lineOrigin + t * lineDirection
+     * The plane: (p - planeCenter) dot planeNormal = 0
+     * Get the t of the colliding point.
+     * Solving equation:
+     * (lineOrigin - planeCenter) * planeNormal + t * (lineDirection * planeNormal) = 0
+     * t = (planeCenter - lineOrigin) * planeNormal / (lineDirection * planeNormal)
+     */
     public static double getCollidingT(
         Vec3 planeCenter,
         Vec3 planeNormal,
-        Vec3 lineCenter,
-        Vec3 lineDirection
+        Vec3 lineOrigin,
+        Vec3 lineDirection // this can be non-normalized
     ) {
-        return (planeCenter.subtract(lineCenter).dot(planeNormal))
+        return (planeCenter.subtract(lineOrigin).dot(planeNormal))
             /
             (lineDirection.dot(planeNormal));
     }

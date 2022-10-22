@@ -38,8 +38,13 @@ public class RenderStates {
     public static Vec3 originalPlayerPos = Vec3.ZERO;
     public static Vec3 originalPlayerLastTickPos = Vec3.ZERO;
     public static GameType originalGameMode;
-    public static float tickDelta = 0;
     public static AABB originalPlayerBoundingBox;
+    
+    /**
+     * This does not always equal Minecraft.getFrameTime.
+     * It will be 0 right after ticking.
+     */
+    public static float tickDelta = 0; // TODO rename to partialTick in MC 1.20
     
     public static Set<ResourceKey<Level>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();

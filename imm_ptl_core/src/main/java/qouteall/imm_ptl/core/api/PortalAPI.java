@@ -32,8 +32,8 @@ public class PortalAPI {
     ) {
         portal.setOriginPos(position);
         portal.setOrientationAndSize(
-            orientation.rotate(new Vec3(1, 0, 0)),
-            orientation.rotate(new Vec3(0, 1, 0)),
+            McHelper.getAxisWFromOrientation(orientation),
+            McHelper.getAxisHFromOrientation(orientation),
             width, height
         );
     }

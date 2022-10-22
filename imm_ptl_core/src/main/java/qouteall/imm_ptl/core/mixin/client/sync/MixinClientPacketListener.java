@@ -9,11 +9,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -190,6 +186,20 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         }
         else {
             Helper.err("wrong velocity update packet " + entity);
+        }
+    }
+    
+    // make sure that the game time is synchronized for all dimensions
+    @Inject(
+        method = "handleSetTime",
+        at = @At("RETURN")
+    )
+    private void onSetTime(ClientboundSetTimePacket packet, CallbackInfo ci) {
+        ClientLevel currentWorld = minecraft.level;
+        for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
+            if (clientWorld != currentWorld) {
+                clientWorld.setGameTime(packet.getGameTime());
+            }
         }
     }
     

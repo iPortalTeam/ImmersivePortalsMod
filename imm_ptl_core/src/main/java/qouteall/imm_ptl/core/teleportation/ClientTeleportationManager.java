@@ -14,10 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.*;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
@@ -30,6 +27,8 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
+import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.TransformationManager;
@@ -37,9 +36,9 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
@@ -47,14 +46,19 @@ public class ClientTeleportationManager {
     public static final Minecraft client = Minecraft.getInstance();
     public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
-    private Vec3 moveStartPoint = null;
     private long teleportTickTimeLimit = 0;
+    
+    private Vec3 lastPlayerEyePos = null;
+    private long lastRecordGameTime = 0;
+    private float lastRecordTickDelta = 0;
     
     // for debug
     public static boolean isTeleportingTick = false;
     public static boolean isTeleportingFrame = false;
     
-    private static final int teleportLimit = 2;
+    private static final int teleportLimitPerFrame = 2;
+    
+    private static long teleportationCounter = 0;
     
     public ClientTeleportationManager() {
         IPGlobal.postClientTickSignal.connectWithWeakRef(
@@ -92,15 +96,19 @@ public class ClientTeleportationManager {
         }
     }
     
-    public void manageTeleportation(float tickDelta) {
+    public void manageTeleportation() {
         if (IPGlobal.disableTeleportation) {
             return;
         }
         
+        teleportationCounter++;
+        
         isTeleportingFrame = false;
         
+        float tickDelta = RenderStates.tickDelta;
+        
         if (client.level == null || client.player == null) {
-            moveStartPoint = null;
+            lastPlayerEyePos = null;
         }
         else {
             //not initialized
@@ -109,67 +117,114 @@ public class ClientTeleportationManager {
             }
             
             client.getProfiler().push("ip_teleport");
+    
+            double timePassedSinceLastUpdate = (int) (client.level.getGameTime() - lastRecordGameTime)
+                + tickDelta - lastRecordTickDelta;
+            if (timePassedSinceLastUpdate < 0) {
+                Helper.err("time flows backward?");
+            }
+            else if (timePassedSinceLastUpdate == 0) {
+                Helper.err("re-update with 0 time interval?");
+            }
             
-            if (moveStartPoint != null) {
-                for (int i = 0; i < teleportLimit; i++) {
-                    boolean teleported = tryTeleport(tickDelta);
+            if (lastPlayerEyePos != null) {
+                for (int i = 0; i < teleportLimitPerFrame; i++) {
+                    boolean teleported = tryTeleport(tickDelta, timePassedSinceLastUpdate);
                     if (!teleported) {
                         break;
                     }
                     else {
                         if (i != 0) {
-                            Helper.log("Nested teleport");
+                            Helper.log("The client player made a combo-teleport");
                         }
                     }
                 }
             }
             
-            moveStartPoint = getPlayerHeadPos(tickDelta);
+            lastPlayerEyePos = getPlayerEyePos(tickDelta);
+            lastRecordGameTime = client.level.getGameTime();
+            lastRecordTickDelta = tickDelta;
             
             client.getProfiler().pop();
         }
     }
     
-    private boolean tryTeleport(float tickDelta) {
+    private static record TeleportationRec(
+        Portal portal, Vec2d portalLocalXY, Vec3 collisionPos
+    ) {}
+    
+    private boolean tryTeleport(float tickDelta, double timePassedSinceLastUpdate) {
         LocalPlayer player = client.player;
         
-        Vec3 newHeadPos = getPlayerHeadPos(tickDelta);
+        Vec3 newEyePos = getPlayerEyePos(tickDelta);
         
-        if (moveStartPoint.distanceToSqr(newHeadPos) > 1600) {
+        if (lastPlayerEyePos.distanceToSqr(newEyePos) > 1600) {
 //            Helper.log("The Player is Moving Too Fast!");
             return false;
         }
         
-        Tuple<Portal, Vec3> pair = CHelper.getClientNearbyPortals(32)
+        long currentGameTime = client.level.getGameTime();
+        
+        TeleportationUtil.Teleportation rec = CHelper.getClientNearbyPortals(32)
             .flatMap(portal -> {
                 if (portal.canTeleportEntity(player)) {
-                    Vec3 collidingPoint = portal.rayTrace(
-                        moveStartPoint,
-                        newHeadPos
-                    );
-                    if (collidingPoint != null) {
-                        return Stream.of(new Tuple<>(portal, collidingPoint));
+                    portal.animation.updateClientState(portal, teleportationCounter);
+                    
+                    // TODO check whether it can teleport at the very beginning of portal animation
+                    if (portal.animation.clientLastPortalStateCounter == teleportationCounter - 1
+                        && portal.animation.clientLastPortalState != null
+                    ) {
+                        // the portal is running a real animation
+                        PortalState currentState = portal.animation.clientCurrentPortalState;
+                        Validate.isTrue(currentState != null);
+                        
+                        TeleportationUtil.Teleportation teleportation =
+                            TeleportationUtil.checkDynamicTeleportation(
+                                portal,
+                                portal.animation.clientLastPortalState,
+                                currentState,
+                                lastPlayerEyePos,
+                                newEyePos,
+                                timePassedSinceLastUpdate
+                            );
+                        
+                        if (teleportation != null) {
+                            return Stream.of(teleportation);
+                        }
+                    }
+                    else {
+                        // the portal is static
+                        TeleportationUtil.Teleportation teleportation =
+                            TeleportationUtil.checkStaticTeleportation(
+                                portal,
+                                lastPlayerEyePos,
+                                newEyePos,
+                                timePassedSinceLastUpdate
+                            );
+                        if (teleportation != null) {
+                            return Stream.of(teleportation);
+                        }
                     }
                 }
                 return Stream.empty();
             })
             .min(Comparator.comparingDouble(
-                p -> p.getB().distanceToSqr(moveStartPoint)
+                p -> p.collidingPos().distanceToSqr(lastPlayerEyePos)
             ))
             .orElse(null);
         
-        if (pair != null) {
-            Portal portal = pair.getA();
-            Vec3 collidingPos = pair.getB();
+        if (rec != null) {
+            Portal portal = rec.portal();
+            Vec3 collidingPos = rec.collidingPos();
             
             client.getProfiler().push("portal_teleport");
-            teleportPlayer(portal);
+            teleportPlayer(rec);
             client.getProfiler().pop();
             
             boolean allowOverlappedTeleport = portal.allowOverlappedTeleport();
             double adjustment = allowOverlappedTeleport ? -0.001 : 0.001;
             
-            moveStartPoint = portal.transformPoint(collidingPos)
+            lastPlayerEyePos = portal.transformPoint(collidingPos)
                 .add(portal.getContentDirection().scale(adjustment));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
@@ -180,11 +235,15 @@ public class ClientTeleportationManager {
         }
     }
     
-    public static Vec3 getPlayerHeadPos(float tickDelta) {
+    public static Vec3 getPlayerEyePos(float tickDelta) {
         return client.player.getEyePosition(tickDelta);
     }
     
-    private void teleportPlayer(Portal portal) {
+    private void teleportPlayer(
+        TeleportationUtil.Teleportation teleportation
+    ) {
+        Portal portal = teleportation.portal();
+        
         if (tickTimeForTeleportation <= teleportTickTimeLimit) {
             Helper.log("Client player teleportation rejected");
             return;
@@ -196,11 +255,17 @@ public class ClientTeleportationManager {
         Validate.isTrue(player != null);
         
         ResourceKey<Level> toDimension = portal.dimensionTo;
+        float tickDelta = RenderStates.tickDelta;
         
-        Vec3 oldEyePos = McHelper.getEyePos(player);
+        Vec3 thisTickEyePos = McHelper.getEyePos(player);
+        Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
         
-        Vec3 newEyePos = portal.transformPoint(oldEyePos);
-        Vec3 newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
+        Tuple<Vec3, Vec3> t = TeleportationUtil.getTransformedLastTickPosAndCurrentTickPos(
+            teleportation, lastTickEyePos, thisTickEyePos
+        );
+        
+        Vec3 newEyePos = t.getB();
+        Vec3 newLastTickEyePos = t.getA();
         
         ClientLevel fromWorld = client.level;
         ResourceKey<Level> fromDimension = fromWorld.dimension();
@@ -215,7 +280,14 @@ public class ClientTeleportationManager {
         TransformationManager.managePlayerRotationAndChangeGravity(portal);
         McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
         
+        // subtract this side's portal point velocity
+        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).subtract(teleportation.thisSidePortalPointVelocity()));
+        
         portal.transformVelocity(player);
+        
+        // add other side's portal point velocity
+        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).add(teleportation.otherSidePortalPointVelocity()));
+        
         if (player.getVehicle() != null) {
             portal.transformVelocity(player.getVehicle());
         }
@@ -227,7 +299,7 @@ public class ClientTeleportationManager {
         
         player.connection.send(IPNetworkingClient.createCtsTeleport(
             fromDimension,
-            oldEyePos,
+            lastTickEyePos,
             portal.getUUID()
         ));
         
@@ -241,7 +313,7 @@ public class ClientTeleportationManager {
         
         //because the teleportation may happen before rendering
         //but after pre render info being updated
-        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
+        RenderStates.updatePreRenderInfo(tickDelta);
         
         Helper.log(String.format("Client Teleported %s %s", portal, tickTimeForTeleportation));
         
@@ -281,7 +353,7 @@ public class ClientTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
         
-        moveStartPoint = null;
+        lastPlayerEyePos = null;
         disableTeleportFor(20);
         
         RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
@@ -419,6 +491,7 @@ public class ClientTeleportationManager {
             return;
         }
         
+        // TODO cut bounding box by colliding portal
         AABB playerBoundingBox = player.getBoundingBox();
         
         Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(player);

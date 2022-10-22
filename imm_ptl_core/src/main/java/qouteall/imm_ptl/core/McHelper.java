@@ -54,6 +54,7 @@ import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
@@ -782,4 +783,11 @@ public class McHelper {
         return GravityChangerInterface.invoker.getEyeOffset(entity);
     }
     
+    public static Vec3 getAxisWFromOrientation(DQuaternion quaternion) {
+        return quaternion.rotate(new Vec3(1, 0, 0));
+    }
+    
+    public static Vec3 getAxisHFromOrientation(DQuaternion quaternion) {
+        return quaternion.rotate(new Vec3(0, 1, 0));
+    }
 }

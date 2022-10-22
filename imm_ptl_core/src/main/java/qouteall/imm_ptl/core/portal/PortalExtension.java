@@ -1,9 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
@@ -301,7 +298,7 @@ public class PortalExtension {
     // works on both client and server
     public void rectifyClusterPortals(Portal portal) {
         
-        portal.defaultAnimation.inverseScale = false;
+        portal.animation.defaultAnimation.inverseScale = false;
         
         if (flippedPortal != null && flippedPortal.getAnimationDriver() == null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
@@ -328,7 +325,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
-            flippedPortal.defaultAnimation.inverseScale = false;
+            flippedPortal.animation.defaultAnimation.inverseScale = false;
             
             if (!flippedPortal.level.isClientSide()) {
                 flippedPortal.reloadAndSyncToClient();
@@ -366,7 +363,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
-            reversePortal.defaultAnimation.inverseScale = true;
+            reversePortal.animation.defaultAnimation.inverseScale = true;
             
             if (!reversePortal.level.isClientSide()) {
                 reversePortal.reloadAndSyncToClient();
@@ -404,7 +401,7 @@ public class PortalExtension {
             // it will copy animation
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             
-            parallelPortal.defaultAnimation.inverseScale = true;
+            parallelPortal.animation.defaultAnimation.inverseScale = true;
             
             if (!parallelPortal.level.isClientSide()) {
                 parallelPortal.reloadAndSyncToClient();

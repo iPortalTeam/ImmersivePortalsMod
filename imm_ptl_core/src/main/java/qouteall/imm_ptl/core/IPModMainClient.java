@@ -17,6 +17,7 @@ import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
@@ -103,6 +104,7 @@ public class IPModMainClient {
         ));
     }
     
+    // TODO check whether it still have issue on Intel videocard
     private static void showIntelVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
@@ -154,6 +156,8 @@ public class IPModMainClient {
 //        showPreviewWarning();
         
         showIntelVideoCardWarning();
+        
+        StableClientTimer.init();
         
         ClientPortalAnimationManagement.init();
         
