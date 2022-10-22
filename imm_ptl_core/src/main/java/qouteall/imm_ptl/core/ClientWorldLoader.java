@@ -442,6 +442,7 @@ public class ClientWorldLoader {
                 world,
                 () -> {
                     // cannot be replaced into method reference
+                    // because levelRenderer field is actually mutable
                     client.levelRenderer.allChanged();
                 }
             );

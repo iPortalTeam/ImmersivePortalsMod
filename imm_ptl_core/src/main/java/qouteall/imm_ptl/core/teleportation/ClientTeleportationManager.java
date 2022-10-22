@@ -56,7 +56,7 @@ public class ClientTeleportationManager {
     public static boolean isTeleportingTick = false;
     public static boolean isTeleportingFrame = false;
     
-    private static final int teleportLimitPerFrame = 1;
+    private static final int teleportLimitPerFrame = 2;
     
     private static long teleportationCounter = 0;
     
@@ -135,7 +135,7 @@ public class ClientTeleportationManager {
                     }
                     else {
                         if (i != 0) {
-                            Helper.log("Nested teleport");
+                            Helper.log("The client player made a combo-teleport");
                         }
                     }
                 }
