@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -10,6 +12,7 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+import java.util.function.BooleanSupplier;
 
 public class PortalAnimation {
     /**
@@ -27,8 +30,10 @@ public class PortalAnimation {
     @Nullable
     public PortalAnimationDriver animationDriver;
     
-    public boolean lastTickRealAnimated = false;
-    public boolean thisTickRealAnimated = false;
+    @Nullable
+    PortalState lastTickAnimatedState;
+    @Nullable
+    PortalState thisTickAnimatedState;
     
     // for client player teleportation
     @Environment(EnvType.CLIENT)
@@ -43,25 +48,16 @@ public class PortalAnimation {
     public long clientCurrentPortalStateCounter = -1;
     
     public boolean isRunningRealAnimation() {
-        return lastTickRealAnimated || thisTickRealAnimated || animationDriver != null;
+        return lastTickAnimatedState != null || thisTickAnimatedState != null || animationDriver != null;
     }
     
     public void tick(Portal portal) {
-        lastTickRealAnimated = thisTickRealAnimated;
-        thisTickRealAnimated = false;
+        lastTickAnimatedState = thisTickAnimatedState;
+        thisTickAnimatedState = null;
         
-        if (portal.level.isClientSide()) {
-            tickAnimationDriverClient(portal);
-        }
-        else {
-            tickAnimationDriverServer(portal);
-        }
-    }
-    
-    private void tickAnimationDriverServer(Portal portal) {
         if (animationDriver != null) {
-            boolean finishes = animationDriver.update(portal, portal.level.getGameTime(), 0);
-            portal.animation.thisTickRealAnimated = true;
+            boolean finishes = updateAnimationDriverAndGetIsFinished(portal);
+            portal.animation.thisTickAnimatedState = portal.getPortalState();
             if (animationDriver.shouldRectifyCluster()) {
                 portal.rectifyClusterPortals();
                 PortalExtension extension = PortalExtension.get(portal);
@@ -73,13 +69,43 @@ public class PortalAnimation {
                 animationDriver = null;
             }
         }
+        
     }
     
-    @Environment(EnvType.CLIENT)
-    private void tickAnimationDriverClient(Portal portal) {
-        if (animationDriver != null) {
-            ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(portal);
+    /**
+     * The server ticking process {@link ServerLevel#tick(BooleanSupplier)}:
+     * 1. increase game time
+     * 2. tick entities (including portals)
+     * So use 1 as partial tick
+     */
+    private boolean updateAnimationDriverAndGetIsFinished(Portal portal) {
+        assert animationDriver != null;
+        
+        if (portal.level.isClientSide()) {
+            return updateAnimationDriverAndGetIsFinishedClient(portal);
         }
+        else {
+            return animationDriver.update(portal, portal.level.getGameTime(), 1);
+        }
+    }
+    
+    /**
+     * The client ticking process {@link Minecraft#tick()}
+     * 1. Tick entities (including portals)
+     * 2. Increase game time
+     * So use 0 as partial tick
+     */
+    @Environment(EnvType.CLIENT)
+    private boolean updateAnimationDriverAndGetIsFinishedClient(Portal portal) {
+        assert animationDriver != null;
+        
+        ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(portal);
+        
+        return animationDriver.update(
+            portal,
+            StableClientTimer.getStableTickTime(),
+            0
+        );
     }
     
     public void setAnimationDriver(Portal portal, @Nullable PortalAnimationDriver driver) {
@@ -117,11 +143,11 @@ public class PortalAnimation {
     
     static void updateAndCheckAnimationStatus(Portal secondaryPortal) {
         if (secondaryPortal != null) {
-            if (secondaryPortal.animation.thisTickRealAnimated) {
+            if (secondaryPortal.animation.thisTickAnimatedState != null) {
                 Helper.log("Conflicting animation in " + secondaryPortal);
                 secondaryPortal.setAnimationDriver(null);
             }
-            secondaryPortal.animation.thisTickRealAnimated = true;
+            secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
         }
     }
 }

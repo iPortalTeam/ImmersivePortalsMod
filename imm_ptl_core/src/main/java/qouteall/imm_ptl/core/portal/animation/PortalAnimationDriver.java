@@ -44,13 +44,13 @@ public interface PortalAnimationDriver {
     
     /**
      * Invoked on both client side and server side.
-     * Note: don't need to call `rectifyPortalCluster()` here.
+     * Note: no need to call `rectifyPortalCluster()` here.
      * @param portal
      * @param tickTime
-     * @param tickDelta
+     * @param partialTicks
      * @return whether the animation finishes
      */
-    boolean update(Portal portal, long tickTime, float tickDelta);
+    boolean update(Portal portal, long tickTime, float partialTicks);
     
     default boolean shouldRectifyCluster() {
         return true;

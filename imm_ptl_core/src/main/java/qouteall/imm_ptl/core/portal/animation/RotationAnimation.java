@@ -79,8 +79,8 @@ public class RotationAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public boolean update(Portal portal, long tickTime, float tickDelta) {
-        double passedTicks = ((double) (tickTime - startGameTime)) + tickDelta;
+    public boolean update(Portal portal, long tickTime, float partialTicks) {
+        double passedTicks = ((double) (tickTime - startGameTime)) + partialTicks;
         
         boolean ends = false;
         if (passedTicks > (endGameTime - startGameTime)) {

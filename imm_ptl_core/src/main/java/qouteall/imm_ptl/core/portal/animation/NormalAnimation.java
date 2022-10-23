@@ -48,6 +48,7 @@ public class NormalAnimation implements PortalAnimationDriver {
     public long startingGameTime;
     public int loopCount;
     
+    // cache field, not serialized
     @Nullable
     private Long ticksPerRound;
     
@@ -99,8 +100,8 @@ public class NormalAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public boolean update(Portal portal, long tickTime, float tickDelta) {
-        double passedTicks = ((double) (tickTime - startingGameTime)) + tickDelta;
+    public boolean update(Portal portal, long tickTime, float partialTicks) {
+        double passedTicks = ((double) (tickTime - startingGameTime)) + partialTicks;
         long totalDuration = getTotalDuration();
         
         boolean ends = false;

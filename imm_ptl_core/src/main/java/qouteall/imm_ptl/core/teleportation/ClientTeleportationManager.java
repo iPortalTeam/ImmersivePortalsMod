@@ -28,6 +28,7 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
@@ -107,48 +108,52 @@ public class ClientTeleportationManager {
         
         if (client.level == null || client.player == null) {
             lastPlayerEyePos = null;
+            return;
         }
-        else {
-            //not initialized
-            if (client.player.xo == 0 && client.player.yo == 0 && client.player.zo == 0) {
-                return;
-            }
-            
-            client.getProfiler().push("ip_teleport");
-            
-            // the real partial ticks (not from stable timer)
-            float realPartialTicks = RenderStates.tickDelta;
-            
-            double timePassedSinceLastUpdate =
-                (int) (StableClientTimer.getStableTickTime() - lastRecordStableTickTime)
-                    + (StableClientTimer.getStablePartialTicks()) - lastRecordStablePartialTicks;
-            if (timePassedSinceLastUpdate < 0) {
-                Helper.err("time flows backward?");
-            }
-            else if (timePassedSinceLastUpdate == 0) {
-                return;
-            }
-            
-            if (lastPlayerEyePos != null) {
-                for (int i = 0; i < teleportLimitPerFrame; i++) {
-                    boolean teleported = tryTeleport(realPartialTicks, timePassedSinceLastUpdate);
-                    if (!teleported) {
-                        break;
-                    }
-                    else {
-                        if (i != 0) {
-                            Helper.log("The client player made a combo-teleport");
-                        }
+        
+        // not initialized
+        if (client.player.xo == 0 && client.player.yo == 0 && client.player.zo == 0) {
+            return;
+        }
+        
+        client.getProfiler().push("ip_teleport");
+    
+        ClientPortalAnimationManagement.foreachCustomAnimatedPortals(
+            portal -> portal.animation.updateClientState(portal, teleportationCounter)
+        );
+        
+        // the real partial ticks (not from stable timer)
+        float realPartialTicks = RenderStates.tickDelta;
+        
+        double timePassedSinceLastUpdate =
+            (int) (StableClientTimer.getStableTickTime() - lastRecordStableTickTime)
+                + (StableClientTimer.getStablePartialTicks()) - lastRecordStablePartialTicks;
+        if (timePassedSinceLastUpdate < 0) {
+            Helper.err("time flows backward?");
+        }
+        else if (timePassedSinceLastUpdate == 0) {
+            return;
+        }
+        
+        if (lastPlayerEyePos != null) {
+            for (int i = 0; i < teleportLimitPerFrame; i++) {
+                boolean teleported = tryTeleport(realPartialTicks, timePassedSinceLastUpdate);
+                if (!teleported) {
+                    break;
+                }
+                else {
+                    if (i != 0) {
+                        Helper.log("The client player made a combo-teleport");
                     }
                 }
             }
-            
-            lastPlayerEyePos = getPlayerEyePos(realPartialTicks);
-            lastRecordStableTickTime = StableClientTimer.getStableTickTime();
-            lastRecordStablePartialTicks = StableClientTimer.getStablePartialTicks();
-            
-            client.getProfiler().pop();
         }
+        
+        lastPlayerEyePos = getPlayerEyePos(realPartialTicks);
+        lastRecordStableTickTime = StableClientTimer.getStableTickTime();
+        lastRecordStablePartialTicks = StableClientTimer.getStablePartialTicks();
+        
+        client.getProfiler().pop();
     }
     
     private static record TeleportationRec(

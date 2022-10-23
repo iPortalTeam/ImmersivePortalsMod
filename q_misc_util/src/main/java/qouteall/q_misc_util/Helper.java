@@ -45,6 +45,8 @@ public class Helper {
     
     private static final Logger logger = LogManager.getLogger("Portal");
     
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
+    
     /**
      * Get the intersection point of a line and a plane.
      * The line: p = lineOrigin + t * lineDirection
@@ -862,6 +864,22 @@ public class Helper {
         }
     }
     
-    public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
+    public static <T> T minBy(T a, T b, Comparator<T> comparator) {
+        if (comparator.compare(a, b) <= 0) {
+            return a;
+        }
+        else {
+            return b;
+        }
+    }
+    
+    public static <T> T maxBy(T a, T b, Comparator<T> comparator) {
+        if (comparator.compare(a, b) >= 0) {
+            return a;
+        }
+        else {
+            return b;
+        }
+    }
     
 }
