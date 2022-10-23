@@ -19,9 +19,9 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
-import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 
 import javax.annotation.Nullable;
 
@@ -71,6 +71,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     
         // immediately after ticking
         RenderStates.tickDelta = 0;
+        StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
         IPCGlobal.clientTeleportationManager.manageTeleportation();
     }
     

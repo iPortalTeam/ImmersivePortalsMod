@@ -13,6 +13,7 @@ import qouteall.q_misc_util.Helper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class ClientPortalAnimationManagement {
@@ -94,24 +95,19 @@ public class ClientPortalAnimationManagement {
                 return true;
             }
     
-//            portal.animation.recordClientLastPortalState(portal);
-            
             boolean finished = animationDriver.update(
-                portal, portal.level.getGameTime(), RenderStates.tickDelta
+                portal, StableClientTimer.getStableTickTime(), StableClientTimer.getStablePartialTicks()
             );
             portal.animation.thisTickRealAnimated = true;
             if (animationDriver.shouldRectifyCluster()) {
                 PortalExtension extension = PortalExtension.get(portal);
                 if (extension.flippedPortal != null) {
-//                    extension.flippedPortal.animation.recordClientLastPortalState(extension.flippedPortal);
                     extension.flippedPortal.animation.thisTickRealAnimated = true;
                 }
                 if (extension.reversePortal != null) {
-//                    extension.reversePortal.animation.recordClientLastPortalState(extension.reversePortal);
                     extension.reversePortal.animation.thisTickRealAnimated = true;
                 }
                 if (extension.parallelPortal != null) {
-//                    extension.parallelPortal.animation.recordClientLastPortalState(extension.parallelPortal);
                     extension.parallelPortal.animation.thisTickRealAnimated = true;
                 }
                 
@@ -129,6 +125,10 @@ public class ClientPortalAnimationManagement {
     private static void cleanup() {
         defaultAnimatedPortals.clear();
         customAnimatedPortals.clear();
+    }
+    
+    public static void foreachCustomAnimatedPortals(Consumer<Portal> consumer) {
+        customAnimatedPortals.forEach(consumer);
     }
     
     public static class RunningDefaultAnimation {

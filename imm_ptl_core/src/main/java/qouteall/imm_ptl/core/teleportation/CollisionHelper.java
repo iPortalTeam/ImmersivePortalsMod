@@ -185,7 +185,7 @@ public class CollisionHelper {
         entity.level = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
         if (collidingPortal.getScale() > 1) {
-            entity.maxUpStep = (float) (oldStepHeight * collidingPortal.getScale() * 2);
+            entity.maxUpStep = (float) (oldStepHeight * collidingPortal.getScale() * 1.01);
         }
         
         Vec3 collided = handleCollisionWithClipping(
@@ -329,6 +329,7 @@ public class CollisionHelper {
      * Vanilla copy {@link Entity#collideBoundingBox(Entity, Vec3, AABB, Level, List)}
      * But filters collisions behind the clipping plane
      */
+    @IPVanillaCopy
     public static Vec3 collideBoundingBox(
         Entity entity, Vec3 vec,
         AABB collisionBox, Level level,

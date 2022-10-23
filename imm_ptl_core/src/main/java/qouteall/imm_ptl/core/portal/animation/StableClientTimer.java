@@ -2,10 +2,10 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 /**
  * Sometimes the client time jumps forward and backward. (This even happens in singleplayer).
@@ -15,34 +15,25 @@ import qouteall.q_misc_util.Helper;
  */
 @Environment(EnvType.CLIENT)
 public class StableClientTimer {
+    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
+    
+    private static final int tickCorrectionLimit = 5;
+    private static final int timeToleranceTicks = 100;
     
     private static boolean initialized = false;
     private static long stableTickTime = 0;
     private static float stablePartialTicks = 0;
     
-    private static int timeFlowBackwardsCounter = 0;
-    private static int timeFlowTooFastCounter = 0;
-    
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(StableClientTimer::cleanup);
     }
     
-    public static void tick() {
-        Minecraft client = Minecraft.getInstance();
-        
-        if (client.level == null || client.player == null) {
-            cleanup();
-            return;
-        }
-        
-        if (!initialized) {
-            initialized = true;
-            stableTickTime = client.level.getGameTime();
-            stablePartialTicks = 0;
-        }
-        else {
-            stableTickTime++;
-        }
+    public static long getStableTickTime() {
+        return stableTickTime;
+    }
+    
+    public static float getStablePartialTicks() {
+        return stablePartialTicks;
     }
     
     private static void cleanup() {
@@ -51,56 +42,84 @@ public class StableClientTimer {
         stablePartialTicks = 0;
     }
     
-    public static void updateFrame(long worldGameTime, float partialTicks) {
+    private static void reset(long worldGameTime, float partialTicks) {
+        stableTickTime = worldGameTime;
+        stablePartialTicks = partialTicks;
+    }
+    
+    // updated after every tick and before every frame
+    public static void update(long worldGameTime, float partialTicks) {
         if (!initialized) {
             initialized = true;
             stableTickTime = worldGameTime;
-            stablePartialTicks = 0;
+            stablePartialTicks = partialTicks;
         }
         
-        double deltaTime =
+        double deltaTickTime =
             (worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
         
-        if (deltaTime < 0) {
-            timeFlowBackwardsCounter++;
-            if (timeFlowBackwardsCounter > 60) {
-                Helper.err("Time flows backwards for too many times");
+        if (deltaTickTime < 0) {
+            // Time flows backward
+            
+            if (deltaTickTime < -timeToleranceTicks) {
+                limitedLogger.err(
+                    "Rest the client stable timer because it's too far behind the server time."
+                );
+                reset(worldGameTime, partialTicks);
+                return;
             }
             
-            // cannot make time to flow backwards. flow forward a little
+            // Firstly try to assume that the game time is one tick late, then two ticks
+            for (int tickCorrection = 1; tickCorrection <= tickCorrectionLimit; tickCorrection++) {
+                double newDeltaTime =
+                    (tickCorrection + worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
+                if (newDeltaTime >= 0 && newDeltaTime < 1) {
+                    stableTickTime = tickCorrection + worldGameTime;
+                    stablePartialTicks = partialTicks;
+                    return;
+                }
+            }
+            
+            // the time can't be simply corrected
+            // this may happen when the server is lagging
+            // only move time a little
             stablePartialTicks += 0.1;
             if (stablePartialTicks > 1) {
                 stablePartialTicks -= 1;
                 stableTickTime++;
             }
         }
+        else if (deltaTickTime > 1) {
+            // time flows too fast
+            if (deltaTickTime > timeToleranceTicks) {
+                limitedLogger.err("Rest the client stable timer because it's too far ahead the server time.");
+                reset(worldGameTime, partialTicks);
+                return;
+            }
+            
+            for (int tickCorrection = 1; tickCorrection <= tickCorrectionLimit; tickCorrection++) {
+                double newDeltaTime =
+                    (-tickCorrection + worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
+                if (newDeltaTime <= 1 && newDeltaTime > 0) {
+                    stableTickTime = worldGameTime;
+                    stablePartialTicks = partialTicks;
+                    return;
+                }
+            }
+            
+            // the time can't be simply corrected
+            // this may happen when the server time is too fast (very rare)
+            // only flow 0.1 portion of the delta time per frame
+            stablePartialTicks += (0.1f * deltaTickTime);
+            if (stablePartialTicks > 1) {
+                stablePartialTicks -= 1;
+                stableTickTime++;
+            }
+        }
         else {
-            timeFlowBackwardsCounter = 0;
-            
-            // cannot make time to jump for 5 ticks in one frame
-            // the player cannot play in 4 FPS
-            if (deltaTime > 5) {
-                timeFlowTooFastCounter++;
-                if (timeFlowTooFastCounter > 60) {
-                    Helper.err("Time flows too fast for too many times");
-                }
-                
-                // only flow 0.1 portion of the delta time per frame
-                // the time may jump back 1 tick later so only flow a little is usually not a big deal
-                stablePartialTicks += (0.1f * deltaTime);
-                if (stablePartialTicks > 1) {
-                    stablePartialTicks -= 1;
-                    stableTickTime++;
-                }
-            }
-            else {
-                timeFlowTooFastCounter = 0;
-                
-                // the time is normal
-                stableTickTime = worldGameTime;
-                stablePartialTicks = partialTicks;
-            }
-            
+            // the time is normal
+            stableTickTime = worldGameTime;
+            stablePartialTicks = partialTicks;
         }
     }
 }

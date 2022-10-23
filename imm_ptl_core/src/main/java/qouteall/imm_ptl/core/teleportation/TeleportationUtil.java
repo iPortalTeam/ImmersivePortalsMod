@@ -151,10 +151,13 @@ public class TeleportationUtil {
         PortalState lastState, PortalState currentState,
         Vec3 vec
     ) {
+//        DQuaternion deltaOrientation =
+//            lastState.orientation.getConjugated().hamiltonProduct(currentState.orientation);
         DQuaternion deltaOrientation =
             currentState.orientation.hamiltonProduct(lastState.orientation.getConjugated());
         
         Vec3 rotated = deltaOrientation.rotate(vec);
+//        Vec3 rotated = vec;
         Vec3 scaled = currentState.rotation.rotate(rotated);
         return scaled.scale(currentState.scaling);
     }
@@ -178,9 +181,6 @@ public class TeleportationUtil {
         Vec3 preMovement = teleportation.collidingPos.subtract(lastTickPos);
         
         Vec3 remainingMovement = thisTickPos.subtract(teleportation.collidingPos);
-        
-        // TODO preMovement subtract velocity
-        // TODO remainingMovement add velocity
         
         Vec3 transformedPreMovement = dynamicallyTransformVec(
             teleportation.collidingPortalState, teleportation.immediateCurrentState, preMovement

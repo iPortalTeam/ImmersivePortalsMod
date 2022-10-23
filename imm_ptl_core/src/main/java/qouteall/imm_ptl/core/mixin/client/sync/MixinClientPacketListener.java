@@ -195,10 +195,12 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         at = @At("RETURN")
     )
     private void onSetTime(ClientboundSetTimePacket packet, CallbackInfo ci) {
-        ClientLevel currentWorld = minecraft.level;
-        for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
-            if (clientWorld != currentWorld) {
-                clientWorld.setGameTime(packet.getGameTime());
+        if (ClientWorldLoader.getIsInitialized()) {
+            ClientLevel currentWorld = minecraft.level;
+            for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
+                if (clientWorld != currentWorld) {
+                    clientWorld.setGameTime(packet.getGameTime());
+                }
             }
         }
     }

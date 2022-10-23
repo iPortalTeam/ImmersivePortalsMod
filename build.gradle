@@ -81,7 +81,7 @@ allprojects {
 //        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }
 //        maven { url = "https://maven.gegy.dev" }
 
-...        // for test with twilight forest
+        // for test with twilight forest
 //        maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
 //        maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Suggestion Tweaker
 //        maven { url = "https://maven.shedaniel.me/" } // Cloth Config

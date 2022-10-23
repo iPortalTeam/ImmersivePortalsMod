@@ -28,7 +28,7 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
-import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.TransformationManager;
@@ -49,8 +49,8 @@ public class ClientTeleportationManager {
     private long teleportTickTimeLimit = 0;
     
     private Vec3 lastPlayerEyePos = null;
-    private long lastRecordGameTime = 0;
-    private float lastRecordTickDelta = 0;
+    private long lastRecordStableTickTime = 0;
+    private float lastRecordStablePartialTicks = 0;
     
     // for debug
     public static boolean isTeleportingTick = false;
@@ -105,8 +105,6 @@ public class ClientTeleportationManager {
         
         isTeleportingFrame = false;
         
-        float tickDelta = RenderStates.tickDelta;
-        
         if (client.level == null || client.player == null) {
             lastPlayerEyePos = null;
         }
@@ -117,19 +115,23 @@ public class ClientTeleportationManager {
             }
             
             client.getProfiler().push("ip_teleport");
-    
-            double timePassedSinceLastUpdate = (int) (client.level.getGameTime() - lastRecordGameTime)
-                + tickDelta - lastRecordTickDelta;
+            
+            // the real partial ticks (not from stable timer)
+            float realPartialTicks = RenderStates.tickDelta;
+            
+            double timePassedSinceLastUpdate =
+                (int) (StableClientTimer.getStableTickTime() - lastRecordStableTickTime)
+                    + (StableClientTimer.getStablePartialTicks()) - lastRecordStablePartialTicks;
             if (timePassedSinceLastUpdate < 0) {
                 Helper.err("time flows backward?");
             }
             else if (timePassedSinceLastUpdate == 0) {
-                Helper.err("re-update with 0 time interval?");
+                return;
             }
             
             if (lastPlayerEyePos != null) {
                 for (int i = 0; i < teleportLimitPerFrame; i++) {
-                    boolean teleported = tryTeleport(tickDelta, timePassedSinceLastUpdate);
+                    boolean teleported = tryTeleport(realPartialTicks, timePassedSinceLastUpdate);
                     if (!teleported) {
                         break;
                     }
@@ -141,9 +143,9 @@ public class ClientTeleportationManager {
                 }
             }
             
-            lastPlayerEyePos = getPlayerEyePos(tickDelta);
-            lastRecordGameTime = client.level.getGameTime();
-            lastRecordTickDelta = tickDelta;
+            lastPlayerEyePos = getPlayerEyePos(realPartialTicks);
+            lastRecordStableTickTime = StableClientTimer.getStableTickTime();
+            lastRecordStablePartialTicks = StableClientTimer.getStablePartialTicks();
             
             client.getProfiler().pop();
         }
@@ -153,10 +155,10 @@ public class ClientTeleportationManager {
         Portal portal, Vec2d portalLocalXY, Vec3 collisionPos
     ) {}
     
-    private boolean tryTeleport(float tickDelta, double timePassedSinceLastUpdate) {
+    private boolean tryTeleport(float partialTicks, double timePassedSinceLastUpdate) {
         LocalPlayer player = client.player;
         
-        Vec3 newEyePos = getPlayerEyePos(tickDelta);
+        Vec3 newEyePos = getPlayerEyePos(partialTicks);
         
         if (lastPlayerEyePos.distanceToSqr(newEyePos) > 1600) {
 //            Helper.log("The Player is Moving Too Fast!");
@@ -170,7 +172,9 @@ public class ClientTeleportationManager {
                 if (portal.canTeleportEntity(player)) {
                     portal.animation.updateClientState(portal, teleportationCounter);
                     
-                    // TODO check whether it can teleport at the very beginning of portal animation
+                    // Separately handle dynamic teleportation and static teleportation.
+                    // Although the dynamic teleportation code can handle static teleportation.
+                    // I want the dynamic teleportation bugs to not affect static teleportation.
                     if (portal.animation.clientLastPortalStateCounter == teleportationCounter - 1
                         && portal.animation.clientLastPortalState != null
                     ) {

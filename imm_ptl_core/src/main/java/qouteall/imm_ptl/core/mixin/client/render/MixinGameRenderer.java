@@ -20,12 +20,12 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.CrossPortalViewRendering;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
 @Mixin(GameRenderer.class)
@@ -73,6 +73,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
         minecraft.getProfiler().push("ip_pre_render");
         RenderStates.updatePreRenderInfo(tickDelta);
+        StableClientTimer.update(minecraft.level.getGameTime(), tickDelta);
         ClientPortalAnimationManagement.onPreGameRender(); // must update before teleportation
         IPCGlobal.clientTeleportationManager.manageTeleportation();
         IPGlobal.preGameRenderSignal.emit();

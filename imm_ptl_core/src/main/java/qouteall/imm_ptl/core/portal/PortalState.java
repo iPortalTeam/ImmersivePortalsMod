@@ -126,6 +126,9 @@ public class PortalState {
     /**
      * We have to carefully calculate the relative velocity between a moving player and a moving portal.
      * The velocity in each point is different if the portal is rotating.
+     *
+     * The velocity is calculated from the two states of the portal assuming the portal moves linearly.
+     * However, this will be wrong when the portal is rotating.
      */
     public static Tuple<Vec3, Vec3> getThisSideVelocityAndOtherSideVelocityAtPoint(
         PortalState lastState,

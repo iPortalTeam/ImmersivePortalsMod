@@ -100,16 +100,19 @@ public class PortalAnimation {
         }
     }
     
+    @Environment(EnvType.CLIENT)
     public void updateClientState(Portal portal, long currentTeleportationCounter) {
         if (currentTeleportationCounter == clientCurrentPortalStateCounter) {
             return;
         }
         
-        clientLastPortalState = clientCurrentPortalState;
-        clientLastPortalStateCounter = clientCurrentPortalStateCounter;
-        
-        clientCurrentPortalState = portal.getPortalState();
-        clientCurrentPortalStateCounter = currentTeleportationCounter;
+        if (isRunningRealAnimation()) {
+            clientLastPortalState = clientCurrentPortalState;
+            clientLastPortalStateCounter = clientCurrentPortalStateCounter;
+            
+            clientCurrentPortalState = portal.getPortalState();
+            clientCurrentPortalStateCounter = currentTeleportationCounter;
+        }
     }
     
     static void updateAndCheckAnimationStatus(Portal secondaryPortal) {
