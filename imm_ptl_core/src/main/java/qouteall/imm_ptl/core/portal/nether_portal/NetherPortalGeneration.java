@@ -237,7 +237,7 @@ public class NetherPortalGeneration {
         return false;
     }
     
-    private static final LimitedLogger limitedLogger = new LimitedLogger(300);
+    private static final LimitedLogger limitedLogger = new LimitedLogger(50);
     
     public static boolean checkPortalGeneration(ServerLevel fromWorld, BlockPos startingPos) {
         if (!fromWorld.hasChunkAt(startingPos)) {

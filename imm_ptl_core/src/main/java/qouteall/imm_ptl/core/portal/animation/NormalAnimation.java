@@ -101,7 +101,7 @@ public class NormalAnimation implements PortalAnimationDriver {
     
     @Override
     public boolean update(Portal portal, long tickTime, float partialTicks) {
-        double passedTicks = ((double) (tickTime - startingGameTime)) + partialTicks;
+        double passedTicks = ((double) (tickTime - 1 - startingGameTime)) + partialTicks;
         long totalDuration = getTotalDuration();
         
         boolean ends = false;

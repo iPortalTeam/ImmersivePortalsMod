@@ -790,4 +790,8 @@ public class McHelper {
     public static Vec3 getAxisHFromOrientation(DQuaternion quaternion) {
         return quaternion.rotate(new Vec3(0, 1, 0));
     }
+    
+    public static Vec3 getNormalFromOrientation(DQuaternion quaternion) {
+        return quaternion.rotate(new Vec3(0, 0, 1));
+    }
 }

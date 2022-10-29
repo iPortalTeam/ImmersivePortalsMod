@@ -836,9 +836,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
             serverPortalTickSignal.emit(this);
         }
-        
+    
         animation.tick(this);
-        
+    
         CollisionHelper.notifyCollidingPortals(this);
         
         super.tick();
@@ -1532,7 +1532,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return !viewBlockingPortals.isEmpty();
     }
     
-    // I don't know why I added this method. Let's keep it false.
+    // It's overridden by MiniScaled
     public boolean allowOverlappedTeleport() {
         return false;
     }

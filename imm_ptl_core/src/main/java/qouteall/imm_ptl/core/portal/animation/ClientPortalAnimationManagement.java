@@ -5,9 +5,7 @@ import net.fabricmc.api.Environment;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
 import java.util.HashMap;
@@ -51,7 +49,17 @@ public class ClientPortalAnimationManagement {
         customAnimatedPortals.add(portal);
     }
     
-    public static void onPreGameRender() {
+    public static void onAfterClientTick() {
+        // update the portal state to the end of the tick
+        updateCustomAnimations(true);
+        
+        // update the portal state to the immediate state for teleportation
+        updateCustomAnimations(false);
+        
+        // TODO find a more elegant way
+    }
+    
+    public static void update() {
         long currTime = System.nanoTime();
         
         defaultAnimatedPortals.entrySet().removeIf(entry -> {
@@ -85,40 +93,36 @@ public class ClientPortalAnimationManagement {
             return false;
         });
         
+        updateCustomAnimations(false);
+    }
+    
+    private static void updateCustomAnimations(boolean isTicking) {
+        long stableTickTime = StableClientTimer.getStableTickTime();
+        float stablePartialTicks = StableClientTimer.getStablePartialTicks();
+    
+        // if isTicking, update the portal as if it's one tick later
+        // due to the presence of StableClientTimer, the partialTick in ticking may be non 0
+        long usedTickTime = isTicking ? stableTickTime + 1 : stableTickTime;
+        float usedPartialTicks = stablePartialTicks;
+        
         customAnimatedPortals.removeIf(portal -> {
             if (portal.isRemoved()) {
                 return true;
             }
             
-            PortalAnimationDriver animationDriver = portal.getAnimationDriver();
-            if (animationDriver == null) {
+            if (portal.animation.animationDriver == null) {
                 return true;
             }
-    
-            boolean finished = animationDriver.update(
-                portal, StableClientTimer.getStableTickTime(), StableClientTimer.getStablePartialTicks()
+            
+            portal.animation.updateAnimationDriver(
+                portal,
+                usedTickTime,
+                usedPartialTicks,
+                isTicking
             );
-            portal.animation.thisTickRealAnimated = true;
-            if (animationDriver.shouldRectifyCluster()) {
-                PortalExtension extension = PortalExtension.get(portal);
-                if (extension.flippedPortal != null) {
-                    extension.flippedPortal.animation.thisTickRealAnimated = true;
-                }
-                if (extension.reversePortal != null) {
-                    extension.reversePortal.animation.thisTickRealAnimated = true;
-                }
-                if (extension.parallelPortal != null) {
-                    extension.parallelPortal.animation.thisTickRealAnimated = true;
-                }
-                
-                portal.rectifyClusterPortals();
-            }
             
-            if (finished) {
-                portal.setAnimationDriver(null);
-            }
-            
-            return finished;
+            // remove the entry if animation driver is null
+            return portal.animation.animationDriver == null;
         });
     }
     

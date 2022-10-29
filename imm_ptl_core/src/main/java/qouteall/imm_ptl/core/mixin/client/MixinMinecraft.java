@@ -19,6 +19,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -69,9 +70,15 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         IPGlobal.postClientTickSignal.emit();
         getProfiler().pop();
     
-        // immediately after ticking
+        /*
+          The client ticking process {@link Minecraft#tick()}
+          1. Tick entities (including portals)
+          2. Increase game time
+          This happens right after increasing game time, so partialTick is 0
+         */
         RenderStates.tickDelta = 0;
         StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
+        ClientPortalAnimationManagement.onAfterClientTick();
         IPCGlobal.clientTeleportationManager.manageTeleportation();
     }
     

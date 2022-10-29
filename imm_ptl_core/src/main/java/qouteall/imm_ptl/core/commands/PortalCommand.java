@@ -972,7 +972,7 @@ public class PortalCommand {
                             animation.otherSideRotationCenter = null;
                             animation.otherSideRotationAxis = null;
                             animation.angularVelocity = angularVelocity;
-                            animation.startGameTime = portal.level.getGameTime() + 1;
+                            animation.startGameTime = portal.level.getGameTime();
                             animation.endGameTime = Long.MAX_VALUE;
                             portal.setAnimationDriver(animation);
                             
@@ -1007,7 +1007,7 @@ public class PortalCommand {
                                         animation.otherSideRotationCenter = null;
                                         animation.otherSideRotationAxis = null;
                                         animation.angularVelocity = angularVelocity;
-                                        animation.startGameTime = portal.level.getGameTime() + 1;
+                                        animation.startGameTime = portal.level.getGameTime();
                                         animation.endGameTime = Long.MAX_VALUE;
                                         portal.setAnimationDriver(animation);
                                     }
@@ -1047,7 +1047,7 @@ public class PortalCommand {
                     animation.otherSideRotationCenter = null;
                     animation.otherSideRotationAxis = null;
                     animation.angularVelocity = angularVelocity;
-                    animation.startGameTime = portal.level.getGameTime() + 1;
+                    animation.startGameTime = portal.level.getGameTime();
                     animation.endGameTime = Long.MAX_VALUE;
                     portal.setAnimationDriver(animation);
                     
@@ -1080,7 +1080,7 @@ public class PortalCommand {
                         portalState.height / multiplier
                     ),
                     portalState,
-                    portal.level.getGameTime() + 1,
+                    portal.level.getGameTime(),
                     durationTicks,
                     true,
                     false,

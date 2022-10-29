@@ -27,7 +27,6 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
-import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.FrontClipping;
@@ -117,7 +116,7 @@ public class ClientTeleportationManager {
         }
         
         client.getProfiler().push("ip_teleport");
-    
+        
         ClientPortalAnimationManagement.foreachCustomAnimatedPortals(
             portal -> portal.animation.updateClientState(portal, teleportationCounter)
         );
@@ -125,19 +124,9 @@ public class ClientTeleportationManager {
         // the real partial ticks (not from stable timer)
         float realPartialTicks = RenderStates.tickDelta;
         
-        double timePassedSinceLastUpdate =
-            (int) (StableClientTimer.getStableTickTime() - lastRecordStableTickTime)
-                + (StableClientTimer.getStablePartialTicks()) - lastRecordStablePartialTicks;
-        if (timePassedSinceLastUpdate < 0) {
-            Helper.err("time flows backward?");
-        }
-        else if (timePassedSinceLastUpdate == 0) {
-            return;
-        }
-        
         if (lastPlayerEyePos != null) {
             for (int i = 0; i < teleportLimitPerFrame; i++) {
-                boolean teleported = tryTeleport(realPartialTicks, timePassedSinceLastUpdate);
+                boolean teleported = tryTeleport(realPartialTicks);
                 if (!teleported) {
                     break;
                 }
@@ -160,19 +149,19 @@ public class ClientTeleportationManager {
         Portal portal, Vec2d portalLocalXY, Vec3 collisionPos
     ) {}
     
-    private boolean tryTeleport(float partialTicks, double timePassedSinceLastUpdate) {
+    private boolean tryTeleport(float partialTicks) {
         LocalPlayer player = client.player;
         
-        Vec3 newEyePos = getPlayerEyePos(partialTicks);
+        Vec3 thisFrameEyePos = getPlayerEyePos(partialTicks);
         
-        if (lastPlayerEyePos.distanceToSqr(newEyePos) > 1600) {
+        if (lastPlayerEyePos.distanceToSqr(thisFrameEyePos) > 1600) {
 //            Helper.log("The Player is Moving Too Fast!");
             return false;
         }
         
         long currentGameTime = client.level.getGameTime();
         
-        TeleportationUtil.Teleportation rec = CHelper.getClientNearbyPortals(32)
+        TeleportationUtil.Teleportation tele = CHelper.getClientNearbyPortals(32)
             .flatMap(portal -> {
                 if (portal.canTeleportEntity(player)) {
                     portal.animation.updateClientState(portal, teleportationCounter);
@@ -180,23 +169,25 @@ public class ClientTeleportationManager {
                     // Separately handle dynamic teleportation and static teleportation.
                     // Although the dynamic teleportation code can handle static teleportation.
                     // I want the dynamic teleportation bugs to not affect static teleportation.
-                    if (portal.animation.clientLastPortalStateCounter == teleportationCounter - 1
-                        && portal.animation.clientLastPortalState != null
+                    if (portal.animation.clientLastFramePortalStateCounter == teleportationCounter - 1
+                        && portal.animation.clientLastFramePortalState != null
+                        && portal.animation.lastTickAnimatedState != null
+                        && portal.animation.thisTickAnimatedState != null
                     ) {
                         // the portal is running a real animation
-                        PortalState currentState = portal.animation.clientCurrentPortalState;
-                        Validate.isTrue(currentState != null);
-                        
+                        assert portal.animation.clientCurrentFramePortalState != null;
+        
                         TeleportationUtil.Teleportation teleportation =
                             TeleportationUtil.checkDynamicTeleportation(
                                 portal,
-                                portal.animation.clientLastPortalState,
-                                currentState,
+                                portal.animation.clientLastFramePortalState,
+                                portal.animation.clientCurrentFramePortalState,
                                 lastPlayerEyePos,
-                                newEyePos,
-                                timePassedSinceLastUpdate
+                                thisFrameEyePos,
+                                portal.animation.lastTickAnimatedState,
+                                portal.animation.thisTickAnimatedState
                             );
-                        
+        
                         if (teleportation != null) {
                             return Stream.of(teleportation);
                         }
@@ -207,8 +198,7 @@ public class ClientTeleportationManager {
                             TeleportationUtil.checkStaticTeleportation(
                                 portal,
                                 lastPlayerEyePos,
-                                newEyePos,
-                                timePassedSinceLastUpdate
+                                thisFrameEyePos
                             );
                         if (teleportation != null) {
                             return Stream.of(teleportation);
@@ -222,18 +212,18 @@ public class ClientTeleportationManager {
             ))
             .orElse(null);
         
-        if (rec != null) {
-            Portal portal = rec.portal();
-            Vec3 collidingPos = rec.collidingPos();
+        if (tele != null) {
+            Portal portal = tele.portal();
+            Vec3 collidingPos = tele.collidingPos();
             
             client.getProfiler().push("portal_teleport");
-            teleportPlayer(rec);
+            teleportPlayer(tele);
             client.getProfiler().pop();
             
             boolean allowOverlappedTeleport = portal.allowOverlappedTeleport();
             double adjustment = allowOverlappedTeleport ? -0.001 : 0.001;
             
-            lastPlayerEyePos = portal.transformPoint(collidingPos)
+            lastPlayerEyePos = tele.teleportationCheckpoint()
                 .add(portal.getContentDirection().scale(adjustment));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
@@ -290,12 +280,12 @@ public class ClientTeleportationManager {
         McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
         
         // subtract this side's portal point velocity
-        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).subtract(teleportation.thisSidePortalPointVelocity()));
+        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).subtract(teleportation.portalPointVelocity().thisSidePointVelocity()));
         
         portal.transformVelocity(player);
         
         // add other side's portal point velocity
-        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).add(teleportation.otherSidePortalPointVelocity()));
+        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).add(teleportation.portalPointVelocity().otherSidePointVelocity()));
         
         if (player.getVehicle() != null) {
             portal.transformVelocity(player.getVehicle());

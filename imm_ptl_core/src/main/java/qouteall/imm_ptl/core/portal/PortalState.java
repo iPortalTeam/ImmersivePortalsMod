@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.portal;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -123,35 +122,8 @@ public class PortalState {
         return scaled;
     }
     
-    /**
-     * We have to carefully calculate the relative velocity between a moving player and a moving portal.
-     * The velocity in each point is different if the portal is rotating.
-     *
-     * The velocity is calculated from the two states of the portal assuming the portal moves linearly.
-     * However, this will be wrong when the portal is rotating.
-     */
-    public static Tuple<Vec3, Vec3> getThisSideVelocityAndOtherSideVelocityAtPoint(
-        PortalState lastState,
-        PortalState currentState,
-        double localX,
-        double localY,
-        double timeInterval
-    ) {
-        Validate.isTrue(timeInterval > 0);
-        
-        Vec3 lastThisSidePos = lastState.getPointOnSurface(localX, localY);
-        Vec3 currentThisSidePos = currentState.getPointOnSurface(localX, localY);
-        Vec3 thisSideVelocity = currentThisSidePos.subtract(lastThisSidePos).scale(1.0 / timeInterval);
-        
-        Vec3 lastOtherSidePos = lastState.transformPoint(lastThisSidePos);
-        Vec3 currentOtherSidePos = currentState.transformPoint(currentThisSidePos);
-        Vec3 otherSideVelocity = currentOtherSidePos.subtract(lastOtherSidePos).scale(1.0 / timeInterval);
-        
-        return new Tuple<>(thisSideVelocity, otherSideVelocity);
-    }
-    
     // the returned pos is in a portal-local coordinate where X is axisW, Y is axisH and Z is normal
-    public Vec3 getPortalLocalPos(Vec3 worldPos) {
+    public Vec3 worldPosToPortalLocalPos(Vec3 worldPos) {
         Vec3 axisW = McHelper.getAxisWFromOrientation(this.orientation);
         Vec3 axisH = McHelper.getAxisHFromOrientation(this.orientation);
         Vec3 origin = this.fromPos;
@@ -162,4 +134,23 @@ public class PortalState {
             offset.dot(axisW.cross(axisH))
         );
     }
+    
+    public Vec3 portalLocalPosToWorldPos(Vec3 portalLocalPos) {
+        Vec3 axisW = McHelper.getAxisWFromOrientation(this.orientation);
+        Vec3 axisH = McHelper.getAxisHFromOrientation(this.orientation);
+        Vec3 origin = this.fromPos;
+        return origin
+            .add(axisW.scale(portalLocalPos.x))
+            .add(axisH.scale(portalLocalPos.y))
+            .add(axisW.cross(axisH).scale(portalLocalPos.z));
+    }
+    
+    public Vec3 getNormal() {
+        return McHelper.getNormalFromOrientation(this.orientation);
+    }
+    
+    public Vec3 getContentDirection() {
+        return rotation.rotate(getNormal().scale(-1));
+    }
+    
 }

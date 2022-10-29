@@ -44,10 +44,12 @@ public interface PortalAnimationDriver {
     
     /**
      * Invoked on both client side and server side.
+     * On server side it's invoked during ticking.
+     * On client side it's invoked both on ticking and before rendering.
      * Note: no need to call `rectifyPortalCluster()` here.
      * @param portal
      * @param tickTime
-     * @param partialTicks
+     * @param partialTicks The real time is tickTime - 1 + partialTicks
      * @return whether the animation finishes
      */
     boolean update(Portal portal, long tickTime, float partialTicks);
