@@ -185,7 +185,9 @@ public class ClientTeleportationManager {
                                 lastPlayerEyePos,
                                 thisFrameEyePos,
                                 portal.animation.lastTickAnimatedState,
-                                portal.animation.thisTickAnimatedState
+                                portal.animation.thisTickAnimatedState,
+                                McHelper.getLastTickEyePos(player),
+                                McHelper.getEyePos(player)
                             );
         
                         if (teleportation != null) {

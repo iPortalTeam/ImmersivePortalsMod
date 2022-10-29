@@ -10,6 +10,7 @@ import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Calculating teleportation between a moving portal and a moving player is tricky.
@@ -106,7 +107,8 @@ public class TeleportationUtil {
         Portal portal,
         PortalState lastFrameState, PortalState currentFrameState,
         Vec3 lastFrameEyePos, Vec3 currentFrameEyePos,
-        PortalState lastTickState, PortalState thisTickState
+        PortalState lastTickState, PortalState thisTickState,
+        Vec3 lastTickEyePos, Vec3 thisTickEyePos
     ) {
         Vec3 lastLocalPos = lastFrameState.worldPosToPortalLocalPos(lastFrameEyePos);
         Vec3 currentLocalPos = currentFrameState.worldPosToPortalLocalPos(currentFrameEyePos);
@@ -118,15 +120,18 @@ public class TeleportationUtil {
         }
         
         PortalPointVelocity portalPointVelocity = getPortalPointVelocity(
-            lastFrameState, currentFrameState,
+            lastTickState, thisTickState,
             collisionInfo.portalLocalX, collisionInfo.portalLocalY
         );
+//        PortalPointVelocity portalPointVelocity = getConservativePortalPointVelocity(
+//            lastTickState, thisTickState, lastTickEyePos, thisTickEyePos
+//        );
         
         PortalState collisionPortalState =
             PortalState.interpolate(lastFrameState, currentFrameState, collisionInfo.tOfCollision, false);
         Vec3 collisionPointMappedToThisFrame = thisTickState.transformPoint(thisTickState.portalLocalPosToWorldPos(new Vec3(
             collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
-        )));;
+        ))); ;
         Vec3 collisionPointMappedToLastFrame = lastFrameState.transformPoint(lastFrameState.portalLocalPosToWorldPos(new Vec3(
             collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
         )));
@@ -201,112 +206,93 @@ public class TeleportationUtil {
         PortalState lastTickState = teleportation.lastTickState;
         PortalState thisTickState = teleportation.thisTickState;
         
-        Vec3 localLastTickPos = lastTickState.worldPosToPortalLocalPos(lastTickPos);
-        Vec3 localThisTickPos = lastTickState.worldPosToPortalLocalPos(thisTickPos);
-        
-        Vec3 newThisSideLastTickPos = thisTickState.portalLocalPosToWorldPos(localLastTickPos);
-        Vec3 newThisSideThisTickPos = thisTickState.portalLocalPosToWorldPos(localThisTickPos);
-        
-        Vec3 newOtherSideLastTickPos = thisTickState.transformPoint(newThisSideLastTickPos);
-        Vec3 newOtherSideThisTickPos = thisTickState.transformPoint(newThisSideThisTickPos);
+        Vec3 newOtherSideLastTickPos = lastTickState.transformPoint(lastTickPos);
+        Vec3 newOtherSideThisTickPos = thisTickState.transformPoint(thisTickPos);
         
         float partialTicks = RenderStates.tickDelta;
         
         Vec3 newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
 
-//         The teleportation code assumes that the camera and the portal moves in a linear manner.
-//         However, the animation system allows the portal to move in a non-linear manner.
-//         So the teleported immediate camera position may be behind the other side of the portal which is wrong.
-//         We do a small negligible correction to push it forward to make it correct.
-        
         Vec3 correctImmediateCameraPos =
             teleportation.collidingPortalState().transformPoint(teleportation.thisFrameEyePos());
         
-//        PortalState lastFrameState = teleportation.lastFrameState();
-//        Vec3 contentDirection = lastFrameState.getContentDirection();
-//        Vec3 otherSideOffset = correctImmediateCameraPos.subtract(lastFrameState.toPos);
-//        double projectionLen = otherSideOffset.dot(contentDirection);
-//        if (projectionLen < 0) {
-//            // The teleported camera position is behind the other side of the portal.
-//            correctImmediateCameraPos =
-//                correctImmediateCameraPos.add(contentDirection.scale(-projectionLen));
-//        }
-    
-        Vec3 velocityCompensation =
-            teleportation.portalPointVelocity().otherSidePointVelocity()
-                .scale(1 - teleportation.tOfCollision);
+        Vec3 deltaVelocity = teleportation.portalPointVelocity().otherSidePointVelocity().subtract(
+            teleportation.collidingPortalState().transformVec(teleportation.portalPointVelocity().thisSidePointVelocity())
+        );
         
-        Vec3 offset = correctImmediateCameraPos.subtract(newImmediateCameraPos).add(velocityCompensation);
+        Vec3 offset = correctImmediateCameraPos.subtract(newImmediateCameraPos);
         
         newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset);
         newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset);
         
+        {
+            PortalState targetingPortalState = teleportation.thisTickState();
+            double dot = newOtherSideThisTickPos
+                .subtract(targetingPortalState.toPos)
+                .dot(targetingPortalState.getContentDirection());
+            if (dot < 0) {
+                Helper.err("Teleported to behind the end-tick portal destination. Corrected.");
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(
+                    targetingPortalState.getContentDirection().scale(-dot + 0.001)
+                );
+            }
+        }
+        
+        {
+            PortalState thisFrameState = teleportation.thisFrameState();
+            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+            
+            double dot = newImmediateCameraPos
+                .subtract(thisFrameState.toPos)
+                .dot(thisFrameState.getContentDirection());
+            if (dot < 0) {
+                Helper.err("Teleported to behind the end-frame portal destination. Corrected.");
+                Vec3 offset1 = thisFrameState.getContentDirection().scale(-dot + 0.001);
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+            }
+        }
+        
         return new Tuple<>(newOtherSideLastTickPos, newOtherSideThisTickPos);
     }
     
+    /**
+     * When the portal is rotating, the outer point velocity is bigger than inner point velocity.
+     * When the player teleports through portal in a tilted manner,
+     * the this-side point velocity projected to normal may be smaller than the player velocity projected to normal.
+     */
     @Deprecated
     private static PortalPointVelocity getConservativePortalPointVelocity(
-        Portal portal, PortalState lastState, PortalState currentState,
-        double timeIntervalTicks, Vec3 currentLocalPos,
-        CollisionInfo collisionInfo
+        PortalState lastTickState, PortalState thisTickState,
+        Vec3 lastTickPos, Vec3 thisTickPos
     ) {
-        PortalPointVelocity relativeVelocityAtCollisionPoint =
-            getPortalPointVelocity(
-                lastState, currentState,
-                collisionInfo.portalLocalX, collisionInfo.portalLocalY,
-                timeIntervalTicks
-            );
-        
-        PortalPointVelocity relativeVelocityAtCurrentTickPoint =
-            getPortalPointVelocity(
-                lastState, currentState,
-                currentLocalPos.x, currentLocalPos.y,
-                timeIntervalTicks
-            );
-        
-        Vec3 thisSidePortalPointVelocity = Helper.minBy(
-            relativeVelocityAtCollisionPoint.thisSidePointVelocity(),
-            relativeVelocityAtCurrentTickPoint.thisSidePointVelocity(),
-            Comparator.comparingDouble((p) -> p.dot(portal.getNormal()))
+        List<Vec3> localPoses = List.of(
+            lastTickState.worldPosToPortalLocalPos(lastTickPos),
+            lastTickState.worldPosToPortalLocalPos(thisTickPos),
+            thisTickState.worldPosToPortalLocalPos(lastTickPos),
+            thisTickState.worldPosToPortalLocalPos(thisTickPos)
         );
         
-        Vec3 otherSidePortalPointVelocity = Helper.maxBy(
-            relativeVelocityAtCollisionPoint.otherSidePointVelocity(),
-            relativeVelocityAtCurrentTickPoint.otherSidePointVelocity(),
-            Comparator.comparingDouble((p) -> p.dot(portal.getContentDirection()))
-        );
+        List<PortalPointVelocity> portalPointVelocities = localPoses.stream().map(localPos ->
+            getPortalPointVelocity(
+                lastTickState, thisTickState,
+                localPos.x, localPos.y
+            )
+        ).toList();
         
         return new PortalPointVelocity(
-            thisSidePortalPointVelocity,
-            otherSidePortalPointVelocity
+            portalPointVelocities.stream()
+                .map(v -> v.thisSidePointVelocity)
+                .max(Comparator.comparingDouble(
+                    p -> p.dot(lastTickState.getNormal())
+                ))
+                .orElseThrow(),
+            portalPointVelocities.stream()
+                .map(v -> v.otherSidePointVelocity)
+                .max(Comparator.comparingDouble(
+                    p -> p.dot(thisTickState.getContentDirection())
+                ))
+                .orElseThrow()
         );
     }
-    
-    /**
-     * We have to carefully calculate the relative velocity between a moving player and a moving portal.
-     * The velocity in each point is different if the portal is rotating.
-     * <p>
-     * The velocity is calculated from the two states of the portal assuming the portal moves linearly.
-     * However, this will be wrong when the portal is rotating.
-     */
-    public static PortalPointVelocity getPortalPointVelocity(
-        PortalState lastState,
-        PortalState currentState,
-        double localX,
-        double localY,
-        double timeInterval
-    ) {
-        Validate.isTrue(timeInterval > 0);
-        
-        Vec3 lastThisSidePos = lastState.getPointOnSurface(localX, localY);
-        Vec3 currentThisSidePos = currentState.getPointOnSurface(localX, localY);
-        Vec3 thisSideVelocity = currentThisSidePos.subtract(lastThisSidePos).scale(1.0 / timeInterval);
-        
-        Vec3 lastOtherSidePos = lastState.transformPoint(lastThisSidePos);
-        Vec3 currentOtherSidePos = currentState.transformPoint(currentThisSidePos);
-        Vec3 otherSideVelocity = currentOtherSidePos.subtract(lastOtherSidePos).scale(1.0 / timeInterval);
-        
-        return new PortalPointVelocity(thisSideVelocity, otherSideVelocity);
-    }
-    
 }

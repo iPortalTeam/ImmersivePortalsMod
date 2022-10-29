@@ -1154,6 +1154,7 @@ public class PortalCommand {
     }
     
     public static void reloadPortal(Portal portal) {
+        portal.updateCache();
         portal.rectifyClusterPortals();
         portal.reloadAndSyncToClient();
     }
