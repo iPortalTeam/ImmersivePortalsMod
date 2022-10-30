@@ -47,6 +47,7 @@ public class ClientPortalAnimationManagement {
     
     public static void markRequiresCustomAnimationUpdate(Portal portal) {
         customAnimatedPortals.add(portal);
+        defaultAnimatedPortals.remove(portal);
     }
     
     public static void onAfterClientTick() {
@@ -55,8 +56,6 @@ public class ClientPortalAnimationManagement {
         
         // update the portal state to the immediate state for teleportation
         updateCustomAnimations(false);
-        
-        // TODO find a more elegant way
     }
     
     public static void update() {

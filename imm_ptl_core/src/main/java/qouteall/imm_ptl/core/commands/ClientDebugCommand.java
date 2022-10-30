@@ -445,11 +445,6 @@ public class ClientDebugCommand {
             "gl_check_error",
             cond -> IPGlobal.doCheckGlError = cond
         );
-        registerSwitchCommand(
-            builder,
-            "smooth_chunk_unload",
-            cond -> IPCGlobal.smoothChunkUnload = cond
-        );
         
         registerSwitchCommand(
             builder,

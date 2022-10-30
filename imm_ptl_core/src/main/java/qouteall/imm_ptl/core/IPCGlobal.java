@@ -30,8 +30,6 @@ public class IPCGlobal {
     public static boolean isClientRemoteTickingEnabled = true;
     public static boolean useFrontClipping = true;
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
-    // TODO remove this
-    public static boolean smoothChunkUnload = true;
     public static boolean lateClientLightUpdate = true;
     public static boolean earlyRemoteUpload = true;
     

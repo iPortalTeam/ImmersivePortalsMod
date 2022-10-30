@@ -60,7 +60,8 @@ public class RendererUsingStencil extends PortalRenderer {
             setStencilStateForWorldRendering();
         }
         else {
-            // TODO why not do it in finishRendering()?
+            // don't do it in finishRendering()
+            // as it will render outer world's transparent things later
             myFinishRendering();
         }
     }

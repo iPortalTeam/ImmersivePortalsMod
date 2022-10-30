@@ -27,7 +27,6 @@ public class IrisInterface {
             return null;
         }
         
-        // TODO check whether it's necessary
         public void setPipeline(LevelRenderer worldRenderer, Object pipeline) {
         
         }

@@ -187,7 +187,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * If false, the cross portal collision will be ignored
      */
-    public boolean hasCrossPortalCollision = true;// TODO make protected
+    public boolean hasCrossPortalCollision = true;
     
     /**
      * Whether to render player inside this portal

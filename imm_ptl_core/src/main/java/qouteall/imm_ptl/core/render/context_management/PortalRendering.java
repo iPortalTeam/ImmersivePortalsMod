@@ -16,7 +16,6 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-// TODO remove this and use RenderInfo
 @Environment(EnvType.CLIENT)
 public class PortalRendering {
     private static final Stack<PortalLike> portalLayers = new Stack<>();
