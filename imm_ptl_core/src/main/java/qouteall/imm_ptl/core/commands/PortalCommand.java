@@ -961,20 +961,18 @@ public class PortalCommand {
                             Vec3 rotationCenter = rotationCenterEntity.position();
                             Vec3 axis = Vec3Argument.getVec3(context, "rotationAxis").normalize();
                             double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-                            
-                            RotationAnimation animation = new RotationAnimation();
-                            animation.initialPortalOrigin = portal.getOriginPos();
-                            animation.initialPortalDestination = portal.getDestPos();
-                            animation.initialPortalOrientation = portal.getOrientationRotation();
-                            animation.initialPortalRotation = portal.getRotationD();
-                            animation.thisSideRotationCenter = rotationCenter;
-                            animation.thisSideRotationAxis = axis;
-                            animation.otherSideRotationCenter = null;
-                            animation.otherSideRotationAxis = null;
-                            animation.angularVelocity = angularVelocity;
-                            animation.startGameTime = portal.level.getGameTime();
-                            animation.endGameTime = Long.MAX_VALUE;
-                            portal.setAnimationDriver(animation);
+    
+                            RotationAnimation.givePortalRotationAnimation(
+                                portal,
+                                new RotationAnimation.RotationParameters.Builder()
+                                    .setCenter(rotationCenter)
+                                    .setAxis(axis)
+                                    .setDegreesPerTick(angularVelocity)
+                                    .setStartGameTime(portal.level.getGameTime())
+                                    .setEndGameTime(Long.MAX_VALUE)
+                                    .build(),
+                                null
+                            );
                             
                             reloadPortal(portal);
                         }))
@@ -997,19 +995,18 @@ public class PortalCommand {
                                 for (Entity entity : portals) {
                                     if (entity instanceof Portal portal) {
                                         portal.setAnimationDriver(null);
-                                        RotationAnimation animation = new RotationAnimation();
-                                        animation.initialPortalOrigin = portal.getOriginPos();
-                                        animation.initialPortalDestination = portal.getDestPos();
-                                        animation.initialPortalOrientation = portal.getOrientationRotation();
-                                        animation.initialPortalRotation = portal.getRotationD();
-                                        animation.thisSideRotationCenter = rotationCenter;
-                                        animation.thisSideRotationAxis = axis;
-                                        animation.otherSideRotationCenter = null;
-                                        animation.otherSideRotationAxis = null;
-                                        animation.angularVelocity = angularVelocity;
-                                        animation.startGameTime = portal.level.getGameTime();
-                                        animation.endGameTime = Long.MAX_VALUE;
-                                        portal.setAnimationDriver(animation);
+                                        
+                                        RotationAnimation.givePortalRotationAnimation(
+                                            portal,
+                                            new RotationAnimation.RotationParameters.Builder()
+                                                .setCenter(rotationCenter)
+                                                .setAxis(axis)
+                                                .setDegreesPerTick(angularVelocity)
+                                                .setStartGameTime(portal.level.getGameTime())
+                                                .setEndGameTime(Long.MAX_VALUE)
+                                                .build(),
+                                            null
+                                        );
                                     }
                                     else {
                                         context.getSource().sendFailure(Component.literal("the entity is not a portal"));
@@ -1037,19 +1034,17 @@ public class PortalCommand {
                     
                     portal.setAnimationDriver(null);
                     
-                    RotationAnimation animation = new RotationAnimation();
-                    animation.initialPortalOrigin = portal.getOriginPos();
-                    animation.initialPortalDestination = portal.getDestPos();
-                    animation.initialPortalOrientation = portal.getOrientationRotation();
-                    animation.initialPortalRotation = portal.getRotationD();
-                    animation.thisSideRotationCenter = portal.getOriginPos();
-                    animation.thisSideRotationAxis = portal.getNormal();
-                    animation.otherSideRotationCenter = null;
-                    animation.otherSideRotationAxis = null;
-                    animation.angularVelocity = angularVelocity;
-                    animation.startGameTime = portal.level.getGameTime();
-                    animation.endGameTime = Long.MAX_VALUE;
-                    portal.setAnimationDriver(animation);
+                    RotationAnimation.givePortalRotationAnimation(
+                        portal,
+                        new RotationAnimation.RotationParameters.Builder()
+                            .setCenter(portal.getOriginPos())
+                            .setAxis(portal.getNormal())
+                            .setDegreesPerTick(angularVelocity)
+                            .setStartGameTime(portal.level.getGameTime())
+                            .setEndGameTime(Long.MAX_VALUE)
+                            .build(),
+                        null
+                    );
                     
                     reloadPortal(portal);
                 }))
@@ -1067,6 +1062,7 @@ public class PortalCommand {
                 }
                 
                 PortalState portalState = portal.getPortalState();
+                assert portalState != null;
                 portal.setAnimationDriver(NormalAnimation.createOnePhaseAnimation(
                     new PortalState(
                         portalState.fromWorld,

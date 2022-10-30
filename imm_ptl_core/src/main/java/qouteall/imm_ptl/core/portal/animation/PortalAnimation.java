@@ -87,7 +87,7 @@ public class PortalAnimation {
                 }
             }
             if (finishes) {
-                animationDriver = null;
+                setAnimationDriver(portal, null);
             }
         }
     }

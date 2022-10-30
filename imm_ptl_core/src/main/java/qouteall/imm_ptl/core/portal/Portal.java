@@ -290,6 +290,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Call this when you changed the portal after spawning the portal
      */
     public void reloadAndSyncToClient() {
+        reloadAndSyncNextTick = false;
+        
         Validate.isTrue(!isGlobalPortal);
         Validate.isTrue(!level.isClientSide(), "must be used on server side");
         updateCache();
@@ -826,6 +828,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         lastTickPortalState = thisTickPortalState;
         
+        if (!level.isClientSide()) {
+            if (reloadAndSyncNextTick) {
+                reloadAndSyncToClient();
+            }
+        }
+        
         if (level.isClientSide()) {
             clientPortalTickSignal.emit(this);
         }
@@ -843,13 +851,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         CollisionHelper.notifyCollidingPortals(this);
         
         super.tick();
-        
-        if (!level.isClientSide()) {
-            if (reloadAndSyncNextTick) {
-                reloadAndSyncNextTick = false;
-                reloadAndSyncToClient();
-            }
-        }
     }
     
     @Override
