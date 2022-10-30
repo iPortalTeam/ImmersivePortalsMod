@@ -946,6 +946,18 @@ public class PortalCommand {
         builder.then(Commands.literal("stop")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 portal.setAnimationDriver(null);
+                
+                PortalExtension extension = PortalExtension.get(portal);
+                if (extension.flippedPortal != null) {
+                    extension.flippedPortal.setAnimationDriver(null);
+                }
+                if (extension.reversePortal != null) {
+                    extension.reversePortal.setAnimationDriver(null);
+                }
+                if (extension.parallelPortal != null) {
+                    extension.parallelPortal.setAnimationDriver(null);
+                }
+                
                 reloadPortal(portal);
             }))
         );
@@ -961,7 +973,7 @@ public class PortalCommand {
                             Vec3 rotationCenter = rotationCenterEntity.position();
                             Vec3 axis = Vec3Argument.getVec3(context, "rotationAxis").normalize();
                             double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-    
+                            
                             RotationAnimation.givePortalRotationAnimation(
                                 portal,
                                 new RotationAnimation.RotationParameters.Builder()

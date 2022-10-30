@@ -62,7 +62,9 @@ public class PortalAnimation {
         }
         else {
             // handled on client
-            markRequiresClientAnimationUpdate(portal);
+            if (animationDriver != null) {
+                markRequiresClientAnimationUpdate(portal);
+            }
         }
     }
     
@@ -108,6 +110,17 @@ public class PortalAnimation {
         
         if (!portal.level.isClientSide()) {
             portal.reloadAndSyncToClientNextTick();
+    
+            PortalExtension extension = PortalExtension.get(portal);
+            if (extension.flippedPortal != null) {
+                extension.flippedPortal.reloadAndSyncToClientNextTick();
+            }
+            if (extension.reversePortal != null) {
+                extension.reversePortal.reloadAndSyncToClientNextTick();
+            }
+            if (extension.parallelPortal != null) {
+                extension.parallelPortal.reloadAndSyncToClientNextTick();
+            }
         }
     }
     

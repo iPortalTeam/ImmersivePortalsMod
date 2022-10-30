@@ -404,4 +404,33 @@ public class DQuaternion {
             compoundTag.getDouble("w")
         );
     }
+    
+    /**
+     * By doing operations to the portal, the portal's quaternion's floating point error will accumulate.
+     * The floating point error will cause teleportation and collision to malfunction.
+     * This method will normalize the quaternion to avoid the error from accumulating.
+     */
+    public DQuaternion fixFloatingPointErrorAccumulation() {
+        DQuaternion quaternion = new DQuaternion(
+            fixCoordinateFloatingPointError(getX()),
+            fixCoordinateFloatingPointError(getY()),
+            fixCoordinateFloatingPointError(getZ()),
+            fixCoordinateFloatingPointError(getW())
+        );
+        
+        return quaternion.getNormalized();
+    }
+    
+    private static double fixCoordinateFloatingPointError(double num) {
+        final double threshold = 0.0000001;
+        if (Math.abs(num) < threshold) {
+            return 0;
+        }
+        
+        if (Math.abs(num - 1) < threshold) {
+            return 1;
+        }
+        
+        return num;
+    }
 }
