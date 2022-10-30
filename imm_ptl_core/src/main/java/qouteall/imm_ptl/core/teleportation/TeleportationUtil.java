@@ -231,7 +231,7 @@ public class TeleportationUtil {
                 .subtract(targetingPortalState.toPos)
                 .dot(targetingPortalState.getContentDirection());
             if (dot < 0) {
-                Helper.err("Teleported to behind the end-tick portal destination. Corrected.");
+                Helper.log("Teleported to behind the end-tick portal destination. Corrected.");
                 newOtherSideThisTickPos = newOtherSideThisTickPos.add(
                     targetingPortalState.getContentDirection().scale(-dot + 0.001)
                 );
@@ -246,7 +246,7 @@ public class TeleportationUtil {
                 .subtract(thisFrameState.toPos)
                 .dot(thisFrameState.getContentDirection());
             if (dot < 0) {
-                Helper.err("Teleported to behind the end-frame portal destination. Corrected.");
+                Helper.log("Teleported to behind the end-frame portal destination. Corrected.");
                 Vec3 offset1 = thisFrameState.getContentDirection().scale(-dot + 0.001);
                 newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
                 newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);

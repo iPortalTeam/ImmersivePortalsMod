@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -836,9 +837,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
             serverPortalTickSignal.emit(this);
         }
-    
+        
         animation.tick(this);
-    
+        
         CollisionHelper.notifyCollidingPortals(this);
         
         super.tick();
@@ -1573,10 +1574,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return null;
         }
         
-        if (tickCount == 0) {
-            return null;
-        }
-        
         return new PortalState(
             level.dimension(),
             getOriginPos(),
@@ -1652,9 +1649,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public boolean isOtherSideChunkLoaded() {
         Validate.isTrue(!level.isClientSide());
         ChunkPos destChunkPos = new ChunkPos(new BlockPos(getDestPos()));
-        return McHelper.getServerChunkIfPresent(
+        LevelChunk chunk = McHelper.getServerChunkIfPresent(
             dimensionTo, destChunkPos.x, destChunkPos.z
-        ) != null;
+        );
+        
+        if (chunk == null) {
+            return false;
+        }
+        
+        boolean entitiesLoaded = ((ServerLevel) getDestWorld()).areEntitiesLoaded(destChunkPos.toLong());
+        
+        return entitiesLoaded;
     }
     
     // return null if the portal is not yet initialized
