@@ -551,7 +551,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setOrientationRotation(DQuaternion quaternion) {
-        DQuaternion fixed = quaternion.fixFloatingPointErrorAccumulation();
+        DQuaternion fixed = level.isClientSide() ? quaternion : quaternion.fixFloatingPointErrorAccumulation();
         setOrientation(
             McHelper.getAxisWFromOrientation(fixed),
             McHelper.getAxisHFromOrientation(fixed)
@@ -560,8 +560,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void setRotationTransformation(@Nullable Quaternion quaternion) {
         if (quaternion != null) {
-            rotation = DQuaternion.fromMcQuaternion(quaternion)
-                .fixFloatingPointErrorAccumulation().toMcQuaternion();
+            rotation = level.isClientSide() ? quaternion :
+                DQuaternion.fromMcQuaternion(quaternion)
+                    .fixFloatingPointErrorAccumulation().toMcQuaternion();
         }
         else {
             rotation = null;

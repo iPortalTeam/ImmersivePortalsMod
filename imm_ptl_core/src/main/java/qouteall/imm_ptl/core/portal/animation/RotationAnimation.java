@@ -158,7 +158,7 @@ public class RotationAnimation implements PortalAnimationDriver {
             Vec3 rotatedThisSideOffset = thisSideRotationQuaternion.rotate(thisSideOffset);
             portal.setOriginPos(thisSideRotation.center.add(rotatedThisSideOffset));
         }
-    
+        
         DQuaternion orientationRotation = thisSideRotationQuaternion.hamiltonProduct(initialPortalOrientation);
         portal.setOrientationRotation(orientationRotation);
         
@@ -194,6 +194,41 @@ public class RotationAnimation implements PortalAnimationDriver {
         RotationParameters thisSideRotation,
         RotationParameters otherSideRotation
     ) {
+        PortalExtension extension = PortalExtension.get(portal);
+        if (extension.reversePortal != null) {
+            if (extension.reversePortal.getAnimationDriver() instanceof RotationAnimation rot) {
+                if (thisSideRotation != null) {
+                    rot.otherSideRotation = thisSideRotation;
+                    rot.initialPortalRotation = extension.reversePortal.getRotationD();
+                    rot.initialPortalDestination = extension.reversePortal.getDestPos();
+                }
+                if (otherSideRotation != null) {
+                    rot.thisSideRotation = otherSideRotation;
+                    rot.initialPortalOrigin = extension.reversePortal.getOriginPos();
+                    rot.initialPortalOrientation = extension.reversePortal.getOrientationRotation();
+                }
+                extension.reversePortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
+        if (extension.parallelPortal != null) {
+            if (extension.parallelPortal.getAnimationDriver() instanceof RotationAnimation rot) {
+                if (thisSideRotation != null) {
+                    rot.otherSideRotation = thisSideRotation;
+                    rot.initialPortalRotation = extension.parallelPortal.getRotationD();
+                    rot.initialPortalDestination = extension.parallelPortal.getDestPos();
+                }
+                if (otherSideRotation != null) {
+                    rot.thisSideRotation = otherSideRotation;
+                    rot.initialPortalOrigin = extension.parallelPortal.getOriginPos();
+                    rot.initialPortalOrientation = extension.parallelPortal.getOrientationRotation();
+                }
+                extension.parallelPortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
         RotationAnimation animation = new RotationAnimation();
         animation.initialPortalOrigin = portal.getOriginPos();
         animation.initialPortalDestination = portal.getDestPos();
@@ -201,32 +236,6 @@ public class RotationAnimation implements PortalAnimationDriver {
         animation.initialPortalRotation = portal.getRotationD();
         animation.thisSideRotation = thisSideRotation;
         animation.otherSideRotation = otherSideRotation;
-        
-        PortalExtension extension = PortalExtension.get(portal);
-        if (extension.reversePortal != null) {
-            if (extension.reversePortal.getAnimationDriver() instanceof RotationAnimation rot) {
-                if (rot.thisSideRotation != null) {
-                    animation.otherSideRotation = rot.thisSideRotation;
-                }
-                if (rot.otherSideRotation != null) {
-                    animation.thisSideRotation = rot.otherSideRotation;
-                }
-            }
-            extension.reversePortal.setAnimationDriver(null);
-        }
-        
-        if (extension.parallelPortal != null) {
-            if (extension.parallelPortal.getAnimationDriver() instanceof RotationAnimation rot) {
-                if (rot.thisSideRotation != null) {
-                    animation.otherSideRotation = rot.thisSideRotation;
-                }
-                if (rot.otherSideRotation != null) {
-                    animation.thisSideRotation = rot.otherSideRotation;
-                }
-            }
-            extension.parallelPortal.setAnimationDriver(null);
-        }
-        
         portal.setAnimationDriver(animation);
     }
     

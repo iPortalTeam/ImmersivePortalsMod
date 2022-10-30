@@ -1064,40 +1064,39 @@ public class PortalCommand {
         );
         
         builder.then(Commands.literal("expand_from_center")
-            .executes(context -> processPortalTargetedCommand(context, portal -> {
-                portal.setAnimationDriver(null);
-                
-                double multiplier = 10;
-                int durationTicks = portal.getDefaultAnimation().durationTicks;
-                if (durationTicks <= 0) {
-                    durationTicks = 100;
-                }
-                
-                PortalState portalState = portal.getPortalState();
-                assert portalState != null;
-                portal.setAnimationDriver(NormalAnimation.createOnePhaseAnimation(
-                    new PortalState(
-                        portalState.fromWorld,
-                        portalState.fromPos,
-                        portalState.toWorld,
-                        portalState.toPos,
-                        portalState.scaling * multiplier,
-                        portalState.rotation,
-                        portalState.orientation,
-                        portalState.width / multiplier,
-                        portalState.height / multiplier
-                    ),
-                    portalState,
-                    portal.level.getGameTime(),
-                    durationTicks,
-                    true,
-                    false,
-                    portal.getDefaultAnimation().timingFunction
-                ));
-                reloadPortal(portal);
-            }))
+            .then(Commands.argument("durationTicks", IntegerArgumentType.integer(0, 1000))
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    portal.setAnimationDriver(null);
+                    
+                    int durationTicks = IntegerArgumentType.getInteger(context, "durationTicks");
+                    
+                    double multiplier = 10;
+                    
+                    PortalState portalState = portal.getPortalState();
+                    assert portalState != null;
+                    portal.setAnimationDriver(NormalAnimation.createOnePhaseAnimation(
+                        new PortalState(
+                            portalState.fromWorld,
+                            portalState.fromPos,
+                            portalState.toWorld,
+                            portalState.toPos,
+                            portalState.scaling * multiplier,
+                            portalState.rotation,
+                            portalState.orientation,
+                            portalState.width / multiplier,
+                            portalState.height / multiplier
+                        ),
+                        portalState,
+                        portal.level.getGameTime(),
+                        durationTicks,
+                        true,
+                        false,
+                        portal.getDefaultAnimation().timingFunction
+                    ));
+                    reloadPortal(portal);
+                }))
+            )
         );
-        
         
     }
     

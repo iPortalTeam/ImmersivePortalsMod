@@ -129,7 +129,7 @@ public class PeripheralModMain {
             "rotate_around_me", "animation rotate_infinitely @s 0 1 0 1.5"
         );
         registerPortalSubCommandStick(
-            "expand_from_center", "animation expand_from_center"
+            "expand_from_center", "animation expand_from_center 20"
         );
         registerPortalSubCommandStick(
             "stop_animation", "animation stop"
