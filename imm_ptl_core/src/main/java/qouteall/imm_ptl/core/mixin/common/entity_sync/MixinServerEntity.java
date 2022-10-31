@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.network.PacketRedirection;
+import qouteall.imm_ptl.core.portal.Portal;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -99,6 +100,18 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         Packet packet_1
     ) {
         PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
+    }
+    
+    // It encodes position into 1/4096 units. That precision is not enough for portals.
+    @Inject(
+        method = "sendChanges",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onSendChanges(CallbackInfo ci) {
+        if (entity instanceof Portal) {
+            ci.cancel();
+        }
     }
     
     @Override
