@@ -80,7 +80,7 @@ public class PortalAnimation {
                 portal.animation.thisTickAnimatedState = portal.getPortalState();
             }
             if (animationDriver.shouldRectifyCluster()) {
-                portal.rectifyClusterPortals();
+                portal.rectifyClusterPortals(false);
                 if (isTicking) {
                     PortalExtension extension = PortalExtension.get(portal);
                     updateThisTickAnimatedState(extension.flippedPortal);

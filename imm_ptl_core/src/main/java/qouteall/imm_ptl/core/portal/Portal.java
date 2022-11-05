@@ -1639,8 +1639,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         readAdditionalSaveData(compound);
     }
     
+    @Deprecated
     public void rectifyClusterPortals() {
-        PortalExtension.get(this).rectifyClusterPortals(this);
+        PortalExtension.get(this).rectifyClusterPortals(this, true);
+    }
+    
+    public void rectifyClusterPortals(boolean sync) {
+        PortalExtension.get(this).rectifyClusterPortals(this, sync);
     }
     
     @Nullable

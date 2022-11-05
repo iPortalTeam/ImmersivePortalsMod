@@ -296,7 +296,7 @@ public class PortalExtension {
     }
     
     // works on both client and server
-    public void rectifyClusterPortals(Portal portal) {
+    public void rectifyClusterPortals(Portal portal, boolean sync) {
         
         portal.animation.defaultAnimation.inverseScale = false;
         
@@ -327,7 +327,7 @@ public class PortalExtension {
             
             flippedPortal.animation.defaultAnimation.inverseScale = false;
             
-            if (!flippedPortal.level.isClientSide()) {
+            if (sync) {
                 flippedPortal.reloadAndSyncToClient();
             }
         }
@@ -365,7 +365,7 @@ public class PortalExtension {
             
             reversePortal.animation.defaultAnimation.inverseScale = true;
             
-            if (!reversePortal.level.isClientSide()) {
+            if (sync) {
                 reversePortal.reloadAndSyncToClient();
             }
         }
@@ -403,7 +403,7 @@ public class PortalExtension {
             
             parallelPortal.animation.defaultAnimation.inverseScale = true;
             
-            if (!parallelPortal.level.isClientSide()) {
+            if (sync) {
                 parallelPortal.reloadAndSyncToClient();
             }
         }
