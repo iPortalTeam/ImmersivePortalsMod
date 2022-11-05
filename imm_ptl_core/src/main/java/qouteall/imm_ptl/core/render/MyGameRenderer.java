@@ -50,7 +50,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class MyGameRenderer {
-    public static Minecraft client = Minecraft.getInstance();
+    public static final Minecraft client = Minecraft.getInstance();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
@@ -62,6 +62,8 @@ public class MyGameRenderer {
     // when the player teleports through a portal, on the first frame it will not work normally
     // so use IP's non-multi-threaded algorithm at the first frame
     public static int vanillaTerrainSetupOverride = 0;
+    
+    public static boolean enablePortalCaveCulling = true;
     
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(() -> {
@@ -116,6 +118,10 @@ public class MyGameRenderer {
         boolean doRenderHand
     ) {
         resetGlStates();
+        
+        if (!enablePortalCaveCulling) {
+            client.smartCull = false;
+        }
         
         Entity cameraEntity = client.cameraEntity;
         
@@ -188,7 +194,7 @@ public class MyGameRenderer {
             ((IEMinecraftClient) client).ip_setRenderBuffers(newRenderBuffers);
         }
         
-        Object newSodiumContext = SodiumInterface.invoker.createNewContext();
+        Object newSodiumContext = SodiumInterface.invoker.createNewContext(renderDistance);
         SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
@@ -263,6 +269,8 @@ public class MyGameRenderer {
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
         
         resetGlStates();
+    
+        client.smartCull = true;
     }
     
     public static void resetGlStates() {

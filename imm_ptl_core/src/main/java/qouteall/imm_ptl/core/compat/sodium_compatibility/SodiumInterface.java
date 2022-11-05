@@ -30,7 +30,7 @@ public class SodiumInterface {
 //            return new MyClientChunkManager(world, loadDistance);
 //        }
         
-        public Object createNewContext() {
+        public Object createNewContext(int renderDistance) {
             return null;
         }
         
@@ -57,8 +57,8 @@ public class SodiumInterface {
 //        }
         
         @Override
-        public Object createNewContext() {
-            return new SodiumRenderingContext();
+        public Object createNewContext(int renderDistance) {
+            return new SodiumRenderingContext(renderDistance);
         }
         
         @Override

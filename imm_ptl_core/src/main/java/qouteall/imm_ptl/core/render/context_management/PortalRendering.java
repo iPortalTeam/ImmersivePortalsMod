@@ -1,15 +1,24 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import net.coderbot.iris.shadows.frustum.advanced.AdvancedShadowCullingFrustum;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IEFrustum;
+import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Stack;
@@ -35,13 +44,13 @@ public class PortalRendering {
     private static void updateCache() {
         isRenderingCache = getPortalLayer() != 0;
         
-        int number = 0;
+        int mirrorNum = 0;
         for (PortalLike portal : portalLayers) {
             if (portal instanceof Mirror) {
-                number++;
+                mirrorNum++;
             }
         }
-        isRenderingOddNumberOfMirrorsCache = (number % 2 == 1);
+        isRenderingOddNumberOfMirrorsCache = (mirrorNum % 2 == 1);
     }
     
     //0 for rendering outer world
@@ -66,6 +75,9 @@ public class PortalRendering {
         return IPGlobal.maxPortalLayer;
     }
     
+    /**
+     * @return The innermost portal that's currently being rendered.
+     */
     public static PortalLike getRenderingPortal() {
         return portalLayers.peek();
     }
@@ -106,6 +118,33 @@ public class PortalRendering {
             }
         }
         return scale;
+    }
+    
+    /**
+     * @return The cave culling starting point. Null if it's a portal group (e.g. a scale box).
+     */
+    @Nullable
+    public static BlockPos getCaveCullingStartingPoint() {
+        Validate.isTrue(isRendering());
+        PortalLike renderingPortal = getRenderingPortal();
+        
+        if (!(renderingPortal instanceof Portal portal)) {
+            return null;
+        }
+        
+        Minecraft mc = Minecraft.getInstance();
+        Vec3 cameraPos = CHelper.getCurrentCameraPos();
+        
+        Vec3 outerCameraPos = portal.inverseTransformPoint(cameraPos);
+        Vec3 nearestPoint = portal.getNearestPointInPortal(outerCameraPos);
+        
+        // for dimension stack, don't make it to be inside other side's block.
+        // move it backwards a little.
+        nearestPoint = nearestPoint.add(portal.getNormal().scale(0.00001));
+        
+        Vec3 result = portal.transformPoint(nearestPoint);
+        
+        return new BlockPos(result);
     }
     
 }

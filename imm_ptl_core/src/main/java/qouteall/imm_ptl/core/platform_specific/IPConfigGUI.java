@@ -92,6 +92,10 @@ public class IPConfigGUI {
             Component.translatable("imm_ptl.loose_movement_check"),
             currConfig.looseMovementCheck
         ).setDefaultValue(false).build();
+        BooleanListEntry entryEnableClientPerformanceAdjustment = builder.entryBuilder().startBooleanToggle(
+            Component.translatable("imm_ptl.client_performance_adjustment"),
+            currConfig.enableClientPerformanceAdjustment
+        ).setDefaultValue(true).build();
         BooleanListEntry entryVisibilityPrediction = builder.entryBuilder().startBooleanToggle(
             Component.translatable("imm_ptl.visibility_prediction"),
             currConfig.visibilityPrediction
@@ -136,6 +140,7 @@ public class IPConfigGUI {
         clientSide.addEntry(entryPureMirror);
         clientSide.addEntry(entryRenderYourselfInPortal);
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
+        clientSide.addEntry(entryEnableClientPerformanceAdjustment);
         
         commonSide.addEntry(entryEnableWarning);
         commonSide.addEntry(entryEnableMirrorCreation);
@@ -174,6 +179,7 @@ public class IPConfigGUI {
                 newConfig.enableWarning = entryEnableWarning.getValue();
                 newConfig.enableMirrorCreation = entryEnableMirrorCreation.getValue();
                 newConfig.enableCrossPortalSound = entryEnableCrossPortalSound.getValue();
+                newConfig.enableClientPerformanceAdjustment = entryEnableClientPerformanceAdjustment.getValue();
                 
                 newConfig.saveConfigFile();
                 newConfig.onConfigChanged();

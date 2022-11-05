@@ -53,6 +53,7 @@ import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
+import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
@@ -545,6 +546,11 @@ public class ClientDebugCommand {
             builder,
             "experimental_iris_portal_renderer",
             cond -> IPCGlobal.experimentalIrisPortalRenderer = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "portal_rendering_cave_culling",
+            cond -> MyGameRenderer.enablePortalCaveCulling = cond
         );
         
         builder.then(ClientCommandManager

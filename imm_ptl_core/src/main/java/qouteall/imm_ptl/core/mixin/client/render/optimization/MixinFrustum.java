@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
+import com.mojang.math.Vector4f;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,6 +23,7 @@ public class MixinFrustum implements IEFrustum {
     @Shadow
     private double camZ;
     
+    @Shadow private Vector4f viewVector;
     private double portal_camX;
     private double portal_camY;
     private double portal_camZ;
@@ -75,6 +78,15 @@ public class MixinFrustum implements IEFrustum {
         return portal_frustumCuller.canDetermineInvisibleWithCameraCoord(
             minX - portal_camX, minY - portal_camY, minZ - portal_camZ,
             maxX - portal_camX, maxY - portal_camY, maxZ - portal_camZ
+        );
+    }
+    
+    @Override
+    public Vec3 ip_getViewVec3() {
+        return new Vec3(
+            viewVector.x(),
+            viewVector.y(),
+            viewVector.z()
         );
     }
 }

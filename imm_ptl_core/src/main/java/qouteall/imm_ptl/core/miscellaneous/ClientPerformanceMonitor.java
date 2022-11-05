@@ -81,11 +81,12 @@ public class ClientPerformanceMonitor {
         if (player == null) {
             return;
         }
-        
-        level = PerformanceLevel.getClientPerformanceLevel(averageFps, averageFreeMemoryMB);
-        
+    
         if (!IPGlobal.enableClientPerformanceAdjustment) {
             level = PerformanceLevel.good;
+        }
+        else {
+            level = PerformanceLevel.getClientPerformanceLevel(averageFps, averageFreeMemoryMB);
         }
         
         McRemoteProcedureCall.tellServerToInvoke(
