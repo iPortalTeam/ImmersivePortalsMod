@@ -53,8 +53,6 @@ public class IPGlobal {
     
     public static boolean disableTeleportation = false;
     
-    public static boolean looseVisibleChunkIteration = true;
-    
     public static boolean looseMovementCheck = false;
     
     public static boolean pureMirror = false;

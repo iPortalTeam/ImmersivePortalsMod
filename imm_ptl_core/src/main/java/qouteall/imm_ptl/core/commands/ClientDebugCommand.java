@@ -468,11 +468,6 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "loose_visible_chunk_iteration",
-            cond -> IPGlobal.looseVisibleChunkIteration = cond
-        );
-        registerSwitchCommand(
-            builder,
             "early_cull_portal",
             cond -> IPCGlobal.earlyFrustumCullingPortal = cond
         );

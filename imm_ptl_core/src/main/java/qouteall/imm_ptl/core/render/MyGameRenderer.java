@@ -154,7 +154,6 @@ public class MyGameRenderer {
         PostChain oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         RenderBuffers oldRenderBuffers = ((IEWorldRenderer) worldRenderer).ip_getRenderBuffers();
         RenderBuffers oldClientRenderBuffers = client.renderBuffers();
-        boolean oldChunkCullingEnabled = client.smartCull;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
         // the projection matrix contains view bobbing.
@@ -195,10 +194,6 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         
         IrisInterface.invoker.setPipeline(worldRenderer, null);
-        
-        if (IPGlobal.looseVisibleChunkIteration) {
-            client.smartCull = false;
-        }
         
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
@@ -253,11 +248,6 @@ public class MyGameRenderer {
         RenderSystem.setProjectionMatrix(oldProjectionMatrix);
         
         IrisInterface.invoker.setPipeline(worldRenderer, irisPipeline);
-        
-        
-        if (IPGlobal.looseVisibleChunkIteration) {
-            client.smartCull = oldChunkCullingEnabled;
-        }
         
         client.getEntityRenderDispatcher()
             .prepare(

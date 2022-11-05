@@ -27,7 +27,7 @@ public interface MixinBlockGetter {
 		Vec3 from, Vec3 _to, C context,
 		BiFunction<C, BlockPos, T> tester, Function<C, T> onFail
 	) {
-		if (from.distanceToSqr(_to) > (256 * 256)) {
+		if (from.distanceToSqr(_to) > (512 * 512)) {
 			IPMcHelper.limitedLogger.invoke(() -> {
 				Helper.err("raycast too far");
 				new Throwable().printStackTrace();
