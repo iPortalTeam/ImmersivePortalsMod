@@ -65,7 +65,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         require = 0
     )
     private int redirectMax(int a, int b) {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (SharedBlockMeshBuffers.isEnabled()) {
             return 0;
         }
         return Math.max(a, b);
@@ -81,7 +81,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         require = 0
     )
     private ProcessorMailbox<Runnable> redirectCreate(Executor dispatcher, String name) {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (SharedBlockMeshBuffers.isEnabled()) {
             Validate.isTrue(freeBufferCount == 0);
             freeBuffers = SharedBlockMeshBuffers.acquireThreadBuffers();
             freeBufferCount = freeBuffers.size();
@@ -109,7 +109,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         )
     )
     private boolean redirectIsEmpty(Queue bufferQueue) {
-        if (!IPGlobal.enableSharedBlockMeshBuffers) {
+        if (!SharedBlockMeshBuffers.isEnabled()) {
             return bufferQueue.isEmpty();
         }
         
@@ -160,7 +160,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         )
     )
     ChunkRenderDispatcher.RenderChunk.ChunkCompileTask redirectPollTask(ChunkRenderDispatcher instance) {
-        if (!IPGlobal.enableSharedBlockMeshBuffers) {
+        if (!SharedBlockMeshBuffers.isEnabled()) {
             return pollTask();
         }
         
@@ -181,7 +181,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         )
     )
     private <E> E redirectPollBuffer(Queue<E> queue) {
-        if (!IPGlobal.enableSharedBlockMeshBuffers) {
+        if (!SharedBlockMeshBuffers.isEnabled()) {
             return queue.poll();
         }
         

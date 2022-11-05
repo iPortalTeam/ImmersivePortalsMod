@@ -24,6 +24,10 @@ public class StableClientTimer {
     private static long stableTickTime = 0;
     private static float stablePartialTicks = 0;
     
+    private static float timeFlowRate = 1;
+    
+    private static int lastTickCorrection = 0;
+    
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(StableClientTimer::cleanup);
     }
@@ -70,12 +74,13 @@ public class StableClientTimer {
             }
             
             // Firstly try to assume that the game time is one tick late, then two ticks
-            for (int tickCorrection = 1; tickCorrection <= tickCorrectionLimit; tickCorrection++) {
+            for (int tickCorrection = 1; tickCorrection <= 1; tickCorrection++) {
                 double newDeltaTime =
                     (tickCorrection + worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
                 if (newDeltaTime >= 0 && newDeltaTime < 1) {
                     stableTickTime = tickCorrection + worldGameTime;
                     stablePartialTicks = partialTicks;
+                    lastTickCorrection = tickCorrection;
                     return;
                 }
             }
@@ -83,11 +88,7 @@ public class StableClientTimer {
             // the time can't be simply corrected
             // this may happen when the server is lagging
             // only move time a little
-            stablePartialTicks += 0.1;
-            if (stablePartialTicks > 1) {
-                stablePartialTicks -= 1;
-                stableTickTime++;
-            }
+            addTime(0.1);
         }
         else if (deltaTickTime > 1) {
             // time flows too fast
@@ -103,6 +104,7 @@ public class StableClientTimer {
                 if (newDeltaTime <= 1 && newDeltaTime > 0) {
                     stableTickTime = worldGameTime;
                     stablePartialTicks = partialTicks;
+                    lastTickCorrection = -tickCorrection;
                     return;
                 }
             }
@@ -110,16 +112,32 @@ public class StableClientTimer {
             // the time can't be simply corrected
             // this may happen when the server time is too fast (very rare)
             // only flow 0.1 portion of the delta time per frame
-            stablePartialTicks += (0.1f * deltaTickTime);
-            if (stablePartialTicks > 1) {
-                stablePartialTicks -= 1;
-                stableTickTime++;
-            }
+            addTime((0.1f * deltaTickTime));
         }
         else {
             // the time is normal
             stableTickTime = worldGameTime;
             stablePartialTicks = partialTicks;
+            lastTickCorrection = 0;
+            timeFlowRate = 1;
         }
+    }
+    
+    private static void addTime(double timeAdded) {
+        stablePartialTicks += timeAdded;
+        while (stablePartialTicks > 1) {
+            stablePartialTicks -= 1;
+            stableTickTime++;
+        }
+    }
+    
+    public static int getLastTickCorrection() {
+        return lastTickCorrection;
+    }
+    
+    public static String getDebugString() {
+        return String.format(
+            "Stable Timer Offset %d", lastTickCorrection
+        );
     }
 }

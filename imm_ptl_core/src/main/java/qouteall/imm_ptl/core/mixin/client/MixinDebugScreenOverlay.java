@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.QueryManager;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
@@ -40,7 +41,12 @@ public class MixinDebugScreenOverlay {
             ClientPerformanceMonitor.getAverageFreeMemoryMB()
         ));
         
-        returnValue.add(SharedBlockMeshBuffers.getDebugString());
+        String sharedMeshBufferDebug = SharedBlockMeshBuffers.getDebugString();
+        if (sharedMeshBufferDebug != null) {
+            returnValue.add(sharedMeshBufferDebug);
+        }
+        
+        returnValue.add(StableClientTimer.getDebugString());
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.addAll(Helper.splitStringByLen(

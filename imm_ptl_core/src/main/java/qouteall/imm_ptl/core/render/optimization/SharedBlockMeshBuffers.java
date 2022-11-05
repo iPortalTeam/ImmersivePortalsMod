@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
+
+import javax.annotation.Nullable;
 
 /**
  * This optimization makes that different dimensions of ChunkRenderDispatcher
@@ -36,6 +39,13 @@ public class SharedBlockMeshBuffers {
      */
     public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> threadBuffers;
     
+    public static boolean isEnabled() {
+        if (SodiumInterface.invoker.isSodiumPresent()) {
+            return false;
+        }
+        return IPGlobal.enableSharedBlockMeshBuffers;
+    }
+    
     public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> acquireThreadBuffers() {
         if (threadBuffers == null) {
             createThreadBuffers();
@@ -44,7 +54,7 @@ public class SharedBlockMeshBuffers {
     }
     
     private static void createThreadBuffers() {
-        Validate.isTrue(IPGlobal.enableSharedBlockMeshBuffers);
+        Validate.isTrue(SharedBlockMeshBuffers.isEnabled());
         
         int totalExpectedBufferSize =
             RenderType.chunkBufferLayers().stream().mapToInt(RenderType::bufferSize).sum();
@@ -95,10 +105,11 @@ public class SharedBlockMeshBuffers {
         }
     }
     
+    @Nullable
     public static String getDebugString() {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (SharedBlockMeshBuffers.isEnabled()) {
             return "SharedBlockMeshBuffers " + Integer.toString(threadBuffers.size());
         }
-        return "";
+        return null;
     }
 }
