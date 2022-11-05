@@ -6,6 +6,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.Helper;
 
 import java.util.Objects;
 
@@ -15,6 +18,8 @@ import java.util.Objects;
  * Minecraft's quaternion {@link Quaternion} uses float and is mutable.
  */
 public class DQuaternion {
+    private static final Logger logger = LogManager.getLogger(DQuaternion.class);
+    
     public final double x;
     public final double y;
     public final double z;
@@ -199,7 +204,8 @@ public class DQuaternion {
             return this.multiply(1.0 / len);
         }
         else {
-            return new DQuaternion(0, 0, 0, 0);
+            logger.error("Normalizing zero-length quaternion", new Throwable());
+            return DQuaternion.identity;
         }
     }
     
@@ -429,6 +435,10 @@ public class DQuaternion {
         
         if (Math.abs(num - 1) < threshold) {
             return 1;
+        }
+    
+        if (Math.abs(num - (-1)) < threshold) {
+            return -1;
         }
         
         return num;
