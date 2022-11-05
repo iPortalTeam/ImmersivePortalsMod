@@ -9,6 +9,7 @@ import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.ArrayDeque;
@@ -24,9 +25,14 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-// discover visible sections by breadth-first traverse, for portal rendering
-// probably faster than vanilla
-// no multi-threading because portal rendering camera views are very dynamic which is not suitable for that
+/**
+ * Discover visible sections by breadth-first traverse, for portal rendering.
+ * Probably faster than vanilla (because no cave culling and garbage object allocation).
+ * No multi-threading because portal rendering camera views are very dynamic which is not suitable for that.
+ * No cave culling because vanilla has a multithreaded cave culling that's very
+ *  hard to integrate with portal rendering.
+ * The cave culling is conditionally enabled with Sodium: {@link PortalRendering#shouldEnableSodiumCaveCulling()}
+ */
 @Environment(EnvType.CLIENT)
 public class VisibleSectionDiscovery {
     

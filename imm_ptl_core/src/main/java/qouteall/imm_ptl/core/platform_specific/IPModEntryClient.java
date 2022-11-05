@@ -75,14 +75,15 @@ public class IPModEntryClient implements ClientModInitializer {
             
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
             
-            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-                if (IPGlobal.enableWarning) {
-                    CHelper.printChat(
-                        Component.translatable("imm_ptl.sodium_warning")
-                            .append(IPMcHelper.getDisableWarningText())
-                    );
-                }
-            }));
+            // Sodium compat is pretty ok now. No warning needed.
+//            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+//                if (IPGlobal.enableWarning) {
+//                    CHelper.printChat(
+//                        Component.translatable("imm_ptl.sodium_warning")
+//                            .append(IPMcHelper.getDisableWarningText())
+//                    );
+//                }
+//            }));
         }
         else {
             Helper.log("Sodium is not present");

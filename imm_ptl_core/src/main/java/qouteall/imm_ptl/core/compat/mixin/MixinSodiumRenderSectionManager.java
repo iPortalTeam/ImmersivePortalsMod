@@ -76,25 +76,4 @@ public class MixinSodiumRenderSectionManager implements IESodiumRenderSectionMan
         }
     }
     
-    /**
-     * The cave culling starting point should not be the camera pos.
-     * It should be a point on the other side of the portal.
-     * If not, the things behind the portal destination will do wrong occlusion.
-     */
-    @Redirect(
-        method = "initSearch",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/Camera;getBlockPosition()Lnet/minecraft/core/BlockPos;"
-        )
-    )
-    private BlockPos redirectGetBlockPos(Camera camera) {
-        if (PortalRendering.isRendering()) {
-            return PortalRendering.getCaveCullingStartingPoint();
-        }
-        else {
-            return camera.getBlockPosition();
-        }
-    }
-    
 }

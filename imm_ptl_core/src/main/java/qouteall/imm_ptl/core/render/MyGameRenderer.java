@@ -38,10 +38,7 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
-import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
-import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.imm_ptl.core.render.context_management.*;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
@@ -117,9 +114,11 @@ public class MyGameRenderer {
         int renderDistance,
         boolean doRenderHand
     ) {
-        resetGlStates();
-        
         if (!enablePortalCaveCulling) {
+            client.smartCull = false;
+        }
+        
+        if (!PortalRendering.shouldEnableSodiumCaveCulling()) {
             client.smartCull = false;
         }
         
@@ -186,7 +185,7 @@ public class MyGameRenderer {
             client.hitResult = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
-    
+        
         RenderBuffers newRenderBuffers = null;
         if (IPGlobal.useSecondaryEntityVertexConsumer) {
             newRenderBuffers = acquireRenderBuffersObject();
@@ -268,26 +267,7 @@ public class MyGameRenderer {
         cameraEntity.level = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
         
-        resetGlStates();
-    
         client.smartCull = true;
-    }
-    
-    public static void resetGlStates() {
-        // not working with sodium
-//        for (int i = 0; i < 16; i++) {
-//            GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
-//            GlStateManager._bindTexture(0);
-//        }
-//
-//        GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0);
-
-//        GlStateManager.disableAlphaTest();
-//        GlStateManager._enableCull();
-//        GlStateManager._disableBlend();
-//        net.minecraft.client.render.DiffuseLighting.disableGuiDepthLighting();
-//        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
-//        client.gameRenderer.getOverlayTexture().teardownOverlayColor();
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {

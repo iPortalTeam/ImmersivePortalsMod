@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
@@ -452,24 +453,19 @@ public class MyRenderHelper {
         if (IPGlobal.debugDisableFog) {
             return value * 23333;
         }
-        
-        // sodium use world position to calculate fog color
-        // vanilla use transformed position to calculate fog
-        if (SodiumInterface.invoker.isSodiumPresent()) {
-            return value;
-        }
-        
+    
+        // just disable fog for fuse-view portals for now
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            if (PortalRenderer.shouldApplyScaleToModelView(renderingPortal)) {
-                double scaling = renderingPortal.getScale();
-                float result = (float) (value / scaling);
-                if (scaling > 10) {
-                    result *= 10;
-                }
-                return result;
+        
+            if (renderingPortal.isFuseView()) {
+                return value * 23333;
             }
         }
+        
+        // as non-fuse-view portals does not apply scale transformation to modelview,
+        // there is no need to transform fog distance (both with and without sodium)
+        
         return value;
     }
     

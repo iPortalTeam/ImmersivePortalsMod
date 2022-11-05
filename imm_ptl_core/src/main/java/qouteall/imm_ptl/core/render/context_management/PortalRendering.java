@@ -1,22 +1,18 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.coderbot.iris.shadows.frustum.advanced.AdvancedShadowCullingFrustum;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEFrustum;
-import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.PortalRenderer;
+import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -145,6 +141,28 @@ public class PortalRendering {
         Vec3 result = portal.transformPoint(nearestPoint);
         
         return new BlockPos(result);
+    }
+    
+    /**
+     * This only has effects with Sodium. In vanilla it uses {@link VisibleSectionDiscovery}.
+     * <br>
+     * As I tested, cave culling can optimize 20% when you are very close to the portal.
+     * But its optimization is negligible when you are 5 blocks from the portal.
+     * <br>
+     * And if something is behind the portal destination, cave culling may cull wrongly.
+     * If the camera is close to the portal, having wrong culling is nearly impossible.
+     * <br>
+     * So the conclusion is to only enable cave culling when close to the portal.
+     */
+    public static boolean shouldEnableSodiumCaveCulling() {
+        if (isRendering()) {
+            PortalLike renderingPortal = getRenderingPortal();
+            Vec3 currentCameraPos = CHelper.getCurrentCameraPos();
+            Vec3 originalCameraPos = renderingPortal.inverseTransformPoint(currentCameraPos);
+            double distance = renderingPortal.getDistanceToNearestPointInPortal(originalCameraPos);
+            return distance < 5;
+        }
+        return false;
     }
     
 }
