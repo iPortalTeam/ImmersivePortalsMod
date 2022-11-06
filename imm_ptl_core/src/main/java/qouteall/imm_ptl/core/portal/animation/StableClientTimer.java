@@ -2,142 +2,228 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
+
+import javax.annotation.Nullable;
 
 /**
  * Sometimes the client time jumps forward and backward. (This even happens in singleplayer).
  * We want to make the time to be stable (don't flow backward or jump too fast)
  * but still close to the time synchronized from server.
  * {@link net.minecraft.client.multiplayer.ClientPacketListener#handleSetTime(ClientboundSetTimePacket)}
+ * <br>
+ * We have 3 different times:
+ * - Server synced time: level.gameTime + partialTicks
+ * - Client reference time: referenceTickTime + partialTicks
+ * - Stable time: stableTickTime + stablePartialTicks
+ * The level.gameTime may jump due to synchronization.
+ * Client reference time won't jump and flows stably, but it's far from the server synced time.
+ * Stable time should be stable and close to the server synced time plus 1 tick.
+ * <br>
+ * stableTime = clientReferenceTime + offsetTime
+ * <br>
+ * The requirements are:
+ * - The stable time always flows forward, it doesn't flow backward or stop.
+ * - The stable time should approach server synced time in a short period of time, even if the server synced time jumps.
  */
 @Environment(EnvType.CLIENT)
 public class StableClientTimer {
+    // use two numbers to keep precision
+    public static final class Time {
+        final long tickTime;
+        final float partialTicks;
+        
+        Time(long tickTime, float partialTicks) {
+            this.tickTime = tickTime;
+            this.partialTicks = partialTicks;
+        }
+        
+        Time normalized() {
+            long tickTime = this.tickTime;
+            float partialTicks = this.partialTicks;
+            
+            if (partialTicks < 0) {
+                int fullTicks = (int) Math.floor(partialTicks);
+                partialTicks -= fullTicks;
+                tickTime += fullTicks;
+            }
+            
+            if (partialTicks >= 1) {
+                int fullTicks = (int) partialTicks;
+                partialTicks -= fullTicks;
+                tickTime += fullTicks;
+            }
+            
+            return new Time(tickTime, partialTicks);
+        }
+        
+        double subtractedLen(Time another) {
+            return (tickTime - another.tickTime) + partialTicks - another.partialTicks;
+        }
+        
+        Time subtracted(Time another) {
+            return new Time(
+                tickTime - another.tickTime,
+                partialTicks - another.partialTicks
+            ).normalized();
+        }
+        
+        Time added(Time another) {
+            return new Time(
+                tickTime + another.tickTime,
+                partialTicks + another.partialTicks
+            ).normalized();
+        }
+        
+        Time added(float delta) {
+            return new Time(tickTime, partialTicks + delta).normalized();
+        }
+        
+        @Override
+        public String toString() {
+            return "%d+%.3f".formatted(tickTime, partialTicks);
+        }
+    }
+    
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
-    private static final int tickCorrectionLimit = 5;
-    private static final int timeToleranceTicks = 100;
-    
     private static boolean initialized = false;
-    private static long stableTickTime = 0;
-    private static float stablePartialTicks = 0;
     
-    private static float timeFlowRate = 1;
+    // referenceTime + offset = stableTime
+    // offset = stableTime - referenceTime
+    @Nullable
+    private static Time stableTime = null;
+    @Nullable
+    private static Time offsetTime = null;
     
-    private static int lastTickCorrection = 0;
+    private static long referenceTickTime = 0;
+    
+    private static double timeFlowScale = 1;
+    
+    @Nullable
+    private static double debugOffset;
     
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(StableClientTimer::cleanup);
     }
     
     public static long getStableTickTime() {
-        return stableTickTime;
+        if (stableTime == null) {
+            return 0;
+        }
+        return stableTime.tickTime;
     }
     
     public static float getStablePartialTicks() {
-        return stablePartialTicks;
+        if (stableTime == null) {
+            return 0;
+        }
+        return stableTime.partialTicks;
     }
     
     private static void cleanup() {
         initialized = false;
-        stableTickTime = 0;
-        stablePartialTicks = 0;
+        stableTime = null;
+        offsetTime = null;
     }
     
     private static void reset(long worldGameTime, float partialTicks) {
-        stableTickTime = worldGameTime;
-        stablePartialTicks = partialTicks;
+        timeFlowScale = 1;
+        stableTime = new Time(worldGameTime, partialTicks);
+        
+        Time referenceTime = new Time(referenceTickTime, partialTicks);
+        offsetTime = stableTime.subtracted(referenceTime);
+    }
+    
+    public static void tick() {
+        referenceTickTime++;
     }
     
     // updated after every tick and before every frame
     public static void update(long worldGameTime, float partialTicks) {
         if (!initialized) {
             initialized = true;
-            stableTickTime = worldGameTime;
-            stablePartialTicks = partialTicks;
+            reset(worldGameTime, partialTicks);
+            return;
         }
+        if (Minecraft.getInstance().isPaused()) {
+            return;
+        }
+        Validate.notNull(stableTime);
+        Validate.notNull(offsetTime);
         
-        double deltaTickTime =
-            (worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
+        Time lastStableTime = stableTime;
+        
+        Time referenceTime = new Time(referenceTickTime, partialTicks);
+        Time serverSyncedTime = new Time(worldGameTime, partialTicks);
+        Time targetTime = serverSyncedTime;
+        
+        Time projectedStableTime = referenceTime.added(offsetTime);
+        double deltaTickTime = targetTime.subtractedLen(projectedStableTime);
+        
+        double stableTimeDelta = projectedStableTime.subtractedLen(lastStableTime);
+        if (stableTimeDelta < 0) {
+            // The reference time may be abnormal when the client stops pausing.
+            return;
+        }
         
         if (deltaTickTime < 0) {
-            // Time flows backward
+            // targetTime -- projectedStableTime
+            // stable time is ahead the target time
+            // we should make stable time to go slower
             
-            if (deltaTickTime < -timeToleranceTicks) {
-                limitedLogger.err(
-                    "Rest the client stable timer because it's too far behind the server time."
-                );
-                reset(worldGameTime, partialTicks);
-                return;
-            }
-            
-            // Firstly try to assume that the game time is one tick late, then two ticks
-            for (int tickCorrection = 1; tickCorrection <= 1; tickCorrection++) {
-                double newDeltaTime =
-                    (tickCorrection + worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
-                if (newDeltaTime >= 0 && newDeltaTime < 1) {
-                    stableTickTime = tickCorrection + worldGameTime;
-                    stablePartialTicks = partialTicks;
-                    lastTickCorrection = tickCorrection;
-                    return;
+            double targetSubtractLastStable =
+                targetTime.subtractedLen(lastStableTime);
+            if (targetSubtractLastStable < 0) {
+                // targetTime -- lastStableTime -- projectedStableTime
+                // target time is even behind the last stable time
+                
+                if (targetSubtractLastStable < -100) {
+                    // it's too far behind and cannot be recovered
+                    reset(worldGameTime, partialTicks);
+                    limitedLogger.err("Reset the client stable timer because the target time is too far behind");
+                }
+                else {
+                    // exponentially decrease the time flow scale
+                    if (timeFlowScale > 1) {
+                        timeFlowScale = 1;
+                    }
+                    timeFlowScale *= 0.9999;
+                    stableTime = lastStableTime.added((float) (timeFlowScale * stableTimeDelta));
+                    offsetTime = stableTime.subtracted(referenceTime);
                 }
             }
-            
-            // the time can't be simply corrected
-            // this may happen when the server is lagging
-            // only move time a little
-            addTime(0.1);
-        }
-        else if (deltaTickTime > 1) {
-            // time flows too fast
-            if (deltaTickTime > timeToleranceTicks) {
-                limitedLogger.err("Rest the client stable timer because it's too far ahead the server time.");
-                reset(worldGameTime, partialTicks);
-                return;
+            else {
+                // lastStableTime -- targetTime -- projectedStableTime
+                
+                stableTime = targetTime;
+                offsetTime = stableTime.subtracted(referenceTime);
+                timeFlowScale = 1;
             }
-            
-            for (int tickCorrection = 1; tickCorrection <= tickCorrectionLimit; tickCorrection++) {
-                double newDeltaTime =
-                    (-tickCorrection + worldGameTime - stableTickTime) + partialTicks - stablePartialTicks;
-                if (newDeltaTime <= 1 && newDeltaTime > 0) {
-                    stableTickTime = worldGameTime;
-                    stablePartialTicks = partialTicks;
-                    lastTickCorrection = -tickCorrection;
-                    return;
-                }
-            }
-            
-            // the time can't be simply corrected
-            // this may happen when the server time is too fast (very rare)
-            // only flow 0.1 portion of the delta time per frame
-            addTime((0.1f * deltaTickTime));
         }
         else {
-            // the time is normal
-            stableTickTime = worldGameTime;
-            stablePartialTicks = partialTicks;
-            lastTickCorrection = 0;
-            timeFlowRate = 1;
+            // projectedStableTime -- targetTime
+            // stable time is behind the target time
+            // exponential increase the time flow scale
+            if (timeFlowScale < 1) {
+                timeFlowScale = 1;
+            }
+            timeFlowScale *= 1.0001;
+            stableTime = lastStableTime.added((float) (timeFlowScale * stableTimeDelta));
+            offsetTime = stableTime.subtracted(referenceTime);
         }
-    }
-    
-    private static void addTime(double timeAdded) {
-        stablePartialTicks += timeAdded;
-        while (stablePartialTicks > 1) {
-            stablePartialTicks -= 1;
-            stableTickTime++;
-        }
-    }
-    
-    public static int getLastTickCorrection() {
-        return lastTickCorrection;
+        
+        debugOffset = stableTime.subtractedLen(targetTime);
     }
     
     public static String getDebugString() {
         return String.format(
-            "Stable Timer Offset %d", lastTickCorrection
+            "Stable Timer Offset %.3f", debugOffset
         );
     }
 }

@@ -77,6 +77,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
           This happens right after increasing game time, so partialTick is 0
          */
         RenderStates.tickDelta = 0;
+        StableClientTimer.tick();
         StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
         ClientPortalAnimationManagement.onAfterClientTick();
         IPCGlobal.clientTeleportationManager.manageTeleportation();
