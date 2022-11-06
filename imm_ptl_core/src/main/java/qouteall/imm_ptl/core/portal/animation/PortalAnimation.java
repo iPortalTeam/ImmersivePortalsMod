@@ -153,9 +153,13 @@ public class PortalAnimation {
                 boolean finished = animationDriver.update(otherSideBuilder, gameTime, partialTicks);
                 return finished;
             });
+    
+            PortalState newPortalState =
+                UnilateralPortalState.combine(thisSideBuilder.build(), otherSideBuilder.build());
+            portal.setPortalState(newPortalState);
             
             if (isTicking) {
-                portal.animation.thisTickAnimatedState = portal.getPortalState();
+                portal.animation.thisTickAnimatedState = newPortalState;
             }
             
             portal.rectifyClusterPortals(false);
