@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -153,7 +154,13 @@ public class PortalAnimation {
                 boolean finished = animationDriver.update(otherSideBuilder, gameTime, partialTicks);
                 return finished;
             });
-    
+            
+            if (thisSideBuilder.dimension != thisSide.dimension() || otherSideBuilder.dimension != otherSide.dimension()) {
+                Helper.err("Portal animation driver cannot change dimension");
+                portal.clearAnimationDrivers();
+                return;
+            }
+            
             PortalState newPortalState =
                 UnilateralPortalState.combine(thisSideBuilder.build(), otherSideBuilder.build());
             portal.setPortalState(newPortalState);
@@ -240,17 +247,36 @@ public class PortalAnimation {
         portal.reloadAndSyncToClient();
     }
     
-    public void clearThisSideAnimationDrivers() {
-        thisSideAnimations.clear();
-    }
-    
-    public void clearOtherSideAnimationDrivers() {
-        otherSideAnimations.clear();
-    }
-    
-    public void clearAnimationDrivers() {
-        clearThisSideAnimationDrivers();
-        clearOtherSideAnimationDrivers();
+    public void clearAnimationDrivers(Portal portal, boolean clearThisSide, boolean clearOtherSide) {
+        Validate.isTrue(!portal.level.isClientSide());
+        
+        if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
+            return;
+        }
+        
+        PortalState portalState = portal.getPortalState();
+        assert portalState != null;
+        UnilateralPortalState thisSideState = UnilateralPortalState.extractThisSide(portalState);
+        UnilateralPortalState otherSideState = UnilateralPortalState.extractOtherSide(portalState);
+        UnilateralPortalState.Builder from = new UnilateralPortalState.Builder().from(thisSideState);
+        UnilateralPortalState.Builder to = new UnilateralPortalState.Builder().from(otherSideState);
+        
+        if (clearThisSide) {
+            for (PortalAnimationDriver animationDriver : thisSideAnimations) {
+                animationDriver.halt(from, portal.level.getGameTime());
+            }
+            thisSideAnimations.clear();
+        }
+        
+        if (clearOtherSide) {
+            for (PortalAnimationDriver animationDriver : otherSideAnimations) {
+                animationDriver.halt(to, portal.level.getGameTime());
+            }
+            otherSideAnimations.clear();
+        }
+        
+        PortalState newState = UnilateralPortalState.combine(from.build(), to.build());
+        portal.setPortalState(newState);
     }
     
     @Environment(EnvType.CLIENT)
@@ -272,7 +298,7 @@ public class PortalAnimation {
         if (secondaryPortal != null) {
             if (secondaryPortal.animation.thisTickAnimatedState != null) {
                 Helper.log("Conflicting animation in " + secondaryPortal);
-                secondaryPortal.animation.clearAnimationDrivers();
+                secondaryPortal.clearAnimationDrivers();
             }
             secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
         }

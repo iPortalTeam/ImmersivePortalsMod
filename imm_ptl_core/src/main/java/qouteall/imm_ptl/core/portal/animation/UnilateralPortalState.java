@@ -18,7 +18,7 @@ import qouteall.q_misc_util.my_util.DQuaternion;
  */
 public record UnilateralPortalState(
     ResourceKey<Level> dimension,
-    Vec3 point,
+    Vec3 position,
     DQuaternion orientation,
     double width,
     double height
@@ -71,9 +71,9 @@ public record UnilateralPortalState(
         
         return new PortalState(
             thisSide.dimension,
-            thisSide.point,
+            thisSide.position,
             otherSide.dimension,
-            otherSide.point,
+            otherSide.position,
             scale,
             rotation,
             thisSide.orientation,
@@ -89,7 +89,7 @@ public record UnilateralPortalState(
     ) {
         return new UnilateralPortalState(
             from.dimension,
-            Helper.interpolatePos(from.point, to.point, progress),
+            Helper.interpolatePos(from.position, to.position, progress),
             DQuaternion.interpolate(from.orientation, to.orientation, progress),
             Mth.lerp(progress, from.width, to.width),
             Mth.lerp(progress, from.height, to.height)
@@ -99,7 +99,7 @@ public record UnilateralPortalState(
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("dimension", dimension.location().toString());
-        Helper.putVec3d(tag, "point", point);
+        Helper.putVec3d(tag, "position", position);
         tag.put("orientation", orientation.toTag());
         tag.putDouble("width", width);
         tag.putDouble("height", height);
@@ -108,7 +108,7 @@ public record UnilateralPortalState(
     
     public static UnilateralPortalState fromTag(CompoundTag tag) {
         ResourceKey<Level> dimension = DimId.idToKey(tag.getString("dimension"));
-        Vec3 point = Helper.getVec3d(tag, "point");
+        Vec3 point = Helper.getVec3d(tag, "position");
         DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
         double width = tag.getDouble("width");
         double height = tag.getDouble("height");
@@ -123,7 +123,7 @@ public record UnilateralPortalState(
      */
     public static class Builder {
         public ResourceKey<Level> dimension;
-        public Vec3 point;
+        public Vec3 position;
         public DQuaternion orientation;
         public double width;
         public double height;
@@ -131,7 +131,7 @@ public record UnilateralPortalState(
         public UnilateralPortalState build() {
             return new UnilateralPortalState(
                 dimension,
-                point,
+                position,
                 orientation,
                 width,
                 height
@@ -143,8 +143,8 @@ public record UnilateralPortalState(
             return this;
         }
         
-        public Builder point(Vec3 point) {
-            this.point = point;
+        public Builder position(Vec3 point) {
+            this.position = point;
             return this;
         }
         
@@ -165,7 +165,7 @@ public record UnilateralPortalState(
         
         public Builder from(UnilateralPortalState other) {
             this.dimension = other.dimension;
-            this.point = other.point;
+            this.position = other.position;
             this.orientation = other.orientation;
             this.width = other.width;
             this.height = other.height;

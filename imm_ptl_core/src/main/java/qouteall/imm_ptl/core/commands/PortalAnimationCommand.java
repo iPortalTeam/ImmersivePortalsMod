@@ -17,6 +17,7 @@ import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.Collection;
 
@@ -25,7 +26,7 @@ public class PortalAnimationCommand {
         builder.then(Commands.literal("clear")
             .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
                 PortalExtension.forClusterPortals(
-                    portal, p -> p.animation.clearAnimationDrivers()
+                    portal, Portal::clearAnimationDrivers
                 );
                 
                 PortalCommand.reloadPortal(portal);
@@ -136,23 +137,10 @@ public class PortalAnimationCommand {
                     
                     double animationScale = 10;
                     
-                    PortalState portalState = portal.getPortalState();
-                    assert portalState != null;
-                    portal.addThisSideAnimationDriver(NormalAnimation.createOnePhaseAnimation(
-                        new UnilateralPortalState.Builder()
-                            .dimension(portal.getOriginDim())
-                            .point(portal.getOriginPos())
-                            .orientation(portal.getOrientationRotation())
-                            .width(portalState.width / animationScale)
-                            .height(portalState.height / animationScale)
-                            .build(),
-                        new UnilateralPortalState.Builder()
-                            .dimension(portal.getOriginDim())
-                            .point(portal.getOriginPos())
-                            .orientation(portal.getOrientationRotation())
-                            .width(portalState.width)
-                            .height(portalState.height)
-                            .build(),
+                    portal.addThisSideAnimationDriver(NormalAnimation.createSizeAnimation(
+                        portal,
+                        new Vec2d(portal.width / animationScale, portal.height / animationScale),
+                        new Vec2d(portal.width, portal.height),
                         portal.level.getGameTime(),
                         durationTicks,
                         TimingFunction.sine

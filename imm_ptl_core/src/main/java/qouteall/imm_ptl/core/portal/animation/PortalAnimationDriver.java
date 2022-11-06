@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
@@ -58,5 +57,10 @@ public interface PortalAnimationDriver {
         float partialTicks
     );
     
-    default void serverSideForceStop(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
+    /**
+     * Called on the server side when the animation is being forcefully stopped.
+     * @param stateBuilder Used for changing the portal state.
+     * @param tickTime World game time.
+     */
+    default void halt(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
 }

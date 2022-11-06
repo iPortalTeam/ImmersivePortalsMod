@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import qouteall.q_misc_util.Helper;
 
+@Deprecated
 public class PositionAnimation implements PortalAnimationDriver {
     public static void init() {
         PortalAnimationDriver.registerDeserializer(
@@ -53,11 +54,11 @@ public class PositionAnimation implements PortalAnimationDriver {
         double progress = (tickTime - startGameTime + partialTicks) / (double) (endGameTime - startGameTime);
         
         if (progress >= 1) {
-            stateBuilder.point(to);
+            stateBuilder.position(to);
             return true;
         }
         else {
-            stateBuilder.point(Helper.interpolatePos(from, to, progress));
+            stateBuilder.position(Helper.interpolatePos(from, to, progress));
             return false;
         }
     }

@@ -79,8 +79,6 @@ public class IPModMain {
         // intrinsic animation driver types
         RotationAnimation.init();
         NormalAnimation.init();
-        RotationAnimation.init();
-        SizeAnimation.init();
         
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");

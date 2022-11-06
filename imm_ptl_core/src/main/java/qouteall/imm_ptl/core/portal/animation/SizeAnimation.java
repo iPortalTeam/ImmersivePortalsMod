@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import qouteall.q_misc_util.Helper;
 
+@Deprecated
 public class SizeAnimation implements PortalAnimationDriver {
     
     public static void init() {

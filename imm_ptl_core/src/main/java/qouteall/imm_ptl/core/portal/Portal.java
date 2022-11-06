@@ -1634,7 +1634,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void clearAnimationDrivers() {
-        animation.clearAnimationDrivers();
+        animation.clearAnimationDrivers(this, true, true);
     }
     
     public void addThisSideAnimationDriver(PortalAnimationDriver driver) {
