@@ -218,12 +218,16 @@ public class StableClientTimer {
             offsetTime = stableTime.subtracted(referenceTime);
         }
         
-        debugOffset = stableTime.subtractedLen(targetTime);
+        debugOffset = targetTime.subtractedLen(stableTime);
     }
     
     public static String getDebugString() {
+        double shownOffset = debugOffset;
+        if (Math.abs(shownOffset) < 0.0001) {
+            shownOffset = 0;
+        }
         return String.format(
-            "Stable Timer Offset %.3f", debugOffset
+            "Stable Timer Offset %.3f", shownOffset
         );
     }
 }
