@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -45,6 +46,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -436,6 +438,28 @@ public class ClientDebugCommand {
             })
         );
         
+        builder.then(ClientCommandManager
+            .literal("view_portal_data")
+            .executes(context -> {
+                Minecraft client = Minecraft.getInstance();
+                Pair<Portal, Vec3> pair = PortalCommand.getPlayerPointingPortalRaw(
+                    client.player, 0, 50, true
+                ).orElse(null);
+                if (pair != null) {
+                    Portal portal = pair.getFirst();
+                    PortalCommand.sendPortalInfo(
+                        c -> context.getSource().sendFeedback(c),
+                        portal
+                    );
+                }
+                else {
+                    context.getSource().sendFeedback(Component.literal("No pointing to a portal."));
+                }
+                return 0;
+            })
+        );
+        
+        
         registerSwitchCommand(
             builder,
             "front_clipping",
@@ -560,7 +584,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-    
+        
         builder.then(ClientCommandManager
             .literal("test_invalid_rpc")
             .executes(context -> {

@@ -1679,6 +1679,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return thisTickPortalState;
     }
     
+    public PortalState getAnimationEndingState() {
+        return animation.getAnimationEndingState(this);
+    }
+    
     public Vec3 transformFromPortalLocalToWorld(Vec3 localPos) {
         return axisW.scale(localPos.x).add(axisH.scale(localPos.y)).add(getNormal().scale(localPos.z)).add(getOriginPos());
     }

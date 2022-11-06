@@ -89,7 +89,7 @@ public class RotationAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public void halt(UnilateralPortalState.Builder stateBuilder, long tickTime) {
+    public void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {
         if (endGameTime == Long.MAX_VALUE) {
             // infinite animation, keep the current state when stopping
             return;

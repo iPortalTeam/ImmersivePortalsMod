@@ -29,6 +29,7 @@ import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
+import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
 public class BlockManipulationClient {

@@ -132,7 +132,7 @@ public class PeripheralModMain {
             "expand_from_center", "animation expand_from_center 20"
         );
         registerPortalSubCommandStick(
-            "stop_animation", "animation stop"
+            "clear_animation", "animation clear"
         );
         CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
             "/scale set pehkui:base 1",

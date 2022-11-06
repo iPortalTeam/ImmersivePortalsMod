@@ -2086,38 +2086,45 @@ public class PortalCommand {
     }
     
     public static void sendPortalInfo(CommandContext<CommandSourceStack> context, Portal portal) {
-        context.getSource().sendSuccess(
+        sendPortalInfo(c -> sendMessage(context, c), portal);
+    }
+    
+    public static void sendPortalInfo(Consumer<Component> func, Portal portal) {
+        func.accept(
             McHelper.compoundTagToTextSorted(
                 portal.saveWithoutId(new CompoundTag()),
                 " ",
                 0
-            ),
-            false
+            )
         );
         
-        sendMessage(
-            context,
-            portal.toString()
+        func.accept(
+            Component.literal(portal.toString())
         );
         
-        sendMessage(context,
-            String.format("Orientation: %s", PortalAPI.getPortalOrientationQuaternion(portal))
+        func.accept(
+            Component.literal(
+                String.format("Orientation: %s", PortalAPI.getPortalOrientationQuaternion(portal))
+            )
         );
         
         if (portal.getRotation() != null) {
-            sendMessage(context,
-                String.format("Rotating Transformation: %s",
-                    DQuaternion.fromMcQuaternion(portal.getRotation())
+            func.accept(
+                Component.literal(
+                    String.format("Rotating Transformation: %s",
+                        DQuaternion.fromMcQuaternion(portal.getRotation())
+                    )
                 )
             );
         }
     }
     
+    public static void sendMessage(CommandContext<CommandSourceStack> context, Component component) {
+        context.getSource().sendSuccess(component, false);
+    }
+    
     public static void sendMessage(CommandContext<CommandSourceStack> context, String message) {
-        context.getSource().sendSuccess(
-            Component.literal(message),
-            false
-        );
+        sendMessage(context, Component.literal(message));
     }
     
     /**

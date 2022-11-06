@@ -46,8 +46,8 @@ public record UnilateralPortalState(
             portalState.toWorld,
             portalState.toPos,
             otherSideOrientation,
-            portalState.width,
-            portalState.height
+            portalState.width * portalState.scaling,
+            portalState.height * portalState.scaling
         );
     }
     
@@ -69,7 +69,7 @@ public record UnilateralPortalState(
         double scale = otherSide.width / thisSide.width;
         // ignore other side's aspect ratio changing
         
-        return new PortalState(
+        PortalState result = new PortalState(
             thisSide.dimension,
             thisSide.position,
             otherSide.dimension,
@@ -80,6 +80,8 @@ public record UnilateralPortalState(
             thisSide.width,
             thisSide.height
         );
+        
+        return result;
     }
     
     public static UnilateralPortalState interpolate(

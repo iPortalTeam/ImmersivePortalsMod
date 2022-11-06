@@ -232,14 +232,19 @@ public class DQuaternion {
      * Is two quaternions roughly the same
      */
     public static boolean isClose(DQuaternion a, DQuaternion b, double valve) {
-        if (a.getW() * b.getW() < 0) {
-            a = a.multiply(-1);
-        }
-        double da = a.getX() - b.getX();
-        double db = a.getY() - b.getY();
-        double dc = a.getZ() - b.getZ();
-        double dd = a.getW() - b.getW();
-        return da * da + db * db + dc * dc + dd * dd < valve;
+        double da1 = a.getX() - b.getX();
+        double db1 = a.getY() - b.getY();
+        double dc1 = a.getZ() - b.getZ();
+        double dd1 = a.getW() - b.getW();
+        double v1 = da1 * da1 + db1 * db1 + dc1 * dc1 + dd1 * dd1;
+        
+        double da2 = a.getX() + b.getX();
+        double db2 = a.getY() + b.getY();
+        double dc2 = a.getZ() + b.getZ();
+        double dd2 = a.getW() + b.getW();
+        double v2 = da2 * da2 + db2 * db2 + dc2 * dc2 + dd2 * dd2;
+        
+        return v1 < valve || v2 < valve;
     }
     
     @Override
@@ -436,7 +441,7 @@ public class DQuaternion {
         if (Math.abs(num - 1) < threshold) {
             return 1;
         }
-    
+        
         if (Math.abs(num - (-1)) < threshold) {
             return -1;
         }

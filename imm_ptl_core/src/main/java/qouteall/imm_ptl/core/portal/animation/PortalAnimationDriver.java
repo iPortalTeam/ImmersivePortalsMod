@@ -58,9 +58,10 @@ public interface PortalAnimationDriver {
     );
     
     /**
-     * Called on the server side when the animation is being forcefully stopped.
-     * @param stateBuilder Used for changing the portal state.
+     * Get the ending state of the animation.
+     * This is used when creating a new animation when existing animation is running.
+     * @param stateBuilder Used for outputting the portal state.
      * @param tickTime World game time.
      */
-    default void halt(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
+    default void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
 }

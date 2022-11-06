@@ -47,15 +47,18 @@ public class NormalAnimation implements PortalAnimationDriver {
         
         public static Phase fromTag(CompoundTag compoundTag) {
             long durationTicks = compoundTag.getLong("durationTicks");
-            Vec3 position = Helper.getVec3d(compoundTag, "position");
+            Vec3 position = Helper.getVec3dOptional(compoundTag, "position");
             DQuaternion orientation =
-                DQuaternion.fromTag(compoundTag.getCompound("orientation"));
-            Vec2d size = new Vec2d(
+                compoundTag.contains("orientation") ?
+                    DQuaternion.fromTag(compoundTag.getCompound("orientation")) : null;
+            Vec2d size = compoundTag.contains("sizeW") ? new Vec2d(
                 compoundTag.getDouble("sizeW"),
                 compoundTag.getDouble("sizeH")
-            );
+            ) : null;
             TimingFunction timingFunction =
-                TimingFunction.fromString(compoundTag.getString("timingFunction"));
+                compoundTag.contains("timingFunction") ?
+                    TimingFunction.fromString(compoundTag.getString("timingFunction")) :
+                    TimingFunction.linear;
             
             return new Phase(
                 durationTicks,
@@ -128,7 +131,7 @@ public class NormalAnimation implements PortalAnimationDriver {
             private Vec3 position;
             private DQuaternion orientation;
             private Vec2d size;
-            private TimingFunction timingFunction;
+            private TimingFunction timingFunction = TimingFunction.linear;
             
             public Builder() {
             }
@@ -178,7 +181,7 @@ public class NormalAnimation implements PortalAnimationDriver {
         this.phases = phases;
         this.startingGameTime = startingGameTime;
         this.loopCount = loopCount;
-    
+        
         long totalTicks = 0;
         for (Phase phase : phases) {
             totalTicks += phase.durationTicks;
@@ -242,7 +245,7 @@ public class NormalAnimation implements PortalAnimationDriver {
         
         double passedTicks = ((double) (tickTime - 1 - startingGameTime)) + partialTicks;
         long totalDuration = getTotalDuration();
-    
+        
         boolean ends = false;
         if (passedTicks >= totalDuration - 1) {
             passedTicks = totalDuration - 1;
@@ -272,7 +275,7 @@ public class NormalAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public void halt(UnilateralPortalState.Builder stateBuilder, long tickTime) {
+    public void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {
         end(stateBuilder);
     }
     
@@ -354,14 +357,20 @@ public class NormalAnimation implements PortalAnimationDriver {
         long startingGameTime, long durationTicks,
         TimingFunction timingFunction
     ) {
-        Phase phase = new Phase.Builder()
-            .durationTicks(durationTicks)
+        Phase initialPhase = new Phase.Builder()
+            .durationTicks(0)
             .size(fromSize)
             .timingFunction(timingFunction)
             .build();
         
+        Phase endingPhase = new Phase.Builder()
+            .durationTicks(durationTicks)
+            .size(toSize)
+            .timingFunction(timingFunction)
+            .build();
+        
         return new Builder()
-            .phases(List.of(phase))
+            .phases(List.of(initialPhase, endingPhase))
             .startingGameTime(startingGameTime)
             .loopCount(1)
             .build();

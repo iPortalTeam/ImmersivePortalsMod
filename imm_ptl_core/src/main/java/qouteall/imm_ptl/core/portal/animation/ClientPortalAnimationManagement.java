@@ -98,7 +98,7 @@ public class ClientPortalAnimationManagement {
     private static void updateCustomAnimations(boolean isTicking) {
         long stableTickTime = StableClientTimer.getStableTickTime();
         float stablePartialTicks = StableClientTimer.getStablePartialTicks();
-    
+        
         // if isTicking, update the portal as if it's one tick later
         // due to the presence of StableClientTimer, the partialTick in ticking may be non 0
         long usedTickTime = isTicking ? stableTickTime + 1 : stableTickTime;
@@ -109,7 +109,7 @@ public class ClientPortalAnimationManagement {
                 return true;
             }
             
-            if (portal.animation.animationDriver == null) {
+            if (!portal.animation.hasRunningAnimationDriver()) {
                 return true;
             }
             
@@ -120,8 +120,8 @@ public class ClientPortalAnimationManagement {
                 isTicking
             );
             
-            // remove the entry if animation driver is null
-            return portal.animation.animationDriver == null;
+            // remove the entry if animation finishes
+            return !portal.animation.hasRunningAnimationDriver();
         });
     }
     

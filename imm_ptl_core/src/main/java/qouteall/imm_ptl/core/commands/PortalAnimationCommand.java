@@ -137,10 +137,12 @@ public class PortalAnimationCommand {
                     
                     double animationScale = 10;
                     
+                    PortalState endingState = portal.getAnimationEndingState();
+                    
                     portal.addThisSideAnimationDriver(NormalAnimation.createSizeAnimation(
                         portal,
-                        new Vec2d(portal.width / animationScale, portal.height / animationScale),
-                        new Vec2d(portal.width, portal.height),
+                        new Vec2d(endingState.width / animationScale, endingState.height / animationScale),
+                        new Vec2d(endingState.width, endingState.height),
                         portal.level.getGameTime(),
                         durationTicks,
                         TimingFunction.sine
