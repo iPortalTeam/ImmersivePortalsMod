@@ -199,13 +199,9 @@ public class RotationAnimation implements PortalAnimationDriver {
             if (extension.reversePortal.getAnimationDriver() instanceof RotationAnimation rot) {
                 if (thisSideRotation != null) {
                     rot.otherSideRotation = thisSideRotation;
-                    rot.initialPortalRotation = extension.reversePortal.getRotationD();
-                    rot.initialPortalDestination = extension.reversePortal.getDestPos();
                 }
                 if (otherSideRotation != null) {
                     rot.thisSideRotation = otherSideRotation;
-                    rot.initialPortalOrigin = extension.reversePortal.getOriginPos();
-                    rot.initialPortalOrientation = extension.reversePortal.getOrientationRotation();
                 }
                 extension.reversePortal.reloadAndSyncToClient();
                 return;
@@ -216,13 +212,9 @@ public class RotationAnimation implements PortalAnimationDriver {
             if (extension.parallelPortal.getAnimationDriver() instanceof RotationAnimation rot) {
                 if (thisSideRotation != null) {
                     rot.otherSideRotation = thisSideRotation;
-                    rot.initialPortalRotation = extension.parallelPortal.getRotationD();
-                    rot.initialPortalDestination = extension.parallelPortal.getDestPos();
                 }
                 if (otherSideRotation != null) {
                     rot.thisSideRotation = otherSideRotation;
-                    rot.initialPortalOrigin = extension.parallelPortal.getOriginPos();
-                    rot.initialPortalOrientation = extension.parallelPortal.getOrientationRotation();
                 }
                 extension.parallelPortal.reloadAndSyncToClient();
                 return;
