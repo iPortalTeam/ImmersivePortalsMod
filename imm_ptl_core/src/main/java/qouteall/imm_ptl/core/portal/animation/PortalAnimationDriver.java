@@ -47,16 +47,16 @@ public interface PortalAnimationDriver {
      * On server side it's invoked during ticking.
      * On client side it's invoked both on ticking and before rendering.
      * Note: no need to call `rectifyPortalCluster()` here.
-     * @param portal
-     * @param tickTime
-     * @param partialTicks The real time is tickTime - 1 + partialTicks
+     * @param stateBuilder Used for changing the portal state.
+     * @param tickTime Tick time.
+     * @param partialTicks Partial ticks. The real time is tickTime - 1 + partialTicks.
      * @return whether the animation finishes
      */
-    boolean update(Portal portal, long tickTime, float partialTicks);
+    boolean update(
+        UnilateralPortalState.Builder stateBuilder,
+        long tickTime,
+        float partialTicks
+    );
     
-    default boolean shouldRectifyCluster() {
-        return true;
-    }
-    
-    default void serverSideForceStop(Portal portal, long tickTime) {}
+    default void serverSideForceStop(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
 }

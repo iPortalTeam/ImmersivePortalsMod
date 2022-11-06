@@ -698,22 +698,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             visible = true;
         }
         
-        if (compoundTag.contains("animation")) {
-            animation.defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("animation"));
-        }
-        else if (compoundTag.contains("defaultAnimation")) {
-            animation.defaultAnimation = DefaultPortalAnimation.fromNbt(compoundTag.getCompound("defaultAnimation"));
-        }
-        else {
-            animation.defaultAnimation = DefaultPortalAnimation.createDefault();
-        }
-        
-        if (compoundTag.contains("animationDriver")) {
-            animation.animationDriver = PortalAnimationDriver.fromTag(compoundTag.getCompound("animationDriver"));
-        }
-        else {
-            animation.animationDriver = null;
-        }
+        animation.readFromTag(compoundTag);
         
         readPortalDataSignal.emit(this, compoundTag);
         
@@ -784,11 +769,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             );
         }
         
-        compoundTag.put("defaultAnimation", animation.defaultAnimation.toNbt());
-        
-        if (animation.animationDriver != null) {
-            compoundTag.put("animationDriver", animation.animationDriver.toTag());
-        }
+        animation.writeToTag(compoundTag);
         
         writePortalDataSignal.emit(this, compoundTag);
         
@@ -1648,17 +1629,20 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         PortalExtension.get(this).rectifyClusterPortals(this, sync);
     }
     
-    @Nullable
-    public PortalAnimationDriver getAnimationDriver() {
-        return animation.animationDriver;
-    }
-    
-    public void setAnimationDriver(PortalAnimationDriver driver) {
-        animation.setAnimationDriver(this, driver);
-    }
-    
     public DefaultPortalAnimation getDefaultAnimation() {
         return animation.defaultAnimation;
+    }
+    
+    public void clearAnimationDrivers() {
+        animation.clearAnimationDrivers();
+    }
+    
+    public void addThisSideAnimationDriver(PortalAnimationDriver driver) {
+        animation.addThisSideAnimationDriver(this, driver);
+    }
+    
+    public void addOtherSideAnimationDriver(PortalAnimationDriver driver) {
+        animation.addOtherSideAnimationDriver(this, driver);
     }
     
     public boolean isOtherSideChunkLoaded() {

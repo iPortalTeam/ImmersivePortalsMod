@@ -44,9 +44,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.*;
-import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
-import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
-import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -84,10 +81,10 @@ public class PortalCommand {
         
         registerPortalTargetedCommands(builder);
         
-        LiteralArgumentBuilder<CommandSourceStack> animate =
+        LiteralArgumentBuilder<CommandSourceStack> animation =
             Commands.literal("animation");
-        registerPortalAnimationCommands(animate);
-        builder.then(animate);
+        PortalAnimationCommand.registerPortalAnimationCommands(animation);
+        builder.then(animation);
         
         registerCBPortalCommands(builder);
         
@@ -940,164 +937,6 @@ public class PortalCommand {
                 })
             )
         );
-    }
-    
-    private static void registerPortalAnimationCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
-        builder.then(Commands.literal("stop")
-            .executes(context -> processPortalTargetedCommand(context, portal -> {
-                portal.setAnimationDriver(null);
-                
-                PortalExtension extension = PortalExtension.get(portal);
-                if (extension.flippedPortal != null) {
-                    extension.flippedPortal.setAnimationDriver(null);
-                }
-                if (extension.reversePortal != null) {
-                    extension.reversePortal.setAnimationDriver(null);
-                }
-                if (extension.parallelPortal != null) {
-                    extension.parallelPortal.setAnimationDriver(null);
-                }
-                
-                reloadPortal(portal);
-            }))
-        );
-        
-        builder.then(Commands.literal("rotate_infinitely")
-            .then(Commands.argument("rotationCenterEntity", EntityArgument.entity())
-                .then(Commands.argument("rotationAxis", Vec3Argument.vec3(false))
-                    .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
-                        .executes(context -> processPortalTargetedCommand(context, portal -> {
-                            portal.setAnimationDriver(null);
-                            
-                            Entity rotationCenterEntity = EntityArgument.getEntity(context, "rotationCenterEntity");
-                            Vec3 rotationCenter = rotationCenterEntity.position();
-                            Vec3 axis = Vec3Argument.getVec3(context, "rotationAxis").normalize();
-                            double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-                            
-                            RotationAnimation.givePortalRotationAnimation(
-                                portal,
-                                new RotationAnimation.RotationParameters.Builder()
-                                    .setCenter(rotationCenter)
-                                    .setAxis(axis)
-                                    .setDegreesPerTick(angularVelocity)
-                                    .setStartGameTime(portal.level.getGameTime())
-                                    .setEndGameTime(Long.MAX_VALUE)
-                                    .build(),
-                                null
-                            );
-                            
-                            reloadPortal(portal);
-                        }))
-                    )
-                )
-            )
-        );
-        
-        builder.then(Commands.literal("rotate_portals_infinitely")
-            .then(Commands.argument("portals", EntityArgument.entities())
-                .then(Commands.argument("rotationCenter", Vec3Argument.vec3())
-                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
-                        .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
-                            .executes(context -> {
-                                Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
-                                Vec3 rotationCenter = Vec3Argument.getVec3(context, "rotationCenter");
-                                Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
-                                double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        portal.setAnimationDriver(null);
-                                        
-                                        RotationAnimation.givePortalRotationAnimation(
-                                            portal,
-                                            new RotationAnimation.RotationParameters.Builder()
-                                                .setCenter(rotationCenter)
-                                                .setAxis(axis)
-                                                .setDegreesPerTick(angularVelocity)
-                                                .setStartGameTime(portal.level.getGameTime())
-                                                .setEndGameTime(Long.MAX_VALUE)
-                                                .build(),
-                                            null
-                                        );
-                                    }
-                                    else {
-                                        context.getSource().sendFailure(Component.literal("the entity is not a portal"));
-                                    }
-                                }
-                                
-                                for (Entity entity : portals) {
-                                    if (entity instanceof Portal portal) {
-                                        reloadPortal(portal);
-                                    }
-                                }
-                                
-                                return 0;
-                            })
-                        )
-                    )
-                )
-            )
-        );
-        
-        builder.then(Commands.literal("rotate_along_normal")
-            .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
-                .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
-                    
-                    portal.setAnimationDriver(null);
-                    
-                    RotationAnimation.givePortalRotationAnimation(
-                        portal,
-                        new RotationAnimation.RotationParameters.Builder()
-                            .setCenter(portal.getOriginPos())
-                            .setAxis(portal.getNormal())
-                            .setDegreesPerTick(angularVelocity)
-                            .setStartGameTime(portal.level.getGameTime())
-                            .setEndGameTime(Long.MAX_VALUE)
-                            .build(),
-                        null
-                    );
-                    
-                    reloadPortal(portal);
-                }))
-            )
-        );
-        
-        builder.then(Commands.literal("expand_from_center")
-            .then(Commands.argument("durationTicks", IntegerArgumentType.integer(0, 1000))
-                .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    portal.setAnimationDriver(null);
-                    
-                    int durationTicks = IntegerArgumentType.getInteger(context, "durationTicks");
-                    
-                    double multiplier = 10;
-                    
-                    PortalState portalState = portal.getPortalState();
-                    assert portalState != null;
-                    portal.setAnimationDriver(NormalAnimation.createOnePhaseAnimation(
-                        new PortalState(
-                            portalState.fromWorld,
-                            portalState.fromPos,
-                            portalState.toWorld,
-                            portalState.toPos,
-                            portalState.scaling * multiplier,
-                            portalState.rotation,
-                            portalState.orientation,
-                            portalState.width / multiplier,
-                            portalState.height / multiplier
-                        ),
-                        portalState,
-                        portal.level.getGameTime(),
-                        durationTicks,
-                        true,
-                        false,
-                        portal.getDefaultAnimation().timingFunction
-                    ));
-                    reloadPortal(portal);
-                }))
-            )
-        );
-        
     }
     
     private static void invokeSetPortalNbt(

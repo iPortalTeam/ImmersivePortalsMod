@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -9,6 +11,8 @@ import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PortalAnimation {
     /**
@@ -23,8 +27,10 @@ public class PortalAnimation {
      * The animation driver controls the real animation.
      * The real animation runs on both sides and can do relative teleportation.
      */
-    @Nullable
-    public PortalAnimationDriver animationDriver;
+    @NotNull
+    public List<PortalAnimationDriver> thisSideAnimations = new ArrayList<>();
+    @NotNull
+    public List<PortalAnimationDriver> otherSideAnimations = new ArrayList<>();
     
     @Nullable
     public PortalState lastTickAnimatedState;
@@ -43,8 +49,58 @@ public class PortalAnimation {
     @Environment(EnvType.CLIENT)
     public long clientCurrentFramePortalStateCounter = -1;
     
+    public void readFromTag(CompoundTag tag) {
+        if (tag.contains("animation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(tag.getCompound("animation"));
+        }
+        else if (tag.contains("defaultAnimation")) {
+            defaultAnimation = DefaultPortalAnimation.fromNbt(tag.getCompound("defaultAnimation"));
+        }
+        else {
+            defaultAnimation = DefaultPortalAnimation.createDefault();
+        }
+        
+        if (tag.contains("thisSideAnimations")) {
+            ListTag listTag = tag.getList("thisSideAnimations", 10);
+            thisSideAnimations = Helper.listTagToList(listTag, PortalAnimationDriver::fromTag);
+        }
+        else {
+            thisSideAnimations.clear();
+        }
+        
+        if (tag.contains("otherSideAnimations")) {
+            ListTag listTag = tag.getList("otherSideAnimations", 10);
+            otherSideAnimations = Helper.listTagToList(listTag, PortalAnimationDriver::fromTag);
+        }
+        else {
+            otherSideAnimations.clear();
+        }
+    }
+    
+    public void writeToTag(CompoundTag tag) {
+        tag.put("defaultAnimation", defaultAnimation.toNbt());
+        
+        if (!thisSideAnimations.isEmpty()) {
+            tag.put(
+                "thisSideAnimations",
+                Helper.listToListTag(thisSideAnimations, PortalAnimationDriver::toTag)
+            );
+        }
+        
+        if (!otherSideAnimations.isEmpty()) {
+            tag.put(
+                "otherSideAnimations",
+                Helper.listToListTag(otherSideAnimations, PortalAnimationDriver::toTag)
+            );
+        }
+    }
+    
     public boolean isRunningRealAnimation() {
-        return lastTickAnimatedState != null || thisTickAnimatedState != null || animationDriver != null;
+        return lastTickAnimatedState != null || thisTickAnimatedState != null || hasRunningAnimationDriver();
+    }
+    
+    public boolean hasRunningAnimationDriver() {
+        return !thisSideAnimations.isEmpty() || !otherSideAnimations.isEmpty();
     }
     
     public void tick(Portal portal) {
@@ -62,7 +118,7 @@ public class PortalAnimation {
         }
         else {
             // handled on client
-            if (animationDriver != null) {
+            if (hasRunningAnimationDriver()) {
                 markRequiresClientAnimationUpdate(portal);
             }
         }
@@ -74,54 +130,123 @@ public class PortalAnimation {
     }
     
     public void updateAnimationDriver(Portal portal, long gameTime, float partialTicks, boolean isTicking) {
-        if (animationDriver != null) {
-            boolean finishes = animationDriver.update(portal, gameTime, partialTicks);
+        if (hasRunningAnimationDriver()) {
+            PortalState portalState = portal.getPortalState();
+            if (portalState == null) {
+                return;
+            }
+            UnilateralPortalState thisSide = UnilateralPortalState.extractThisSide(portalState);
+            UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);
+            
+            UnilateralPortalState.Builder thisSideBuilder = new UnilateralPortalState.Builder().from(thisSide);
+            UnilateralPortalState.Builder otherSideBuilder = new UnilateralPortalState.Builder().from(otherSide);
+            
+            int originalThisSideAnimationCount = thisSideAnimations.size();
+            int originalOtherSideAnimationCount = otherSideAnimations.size();
+            
+            thisSideAnimations.removeIf(animationDriver -> {
+                boolean finished = animationDriver.update(thisSideBuilder, gameTime, partialTicks);
+                return finished;
+            });
+            
+            otherSideAnimations.removeIf(animationDriver -> {
+                boolean finished = animationDriver.update(otherSideBuilder, gameTime, partialTicks);
+                return finished;
+            });
+            
             if (isTicking) {
                 portal.animation.thisTickAnimatedState = portal.getPortalState();
             }
-            if (animationDriver.shouldRectifyCluster()) {
-                portal.rectifyClusterPortals(false);
-                if (isTicking) {
-                    PortalExtension extension = PortalExtension.get(portal);
-                    updateThisTickAnimatedState(extension.flippedPortal);
-                    updateThisTickAnimatedState(extension.reversePortal);
-                    updateThisTickAnimatedState(extension.parallelPortal);
-                }
+            
+            portal.rectifyClusterPortals(false);
+            if (isTicking) {
+                PortalExtension extension = PortalExtension.get(portal);
+                updateThisTickAnimatedState(extension.flippedPortal);
+                updateThisTickAnimatedState(extension.reversePortal);
+                updateThisTickAnimatedState(extension.parallelPortal);
             }
-            if (finishes) {
-                setAnimationDriver(portal, null);
+            
+            if (!portal.level.isClientSide()) {
+                if (thisSideAnimations.size() != originalThisSideAnimationCount ||
+                    otherSideAnimations.size() != originalOtherSideAnimationCount
+                ) {
+                    PortalExtension.forClusterPortals(portal, Portal::reloadAndSyncToClientNextTick);
+                }
             }
         }
     }
     
+    public void addThisSideAnimationDriver(Portal portal, PortalAnimationDriver animationDriver) {
+        PortalExtension extension = PortalExtension.get(portal);
+        if (extension.flippedPortal != null) {
+            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
+                extension.flippedPortal.animation.thisSideAnimations.add(animationDriver);
+                extension.flippedPortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
+        if (extension.reversePortal != null) {
+            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
+                extension.reversePortal.animation.otherSideAnimations.add(animationDriver);
+                extension.reversePortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
+        if (extension.parallelPortal != null) {
+            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
+                extension.parallelPortal.animation.otherSideAnimations.add(animationDriver);
+                extension.parallelPortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
+        thisSideAnimations.add(animationDriver);
+        portal.reloadAndSyncToClient();
+    }
     
-    public void setAnimationDriver(Portal portal, @Nullable PortalAnimationDriver driver) {
-        if (driver == animationDriver) {
-            return;
-        }
-        
-        if (!portal.level.isClientSide()) {
-            if (animationDriver != null) {
-                animationDriver.serverSideForceStop(portal, portal.level.getGameTime());
+    public void addOtherSideAnimationDriver(Portal portal, PortalAnimationDriver animationDriver) {
+        PortalExtension extension = PortalExtension.get(portal);
+        if (extension.flippedPortal != null) {
+            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
+                extension.flippedPortal.animation.otherSideAnimations.add(animationDriver);
+                extension.flippedPortal.reloadAndSyncToClient();
+                return;
             }
         }
         
-        animationDriver = driver;
+        if (extension.reversePortal != null) {
+            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
+                extension.reversePortal.animation.thisSideAnimations.add(animationDriver);
+                extension.reversePortal.reloadAndSyncToClient();
+                return;
+            }
+        }
         
-        if (!portal.level.isClientSide()) {
-            portal.reloadAndSyncToClientNextTick();
+        if (extension.parallelPortal != null) {
+            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
+                extension.parallelPortal.animation.thisSideAnimations.add(animationDriver);
+                extension.parallelPortal.reloadAndSyncToClient();
+                return;
+            }
+        }
+        
+        otherSideAnimations.add(animationDriver);
+        portal.reloadAndSyncToClient();
+    }
     
-            PortalExtension extension = PortalExtension.get(portal);
-            if (extension.flippedPortal != null) {
-                extension.flippedPortal.reloadAndSyncToClientNextTick();
-            }
-            if (extension.reversePortal != null) {
-                extension.reversePortal.reloadAndSyncToClientNextTick();
-            }
-            if (extension.parallelPortal != null) {
-                extension.parallelPortal.reloadAndSyncToClientNextTick();
-            }
-        }
+    public void clearThisSideAnimationDrivers() {
+        thisSideAnimations.clear();
+    }
+    
+    public void clearOtherSideAnimationDrivers() {
+        otherSideAnimations.clear();
+    }
+    
+    public void clearAnimationDrivers() {
+        clearThisSideAnimationDrivers();
+        clearOtherSideAnimationDrivers();
     }
     
     @Environment(EnvType.CLIENT)
@@ -143,7 +268,7 @@ public class PortalAnimation {
         if (secondaryPortal != null) {
             if (secondaryPortal.animation.thisTickAnimatedState != null) {
                 Helper.log("Conflicting animation in " + secondaryPortal);
-                secondaryPortal.setAnimationDriver(null);
+                secondaryPortal.animation.clearAnimationDrivers();
             }
             secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
         }

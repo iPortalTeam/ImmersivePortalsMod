@@ -7,6 +7,7 @@ import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 // the additional features of a portal
 public class PortalExtension {
@@ -300,7 +301,7 @@ public class PortalExtension {
         
         portal.animation.defaultAnimation.inverseScale = false;
         
-        if (flippedPortal != null && flippedPortal.getAnimationDriver() == null) {
+        if (flippedPortal != null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 flippedPortal,
                 portal.level.dimension(),
@@ -332,7 +333,7 @@ public class PortalExtension {
             }
         }
         
-        if (reversePortal != null && reversePortal.getAnimationDriver() == null) {
+        if (reversePortal != null) {
             reversePortal = ServerTeleportationManager.teleportRegularEntityTo(
                 reversePortal,
                 portal.getDestDim(),
@@ -370,7 +371,7 @@ public class PortalExtension {
             }
         }
         
-        if (parallelPortal != null && parallelPortal.getAnimationDriver() == null) {
+        if (parallelPortal != null) {
             parallelPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 parallelPortal,
                 portal.getDestDim(),
@@ -437,6 +438,25 @@ public class PortalExtension {
         get(f2).parallelPortalId = t1.getUUID();
         get(t1).parallelPortalId = f2.getUUID();
         
+    }
+    
+    public static void forClusterPortals(Portal portal, Consumer<Portal> func) {
+        func.accept(portal);
+        
+        forConnectedPortals(portal, func);
+    }
+    
+    public static void forConnectedPortals(Portal portal, Consumer<Portal> func) {
+        PortalExtension extension = PortalExtension.get(portal);
+        if (extension.flippedPortal != null) {
+            func.accept(extension.flippedPortal);
+        }
+        if (extension.reversePortal != null) {
+            func.accept(extension.reversePortal);
+        }
+        if (extension.parallelPortal != null) {
+            func.accept(extension.parallelPortal);
+        }
     }
     
 }
