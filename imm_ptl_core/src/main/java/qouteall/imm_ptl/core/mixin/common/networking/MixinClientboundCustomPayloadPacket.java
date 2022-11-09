@@ -54,6 +54,9 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
             
             int packetId = data.readInt();
             Packet packet = PacketRedirection.createPacketById(packetId, data);
+            if (packet == null) {
+                throw new RuntimeException("Unknown packet id %d in %s".formatted(packetId, dimension.location()));
+            }
             
             ip_redirectedDimension = dimension;
             ip_redirectedPacket = (Packet<ClientGamePacketListener>) packet;
