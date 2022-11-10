@@ -638,12 +638,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
         }
         if (compoundTag.contains("rotationA")) {
-            rotation = new Quaternion(
+            setRotationTransformation(new Quaternion(
                 compoundTag.getFloat("rotationB"),
                 compoundTag.getFloat("rotationC"),
                 compoundTag.getFloat("rotationD"),
                 compoundTag.getFloat("rotationA")
-            );
+            ));
         }
         else {
             rotation = null;

@@ -448,4 +448,15 @@ public class DQuaternion {
         
         return num;
     }
+    
+    public boolean isAxisAligned() {
+        return isCoordinateZeroOrOneOrNegativeOne(getX())
+            && isCoordinateZeroOrOneOrNegativeOne(getY())
+            && isCoordinateZeroOrOneOrNegativeOne(getZ())
+            && isCoordinateZeroOrOneOrNegativeOne(getW());
+    }
+    
+    private static boolean isCoordinateZeroOrOneOrNegativeOne(double coord) {
+        return coord == 0 || coord == 1 || coord == -1;
+    }
 }

@@ -29,6 +29,7 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
@@ -94,9 +95,9 @@ public class CollisionHelper {
         return testingPos.subtract(planePos).dot(planeNormal) < 0;
     }
     
-    public static boolean canCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
+    public static boolean canCollideWithPortal(Entity entity, Portal portal, float partialTick) {
         if (portal.canTeleportEntity(entity)) {
-            Vec3 cameraPosVec = entity.getEyePosition(tickDelta);
+            Vec3 cameraPosVec = entity.getEyePosition(partialTick);
             if (portal.isInFrontOfPortal(cameraPosVec)) {
                 PortalLike collisionHandlingUnit = getCollisionHandlingUnit(portal);
                 boolean isInGroup = collisionHandlingUnit != portal;
@@ -127,7 +128,7 @@ public class CollisionHelper {
         
         Vec3 otherSideMove = getOtherSideMove(
             entity, thisSideMove, collidingPortal,
-            originalBoundingBox
+            originalBoundingBox, 1
         );
         
         entity.level.getProfiler().pop();
@@ -147,8 +148,14 @@ public class CollisionHelper {
         Entity entity,
         Vec3 attemptedMove,
         Portal collidingPortal,
-        AABB originalBoundingBox
+        AABB originalBoundingBox,
+        int portalLayer
     ) {
+        // limit max recursion layer
+        if (portalLayer >= 100) {
+            return attemptedMove;
+        }
+        
         if (!collidingPortal.getHasCrossPortalCollision()) {
             return attemptedMove;
         }
@@ -176,6 +183,17 @@ public class CollisionHelper {
             }
         }
         
+        List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
+            Portal.class,
+            collidingPortal.getDestinationWorld(),
+            boxOtherSide.expandTowards(transformedAttemptedMove),
+            8,
+            p -> p.getHasCrossPortalCollision()
+                && canCollideWithPortal(entity, p, 1)
+                && !Portal.isReversePortal(collidingPortal, p)
+                && !Portal.isParallelPortal(collidingPortal, p)
+        );
+        
         //switch world and check collision
         Level oldWorld = entity.level;
         Vec3 oldPos = entity.position();
@@ -188,25 +206,34 @@ public class CollisionHelper {
             entity.maxUpStep = (float) (oldStepHeight * collidingPortal.getScale() * 1.01);
         }
         
-        Vec3 collided = handleCollisionWithClipping(
-            entity, transformedAttemptedMove,
-            collidingPortal.getDestPos(), collidingPortal.getContentDirection()
-        );
-        
-        collided = new Vec3(
-            correctXZCoordinate(transformedAttemptedMove.x, collided.x),
-            correctYCoordinate(transformedAttemptedMove.y, collided.y),
-            correctXZCoordinate(transformedAttemptedMove.z, collided.z)
-        );
-        
-        Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
-        
-        entity.level = oldWorld;
-        McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
-        entity.setBoundingBox(originalBoundingBox);
-        entity.maxUpStep = oldStepHeight;
-        
-        return result;
+        try {
+            if (!indirectCollidingPortals.isEmpty()) {
+                return getOtherSideMove(
+                    entity, transformedAttemptedMove, indirectCollidingPortals.get(0),
+                    entity.getBoundingBox(), portalLayer + 1
+                );
+            }
+            
+            Vec3 collided = handleCollisionWithClipping(
+                entity, transformedAttemptedMove,
+                collidingPortal.getDestPos(), collidingPortal.getContentDirection()
+            );
+            
+            collided = new Vec3(
+                correctXZCoordinate(transformedAttemptedMove.x, collided.x),
+                correctYCoordinate(transformedAttemptedMove.y, collided.y),
+                correctXZCoordinate(transformedAttemptedMove.z, collided.z)
+            );
+            
+            Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
+            
+            return result;
+        } finally {
+            entity.level = oldWorld;
+            McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
+            entity.setBoundingBox(originalBoundingBox);
+            entity.maxUpStep = oldStepHeight;
+        }
     }
     
     // floating point deviation may cause collision issues
