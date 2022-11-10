@@ -10,6 +10,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -32,6 +33,16 @@ public class PortalAnimation {
     public List<PortalAnimationDriver> thisSideAnimations = new ArrayList<>();
     @NotNull
     public List<PortalAnimationDriver> otherSideAnimations = new ArrayList<>();
+    
+    /**
+     * Cache for reducing floating-point error accumulation.
+     * When setting state to portal and then getting state from portal,
+     * the state may differ a little because it converts rotation and orientation quaternions.
+     */
+    @Nullable
+    private UnilateralPortalState.Builder thisSideStateCache;
+    @Nullable
+    private UnilateralPortalState.Builder otherSideStateCache;
     
     @Nullable
     public PortalState lastTickAnimatedState;
@@ -136,33 +147,43 @@ public class PortalAnimation {
             if (portalState == null) {
                 return;
             }
-            UnilateralPortalState thisSide = UnilateralPortalState.extractThisSide(portalState);
-            UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);
             
-            UnilateralPortalState.Builder thisSideBuilder = new UnilateralPortalState.Builder().from(thisSide);
-            UnilateralPortalState.Builder otherSideBuilder = new UnilateralPortalState.Builder().from(otherSide);
+            UnilateralPortalState oldThisSideState = UnilateralPortalState.extractThisSide(portalState);
+            UnilateralPortalState oldOtherSideState = UnilateralPortalState.extractOtherSide(portalState);
+            
+            if (thisSideStateCache == null) {
+                thisSideStateCache = new UnilateralPortalState.Builder().from(oldOtherSideState);
+            }
+            if (otherSideStateCache == null) {
+                otherSideStateCache = new UnilateralPortalState.Builder().from(oldThisSideState);
+            }
+            
+            thisSideStateCache.correctFrom(oldThisSideState);
+            otherSideStateCache.correctFrom(oldOtherSideState);
             
             int originalThisSideAnimationCount = thisSideAnimations.size();
             int originalOtherSideAnimationCount = otherSideAnimations.size();
             
             thisSideAnimations.removeIf(animationDriver -> {
-                boolean finished = animationDriver.update(thisSideBuilder, gameTime, partialTicks);
+                boolean finished = animationDriver.update(thisSideStateCache, gameTime, partialTicks);
                 return finished;
             });
             
             otherSideAnimations.removeIf(animationDriver -> {
-                boolean finished = animationDriver.update(otherSideBuilder, gameTime, partialTicks);
+                boolean finished = animationDriver.update(otherSideStateCache, gameTime, partialTicks);
                 return finished;
             });
             
-            if (thisSideBuilder.dimension != thisSide.dimension() || otherSideBuilder.dimension != otherSide.dimension()) {
+            if (thisSideStateCache.dimension != oldThisSideState.dimension() || otherSideStateCache.dimension != oldOtherSideState.dimension()) {
                 Helper.err("Portal animation driver cannot change dimension");
                 portal.clearAnimationDrivers();
                 return;
             }
             
+            UnilateralPortalState newThisSideState = thisSideStateCache.build();
+            UnilateralPortalState newOtherSideState = otherSideStateCache.build();
             PortalState newPortalState =
-                UnilateralPortalState.combine(thisSideBuilder.build(), otherSideBuilder.build());
+                UnilateralPortalState.combine(newThisSideState, newOtherSideState);
             portal.setPortalState(newPortalState);
             
             if (isTicking) {

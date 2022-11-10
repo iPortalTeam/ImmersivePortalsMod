@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
@@ -55,9 +56,6 @@ public record UnilateralPortalState(
         UnilateralPortalState thisSide,
         UnilateralPortalState otherSide
     ) {
-        Vec3 axisW = McHelper.getAxisWFromOrientation(thisSide.orientation);
-        Vec3 axisH = McHelper.getAxisHFromOrientation(thisSide.orientation);
-        
         // otherSideOrientation * axis = rotation * thisSideOrientation * flipAxisH * axis
         // otherSideOrientation = rotation * thisSideOrientation * flipAxisH
         // rotation = otherSideOrientation * flipAxisH^-1 * thisSideOrientation^-1
@@ -165,12 +163,32 @@ public record UnilateralPortalState(
             return this;
         }
         
+        @NotNull
         public Builder from(UnilateralPortalState other) {
             this.dimension = other.dimension;
             this.position = other.position;
             this.orientation = other.orientation;
             this.width = other.width;
             this.height = other.height;
+            return this;
+        }
+        
+        @NotNull
+        public Builder correctFrom(UnilateralPortalState other) {
+            this.dimension = other.dimension;
+            if (position.distanceToSqr(other.position) > 0.0001) {
+                this.position = other.position;
+            }
+            if (!DQuaternion.isClose(orientation, other.orientation, 0.001)) {
+                this.orientation = other.orientation;
+            }
+            if (Math.abs(width - other.width) > 0.0001) {
+                this.width = other.width;
+            }
+            if (Math.abs(height - other.height) > 0.0001) {
+                this.height = other.height;
+            }
+            
             return this;
         }
     }
