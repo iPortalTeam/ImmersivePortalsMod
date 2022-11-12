@@ -15,6 +15,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -33,6 +35,7 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class CollisionHelper {
@@ -181,7 +184,7 @@ public class CollisionHelper {
                 return attemptedMove.subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
             }
         }
-    
+        
         List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
             Portal.class,
             collidingPortal.getDestinationWorld(),
@@ -299,11 +302,40 @@ public class CollisionHelper {
     private static Vec3 handleCollisionWithClipping(
         Entity entity, Vec3 attemptedMove, Vec3 clippingPlanePos, Vec3 clippingPlaneNormal
     ) {
-        Predicate<VoxelShape> filter = shape -> {
+        Function<VoxelShape, VoxelShape> filter = shape -> {
+            AABB shapeBoundingBox = shape.bounds();
             boolean boxBehindPlane = isBoxFullyBehindPlane(
-                clippingPlanePos, clippingPlaneNormal, shape.bounds()
+                clippingPlanePos, clippingPlaneNormal, shapeBoundingBox
             );
-            return !boxBehindPlane;
+            if (boxBehindPlane) {
+                return null;
+            }
+            
+            boolean isFullyInFrontOfPlane = isBoxFullyBehindPlane(
+                clippingPlanePos, clippingPlaneNormal.scale(-1), shapeBoundingBox
+            );
+            
+            if (isFullyInFrontOfPlane) {
+                return shape;
+            }
+            
+            // the shape is intersecting the clipping plane
+            // clip the shape
+            AABB clippedBoundingBox = clipBox(
+                shapeBoundingBox, clippingPlanePos, clippingPlaneNormal
+            );
+            
+            if (clippedBoundingBox == null) {
+                return null;
+            }
+            
+            VoxelShape result = Shapes.joinUnoptimized(
+                shape,
+                Shapes.create(clippedBoundingBox),
+                BooleanOp.AND
+            );
+            
+            return result;
         };
         
         AABB boundingBox = entity.getBoundingBox();
@@ -361,14 +393,15 @@ public class CollisionHelper {
         Entity entity, Vec3 vec,
         AABB collisionBox, Level level,
         List<VoxelShape> potentialHits,
-        Predicate<VoxelShape> filter
+        Function<VoxelShape, VoxelShape> shapeProcessor
     ) {
         ImmutableList.Builder<VoxelShape> builder =
             ImmutableList.builderWithExpectedSize(potentialHits.size() + 1);
         
         for (VoxelShape potentialHit : potentialHits) {
-            if (filter.test(potentialHit)) {
-                builder.add(potentialHit);
+            VoxelShape processed = shapeProcessor.apply(potentialHit);
+            if (processed != null) {
+                builder.add(processed);
             }
         }
         
@@ -381,8 +414,9 @@ public class CollisionHelper {
         Iterable<VoxelShape> blockCollisions = level.getBlockCollisions(entity, collisionBox.expandTowards(vec));
         
         for (VoxelShape blockCollision : blockCollisions) {
-            if (filter.test(blockCollision)) {
-                builder.add(blockCollision);
+            VoxelShape processed = shapeProcessor.apply(blockCollision);
+            if (processed != null) {
+                builder.add(processed);
             }
         }
         
@@ -660,10 +694,10 @@ public class CollisionHelper {
         Portal b
     ) {
         Vec3 velocity = McHelper.getWorldVelocity(entity);
-    
+        
         boolean movingTowardsA = velocity.dot(a.getNormal()) < 0;
         boolean movingTowardsB = velocity.dot(b.getNormal()) < 0;
-    
+        
         if (movingTowardsA) {
             return a;
         }

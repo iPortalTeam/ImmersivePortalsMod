@@ -266,7 +266,7 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         
         long timing = ip_getStableTiming();
-    
+        
         if (collidingPortalActiveTickTime != timing || collidingPortal == null) {
             collidingPortal = portal;
         }
@@ -274,12 +274,12 @@ public abstract class MixinEntity implements IEEntity {
             // it's colliding with at least 2 portals
             // currently immptl only supports handling collision with colliding with one portal
             // so select one portal
-    
+            
             collidingPortal = CollisionHelper.chooseCollidingPortalBetweenTwo(
                 this_, getCollidingPortal(), ((Portal) portal)
             );
         }
-    
+        
         collidingPortalActiveTickTime = timing;
         ((Portal) portal).onCollidingWithEntity(this_);
     }
