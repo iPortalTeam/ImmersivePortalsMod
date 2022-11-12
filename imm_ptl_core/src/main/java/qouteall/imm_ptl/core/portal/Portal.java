@@ -41,7 +41,6 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
-import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -839,7 +838,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         
         animation.tick(this);
         
-        CollisionHelper.notifyCollidingPortals(this);
+        CollisionHelper.notifyCollidingPortals(this, 0);
         
         super.tick();
     }
@@ -959,14 +958,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Override
     public String toString() {
         return String.format(
-            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s%s}",
+            "%s{%s,%s,(%s %.1f %.1f %.1f)->(%s %.1f %.1f %.1f)%s%s%s}",
             getClass().getSimpleName(),
             getId(),
             Direction.getNearest(
                 getNormal().x, getNormal().y, getNormal().z
             ),
-            level.dimension().location(), (int) getX(), (int) getY(), (int) getZ(),
-            dimensionTo.location(), (int) getDestPos().x, (int) getDestPos().y, (int) getDestPos().z,
+            level.dimension().location(), getX(), getY(), getZ(),
+            dimensionTo.location(), getDestPos().x, getDestPos().y, getDestPos().z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : "",
             portalTag != null ? "," + portalTag : ""

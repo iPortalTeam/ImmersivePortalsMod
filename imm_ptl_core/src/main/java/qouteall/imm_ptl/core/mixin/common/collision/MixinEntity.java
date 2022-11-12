@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -103,17 +102,19 @@ public abstract class MixinEntity implements IEEntity {
         }
         
         if (attemptedMove.lengthSqr() > 60 * 60) {
+            // avoid loading too many chunks in collision calculation and lag the server
             limitedLogger.invoke(() -> {
-                Helper.err("Entity moves too fast " + entity + attemptedMove + entity.level.getGameTime());
+                Helper.err("Skipping collision calculation because entity moves too fast %s%s%d"
+                    .formatted(entity, attemptedMove, entity.level.getGameTime()));
                 new Throwable().printStackTrace();
             });
             
             return attemptedMove;
         }
-        
-        if (getDeltaMovement().lengthSqr() > 2) {
-            CollisionHelper.updateCollidingPortalNow(entity);
-        }
+
+//        if (getDeltaMovement().lengthSqr() > 2) {
+//            CollisionHelper.updateCollidingPortalNow(entity);
+//        }
         
         if (collidingPortal == null ||
 //            entity.hasPassengers() ||
@@ -250,7 +251,7 @@ public abstract class MixinEntity implements IEEntity {
                 }
             }
             
-            if (Math.abs(tickCount - collidingPortalActiveTickTime) >= 3) {
+            if (Math.abs(ip_getStableTiming() - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
             }
         }
@@ -264,14 +265,28 @@ public abstract class MixinEntity implements IEEntity {
     public void notifyCollidingWithPortal(Entity portal) {
         Entity this_ = (Entity) (Object) this;
         
-        collidingPortal = portal;
-        collidingPortalActiveTickTime = tickCount;//world time may jump due to time synchroization
+        long timing = ip_getStableTiming();
+    
+        if (collidingPortalActiveTickTime != timing || collidingPortal == null) {
+            collidingPortal = portal;
+        }
+        else {
+            // it's colliding with at least 2 portals
+            // currently immptl only supports handling collision with colliding with one portal
+            // so select one portal
+    
+            collidingPortal = CollisionHelper.chooseCollidingPortalBetweenTwo(
+                this_, getCollidingPortal(), ((Portal) portal)
+            );
+        }
+    
+        collidingPortalActiveTickTime = timing;
         ((Portal) portal).onCollidingWithEntity(this_);
     }
     
     @Override
     public boolean isRecentlyCollidingWithPortal() {
-        return (tickCount - collidingPortalActiveTickTime) < 20;
+        return (ip_getStableTiming() - collidingPortalActiveTickTime) < 20;
     }
     
     @Override
@@ -283,5 +298,10 @@ public abstract class MixinEntity implements IEEntity {
     public void ip_setPositionWithoutTriggeringCallback(Vec3 newPos) {
         this.position = newPos;
         this.blockPosition = new BlockPos(newPos);
+    }
+    
+    // don't use game time because client game time may jump due to time synchronization
+    private long ip_getStableTiming() {
+        return tickCount;
     }
 }

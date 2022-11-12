@@ -471,17 +471,19 @@ public class ClientTeleportationManager {
     
     private static void tickAfterTeleportation(LocalPlayer player, Vec3 newEyePos, Vec3 newLastTickEyePos) {
         // update collidingPortal
+        float partialTicks = RenderStates.tickDelta;
+        
         McHelper.findEntitiesByBox(
             Portal.class,
             player.level,
-            player.getBoundingBox(),
+            CollisionHelper.getStretchedBoundingBox(player),
             10,
-            portal -> true
-        ).forEach(CollisionHelper::notifyCollidingPortals);
+            p -> true
+        ).forEach(p -> CollisionHelper.notifyCollidingPortals(p, partialTicks));
         
         CollisionHelper.tickClient();
         
-        ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
+        ((IEEntity) player).tickCollidingPortal(partialTicks);
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);

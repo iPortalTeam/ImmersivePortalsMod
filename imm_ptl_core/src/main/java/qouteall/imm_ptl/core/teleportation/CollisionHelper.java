@@ -29,7 +29,6 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
@@ -182,16 +181,17 @@ public class CollisionHelper {
                 return attemptedMove.subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
             }
         }
-        
+    
         List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
             Portal.class,
             collidingPortal.getDestinationWorld(),
             boxOtherSide.expandTowards(transformedAttemptedMove),
             8,
             p -> p.getHasCrossPortalCollision()
-                && canCollideWithPortal(entity, p, 1)
+                && canCollideWithPortal(entity, p, 0)
                 && !Portal.isReversePortal(collidingPortal, p)
                 && !Portal.isParallelPortal(collidingPortal, p)
+                && Portal.isFlippedPortal(collidingPortal, p)
         );
         
         //switch world and check collision
@@ -542,7 +542,7 @@ public class CollisionHelper {
         }
     }
     
-    public static void notifyCollidingPortals(Portal portal) {
+    public static void notifyCollidingPortals(Portal portal, float partialTick) {
         if (!portal.teleportable) {
             return;
         }
@@ -560,7 +560,8 @@ public class CollisionHelper {
                 if (!entityBoxStretched.intersects(portalBoundingBox)) {
                     return;
                 }
-                boolean canCollideWithPortal = canCollideWithPortal(entity, portal, 1);
+                boolean canCollideWithPortal = canCollideWithPortal(entity, portal, partialTick);
+                // use partial tick zero to get the colliding portal before this tick
                 if (!canCollideWithPortal) {
                     return;
                 }
@@ -570,8 +571,7 @@ public class CollisionHelper {
         );
     }
     
-    // the normal way of updating colliding portal delays one tick and does not work in high speed
-    // to save performance, only do this on high speed
+    @Deprecated
     public static void updateCollidingPortalNow(Entity entity) {
         if (entity instanceof Portal) {
             return;
@@ -587,6 +587,8 @@ public class CollisionHelper {
             10,
             portal -> {
                 if (boundingBox.intersects(portal.getBoundingBox())) {
+                    // partial tick 0 maybe incorrect here
+                    // if this method runs in collision ticking
                     if (canCollideWithPortal(entity, portal, 0)) {
                         ((IEEntity) entity).notifyCollidingWithPortal(portal);
                     }
@@ -648,5 +650,23 @@ public class CollisionHelper {
     @Environment(EnvType.CLIENT)
     private static PortalLike getCollisionHandlingUnitClient(Portal portal) {
         return PortalGroup.getPortalUnit(portal);
+    }
+    
+    // currently does not support handling the case of colliding with multiple portals at the same time
+    // select one (this is a workaround)
+    public static Portal chooseCollidingPortalBetweenTwo(
+        Entity entity,
+        Portal a,
+        Portal b
+    ) {
+        Vec3 velocity = McHelper.getWorldVelocity(entity);
+    
+        boolean movingTowardsA = velocity.dot(a.getNormal()) < 0;
+        boolean movingTowardsB = velocity.dot(b.getNormal()) < 0;
+    
+        if (movingTowardsA) {
+            return a;
+        }
+        return b;
     }
 }
