@@ -212,7 +212,7 @@ public class PortalAnimation {
         PortalExtension extension = PortalExtension.get(portal);
         if (extension.flippedPortal != null) {
             if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
-                extension.flippedPortal.animation.thisSideAnimations.add(animationDriver);
+                extension.flippedPortal.animation.thisSideAnimations.add(animationDriver.getFlippedVersion());
                 extension.flippedPortal.reloadAndSyncToClientNextTick();
                 return;
             }
@@ -228,7 +228,7 @@ public class PortalAnimation {
         
         if (extension.parallelPortal != null) {
             if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
-                extension.parallelPortal.animation.otherSideAnimations.add(animationDriver);
+                extension.parallelPortal.animation.otherSideAnimations.add(animationDriver.getFlippedVersion());
                 extension.parallelPortal.reloadAndSyncToClientNextTick();
                 return;
             }
@@ -242,7 +242,7 @@ public class PortalAnimation {
         PortalExtension extension = PortalExtension.get(portal);
         if (extension.flippedPortal != null) {
             if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
-                extension.flippedPortal.animation.otherSideAnimations.add(animationDriver);
+                extension.flippedPortal.animation.otherSideAnimations.add(animationDriver.getFlippedVersion());
                 extension.flippedPortal.reloadAndSyncToClientNextTick();
                 return;
             }
@@ -258,7 +258,7 @@ public class PortalAnimation {
         
         if (extension.parallelPortal != null) {
             if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
-                extension.parallelPortal.animation.thisSideAnimations.add(animationDriver);
+                extension.parallelPortal.animation.thisSideAnimations.add(animationDriver.getFlippedVersion());
                 extension.parallelPortal.reloadAndSyncToClientNextTick();
                 return;
             }

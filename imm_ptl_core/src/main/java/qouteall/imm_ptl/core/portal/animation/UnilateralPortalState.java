@@ -25,7 +25,7 @@ public record UnilateralPortalState(
     double height
 ) {
     // its inverse is itself
-    private static final DQuaternion flipAxisH = DQuaternion.rotationByDegrees(
+    public static final DQuaternion flipAxisH = DQuaternion.rotationByDegrees(
         new Vec3(1, 0, 0), 180
     ).fixFloatingPointErrorAccumulation();
     

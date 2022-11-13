@@ -64,4 +64,11 @@ public interface PortalAnimationDriver {
      * @param tickTime World game time.
      */
     default void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
+    
+    /**
+     * @return A flipped version of this animation for the flipped portal.
+     */
+    default PortalAnimationDriver getFlippedVersion() {
+        return this;
+    }
 }
