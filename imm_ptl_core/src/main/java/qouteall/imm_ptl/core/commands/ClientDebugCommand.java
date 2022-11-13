@@ -448,7 +448,12 @@ public class ClientDebugCommand {
                 if (pair != null) {
                     Portal portal = pair.getFirst();
                     PortalCommand.sendPortalInfo(
-                        c -> context.getSource().sendFeedback(c),
+                        c -> {
+                            context.getSource().sendFeedback(c);
+                            Helper.log(c.getString());
+                            // if the data is too long, the in-game message will be chopped
+                            // so also print that in log
+                        },
                         portal
                     );
                 }

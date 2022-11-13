@@ -156,6 +156,10 @@ public class PortalAnimation {
         }
     }
     
+    public long getEffectiveTime(long gameTime) {
+        return (isPaused() ? pauseTime : gameTime) + timeOffset;
+    }
+    
     public void tick(Portal portal) {
         lastTickAnimatedState = thisTickAnimatedState;
         thisTickAnimatedState = null;
@@ -201,9 +205,8 @@ public class PortalAnimation {
             return;
         }
         
-        boolean paused = animation.isPaused();
-        long effectiveGameTime = (paused ? animation.pauseTime : gameTime) + animation.timeOffset;
-        float effectivePartialTicks = paused ? 0 : partialTicks;
+        long effectiveGameTime = animation.getEffectiveTime(gameTime);
+        float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
         
         UnilateralPortalState oldThisSideState = UnilateralPortalState.extractThisSide(portalState);
         UnilateralPortalState oldOtherSideState = UnilateralPortalState.extractOtherSide(portalState);

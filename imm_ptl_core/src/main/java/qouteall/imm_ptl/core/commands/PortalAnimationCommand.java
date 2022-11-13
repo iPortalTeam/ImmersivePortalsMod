@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.commands;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -7,18 +8,20 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
-import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
-import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
-import qouteall.imm_ptl.core.portal.animation.TimingFunction;
+import qouteall.imm_ptl.core.portal.animation.*;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.Collection;
+import java.util.List;
 
 public class PortalAnimationCommand {
     static void registerPortalAnimationCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
@@ -222,5 +225,167 @@ public class PortalAnimationCommand {
             )
         );
         
+        LiteralArgumentBuilder<CommandSourceStack> builderBuilder =
+            Commands.literal("builder");
+        
+        builderBuilder.then(Commands.literal("begin")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                PortalAnimation animation = portal.animation;
+                animation.setPaused(portal, true);
+                
+                NormalAnimation.Phase initialPhase = new NormalAnimation.Phase.Builder()
+                    .durationTicks(0)
+                    .position(portal.getOriginPos())
+                    .orientation(portal.getOrientationRotation())
+                    .size(new Vec2d(portal.width, portal.height))
+                    .build();
+                NormalAnimation newNormalAnimation = new NormalAnimation.Builder()
+                    .phases(List.of(initialPhase))
+                    .loopCount(1)
+                    .startingGameTime(animation.getEffectiveTime(portal.level.getGameTime()))
+                    .build();
+                portal.animation.thisSideAnimations.add(newNormalAnimation);
+                
+                PortalCommand.reloadPortal(portal);
+                context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+            }))
+        );
+        
+        builderBuilder.then(Commands.literal("append_phase")
+            .then(Commands.argument("durationTicks", IntegerArgumentType.integer(0, 1000))
+                .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                    int durationTicks = IntegerArgumentType.getInteger(context, "durationTicks");
+                    
+                    PortalAnimation animation = portal.animation;
+                    
+                    if (animation.thisSideAnimations.isEmpty()) {
+                        context.getSource().sendFailure(Component.literal("no animation is being built"));
+                        return;
+                    }
+                    
+                    int index = animation.thisSideAnimations.size() - 1;
+                    PortalAnimationDriver lastAnimation = animation.thisSideAnimations.get(index);
+                    if (!(lastAnimation instanceof NormalAnimation normalAnimation)) {
+                        context.getSource().sendFailure(Component.literal("the last animation is not a normal animation"));
+                        return;
+                    }
+                    
+                    NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
+                        .durationTicks(durationTicks)
+                        .position(portal.getOriginPos())
+                        .orientation(portal.getOrientationRotation())
+                        .size(new Vec2d(portal.width, portal.height))
+                        .timingFunction(TimingFunction.sine)
+                        .build();
+                    ImmutableList<NormalAnimation.Phase> newPhases = ImmutableList.<NormalAnimation.Phase>builder()
+                        .addAll(normalAnimation.phases)
+                        .add(newPhase)
+                        .build();
+                    
+                    animation.thisSideAnimations.set(
+                        index,
+                        new NormalAnimation.Builder()
+                            .phases(newPhases)
+                            .loopCount(normalAnimation.loopCount)
+                            .startingGameTime(normalAnimation.startingGameTime)
+                            .build()
+                    );
+                    
+                    PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+                }))
+            )
+        );
+        
+        builderBuilder.then(Commands.literal("create_loop")
+            .then(Commands.argument("loopCount", IntegerArgumentType.integer(0, 100000))
+                .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                    // generated by GitHub copilot
+                    int loopCount = IntegerArgumentType.getInteger(context, "loopCount");
+                    
+                    PortalAnimation animation = portal.animation;
+                    
+                    if (animation.thisSideAnimations.isEmpty()) {
+                        context.getSource().sendFailure(Component.literal("no animation is being built"));
+                        return;
+                    }
+                    
+                    int index = animation.thisSideAnimations.size() - 1;
+                    PortalAnimationDriver lastAnimation = animation.thisSideAnimations.get(index);
+                    if (!(lastAnimation instanceof NormalAnimation normalAnimation)) {
+                        context.getSource().sendFailure(Component.literal("the last animation is not a normal animation"));
+                        return;
+                    }
+                    
+                    List<NormalAnimation.Phase> phases = normalAnimation.phases;
+                    NormalAnimation.Phase firstPhase = phases.get(0);
+                    NormalAnimation.Phase lastPhase = phases.get(phases.size() - 1);
+                    
+                    if (!isClose(firstPhase, lastPhase)) {
+                        // insert a new phase to make it go to initial state
+                        NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
+                            .durationTicks(5)
+                            .position(firstPhase.position)
+                            .orientation(firstPhase.orientation)
+                            .size(firstPhase.size)
+                            .timingFunction(TimingFunction.sine)
+                            .build();
+                        phases = ImmutableList.<NormalAnimation.Phase>builder()
+                            .addAll(phases)
+                            .add(newPhase)
+                            .build();
+                    }
+                    
+                    animation.thisSideAnimations.set(
+                        index,
+                        new NormalAnimation.Builder()
+                            .phases(phases)
+                            .loopCount(loopCount)
+                            .startingGameTime(normalAnimation.startingGameTime)
+                            .build()
+                    );
+                    
+                    animation.setPaused(portal, false);
+                    
+                    PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+                }))
+            )
+        );
+        
+        builder.then(builderBuilder);
+        
+    }
+    
+    private static boolean isClose(NormalAnimation.Phase a, NormalAnimation.Phase b) {
+        if (a.position != null && b.position != null) {
+            if (a.position.distanceTo(b.position) > 0.01) {
+                return false;
+            }
+        }
+        
+        if (a.orientation != null && b.orientation != null) {
+            if (!DQuaternion.isClose(a.orientation, b.orientation, 0.001)) {
+                return false;
+            }
+        }
+        
+        if (a.size != null && b.size != null) {
+            if (Math.abs(a.size.x() - b.size.x()) > 0.01 || Math.abs(a.size.y() - b.size.y()) > 0.01) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    private static Component getAnimationNbtInfo(Portal portal) {
+        CompoundTag tag = new CompoundTag();
+        portal.animation.writeToTag(tag);
+        return McHelper.compoundTagToTextSorted(
+            tag,
+            " ",
+            0
+        );
     }
 }
