@@ -10,7 +10,6 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -33,6 +32,9 @@ public class PortalAnimation {
     public List<PortalAnimationDriver> thisSideAnimations = new ArrayList<>();
     @NotNull
     public List<PortalAnimationDriver> otherSideAnimations = new ArrayList<>();
+    
+    public long pauseTime = 0;
+    public long timeOffset = 0;
     
     /**
      * Cache for reducing floating-point error accumulation.
@@ -87,6 +89,20 @@ public class PortalAnimation {
         else {
             otherSideAnimations.clear();
         }
+        
+        if (tag.contains("pauseTime")) {
+            pauseTime = tag.getLong("pauseTime");
+        }
+        else {
+            pauseTime = 0;
+        }
+        
+        if (tag.contains("timeOffset")) {
+            timeOffset = tag.getLong("timeOffset");
+        }
+        else {
+            timeOffset = 0;
+        }
     }
     
     public void writeToTag(CompoundTag tag) {
@@ -105,14 +121,39 @@ public class PortalAnimation {
                 Helper.listToListTag(otherSideAnimations, PortalAnimationDriver::toTag)
             );
         }
+        
+        if (pauseTime != 0) {
+            tag.putLong("pauseTime", pauseTime);
+        }
+        if (timeOffset != 0) {
+            tag.putLong("timeOffset", timeOffset);
+        }
     }
     
-    public boolean isRunningRealAnimation() {
+    public boolean isRoughlyRunningAnimation() {
         return lastTickAnimatedState != null || thisTickAnimatedState != null || hasRunningAnimationDriver();
     }
     
     public boolean hasRunningAnimationDriver() {
-        return !thisSideAnimations.isEmpty() || !otherSideAnimations.isEmpty();
+        return !isPaused() && (!thisSideAnimations.isEmpty() || !otherSideAnimations.isEmpty());
+    }
+    
+    public boolean isPaused() {
+        return pauseTime != 0;
+    }
+    
+    public void setPaused(Portal portal, boolean paused) {
+        if (paused == isPaused()) {
+            return;
+        }
+        
+        if (paused) {
+            pauseTime = portal.level.getGameTime();
+        }
+        else {
+            timeOffset -= portal.level.getGameTime() - pauseTime;
+            pauseTime = 0;
+        }
     }
     
     public void tick(Portal portal) {
@@ -127,7 +168,7 @@ public class PortalAnimation {
               So use 1 as partial tick
              */
             updateAnimationDriver(
-                portal, portal.level.getGameTime(), 1, true, true
+                portal, portal.animation, portal.level.getGameTime(), 1, true, true
             );
         }
         else {
@@ -145,74 +186,81 @@ public class PortalAnimation {
     
     public void updateAnimationDriver(
         Portal portal,
+        PortalAnimation animation,
         long gameTime,
         float partialTicks,
         boolean isTicking,
         boolean canRemoveAnimation
     ) {
-        if (hasRunningAnimationDriver()) {
-            PortalState portalState = portal.getPortalState();
-            if (portalState == null) {
-                return;
-            }
-            
-            UnilateralPortalState oldThisSideState = UnilateralPortalState.extractThisSide(portalState);
-            UnilateralPortalState oldOtherSideState = UnilateralPortalState.extractOtherSide(portalState);
-            
-            if (thisSideStateCache == null) {
-                thisSideStateCache = new UnilateralPortalState.Builder().from(oldOtherSideState);
-            }
-            if (otherSideStateCache == null) {
-                otherSideStateCache = new UnilateralPortalState.Builder().from(oldThisSideState);
-            }
-            
-            thisSideStateCache.correctFrom(oldThisSideState);
-            otherSideStateCache.correctFrom(oldOtherSideState);
-            
-            int originalThisSideAnimationCount = thisSideAnimations.size();
-            int originalOtherSideAnimationCount = otherSideAnimations.size();
-            
-            thisSideAnimations.removeIf(animationDriver -> {
-                boolean finished = animationDriver.update(thisSideStateCache, gameTime, partialTicks);
-                return canRemoveAnimation && finished;
-            });
-            
-            otherSideAnimations.removeIf(animationDriver -> {
-                boolean finished = animationDriver.update(otherSideStateCache, gameTime, partialTicks);
-                return canRemoveAnimation && finished;
-            });
-            
-            if (thisSideStateCache.dimension != oldThisSideState.dimension() || otherSideStateCache.dimension != oldOtherSideState.dimension()) {
-                Helper.err("Portal animation driver cannot change dimension");
-                portal.clearAnimationDrivers();
-                return;
-            }
-            
-            UnilateralPortalState newThisSideState = thisSideStateCache.build();
-            UnilateralPortalState newOtherSideState = otherSideStateCache.build();
-            PortalState newPortalState =
-                UnilateralPortalState.combine(newThisSideState, newOtherSideState);
-            portal.setPortalState(newPortalState);
-            
-            if (isTicking) {
-                portal.animation.thisTickAnimatedState = newPortalState;
-            }
-            
-            portal.rectifyClusterPortals(false);
-            if (isTicking) {
-                PortalExtension extension = PortalExtension.get(portal);
-                updateThisTickAnimatedState(extension.flippedPortal);
-                updateThisTickAnimatedState(extension.reversePortal);
-                updateThisTickAnimatedState(extension.parallelPortal);
-            }
-            
-            if (!portal.level.isClientSide()) {
-                if (thisSideAnimations.size() != originalThisSideAnimationCount ||
-                    otherSideAnimations.size() != originalOtherSideAnimationCount
-                ) {
-                    // delay a little to make client animation stopping smoother
-                    PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
-                }
+        if (!hasRunningAnimationDriver()) {
+            return;
+        }
+        
+        PortalState portalState = portal.getPortalState();
+        if (portalState == null) {
+            return;
+        }
+        
+        boolean paused = animation.isPaused();
+        long effectiveGameTime = (paused ? animation.pauseTime : gameTime) + animation.timeOffset;
+        float effectivePartialTicks = paused ? 0 : partialTicks;
+        
+        UnilateralPortalState oldThisSideState = UnilateralPortalState.extractThisSide(portalState);
+        UnilateralPortalState oldOtherSideState = UnilateralPortalState.extractOtherSide(portalState);
+        
+        if (thisSideStateCache == null) {
+            thisSideStateCache = new UnilateralPortalState.Builder().from(oldOtherSideState);
+        }
+        if (otherSideStateCache == null) {
+            otherSideStateCache = new UnilateralPortalState.Builder().from(oldThisSideState);
+        }
+        
+        thisSideStateCache.correctFrom(oldThisSideState);
+        otherSideStateCache.correctFrom(oldOtherSideState);
+        
+        int originalThisSideAnimationCount = thisSideAnimations.size();
+        int originalOtherSideAnimationCount = otherSideAnimations.size();
+        
+        thisSideAnimations.removeIf(animationDriver -> {
+            boolean finished = animationDriver.update(thisSideStateCache, effectiveGameTime, effectivePartialTicks);
+            return canRemoveAnimation && finished;
+        });
+        
+        otherSideAnimations.removeIf(animationDriver -> {
+            boolean finished = animationDriver.update(otherSideStateCache, effectiveGameTime, effectivePartialTicks);
+            return canRemoveAnimation && finished;
+        });
+        
+        if (thisSideStateCache.dimension != oldThisSideState.dimension() || otherSideStateCache.dimension != oldOtherSideState.dimension()) {
+            Helper.err("Portal animation driver cannot change dimension");
+            portal.clearAnimationDrivers(true, true);
+            return;
+        }
+        
+        UnilateralPortalState newThisSideState = thisSideStateCache.build();
+        UnilateralPortalState newOtherSideState = otherSideStateCache.build();
+        PortalState newPortalState =
+            UnilateralPortalState.combine(newThisSideState, newOtherSideState);
+        portal.setPortalState(newPortalState);
+        
+        if (isTicking) {
+            portal.animation.thisTickAnimatedState = newPortalState;
+        }
+        
+        portal.rectifyClusterPortals(false);
+        if (isTicking) {
+            PortalExtension extension = PortalExtension.get(portal);
+            updateThisTickAnimatedState(extension.flippedPortal);
+            updateThisTickAnimatedState(extension.reversePortal);
+            updateThisTickAnimatedState(extension.parallelPortal);
+        }
+        
+        if (!portal.level.isClientSide()) {
+            if (thisSideAnimations.size() != originalThisSideAnimationCount ||
+                otherSideAnimations.size() != originalOtherSideAnimationCount
+            ) {
+                // delay a little to make client animation stopping smoother
+                PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
             }
         }
     }
@@ -334,7 +382,7 @@ public class PortalAnimation {
             return;
         }
         
-        if (isRunningRealAnimation()) {
+        if (isRoughlyRunningAnimation()) {
             clientLastFramePortalState = clientCurrentFramePortalState;
             clientLastFramePortalStateCounter = clientCurrentFramePortalStateCounter;
             
@@ -347,7 +395,7 @@ public class PortalAnimation {
         if (secondaryPortal != null) {
             if (secondaryPortal.animation.thisTickAnimatedState != null) {
                 Helper.log("Conflicting animation in " + secondaryPortal);
-                secondaryPortal.clearAnimationDrivers();
+                secondaryPortal.clearAnimationDrivers(true, true);
             }
             secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
         }

@@ -1641,8 +1641,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return animation.defaultAnimation;
     }
     
-    public void clearAnimationDrivers() {
-        animation.clearAnimationDrivers(this, true, true);
+    public void clearAnimationDrivers(boolean clearThisSide, boolean clearOtherSide) {
+        animation.clearAnimationDrivers(this, clearThisSide, clearOtherSide);
     }
     
     public void addThisSideAnimationDriver(PortalAnimationDriver driver) {
@@ -1651,6 +1651,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void addOtherSideAnimationDriver(PortalAnimationDriver driver) {
         animation.addOtherSideAnimationDriver(this, driver);
+    }
+    
+    public void pauseAnimation() {
+        animation.setPaused(this, true);
+    }
+    
+    public void resumeAnimation() {
+        animation.setPaused(this, false);
     }
     
     public boolean isOtherSideChunkLoaded() {

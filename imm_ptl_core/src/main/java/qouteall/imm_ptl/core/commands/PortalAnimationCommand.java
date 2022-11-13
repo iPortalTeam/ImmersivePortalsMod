@@ -16,7 +16,6 @@ import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
-import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.Collection;
@@ -26,9 +25,27 @@ public class PortalAnimationCommand {
         builder.then(Commands.literal("clear")
             .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
                 PortalExtension.forClusterPortals(
-                    portal, Portal::clearAnimationDrivers
+                    portal, portal1 -> portal1.clearAnimationDrivers(true, true)
                 );
                 
+                PortalCommand.reloadPortal(portal);
+            }))
+        );
+        
+        builder.then(Commands.literal("pause")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                PortalExtension.forClusterPortals(
+                    portal, Portal::pauseAnimation
+                );
+                PortalCommand.reloadPortal(portal);
+            }))
+        );
+        
+        builder.then(Commands.literal("resume")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                PortalExtension.forClusterPortals(
+                    portal, Portal::resumeAnimation
+                );
                 PortalCommand.reloadPortal(portal);
             }))
         );
@@ -124,7 +141,7 @@ public class PortalAnimationCommand {
                                     for (Entity entity : portals) {
                                         if (entity instanceof Portal portal) {
                                             PortalState endingState = portal.getAnimationEndingState();
-    
+                                            
                                             long currTime = portal.level.getGameTime();
                                             portal.addThisSideAnimationDriver(
                                                 new RotationAnimation.Builder()

@@ -115,6 +115,7 @@ public class ClientPortalAnimationManagement {
             
             portal.animation.updateAnimationDriver(
                 portal,
+                portal.animation,
                 usedTickTime,
                 usedPartialTicks,
                 isTicking,
@@ -124,8 +125,8 @@ public class ClientPortalAnimationManagement {
                 // to make the animation stop smoothly, don't remove the animation during ticking
             );
             
-            // remove the entry if animation finishes
-            return !portal.animation.hasRunningAnimationDriver();
+            // remove the entry if animation finishes or is paused
+            return portal.animation.isPaused() || !portal.animation.hasRunningAnimationDriver();
         });
     }
     
