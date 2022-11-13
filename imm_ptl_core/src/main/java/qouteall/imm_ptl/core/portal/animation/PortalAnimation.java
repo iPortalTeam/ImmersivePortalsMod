@@ -190,6 +190,13 @@ public class PortalAnimation {
             updateAnimationDriver(
                 portal, portal.animation, portal.level.getGameTime(), 1, true, true
             );
+    
+            if (thisSideAnimations.isEmpty()) {
+                thisSideReferenceState = null;
+            }
+            if (otherSideAnimations.isEmpty()) {
+                otherSideReferenceState = null;
+            }
         }
         else {
             // handled on client
@@ -223,14 +230,9 @@ public class PortalAnimation {
         
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
-        
-        if (thisSideReferenceState == null) {
-            thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
-        }
-        if (otherSideReferenceState == null) {
-            otherSideReferenceState = UnilateralPortalState.extractOtherSide(portalState);
-        }
-        
+    
+        initializeReferenceStates(portalState);
+    
         UnilateralPortalState.Builder thisSideState = new UnilateralPortalState.Builder().from(thisSideReferenceState);
         UnilateralPortalState.Builder otherSideState = new UnilateralPortalState.Builder().from(otherSideReferenceState);
         
@@ -278,6 +280,15 @@ public class PortalAnimation {
                 // delay a little to make client animation stopping smoother
                 PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
             }
+        }
+    }
+    
+    private void initializeReferenceStates(PortalState portalState) {
+        if (thisSideReferenceState == null) {
+            thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
+        }
+        if (otherSideReferenceState == null) {
+            otherSideReferenceState = UnilateralPortalState.extractOtherSide(portalState);
         }
     }
     
@@ -378,10 +389,15 @@ public class PortalAnimation {
     public PortalState getAnimationEndingState(Portal portal) {
         PortalState portalState = portal.getPortalState();
         assert portalState != null;
+        
+        initializeReferenceStates(portalState);
+        assert thisSideReferenceState != null;
+        assert otherSideReferenceState != null;
+        
         UnilateralPortalState.Builder from = new UnilateralPortalState.Builder()
-            .from(UnilateralPortalState.extractThisSide(portalState));
+            .from(thisSideReferenceState);
         UnilateralPortalState.Builder to = new UnilateralPortalState.Builder()
-            .from(UnilateralPortalState.extractOtherSide(portalState));
+            .from(otherSideReferenceState);
         
         for (PortalAnimationDriver animationDriver : thisSideAnimations) {
             animationDriver.obtainEndingState(from, portal.level.getGameTime());

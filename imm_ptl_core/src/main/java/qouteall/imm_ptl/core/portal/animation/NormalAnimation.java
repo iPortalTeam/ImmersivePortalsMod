@@ -163,16 +163,20 @@ public class NormalAnimation implements PortalAnimationDriver {
         long roundIndex = Math.floorDiv((long) passedTicks, ticksPerRound);
         
         long traversedTicks = 0;
+        DeltaUnilateralPortalState lastDelta = DeltaUnilateralPortalState.identity;
         for (Phase phase : phases) {
             if (phase.durationTicks != 0 && passedTicksInThisRound < traversedTicks + phase.durationTicks) {
                 double phaseProgress = (1 + passedTicksInThisRound - traversedTicks) / (double) phase.durationTicks;
                 phaseProgress = phase.timingFunction.mapProgress(phaseProgress);
                 
-                phase.delta.getPartial(phaseProgress).apply(stateBuilder);
+                DeltaUnilateralPortalState interpolated = DeltaUnilateralPortalState.interpolate(
+                    lastDelta, phase.delta, phaseProgress
+                );
+                interpolated.apply(stateBuilder);
                 break;
             }
             else {
-                phase.delta.apply(stateBuilder);
+                lastDelta = phase.delta();
                 traversedTicks += phase.durationTicks;
             }
         }
@@ -253,7 +257,7 @@ public class NormalAnimation implements PortalAnimationDriver {
             .build();
         
         return new Builder()
-            .phases(List.of(endingPhase))
+            .phases(List.of(initialPhase, endingPhase))
             .startingGameTime(startingGameTime)
             .loopCount(1)
             .build();

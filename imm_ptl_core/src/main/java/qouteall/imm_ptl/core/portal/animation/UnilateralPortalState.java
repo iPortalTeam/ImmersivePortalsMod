@@ -6,7 +6,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
@@ -119,11 +118,15 @@ public record UnilateralPortalState(
     }
     
     public DeltaUnilateralPortalState subtract(UnilateralPortalState other) {
+        Vec3 offset = position.subtract(other.position);
+        DQuaternion rotation = orientation.hamiltonProduct(other.orientation.getConjugated());
+        double widthScale = width / other.width;
+        double heightScale = height / other.height;
         return new DeltaUnilateralPortalState(
-            position.subtract(other.position),
-            orientation.hamiltonProduct(other.orientation.getConjugated()),
-            new Vec2d(width / other.width, height / other.height)
-        );
+            offset,
+            rotation,
+            new Vec2d(widthScale, heightScale)
+        ).purgeFPError();
     }
     
     /**

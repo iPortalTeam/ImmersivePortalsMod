@@ -14,6 +14,9 @@ public record DeltaUnilateralPortalState(
     @Nullable DQuaternion rotation,
     @Nullable Vec2d sizeScaling
 ) {
+    public static final DeltaUnilateralPortalState identity =
+        new DeltaUnilateralPortalState(null, null, null);
+    
     public DeltaUnilateralPortalState getInverse() {
         return new DeltaUnilateralPortalState(
             offset == null ? null : offset.scale(-1),
@@ -65,12 +68,19 @@ public record DeltaUnilateralPortalState(
     public DeltaUnilateralPortalState getPartial(double progress) {
         return new DeltaUnilateralPortalState(
             offset == null ? null : offset.scale(progress),
-            DQuaternion.interpolate(DQuaternion.identity, rotation, progress),
+            rotation == null ? null : DQuaternion.interpolate(DQuaternion.identity, rotation, progress),
             sizeScaling == null ? null : new Vec2d(
-                Mth.lerp(progress, 1, sizeScaling.x()),
-                Mth.lerp(progress, 1, sizeScaling.y())
+                Mth.lerp(progress, sizeScaling.x(), 1),
+                Mth.lerp(progress, sizeScaling.y(), 1)
             )
         );
+    }
+    
+    public static DeltaUnilateralPortalState interpolate(
+        DeltaUnilateralPortalState a, DeltaUnilateralPortalState b,
+        double progress
+    ) {
+        return a.getPartial(progress).combine(b.getPartial(1 - progress));
     }
     
     public DeltaUnilateralPortalState getFlipped() {
@@ -92,6 +102,32 @@ public record DeltaUnilateralPortalState(
             builder.scaleWidth(sizeScaling.x());
             builder.scaleHeight(sizeScaling.y());
         }
+    }
+    
+    public DeltaUnilateralPortalState purgeFPError() {
+        Vec3 offset = this.offset;
+        if (offset != null && offset.lengthSqr() < 0.0001) {
+            offset = null;
+        }
+        
+        DQuaternion rotation = this.rotation;
+        if (rotation != null && DQuaternion.isClose(rotation, DQuaternion.identity, 0.0001)) {
+            rotation = null;
+        }
+        
+        Vec2d sizeScaling = this.sizeScaling;
+        if (sizeScaling != null
+            && Math.abs(sizeScaling.x() - 1) < 0.00001
+            && Math.abs(sizeScaling.y() - 1) < 0.00001
+        ) {
+            sizeScaling = null;
+        }
+        
+        return new DeltaUnilateralPortalState(offset, rotation, sizeScaling);
+    }
+    
+    public boolean isIdentity() {
+        return offset == null && rotation == null && sizeScaling == null;
     }
     
     public static class Builder {
