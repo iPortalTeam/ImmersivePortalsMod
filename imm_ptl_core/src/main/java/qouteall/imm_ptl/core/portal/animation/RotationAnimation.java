@@ -6,6 +6,8 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
+import javax.annotation.Nullable;
+
 public class RotationAnimation implements PortalAnimationDriver {
     
     public static void init() {
@@ -22,8 +24,15 @@ public class RotationAnimation implements PortalAnimationDriver {
     public final double degreesPerTick;
     public final long startGameTime;
     public final long endGameTime;
+    @Nullable
+    public final TimingFunction timingFunction;
     
-    public RotationAnimation(Vec3 initialPosition, DQuaternion initialOrientation, Vec3 rotationCenter, Vec3 rotationAxis, double degreesPerTick, long startGameTime, long endGameTime) {
+    public RotationAnimation(
+        Vec3 initialPosition, DQuaternion initialOrientation,
+        Vec3 rotationCenter, Vec3 rotationAxis,
+        double degreesPerTick, long startGameTime, long endGameTime,
+        @Nullable TimingFunction timingFunction
+    ) {
         this.initialPosition = initialPosition;
         this.initialOrientation = initialOrientation;
         this.rotationCenter = rotationCenter;
@@ -31,6 +40,7 @@ public class RotationAnimation implements PortalAnimationDriver {
         this.degreesPerTick = degreesPerTick;
         this.startGameTime = startGameTime;
         this.endGameTime = endGameTime;
+        this.timingFunction = timingFunction;
     }
     
     @Override
@@ -45,6 +55,9 @@ public class RotationAnimation implements PortalAnimationDriver {
         tag.putDouble("degreesPerTick", degreesPerTick);
         tag.putLong("startGameTime", startGameTime);
         tag.putLong("endGameTime", endGameTime);
+        if (timingFunction != null) {
+            tag.putString("timingFunction", timingFunction.toString());
+        }
         
         return tag;
     }
@@ -57,9 +70,12 @@ public class RotationAnimation implements PortalAnimationDriver {
         double degreesPerTick = tag.getDouble("degreesPerTick");
         long startGameTime = tag.getLong("startGameTime");
         long endGameTime = tag.getLong("endGameTime");
+        TimingFunction timingFunction = tag.contains("timingFunction") ?
+            TimingFunction.fromString(tag.getString("timingFunction")) : null;
         return new RotationAnimation(
             initialPosition, initialOrientation, rotationCenter, rotationAxis,
-            degreesPerTick, startGameTime, endGameTime
+            degreesPerTick, startGameTime, endGameTime,
+            timingFunction
         );
     }
     
@@ -70,11 +86,16 @@ public class RotationAnimation implements PortalAnimationDriver {
         float partialTicks
     ) {
         double passedTicks = ((double) (tickTime - 1 - startGameTime)) + partialTicks;
-    
+        
         boolean ended = false;
-        if (passedTicks >= (endGameTime - startGameTime)) {
+        long durationTicks = endGameTime - startGameTime;
+        if (passedTicks >= durationTicks) {
             ended = true;
-            passedTicks = endGameTime - startGameTime;
+            passedTicks = durationTicks;
+        }
+        
+        if (timingFunction != null) {
+            passedTicks = timingFunction.mapProgress(passedTicks / durationTicks) * durationTicks;
         }
         
         double angle = degreesPerTick * passedTicks;
@@ -107,7 +128,8 @@ public class RotationAnimation implements PortalAnimationDriver {
             rotationAxis,
             degreesPerTick,
             startGameTime,
-            endGameTime
+            endGameTime,
+            timingFunction
         );
     }
     
@@ -120,11 +142,13 @@ public class RotationAnimation implements PortalAnimationDriver {
         public double degreesPerTick;
         public long startGameTime;
         public long endGameTime;
+        public TimingFunction timingFunction;
         
         public RotationAnimation build() {
             return new RotationAnimation(
                 initialPosition, initialOrientation, rotationCenter, rotationAxis,
-                degreesPerTick, startGameTime, endGameTime
+                degreesPerTick, startGameTime, endGameTime,
+                timingFunction
             );
         }
         
@@ -160,6 +184,11 @@ public class RotationAnimation implements PortalAnimationDriver {
         
         public Builder setEndGameTime(long endGameTime) {
             this.endGameTime = endGameTime;
+            return this;
+        }
+        
+        public Builder setTimingFunction(TimingFunction timingFunction) {
+            this.timingFunction = timingFunction;
             return this;
         }
         

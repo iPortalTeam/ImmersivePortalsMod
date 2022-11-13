@@ -123,16 +123,19 @@ public class PortalAnimationCommand {
                                     
                                     for (Entity entity : portals) {
                                         if (entity instanceof Portal portal) {
+                                            PortalState endingState = portal.getAnimationEndingState();
+    
                                             long currTime = portal.level.getGameTime();
                                             portal.addThisSideAnimationDriver(
                                                 new RotationAnimation.Builder()
-                                                    .setInitialPosition(portal.getOriginPos())
-                                                    .setInitialOrientation(portal.getOrientationRotation())
+                                                    .setInitialPosition(endingState.fromPos)
+                                                    .setInitialOrientation(endingState.orientation)
                                                     .setRotationCenter(rotationCenter)
                                                     .setRotationAxis(axis)
                                                     .setDegreesPerTick(degrees / duration)
                                                     .setStartGameTime(currTime)
                                                     .setEndGameTime(currTime + duration)
+                                                    .setTimingFunction(TimingFunction.sine)
                                                     .build()
                                             );
                                             

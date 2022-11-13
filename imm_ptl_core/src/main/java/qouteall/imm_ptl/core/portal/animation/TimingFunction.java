@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.portal.animation;
 import org.jetbrains.annotations.NotNull;
 
 public enum TimingFunction {
-    linear, sine, circle;
+    linear, sine, circle; // don't rename
     
     @NotNull
     static TimingFunction fromString(String c) {
