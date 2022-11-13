@@ -2,14 +2,10 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,143 +18,42 @@ public class NormalAnimation implements PortalAnimationDriver {
         );
     }
     
-    public static class Phase {
-        public long durationTicks;
-        @Nullable
-        public Vec3 offset;
-        @Nullable
-        public DQuaternion rotation;
-        @Nullable
-        public Vec2d sizeScaling;
-        public TimingFunction timingFunction;
-        
-        public Phase(
-            long durationTicks,
-            @Nullable Vec3 offset,
-            @Nullable DQuaternion rotation,
-            @Nullable Vec2d sizeScaling,
-            TimingFunction timingFunction
-        ) {
-            this.durationTicks = durationTicks;
-            this.offset = offset;
-            this.rotation = rotation;
-            this.sizeScaling = sizeScaling;
-            this.timingFunction = timingFunction;
-        }
-        
-        private void transformIntermediary(UnilateralPortalState.Builder currentState, double phaseProgress) {
-            if (this.offset != null) {
-                currentState.offset(this.offset.scale(phaseProgress));
-            }
-            if (this.rotation != null) {
-                currentState.rotate(
-                    DQuaternion.interpolate(
-                        DQuaternion.identity,
-                        this.rotation,
-                        phaseProgress
-                    )
-                );
-            }
-            if (this.sizeScaling != null) {
-                currentState.scaleWidth(Mth.lerp(1, currentState.width, this.sizeScaling.x()));
-                currentState.scaleHeight(Mth.lerp(1, currentState.height, this.sizeScaling.y()));
-            }
-        }
-        
-        public void transformFull(UnilateralPortalState.Builder currentState) {
-            if (this.offset != null) {
-                currentState.offset(this.offset);
-            }
-            if (this.rotation != null) {
-                currentState.rotate(this.rotation);
-            }
-            if (this.sizeScaling != null) {
-                currentState.scaleWidth(this.sizeScaling.x());
-                currentState.scaleHeight(this.sizeScaling.y());
-            }
+    public static record Phase(
+        long durationTicks,
+        DeltaUnilateralPortalState delta,
+        TimingFunction timingFunction
+    ) {
+        public static Phase fromTag(CompoundTag tag) {
+            long durationTicks = tag.getLong("durationTicks");
+            DeltaUnilateralPortalState delta = DeltaUnilateralPortalState.fromTag(tag.getCompound("delta"));
+            TimingFunction timingFunction = TimingFunction.fromString(tag.getString("timingFunction"));
+            return new Phase(durationTicks, delta, timingFunction);
         }
         
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
             tag.putLong("durationTicks", durationTicks);
-            if (offset != null) {
-                Helper.putVec3d(tag, "offset", offset);
-            }
-            if (rotation != null) {
-                tag.put("rotation", rotation.toTag());
-            }
-            if (sizeScaling != null) {
-                tag.putDouble("widthScaling", sizeScaling.x());
-                tag.putDouble("heightScaling", sizeScaling.y());
-            }
-            tag.putString("timingFunction", timingFunction.toString());
+            tag.put("delta", delta.toTag());
+            tag.putString("timingFunction", timingFunction.name());
             return tag;
         }
         
-        
-        public static Phase fromTag(CompoundTag compoundTag) {
-            long durationTicks = compoundTag.getLong("durationTicks");
-            Vec3 offset = Helper.getVec3dOptional(compoundTag, "offset");
-            DQuaternion rotation =
-                compoundTag.contains("rotation") ?
-                    DQuaternion.fromTag(compoundTag.getCompound("rotation")) : null;
-            Vec2d sizeScaling = compoundTag.contains("widthScaling") ? new Vec2d(
-                compoundTag.getDouble("widthScaling"),
-                compoundTag.getDouble("heightScaling")
-            ) : null;
-            TimingFunction timingFunction =
-                compoundTag.contains("timingFunction") ?
-                    TimingFunction.fromString(compoundTag.getString("timingFunction")) :
-                    TimingFunction.linear;
-            
-            return new Phase(
-                durationTicks,
-                offset,
-                rotation,
-                sizeScaling,
-                timingFunction
-            );
-        }
-        
         public Phase getFlippedVersion() {
-            return new Phase(
-                durationTicks,
-                offset,
-                rotation == null ? null : rotation.hamiltonProduct(UnilateralPortalState.flipAxisH),
-                sizeScaling,
-                timingFunction
-            );
+            return new Phase(durationTicks, delta.getFlipped(), timingFunction);
         }
         
-        // generated by GitHub Copilot
         public static class Builder {
-            // duration can be zero
-            private long durationTicks;
-            private Vec3 offset;
-            private DQuaternion rotation;
-            private Vec2d sizeScaling;
+            private long durationTicks = 0;
+            private DeltaUnilateralPortalState delta = new DeltaUnilateralPortalState(null, null, null);
             private TimingFunction timingFunction = TimingFunction.linear;
-            
-            public Builder() {
-            }
             
             public Builder durationTicks(long durationTicks) {
                 this.durationTicks = durationTicks;
                 return this;
             }
             
-            public Builder offset(Vec3 position) {
-                this.offset = position;
-                return this;
-            }
-            
-            public Builder rotation(DQuaternion orientation) {
-                this.rotation = orientation;
-                return this;
-            }
-            
-            public Builder sizeScaling(Vec2d size) {
-                this.sizeScaling = size;
+            public Builder delta(DeltaUnilateralPortalState delta) {
+                this.delta = delta;
                 return this;
             }
             
@@ -168,7 +63,7 @@ public class NormalAnimation implements PortalAnimationDriver {
             }
             
             public Phase build() {
-                return new Phase(durationTicks, offset, rotation, sizeScaling, timingFunction);
+                return new Phase(durationTicks, delta, timingFunction);
             }
         }
     }
@@ -273,11 +168,11 @@ public class NormalAnimation implements PortalAnimationDriver {
                 double phaseProgress = (1 + passedTicksInThisRound - traversedTicks) / (double) phase.durationTicks;
                 phaseProgress = phase.timingFunction.mapProgress(phaseProgress);
                 
-                phase.transformIntermediary(stateBuilder, phaseProgress);
+                phase.delta.getPartial(phaseProgress).apply(stateBuilder);
                 break;
             }
             else {
-                phase.transformFull(stateBuilder);
+                phase.delta.apply(stateBuilder);
                 traversedTicks += phase.durationTicks;
             }
         }
@@ -301,7 +196,7 @@ public class NormalAnimation implements PortalAnimationDriver {
     
     private void end(UnilateralPortalState.Builder stateBuilder) {
         for (Phase phase : phases) {
-            phase.transformFull(stateBuilder);
+            phase.delta.apply(stateBuilder);
         }
     }
     
@@ -341,14 +236,20 @@ public class NormalAnimation implements PortalAnimationDriver {
     ) {
         Phase initialPhase = new Phase.Builder()
             .durationTicks(0)
-            .sizeScaling(startSizeScale)
             .timingFunction(timingFunction)
+            .delta(new DeltaUnilateralPortalState.Builder()
+                .scaleSize(startSizeScale)
+                .build()
+            )
             .build();
         
         Phase endingPhase = new Phase.Builder()
             .durationTicks(durationTicks)
-            .sizeScaling(toSizeScale)
             .timingFunction(timingFunction)
+            .delta(new DeltaUnilateralPortalState.Builder()
+                .scaleSize(toSizeScale)
+                .build()
+            )
             .build();
         
         return new Builder()

@@ -233,17 +233,15 @@ public class PortalAnimationCommand {
                 PortalAnimation animation = portal.animation;
                 animation.setPaused(portal, true);
                 
-                NormalAnimation.Phase initialPhase = new NormalAnimation.Phase.Builder()
+                NormalAnimation.Phase dummyPhase = new NormalAnimation.Phase.Builder()
                     .durationTicks(0)
-                    .offset(portal.getOriginPos())
-                    .rotation(portal.getOrientationRotation())
-                    .sizeScaling(new Vec2d(portal.width, portal.height))
                     .build();
                 NormalAnimation newNormalAnimation = new NormalAnimation.Builder()
-                    .phases(List.of(initialPhase))
+                    .phases(List.of(dummyPhase))
                     .loopCount(1)
                     .startingGameTime(animation.getEffectiveTime(portal.level.getGameTime()))
                     .build();
+                portal.animation.thisSideReferenceState = UnilateralPortalState.extractThisSide(portal.getPortalState());
                 portal.animation.thisSideAnimations.add(newNormalAnimation);
                 
                 PortalCommand.reloadPortal(portal);
@@ -272,10 +270,13 @@ public class PortalAnimationCommand {
                     
                     NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
                         .durationTicks(durationTicks)
-                        .offset(portal.getOriginPos())
-                        .rotation(portal.getOrientationRotation())
-                        .sizeScaling(new Vec2d(portal.width, portal.height))
                         .timingFunction(TimingFunction.sine)
+                        .delta(new DeltaUnilateralPortalState.Builder()
+                            .offset(portal.getOriginPos())
+                            .rotate(portal.getOrientationRotation())
+                            .scaleSize(new Vec2d(portal.width, portal.height))
+                            .build()
+                        )
                         .build();
                     ImmutableList<NormalAnimation.Phase> newPhases = ImmutableList.<NormalAnimation.Phase>builder()
                         .addAll(normalAnimation.phases)

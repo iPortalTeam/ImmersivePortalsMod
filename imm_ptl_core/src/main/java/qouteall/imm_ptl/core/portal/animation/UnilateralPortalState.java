@@ -11,6 +11,7 @@ import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Vec2d;
 
 /**
  * {@link PortalState} but one-sided.
@@ -114,6 +115,14 @@ public record UnilateralPortalState(
         double height = tag.getDouble("height");
         return new UnilateralPortalState(
             dimension, point, orientation, width, height
+        );
+    }
+    
+    public DeltaUnilateralPortalState subtract(UnilateralPortalState other) {
+        return new DeltaUnilateralPortalState(
+            position.subtract(other.position),
+            orientation.hamiltonProduct(other.orientation.getConjugated()),
+            new Vec2d(width / other.width, height / other.height)
         );
     }
     

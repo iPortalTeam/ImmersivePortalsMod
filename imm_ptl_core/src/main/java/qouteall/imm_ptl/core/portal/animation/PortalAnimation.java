@@ -37,9 +37,9 @@ public class PortalAnimation {
     public long timeOffset = 0;
     
     @Nullable
-    private UnilateralPortalState thisSideReferenceState;
+    public UnilateralPortalState thisSideReferenceState;
     @Nullable
-    private UnilateralPortalState otherSideReferenceState;
+    public UnilateralPortalState otherSideReferenceState;
     
     @Nullable
     public PortalState lastTickAnimatedState;
