@@ -36,15 +36,10 @@ public class PortalAnimation {
     public long pauseTime = 0;
     public long timeOffset = 0;
     
-    /**
-     * Cache for reducing floating-point error accumulation.
-     * When setting state to portal and then getting state from portal,
-     * the state may differ a little because it converts rotation and orientation quaternions.
-     */
     @Nullable
-    private UnilateralPortalState.Builder thisSideStateCache;
+    private UnilateralPortalState thisSideReferenceState;
     @Nullable
-    private UnilateralPortalState.Builder otherSideStateCache;
+    private UnilateralPortalState otherSideReferenceState;
     
     @Nullable
     public PortalState lastTickAnimatedState;
@@ -103,6 +98,20 @@ public class PortalAnimation {
         else {
             timeOffset = 0;
         }
+        
+        if (tag.contains("thisSideReferenceState")) {
+            thisSideReferenceState = UnilateralPortalState.fromTag(tag.getCompound("thisSideReferenceState"));
+        }
+        else {
+            thisSideReferenceState = null;
+        }
+        
+        if (tag.contains("otherSideReferenceState")) {
+            otherSideReferenceState = UnilateralPortalState.fromTag(tag.getCompound("otherSideReferenceState"));
+        }
+        else {
+            otherSideReferenceState = null;
+        }
     }
     
     public void writeToTag(CompoundTag tag) {
@@ -127,6 +136,13 @@ public class PortalAnimation {
         }
         if (timeOffset != 0) {
             tag.putLong("timeOffset", timeOffset);
+        }
+        
+        if (thisSideReferenceState != null) {
+            tag.put("thisSideReferenceState", thisSideReferenceState.toTag());
+        }
+        if (otherSideReferenceState != null) {
+            tag.put("otherSideReferenceState", otherSideReferenceState.toTag());
         }
     }
     
@@ -208,40 +224,37 @@ public class PortalAnimation {
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
         
-        UnilateralPortalState oldThisSideState = UnilateralPortalState.extractThisSide(portalState);
-        UnilateralPortalState oldOtherSideState = UnilateralPortalState.extractOtherSide(portalState);
-        
-        if (thisSideStateCache == null) {
-            thisSideStateCache = new UnilateralPortalState.Builder().from(oldOtherSideState);
+        if (thisSideReferenceState == null) {
+            thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
         }
-        if (otherSideStateCache == null) {
-            otherSideStateCache = new UnilateralPortalState.Builder().from(oldThisSideState);
+        if (otherSideReferenceState == null) {
+            otherSideReferenceState = UnilateralPortalState.extractOtherSide(portalState);
         }
         
-        thisSideStateCache.correctFrom(oldThisSideState);
-        otherSideStateCache.correctFrom(oldOtherSideState);
+        UnilateralPortalState.Builder thisSideState = new UnilateralPortalState.Builder().from(thisSideReferenceState);
+        UnilateralPortalState.Builder otherSideState = new UnilateralPortalState.Builder().from(otherSideReferenceState);
         
         int originalThisSideAnimationCount = thisSideAnimations.size();
         int originalOtherSideAnimationCount = otherSideAnimations.size();
         
         thisSideAnimations.removeIf(animationDriver -> {
-            boolean finished = animationDriver.update(thisSideStateCache, effectiveGameTime, effectivePartialTicks);
+            boolean finished = animationDriver.update(thisSideState, effectiveGameTime, effectivePartialTicks);
             return canRemoveAnimation && finished;
         });
         
         otherSideAnimations.removeIf(animationDriver -> {
-            boolean finished = animationDriver.update(otherSideStateCache, effectiveGameTime, effectivePartialTicks);
+            boolean finished = animationDriver.update(otherSideState, effectiveGameTime, effectivePartialTicks);
             return canRemoveAnimation && finished;
         });
         
-        if (thisSideStateCache.dimension != oldThisSideState.dimension() || otherSideStateCache.dimension != oldOtherSideState.dimension()) {
+        if (thisSideState.dimension != portalState.fromWorld || otherSideState.dimension != portalState.toWorld) {
             Helper.err("Portal animation driver cannot change dimension");
             portal.clearAnimationDrivers(true, true);
             return;
         }
         
-        UnilateralPortalState newThisSideState = thisSideStateCache.build();
-        UnilateralPortalState newOtherSideState = otherSideStateCache.build();
+        UnilateralPortalState newThisSideState = thisSideState.build();
+        UnilateralPortalState newOtherSideState = otherSideState.build();
         PortalState newPortalState =
             UnilateralPortalState.combine(newThisSideState, newOtherSideState);
         portal.setPortalState(newPortalState);
@@ -347,6 +360,7 @@ public class PortalAnimation {
                 animationDriver.obtainEndingState(from, portal.level.getGameTime());
             }
             thisSideAnimations.clear();
+            thisSideReferenceState = null;
         }
         
         if (clearOtherSide) {
@@ -354,6 +368,7 @@ public class PortalAnimation {
                 animationDriver.obtainEndingState(to, portal.level.getGameTime());
             }
             otherSideAnimations.clear();
+            otherSideReferenceState = null;
         }
         
         PortalState newState = UnilateralPortalState.combine(from.build(), to.build());

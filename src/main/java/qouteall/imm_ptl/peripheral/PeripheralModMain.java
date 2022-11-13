@@ -123,7 +123,10 @@ public class PeripheralModMain {
             "disable_default_animation", "nbt {defaultAnimation:{durationTicks:0}}"
         );
         registerPortalSubCommandStick(
-            "rotate_around_me", "animation rotate_infinitely @s 0 1 0 1.5"
+            "rotate_around_me", "animation rotate_infinitely @s 0 1 0 1.0"
+        );
+        registerPortalSubCommandStick(
+            "rotate_around_me_quickly", "animation rotate_infinitely @s 0 1 0 2.0"
         );
         registerPortalSubCommandStick(
             "expand_from_center", "animation expand_from_center 20"

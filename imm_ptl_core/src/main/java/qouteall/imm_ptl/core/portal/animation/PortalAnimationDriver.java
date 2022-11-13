@@ -45,7 +45,6 @@ public interface PortalAnimationDriver {
      * Invoked on both client side and server side.
      * On server side it's invoked during ticking.
      * On client side it's invoked both on ticking and before rendering.
-     * Note: no need to call `rectifyPortalCluster()` here.
      * @param stateBuilder Used for changing the portal state.
      * @param tickTime Tick time.
      * @param partialTicks Partial ticks. The real time is tickTime - 1 + partialTicks.

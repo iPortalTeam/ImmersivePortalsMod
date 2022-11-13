@@ -173,6 +173,27 @@ public record UnilateralPortalState(
             return this;
         }
         
+        public Builder offset(Vec3 offset) {
+            this.position = this.position.add(offset);
+            return this;
+        }
+        
+        public Builder rotate(DQuaternion rotation) {
+            this.orientation = rotation.hamiltonProduct(this.orientation);
+            return this;
+        }
+        
+        public Builder scaleWidth(double scale) {
+            this.width *= scale;
+            return this;
+        }
+        
+        public Builder scaleHeight(double scale) {
+            this.height *= scale;
+            return this;
+        }
+        
+        @Deprecated
         @NotNull
         public Builder correctFrom(UnilateralPortalState other) {
             this.dimension = other.dimension;

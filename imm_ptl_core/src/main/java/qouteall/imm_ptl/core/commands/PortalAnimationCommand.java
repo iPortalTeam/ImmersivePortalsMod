@@ -214,8 +214,8 @@ public class PortalAnimationCommand {
                     
                     portal.addThisSideAnimationDriver(NormalAnimation.createSizeAnimation(
                         portal,
-                        new Vec2d(endingState.width / animationScale, endingState.height / animationScale),
-                        new Vec2d(endingState.width, endingState.height),
+                        new Vec2d(1.0 / animationScale, 1.0 / animationScale),
+                        new Vec2d(1, 1),
                         portal.level.getGameTime(),
                         durationTicks,
                         TimingFunction.sine
@@ -235,9 +235,9 @@ public class PortalAnimationCommand {
                 
                 NormalAnimation.Phase initialPhase = new NormalAnimation.Phase.Builder()
                     .durationTicks(0)
-                    .position(portal.getOriginPos())
-                    .orientation(portal.getOrientationRotation())
-                    .size(new Vec2d(portal.width, portal.height))
+                    .offset(portal.getOriginPos())
+                    .rotation(portal.getOrientationRotation())
+                    .sizeScaling(new Vec2d(portal.width, portal.height))
                     .build();
                 NormalAnimation newNormalAnimation = new NormalAnimation.Builder()
                     .phases(List.of(initialPhase))
@@ -272,9 +272,9 @@ public class PortalAnimationCommand {
                     
                     NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
                         .durationTicks(durationTicks)
-                        .position(portal.getOriginPos())
-                        .orientation(portal.getOrientationRotation())
-                        .size(new Vec2d(portal.width, portal.height))
+                        .offset(portal.getOriginPos())
+                        .rotation(portal.getOrientationRotation())
+                        .sizeScaling(new Vec2d(portal.width, portal.height))
                         .timingFunction(TimingFunction.sine)
                         .build();
                     ImmutableList<NormalAnimation.Phase> newPhases = ImmutableList.<NormalAnimation.Phase>builder()
@@ -325,9 +325,9 @@ public class PortalAnimationCommand {
                         // insert a new phase to make it go to initial state
                         NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
                             .durationTicks(5)
-                            .position(firstPhase.position)
-                            .orientation(firstPhase.orientation)
-                            .size(firstPhase.size)
+                            .offset(firstPhase.offset)
+                            .rotation(firstPhase.rotation)
+                            .sizeScaling(firstPhase.sizeScaling)
                             .timingFunction(TimingFunction.sine)
                             .build();
                         phases = ImmutableList.<NormalAnimation.Phase>builder()
@@ -358,20 +358,20 @@ public class PortalAnimationCommand {
     }
     
     private static boolean isClose(NormalAnimation.Phase a, NormalAnimation.Phase b) {
-        if (a.position != null && b.position != null) {
-            if (a.position.distanceTo(b.position) > 0.01) {
+        if (a.offset != null && b.offset != null) {
+            if (a.offset.distanceTo(b.offset) > 0.01) {
                 return false;
             }
         }
         
-        if (a.orientation != null && b.orientation != null) {
-            if (!DQuaternion.isClose(a.orientation, b.orientation, 0.001)) {
+        if (a.rotation != null && b.rotation != null) {
+            if (!DQuaternion.isClose(a.rotation, b.rotation, 0.001)) {
                 return false;
             }
         }
         
-        if (a.size != null && b.size != null) {
-            if (Math.abs(a.size.x() - b.size.x()) > 0.01 || Math.abs(a.size.y() - b.size.y()) > 0.01) {
+        if (a.sizeScaling != null && b.sizeScaling != null) {
+            if (Math.abs(a.sizeScaling.x() - b.sizeScaling.x()) > 0.01 || Math.abs(a.sizeScaling.y() - b.sizeScaling.y()) > 0.01) {
                 return false;
             }
         }

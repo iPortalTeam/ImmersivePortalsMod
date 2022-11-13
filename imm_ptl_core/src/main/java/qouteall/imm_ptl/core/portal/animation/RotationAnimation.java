@@ -100,11 +100,11 @@ public class RotationAnimation implements PortalAnimationDriver {
         
         double angle = degreesPerTick * passedTicks;
         DQuaternion rotation = DQuaternion.rotationByDegrees(rotationAxis, angle);
-        stateBuilder.orientation(rotation.hamiltonProduct(initialOrientation));
+        stateBuilder.rotate(rotation);
         
-        Vec3 offset = initialPosition.subtract(rotationCenter);
-        Vec3 rotatedOffset = rotation.rotate(offset);
-        stateBuilder.position(rotationCenter.add(rotatedOffset));
+        Vec3 vec = initialPosition.subtract(rotationCenter);
+        Vec3 rotatedVec = rotation.rotate(vec);
+        stateBuilder.offset(rotatedVec.subtract(vec));
         
         return ended;
     }
