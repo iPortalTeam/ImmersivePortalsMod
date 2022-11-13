@@ -108,6 +108,56 @@ public class PortalAnimationCommand {
             )
         );
         
+        builder.then(Commands.literal("rotate_portals")
+            .then(Commands.argument("portals", EntityArgument.entities())
+                .then(Commands.argument("rotationCenter", Vec3Argument.vec3())
+                    .then(Commands.argument("axis", Vec3Argument.vec3(false))
+                        .then(Commands.argument("degrees", DoubleArgumentType.doubleArg())
+                            .then(Commands.argument("duration", IntegerArgumentType.integer(1, 10000))
+                                .executes(context -> {
+                                    Collection<? extends Entity> portals = EntityArgument.getEntities(context, "portals");
+                                    Vec3 rotationCenter = Vec3Argument.getVec3(context, "rotationCenter");
+                                    Vec3 axis = Vec3Argument.getVec3(context, "axis").normalize();
+                                    double degrees = DoubleArgumentType.getDouble(context, "degrees");
+                                    int duration = IntegerArgumentType.getInteger(context, "duration");
+                                    
+                                    for (Entity entity : portals) {
+                                        if (entity instanceof Portal portal) {
+                                            long currTime = portal.level.getGameTime();
+                                            portal.addThisSideAnimationDriver(
+                                                new RotationAnimation.Builder()
+                                                    .setInitialPosition(portal.getOriginPos())
+                                                    .setInitialOrientation(portal.getOrientationRotation())
+                                                    .setRotationCenter(rotationCenter)
+                                                    .setRotationAxis(axis)
+                                                    .setDegreesPerTick(degrees / duration)
+                                                    .setStartGameTime(currTime)
+                                                    .setEndGameTime(currTime + duration)
+                                                    .build()
+                                            );
+                                            
+                                            PortalCommand.reloadPortal(portal);
+                                        }
+                                        else {
+                                            context.getSource().sendFailure(Component.literal("the entity is not a portal"));
+                                        }
+                                    }
+                                    
+                                    for (Entity entity : portals) {
+                                        if (entity instanceof Portal portal) {
+                                            PortalCommand.reloadPortal(portal);
+                                        }
+                                    }
+                                    
+                                    return 0;
+                                })
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        
         builder.then(Commands.literal("rotate_along_normal")
             .then(Commands.argument("degreesPerTick", DoubleArgumentType.doubleArg())
                 .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {

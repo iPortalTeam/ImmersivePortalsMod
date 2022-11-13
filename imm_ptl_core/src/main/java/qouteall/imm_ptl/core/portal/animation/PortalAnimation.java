@@ -126,7 +126,9 @@ public class PortalAnimation {
               2. tick entities (including portals)
               So use 1 as partial tick
              */
-            updateAnimationDriver(portal, portal.level.getGameTime(), 1, true);
+            updateAnimationDriver(
+                portal, portal.level.getGameTime(), 1, true, true
+            );
         }
         else {
             // handled on client
@@ -141,7 +143,13 @@ public class PortalAnimation {
         ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(portal);
     }
     
-    public void updateAnimationDriver(Portal portal, long gameTime, float partialTicks, boolean isTicking) {
+    public void updateAnimationDriver(
+        Portal portal,
+        long gameTime,
+        float partialTicks,
+        boolean isTicking,
+        boolean canRemoveAnimation
+    ) {
         if (hasRunningAnimationDriver()) {
             PortalState portalState = portal.getPortalState();
             if (portalState == null) {
@@ -166,12 +174,12 @@ public class PortalAnimation {
             
             thisSideAnimations.removeIf(animationDriver -> {
                 boolean finished = animationDriver.update(thisSideStateCache, gameTime, partialTicks);
-                return finished;
+                return canRemoveAnimation && finished;
             });
             
             otherSideAnimations.removeIf(animationDriver -> {
                 boolean finished = animationDriver.update(otherSideStateCache, gameTime, partialTicks);
-                return finished;
+                return canRemoveAnimation && finished;
             });
             
             if (thisSideStateCache.dimension != oldThisSideState.dimension() || otherSideStateCache.dimension != oldOtherSideState.dimension()) {
@@ -202,7 +210,8 @@ public class PortalAnimation {
                 if (thisSideAnimations.size() != originalThisSideAnimationCount ||
                     otherSideAnimations.size() != originalOtherSideAnimationCount
                 ) {
-                    PortalExtension.forClusterPortals(portal, Portal::reloadAndSyncToClientNextTick);
+                    // delay a little to make client animation stopping smoother
+                    PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
                 }
             }
         }

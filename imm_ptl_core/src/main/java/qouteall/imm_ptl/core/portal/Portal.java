@@ -315,6 +315,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         reloadAndSyncNextTick = true;
     }
     
+    public void reloadAndSyncToClientWithTickDelay(int tickDelay) {
+        Validate.isTrue(!level.isClientSide(), "must be used on server side");
+        IPGlobal.serverTaskList.addTask(MyTaskList.withDelay(tickDelay, () -> {
+            reloadAndSyncToClientNextTick();
+            return true;
+        }));
+    }
+    
     /**
      * The bounding box, normal vector, content direction vector is cached
      * If the portal attributes get changed, these cache should be updated

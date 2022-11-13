@@ -117,7 +117,11 @@ public class ClientPortalAnimationManagement {
                 portal,
                 usedTickTime,
                 usedPartialTicks,
-                isTicking
+                isTicking,
+                !isTicking
+                // in client, the animation is updated in two cases: ticking and before rendering a frame
+                // if it's ticking, the animation should be updated as the end of the tick which is ahead of the current time
+                // to make the animation stop smoothly, don't remove the animation during ticking
             );
             
             // remove the entry if animation finishes
