@@ -56,7 +56,7 @@ public class PortalExtension {
      */
     public boolean adjustPositionAfterTeleport = true;
     
-    public boolean bindCluster = false;
+    public boolean bindCluster = true;
     
     // these are stored in data
     @Nullable
@@ -96,7 +96,7 @@ public class PortalExtension {
             bindCluster = compoundTag.getBoolean("bindCluster");
         }
         else {
-            bindCluster = false;
+            bindCluster = true;
         }
         
         if (compoundTag.contains("reversePortalId")) {
