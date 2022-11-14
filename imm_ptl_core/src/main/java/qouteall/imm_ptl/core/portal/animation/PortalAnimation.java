@@ -427,7 +427,7 @@ public class PortalAnimation {
     
     static void updateThisTickAnimatedState(Portal secondaryPortal) {
         if (secondaryPortal != null) {
-            if (secondaryPortal.animation.thisTickAnimatedState != null) {
+            if (!secondaryPortal.level.isClientSide() && secondaryPortal.animation.thisTickAnimatedState != null) {
                 Helper.log("Conflicting animation in " + secondaryPortal);
                 secondaryPortal.clearAnimationDrivers(true, true);
             }

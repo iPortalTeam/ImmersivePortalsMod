@@ -459,4 +459,24 @@ public class PortalExtension {
         }
     }
     
+    public static void forEachClusterPortal(
+        Portal portal,
+        Consumer<Portal> forThis,
+        Consumer<Portal> forFlipped,
+        Consumer<Portal> forReverse,
+        Consumer<Portal> forParallel
+    ) {
+        forThis.accept(portal);
+        PortalExtension extension = PortalExtension.get(portal);
+        if (extension.flippedPortal != null) {
+            forFlipped.accept(extension.flippedPortal);
+        }
+        if (extension.reversePortal != null) {
+            forReverse.accept(extension.reversePortal);
+        }
+        if (extension.parallelPortal != null) {
+            forParallel.accept(extension.parallelPortal);
+        }
+    }
+    
 }

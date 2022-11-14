@@ -29,8 +29,12 @@ public class PortalAnimationCommand {
     static void registerPortalAnimationCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
         builder.then(Commands.literal("clear")
             .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
-                PortalExtension.forClusterPortals(
-                    portal, portal1 -> portal1.clearAnimationDrivers(true, true)
+                PortalExtension.forEachClusterPortal(
+                    portal,
+                    thisPortal -> thisPortal.clearAnimationDrivers(true, false),
+                    flippedPortal -> flippedPortal.clearAnimationDrivers(true, false),
+                    reversePortal -> reversePortal.clearAnimationDrivers(false, true),
+                    parallelPortal -> parallelPortal.clearAnimationDrivers(false, true)
                 );
                 
                 PortalCommand.reloadPortal(portal);
@@ -65,23 +69,29 @@ public class PortalAnimationCommand {
                             Vec3 axis = Vec3Argument.getVec3(context, "rotationAxis").normalize();
                             double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
                             
-                            portal.addThisSideAnimationDriver(
-                                new RotationAnimation.Builder()
-                                    .setInitialPosition(portal.getOriginPos())
-                                    .setInitialOrientation(portal.getOrientationRotation())
-                                    .setRotationCenter(rotationCenter)
-                                    .setRotationAxis(axis)
-                                    .setDegreesPerTick(angularVelocity)
-                                    .setStartGameTime(portal.level.getGameTime())
-                                    .setEndGameTime(Long.MAX_VALUE)
-                                    .build()
-                            );
+                            giveRotationAnimation(portal, rotationCenter, axis, angularVelocity);
                             
                             PortalCommand.reloadPortal(portal);
                         }))
                     )
                 )
             )
+        );
+        
+        builder.then(Commands.literal("rotate_infinitely_random")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                Vec3 rotationCenter = context.getSource().getPosition();
+                Vec3 axis = new Vec3(
+                    Math.random() - 0.5,
+                    Math.random() - 0.5,
+                    Math.random() - 0.5
+                ).normalize();
+                double angularVelocity = Math.random() * 3;
+                
+                giveRotationAnimation(portal, rotationCenter, axis, angularVelocity);
+                
+                PortalCommand.reloadPortal(portal);
+            }))
         );
         
         builder.then(Commands.literal("rotate_portals_infinitely")
@@ -97,17 +107,7 @@ public class PortalAnimationCommand {
                                 
                                 for (Entity entity : portals) {
                                     if (entity instanceof Portal portal) {
-                                        portal.addThisSideAnimationDriver(
-                                            new RotationAnimation.Builder()
-                                                .setInitialPosition(portal.getOriginPos())
-                                                .setInitialOrientation(portal.getOrientationRotation())
-                                                .setRotationCenter(rotationCenter)
-                                                .setRotationAxis(axis)
-                                                .setDegreesPerTick(angularVelocity)
-                                                .setStartGameTime(portal.level.getGameTime())
-                                                .setEndGameTime(Long.MAX_VALUE)
-                                                .build()
-                                        );
+                                        giveRotationAnimation(portal, rotationCenter, axis, angularVelocity);
                                         
                                         PortalCommand.reloadPortal(portal);
                                     }
@@ -188,17 +188,7 @@ public class PortalAnimationCommand {
                 .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
                     double angularVelocity = DoubleArgumentType.getDouble(context, "degreesPerTick");
                     
-                    portal.addThisSideAnimationDriver(
-                        new RotationAnimation.Builder()
-                            .setInitialPosition(portal.getOriginPos())
-                            .setInitialOrientation(portal.getOrientationRotation())
-                            .setRotationCenter(portal.getOriginPos())
-                            .setRotationAxis(portal.getNormal())
-                            .setDegreesPerTick(angularVelocity)
-                            .setStartGameTime(portal.level.getGameTime())
-                            .setEndGameTime(Long.MAX_VALUE)
-                            .build()
-                    );
+                    giveRotationAnimation(portal, portal.getOriginPos(), portal.getNormal(), angularVelocity);
                     
                     PortalCommand.reloadPortal(portal);
                 }))
@@ -359,6 +349,20 @@ public class PortalAnimationCommand {
         
         builder.then(builderBuilder);
         
+    }
+    
+    private static void giveRotationAnimation(Portal portal, Vec3 rotationCenter, Vec3 axis, double angularVelocity) {
+        portal.addThisSideAnimationDriver(
+            new RotationAnimation.Builder()
+                .setInitialPosition(portal.getOriginPos())
+                .setInitialOrientation(portal.getOrientationRotation())
+                .setRotationCenter(rotationCenter)
+                .setRotationAxis(axis)
+                .setDegreesPerTick(angularVelocity)
+                .setStartGameTime(portal.level.getGameTime())
+                .setEndGameTime(Long.MAX_VALUE)
+                .build()
+        );
     }
     
     @Nullable

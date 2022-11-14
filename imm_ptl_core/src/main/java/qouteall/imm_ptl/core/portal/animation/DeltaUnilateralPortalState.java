@@ -80,7 +80,7 @@ public record DeltaUnilateralPortalState(
         DeltaUnilateralPortalState a, DeltaUnilateralPortalState b,
         double progress
     ) {
-        return a.getPartial(progress).combine(b.getPartial(1 - progress));
+        return a.getPartial(1 - progress).combine(b.getPartial(progress));
     }
     
     public DeltaUnilateralPortalState getFlipped() {

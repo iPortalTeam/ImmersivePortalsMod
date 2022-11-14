@@ -44,7 +44,7 @@ public class NormalAnimation implements PortalAnimationDriver {
         
         public static class Builder {
             private long durationTicks = 0;
-            private DeltaUnilateralPortalState delta = new DeltaUnilateralPortalState(null, null, null);
+            private DeltaUnilateralPortalState delta = DeltaUnilateralPortalState.identity;
             private TimingFunction timingFunction = TimingFunction.linear;
             
             public Builder durationTicks(long durationTicks) {
