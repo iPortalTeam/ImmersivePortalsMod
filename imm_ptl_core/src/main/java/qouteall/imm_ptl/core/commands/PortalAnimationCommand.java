@@ -265,13 +265,18 @@ public class PortalAnimationCommand {
                         return;
                     }
                     
-                    PortalState lastPortalState = portal.getAnimationEndingState();
                     PortalState currentPortalState = portal.getPortalState();
                     assert currentPortalState != null;
                     
+                    UnilateralPortalState referenceState = animation.thisSideReferenceState;
+                    if (referenceState == null) {
+                        context.getSource().sendFailure(Component.literal("No reference state"));
+                        return;
+                    }
+                    
                     DeltaUnilateralPortalState delta =
                         UnilateralPortalState.extractThisSide(currentPortalState)
-                            .subtract(UnilateralPortalState.extractThisSide(lastPortalState));
+                            .subtract(referenceState);
                     
                     NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
                         .durationTicks(durationTicks)
@@ -313,24 +318,22 @@ public class PortalAnimationCommand {
                     
                     List<NormalAnimation.Phase> phases = animationToBuild.get().phases;
                     
-                    DeltaUnilateralPortalState combinedDelta = phases.stream()
-                        .map(NormalAnimation.Phase::delta)
-                        .reduce(DeltaUnilateralPortalState::combine)
-                        .orElse(null);
-                    
-                    if (combinedDelta == null) {
+                    if (phases.isEmpty()) {
+                        context.getSource().sendFailure(Component.literal("No phases to loop"));
                         return;
                     }
                     
-                    DeltaUnilateralPortalState combinedDeltaPurged = combinedDelta.purgeFPError();
-                    if (!combinedDeltaPurged.isIdentity()) {
+                    NormalAnimation.Phase lastPhase = phases.get(phases.size() - 1);
+                    DeltaUnilateralPortalState lastPhaseDelta = lastPhase.delta().purgeFPError();
+                    
+                    if (!lastPhaseDelta.isIdentity()) {
                         // the animation does not return to the beginning state
                         // insert another stage to make it return to the beginning state
                         // otherwise it will abruptly jump
                         NormalAnimation.Phase newPhase = new NormalAnimation.Phase.Builder()
                             .durationTicks(5)
                             .timingFunction(TimingFunction.sine)
-                            .delta(combinedDeltaPurged.getInverse())
+                            .delta(DeltaUnilateralPortalState.identity)
                             .build();
                         phases = ImmutableList.<NormalAnimation.Phase>builder()
                             .addAll(phases)

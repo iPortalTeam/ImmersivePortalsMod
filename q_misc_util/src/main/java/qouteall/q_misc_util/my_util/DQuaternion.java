@@ -96,10 +96,11 @@ public class DQuaternion {
         double rotationAngle
     ) {
         double s = Math.sin(rotationAngle / 2.0F);
+        Vec3 normalizedAxis = axis.normalize();
         return new DQuaternion(
-            axis.x() * s,
-            axis.y() * s,
-            axis.z() * s,
+            normalizedAxis.x() * s,
+            normalizedAxis.y() * s,
+            normalizedAxis.z() * s,
             Math.cos(rotationAngle / 2.0F)
         );
     }
