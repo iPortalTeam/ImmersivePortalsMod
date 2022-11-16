@@ -189,6 +189,10 @@ public class PortalAnimation {
             return;
         }
         
+        if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
+            return;
+        }
+        
         if (paused) {
             pauseTime = portal.level.getGameTime();
             PortalState portalState = portal.getPortalState();
@@ -213,8 +217,12 @@ public class PortalAnimation {
                 if (otherSideReferenceState != null) {
                     otherSideReferenceState = otherSideReferenceState.apply(otherSideDelta);
                 }
+                pausedThisSideState = null;
+                pausedOtherSideState = null;
             }
         }
+        
+        PortalExtension.forClusterPortals(portal, Portal::reloadAndSyncToClientNextTick);
     }
     
     public long getEffectiveTime(long gameTime) {
@@ -242,6 +250,10 @@ public class PortalAnimation {
             if (otherSideAnimations.isEmpty()) {
                 otherSideReferenceState = null;
             }
+            
+//            if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
+//                timeOffset = 0;
+//            }
         }
         else {
             // handled on client
@@ -438,6 +450,8 @@ public class PortalAnimation {
     public void clearAnimationDrivers(Portal portal, boolean clearThisSide, boolean clearOtherSide) {
         Validate.isTrue(!portal.level.isClientSide());
         
+        setPaused(portal, false);
+        
         if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
             return;
         }
@@ -463,6 +477,8 @@ public class PortalAnimation {
         
         PortalState newState = UnilateralPortalState.combine(from.build(), to.build());
         portal.setPortalState(newState);
+        
+        PortalExtension.get(portal).rectifyClusterPortals(portal, true);
     }
     
     private void applyEndingState(
@@ -471,9 +487,10 @@ public class PortalAnimation {
         AnimationContext context,
         UnilateralPortalState.Builder from, UnilateralPortalState.Builder to
     ) {
+        long effectiveGameTime = portal.level.getGameTime() + timeOffset;
         if (includeThisSide) {
             for (PortalAnimationDriver animationDriver : thisSideAnimations) {
-                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(portal.level.getGameTime(), context);
+                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(effectiveGameTime, context);
                 if (endingResult != null) {
                     from.apply(endingResult);
                 }
@@ -483,7 +500,7 @@ public class PortalAnimation {
         
         if (includeOtherSide) {
             for (PortalAnimationDriver animationDriver : otherSideAnimations) {
-                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(portal.level.getGameTime(), context);
+                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(effectiveGameTime, context);
                 if (endingResult != null) {
                     to.apply(endingResult);
                 }

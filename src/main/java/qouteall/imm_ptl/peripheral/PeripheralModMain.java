@@ -124,6 +124,13 @@ public class PeripheralModMain {
         );
         
         registerPortalSubCommandStick(
+            "pause_animation", "animation pause"
+        );
+        registerPortalSubCommandStick(
+            "resume_animation", "animation resume"
+        );
+        
+        registerPortalSubCommandStick(
             "rotate_around_y", "animation rotate_infinitely @s 0 1 0 1.0"
         );
         registerPortalSubCommandStick(

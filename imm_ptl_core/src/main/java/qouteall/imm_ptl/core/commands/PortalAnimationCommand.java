@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
@@ -58,6 +59,20 @@ public class PortalAnimationCommand {
                 );
                 PortalCommand.reloadPortal(portal);
             }))
+        );
+        
+        builder.then(Commands.literal("all_pause")
+            .executes(context -> {
+                ServerLevel level = context.getSource().getLevel();
+                for (Entity entity : level.getAllEntities()) {
+                    if (entity instanceof Portal portal) {
+                        PortalExtension.forClusterPortals(
+                            portal, Portal::pauseAnimation
+                        );
+                    }
+                }
+                return 0;
+            })
         );
         
         builder.then(Commands.literal("rotate_infinitely")
@@ -381,7 +396,7 @@ public class PortalAnimationCommand {
                 .setRotationCenter(rotationCenter)
                 .setRotationAxis(axis)
                 .setDegreesPerTick(angularVelocity)
-                .setStartGameTime(portal.level.getGameTime())
+                .setStartGameTime(portal.animation.getEffectiveTime(portal.level.getGameTime()))
                 .setEndGameTime(Long.MAX_VALUE)
                 .build()
         );
