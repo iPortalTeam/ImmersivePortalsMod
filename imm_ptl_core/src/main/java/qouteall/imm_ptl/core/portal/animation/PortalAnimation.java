@@ -190,7 +190,7 @@ public class PortalAnimation {
             updateAnimationDriver(
                 portal, portal.animation, portal.level.getGameTime(), 1, true, true
             );
-    
+            
             if (thisSideAnimations.isEmpty()) {
                 thisSideReferenceState = null;
             }
@@ -230,23 +230,61 @@ public class PortalAnimation {
         
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
-    
+        
         initializeReferenceStates(portalState);
-    
+        assert thisSideReferenceState != null;
+        assert otherSideReferenceState != null;
+        
         UnilateralPortalState.Builder thisSideState = new UnilateralPortalState.Builder().from(thisSideReferenceState);
         UnilateralPortalState.Builder otherSideState = new UnilateralPortalState.Builder().from(otherSideReferenceState);
         
         int originalThisSideAnimationCount = thisSideAnimations.size();
         int originalOtherSideAnimationCount = otherSideAnimations.size();
         
+        AnimationContext context = new AnimationContext(portal.level.isClientSide(), isTicking);
+        
         thisSideAnimations.removeIf(animationDriver -> {
-            boolean finished = animationDriver.update(thisSideState, effectiveGameTime, effectivePartialTicks);
-            return canRemoveAnimation && finished;
+            AnimationResult animationResult = animationDriver.getAnimationResult(effectiveGameTime, effectivePartialTicks, context);
+            
+            if (animationResult.delta() != null) {
+                thisSideState.apply(animationResult.delta());
+            }
+            
+            boolean animationRemoved = canRemoveAnimation && animationResult.isFinished();
+            
+            if (animationRemoved) {
+                if (animationResult.delta() != null) {
+                    assert thisSideReferenceState != null;
+                    thisSideReferenceState = new UnilateralPortalState.Builder()
+                        .from(thisSideReferenceState)
+                        .apply(animationResult.delta())
+                        .build();
+                }
+            }
+            
+            return animationRemoved;
         });
         
         otherSideAnimations.removeIf(animationDriver -> {
-            boolean finished = animationDriver.update(otherSideState, effectiveGameTime, effectivePartialTicks);
-            return canRemoveAnimation && finished;
+            AnimationResult animationResult = animationDriver.getAnimationResult(effectiveGameTime, effectivePartialTicks, context);
+            
+            if (animationResult.delta() != null) {
+                otherSideState.apply(animationResult.delta());
+            }
+            
+            boolean animationRemoved = canRemoveAnimation && animationResult.isFinished();
+            
+            if (animationRemoved) {
+                if (animationResult.delta() != null) {
+                    assert otherSideReferenceState != null;
+                    otherSideReferenceState = new UnilateralPortalState.Builder()
+                        .from(otherSideReferenceState)
+                        .apply(animationResult.delta())
+                        .build();
+                }
+            }
+            
+            return animationRemoved;
         });
         
         if (thisSideState.dimension != portalState.fromWorld || otherSideState.dimension != portalState.toWorld) {
@@ -358,6 +396,8 @@ public class PortalAnimation {
         if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
             return;
         }
+    
+        AnimationContext context = new AnimationContext(portal.level.isClientSide(), true);
         
         PortalState portalState = portal.getPortalState();
         assert portalState != null;
@@ -365,25 +405,46 @@ public class PortalAnimation {
             .from(UnilateralPortalState.extractThisSide(portalState));
         UnilateralPortalState.Builder to = new UnilateralPortalState.Builder()
             .from(UnilateralPortalState.extractOtherSide(portalState));
-        
+    
+        applyEndingState(portal, clearThisSide, clearOtherSide, context, from, to);
+    
         if (clearThisSide) {
-            for (PortalAnimationDriver animationDriver : thisSideAnimations) {
-                animationDriver.obtainEndingState(from, portal.level.getGameTime());
-            }
-            thisSideAnimations.clear();
             thisSideReferenceState = null;
         }
-        
         if (clearOtherSide) {
-            for (PortalAnimationDriver animationDriver : otherSideAnimations) {
-                animationDriver.obtainEndingState(to, portal.level.getGameTime());
-            }
-            otherSideAnimations.clear();
             otherSideReferenceState = null;
         }
         
+        
         PortalState newState = UnilateralPortalState.combine(from.build(), to.build());
         portal.setPortalState(newState);
+    }
+    
+    private void applyEndingState(
+        Portal portal,
+        boolean includeThisSide, boolean includeOtherSide,
+        AnimationContext context,
+        UnilateralPortalState.Builder from, UnilateralPortalState.Builder to
+    ) {
+        if (includeThisSide) {
+            for (PortalAnimationDriver animationDriver : thisSideAnimations) {
+                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(portal.level.getGameTime(), context);
+                if (endingResult != null) {
+                    from.apply(endingResult);
+                }
+            }
+            thisSideAnimations.clear();
+        }
+        
+        if (includeOtherSide) {
+            for (PortalAnimationDriver animationDriver : otherSideAnimations) {
+                DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(portal.level.getGameTime(), context);
+                if (endingResult != null) {
+                    to.apply(endingResult);
+                }
+            }
+            otherSideAnimations.clear();
+        }
     }
     
     public PortalState getAnimationEndingState(Portal portal) {
@@ -399,13 +460,11 @@ public class PortalAnimation {
         UnilateralPortalState.Builder to = new UnilateralPortalState.Builder()
             .from(otherSideReferenceState);
         
-        for (PortalAnimationDriver animationDriver : thisSideAnimations) {
-            animationDriver.obtainEndingState(from, portal.level.getGameTime());
-        }
-        
-        for (PortalAnimationDriver animationDriver : otherSideAnimations) {
-            animationDriver.obtainEndingState(to, portal.level.getGameTime());
-        }
+        applyEndingState(
+            portal, true, true,
+            new AnimationContext(portal.level.isClientSide(), true),
+            from, to
+        );
         
         return UnilateralPortalState.combine(from.build(), to.build());
     }

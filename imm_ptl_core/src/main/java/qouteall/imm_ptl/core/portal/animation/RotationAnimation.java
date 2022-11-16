@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -80,11 +81,7 @@ public class RotationAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public boolean update(
-        UnilateralPortalState.Builder stateBuilder,
-        long tickTime,
-        float partialTicks
-    ) {
+    public AnimationResult getAnimationResult(long tickTime, float partialTicks, AnimationContext context) {
         double passedTicks = ((double) (tickTime - 1 - startGameTime)) + partialTicks;
         
         boolean ended = false;
@@ -100,23 +97,29 @@ public class RotationAnimation implements PortalAnimationDriver {
         
         double angle = degreesPerTick * passedTicks;
         DQuaternion rotation = DQuaternion.rotationByDegrees(rotationAxis, angle);
-        stateBuilder.rotate(rotation);
         
         Vec3 vec = initialPosition.subtract(rotationCenter);
         Vec3 rotatedVec = rotation.rotate(vec);
-        stateBuilder.offset(rotatedVec.subtract(vec));
+        Vec3 offset = rotatedVec.subtract(vec);
         
-        return ended;
+        return new AnimationResult(
+            new DeltaUnilateralPortalState(
+                offset, rotation, null
+            ),
+            ended
+        );
     }
     
+    @Nullable
     @Override
-    public void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {
+    public DeltaUnilateralPortalState getEndingResult(long tickTime, AnimationContext context) {
         if (endGameTime == Long.MAX_VALUE) {
             // infinite animation, keep the current state when stopping
-            return;
+            return null;
         }
-        
-        update(stateBuilder, endGameTime, 0);
+        else {
+            return getAnimationResult(endGameTime, 0, context).delta();
+        }
     }
     
     @Override

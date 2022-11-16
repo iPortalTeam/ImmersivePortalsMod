@@ -205,6 +205,20 @@ public record UnilateralPortalState(
             return this;
         }
         
+        public Builder apply(DeltaUnilateralPortalState delta) {
+            if (delta.offset() != null) {
+                this.position = this.position.add(delta.offset());
+            }
+            if (delta.rotation() != null) {
+                this.orientation = delta.rotation().hamiltonProduct(this.orientation);
+            }
+            if (delta.sizeScaling() != null) {
+                this.width *= delta.sizeScaling().x();
+                this.height *= delta.sizeScaling().y();
+            }
+            return this;
+        }
+        
         @Deprecated
         @NotNull
         public Builder correctFrom(UnilateralPortalState other) {

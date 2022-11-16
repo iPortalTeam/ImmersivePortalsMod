@@ -2,8 +2,10 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.Helper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,24 +47,30 @@ public interface PortalAnimationDriver {
      * Invoked on both client side and server side.
      * On server side it's invoked during ticking.
      * On client side it's invoked both on ticking and before rendering.
-     * @param stateBuilder Used for changing the portal state.
-     * @param tickTime Tick time.
+     *
+     * @param tickTime     Tick time.
      * @param partialTicks Partial ticks. The real time is tickTime - 1 + partialTicks.
-     * @return whether the animation finishes
+     * @param context      The context of the animation.
+     * @return The animation result
      */
-    boolean update(
-        UnilateralPortalState.Builder stateBuilder,
+    @Nonnull
+    AnimationResult getAnimationResult(
         long tickTime,
-        float partialTicks
+        float partialTicks,
+        AnimationContext context
     );
     
     /**
      * Get the ending state of the animation.
      * This is used when creating a new animation when existing animation is running.
-     * @param stateBuilder Used for outputting the portal state.
+     *
      * @param tickTime World game time.
+     * @param context
      */
-    default void obtainEndingState(UnilateralPortalState.Builder stateBuilder, long tickTime) {}
+    @Nullable
+    default DeltaUnilateralPortalState getEndingResult(long tickTime, AnimationContext context) {
+        return null;
+    }
     
     /**
      * @return A flipped version of this animation for the flipped portal.
