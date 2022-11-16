@@ -112,6 +112,10 @@ public class ClientPortalAnimationManagement {
             if (!portal.animation.hasRunningAnimationDriver()) {
                 return true;
             }
+    
+            if (portal.animation.isPaused()) {
+                return false;
+            }
             
             portal.animation.updateAnimationDriver(
                 portal,
@@ -126,7 +130,7 @@ public class ClientPortalAnimationManagement {
             );
             
             // remove the entry if animation finishes or is paused
-            return portal.animation.isPaused() || !portal.animation.hasRunningAnimationDriver();
+            return !portal.animation.hasRunningAnimationDriver();
         });
     }
     

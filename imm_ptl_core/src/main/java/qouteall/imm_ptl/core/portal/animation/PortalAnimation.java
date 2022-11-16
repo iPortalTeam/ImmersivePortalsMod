@@ -177,7 +177,11 @@ public class PortalAnimation {
     }
     
     public boolean hasRunningAnimationDriver() {
-        return !isPaused() && (!thisSideAnimations.isEmpty() || !otherSideAnimations.isEmpty());
+        return !isPaused() && hasAnimationDriver();
+    }
+    
+    public boolean hasAnimationDriver() {
+        return !thisSideAnimations.isEmpty() || !otherSideAnimations.isEmpty();
     }
     
     public boolean isPaused() {
@@ -186,10 +190,6 @@ public class PortalAnimation {
     
     public void setPaused(Portal portal, boolean paused) {
         if (paused == isPaused()) {
-            return;
-        }
-        
-        if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
             return;
         }
         
@@ -254,6 +254,11 @@ public class PortalAnimation {
 //            if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
 //                timeOffset = 0;
 //            }
+    
+            if (!hasAnimationDriver()) {
+                // when having no animation, don't pause
+                setPaused(portal, false);
+            }
         }
         else {
             // handled on client
