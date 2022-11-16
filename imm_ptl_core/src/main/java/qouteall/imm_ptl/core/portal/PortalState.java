@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -153,4 +154,11 @@ public class PortalState {
         return rotation.rotate(getNormal().scale(-1));
     }
     
+    public UnilateralPortalState getThisSideState() {
+        return UnilateralPortalState.extractThisSide(this);
+    }
+    
+    public UnilateralPortalState getOtherSideState() {
+        return UnilateralPortalState.extractOtherSide(this);
+    }
 }

@@ -42,6 +42,11 @@ public class PortalAnimation {
     public UnilateralPortalState otherSideReferenceState;
     
     @Nullable
+    private UnilateralPortalState pausedThisSideState;
+    @Nullable
+    private UnilateralPortalState pausedOtherSideState;
+    
+    @Nullable
     public PortalState lastTickAnimatedState;
     @Nullable
     public PortalState thisTickAnimatedState;
@@ -112,6 +117,20 @@ public class PortalAnimation {
         else {
             otherSideReferenceState = null;
         }
+        
+        if (tag.contains("pausedThisSideState")) {
+            pausedThisSideState = UnilateralPortalState.fromTag(tag.getCompound("pausedThisSideState"));
+        }
+        else {
+            pausedThisSideState = null;
+        }
+        
+        if (tag.contains("pausedOtherSideState")) {
+            pausedOtherSideState = UnilateralPortalState.fromTag(tag.getCompound("pausedOtherSideState"));
+        }
+        else {
+            pausedOtherSideState = null;
+        }
     }
     
     public void writeToTag(CompoundTag tag) {
@@ -144,6 +163,13 @@ public class PortalAnimation {
         if (otherSideReferenceState != null) {
             tag.put("otherSideReferenceState", otherSideReferenceState.toTag());
         }
+        
+        if (pausedThisSideState != null) {
+            tag.put("pausedThisSideState", pausedThisSideState.toTag());
+        }
+        if (pausedOtherSideState != null) {
+            tag.put("pausedOtherSideState", pausedOtherSideState.toTag());
+        }
     }
     
     public boolean isRoughlyRunningAnimation() {
@@ -165,10 +191,29 @@ public class PortalAnimation {
         
         if (paused) {
             pauseTime = portal.level.getGameTime();
+            PortalState portalState = portal.getPortalState();
+            assert portalState != null;
+            pausedThisSideState = portalState.getThisSideState();
+            pausedOtherSideState = portalState.getOtherSideState();
         }
         else {
             timeOffset -= portal.level.getGameTime() - pauseTime;
             pauseTime = 0;
+            
+            if (pausedThisSideState != null && pausedOtherSideState != null) {
+                PortalState currentState = portal.getPortalState();
+                assert currentState != null;
+                UnilateralPortalState currentThisSideState = currentState.getThisSideState();
+                UnilateralPortalState currentOtherSideState = currentState.getOtherSideState();
+                DeltaUnilateralPortalState thisSideDelta = currentThisSideState.subtract(pausedThisSideState);
+                DeltaUnilateralPortalState otherSideDelta = currentOtherSideState.subtract(pausedOtherSideState);
+                if (thisSideReferenceState != null) {
+                    thisSideReferenceState = thisSideReferenceState.apply(thisSideDelta);
+                }
+                if (otherSideReferenceState != null) {
+                    otherSideReferenceState = otherSideReferenceState.apply(otherSideDelta);
+                }
+            }
         }
     }
     
@@ -396,7 +441,7 @@ public class PortalAnimation {
         if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
             return;
         }
-    
+        
         AnimationContext context = new AnimationContext(portal.level.isClientSide(), true);
         
         PortalState portalState = portal.getPortalState();
@@ -405,9 +450,9 @@ public class PortalAnimation {
             .from(UnilateralPortalState.extractThisSide(portalState));
         UnilateralPortalState.Builder to = new UnilateralPortalState.Builder()
             .from(UnilateralPortalState.extractOtherSide(portalState));
-    
+        
         applyEndingState(portal, clearThisSide, clearOtherSide, context, from, to);
-    
+        
         if (clearThisSide) {
             thisSideReferenceState = null;
         }
