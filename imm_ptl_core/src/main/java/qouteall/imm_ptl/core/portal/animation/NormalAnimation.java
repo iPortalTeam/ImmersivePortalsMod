@@ -126,7 +126,7 @@ public class NormalAnimation implements PortalAnimationDriver {
     }
     
     private long getTotalDuration() {
-        if (loopCount > 100000) {
+        if (loopCount >= 100000) {
             return Long.MAX_VALUE;
         }
         
