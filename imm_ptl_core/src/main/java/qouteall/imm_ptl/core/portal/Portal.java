@@ -1737,8 +1737,21 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 return portalExtension.parallelPortal;
             }
         }
-    
+        
         return null;
+    }
+    
+    public Portal getPossibleAnimationHolder() {
+        Portal holder = getAnimationHolder();
+        if (holder != null) {
+            return holder;
+        }
+        return this;
+    }
+    
+    public long getAnimationEffectiveTime() {
+        Portal holder = getPossibleAnimationHolder();
+        return holder.animation.getEffectiveTime(holder.level.getGameTime());
     }
     
     public static class RemoteCallables {

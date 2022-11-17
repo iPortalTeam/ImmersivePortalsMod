@@ -220,7 +220,7 @@ public class PortalAnimationCommand {
                         portal,
                         new Vec2d(1.0 / animationScale, 1.0 / animationScale),
                         new Vec2d(1, 1),
-                        portal.animation.getEffectiveTime(portal.level.getGameTime()),
+                        portal.getAnimationEffectiveTime(),
                         durationTicks,
                         TimingFunction.sine
                     ));
@@ -266,7 +266,7 @@ public class PortalAnimationCommand {
                 NormalAnimation newNormalAnimation = new NormalAnimation.Builder()
                     .phases(List.of(dummyPhase))
                     .loopCount(1)
-                    .startingGameTime(animation.getEffectiveTime(portal.level.getGameTime()))
+                    .startingGameTime(portal.getAnimationEffectiveTime())
                     .build();
                 animation.thisSideAnimations.add(newNormalAnimation);
                 animation.otherSideAnimations.add(newNormalAnimation); // reusing immutable object
@@ -504,7 +504,7 @@ public class PortalAnimationCommand {
                 .setRotationCenter(rotationCenter)
                 .setRotationAxis(axis)
                 .setDegreesPerTick(angularVelocity)
-                .setStartGameTime(portal.animation.getEffectiveTime(portal.level.getGameTime()))
+                .setStartGameTime(portal.getAnimationEffectiveTime())
                 .setEndGameTime(Long.MAX_VALUE)
                 .build()
         );
