@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.peripheral;
 
+import com.google.common.base.Splitter;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -151,7 +152,11 @@ public class CommandStickItem extends Item {
         
         Data data = Data.deserialize(stack.getOrCreateTag());
         
-        tooltip.add(Component.literal(data.command).withStyle(ChatFormatting.GOLD));
+        Iterable<String> splitCommand = Splitter.fixedLength(40).split(data.command);
+        
+        for (String commandPortion : splitCommand) {
+            tooltip.add(Component.literal(commandPortion).withStyle(ChatFormatting.GOLD));
+        }
         
         for (String descriptionTranslationKey : data.descriptionTranslationKeys) {
             tooltip.add(Component.translatable(descriptionTranslationKey).withStyle(ChatFormatting.AQUA));
