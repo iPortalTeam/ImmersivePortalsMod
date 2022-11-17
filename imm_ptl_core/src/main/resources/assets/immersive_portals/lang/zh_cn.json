@@ -171,5 +171,22 @@
   "entity.immersive_portals.portal": "传送门",
   "entity.immersive_portals.nether_portal_new": "地狱传送门",
   "imm_ptl.connects_previous": "连接上一个位面",
-  "imm_ptl.connects_next": "连接下一个位面"
+  "imm_ptl.connects_next": "连接下一个位面",
+  "imm_ptl.command.disable_default_animation": "Disable Default Animation",
+  "imm_ptl.command_desc.disable_default_animation": "",
+  "imm_ptl.command.pause_animation": "Pause Animation",
+  "imm_ptl.command_desc.pause_animation": "",
+  "imm_ptl.command.resume_animation": "Resume Animation",
+  "imm_ptl.command_desc.resume_animation": "",
+  "imm_ptl.command.rotate_along_y": "Rotate Along Y Axis",
+  "imm_ptl.command_desc.rotate_along_y": "",
+  "imm_ptl.command.rotate_randomly": "Rotate Randomly",
+  "imm_ptl.command_desc.rotate_randomly": "",
+  "imm_ptl.command.rotate_around_view": "Rotate Around View",
+  "imm_ptl.command_desc.rotate_around_view": "",
+  "imm_ptl.command.expand_from_center": "Expand From Center",
+  "imm_ptl.command_desc.expand_from_center": "",
+  "imm_ptl.command.clear_animation": "Clear This Side Animation",
+  "imm_ptl.command_desc.clear_animation": "",
+  "imm_ptl.client_performance_adjustment": "Enable Client Performance Adjustment"
 }
