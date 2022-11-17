@@ -70,8 +70,8 @@ public record DeltaUnilateralPortalState(
             offset == null ? null : offset.scale(progress),
             rotation == null ? null : DQuaternion.interpolate(DQuaternion.identity, rotation, progress),
             sizeScaling == null ? null : new Vec2d(
-                Mth.lerp(progress, sizeScaling.x(), 1),
-                Mth.lerp(progress, sizeScaling.y(), 1)
+                Mth.lerp(progress, 1, sizeScaling.x()),
+                Mth.lerp(progress, 1, sizeScaling.y())
             )
         );
     }

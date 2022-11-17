@@ -216,8 +216,6 @@ public class PortalAnimationCommand {
                     
                     double animationScale = 10;
                     
-                    PortalState endingState = portal.getAnimationEndingState();
-                    
                     portal.addThisSideAnimationDriver(NormalAnimation.createSizeAnimation(
                         portal,
                         new Vec2d(1.0 / animationScale, 1.0 / animationScale),
