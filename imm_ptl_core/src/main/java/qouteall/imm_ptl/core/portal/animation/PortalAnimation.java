@@ -225,6 +225,15 @@ public class PortalAnimation {
         PortalExtension.forClusterPortals(portal, Portal::reloadAndSyncToClientNextTick);
     }
     
+    public void setBackToPausingState(Portal portal) {
+        if (this.pausedThisSideState != null && this.pausedOtherSideState != null) {
+            // put the portal back to pausing state, avoid moving the reference state when resuming
+            portal.setPortalState(UnilateralPortalState.combine(
+                this.pausedThisSideState, this.pausedOtherSideState
+            ));
+        }
+    }
+    
     public long getEffectiveTime(long gameTime) {
         return (isPaused() ? pauseTime : gameTime) + timeOffset;
     }
@@ -281,7 +290,7 @@ public class PortalAnimation {
         boolean isTicking,
         boolean canRemoveAnimation
     ) {
-        if (!hasRunningAnimationDriver()) {
+        if (!hasAnimationDriver()) {
             return;
         }
         
@@ -290,12 +299,16 @@ public class PortalAnimation {
             return;
         }
         
-        long effectiveGameTime = animation.getEffectiveTime(gameTime);
-        float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
-        
         initializeReferenceStates(portalState);
         assert thisSideReferenceState != null;
         assert otherSideReferenceState != null;
+    
+        if (isPaused()) {
+            return;
+        }
+    
+        long effectiveGameTime = animation.getEffectiveTime(gameTime);
+        float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
         
         UnilateralPortalState.Builder thisSideState = new UnilateralPortalState.Builder().from(thisSideReferenceState);
         UnilateralPortalState.Builder otherSideState = new UnilateralPortalState.Builder().from(otherSideReferenceState);

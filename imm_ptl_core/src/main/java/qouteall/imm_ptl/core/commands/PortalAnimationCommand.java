@@ -20,10 +20,8 @@ import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.*;
 import qouteall.q_misc_util.my_util.Access;
-import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 
@@ -247,7 +245,6 @@ public class PortalAnimationCommand {
                 PortalAnimation animation = portal.animation;
                 animation.setPaused(portal, true);
                 
-                
                 PortalState portalState = portal.getPortalState();
                 assert portalState != null;
                 if (animation.thisSideReferenceState != null && animation.otherSideReferenceState != null) {
@@ -446,7 +443,7 @@ public class PortalAnimationCommand {
         List<NormalAnimation.Phase> otherSidePhases = animationBuilderContext.otherSideAnimation().get().phases;
         
         if (thisSidePhases.isEmpty() || otherSidePhases.isEmpty()) {
-            context.getSource().sendFailure(Component.literal("No phases to loop"));
+            context.getSource().sendFailure(Component.literal("No phase"));
             return;
         }
         
@@ -491,6 +488,8 @@ public class PortalAnimationCommand {
                 .startingGameTime(animationBuilderContext.otherSideAnimation().get().startingGameTime)
                 .build()
         );
+        
+        animation.setBackToPausingState(portal);
         
         animation.setPaused(portal, false);
         
