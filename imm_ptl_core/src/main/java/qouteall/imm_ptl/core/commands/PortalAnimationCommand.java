@@ -450,7 +450,7 @@ public class PortalAnimationCommand {
         NormalAnimation.Phase lastOtherSidePhase = otherSidePhases.get(otherSidePhases.size() - 1);
         DeltaUnilateralPortalState lastOtherSidePhaseDelta = lastOtherSidePhase.delta().purgeFPError();
         
-        if (!lastThisSidePhaseDelta.isIdentity() || !lastOtherSidePhaseDelta.isIdentity()) {
+        if (loopCount > 1 && !lastThisSidePhaseDelta.isIdentity() || !lastOtherSidePhaseDelta.isIdentity()) {
             // the animation does not return to the beginning state
             // insert another stage to make it return to the beginning state
             // otherwise it will abruptly jump
