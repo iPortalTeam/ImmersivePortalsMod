@@ -38,6 +38,7 @@ public class PortalAnimationCommand {
                 );
                 
                 PortalCommand.reloadPortal(portal);
+                context.getSource().sendSuccess(getAnimationInfo(portal), false);
             }))
         );
         
@@ -47,6 +48,7 @@ public class PortalAnimationCommand {
                     portal, Portal::pauseAnimation
                 );
                 PortalCommand.reloadPortal(portal);
+                context.getSource().sendSuccess(Component.literal("Paused"), false);
             }))
         );
         
@@ -56,6 +58,7 @@ public class PortalAnimationCommand {
                     portal, Portal::resumeAnimation
                 );
                 PortalCommand.reloadPortal(portal);
+                context.getSource().sendSuccess(Component.literal("Resumed"), false);
             }))
         );
         
@@ -66,6 +69,10 @@ public class PortalAnimationCommand {
                     if (entity instanceof Portal portal) {
                         PortalExtension.forClusterPortals(
                             portal, Portal::pauseAnimation
+                        );
+                        context.getSource().sendSuccess(
+                            Component.literal("Paused " + portal.toString()),
+                            false
                         );
                     }
                 }
@@ -86,6 +93,7 @@ public class PortalAnimationCommand {
                             giveRotationAnimation(portal, rotationCenter, axis, angularVelocity);
                             
                             PortalCommand.reloadPortal(portal);
+                            context.getSource().sendSuccess(getAnimationInfo(portal), false);
                         }))
                     )
                 )
@@ -105,6 +113,7 @@ public class PortalAnimationCommand {
                 giveRotationAnimation(portal, rotationCenter, axis, angularVelocity);
                 
                 PortalCommand.reloadPortal(portal);
+                context.getSource().sendSuccess(getAnimationInfo(portal), false);
             }))
         );
         
@@ -205,6 +214,7 @@ public class PortalAnimationCommand {
                     giveRotationAnimation(portal, portal.getOriginPos(), portal.getNormal(), angularVelocity);
                     
                     PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
                 }))
             )
         );
@@ -225,6 +235,7 @@ public class PortalAnimationCommand {
                         TimingFunction.sine
                     ));
                     PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
                 }))
             )
         );
@@ -272,7 +283,7 @@ public class PortalAnimationCommand {
                 animation.otherSideAnimations.add(newNormalAnimation); // reusing immutable object
                 
                 PortalCommand.reloadPortal(portal);
-                context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+                context.getSource().sendSuccess(getAnimationInfo(portal), false);
             }))
         );
         
@@ -347,7 +358,7 @@ public class PortalAnimationCommand {
                     );
                     
                     PortalCommand.reloadPortal(portal);
-                    context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
                 }))
             )
         );
@@ -493,7 +504,7 @@ public class PortalAnimationCommand {
         
         PortalExtension.forClusterPortals(portal, Portal::reloadAndSyncToClientNextTick);
         
-        context.getSource().sendSuccess(getAnimationNbtInfo(portal), false);
+        context.getSource().sendSuccess(getAnimationInfo(portal), false);
     }
     
     private static void giveRotationAnimation(Portal portal, Vec3 rotationCenter, Vec3 axis, double angularVelocity) {
@@ -510,14 +521,8 @@ public class PortalAnimationCommand {
         );
     }
     
-    private static Component getAnimationNbtInfo(Portal portal) {
-        CompoundTag tag = new CompoundTag();
-        portal.animation.writeToTag(tag);
-        return McHelper.compoundTagToTextSorted(
-            tag,
-            " ",
-            0
-        );
+    private static Component getAnimationInfo(Portal portal) {
+        return portal.animation.getInfo(portal);
     }
     
     private static record AnimationBuilderContext(

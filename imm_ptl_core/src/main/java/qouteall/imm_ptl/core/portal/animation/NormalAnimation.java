@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.portal.animation;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -42,7 +44,13 @@ public class NormalAnimation implements PortalAnimationDriver {
         public Phase getFlippedVersion() {
             return new Phase(durationTicks, delta.getFlipped(), timingFunction);
         }
-        
+    
+        public Component getInfo() {
+            return Component.literal("Phase(%d,".formatted(durationTicks))
+                .append(delta.toString())
+                .append(")");
+        }
+    
         public static class Builder {
             private long durationTicks = 0;
             private DeltaUnilateralPortalState delta = DeltaUnilateralPortalState.identity;
@@ -263,5 +271,17 @@ public class NormalAnimation implements PortalAnimationDriver {
             .startingGameTime(startingGameTime)
             .loopCount(1)
             .build();
+    }
+    
+    @Override
+    public Component getInfo() {
+        MutableComponent component = Component.literal("Normal[\n");
+        for (Phase phase : phases) {
+            component.append(" ");
+            component.append(phase.getInfo());
+            component.append("\n");
+        }
+        component.append("] %d times".formatted(loopCount));
+        return component;
     }
 }

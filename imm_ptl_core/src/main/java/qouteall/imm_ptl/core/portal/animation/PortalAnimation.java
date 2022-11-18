@@ -2,8 +2,11 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -259,11 +262,11 @@ public class PortalAnimation {
             if (otherSideAnimations.isEmpty()) {
                 otherSideReferenceState = null;
             }
-            
+
 //            if (thisSideAnimations.isEmpty() && otherSideAnimations.isEmpty()) {
 //                timeOffset = 0;
 //            }
-    
+            
             if (!hasAnimationDriver()) {
                 // when having no animation, don't pause
                 setPaused(portal, false);
@@ -302,11 +305,11 @@ public class PortalAnimation {
         initializeReferenceStates(portalState);
         assert thisSideReferenceState != null;
         assert otherSideReferenceState != null;
-    
+        
         if (isPaused()) {
             return;
         }
-    
+        
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;
         
@@ -572,5 +575,34 @@ public class PortalAnimation {
             }
             secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
         }
+    }
+    
+    public Component getInfo(Portal portal, boolean reverse) {
+        MutableComponent component = Component.literal("");
+    
+        List<PortalAnimationDriver> l1 = reverse ? otherSideAnimations : thisSideAnimations;
+        List<PortalAnimationDriver> l2 = reverse ? thisSideAnimations : otherSideAnimations;
+        
+        component.append(Component.literal("This Side:"));
+        for (int i = 0; i < l1.size(); i++) {
+            PortalAnimationDriver animation = l1.get(i);
+            component.append(
+                Component.literal("[%d]: ".formatted(i))
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(animation.getInfo())
+            );
+        }
+        
+        component.append(Component.literal("Other Side:"));
+        for (int i = 0; i < l2.size(); i++) {
+            PortalAnimationDriver animation = l2.get(i);
+            component.append(
+                Component.literal("[%d]: ".formatted(i))
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(animation.getInfo())
+            );
+        }
+        
+        return component;
     }
 }
