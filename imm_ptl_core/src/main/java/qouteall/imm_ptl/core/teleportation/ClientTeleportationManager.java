@@ -258,7 +258,7 @@ public class ClientTeleportationManager {
     public boolean isTeleportingFrequently() {
         // sometimes the round trip time is more than 1 seconds
         // the client has already crossed the portal and then received the server packet telling the player is in the old place
-        return (tickTimeForTeleportation - lastTeleportTime <= 100) ||
+        return (tickTimeForTeleportation - lastTeleportTime <= IPGlobal.extraSyncIgnoreThresholdTicks) ||
             (tickTimeForTeleportation <= teleportTickTimeLimit);
     }
     

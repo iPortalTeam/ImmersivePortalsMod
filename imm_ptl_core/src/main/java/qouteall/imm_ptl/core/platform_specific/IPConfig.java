@@ -50,6 +50,7 @@ public class IPConfig {
     public boolean enableClientPerformanceAdjustment = true;
     public boolean enableServerPerformanceAdjustment = true;
     public boolean sendExtraPositionSync = true;
+    public int extraSyncIgnoreThresholdTicks = 100;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
 //    public boolean enableServerCollision = true;
@@ -160,6 +161,7 @@ public class IPConfig {
         IPGlobal.enableServerPerformanceAdjustment = enableServerPerformanceAdjustment;
         IPGlobal.enableCrossPortalSound = enableCrossPortalSound;
         IPGlobal.sendExtraPositionSync = sendExtraPositionSync;
+        IPGlobal.extraSyncIgnoreThresholdTicks = extraSyncIgnoreThresholdTicks;
         
         if (enableDepthClampForPortalRendering) {
             IPGlobal.enableDepthClampForPortalRendering = true;

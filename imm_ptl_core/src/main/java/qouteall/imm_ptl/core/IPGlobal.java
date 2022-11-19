@@ -126,6 +126,7 @@ public class IPGlobal {
     public static boolean enableCrossPortalSound = true;
     
     public static boolean sendExtraPositionSync = true;
+    public static int extraSyncIgnoreThresholdTicks = 100;
     
     public static enum RenderMode {
         normal,
