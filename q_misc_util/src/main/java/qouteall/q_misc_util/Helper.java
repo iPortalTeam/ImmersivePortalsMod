@@ -486,8 +486,11 @@ public class Helper {
         return tag.getList(name, 10);
     }
     
-    public static <X> List<X> listTagToList(ListTag listTag, Function<CompoundTag, X> deserializer) {
-        List<X> result = new ArrayList<>();
+    /**
+     * It's safe to modify the result array list.
+     */
+    public static <X> ArrayList<X> listTagToList(ListTag listTag, Function<CompoundTag, X> deserializer) {
+        ArrayList<X> result = new ArrayList<>();
         listTag.forEach(tag -> {
             CompoundTag compoundTag = (CompoundTag) tag;
             result.add(deserializer.apply(compoundTag));

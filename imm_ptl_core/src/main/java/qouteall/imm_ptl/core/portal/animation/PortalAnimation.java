@@ -408,66 +408,6 @@ public class PortalAnimation {
         }
     }
     
-    public void addThisSideAnimationDriver(Portal portal, PortalAnimationDriver animationDriver) {
-        PortalExtension extension = PortalExtension.get(portal);
-        if (extension.flippedPortal != null) {
-            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
-                extension.flippedPortal.animation.thisSideAnimations.add(animationDriver.getFlippedVersion());
-                extension.flippedPortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        if (extension.reversePortal != null) {
-            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
-                extension.reversePortal.animation.otherSideAnimations.add(animationDriver);
-                extension.reversePortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        if (extension.parallelPortal != null) {
-            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
-                extension.parallelPortal.animation.otherSideAnimations.add(animationDriver.getFlippedVersion());
-                extension.parallelPortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        thisSideAnimations.add(animationDriver);
-        portal.reloadAndSyncToClientNextTick();
-    }
-    
-    public void addOtherSideAnimationDriver(Portal portal, PortalAnimationDriver animationDriver) {
-        PortalExtension extension = PortalExtension.get(portal);
-        if (extension.flippedPortal != null) {
-            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
-                extension.flippedPortal.animation.otherSideAnimations.add(animationDriver.getFlippedVersion());
-                extension.flippedPortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        if (extension.reversePortal != null) {
-            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
-                extension.reversePortal.animation.thisSideAnimations.add(animationDriver);
-                extension.reversePortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        if (extension.parallelPortal != null) {
-            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
-                extension.parallelPortal.animation.thisSideAnimations.add(animationDriver.getFlippedVersion());
-                extension.parallelPortal.reloadAndSyncToClientNextTick();
-                return;
-            }
-        }
-        
-        otherSideAnimations.add(animationDriver);
-        portal.reloadAndSyncToClientNextTick();
-    }
-    
     public void clearAnimationDrivers(Portal portal, boolean clearThisSide, boolean clearOtherSide) {
         Validate.isTrue(!portal.level.isClientSide());
         

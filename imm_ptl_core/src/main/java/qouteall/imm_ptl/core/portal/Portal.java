@@ -38,6 +38,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
@@ -313,6 +314,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void reloadAndSyncToClientNextTick() {
         Validate.isTrue(!level.isClientSide(), "must be used on server side");
         reloadAndSyncNextTick = true;
+    }
+    
+    public void reloadAndSyncClusterToClientNextTick() {
+        PortalExtension.forClusterPortals(this, Portal::reloadAndSyncClusterToClientNextTick);
     }
     
     public void reloadAndSyncToClientWithTickDelay(int tickDelay) {
@@ -1646,11 +1651,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void addThisSideAnimationDriver(PortalAnimationDriver driver) {
-        animation.addThisSideAnimationDriver(this, driver);
+        getAnimationView().addThisSideAnimation(driver);
+        reloadAndSyncClusterToClientNextTick();
     }
     
     public void addOtherSideAnimationDriver(PortalAnimationDriver driver) {
-        animation.addOtherSideAnimationDriver(this, driver);
+        getAnimationView().addOtherSideAnimation(driver);
+        reloadAndSyncClusterToClientNextTick();
     }
     
     public void pauseAnimation() {
@@ -1659,6 +1666,41 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void resumeAnimation() {
         animation.setPaused(this, false);
+    }
+    
+    public AnimationView getAnimationView() {
+        PortalExtension extension = PortalExtension.get(this);
+        if (extension.flippedPortal != null) {
+            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
+                return new AnimationView(
+                    this, extension.flippedPortal,
+                    IntraClusterRelation.FLIPPED
+                );
+            }
+        }
+    
+        if (extension.reversePortal != null) {
+            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
+                return new AnimationView(
+                    this, extension.reversePortal,
+                    IntraClusterRelation.REVERSE
+                );
+            }
+        }
+    
+        if (extension.parallelPortal != null) {
+            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
+                return new AnimationView(
+                    this, extension.parallelPortal,
+                    IntraClusterRelation.PARALLEL
+                );
+            }
+        }
+    
+        return new AnimationView(
+            this, this,
+            IntraClusterRelation.SAME
+        );
     }
     
     public boolean isOtherSideChunkLoaded() {

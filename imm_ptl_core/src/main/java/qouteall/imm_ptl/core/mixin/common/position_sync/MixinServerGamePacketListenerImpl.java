@@ -30,6 +30,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Set;
@@ -161,6 +162,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
      * @author qouteall
      */
     @Overwrite
+    @IPVanillaCopy
     public void teleport(double x, double y, double z, float yaw, float pitch, Set<ClientboundPlayerPositionPacket.RelativeArgument> flags, boolean shouldDismount) {
         // it may request teleport while this.player is marked removed during respawn
         

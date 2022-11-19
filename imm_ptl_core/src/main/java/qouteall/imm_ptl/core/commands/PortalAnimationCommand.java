@@ -522,7 +522,7 @@ public class PortalAnimationCommand {
     }
     
     private static Component getAnimationInfo(Portal portal) {
-        return portal.animation.getInfo(portal);
+        return portal.getAnimationView().getInfo();
     }
     
     private static record AnimationBuilderContext(
