@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 public class ClientTeleportationManager {
     public static final Minecraft client = Minecraft.getInstance();
     public long tickTimeForTeleportation = 0;
-    private long lastTeleportGameTime = 0;
+    private long lastTeleportTime = 0;
     private Vec3 moveStartPoint = null;
     private long teleportTickTimeLimit = 0;
     
@@ -189,7 +189,7 @@ public class ClientTeleportationManager {
             return;
         }
         
-        lastTeleportGameTime = tickTimeForTeleportation;
+        lastTeleportTime = tickTimeForTeleportation;
         
         LocalPlayer player = client.player;
         Validate.isTrue(player != null);
@@ -256,7 +256,9 @@ public class ClientTeleportationManager {
     
     
     public boolean isTeleportingFrequently() {
-        return (tickTimeForTeleportation - lastTeleportGameTime <= 20) ||
+        // sometimes the round trip time is more than 1 seconds
+        // the client has already crossed the portal and then received the server packet telling the player is in the old place
+        return (tickTimeForTeleportation - lastTeleportTime <= 100) ||
             (tickTimeForTeleportation <= teleportTickTimeLimit);
     }
     

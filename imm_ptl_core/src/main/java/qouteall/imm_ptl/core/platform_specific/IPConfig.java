@@ -3,10 +3,6 @@ package qouteall.imm_ptl.core.platform_specific;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -53,6 +49,7 @@ public class IPConfig {
     public boolean enableNetherPortalEffect = true;
     public boolean enableClientPerformanceAdjustment = true;
     public boolean enableServerPerformanceAdjustment = true;
+    public boolean sendExtraPositionSync = true;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
 //    public boolean enableServerCollision = true;
@@ -162,6 +159,7 @@ public class IPConfig {
         IPGlobal.enableClientPerformanceAdjustment = enableClientPerformanceAdjustment;
         IPGlobal.enableServerPerformanceAdjustment = enableServerPerformanceAdjustment;
         IPGlobal.enableCrossPortalSound = enableCrossPortalSound;
+        IPGlobal.sendExtraPositionSync = sendExtraPositionSync;
         
         if (enableDepthClampForPortalRendering) {
             IPGlobal.enableDepthClampForPortalRendering = true;

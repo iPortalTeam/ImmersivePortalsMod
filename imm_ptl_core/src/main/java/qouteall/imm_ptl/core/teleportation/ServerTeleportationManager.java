@@ -380,6 +380,10 @@ public class ServerTeleportationManager {
     }
     
     public static void sendPositionConfirmMessage(ServerPlayer player) {
+        if (!IPGlobal.sendExtraPositionSync) {
+            return;
+        }
+        
         Packet packet = IPNetworking.createStcDimensionConfirm(
             player.level.dimension(),
             player.position()
