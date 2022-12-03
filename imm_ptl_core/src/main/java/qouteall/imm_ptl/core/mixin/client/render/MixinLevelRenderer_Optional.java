@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.mixin.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ViewArea;
@@ -19,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 // avoid crashing with sodium
 // the overwrite has priority of 1000
@@ -81,44 +79,5 @@ public class MixinLevelRenderer_Optional {
         double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
     ) {
         FrontClipping.updateClippingEquationUniformForCurrentShader(false);
-    }
-    
-    // correct the position of updating ViewArea
-    @Redirect(
-        method = "setupRender",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getX()D"),
-        require = 0
-    )
-    private double redirectGetXInSetupRender(LocalPlayer player) {
-        if (WorldRenderInfo.isRendering()) {
-            return WorldRenderInfo.getCameraPos().x;
-        }
-        return player.getX();
-    }
-    
-    // biolerplate
-    @Redirect(
-        method = "setupRender",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getY()D"),
-        require = 0
-    )
-    private double redirectGetYInSetupRender(LocalPlayer player) {
-        if (WorldRenderInfo.isRendering()) {
-            return WorldRenderInfo.getCameraPos().y;
-        }
-        return player.getY();
-    }
-    
-    // biolerplate
-    @Redirect(
-        method = "setupRender",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getZ()D"),
-        require = 0
-    )
-    private double redirectGetZInSetupRender(LocalPlayer player) {
-        if (WorldRenderInfo.isRendering()) {
-            return WorldRenderInfo.getCameraPos().z;
-        }
-        return player.getZ();
     }
 }
