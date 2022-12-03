@@ -317,7 +317,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void reloadAndSyncClusterToClientNextTick() {
-        PortalExtension.forClusterPortals(this, Portal::reloadAndSyncClusterToClientNextTick);
+        PortalExtension.forClusterPortals(this, Portal::reloadAndSyncToClientNextTick);
     }
     
     public void reloadAndSyncToClientWithTickDelay(int tickDelay) {

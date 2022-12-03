@@ -173,9 +173,7 @@ public class PortalAnimationCommand {
                                             long currTime = portal.level.getGameTime();
                                             portal.addThisSideAnimationDriver(
                                                 new RotationAnimation.Builder()
-                                                    .setInitialPosition(endingState.fromPos)
-                                                    .setInitialOrientation(endingState.orientation)
-                                                    .setRotationCenter(rotationCenter)
+                                                    .setInitialOffset(endingState.fromPos.subtract(rotationCenter))
                                                     .setRotationAxis(axis)
                                                     .setDegreesPerTick(degrees / duration)
                                                     .setStartGameTime(currTime)
@@ -510,9 +508,7 @@ public class PortalAnimationCommand {
     private static void giveRotationAnimation(Portal portal, Vec3 rotationCenter, Vec3 axis, double angularVelocity) {
         portal.addThisSideAnimationDriver(
             new RotationAnimation.Builder()
-                .setInitialPosition(portal.getOriginPos())
-                .setInitialOrientation(portal.getOrientationRotation())
-                .setRotationCenter(rotationCenter)
+                .setInitialOffset(portal.getOriginPos().subtract(rotationCenter))
                 .setRotationAxis(axis)
                 .setDegreesPerTick(angularVelocity)
                 .setStartGameTime(portal.getAnimationEffectiveTime())
