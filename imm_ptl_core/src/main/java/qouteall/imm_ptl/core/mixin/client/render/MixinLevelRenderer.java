@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -536,6 +537,21 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     )
     private void onRenderSkyEnd(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();
+    }
+    
+    // correct the eye position for sky rendering
+    @Redirect(
+        method = "renderSky",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;getEyePosition(F)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 redirectGetEyePositionInSkyRendering(LocalPlayer player, float partialTicks) {
+        if (WorldRenderInfo.isRendering()) {
+            return WorldRenderInfo.getCameraPos();
+        }
+        return player.getEyePosition(partialTicks);
     }
     
     @Inject(
