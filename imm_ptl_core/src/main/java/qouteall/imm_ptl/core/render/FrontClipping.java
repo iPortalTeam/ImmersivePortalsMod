@@ -3,11 +3,11 @@ package qouteall.imm_ptl.core.render;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -77,10 +77,10 @@ public class FrontClipping {
     ) {
         Vector4f eq =
             new Vector4f((float) equation[0], (float) equation[1], (float) equation[2], (float) equation[3]);
-        Matrix4f m = matrixStack.last().pose().copy();
+        Matrix4f m = new Matrix4f(matrixStack.last().pose());
         m.invert();
         m.transpose();
-        eq.transform(m);
+        m.transform(eq);
         return new double[]{eq.x(), eq.y(), eq.z(), eq.w()};
     }
     

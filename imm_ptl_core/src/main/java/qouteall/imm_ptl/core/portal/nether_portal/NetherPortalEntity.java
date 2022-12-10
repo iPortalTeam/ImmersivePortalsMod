@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
@@ -17,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class NetherPortalEntity extends BreakablePortalEntity {
     private static final OverlayInfo overlay_x = new OverlayInfo(
@@ -35,7 +34,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         ),
         0.5,
         1,
-        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+        DQuaternion.rotationByDegrees(new Vec3(1, 0, 0), 90)
     );
     private static final OverlayInfo overlay_y_down = new OverlayInfo(
         Blocks.NETHER_PORTAL.defaultBlockState().setValue(
@@ -44,7 +43,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         ),
         0.5,
         -1,
-        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+        DQuaternion.rotationByDegrees(new Vec3(1, 0, 0), 90)
     );
     private static final OverlayInfo overlay_z = new OverlayInfo(
         Blocks.NETHER_PORTAL.defaultBlockState().setValue(

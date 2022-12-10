@@ -52,7 +52,8 @@
     "common.position_sync.MixinServerboundMovePlayerPacketPosRot",
     "common.position_sync.MixinServerboundMovePlayerPacketRot",
     "common.position_sync.MixinServerboundMovePlayerPacketStatusOnly",
-    "common.position_sync.MixinServerGamePacketListenerImpl"
+    "common.position_sync.MixinServerGamePacketListenerImpl",
+    "common.registry.IERegistryDataLoader"
   ],
   "client": [
     "client.MixinClientConnection",
@@ -72,6 +73,7 @@
     "client.render.MixinBlockEntityRenderDispatcher",
     "client.render.MixinCamera",
     "client.render.MixinEntityRenderDispatcher",
+    "client.render.MixinFrustum_FixDeadLoop",
     "client.render.MixinGameRenderer",
     "client.render.MixinGlStateManager",
     "client.render.MixinLevelRenderer",
@@ -85,7 +87,6 @@
     "client.render.MixinShaderInstanceForIris",
     "client.render.framebuffer.MixinMainTarget",
     "client.render.framebuffer.MixinRenderTarget",
-    "client.render.MixinFrustum_FixDeadLoop",
     "client.render.isometric.MixinGameRenderer_Isometric",
     "client.render.optimization.IEChunkCompileTask",
     "client.render.optimization.MixinChunkRenderDispatcher_Optimization",

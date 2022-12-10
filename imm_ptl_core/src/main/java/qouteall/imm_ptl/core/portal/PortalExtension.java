@@ -349,8 +349,7 @@ public class PortalExtension {
             reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.scale(-1));
             reversePortal.scaling = 1.0 / portal.scaling;
             if (portal.rotation != null) {
-                reversePortal.rotation = portal.rotation.copy();
-                reversePortal.rotation.conj();
+                reversePortal.rotation = portal.rotation.getConjugated();
             }
             else {
                 reversePortal.rotation = null;
@@ -387,8 +386,7 @@ public class PortalExtension {
             parallelPortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
             parallelPortal.scaling = 1.0 / portal.scaling;
             if (portal.rotation != null) {
-                parallelPortal.rotation = portal.rotation.copy();
-                parallelPortal.rotation.conj();
+                parallelPortal.rotation = portal.rotation.getConjugated();
             }
             else {
                 parallelPortal.rotation = null;

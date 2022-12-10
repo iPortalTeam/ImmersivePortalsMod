@@ -68,9 +68,7 @@ public class DynamicDimensionsImpl {
         WorldData worldData = server.getWorldData();
         ServerLevelData serverLevelData = worldData.overworldData();
         
-        WorldGenSettings worldGenSettings = worldData.worldGenSettings();
-        
-        long seed = worldGenSettings.seed();
+        long seed = worldData.worldGenOptions().seed();
         long obfuscatedSeed = BiomeManager.obfuscateSeed(seed);
         
         DerivedLevelData derivedLevelData = new DerivedLevelData(

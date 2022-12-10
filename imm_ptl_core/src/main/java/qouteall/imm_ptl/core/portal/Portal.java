@@ -136,7 +136,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * The rotating transformation of the portal
      */
     @Nullable
-    public DQuaternion rotation;
+    protected DQuaternion rotation;
     
     /**
      * The scaling transformation of the portal

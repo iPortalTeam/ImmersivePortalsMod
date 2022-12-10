@@ -1,19 +1,19 @@
 accessWidener v2 named
 
-Accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
+accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 
-Accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
+accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
 
-Accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
-Mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
+accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
+mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
 
-Accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 
-Accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
+accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
 
-Accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
+accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
 
-Accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
+accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
 
 extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
 
@@ -25,5 +25,6 @@ accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$Rende
 
 extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
 
+accessible class net/minecraft/resources/RegistryDataLoader$Loader
 
 

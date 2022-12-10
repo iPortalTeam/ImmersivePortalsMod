@@ -7,6 +7,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import qouteall.q_misc_util.Helper;
 
@@ -66,6 +67,10 @@ public class DQuaternion {
         return new Quaternionf(
             (float) x, (float) y, (float) z, (float) w
         );
+    }
+    
+    public Matrix4f toMatrix() {
+        return new Matrix4f().set(toMcQuaternion());
     }
     
     /**

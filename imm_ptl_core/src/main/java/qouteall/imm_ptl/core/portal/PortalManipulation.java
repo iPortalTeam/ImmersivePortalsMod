@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import com.mojang.math.Quaternion;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +31,7 @@ public class PortalManipulation {
         Portal portal,
         ResourceKey<Level> destDim,
         Vec3 destPos,
-        @Nullable Quaternion rotation,
+        @Nullable DQuaternion rotation,
         double scale
     ) {
         portal.dimensionTo = destDim;
@@ -105,8 +104,7 @@ public class PortalManipulation {
         if (portal.rotation != null) {
             rotatePortalBody(newPortal, portal.rotation);
             
-            newPortal.rotation = new Quaternion(portal.rotation);
-            newPortal.rotation.conj();
+            newPortal.rotation = portal.rotation.getConjugated();
         }
         
         newPortal.scaling = 1.0 / portal.scaling;
@@ -116,9 +114,9 @@ public class PortalManipulation {
         return newPortal;
     }
     
-    public static void rotatePortalBody(Portal portal, Quaternion rotation) {
-        portal.axisW = RotationHelper.getRotated(rotation, portal.axisW);
-        portal.axisH = RotationHelper.getRotated(rotation, portal.axisH);
+    public static void rotatePortalBody(Portal portal, DQuaternion rotation) {
+        portal.axisW = rotation.rotate(portal.axisW);
+        portal.axisH = rotation.rotate(portal.axisH);
     }
     
     public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
@@ -446,8 +444,8 @@ public class PortalManipulation {
         );
         DQuaternion aRot = flip.hamiltonProduct(delta);
         
-        portalA.setRotationTransformation(aRot.toMcQuaternion());
-        portalB.setRotationTransformation(aRot.getConjugated().toMcQuaternion());
+        portalA.setRotation(aRot);
+        portalB.setRotation(aRot.getConjugated());
         
     }
     

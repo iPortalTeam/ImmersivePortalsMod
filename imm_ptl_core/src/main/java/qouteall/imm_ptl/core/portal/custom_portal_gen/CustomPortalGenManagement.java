@@ -12,9 +12,8 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.RegistryLoader;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.RegistryResourceAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,16 +23,16 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
-import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
+import qouteall.imm_ptl.core.mixin.common.registry.IERegistryDataLoader;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.UCoordinate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -105,35 +104,32 @@ public class CustomPortalGenManagement {
             registryTracker
         );
         
-        MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
+        MappedRegistry<CustomPortalGeneration> registry = new MappedRegistry<>(
             CustomPortalGeneration.registryRegistryKey,
-            Lifecycle.stable(), null
+            Lifecycle.stable()
         );
         
-        RegistryResourceAccess registryResourceAccess = RegistryResourceAccess.forResourceManager(resourceManager);
+        // RegistryDataLoader
+        RegistryOps.RegistryInfoLookup context = IERegistryDataLoader.ip_createContext(registryTracker, List.of());
         
-        RegistryLoader registryLoader = IERegistryLoader.construct(registryResourceAccess);
-        DataResult<Registry<CustomPortalGeneration>> dataResult =
-            ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
-                emptyRegistry,
-                CustomPortalGeneration.registryRegistryKey,
-                CustomPortalGeneration.codec.codec(),
-                registryOps
-            
-            );
+        HashMap<ResourceKey<?>, Exception> errorMap = new HashMap<>();
+        IERegistryDataLoader.ip_loadRegistryContents(
+            context,
+            resourceManager,
+            CustomPortalGeneration.registryRegistryKey,
+            registry,
+            CustomPortalGeneration.codec.codec(),
+            errorMap
+        );
         
-        Registry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
-        
-        if (result == null) {
-            DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
-                dataResult.get().right().get();
+        errorMap.forEach((key, exception) -> {
+            exception.printStackTrace();
             McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
-                "Error when parsing custom portal generation\n" +
-                    r.message()
+                "Error loading custom portal generation %s".formatted(key.location())
             ));
-            return null;
-        }
-        return result;
+        });
+        
+        return registry;
     }
     
     private static void load(CustomPortalGeneration gen) {
