@@ -4,5 +4,5 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public interface IEGeneratorOptions {
-    void setDimOptionRegistry(MappedRegistry<LevelStem> reg);
+//    void setDimOptionRegistry(MappedRegistry<LevelStem> reg);
 }

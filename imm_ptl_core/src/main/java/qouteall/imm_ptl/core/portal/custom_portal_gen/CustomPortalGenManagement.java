@@ -106,7 +106,6 @@ public class CustomPortalGenManagement {
             Lifecycle.stable()
         );
         
-        // RegistryDataLoader
         RegistryOps.RegistryInfoLookup context = IERegistryDataLoader.ip_createContext(registryTracker, List.of());
         
         HashMap<ResourceKey<?>, Exception> errorMap = new HashMap<>();

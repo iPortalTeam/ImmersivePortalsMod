@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.mixin.client.render.shader;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,11 +21,11 @@ public class MixinGameRenderer_Shaders {
     private Map<String, ShaderInstance> shaders;
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/GameRenderer;reloadShaders(Lnet/minecraft/server/packs/resources/ResourceManager;)V", at = @At("RETURN")
+        method = "reloadShaders", at = @At("RETURN")
     )
-    private void onLoadShaders(ResourceManager manager, CallbackInfo ci) {
+    private void onLoadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
         MyRenderHelper.loadShaderSignal.emit(
-            manager, (shader) -> {
+            resourceProvider, (shader) -> {
                 shaders.put(shader.getName(), shader);
             }
         );

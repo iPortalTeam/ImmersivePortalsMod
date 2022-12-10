@@ -172,13 +172,15 @@ public class AlternateDimensions {
             rm.registryOrThrow(Registries.BIOME).asLookup(),
             rm.registryOrThrow(Registries.DENSITY_FUNCTION).asLookup(),
             rm.registryOrThrow(Registries.NOISE).asLookup(),
+            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup(),
             seed
         );
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
         return ErrorTerrainGenerator.create(
-            rm.registryOrThrow(Registries.BIOME).asLookup()
+            rm.registryOrThrow(Registries.BIOME).asLookup(),
+            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup()
         );
     }
     

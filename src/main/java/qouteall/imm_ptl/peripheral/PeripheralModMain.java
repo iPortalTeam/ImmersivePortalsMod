@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
@@ -40,18 +42,18 @@ public class PeripheralModMain {
         AlternateDimensions.init();
         
         Registry.register(
-            Registry.CHUNK_GENERATOR,
+            BuiltInRegistries.CHUNK_GENERATOR,
             new ResourceLocation("immersive_portals:error_terrain_generator"),
             ErrorTerrainGenerator.codec
         );
         Registry.register(
-            Registry.CHUNK_GENERATOR,
+            BuiltInRegistries.CHUNK_GENERATOR,
             new ResourceLocation("immersive_portals:normal_skyland_generator"),
             NormalSkylandGenerator.codec
         );
     
         Registry.register(
-            Registry.BIOME_SOURCE,
+            BuiltInRegistries.BIOME_SOURCE,
             new ResourceLocation("immersive_portals:chaos_biome_source"),
             ChaosBiomeSource.CODEC
         );

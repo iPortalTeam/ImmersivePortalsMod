@@ -1,13 +1,15 @@
 package qouteall.imm_ptl.peripheral.platform_specific;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -54,27 +56,31 @@ public class PeripheralModEntry implements ModInitializer {
         
         PeripheralModMain.portalHelperBlockItem = new PortalHelperItem(
             PeripheralModMain.portalHelperBlock,
-            new Item.Properties().tab(CreativeModeTab.TAB_MISC)
+            new Item.Properties()
         );
         
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+            entries.accept(PeripheralModMain.portalHelperBlockItem);
+        });
+        
         Registry.register(
-            Registry.BLOCK,
+            BuiltInRegistries.BLOCK,
             new ResourceLocation("immersive_portals", "portal_helper"),
             PeripheralModMain.portalHelperBlock
         );
         
         Registry.register(
-            Registry.ITEM,
+            BuiltInRegistries.ITEM,
             new ResourceLocation("immersive_portals", "portal_helper"),
             PeripheralModMain.portalHelperBlockItem
         );
         
         Registry.register(
-            Registry.ITEM,
+            BuiltInRegistries.ITEM,
             new ResourceLocation("immersive_portals:command_stick"),
             CommandStickItem.instance
         );
-    
+        
         PeripheralModMain.registerCommandStickTypes();
         
         CommandStickItem.init();

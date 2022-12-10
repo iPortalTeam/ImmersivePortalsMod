@@ -13,14 +13,14 @@ import qouteall.q_misc_util.ducks.IEGeneratorOptions;
 @Mixin(WorldGenSettings.class)
 public class MixinWorldGenSettings implements IEGeneratorOptions {
     
-    @Shadow
-    @Final
-    @Mutable
-    private Registry<LevelStem> dimensions;
-    
-    @Override
-    public void setDimOptionRegistry(MappedRegistry<LevelStem> reg) {
-        dimensions = reg;
-    }
+//    @Shadow
+//    @Final
+//    @Mutable
+//    private Registry<LevelStem> dimensions;
+//
+//    @Override
+//    public void setDimOptionRegistry(MappedRegistry<LevelStem> reg) {
+//        dimensions = reg;
+//    }
     
 }

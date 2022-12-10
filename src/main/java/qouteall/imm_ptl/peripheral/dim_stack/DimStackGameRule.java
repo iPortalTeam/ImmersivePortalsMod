@@ -6,6 +6,7 @@ import qouteall.q_misc_util.MiscHelper;
 
 // the dimension stack information is stored together with global portal storage now
 // still add the gamerule to ensure that old dim stack worlds can upgrade
+// TODO remove in 1.20
 @Deprecated
 public class DimStackGameRule {
     public static GameRules.Key<GameRules.BooleanValue> dimensionStackKey;

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent;
 import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -65,11 +66,11 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Nullable
     private DimStackScreen ip_dimStackScreen;
     
-    @Nullable
-    private WorldGenSettings ip_lastWorldGenSettings;
-    
-    @Nullable
-    private RegistryAccess ip_lastRegistryAccess;
+//    @Nullable
+//    private WorldGenSettings ip_lastWorldGenSettings;
+//
+//    @Nullable
+//    private RegistryAccess ip_lastRegistryAccess;
     
     protected MixinCreateWorldScreen(Component title) {
         super(title);
@@ -138,19 +139,19 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     }
     
     // Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;method_40209(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/world/level/DataPackConfig;)Lcom/mojang/datafixers/util/Pair
-    @Inject(
-        method = "method_40209",
-        at = @At("RETURN")
-    )
-    private void onTryingApplyNewDatapackLoading(
-        ResourceManager resourceManager,
-        DataPackConfig dataPackConfig,
-        CallbackInfoReturnable<Pair<Pair<WorldGenSettings, Lifecycle>, RegistryAccess.Frozen>> cir
-    ) {
-        ip_lastWorldGenSettings = cir.getReturnValue().getFirst().getFirst();
-        
-        ip_lastRegistryAccess = cir.getReturnValue().getSecond();
-    }
+//    @Inject(
+//        method = "method_40209",
+//        at = @At("RETURN")
+//    )
+//    private void onTryingApplyNewDatapackLoading(
+//        ResourceManager resourceManager,
+//        DataPackConfig dataPackConfig,
+//        CallbackInfoReturnable<Pair<Pair<WorldGenSettings, Lifecycle>, RegistryAccess.Frozen>> cir
+//    ) {
+//        ip_lastWorldGenSettings = cir.getReturnValue().getFirst().getFirst();
+//
+//        ip_lastRegistryAccess = cir.getReturnValue().getSecond();
+//    }
     
     private void openDimStackScreen() {
         if (ip_dimStackScreen == null) {
@@ -168,77 +169,70 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     private List<ResourceKey<Level>> portal_getDimensionList(Screen addDimensionScreen) {
         Helper.log("Getting the dimension list");
-        
-        if (ip_lastWorldGenSettings == null) {
-            Helper.log("Start reloading datapacks for getting the dimension list");
-            
-            // if the enabled datapack list does not change, it will not reload
-            // ensure that it really reloads
-            this.dataPacks = new DataPackConfig(new ArrayList<>(), new ArrayList<>());
-            
-            // it will load the pack in render thread
-            tryApplyNewDataPacks(minecraft.getResourcePackRepository());
-            
-            // it will switch to the create world screen, switch back
-            IPGlobal.preTotalRenderTaskList.addTask(() -> {
-                if (minecraft.screen == this) {
-                    minecraft.setScreen(addDimensionScreen);
-                    return true;
-                }
-                return false;
-            });
-        }
-        
-        // this won't contain custom dimensions
-        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.createFinalSettings(false).worldGenSettings();
-        
-        WorldGenSettings copiedGeneratorOptions = new WorldGenSettings(
-            rawGeneratorOptions.seed(), rawGeneratorOptions.generateStructures(),
-            rawGeneratorOptions.generateBonusChest(),
-            MiscHelper.filterAndCopyRegistry(
-                ((MappedRegistry<LevelStem>) rawGeneratorOptions.dimensions()),
-                (a, b) -> true
-            )
-        );
-        
-        try {
-            // register custom dimensions including alternate dimensions
-            if (ip_lastRegistryAccess != null) {
-                DimensionAPI.serverDimensionsLoadEvent.invoker().run(copiedGeneratorOptions, ip_lastRegistryAccess);
-            }
-            else {
-                Helper.err("Null registry access");
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        HashSet<ResourceKey<Level>> dims = new HashSet<>();
-        
-        if (ip_lastWorldGenSettings != null) {
-            ip_lastWorldGenSettings.dimensions().keySet().forEach(id -> {
-                dims.add(DimId.idToKey(id));
-            });
-        }
-        else {
-            Helper.err("Null WorldGen settings");
-        }
-        
-        copiedGeneratorOptions.dimensions().keySet().forEach(id -> {
-            dims.add(DimId.idToKey(id));
-        });
-        
-        return dims.stream().toList();
-    }
     
-    @Override
-    public PackRepository portal_getResourcePackManager() {
-        return getDataPackSelectionSettings().getSecond();
-    }
-    
-    @Override
-    public DataPackConfig portal_getDataPackSettings() {
-        return dataPacks;
+        Registry<LevelStem> datapackDimensions = worldGenSettingsComponent.settings().datapackDimensions();
+        return datapackDimensions.keySet().stream().map(DimId::idToKey).toList();
+
+//        if (ip_lastWorldGenSettings == null) {
+//            Helper.log("Start reloading datapacks for getting the dimension list");
+//
+//            // if the enabled datapack list does not change, it will not reload
+//            // ensure that it really reloads
+//            this.dataPacks = new DataPackConfig(new ArrayList<>(), new ArrayList<>());
+//
+//            // it will load the pack in render thread
+//            tryApplyNewDataPacks(minecraft.getResourcePackRepository());
+//
+//            // it will switch to the create world screen, switch back
+//            IPGlobal.preTotalRenderTaskList.addTask(() -> {
+//                if (minecraft.screen == this) {
+//                    minecraft.setScreen(addDimensionScreen);
+//                    return true;
+//                }
+//                return false;
+//            });
+//        }
+//
+//        // this won't contain custom dimensions
+//        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.createFinalSettings(false).worldGenSettings();
+//
+//        WorldGenSettings copiedGeneratorOptions = new WorldGenSettings(
+//            rawGeneratorOptions.seed(), rawGeneratorOptions.generateStructures(),
+//            rawGeneratorOptions.generateBonusChest(),
+//            MiscHelper.filterAndCopyRegistry(
+//                ((MappedRegistry<LevelStem>) rawGeneratorOptions.dimensions()),
+//                (a, b) -> true
+//            )
+//        );
+//
+//        try {
+//            // register custom dimensions including alternate dimensions
+//            if (ip_lastRegistryAccess != null) {
+//                DimensionAPI.serverDimensionsLoadEvent.invoker().run(copiedGeneratorOptions, ip_lastRegistryAccess);
+//            }
+//            else {
+//                Helper.err("Null registry access");
+//            }
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        HashSet<ResourceKey<Level>> dims = new HashSet<>();
+//
+//        if (ip_lastWorldGenSettings != null) {
+//            ip_lastWorldGenSettings.dimensions().keySet().forEach(id -> {
+//                dims.add(DimId.idToKey(id));
+//            });
+//        }
+//        else {
+//            Helper.err("Null WorldGen settings");
+//        }
+//
+//        copiedGeneratorOptions.dimensions().keySet().forEach(id -> {
+//            dims.add(DimId.idToKey(id));
+//        });
+//
+//        return dims.stream().toList();
     }
 }

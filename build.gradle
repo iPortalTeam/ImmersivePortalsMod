@@ -136,23 +136,23 @@ allprojects {
         }
         modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
-        modApi("com.github.Virtuoel:Pehkui:3.4.1", {
+        modCompileOnly("com.github.Virtuoel:Pehkui:3.4.1", {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.6"
+        modCompileOnly "maven.modrinth:sodium:mc1.19.3-0.4.6"
 
         modCompileOnly 'maven.modrinth:iris:1.19.3-v1.4.6'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 //        implementation 'io.github.douira:glsl-transformer:1.0.0-pre21.2' // for iris
 
-        modImplementation("maven.modrinth:gravity-api:0.7.18+fabric") {
+        modCompileOnly("maven.modrinth:gravity-api:0.7.18+fabric") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
     }
 
     processResources {

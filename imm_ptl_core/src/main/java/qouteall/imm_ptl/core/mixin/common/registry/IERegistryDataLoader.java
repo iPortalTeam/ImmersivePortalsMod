@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(RegistryDataLoader.class)
-public class IERegistryDataLoader {
+public interface IERegistryDataLoader {
     @Invoker("createContext")
     public static RegistryOps.RegistryInfoLookup ip_createContext(RegistryAccess registryAccess, List<Pair<WritableRegistry<?>, RegistryDataLoader.Loader>> list) {
         throw new RuntimeException();

@@ -76,65 +76,8 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
     ) {
         isStencilBufferEnabled = false;
     }
-    
-    //6402 0x1902 GL_DEPTH_COMPONENT
-    //36096 0x8D00 GL_DEPTH_ATTACHMENT
-    
-    // https://github.com/Astrarre/Astrarre/blob/1.17/astrarre-rendering-v0/src/main/java/io/github/astrarre/rendering/internal/mixin/FramebufferMixin_EnableStencil.java
-    
-//    /**
-//     * @author
-//     */
-//    @Overwrite
-//    public void initFbo(int width, int height, boolean getError) {
-//        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-//        int maxTexSize = RenderSystem.maxSupportedTextureSize();
-//        if (width > 0 && width <= maxTexSize && height > 0 && height <= maxTexSize) {
-//            this.viewportWidth = width;
-//            this.viewportHeight = height;
-//            this.textureWidth = width;
-//            this.textureHeight = height;
-//            this.fbo = GlStateManager.glGenFramebuffers();
-//            this.colorAttachment = TextureUtil.generateTextureId();
-//            if (this.useDepthAttachment) {
-//                this.depthAttachment = TextureUtil.generateTextureId();
-//                GlStateManager._bindTexture(this.depthAttachment);
-//
-//                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, 0);
-//                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//                GlStateManager._texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, this.textureWidth, this.textureHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (IntBuffer)null);
-//            }
-//
-//            this.setTexFilter(GL_NEAREST);
-//            GlStateManager._bindTexture(this.colorAttachment);
-//            GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//            GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//            GlStateManager._texImage2D(
-//                GL_TEXTURE_2D, 0, GL_RGBA8, this.textureWidth, this.textureHeight,
-//                0, GL_RGBA, GL_UNSIGNED_BYTE, (IntBuffer)null
-//            );
-//            GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
-//            GlStateManager._glFramebufferTexture2D(
-//                GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.colorAttachment, 0
-//            );
-//            if (this.useDepthAttachment) {
-//                GlStateManager._glFramebufferTexture2D(
-//                    GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this.depthAttachment, 0
-//                );
-//            }
-//
-//            this.checkFramebufferStatus();
-//            this.clear(getError);
-//            this.endRead();
-//        } else {
-//            throw new IllegalArgumentException("Window " + width + "x" + height + " size out of bounds (max. size: " + maxTexSize + ")");
-//        }
-//    }
-    
 
+    // TODO simplify to modifyArg or modifyVariable
     @Redirect(
         method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;createBuffers(IIZ)V",
         at = @At(

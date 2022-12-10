@@ -50,13 +50,15 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     public static final Codec<ErrorTerrainGenerator> codec = RecordCodecBuilder.create(
         instance -> instance.group(
-                RegistryOps.retrieveGetter(Registries.BIOME)
+                RegistryOps.retrieveGetter(Registries.BIOME),
+                RegistryOps.retrieveGetter(Registries.NOISE_SETTINGS)
             )
             .apply(instance, ErrorTerrainGenerator::create)
     );
     
     public static ErrorTerrainGenerator create(
-        HolderGetter<Biome> biomeRegistry
+        HolderGetter<Biome> biomeRegistry,
+        HolderGetter<NoiseGeneratorSettings> noiseGeneratorSettingsHolderGetter
     ) {
         ResourceKey<Biome>[] biomes = new ResourceKey[]{
             Biomes.DESERT
@@ -70,7 +72,8 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             HolderSet.direct(holders)
         );
         
-        NoiseGeneratorSettings skylandSetting = IENoiseGeneratorSettings.ip_floatingIslands();
+        NoiseGeneratorSettings skylandSetting = noiseGeneratorSettingsHolderGetter
+            .getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS).value();
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
             chaosBiomeSource, Holder.direct(skylandSetting)

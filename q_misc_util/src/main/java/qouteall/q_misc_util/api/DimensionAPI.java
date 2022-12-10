@@ -3,6 +3,7 @@ package qouteall.q_misc_util.api;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.core.DefaultedMappedRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -75,18 +76,21 @@ public class DimensionAPI {
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
-        if (levelStemRegistry instanceof MappedRegistry<LevelStem> mapped) {
-            if (!mapped.keySet().contains(dimensionId)) {
-                
-                mapped.register(
-                    ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
-                    levelStem,
-                    Lifecycle.stable()
-                );
-            }
-        }
-        else {
+        if (!(levelStemRegistry instanceof MappedRegistry<LevelStem> mapped)) {
             throw new RuntimeException("Failed to register the dimension");
+        }
+        
+        if (!mapped.keySet().contains(dimensionId)) {
+            // the vanilla freezing mechanism is used for validating dangling object references
+            // for this API, that thing won't happen
+            boolean oldIsFrozen = ((IEMappedRegistry) mapped).ip_getIsFrozen();
+            ((IEMappedRegistry) mapped).ip_setIsFrozen(false);
+            mapped.register(
+                ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
+                levelStem,
+                Lifecycle.stable()
+            );
+            ((IEMappedRegistry) mapped).ip_setIsFrozen(oldIsFrozen);
         }
         
         markDimensionNonPersistent(dimensionId);

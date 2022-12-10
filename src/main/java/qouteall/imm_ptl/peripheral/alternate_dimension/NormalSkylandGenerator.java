@@ -54,6 +54,7 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
                 RegistryOps.retrieveGetter(Registries.BIOME),
                 RegistryOps.retrieveGetter(Registries.DENSITY_FUNCTION),
                 RegistryOps.retrieveGetter(Registries.NOISE),
+                RegistryOps.retrieveGetter(Registries.NOISE_SETTINGS),
                 Codec.LONG.optionalFieldOf("seed", 0L).forGetter(g -> g.seed)
             )
             .apply(instance, NormalSkylandGenerator::create)
@@ -96,6 +97,7 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         HolderGetter<Biome> biomeHolderGetter,
         HolderGetter<DensityFunction> densityFunctionHolderGetter,
         HolderGetter<NormalNoise.NoiseParameters> noiseParametersHolderGetter,
+        HolderGetter<NoiseGeneratorSettings> noiseGeneratorSettingsHolderGetter,
         long seed
     ) {
         MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
@@ -103,11 +105,13 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         
         BiomeSource chaosBiomeSource = new ChaosBiomeSource(HolderSet.direct(new ArrayList<>(overworldBiomes)));
         
-        NoiseGeneratorSettings overworldNGS = IENoiseGeneratorSettings.ip_overworld(false, false);
+        NoiseGeneratorSettings overworldNGS = noiseGeneratorSettingsHolderGetter
+            .getOrThrow(NoiseGeneratorSettings.OVERWORLD).value();
         
-        NoiseGeneratorSettings intrinsicSkylandNGS = IENoiseGeneratorSettings.ip_floatingIslands();
+        NoiseGeneratorSettings intrinsicSkylandNGS = noiseGeneratorSettingsHolderGetter
+            .getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS).value();
         
-        NoiseGeneratorSettings endNGS = IENoiseGeneratorSettings.ip_end();
+//        NoiseGeneratorSettings endNGS = IENoiseGeneratorSettings.ip_end();
         
         NoiseGeneratorSettings usedSkylandNGS = new NoiseGeneratorSettings(
             intrinsicSkylandNGS.noiseSettings(),

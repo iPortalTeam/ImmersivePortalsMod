@@ -56,7 +56,7 @@ public class MyRenderHelper {
     
     public static final Minecraft client = Minecraft.getInstance();
     
-    public static final SignalBiArged<ResourceManager, Consumer<ShaderInstance>> loadShaderSignal =
+    public static final SignalBiArged<ResourceProvider, Consumer<ShaderInstance>> loadShaderSignal =
         new SignalBiArged<>();
     
     public static void init() {
@@ -108,7 +108,7 @@ public class MyRenderHelper {
     }
     
     // vanilla hardcodes the shader namespace to be "minecraft"
-    private static ResourceProvider getResourceFactory(ResourceManager resourceManager) {
+    private static ResourceProvider getResourceFactory(ResourceProvider resourceManager) {
         ResourceProvider resourceFactory = new ResourceProvider() {
             @Override
             public Optional<Resource> getResource(ResourceLocation resourceLocation) {
