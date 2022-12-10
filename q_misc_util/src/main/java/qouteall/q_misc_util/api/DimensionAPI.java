@@ -7,6 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -15,12 +16,14 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
+import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 
 import java.util.Set;
 
@@ -29,21 +32,19 @@ public class DimensionAPI {
     
     public static interface ServerDimensionsLoadCallback {
         /**
-         * You can get the registry of dimensions using `worldGenSettings.dimensions()`
-         * For biomes and dimension types, you can get them from the registry access
+         * TODO update doc
          */
-        void run(WorldGenSettings worldGenSettings, RegistryAccess registryAccess);
+        void run(WorldOptions worldOptions, RegistryAccess registryAccess);
     }
     
     public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
         EventFactory.createArrayBacked(
             ServerDimensionsLoadCallback.class,
-            (listeners) -> ((generatorOptions, registryManager) -> {
+            (listeners) -> ((worldOptions, registryManager) -> {
+                Registry<LevelStem> levelStems = registryManager.registryOrThrow(Registries.LEVEL_STEM);
                 for (ServerDimensionsLoadCallback listener : listeners) {
-                    DimensionMisc.ensureRegistryNotFrozen(generatorOptions);
-                    listener.run(generatorOptions, registryManager);
+                    listener.run(worldOptions, registryManager);
                 }
-                DimensionMisc.ensureRegistryFrozen(generatorOptions);
             })
         );
     
@@ -78,7 +79,7 @@ public class DimensionAPI {
             if (!mapped.keySet().contains(dimensionId)) {
                 
                 mapped.register(
-                    ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
+                    ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
                     levelStem,
                     Lifecycle.stable()
                 );
@@ -111,6 +112,7 @@ public class DimensionAPI {
      * then the nether and the end will vanish.
      * It's recommended to mark your own dimension non-persistent
      */
+    @Deprecated
     public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
         DimensionMisc.nonPersistentDimensions.add(dimensionId);
     }

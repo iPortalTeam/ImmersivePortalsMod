@@ -3,10 +3,10 @@ package qouteall.imm_ptl.core.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -253,15 +253,15 @@ public abstract class PortalRenderer {
             return null;
         }
         
-        Quaternion rot = portal.rotation.copy();
-        rot.conj();
-        return new Matrix4f(rot);
+        Quaternionf rot = portal.rotation.toMcQuaternion();
+        rot.conjugate();
+        return rot.get(new Matrix4f());
     }
     
     @Nullable
     public static Matrix4f combineNullable(@Nullable Matrix4f a, @Nullable Matrix4f b) {
         return Helper.combineNullable(a, b, (m1, m2) -> {
-            m1.multiply(m2);
+            m1.mul(m2);
             return m1;
         });
     }
@@ -274,7 +274,7 @@ public abstract class PortalRenderer {
         // for fuse-view portal, the depth value should be correct so the scale should be applied
         if (shouldApplyScaleToModelView(portal)) {
             float v = (float) (1.0 / portal.getScale());
-            return Matrix4f.createScaleMatrix(v, v, v);
+            return new Matrix4f().scale(v, v, v);
         }
         return null;
     }

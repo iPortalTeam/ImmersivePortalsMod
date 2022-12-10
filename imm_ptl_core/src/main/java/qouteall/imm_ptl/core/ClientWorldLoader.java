@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -355,7 +356,7 @@ public class ClientWorldLoader {
             int simulationDistance = client.level.getServerSimulationDistance();
             
             Holder<DimensionType> dimensionType = registryManager
-                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+                .registryOrThrow(Registries.DIMENSION_TYPE)
                 .getHolderOrThrow(dimensionTypeKey);
             
             ClientLevel.ClientLevelData properties = new ClientLevel.ClientLevelData(

@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceKey;
@@ -41,7 +42,7 @@ public class DimensionTypeSync {
             String val = tag.getString(key);
             
             ResourceKey<DimensionType> typeKey =
-                ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation(val));
+                ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(val));
             
             result.put(worldKey, typeKey);
         });
@@ -63,7 +64,7 @@ public class DimensionTypeSync {
     
     public static CompoundTag createTagFromServerWorldInfo() {
         RegistryAccess registryManager = MiscHelper.getServer().registryAccess();
-        Registry<DimensionType> dimensionTypes = registryManager.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+        Registry<DimensionType> dimensionTypes = registryManager.registryOrThrow(Registries.DIMENSION_TYPE);
         return typeMapToTag(
             Streams.stream(MiscHelper.getServer().getAllLevels()).collect(
                 Collectors.toMap(
@@ -85,7 +86,7 @@ public class DimensionTypeSync {
     }
     
     public static ResourceKey<DimensionType> idToDimType(ResourceLocation id) {
-        return ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, id);
+        return ResourceKey.create(Registries.DIMENSION_TYPE, id);
     }
     
     private static CompoundTag typeMapToTag(Map<ResourceKey<Level>, ResourceKey<DimensionType>> data) {
@@ -122,7 +123,7 @@ public class DimensionTypeSync {
     
     @Environment(EnvType.CLIENT)
     public static DimensionType getDimensionType(ResourceKey<DimensionType> registryKey) {
-        return currentDimensionTypeTracker.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(registryKey);
+        return currentDimensionTypeTracker.registryOrThrow(Registries.DIMENSION_TYPE).get(registryKey);
     }
     
 }

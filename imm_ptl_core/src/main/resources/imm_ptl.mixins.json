@@ -60,7 +60,6 @@
     "client.MixinDebugScreenOverlay",
     "client.MixinGlDebug",
     "client.MixinLivingEntity_C",
-    "client.MixinMatrix4f",
     "client.MixinMinecraft",
     "client.block_manipulation.MixinGameRenderer_B",
     "client.block_manipulation.MixinMinecraft_B",

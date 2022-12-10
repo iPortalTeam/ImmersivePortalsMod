@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
 import javax.annotation.Nullable;
@@ -8,8 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
@@ -105,17 +105,17 @@ public class WorldRenderInfo {
     public static void applyAdditionalTransformations(PoseStack matrixStack) {
         for (WorldRenderInfo worldRenderInfo : renderInfoStack) {
             if (worldRenderInfo.overwriteCameraTransformation) {
-                matrixStack.last().pose().setIdentity();
-                matrixStack.last().normal().setIdentity();
+                matrixStack.last().pose().identity();
+                matrixStack.last().normal().identity();
             }
             
             Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
-                matrixStack.last().pose().multiply(matrix);
+                matrixStack.last().pose().mul(matrix);
                 
                 Matrix3f normalMatrixMult = new Matrix3f(matrix);
-                // make its determinant 1 so it won't scale the normal vector
-                normalMatrixMult.mul(
+                // make its determinant 1, so it won't scale the normal vector
+                normalMatrixMult.scale(
                     (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3)
                 );
                 matrixStack.last().normal().mul(normalMatrixMult);

@@ -13,6 +13,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -65,8 +67,8 @@ public class ImplRemoteProcedureCall {
                 buf.writeDouble(vec.z);
             })
             .put(UUID.class, (buf, o) -> buf.writeUUID(((UUID) o)))
-            .put(Block.class, (buf, o) -> serializeByCodec(buf, Registry.BLOCK.byNameCodec(), o))
-            .put(Item.class, (buf, o) -> serializeByCodec(buf, Registry.ITEM.byNameCodec(), o))
+            .put(Block.class, (buf, o) -> serializeByCodec(buf, BuiltInRegistries.BLOCK.byNameCodec(), o))
+            .put(Item.class, (buf, o) -> serializeByCodec(buf, BuiltInRegistries.ITEM.byNameCodec(), o))
             .put(BlockState.class, (buf, o) -> serializeByCodec(buf, BlockState.CODEC, o))
             .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
             .put(CompoundTag.class, (buf, o) -> buf.writeNbt(((CompoundTag) o)))
@@ -78,13 +80,13 @@ public class ImplRemoteProcedureCall {
             .put(
                 new TypeToken<ResourceKey<Level>>() {}.getType(),
                 buf -> ResourceKey.create(
-                    Registry.DIMENSION_REGISTRY, buf.readResourceLocation()
+                    Registries.DIMENSION, buf.readResourceLocation()
                 )
             )
             .put(
                 new TypeToken<ResourceKey<Biome>>() {}.getType(),
                 buf -> ResourceKey.create(
-                    Registry.BIOME_REGISTRY, buf.readResourceLocation()
+                    Registries.BIOME, buf.readResourceLocation()
                 )
             )
             .put(BlockPos.class, buf -> buf.readBlockPos())
@@ -92,8 +94,8 @@ public class ImplRemoteProcedureCall {
                 new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
             )
             .put(UUID.class, buf -> buf.readUUID())
-            .put(Block.class, buf -> deserializeByCodec(buf, Registry.BLOCK.byNameCodec()))
-            .put(Item.class, buf -> deserializeByCodec(buf, Registry.ITEM.byNameCodec()))
+            .put(Block.class, buf -> deserializeByCodec(buf, BuiltInRegistries.BLOCK.byNameCodec()))
+            .put(Item.class, buf -> deserializeByCodec(buf, BuiltInRegistries.ITEM.byNameCodec()))
             .put(BlockState.class, buf -> deserializeByCodec(buf, BlockState.CODEC))
             .put(ItemStack.class, buf -> deserializeByCodec(buf, ItemStack.CODEC))
             .put(CompoundTag.class, buf -> buf.readNbt())

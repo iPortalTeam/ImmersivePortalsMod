@@ -13,7 +13,7 @@ public class GuiHelper {
     // mc does not expose the height
     public static LayoutFunc layoutButtonHorizontally(AbstractWidget widget) {
         return (a, b) -> {
-            widget.x = a;
+            widget.setX(a);
             widget.setWidth(b - a);
         };
     }
@@ -27,7 +27,7 @@ public class GuiHelper {
     
     public static LayoutFunc layoutButtonVertically(AbstractWidget widget) {
         return (a, b) -> {
-            widget.y = a;
+            widget.setY(a);
         };
     }
     

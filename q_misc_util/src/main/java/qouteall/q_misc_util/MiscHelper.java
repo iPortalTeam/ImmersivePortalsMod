@@ -22,8 +22,7 @@ public class MiscHelper {
     ) {
         MappedRegistry<T> newRegistry = new MappedRegistry<>(
             registry.key(),
-            registry.elementsLifecycle(),
-            null
+            registry.registryLifecycle()
         );
         
         for (Map.Entry<ResourceKey<T>, T> entry : registry.entrySet()) {

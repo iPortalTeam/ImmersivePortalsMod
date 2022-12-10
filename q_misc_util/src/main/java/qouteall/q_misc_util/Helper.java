@@ -3,7 +3,6 @@ package qouteall.q_misc_util;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.math.Quaternion;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -20,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
@@ -458,23 +458,23 @@ public class Helper {
         );
     }
     
-    public static void putQuaternion(CompoundTag compoundTag, String name, @Nullable Quaternion quaternion) {
+    public static void putQuaternion(CompoundTag compoundTag, String name, @Nullable DQuaternion quaternion) {
         if (quaternion != null) {
-            compoundTag.putFloat(name + "X", quaternion.i());
-            compoundTag.putFloat(name + "Y", quaternion.j());
-            compoundTag.putFloat(name + "Z", quaternion.k());
-            compoundTag.putFloat(name + "W", quaternion.r());
+            compoundTag.putDouble(name + "X", quaternion.getX());
+            compoundTag.putDouble(name + "Y", quaternion.getY());
+            compoundTag.putDouble(name + "Z", quaternion.getZ());
+            compoundTag.putDouble(name + "W", quaternion.getW());
         }
     }
     
     @Nullable
-    public static Quaternion getQuaternion(CompoundTag compoundTag, String name) {
+    public static DQuaternion getQuaternion(CompoundTag compoundTag, String name) {
         if (compoundTag.contains(name + "X")) {
-            return new Quaternion(
-                compoundTag.getFloat(name + "X"),
-                compoundTag.getFloat(name + "Y"),
-                compoundTag.getFloat(name + "Z"),
-                compoundTag.getFloat(name + "W")
+            return new DQuaternion(
+                compoundTag.getDouble(name + "X"),
+                compoundTag.getDouble(name + "Y"),
+                compoundTag.getDouble(name + "Z"),
+                compoundTag.getDouble(name + "W")
             );
         }
         else {

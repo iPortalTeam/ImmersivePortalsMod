@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,11 +9,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.Plane;
 
@@ -191,7 +191,7 @@ public class PortalGroup implements PortalLike {
     
     @Nullable
     @Override
-    public Quaternion getRotation() {
+    public DQuaternion getRotation() {
         return transformationDesc.rotation;
     }
     
