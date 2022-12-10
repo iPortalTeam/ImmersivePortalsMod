@@ -10,8 +10,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -23,6 +21,7 @@ import net.minecraft.commands.arguments.coordinates.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -459,7 +458,7 @@ public class PortalCommand {
         registerPortalTargetedCommandWithRotationArgument(
             builder, "set_portal_rotation",
             (p, r) -> {
-                p.rotation = r;
+                p.setRotation(r);
             }
         );
         
@@ -476,11 +475,12 @@ public class PortalCommand {
             builder, "rotate_portal_rotation",
             (portal, rot) -> {
                 if (rot != null) {
-                    if (portal.rotation == null) {
-                        portal.rotation = rot;
+                    DQuaternion rotation = portal.getRotation();
+                    if (rotation == null) {
+                        portal.setRotation(rot);
                     }
                     else {
-                        portal.rotation.mul(rot);
+                        portal.setRotation(rotation.hamiltonProduct(rot));
                     }
                 }
             }
@@ -574,7 +574,8 @@ public class PortalCommand {
                                 portal.getZ() + offset.z
                             );
                             reloadPortal(portal);
-                        } catch (CommandSyntaxException e) {
+                        }
+                        catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
                         }
                     }
@@ -603,7 +604,8 @@ public class PortalCommand {
                                 portal.transformLocalVecNonScale(offset)
                             ));
                             reloadPortal(portal);
-                        } catch (CommandSyntaxException e) {
+                        }
+                        catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
                         }
                     }
@@ -1008,7 +1010,7 @@ public class PortalCommand {
     private static void registerPortalTargetedCommandWithRotationArgument(
         LiteralArgumentBuilder<CommandSourceStack> builder,
         String literal,
-        BiConsumer<Portal, Quaternion> func
+        BiConsumer<Portal, DQuaternion> func
     ) {
         builder.then(Commands.literal(literal)
             .then(Commands.argument("rotatingAxis", Vec3Argument.vec3(false))
@@ -1016,25 +1018,11 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            sendEditBiWayPortalWarning(context, portal);
-                            
                             Vec3 rotatingAxis = Vec3Argument.getVec3(
                                 context, "rotatingAxis"
                             ).normalize();
-                            
-                            double angleDegrees = DoubleArgumentType.getDouble(
-                                context, "angleDegrees"
-                            );
-                            
-                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                new Vector3f(rotatingAxis),
-                                (float) angleDegrees,
-                                true
-                            ) : null;
-                            
-                            func.accept(portal, rot);
-                            
-                            reloadPortal(portal);
+    
+                            doInvokeRotationCommandWithAngleArgument(func, context, portal, rotatingAxis);
                         }
                     ))
                 )
@@ -1047,22 +1035,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            sendEditBiWayPortalWarning(context, portal);
-                            
-                            Vector3f axis = new Vector3f(1, 0, 0);
-                            
-                            double angleDegrees =
-                                DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                axis,
-                                (float) angleDegrees,
-                                true
-                            ) : null;
-                            
-                            func.accept(portal, rot);
-                            
-                            reloadPortal(portal);
+                            doInvokeRotationCommandWithAngleArgument(func, context, portal, new Vec3(1, 0, 0));
                         }
                     ))
                 )
@@ -1072,22 +1045,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            sendEditBiWayPortalWarning(context, portal);
-                            
-                            Vector3f axis = new Vector3f(0, 1, 0);
-                            
-                            double angleDegrees =
-                                DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                axis,
-                                (float) angleDegrees,
-                                true
-                            ) : null;
-                            
-                            func.accept(portal, rot);
-                            
-                            reloadPortal(portal);
+                            doInvokeRotationCommandWithAngleArgument(func, context, portal, new Vec3(0, 1, 0));
                         }
                     ))
                 )
@@ -1097,22 +1055,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            sendEditBiWayPortalWarning(context, portal);
-                            
-                            Vector3f axis = new Vector3f(0, 0, 1);
-                            
-                            double angleDegrees =
-                                DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                axis,
-                                (float) angleDegrees,
-                                true
-                            ) : null;
-                            
-                            func.accept(portal, rot);
-                            
-                            reloadPortal(portal);
+                            doInvokeRotationCommandWithAngleArgument(func, context, portal, new Vec3(0, 0, 1));
                         }
                     ))
                 )
@@ -1120,15 +1063,19 @@ public class PortalCommand {
         );
     }
     
-    private static void setPortalRotation(Portal portal, Vector3f axis, double angleDegrees) {
-        if (angleDegrees != 0) {
-            portal.rotation = new Quaternion(
-                axis, (float) angleDegrees, true
-            );
-        }
-        else {
-            portal.rotation = null;
-        }
+    private static void doInvokeRotationCommandWithAngleArgument(BiConsumer<Portal, DQuaternion> func, CommandContext<CommandSourceStack> context, Portal portal, Vec3 rotatingAxis) {
+        sendEditBiWayPortalWarning(context, portal);
+        
+        double angleDegrees =
+            DoubleArgumentType.getDouble(context, "angleDegrees");
+        
+        
+        DQuaternion rot = angleDegrees != 0 ? DQuaternion.rotationByDegrees(
+            rotatingAxis,
+            (float) angleDegrees
+        ) : null;
+        
+        func.accept(portal, rot);
         
         reloadPortal(portal);
     }
@@ -1835,7 +1782,7 @@ public class PortalCommand {
     
     private static BlockState getRandomBlock() {
         for (; ; ) {
-            Block block = Registry.BLOCK.getRandom(RandomSource.create()).get().value();
+            Block block = BuiltInRegistries.BLOCK.getRandom(RandomSource.create()).get().value();
             BlockState state = block.defaultBlockState();
             Material material = state.getMaterial();
             if (material.blocksMotion() && material.getPushReaction() == PushReaction.NORMAL
@@ -2112,7 +2059,7 @@ public class PortalCommand {
             func.accept(
                 Component.literal(
                     String.format("Rotating Transformation: %s",
-                        DQuaternion.fromMcQuaternion(portal.getRotation())
+                        portal.getRotation()
                     )
                 )
             );

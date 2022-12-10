@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import com.mojang.math.Vector4f;
 import net.minecraft.client.renderer.culling.Frustum;
+import org.joml.FrustumIntersection;
+import org.joml.Vector4f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,9 +29,7 @@ public abstract class MixinFrustum_FixDeadLoop {
     @Shadow
     private Vector4f viewVector;
     
-    @Shadow
-    protected abstract boolean cubeCompletelyInFrustum(float f, float g, float h, float i, float j, float k);
-    
+    @Shadow @Final private FrustumIntersection intersection;
     private static LimitedLogger limitedLogger = new LimitedLogger(10);
     
     /**
@@ -55,7 +55,7 @@ public abstract class MixinFrustum_FixDeadLoop {
         
         int countLimit = 10; // limit the loop count
         
-        while (!this.cubeCompletelyInFrustum((float) (minX - this.camX), (float) (minY - this.camY), (float) (minZ - this.camZ), (float) (maxX - this.camX), (float) (maxY - this.camY), (float) (maxZ - this.camZ))) {
+        while (this.intersection.intersectAab((float) (minX - this.camX), (float) (minY - this.camY), (float) (minZ - this.camZ), (float) (maxX - this.camX), (float) (maxY - this.camY), (float) (maxZ - this.camZ))!= -2) {
             this.camX -= (double) (this.viewVector.x() * 4.0F);
             this.camY -= (double) (this.viewVector.y() * 4.0F);
             this.camZ -= (double) (this.viewVector.z() * 4.0F);

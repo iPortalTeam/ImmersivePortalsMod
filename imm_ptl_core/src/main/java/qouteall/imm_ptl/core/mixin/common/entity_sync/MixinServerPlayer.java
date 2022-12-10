@@ -22,86 +22,14 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
     @Shadow
     private Vec3 enteredNetherPosition;
     
-//    private HashMultimap<RegistryKey<World>, Entity> myRemovedEntities;
-    
     @Shadow
     private boolean isChangingDimension;
     
-    @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);
-    
-    public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
-        super(level, blockPos, f, gameProfile, profilePublicKey);
+    public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+        super(level, blockPos, f, gameProfile);
     }
     
-//    @Inject(
-//        method = "Lnet/minecraft/server/network/ServerPlayerEntity;tick()V",
-//        at = @At("TAIL")
-//    )
-//    private void onTicking(CallbackInfo ci) {
-//        if (myRemovedEntities != null) {
-//            myRemovedEntities.keySet().forEach(dimension -> {
-//                Set<Entity> list = myRemovedEntities.get(dimension);
-//                networkHandler.sendPacket(
-//                    MyNetwork.createRedirectedMessage(
-//                        dimension,
-//                        new EntityDestroyS2CPacket(
-//                            list.stream().mapToInt(
-//                                Entity::getId
-//                            ).toArray()
-//                        )
-//                    )
-//                );
-//            });
-//            myRemovedEntities = null;
-//        }
-//    }
-    
-//    @Inject(
-//        method = "Lnet/minecraft/server/network/ServerPlayerEntity;copyFrom(Lnet/minecraft/server/network/ServerPlayerEntity;Z)V",
-//        at = @At("RETURN")
-//    )
-//    private void onCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-//        HashMultimap<RegistryKey<World>, Entity> oldPlayerRemovedEntities =
-//            ((MixinServerPlayerEntity) (Object) oldPlayer).myRemovedEntities;
-//        if (oldPlayerRemovedEntities != null) {
-//            myRemovedEntities = HashMultimap.create();
-//            this.myRemovedEntities.putAll(oldPlayerRemovedEntities);
-//        }
-//    }
-    
-//    /**
-//     * @author qouteall
-//     */
-//    @Overwrite
-//    public void onStoppedTracking(Entity entity_1) {
-//        if (entity_1 instanceof PlayerEntity) {
-//            this.networkHandler.sendPacket(
-//                MyNetwork.createRedirectedMessage(
-//                    entity_1.world.getRegistryKey(),
-//                    new EntityDestroyS2CPacket(entity_1.getId())
-//                )
-//            );
-//        }
-//        else {
-//            if (myRemovedEntities == null) {
-//                myRemovedEntities = HashMultimap.create();
-//            }
-//            //do not use entity.dimension
-//            //or it will work abnormally when changeDimension() is run
-//            myRemovedEntities.put(entity_1.world.getRegistryKey(), entity_1);
-//        }
-//
-//    }
-    
-//    /**
-//     * @author qouteall
-//     */
-//    @Overwrite
-//    public void onStartedTracking(Entity entity_1) {
-//        if (myRemovedEntities != null) {
-//            myRemovedEntities.remove(entity_1.world.getRegistryKey(), entity_1);
-//        }
-//    }
+    @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);
     
     @Override
     public void setEnteredNetherPos(Vec3 pos) {

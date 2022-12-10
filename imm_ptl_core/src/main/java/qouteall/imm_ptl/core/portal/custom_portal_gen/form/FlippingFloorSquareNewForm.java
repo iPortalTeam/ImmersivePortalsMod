@@ -1,18 +1,18 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
 public class FlippingFloorSquareNewForm extends HeterogeneousForm {
@@ -74,10 +74,9 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
         return new PortalGenInfo(
             fromWorld.dimension(), toWorld.dimension(),
             fromShape, placedShape,
-            new Quaternion(
-                new Vector3f(1, 0, 0),
-                180,
-                true
+            DQuaternion.rotationByDegrees(
+                new Vec3(1, 0, 0),
+                180
             ), 1.0
         );
         

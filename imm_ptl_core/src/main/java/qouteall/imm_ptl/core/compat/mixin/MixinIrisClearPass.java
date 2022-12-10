@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
 import net.coderbot.iris.pipeline.ClearPass;
-import net.coderbot.iris.vendored.joml.Vector4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

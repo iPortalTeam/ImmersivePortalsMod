@@ -570,6 +570,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         );
     }
     
+    /**
+     * NOTE: This is not the portal orientation. It's the rotation transformation.
+     * @param quaternion The new rotation transformation.
+     */
     public void setRotation(@Nullable DQuaternion quaternion) {
         setRotationTransformationD(quaternion);
     }

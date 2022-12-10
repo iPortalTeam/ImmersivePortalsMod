@@ -1,9 +1,7 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
-import com.mojang.math.Matrix3f;
 import com.mojang.math.OctahedralGroup;
-import com.mojang.math.Quaternion;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -12,6 +10,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.joml.Matrix3f;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -108,12 +107,12 @@ public class DiligentMatcher {
             return matrix;
         }
         
-        public Quaternion toQuaternion() {
+        public DQuaternion toQuaternion() {
             return DQuaternion.matrixToQuaternion(
                 Vec3.atLowerCornerOf(x),
                 Vec3.atLowerCornerOf(y),
                 Vec3.atLowerCornerOf(z)
-            ).toMcQuaternion();
+            );
         }
     }
     

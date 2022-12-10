@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,7 +47,7 @@ public abstract class MixinLevelRenderer_Clouds {
     private int ticks;
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
+        method = "renderClouds",
         at = @At("HEAD")
     )
     private void onBeginRenderClouds(
@@ -64,7 +64,7 @@ public abstract class MixinLevelRenderer_Clouds {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
+        method = "renderClouds",
         at = @At("RETURN")
     )
     private void onEndRenderClouds(PoseStack matrices, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {

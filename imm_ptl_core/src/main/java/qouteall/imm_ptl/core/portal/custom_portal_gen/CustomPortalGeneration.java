@@ -10,6 +10,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -28,12 +29,12 @@ import java.util.function.Function;
 
 public class CustomPortalGeneration {
     public static final ResourceKey<Level> theSameDimension = ResourceKey.create(
-        Registry.DIMENSION_REGISTRY,
+        Registries.DIMENSION,
         new ResourceLocation("imm_ptl:the_same_dimension")
     );
     
     public static final ResourceKey<Level> anyDimension = ResourceKey.create(
-        Registry.DIMENSION_REGISTRY,
+        Registries.DIMENSION,
         new ResourceLocation("imm_ptl:any_dimension")
     );
     
@@ -71,7 +72,7 @@ public class CustomPortalGeneration {
     public static MappedRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
         Util.make(() -> {
             MappedRegistry<Codec<CustomPortalGeneration>> registry = new MappedRegistry<>(
-                schemaRegistryKey, Lifecycle.stable(), null
+                schemaRegistryKey, Lifecycle.stable()
             );
             Registry.register(
                 registry, new ResourceLocation("imm_ptl:v1"), codecV1

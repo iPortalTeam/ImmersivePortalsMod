@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -164,7 +164,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         method = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lcom/mojang/math/Matrix4f;)V",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
             shift = At.Shift.AFTER
         )
     )
@@ -203,10 +203,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         method = "Lnet/minecraft/client/renderer/GameRenderer;bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V"
+            target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"
         )
     )
-    private void redirectBobViewTranslate(PoseStack matrixStack, double x, double y, double z) {
+    private void redirectBobViewTranslate(PoseStack matrixStack, float x, float y, float z) {
         if (portal_isRenderingHand) {
             matrixStack.translate(x, y, z);
         }
@@ -224,8 +224,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         method = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
         at = @At(
             value = "INVOKE",
-            ordinal = 0,
-            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lcom/mojang/math/Matrix4f;"
+            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lorg/joml/Matrix4f;",
+            ordinal = 0
         )
     )
     private Matrix4f redirectGetBasicProjectionMatrix(GameRenderer instance, double fov) {

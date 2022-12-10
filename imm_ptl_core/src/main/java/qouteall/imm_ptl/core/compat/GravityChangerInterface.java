@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -153,10 +154,13 @@ public class GravityChangerInterface {
             if (gravityDirection == Direction.DOWN) {
                 return null;
             }
+    
+            // TODO implement
+            throw new NotImplementedException();
             
-            return DQuaternion.fromMcQuaternion(
-                RotationUtil.getWorldRotationQuaternion(gravityDirection)
-            );
+//            return (
+//                RotationUtil.getWorldRotationQuaternion(gravityDirection)
+//            );
         }
         
         @Override

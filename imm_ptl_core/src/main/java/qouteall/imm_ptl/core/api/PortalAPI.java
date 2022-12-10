@@ -62,7 +62,7 @@ public class PortalAPI {
     ) {
         portal.setDestinationDimension(destinationDimension);
         portal.setDestination(destinationPosition);
-        portal.setRotationTransformation(rotation.toMcQuaternion());
+        portal.setRotation(rotation);
         portal.setScaleTransformation(scale);
     }
     

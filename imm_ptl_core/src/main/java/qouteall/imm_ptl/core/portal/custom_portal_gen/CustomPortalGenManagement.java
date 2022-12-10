@@ -43,9 +43,6 @@ public class CustomPortalGenManagement {
     private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
     private static final Map<UUID, UCoordinate> playerPosBeforeTravel = new HashMap<>();
     
-    /**
-     * {@link CreateWorldScreen#tryApplyNewDataPacks(PackRepository)}
-     */
     public static void onDatapackReload() {
         useItemGen.clear();
         throwItemGen.clear();

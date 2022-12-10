@@ -12,8 +12,6 @@ import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.RegistryLoader;
-import net.minecraft.resources.RegistryResourceAccess;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -409,27 +407,27 @@ public class PortalDebugCommands {
             })
         );
         
-        builder.then(Commands
-            .literal("print_generator_config")
-            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
-            .executes(context -> {
-                MiscHelper.getServer().getAllLevels().forEach(world -> {
-                    ChunkGenerator generator = world.getChunkSource().getGenerator();
-                    Helper.log(world.dimension().location());
-                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
-                    Helper.log(McHelper.serializeToJson(
-                        world.dimensionType(),
-                        DimensionType.DIRECT_CODEC.stable()
-                    ));
-                });
-                
-                WorldGenSettings options = MiscHelper.getServer().getWorldData().worldGenSettings();
-                
-                Helper.log(McHelper.serializeToJson(options, WorldGenSettings.CODEC));
-                
-                return 0;
-            })
-        );
+//        builder.then(Commands
+//            .literal("print_generator_config")
+//            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+//            .executes(context -> {
+//                MiscHelper.getServer().getAllLevels().forEach(world -> {
+//                    ChunkGenerator generator = world.getChunkSource().getGenerator();
+//                    Helper.log(world.dimension().location());
+//                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
+//                    Helper.log(McHelper.serializeToJson(
+//                        world.dimensionType(),
+//                        DimensionType.DIRECT_CODEC.stable()
+//                    ));
+//                });
+//
+//                WorldGenSettings options = MiscHelper.getServer().getWorldData().worldGenSettings();
+//
+//                Helper.log(McHelper.serializeToJson(options, WorldGenSettings.CODEC));
+//
+//                return 0;
+//            })
+//        );
         
         builder.then(Commands
             .literal("nofog_enable")

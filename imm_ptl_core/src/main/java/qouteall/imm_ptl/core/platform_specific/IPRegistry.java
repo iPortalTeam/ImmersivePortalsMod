@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -43,7 +44,7 @@ public class IPRegistry {
                 .lightLevel((s)->15)
         );
         Registry.register(
-            Registry.BLOCK,
+            BuiltInRegistries.BLOCK,
             // the id is inappropriate
             new ResourceLocation("immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
@@ -67,14 +68,14 @@ public class IPRegistry {
         ).fireImmune().trackable(96, 20).build();
         setEntityType.accept(entityType);
         Registry.register(
-            Registry.ENTITY_TYPE,
+            BuiltInRegistries.ENTITY_TYPE,
             new ResourceLocation(id),
             entityType
         );
     }
     
     public static void registerEntitiesFabric() {
-        DefaultedRegistry<EntityType<?>> registry = Registry.ENTITY_TYPE;
+        DefaultedRegistry<EntityType<?>> registry = BuiltInRegistries.ENTITY_TYPE;
         
         registerEntity(
             o -> Portal.entityType = o,
@@ -148,7 +149,7 @@ public class IPRegistry {
         );
         
         LoadingIndicatorEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
+            BuiltInRegistries.ENTITY_TYPE,
             new ResourceLocation("immersive_portals", "loading_indicator"),
             FabricEntityTypeBuilder.create(
                 MobCategory.MISC,

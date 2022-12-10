@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
-import com.mojang.math.Quaternion;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +13,7 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.SignalArged;
 
 import javax.annotation.Nullable;
@@ -26,7 +26,7 @@ public class PortalGenInfo {
     public BlockPortalShape fromShape;
     public BlockPortalShape toShape;
     @Nullable
-    public Quaternion rotation = null;
+    public DQuaternion rotation = null;
     public double scale = 1.0;
     
     public PortalGenInfo(
@@ -46,7 +46,7 @@ public class PortalGenInfo {
         ResourceKey<Level> to,
         BlockPortalShape fromShape,
         BlockPortalShape toShape,
-        Quaternion rotation,
+        DQuaternion rotation,
         double scale
     ) {
         this.from = from;
@@ -58,7 +58,7 @@ public class PortalGenInfo {
         
         //floating point inaccuracy may make the portal to have near identity rotation or scale
         if (rotation != null) {
-            if (Math.abs(1.0 - rotation.r()) < 0.001) {
+            if (rotation.getRotatingAngleDegrees() < 0.001) {
                 this.rotation = null;
             }
         }
@@ -76,7 +76,7 @@ public class PortalGenInfo {
         portal.dimensionTo = to;
         portal.setDestination(toShape.innerAreaBox.getCenterVec());
         portal.scaling = scale;
-        portal.rotation = rotation;
+        portal.setRotation(rotation);
         
         return portal;
     }

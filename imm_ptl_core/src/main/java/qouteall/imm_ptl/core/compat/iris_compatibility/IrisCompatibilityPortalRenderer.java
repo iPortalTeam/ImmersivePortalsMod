@@ -55,7 +55,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         modelView = new PoseStack();
         modelView.pushPose();
-        modelView.last().pose().multiply(matrixStack.last().pose());
+        modelView.last().pose().mul(matrixStack.last().pose());
         modelView.last().normal().mul(matrixStack.last().normal());
         
         GL11.glDisable(GL_STENCIL_TEST);

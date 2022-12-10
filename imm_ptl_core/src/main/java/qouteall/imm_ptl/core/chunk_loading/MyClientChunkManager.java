@@ -7,6 +7,7 @@ import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -50,7 +51,7 @@ public class MyClientChunkManager extends ClientChunkCache {
         this.emptyChunk = new EmptyLevelChunk(
             clientWorld, new ChunkPos(0, 0),
             clientWorld.registryAccess()
-                .registryOrThrow(Registry.BIOME_REGISTRY)
+                .registryOrThrow(Registries.BIOME)
                 .getHolderOrThrow(Biomes.PLAINS)
         );
         this.lightingProvider = new LevelLightEngine(

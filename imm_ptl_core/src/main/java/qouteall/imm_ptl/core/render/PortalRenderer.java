@@ -249,11 +249,11 @@ public abstract class PortalRenderer {
     
     @Nullable
     public static Matrix4f getPortalRotationMatrix(Portal portal) {
-        if (portal.rotation == null) {
+        if (portal.getRotation() == null) {
             return null;
         }
         
-        Quaternionf rot = portal.rotation.toMcQuaternion();
+        Quaternionf rot = portal.getRotation().toMcQuaternion();
         rot.conjugate();
         return rot.get(new Matrix4f());
     }
