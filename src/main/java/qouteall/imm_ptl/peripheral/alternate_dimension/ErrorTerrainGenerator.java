@@ -8,16 +8,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -29,22 +25,12 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
-import org.jetbrains.annotations.NotNull;
-import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
@@ -57,20 +43,10 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     );
     
     public static ErrorTerrainGenerator create(
-        HolderGetter<Biome> biomeRegistry,
+        HolderGetter<Biome> biomeHolderGetter,
         HolderGetter<NoiseGeneratorSettings> noiseGeneratorSettingsHolderGetter
     ) {
-        ResourceKey<Biome>[] biomes = new ResourceKey[]{
-            Biomes.DESERT
-        };
-        
-        List<Holder.Reference<Biome>> holders = Arrays.stream(biomes)
-            .map(biomeRegistry::getOrThrow)
-            .collect(Collectors.toList());
-        
-        ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(
-            HolderSet.direct(holders)
-        );
+        ChaosBiomeSource chaosBiomeSource = ChaosBiomeSource.createChaosBiomeSource(biomeHolderGetter);
         
         NoiseGeneratorSettings skylandSetting = noiseGeneratorSettingsHolderGetter
             .getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS).value();

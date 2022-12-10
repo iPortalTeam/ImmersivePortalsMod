@@ -6,6 +6,7 @@
     "IELevelStorageAccess_Misc",
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
+    "dimension.IELayeredRegistryAccess",
     "dimension.IEMappedRegistry",
     "dimension.IEWorldBorder",
     "dimension.MixinLevelProperties_D",

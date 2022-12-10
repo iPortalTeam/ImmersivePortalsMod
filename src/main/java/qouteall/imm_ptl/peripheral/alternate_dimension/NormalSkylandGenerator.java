@@ -103,8 +103,6 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
         Set<Holder<Biome>> overworldBiomes = overworldBiomeSource.possibleBiomes();
         
-        BiomeSource chaosBiomeSource = new ChaosBiomeSource(HolderSet.direct(new ArrayList<>(overworldBiomes)));
-        
         NoiseGeneratorSettings overworldNGS = noiseGeneratorSettingsHolderGetter
             .getOrThrow(NoiseGeneratorSettings.OVERWORLD).value();
         

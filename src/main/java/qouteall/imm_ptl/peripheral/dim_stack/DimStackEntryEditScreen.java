@@ -306,6 +306,7 @@ public class DimStackEntryEditScreen extends Screen {
     
         helpButton.setX(width - 50);
         helpButton.setY(5);
+        helpButton.setWidth(20);
     }
     
     @Override

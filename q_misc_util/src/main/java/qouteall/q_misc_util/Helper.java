@@ -395,10 +395,12 @@ public class Helper {
         return Streams.stream(iterator);
     }
     
+    // TODO use separate logger for each class
     public static void log(Object str) {
         logger.info(str);
     }
     
+    // TODO use separate logger for each class
     public static void err(Object str) {
         logger.error(str);
     }

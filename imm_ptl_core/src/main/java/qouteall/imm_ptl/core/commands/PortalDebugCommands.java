@@ -11,7 +11,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +22,7 @@ import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -406,7 +410,26 @@ public class PortalDebugCommands {
                 return 0;
             })
         );
-        
+
+//        builder.then(Commands
+//            .literal("print_biome_list")
+//            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+//            .executes(context -> {
+//                Registry<Biome> biomes = MiscHelper.getServer().registryAccess().registryOrThrow(Registries.BIOME);
+//
+//                StringBuilder builder1 = new StringBuilder();
+//                for (ResourceLocation resourceLocation : biomes.keySet()) {
+//                    builder1.append("\"");
+//                    builder1.append(resourceLocation);
+//                    builder1.append("\",\n");
+//                }
+//
+//                Helper.log(builder1.toString());
+//
+//                return 0;
+//            })
+//        );
+
 //        builder.then(Commands
 //            .literal("print_generator_config")
 //            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
