@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
@@ -19,9 +20,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ScalingSquareForm extends NetherPortalLikeForm {
     public static final Codec<ScalingSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.INT.fieldOf("from_length").forGetter(o -> o.fromLength),
             Codec.INT.fieldOf("to_length").forGetter(o -> o.toLength),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)

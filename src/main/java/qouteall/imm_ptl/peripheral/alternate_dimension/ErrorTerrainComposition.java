@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -135,7 +136,7 @@ public class ErrorTerrainComposition {
         );
         if (funcValue > splitPoint) {
             if (((int) funcValue) % 37 == 0) {
-                Block randomBlock = Registry.BLOCK.getRandom(RandomSource.create()).get().value();
+                Block randomBlock = BuiltInRegistries.BLOCK.getRandom(RandomSource.create()).get().value();
                 //player should not get beacon so easily
                 if (randomBlock == Blocks.BEACON) {
                     randomBlock = Blocks.AIR;

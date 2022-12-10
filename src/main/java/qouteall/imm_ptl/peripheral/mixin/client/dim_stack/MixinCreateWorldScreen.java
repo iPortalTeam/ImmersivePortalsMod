@@ -17,6 +17,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
@@ -47,11 +48,6 @@ import java.util.List;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {
-    @Shadow
-    public abstract void removed();
-    
-    @Shadow
-    protected DataPackConfig dataPacks;
     
     @Shadow
     @org.jetbrains.annotations.Nullable
@@ -81,29 +77,23 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     }
     
     @Inject(
-        method = "<init>(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/world/level/DataPackConfig;Lnet/minecraft/client/gui/screens/worldselection/WorldGenSettingsComponent;)V",
-        at = @At("RETURN")
-    )
-    private void onConstructEnded(
-        Screen screen, DataPackConfig dataPackSettings, WorldGenSettingsComponent moreOptionsDialog,
-        CallbackInfo ci
-    ) {
-    
-    }
-    
-    @Inject(
         method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;init()V",
         at = @At("HEAD")
     )
     private void onInitEnded(CallbackInfo ci) {
         
-        dimStackButton = (Button) this.addRenderableWidget(new Button(
-            width / 2 + 5, 151, 150, 20,
-            Component.translatable("imm_ptl.altius_screen_button"),
-            (buttonWidget) -> {
-                openDimStackScreen();
-            }
-        ));
+        dimStackButton = (Button) this.addRenderableWidget(
+            Button
+                .builder(
+                    Component.translatable("imm_ptl.altius_screen_button"),
+                    (buttonWidget) -> {
+                        openDimStackScreen();
+                    }
+                )
+                .pos(width / 2 + 5, 151)
+                .size(150, 20)
+                .build()
+        );
         dimStackButton.visible = false;
         
     }
@@ -219,7 +209,8 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             else {
                 Helper.err("Null registry access");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         

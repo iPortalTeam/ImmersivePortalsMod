@@ -4,9 +4,12 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
@@ -20,17 +23,18 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkAccess_AlternateDim;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseRouterData;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -47,10 +51,9 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     
     public static final Codec<NormalSkylandGenerator> codec = RecordCodecBuilder.create(
         instance -> instance.group(
-                RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
-                RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
-                RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry),
-                RegistryOps.retrieveRegistry(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).forGetter(g -> g.noiseGeneratorSettingsRegistry),
+                RegistryOps.retrieveGetter(Registries.BIOME),
+                RegistryOps.retrieveGetter(Registries.DENSITY_FUNCTION),
+                RegistryOps.retrieveGetter(Registries.NOISE),
                 Codec.LONG.optionalFieldOf("seed", 0L).forGetter(g -> g.seed)
             )
             .apply(instance, NormalSkylandGenerator::create)
@@ -58,41 +61,44 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     
     private RandomState delegatedRandomState;
     
+    private final HolderGetter<Biome> biomeHolderGetter;
+    private final HolderGetter<DensityFunction> densityFunctionHolderGetter;
+    private final HolderGetter<NormalNoise.NoiseParameters> noiseParametersHolderGetter;
     private final long seed;
     
     public NormalSkylandGenerator(
-        Registry<StructureSet> structureSets,
-        Registry<NormalNoise.NoiseParameters> noiseParametersRegistry,
         BiomeSource biomeSource,
         Holder<NoiseGeneratorSettings> noiseGeneratorSettings,
         
-        Registry<Biome> biomeRegistry,
-        Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry,
-        
         NoiseBasedChunkGenerator delegate,
-        NoiseGeneratorSettings delegateNGS,
         
+        HolderGetter<Biome> biomeHolderGetter,
+        HolderGetter<DensityFunction> densityFunctionHolderGetter,
+        HolderGetter<NormalNoise.NoiseParameters> noiseParametersHolderGetter,
         long seed
     ) {
-        super(structureSets, noiseParametersRegistry, biomeSource, noiseGeneratorSettings);
+        super(biomeSource, noiseGeneratorSettings);
         
-        this.biomeRegistry = biomeRegistry;
-        this.noiseRegistry = noiseParametersRegistry;
-        this.noiseGeneratorSettingsRegistry = noiseGeneratorSettingsRegistry;
         this.delegate = delegate;
-        this.delegateNGS = delegateNGS;
+        this.biomeHolderGetter = biomeHolderGetter;
+        this.densityFunctionHolderGetter = densityFunctionHolderGetter;
+        this.noiseParametersHolderGetter = noiseParametersHolderGetter;
         this.seed = seed;
         
-        this.delegatedRandomState = RandomState.create(delegateNGS, noiseParametersRegistry, seed);
+        this.delegatedRandomState = RandomState.create(
+            (delegate.generatorSettings().value()),
+            ((HolderLookup.RegistryLookup<NormalNoise.NoiseParameters>) noiseParametersHolderGetter),
+            seed
+        );
     }
     
     public static NormalSkylandGenerator create(
-        Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
-        Registry<NormalNoise.NoiseParameters> noiseRegistry,
-        Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry,
+        HolderGetter<Biome> biomeHolderGetter,
+        HolderGetter<DensityFunction> densityFunctionHolderGetter,
+        HolderGetter<NormalNoise.NoiseParameters> noiseParametersHolderGetter,
         long seed
     ) {
-        MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeRegistry);
+        MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
         Set<Holder<Biome>> overworldBiomes = overworldBiomeSource.possibleBiomes();
         
         BiomeSource chaosBiomeSource = new ChaosBiomeSource(HolderSet.direct(new ArrayList<>(overworldBiomes)));
@@ -108,8 +114,11 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
             intrinsicSkylandNGS.defaultBlock(),
             intrinsicSkylandNGS.defaultFluid(),
             IENoiseRouterData.ip_noNewCaves(
-                BuiltinRegistries.DENSITY_FUNCTION,
-                IENoiseRouterData.ip_slideEndLike(IENoiseRouterData.ip_getFunction(BuiltinRegistries.DENSITY_FUNCTION, IENoiseRouterData.get_BASE_3D_NOISE_END()), 0, 128)
+                densityFunctionHolderGetter,
+                noiseParametersHolderGetter,
+                IENoiseRouterData.ip_slideEndLike(IENoiseRouterData.ip_getFunction(
+                    densityFunctionHolderGetter, IENoiseRouterData.get_BASE_3D_NOISE_END()
+                ), 0, 128)
             ),
             intrinsicSkylandNGS.surfaceRule(),
             intrinsicSkylandNGS.spawnTarget(),
@@ -121,28 +130,21 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         );
         
         NoiseBasedChunkGenerator overworldGenerator = new NoiseBasedChunkGenerator(
-            structureSets, noiseRegistry,
             overworldBiomeSource, Holder.direct(overworldNGS)
         );
         
         return new NormalSkylandGenerator(
-            structureSets,
-            noiseRegistry,
             overworldBiomeSource,
             Holder.direct(usedSkylandNGS),
-            biomeRegistry,
-            noiseGeneratorSettingsRegistry,
             overworldGenerator,
-            overworldNGS,
+            biomeHolderGetter,
+            densityFunctionHolderGetter,
+            noiseParametersHolderGetter,
             seed
         );
     }
     
-    public final Registry<Biome> biomeRegistry;
-    public final Registry<NormalNoise.NoiseParameters> noiseRegistry;
-    public final Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry;
     private final NoiseBasedChunkGenerator delegate;
-    private final NoiseGeneratorSettings delegateNGS;
     
     @Override
     protected Codec<? extends ChunkGenerator> codec() {
@@ -154,7 +156,7 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         CompletableFuture<ChunkAccess> original = super.fillFromNoise(executor, blender, randomState, structureManager, chunkAccess);
         return original.thenComposeAsync(chunkAccess1 -> {
             ((IEChunkAccess_AlternateDim) chunkAccess1).ip_setNoiseChunk(null);
-            return delegate.createBiomes(biomeRegistry, executor, delegatedRandomState, blender, structureManager, chunkAccess1);
+            return delegate.createBiomes(executor, delegatedRandomState, blender, structureManager, chunkAccess1);
         });
     }
 }

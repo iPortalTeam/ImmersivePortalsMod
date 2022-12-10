@@ -51,16 +51,17 @@ public class DimStackEntryEditScreen extends Screen {
         scaleField.setHighlightPos(0);//without this the text won't render. mc gui is bugged
         scaleField.setCursorPosition(0);
         
-        flipButton = new Button(
-            0, 0, 0, 20,
-            Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
-            button -> {
-                editing.entry.flipped = !editing.entry.flipped;
-                button.setMessage(
-                    Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
-                );
-            }
-        );
+        flipButton =
+            Button.builder(
+                Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+                    button -> {
+                        editing.entry.flipped = !editing.entry.flipped;
+                        button.setMessage(
+                            Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                        );
+                    }
+                )
+                .build();
         
         horizontalRotationField = new EditBox(
             Minecraft.getInstance().font,
@@ -105,8 +106,7 @@ public class DimStackEntryEditScreen extends Screen {
         bedrockBlockField.setCursorPosition(0);
         bedrockBlockField.setHighlightPos(0);
     
-        connectsPreviousButton = new Button(
-            0, 0, 0, 20,
+        connectsPreviousButton = Button.builder(
             Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled"),
             button -> {
                 editing.entry.connectsPrevious = !editing.entry.connectsPrevious;
@@ -114,10 +114,9 @@ public class DimStackEntryEditScreen extends Screen {
                     Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled")
                 );
             }
-        );
+        ).build();
         
-        connectsNextButton = new Button(
-            0, 0, 0, 20,
+        connectsNextButton = Button.builder(
             Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled"),
             button -> {
                 editing.entry.connectsNext = !editing.entry.connectsNext;
@@ -125,10 +124,10 @@ public class DimStackEntryEditScreen extends Screen {
                     Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled")
                 );
             }
-        );
+        ).build();
         
-        finishButton = new Button(
-            0, 0, 0, 20, Component.translatable("imm_ptl.finish"),
+        finishButton = Button.builder(
+            Component.translatable("imm_ptl.finish"),
             button -> {
                 try {
                     editing.entry.horizontalRotation = Double.parseDouble(horizontalRotationField.getValue());
@@ -176,7 +175,7 @@ public class DimStackEntryEditScreen extends Screen {
                 
                 Minecraft.getInstance().setScreen(parent);
             }
-        );
+        ).build();
         
         this.helpButton = DimStackScreen.createHelpButton(this);
     }
@@ -304,9 +303,9 @@ public class DimStackEntryEditScreen extends Screen {
             ),
             GuiHelper.elasticBlankSpace()
         );
-        
-        helpButton.x = width - 50;
-        helpButton.y = 5;
+    
+        helpButton.setX(width - 50);
+        helpButton.setY(5);
     }
     
     @Override

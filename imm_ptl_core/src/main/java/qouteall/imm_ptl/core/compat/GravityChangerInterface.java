@@ -185,12 +185,14 @@ public class GravityChangerInterface {
         
         @Override
         public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
-            return RotationUtil.vecPlayerToWorld(vec3d, gravity);
+            throw new NotImplementedException();
+//            return RotationUtil.vecPlayerToWorld(vec3d, gravity);
         }
         
         @Override
         public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
-            return RotationUtil.vecWorldToPlayer(vec3d, gravity);
+            throw new NotImplementedException();
+//            return RotationUtil.vecWorldToPlayer(vec3d, gravity);
         }
     }
 }

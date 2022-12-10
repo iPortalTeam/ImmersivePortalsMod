@@ -114,7 +114,7 @@ public class TransformationManager {
     public static void managePlayerRotationAndChangeGravity(
         Portal portal
     ) {
-        if (portal.rotation != null) {
+        if (portal.getRotation() != null) {
             LocalPlayer player = client.player;
             
             Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
@@ -127,7 +127,7 @@ public class TransformationManager {
             
             DQuaternion cameraRotationThroughPortal =
                 currentCameraRotationInterpolated.hamiltonProduct(
-                    portal.rotation.getConjugated()
+                    portal.getRotation().getConjugated()
                 );
             
             Direction newGravityDir = portal.getTeleportChangesGravity() ?

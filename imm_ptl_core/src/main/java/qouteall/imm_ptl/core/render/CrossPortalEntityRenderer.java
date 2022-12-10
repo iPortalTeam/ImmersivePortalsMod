@@ -309,7 +309,7 @@ public class CrossPortalEntityRenderer {
     private static void setupEntityProjectionRenderingTransformation(
         Portal portal, Entity entity, PoseStack matrixStack
     ) {
-        if (portal.scaling == 1.0 && portal.rotation == null) {
+        if (portal.scaling == 1.0 && portal.getRotation() == null) {
             return;
         }
         
@@ -322,8 +322,8 @@ public class CrossPortalEntityRenderer {
         float scaling = (float) portal.scaling;
         matrixStack.scale(scaling, scaling, scaling);
         
-        if (portal.rotation != null) {
-            matrixStack.mulPose(portal.rotation);
+        if (portal.getRotation() != null) {
+            matrixStack.mulPose(portal.getRotation().toMcQuaternion());
         }
         
         matrixStack.translate(-anchor.x, -anchor.y, -anchor.z);

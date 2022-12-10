@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.world.level.biome.Biome;
@@ -33,12 +32,7 @@ public class ChaosBiomeSource extends BiomeSource {
     public ChaosBiomeSource(HolderSet<Biome> holderSet) {
         super(holderSet.stream());
         this.allowedBiomes = holderSet;
-
-
-//        Set<Holder<Biome>> set = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(BuiltinRegistries.BIOME).possibleBiomes();
-    
     }
-    
     
     private Holder<Biome> getRandomBiome(int x, int z) {
         int biomeNum = allowedBiomes.size();

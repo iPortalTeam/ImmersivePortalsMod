@@ -7,13 +7,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -30,10 +34,13 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -43,36 +50,34 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     public static final Codec<ErrorTerrainGenerator> codec = RecordCodecBuilder.create(
         instance -> instance.group(
-                RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
-                RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
-                RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry)
+                RegistryOps.retrieveGetter(Registries.BIOME)
             )
             .apply(instance, ErrorTerrainGenerator::create)
     );
     
     public static ErrorTerrainGenerator create(
-        Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
-        Registry<NormalNoise.NoiseParameters> noiseRegistry
+        HolderGetter<Biome> biomeRegistry
     ) {
-        List<Holder.Reference<Biome>> biomeHolderList = biomeRegistry.holders()
-            // only use vanilla biomes
-            .filter(holder -> holder.key().location().getNamespace().equals("minecraft"))
+        ResourceKey<Biome>[] biomes = new ResourceKey[]{
+            Biomes.DESERT
+        };
+        
+        List<Holder.Reference<Biome>> holders = Arrays.stream(biomes)
+            .map(biomeRegistry::getOrThrow)
             .collect(Collectors.toList());
         
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(
-            HolderSet.direct(biomeHolderList)
+            HolderSet.direct(holders)
         );
         
         NoiseGeneratorSettings skylandSetting = IENoiseGeneratorSettings.ip_floatingIslands();
         
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
-            structureSets, noiseRegistry,
             chaosBiomeSource, Holder.direct(skylandSetting)
         );
         
         return new ErrorTerrainGenerator(
-            structureSets, chaosBiomeSource, islandChunkGenerator,
-            biomeRegistry, noiseRegistry
+            chaosBiomeSource, islandChunkGenerator
         );
     }
     
@@ -86,16 +91,11 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
     
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
-    public final Registry<Biome> biomeRegistry;
-    public final Registry<NormalNoise.NoiseParameters> noiseRegistry;
     
     public ErrorTerrainGenerator(
-        Registry<StructureSet> structureSets,
-        BiomeSource biomeSource, ChunkGenerator delegate,
-        Registry<Biome> biomeRegistry,
-        Registry<NormalNoise.NoiseParameters> noiseRegistry
+        BiomeSource biomeSource, ChunkGenerator delegate
     ) {
-        super(structureSets, biomeSource, delegate);
+        super(biomeSource, delegate);
         
         cache = CacheBuilder.newBuilder()
             .maximumSize(10000)
@@ -111,9 +111,6 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
                         );
                     }
                 });
-        
-        this.biomeRegistry = biomeRegistry;
-        this.noiseRegistry = noiseRegistry;
     }
     
     @Override
@@ -138,7 +135,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             for (LevelChunkSection chunkSection : locked) {
                 chunkSection.release();
             }
-        
+            
             return chunkx;
         }, executor);
     }

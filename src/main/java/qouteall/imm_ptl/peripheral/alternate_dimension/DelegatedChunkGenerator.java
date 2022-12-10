@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -53,11 +55,10 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     protected BiomeSource biomeSource_;
     
     public DelegatedChunkGenerator(
-        Registry<StructureSet> structureSets,
         BiomeSource biomeSource,
         ChunkGenerator delegate
     ) {
-        super(structureSets, Optional.empty(), biomeSource);
+        super(biomeSource);
         this.delegate = delegate;
         this.biomeSource_ = biomeSource;
     }
@@ -113,18 +114,23 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> registry, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
-        return delegate.createBiomes(registry, executor, randomState, blender, structureManager, chunkAccess);
+    public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> holderLookup, RandomState randomState, long l) {
+        return super.createState(holderLookup, randomState, l);
+    }
+    
+    @Override
+    public CompletableFuture<ChunkAccess> createBiomes(Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
+        return super.createBiomes(executor, randomState, blender, structureManager, chunkAccess);
+    }
+    
+    @Override
+    public void createStructures(RegistryAccess registryAccess, ChunkGeneratorStructureState chunkGeneratorStructureState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager) {
+        super.createStructures(registryAccess, chunkGeneratorStructureState, structureManager, chunkAccess, structureTemplateManager);
     }
     
     @Override
     public void applyBiomeDecoration(WorldGenLevel worldGenLevel, ChunkAccess chunkAccess, StructureManager structureManager) {
         delegate.applyBiomeDecoration(worldGenLevel, chunkAccess, structureManager);
-    }
-    
-    @Override
-    public Stream<Holder<StructureSet>> possibleStructureSets() {
-        return delegate.possibleStructureSets();
     }
     
     @Override
@@ -136,11 +142,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public Pair<BlockPos, Holder<Structure>> findNearestMapStructure(ServerLevel serverLevel, HolderSet<Structure> holderSet, BlockPos blockPos, int i, boolean bl) {
         return delegate.findNearestMapStructure(serverLevel, holderSet, blockPos, i, bl);
-    }
-    
-    @Override
-    public boolean hasStructureChunkInRange(Holder<StructureSet> holder, RandomState randomState, long l, int i, int j, int k) {
-        return delegate.hasStructureChunkInRange(holder, randomState, l, i, j, k);
     }
     
     @Override
@@ -159,11 +160,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public void createStructures(RegistryAccess registryAccess, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager, long l) {
-        delegate.createStructures(registryAccess, randomState, structureManager, chunkAccess, structureTemplateManager, l);
-    }
-    
-    @Override
     public void createReferences(WorldGenLevel worldGenLevel, StructureManager structureManager, ChunkAccess chunkAccess) {
         delegate.createReferences(worldGenLevel, structureManager, chunkAccess);
     }
@@ -176,17 +172,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public int getFirstOccupiedHeight(int i, int j, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
         return delegate.getFirstOccupiedHeight(i, j, types, levelHeightAccessor, randomState);
-    }
-    
-    @Override
-    public void ensureStructuresGenerated(RandomState randomState) {
-        delegate.ensureStructuresGenerated(randomState);
-    }
-    
-    @Nullable
-    @Override
-    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement concentricRingsStructurePlacement, RandomState randomState) {
-        return delegate.getRingPositionsFor(concentricRingsStructurePlacement, randomState);
     }
     
     @Override

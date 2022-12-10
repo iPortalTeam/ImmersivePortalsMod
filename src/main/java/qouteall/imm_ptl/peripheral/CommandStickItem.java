@@ -2,6 +2,8 @@ package qouteall.imm_ptl.peripheral;
 
 import com.google.common.base.Splitter;
 import com.mojang.serialization.Lifecycle;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
@@ -21,6 +23,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -78,7 +81,7 @@ public class CommandStickItem extends Item {
     }
     
     public static final MappedRegistry<Data> commandStickTypeRegistry = new MappedRegistry<>(
-        registryRegistryKey, Lifecycle.stable(), null
+        registryRegistryKey, Lifecycle.stable()
     );
     
     public static void registerType(String id, Data data) {
@@ -92,7 +95,7 @@ public class CommandStickItem extends Item {
     }
     
     public static final CommandStickItem instance = new CommandStickItem(
-        new Item.Properties().tab(CreativeModeTab.TAB_MISC)
+        new Item.Properties()
     );
     
     public CommandStickItem(Properties settings) {
@@ -166,17 +169,6 @@ public class CommandStickItem extends Item {
     }
     
     @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
-        if (this.allowedIn(group)) {
-            commandStickTypeRegistry.stream().forEach(data -> {
-                ItemStack stack = new ItemStack(instance);
-                data.serialize(stack.getOrCreateTag());
-                stacks.add(stack);
-            });
-        }
-    }
-    
-    @Override
     public String getDescriptionId(ItemStack stack) {
         Data data = Data.deserialize(stack.getOrCreateTag());
         return data.nameTranslationKey;
@@ -198,5 +190,15 @@ public class CommandStickItem extends Item {
             player.getInventory().add(itemStack);
             player.inventoryMenu.broadcastChanges();
         });
+        
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(
+            groupEntries -> {
+                commandStickTypeRegistry.stream().forEach(data -> {
+                    ItemStack stack = new ItemStack(instance);
+                    data.serialize(stack.getOrCreateTag());
+                    groupEntries.accept(stack);
+                });
+            }
+        );
     }
 }

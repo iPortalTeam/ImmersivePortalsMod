@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -82,7 +83,7 @@ public class DimStackManagement {
             Helper.log(String.format(
                 "Bedrock Replacement %s %s",
                 world.dimension().location(),
-                replacement != null ? Registry.BLOCK.getKey(replacement.getBlock()) : "null"
+                replacement != null ? BuiltInRegistries.BLOCK.getKey(replacement.getBlock()) : "null"
             ));
         }
         bedrockReplacementMap = newMap;

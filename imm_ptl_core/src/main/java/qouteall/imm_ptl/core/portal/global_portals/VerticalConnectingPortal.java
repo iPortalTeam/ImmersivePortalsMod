@@ -146,7 +146,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         DQuaternion rotation = Helper.combineNullable(
             inversionRotation, additionalRotation, DQuaternion::hamiltonProduct
         );
-        verticalConnectingPortal.rotation = rotation != null ? rotation.toMcQuaternion() : null;
+        verticalConnectingPortal.rotation = rotation;
         
         if (scaling != 1.0) {
             verticalConnectingPortal.scaling = scaling;

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.util.List;
 import java.util.function.Consumer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,7 +38,7 @@ public class SelectDimensionScreen extends Screen {
         addWidget(dimListWidget);
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
-    
+        
         List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.apply(this);
         
         for (ResourceKey<Level> dim : dimensionList) {
@@ -46,18 +47,22 @@ public class SelectDimensionScreen extends Screen {
         
         dimListWidget.update();
         
-        confirmButton = (Button) addRenderableWidget(new Button(
-            this.width / 2 - 75, this.height - 28, 150, 20,
-            Component.translatable("imm_ptl.confirm_select_dimension"),
-            (buttonWidget) -> {
-                DimEntryWidget selected = dimListWidget.getSelected();
-                if (selected == null) {
-                    return;
+        Button button = Button
+            .builder(
+                Component.translatable("imm_ptl.confirm_select_dimension"),
+                (buttonWidget) -> {
+                    DimEntryWidget selected = dimListWidget.getSelected();
+                    if (selected == null) {
+                        return;
+                    }
+                    outerCallback.accept(selected.dimension);
+                    Minecraft.getInstance().setScreen(parent);
                 }
-                outerCallback.accept(selected.dimension);
-                Minecraft.getInstance().setScreen(parent);
-            }
-        ));
+            )
+            .pos(this.width / 2 - 75, this.height - 28)
+            .size(150, 20)
+            .build();
+        confirmButton = (Button) addRenderableWidget(button);
         
     }
     
