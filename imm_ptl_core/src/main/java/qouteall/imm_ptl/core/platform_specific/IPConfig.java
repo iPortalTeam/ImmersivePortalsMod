@@ -48,7 +48,7 @@ public class IPConfig {
     public boolean enableCrossPortalView = true;
     public boolean enableClippingMechanism = true;
     public boolean enableDepthClampForPortalRendering = false;
-    public boolean lightVanillaNetherPortalWhenCrouching = false;
+    public boolean lightVanillaNetherPortalWhenCrouching = true;
     public boolean enableNetherPortalEffect = true;
     public boolean enableClientPerformanceAdjustment = true;
     public boolean enableServerPerformanceAdjustment = true;

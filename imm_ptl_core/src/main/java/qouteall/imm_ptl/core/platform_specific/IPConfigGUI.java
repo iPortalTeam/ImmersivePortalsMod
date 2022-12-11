@@ -107,7 +107,7 @@ public class IPConfigGUI {
         BooleanListEntry entryLightVanillaNetherPortalWhenCrouching = builder.entryBuilder().startBooleanToggle(
             Component.translatable("imm_ptl.light_vanilla_nether_portal_when_crouching"),
             currConfig.lightVanillaNetherPortalWhenCrouching
-        ).setDefaultValue(false).build();
+        ).setDefaultValue(true).build();
         BooleanListEntry entryEnableCrossPortalSound = builder.entryBuilder().startBooleanToggle(
             Component.translatable("imm_ptl.enable_cross_portal_sound"),
             currConfig.enableCrossPortalSound

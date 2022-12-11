@@ -106,7 +106,7 @@ public class IPGlobal {
     
     public static boolean enableMirrorCreation = true;
     
-    public static boolean lightVanillaNetherPortalWhenCrouching = false;
+    public static boolean lightVanillaNetherPortalWhenCrouching = true;
     
     public static boolean enableNetherPortalEffect = true;
     
