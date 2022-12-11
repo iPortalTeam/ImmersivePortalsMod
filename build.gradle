@@ -136,7 +136,7 @@ allprojects {
         }
         modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
-        modCompileOnly("com.github.Virtuoel:Pehkui:3.4.1", {
+        modCompileOnly("com.github.Virtuoel:Pehkui:3.6.0", {
             exclude group: "net.fabricmc.fabric-api"
         })
 
@@ -144,8 +144,8 @@ allprojects {
 
         modCompileOnly 'maven.modrinth:iris:1.19.3-v1.4.6'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
-//        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
-//        implementation 'io.github.douira:glsl-transformer:1.0.0-pre21.2' // for iris
+//        implementation 'io.github.douira:glsl-transformer:1.0.1' // for iris
+//        implementation 'org.antlr:antlr4-runtime:4.10.1' // for iris
 
         modCompileOnly("maven.modrinth:gravity-api:0.7.18+fabric") {
             transitive = false
