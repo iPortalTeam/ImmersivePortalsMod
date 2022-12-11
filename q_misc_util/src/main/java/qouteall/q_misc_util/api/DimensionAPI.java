@@ -92,33 +92,6 @@ public class DimensionAPI {
             );
             ((IEMappedRegistry) mapped).ip_setIsFrozen(oldIsFrozen);
         }
-        
-        markDimensionNonPersistent(dimensionId);
-    }
-    
-    @Deprecated
-    public static void addDimension(
-        long argSeed,
-        Registry<LevelStem> dimensionOptionsRegistry,
-        ResourceLocation dimensionId,
-        Holder<DimensionType> dimensionTypeHolder,
-        ChunkGenerator chunkGenerator
-    ) {
-        addDimension(dimensionOptionsRegistry, dimensionId, dimensionTypeHolder, chunkGenerator);
-    }
-    
-    
-    /**
-     * Don't use this for dynamically-added dimensions
-     * <p>
-     * If you don't mark a dimension non-persistent, then it will be saved into "level.dat" file
-     * Then when you upgrade the world or remove the mod, DFU cannot recognize it
-     * then the nether and the end will vanish.
-     * It's recommended to mark your own dimension non-persistent
-     */
-    @Deprecated
-    public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
-        DimensionMisc.nonPersistentDimensions.add(dimensionId);
     }
     
     /**

@@ -22,11 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DimensionMisc {
-    public static final Set<ResourceLocation> nonPersistentDimensions = new HashSet<>();
     private static final Logger logger = LogManager.getLogger();
     
-    // TODO recover this
-    // fix the issue that nether and end get swallowed by DFU
+    // TODO know whether it's still useful in 1.19.3
     @Deprecated
     public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
         // probably no longer needed
@@ -82,23 +80,4 @@ public class DimensionMisc {
 //        DimensionAPI.serverDimensionsLoadEvent.register(DimensionMisc::addMissingVanillaDimensions);
     }
     
-    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
-    // then the nether and the end will be swallowed
-    // to fix that, don't store the custom dimensions into level.dat
-    @Deprecated
-    public static MappedRegistry<LevelStem> getAdditionalDimensionsRemoved(
-        MappedRegistry<LevelStem> registry
-    ) {
-        if (nonPersistentDimensions.isEmpty()) {
-            return registry;
-        }
-        
-        return MiscHelper.filterAndCopyRegistry(
-            registry,
-            (key, obj) -> {
-                ResourceLocation identifier = key.location();
-                return !nonPersistentDimensions.contains(identifier);
-            }
-        );
-    }
 }

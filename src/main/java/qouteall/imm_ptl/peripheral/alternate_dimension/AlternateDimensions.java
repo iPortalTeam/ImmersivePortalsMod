@@ -87,7 +87,6 @@ public class AlternateDimensions {
             surfaceTypeBrightHolder,
             createSkylandGenerator(registryManager, seed)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate1.location());
         
         DimensionAPI.addDimension(
             registry,
@@ -95,7 +94,6 @@ public class AlternateDimensions {
             surfaceTypeHolder,
             createSkylandGenerator(registryManager, seed + 1) // different seed
         );
-        DimensionAPI.markDimensionNonPersistent(alternate2.location());
         
         DimensionAPI.addDimension(
             registry,
@@ -103,7 +101,6 @@ public class AlternateDimensions {
             surfaceTypeHolder,
             createErrorTerrainGenerator(seed + 1, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate3.location());
         
         DimensionAPI.addDimension(
             registry,
@@ -111,7 +108,6 @@ public class AlternateDimensions {
             surfaceTypeHolder,
             createErrorTerrainGenerator(seed, registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate4.location());
         
         DimensionAPI.addDimension(
             registry,
@@ -119,7 +115,6 @@ public class AlternateDimensions {
             surfaceTypeHolder,
             createVoidGenerator(registryManager)
         );
-        DimensionAPI.markDimensionNonPersistent(alternate5.location());
     }
     
     
