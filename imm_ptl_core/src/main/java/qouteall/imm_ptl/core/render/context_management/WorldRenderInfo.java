@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import org.apache.commons.lang3.Validate;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -148,5 +149,10 @@ public class WorldRenderInfo {
         }
         
         return renderInfoStack.peek().renderDistance;
+    }
+    
+    public static Vec3 getCameraPos() {
+        Validate.isTrue(!renderInfoStack.isEmpty());
+        return renderInfoStack.peek().cameraPos;
     }
 }
