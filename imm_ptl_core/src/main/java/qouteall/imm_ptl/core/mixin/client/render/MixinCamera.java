@@ -75,7 +75,7 @@ public abstract class MixinCamera implements IECamera {
         lastClipSpaceResult = cir.getReturnValue();
     }
     
-    //to let the player be rendered when rendering portal
+    // to let the player be rendered when rendering portal
     @Inject(method = "Lnet/minecraft/client/Camera;isDetached()Z", at = @At("HEAD"), cancellable = true)
     private void onIsThirdPerson(CallbackInfoReturnable<Boolean> cir) {
         if (CrossPortalEntityRenderer.shouldRenderPlayerDefault()) {

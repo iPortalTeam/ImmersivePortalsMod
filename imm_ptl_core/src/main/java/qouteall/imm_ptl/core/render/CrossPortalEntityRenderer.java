@@ -186,7 +186,7 @@ public class CrossPortalEntityRenderer {
                     boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
                         .dot(collidingPortal.getContentDirection()) < 0;
                     if (renderingPortal == collidingPortal || !isHidden) {
-                        renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+                        renderEntity(entity, collidingPortal, matrixStack);
                     }
                 }
             }
@@ -197,25 +197,9 @@ public class CrossPortalEntityRenderer {
             client.renderBuffers().bufferSource().endBatch();
             
             FrontClipping.setupInnerClipping(collidingPortal, false, matrixStack);
-            renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            renderEntity(entity, collidingPortal, matrixStack);
             FrontClipping.disableClipping();
         }
-    }
-    
-    private static void renderEntityRegardingPlayer(
-        Entity entity,
-        Portal transformingPortal,
-        PoseStack matrixStack
-    ) {
-        renderEntity(entity, transformingPortal, matrixStack);
-//        if (entity instanceof LocalPlayer) {
-//            MyGameRenderer.renderPlayerItself(() -> {
-//                renderEntity(entity, transformingPortal, matrixStack);
-//            });
-//        }
-//        else {
-//            renderEntity(entity, transformingPortal, matrixStack);
-//        }
     }
     
     private static void renderEntity(
@@ -337,7 +321,7 @@ public class CrossPortalEntityRenderer {
         if (!WorldRenderInfo.isRendering()) {
             return false;
         }
-        if (client.cameraEntity.level.dimension() == RenderStates.originalPlayerDimension) {
+        if (client.level == client.player.level) {
             return true;
         }
         return false;
