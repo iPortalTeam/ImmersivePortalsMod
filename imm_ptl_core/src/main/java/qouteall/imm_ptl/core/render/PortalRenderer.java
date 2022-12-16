@@ -62,8 +62,6 @@ public abstract class PortalRenderer {
     public abstract boolean replaceFrameBufferClearing();
     
     protected List<PortalLike> getPortalsToRender(PoseStack matrixStack) {
-        Validate.isTrue(client.cameraEntity.level == client.level);
-        
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
             Frustum frustum = new Frustum(
                 matrixStack.last().pose(),
@@ -183,11 +181,7 @@ public abstract class PortalRenderer {
             return;
         }
         
-        Entity cameraEntity = client.cameraEntity;
-        
         ClientLevel newWorld = ClientWorldLoader.getWorld(portal.getDestDim());
-        
-        Camera camera = client.gameRenderer.getMainCamera();
         
         PortalRendering.onBeginPortalWorldRendering();
         

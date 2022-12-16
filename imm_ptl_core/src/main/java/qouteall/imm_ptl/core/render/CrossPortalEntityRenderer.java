@@ -207,14 +207,15 @@ public class CrossPortalEntityRenderer {
         Portal transformingPortal,
         PoseStack matrixStack
     ) {
-        if (entity instanceof LocalPlayer) {
-            MyGameRenderer.renderPlayerItself(() -> {
-                renderEntity(entity, transformingPortal, matrixStack);
-            });
-        }
-        else {
-            renderEntity(entity, transformingPortal, matrixStack);
-        }
+        renderEntity(entity, transformingPortal, matrixStack);
+//        if (entity instanceof LocalPlayer) {
+//            MyGameRenderer.renderPlayerItself(() -> {
+//                renderEntity(entity, transformingPortal, matrixStack);
+//            });
+//        }
+//        else {
+//            renderEntity(entity, transformingPortal, matrixStack);
+//        }
     }
     
     private static void renderEntity(
