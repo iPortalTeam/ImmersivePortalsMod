@@ -118,7 +118,8 @@ public class ServerTeleportationManager {
         IPGlobal.serverTaskList.addTask(() -> {
             try {
                 teleportRegularEntity(entity, portal);
-            } catch (Throwable e) {
+            }
+            catch (Throwable e) {
                 e.printStackTrace();
             }
             return true;
@@ -143,6 +144,11 @@ public class ServerTeleportationManager {
         Vec3 oldEyePos,
         UUID portalId
     ) {
+        if (player.getRemovalReason() != null) {
+            Helper.err("Trying to teleport a removed player " + player);
+            return;
+        }
+        
         recordLastPosition(player);
         
         Portal portal = findPortal(dimensionBefore, portalId);
@@ -449,6 +455,14 @@ public class ServerTeleportationManager {
     
     private void teleportRegularEntity(Entity entity, Portal portal) {
         Validate.isTrue(!(entity instanceof ServerPlayer));
+        if (entity.getRemovalReason() != null) {
+            Helper.err(String.format(
+                "Trying to teleport an entity that is already removed %s %s",
+                entity, portal
+            ));
+            return;
+        }
+        
         if (entity.level != portal.level) {
             Helper.err(String.format("Cannot teleport %s from %s through %s", entity, entity.level.dimension(), portal));
             return;
@@ -548,6 +562,12 @@ public class ServerTeleportationManager {
         Vec3 newEyePos,
         boolean recreateEntity
     ) {
+        if (entity.getRemovalReason() != null) {
+            Helper.err("Trying to teleport a removed entity " + entity);
+            new Throwable().printStackTrace();
+            return entity;
+        }
+        
         ServerLevel fromWorld = (ServerLevel) entity.level;
         ServerLevel toWorld = MiscHelper.getServer().getLevel(toDimension);
         entity.unRide();
@@ -615,6 +635,9 @@ public class ServerTeleportationManager {
         ResourceKey<Level> dimension
     ) {
         if (player.level.dimension() == dimension) {
+            return;
+        }
+        if (player.getRemovalReason() != null) {
             return;
         }
         double x = packet.getX(player.getX());
