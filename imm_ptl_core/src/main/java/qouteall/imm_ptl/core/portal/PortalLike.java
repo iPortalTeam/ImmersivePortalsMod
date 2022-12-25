@@ -103,6 +103,7 @@ public interface PortalLike {
         return getOriginWorld().dimension();
     }
     
+    // TODO rename to isInsideDestination
     default boolean isInside(Vec3 entityPos, double valve) {
         Plane innerClipping = getInnerClipping();
         

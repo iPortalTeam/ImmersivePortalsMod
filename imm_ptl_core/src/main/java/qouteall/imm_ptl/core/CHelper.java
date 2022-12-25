@@ -115,29 +115,6 @@ public class CHelper {
         return Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
     }
     
-    public static <T> T withWorldSwitched(Entity entity, Portal portal, Supplier<T> func) {
-        
-        Level oldWorld = entity.level;
-        Vec3 eyePos = McHelper.getEyePos(entity);
-        Vec3 lastTickEyePos = McHelper.getLastTickEyePos(entity);
-        
-        entity.level = portal.getDestinationWorld();
-        McHelper.setEyePos(
-            entity,
-            portal.transformPoint(eyePos),
-            portal.transformPoint(lastTickEyePos)
-        );
-        
-        try {
-            T result = func.get();
-            return result;
-        }
-        finally {
-            entity.level = oldWorld;
-            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
-        }
-    }
-    
     public static Iterable<Entity> getWorldEntityList(Level world) {
         if (!(world instanceof ClientLevel)) {
             return (Iterable<Entity>) Collections.emptyList().iterator();
