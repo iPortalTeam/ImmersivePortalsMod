@@ -242,6 +242,10 @@ public class MyRenderHelper {
         RenderSystem.enableTexture();
     }
     
+    /**
+     * {@link RenderTarget#blitToScreen(int, int)}
+     */
+    @IPVanillaCopy
     public static void renderScreenTriangle(int r, int g, int b, int a) {
         ShaderInstance shader = GameRenderer.getPositionColorShader();
         Validate.notNull(shader);
@@ -256,7 +260,7 @@ public class MyRenderHelper {
         
         RenderSystem.disableTexture();
         
-        Tesselator tessellator = Tesselator.getInstance();
+        Tesselator tessellator = RenderSystem.renderThreadTesselator();
         BufferBuilder bufferBuilder = tessellator.getBuilder();
         bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         
