@@ -47,7 +47,7 @@
     "cardboard": "*",
     "gravity_api": "*",
     "iris": ["<1.4.6", ">1.4.6"],
-    "sodium": ["<0.4.6", ">0.4.6"]
+    "sodium": ["<0.4.7", ">0.4.7"]
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

@@ -140,7 +140,7 @@ allprojects {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.6"
+        modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.7"
 
         modCompileOnly 'maven.modrinth:iris:1.19.3-v1.4.6'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
