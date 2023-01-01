@@ -142,10 +142,10 @@ allprojects {
 
         modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.7"
 
-        modCompileOnly 'maven.modrinth:iris:1.19.3-v1.4.6'
+        modCompileOnly 'maven.modrinth:iris:1.5.0+1.19.3'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
-//        implementation 'io.github.douira:glsl-transformer:1.0.1' // for iris
-//        implementation 'org.antlr:antlr4-runtime:4.10.1' // for iris
+//        implementation 'io.github.douira:glsl-transformer:2.0.0-pre8' // for iris
+//        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
         modCompileOnly("maven.modrinth:gravity-api:0.7.18+fabric") {
             transitive = false
