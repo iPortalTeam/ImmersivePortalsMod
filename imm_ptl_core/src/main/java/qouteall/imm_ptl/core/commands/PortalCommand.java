@@ -20,7 +20,6 @@ import net.minecraft.commands.arguments.*;
 import net.minecraft.commands.arguments.coordinates.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -37,12 +36,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.*;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -99,6 +100,11 @@ public class PortalCommand {
             .requires(PortalCommand::canUsePortalCommand);
         PortalDebugCommands.registerDebugCommands(debugBuilder);
         builder.then(debugBuilder);
+        
+        LiteralArgumentBuilder<CommandSourceStack> euler =
+            Commands.literal("euler");
+        registerEulerCommands(euler);
+        builder.then(euler);
         
         dispatcher.register(builder);
     }
@@ -925,20 +931,6 @@ public class PortalCommand {
                 sendPortalInfo(context, portal);
             }))
         );
-        
-        builder.then(Commands
-            .literal("create_command_stick")
-            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
-            .then(Commands.argument("command", SubCommandArgumentType.instance)
-                .executes(context -> {
-                    PortalCommand.createCommandStickCommandSignal.emit(
-                        context.getSource().getPlayerOrException(),
-                        SubCommandArgumentType.get(context, "command")
-                    );
-                    return 0;
-                })
-            )
-        );
     }
     
     private static void invokeSetPortalNbt(
@@ -961,7 +953,9 @@ public class PortalCommand {
             return;
         }
         
-        setPortalNbt(portal, newNbt);
+        portal.updatePortalFromNbt(newNbt);
+        
+        reloadPortal(portal);
         
         sendPortalInfo(context, portal);
     }
@@ -1021,7 +1015,7 @@ public class PortalCommand {
                             Vec3 rotatingAxis = Vec3Argument.getVec3(
                                 context, "rotatingAxis"
                             ).normalize();
-    
+                            
                             doInvokeRotationCommandWithAngleArgument(func, context, portal, rotatingAxis);
                         }
                     ))
@@ -1076,19 +1070,6 @@ public class PortalCommand {
         ) : null;
         
         func.accept(portal, rot);
-        
-        reloadPortal(portal);
-    }
-    
-    // only portal custom data can be changed
-    private static void setPortalNbt(Portal portal, CompoundTag newNbt) {
-        CompoundTag data = portal.writePortalDataToNbt();
-        
-        newNbt.getAllKeys().forEach(
-            key -> data.put(key, newNbt.get(key))
-        );
-        
-        portal.readPortalDataFromNbt(data);
         
         reloadPortal(portal);
     }
@@ -1662,6 +1643,20 @@ public class PortalCommand {
                 );
                 return 0;
             })
+        );
+        
+        builder.then(Commands
+            .literal("create_command_stick")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .then(Commands.argument("command", SubCommandArgumentType.instance)
+                .executes(context -> {
+                    PortalCommand.createCommandStickCommandSignal.emit(
+                        context.getSource().getPlayerOrException(),
+                        SubCommandArgumentType.get(context, "command")
+                    );
+                    return 0;
+                })
+            )
         );
     }
     
@@ -2283,6 +2278,147 @@ public class PortalCommand {
         return new Vec3(
             Math.sin(radians), 0, Math.cos(radians)
         );
+    }
+    
+    private static void registerEulerCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
+        builder.then(Commands.literal("make_portal")
+            .then(Commands.argument("origin", Vec3Argument.vec3(false))
+                .then(Commands.argument("rotation", RotationArgument.rotation())
+                    .then(Commands.argument("width", IntegerArgumentType.integer(1))
+                        .then(Commands.argument("height", IntegerArgumentType.integer(1))
+                            .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
+                                .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
+                                    .executes(context -> {
+                                        Vec3 origin = Vec3Argument.getVec3(context, "origin");
+                                        Vec2 rotation = RotationArgument
+                                            .getRotation(context, "rotation")
+                                            .getRotation(context.getSource());
+                                        int width = IntegerArgumentType.getInteger(context, "width");
+                                        int height = IntegerArgumentType.getInteger(context, "height");
+                                        double scale = DoubleArgumentType.getDouble(context, "scale");
+                                        CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
+                                        
+                                        ServerLevel world = context.getSource().getLevel();
+                                        
+                                        Portal portal = Portal.entityType.create(world);
+                                        Validate.notNull(portal);
+                                        portal.setOriginPos(origin);
+                                        
+                                        // make the destination not the same as origin, avoid hiding the portal
+                                        portal.setDestination(origin.add(0, 10, 0));
+                                        
+                                        portal.setDestinationDimension(world.dimension());
+                                        
+                                        DQuaternion orientationRotation = DQuaternion.fromEulerAngle(
+                                            new Vec3(rotation.x, rotation.y, 0)
+                                        );
+                                        portal.setOrientationRotation(orientationRotation);
+                                        
+                                        portal.setWidth(width);
+                                        portal.setHeight(height);
+                                        
+                                        portal.setScaleTransformation(scale);
+                                        
+                                        portal.updatePortalFromNbt(nbt);
+                                        
+                                        McHelper.spawnServerEntity(portal);
+                                        
+                                        return 0;
+                                    })
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("set_orientation")
+            .then(Commands.argument("rotation", RotationArgument.rotation())
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    Vec2 rotation = RotationArgument
+                        .getRotation(context, "rotation")
+                        .getRotation(context.getSource());
+                    
+                    DQuaternion orientationRotation = DQuaternion.fromEulerAngle(
+                        new Vec3(rotation.x, rotation.y, 0)
+                    );
+                    portal.setOrientationRotation(orientationRotation);
+                    
+                    reloadPortal(portal);
+                }))
+            )
+        );
+        
+        builder.then(Commands.literal("set_this_side")
+            .then(Commands.argument("origin", Vec3Argument.vec3(false))
+                .then(Commands.argument("rotation", RotationArgument.rotation())
+                    .then(Commands.argument("width", IntegerArgumentType.integer(1))
+                        .then(Commands.argument("height", IntegerArgumentType.integer(1))
+                            .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
+                                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                                    Vec3 origin = Vec3Argument.getVec3(context, "origin");
+                                    Vec2 rotation = RotationArgument
+                                        .getRotation(context, "rotation")
+                                        .getRotation(context.getSource());
+                                    int width = IntegerArgumentType.getInteger(context, "width");
+                                    int height = IntegerArgumentType.getInteger(context, "height");
+                                    CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
+                                    
+                                    portal.setOriginPos(origin);
+                                    DQuaternion orientationRotation = DQuaternion.fromEulerAngle(
+                                        new Vec3(rotation.x, rotation.y, 0)
+                                    );
+                                    portal.setOrientationRotation(orientationRotation);
+                                    
+                                    portal.setWidth(width);
+                                    portal.setHeight(height);
+                                    
+                                    portal.updatePortalFromNbt(nbt);
+                                    
+                                    reloadPortal(portal);
+                                }))
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("set_other_side")
+            .then(Commands.argument("destination", Vec3Argument.vec3(false))
+                .then(Commands.argument("rotation", RotationArgument.rotation())
+                    .executes(context -> processPortalTargetedCommand(context, portal -> {
+                        Vec3 destination = Vec3Argument.getVec3(context, "destination");
+                        Vec2 rotation = RotationArgument
+                            .getRotation(context, "rotation")
+                            .getRotation(context.getSource());
+                        
+                        portal.setDestination(destination);
+                        
+                        portal.setDestinationDimension(context.getSource().getLevel().dimension());
+                        
+                        DQuaternion otherSideRotation = DQuaternion.fromEulerAngle(
+                            new Vec3(rotation.x, rotation.y, 0)
+                        );
+                        PortalState portalState = portal.getPortalState();
+                        UnilateralPortalState thisSide = UnilateralPortalState.extractThisSide(portalState);
+                        UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);
+                        
+                        UnilateralPortalState newOtherSide =
+                            new UnilateralPortalState.Builder().from(otherSide)
+                                .orientation(otherSideRotation).build();
+                        
+                        PortalState newPortalState = UnilateralPortalState.combine(thisSide, newOtherSide);
+                        portal.setPortalState(newPortalState);
+                        
+                        reloadPortal(portal);
+                    }))
+                )
+            )
+        );
+        
+        
     }
     
     public static class RemoteCallables {

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Objects;
@@ -464,5 +465,23 @@ public class DQuaternion {
     
     private static boolean isCoordinateZeroOrOneOrNegativeOne(double coord) {
         return coord == 0 || coord == 1 || coord == -1;
+    }
+    
+    /**
+     * @param eulerAngle in pitch, yaw, roll, in degrees
+     */
+    public static DQuaternion fromEulerAngle(Vec3 eulerAngle) {
+        return fromMcQuaternion(
+            new Quaternionf()
+                .rotateZ((float) Math.toRadians(eulerAngle.z))
+                .rotateY((float) Math.toRadians(-eulerAngle.y))
+                .rotateX((float) Math.toRadians(eulerAngle.x))
+        );
+    }
+    
+    public Vec3 toEulerAngle() {
+        Quaternionf q = toMcQuaternion();
+        Vector3f result = q.getEulerAnglesZYX(new Vector3f());
+        return new Vec3(Math.toDegrees(result.x), Math.toDegrees(-result.y), Math.toDegrees(result.z));
     }
 }

@@ -558,6 +558,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         updateCache();
     }
     
+    public void setWidth(double newWidth) {
+        width = newWidth;
+        updateCache();
+    }
+    
+    public void setHeight(double newHeight) {
+        height = newHeight;
+        updateCache();
+    }
+    
     public DQuaternion getOrientationRotation() {
         return PortalManipulation.getPortalOrientationQuaternion(axisW, axisH);
     }
@@ -1617,8 +1627,18 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return nbtCompound;
     }
     
-    public void readPortalDataFromNbt(CompoundTag compound) {
+    private void readPortalDataFromNbt(CompoundTag compound) {
         readAdditionalSaveData(compound);
+    }
+    
+    public void updatePortalFromNbt(CompoundTag newNbt) {
+        CompoundTag data = writePortalDataToNbt();
+        
+        newNbt.getAllKeys().forEach(
+            key -> data.put(key, newNbt.get(key))
+        );
+        
+        readPortalDataFromNbt(data);
     }
     
     @Deprecated
