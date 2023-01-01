@@ -71,6 +71,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (minecraft.level == null) {
             return;
         }
+        if (!renderWorldIn) { // when respawning, it will runTick and execute rendering
+            return;
+        }
         minecraft.getProfiler().push("ip_pre_render");
         RenderStates.updatePreRenderInfo(tickDelta);
         StableClientTimer.update(minecraft.level.getGameTime(), tickDelta);
