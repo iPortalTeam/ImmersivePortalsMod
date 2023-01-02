@@ -298,7 +298,7 @@ modrinth {
     projectId = "zJpHMkdD"
     versionNumber = "${project.version}-${project.minecraft_version}"
     // You don't need to set this manually. Will fail if Modrinth has this version already
-    versionType = "release" // This is the default -- can also be `beta` or `alpha`
+    versionType = "alpha" // This is the default -- can also be `beta` or `alpha`
     uploadFile = remapJar
     gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
     loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
