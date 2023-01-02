@@ -2280,12 +2280,20 @@ public class PortalCommand {
         );
     }
     
+    private static void updateEntityFullNbt(Entity entity, CompoundTag nbt) {
+        nbt.remove("id");
+        nbt.remove("UUID"); // not allowed to change UUID
+        CompoundTag result = entity.saveWithoutId(new CompoundTag());
+        result.merge(nbt);
+        entity.load(result);
+    }
+    
     private static void registerEulerCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
         builder.then(Commands.literal("make_portal")
             .then(Commands.argument("origin", Vec3Argument.vec3(false))
                 .then(Commands.argument("rotation", RotationArgument.rotation())
-                    .then(Commands.argument("width", IntegerArgumentType.integer(1))
-                        .then(Commands.argument("height", IntegerArgumentType.integer(1))
+                    .then(Commands.argument("width", DoubleArgumentType.doubleArg(0))
+                        .then(Commands.argument("height", DoubleArgumentType.doubleArg(0))
                             .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
                                 .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
                                     .executes(context -> {
@@ -2293,8 +2301,8 @@ public class PortalCommand {
                                         Vec2 rotation = RotationArgument
                                             .getRotation(context, "rotation")
                                             .getRotation(context.getSource());
-                                        int width = IntegerArgumentType.getInteger(context, "width");
-                                        int height = IntegerArgumentType.getInteger(context, "height");
+                                        double width = DoubleArgumentType.getDouble(context, "width");
+                                        double height = DoubleArgumentType.getDouble(context, "height");
                                         double scale = DoubleArgumentType.getDouble(context, "scale");
                                         CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
                                         
@@ -2319,7 +2327,7 @@ public class PortalCommand {
                                         
                                         portal.setScaleTransformation(scale);
                                         
-                                        portal.updatePortalFromNbt(nbt);
+                                        updateEntityFullNbt(portal, nbt);
                                         
                                         McHelper.spawnServerEntity(portal);
                                         
@@ -2353,16 +2361,16 @@ public class PortalCommand {
         builder.then(Commands.literal("set_this_side")
             .then(Commands.argument("origin", Vec3Argument.vec3(false))
                 .then(Commands.argument("rotation", RotationArgument.rotation())
-                    .then(Commands.argument("width", IntegerArgumentType.integer(1))
-                        .then(Commands.argument("height", IntegerArgumentType.integer(1))
+                    .then(Commands.argument("width", DoubleArgumentType.doubleArg(0))
+                        .then(Commands.argument("height", DoubleArgumentType.doubleArg(0))
                             .then(Commands.argument("nbt", CompoundTagArgument.compoundTag())
                                 .executes(context -> processPortalTargetedCommand(context, portal -> {
                                     Vec3 origin = Vec3Argument.getVec3(context, "origin");
                                     Vec2 rotation = RotationArgument
                                         .getRotation(context, "rotation")
                                         .getRotation(context.getSource());
-                                    int width = IntegerArgumentType.getInteger(context, "width");
-                                    int height = IntegerArgumentType.getInteger(context, "height");
+                                    double width = DoubleArgumentType.getDouble(context, "width");
+                                    double height = DoubleArgumentType.getDouble(context, "height");
                                     CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
                                     
                                     portal.setOriginPos(origin);
@@ -2373,8 +2381,8 @@ public class PortalCommand {
                                     
                                     portal.setWidth(width);
                                     portal.setHeight(height);
-                                    
-                                    portal.updatePortalFromNbt(nbt);
+    
+                                    updateEntityFullNbt(portal, nbt);
                                     
                                     reloadPortal(portal);
                                 }))
