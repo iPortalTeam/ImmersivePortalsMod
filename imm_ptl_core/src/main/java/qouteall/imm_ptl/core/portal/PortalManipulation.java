@@ -86,8 +86,8 @@ public class PortalManipulation {
         
         newPortal.width = portal.width * portal.scaling;
         newPortal.height = portal.height * portal.scaling;
-        newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.scale(-1);
+        newPortal.axisW = portal.axisW.scale(-1);
+        newPortal.axisH = portal.axisH;
         
         if (portal.specialShape != null) {
             newPortal.specialShape = new GeometryPortalShape();
@@ -137,8 +137,8 @@ public class PortalManipulation {
         
         newPortal.width = portal.width;
         newPortal.height = portal.height;
-        newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.scale(-1);
+        newPortal.axisW = portal.axisW.scale(-1);
+        newPortal.axisH = portal.axisH;
         
         if (portal.specialShape != null) {
             newPortal.specialShape = new GeometryPortalShape();
@@ -196,12 +196,12 @@ public class PortalManipulation {
     private static void initFlippedShape(Portal newPortal, GeometryPortalShape specialShape, double scale) {
         newPortal.specialShape.triangles = specialShape.triangles.stream()
             .map(triangle -> new GeometryPortalShape.TriangleInPlane(
-                triangle.x1 * scale,
-                -triangle.y1 * scale,
-                triangle.x2 * scale,
-                -triangle.y2 * scale,
-                triangle.x3 * scale,
-                -triangle.y3 * scale
+                -triangle.x1 * scale,
+                triangle.y1 * scale,
+                -triangle.x2 * scale,
+                triangle.y2 * scale,
+                -triangle.x3 * scale,
+                triangle.y3 * scale
             )).collect(Collectors.toList());
     }
     

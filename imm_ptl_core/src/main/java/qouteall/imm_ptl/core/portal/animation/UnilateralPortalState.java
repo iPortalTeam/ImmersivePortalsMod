@@ -25,8 +25,8 @@ public record UnilateralPortalState(
     double height
 ) {
     // its inverse is itself
-    public static final DQuaternion flipAxisH = DQuaternion.rotationByDegrees(
-        new Vec3(1, 0, 0), 180
+    public static final DQuaternion flipAxisW = DQuaternion.rotationByDegrees(
+        new Vec3(0, 1, 0), 180
     ).fixFloatingPointErrorAccumulation();
     
     public static UnilateralPortalState extractThisSide(PortalState portalState) {
@@ -42,7 +42,7 @@ public record UnilateralPortalState(
     public static UnilateralPortalState extractOtherSide(PortalState portalState) {
         DQuaternion otherSideOrientation = portalState.rotation
             .hamiltonProduct(portalState.orientation)
-            .hamiltonProduct(flipAxisH);
+            .hamiltonProduct(flipAxisW);
         return new UnilateralPortalState(
             portalState.toWorld,
             portalState.toPos,
@@ -61,7 +61,7 @@ public record UnilateralPortalState(
         // rotation = otherSideOrientation * flipAxisH^-1 * thisSideOrientation^-1
         
         DQuaternion rotation = otherSide.orientation
-            .hamiltonProduct(flipAxisH)
+            .hamiltonProduct(flipAxisW)
             .hamiltonProduct(thisSide.orientation.getConjugated());
         
         double scale = otherSide.width / thisSide.width;

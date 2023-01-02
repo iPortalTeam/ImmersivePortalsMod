@@ -88,7 +88,7 @@ public record DeltaUnilateralPortalState(
     public DeltaUnilateralPortalState getFlipped() {
         return new DeltaUnilateralPortalState(
             offset,
-            rotation == null ? null : rotation.hamiltonProduct(UnilateralPortalState.flipAxisH),
+            rotation == null ? null : rotation.hamiltonProduct(UnilateralPortalState.flipAxisW),
             sizeScaling
         );
     }
