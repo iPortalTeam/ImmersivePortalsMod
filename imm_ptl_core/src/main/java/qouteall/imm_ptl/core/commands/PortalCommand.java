@@ -2290,6 +2290,7 @@ public class PortalCommand {
     
     private static void registerEulerCommands(LiteralArgumentBuilder<CommandSourceStack> builder) {
         builder.then(Commands.literal("make_portal")
+            .requires(s -> s.hasPermission(2))
             .then(Commands.argument("origin", Vec3Argument.vec3(false))
                 .then(Commands.argument("rotation", RotationArgument.rotation())
                     .then(Commands.argument("width", DoubleArgumentType.doubleArg(0))
@@ -2305,32 +2306,32 @@ public class PortalCommand {
                                         double height = DoubleArgumentType.getDouble(context, "height");
                                         double scale = DoubleArgumentType.getDouble(context, "scale");
                                         CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
-                                        
+                                    
                                         ServerLevel world = context.getSource().getLevel();
-                                        
+                                    
                                         Portal portal = Portal.entityType.create(world);
                                         Validate.notNull(portal);
                                         portal.setOriginPos(origin);
-                                        
+                                    
                                         // make the destination not the same as origin, avoid hiding the portal
                                         portal.setDestination(origin.add(0, 10, 0));
-                                        
+                                    
                                         portal.setDestinationDimension(world.dimension());
-                                        
+                                    
                                         DQuaternion orientationRotation = DQuaternion.fromEulerAngle(
                                             new Vec3(rotation.x, rotation.y, 0)
                                         );
                                         portal.setOrientationRotation(orientationRotation);
-                                        
+                                    
                                         portal.setWidth(width);
                                         portal.setHeight(height);
-                                        
+                                    
                                         portal.setScaleTransformation(scale);
-                                        
+                                    
                                         updateEntityFullNbt(portal, nbt);
-                                        
+                                    
                                         McHelper.spawnServerEntity(portal);
-                                        
+                                    
                                         return 0;
                                     })
                                 )
@@ -2359,6 +2360,7 @@ public class PortalCommand {
         );
         
         builder.then(Commands.literal("set_this_side")
+            .requires(s -> s.hasPermission(2))
             .then(Commands.argument("origin", Vec3Argument.vec3(false))
                 .then(Commands.argument("rotation", RotationArgument.rotation())
                     .then(Commands.argument("width", DoubleArgumentType.doubleArg(0))
