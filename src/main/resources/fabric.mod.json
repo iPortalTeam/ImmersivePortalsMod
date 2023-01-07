@@ -45,9 +45,8 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "gravity_api": "*",
-    "iris": ["<1.5.0", ">1.5.0"],
-    "sodium": ["<0.4.7", ">0.4.7"]
+    "iris": ["<1.5.1", ">1.5.1"],
+    "sodium": ["<0.4.8", ">0.4.8"]
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

@@ -154,13 +154,8 @@ public class GravityChangerInterface {
             if (gravityDirection == Direction.DOWN) {
                 return null;
             }
-    
-            // TODO implement
-            throw new NotImplementedException();
             
-//            return (
-//                RotationUtil.getWorldRotationQuaternion(gravityDirection)
-//            );
+            return DQuaternion.fromMcQuaternion(RotationUtil.getWorldRotationQuaternion(gravityDirection));
         }
         
         @Override
@@ -185,14 +180,12 @@ public class GravityChangerInterface {
         
         @Override
         public Vec3 transformPlayerToWorld(Direction gravity, Vec3 vec3d) {
-            throw new NotImplementedException();
-//            return RotationUtil.vecPlayerToWorld(vec3d, gravity);
+            return RotationUtil.vecPlayerToWorld(vec3d, gravity);
         }
         
         @Override
         public Vec3 transformWorldToPlayer(Direction gravity, Vec3 vec3d) {
-            throw new NotImplementedException();
-//            return RotationUtil.vecWorldToPlayer(vec3d, gravity);
+            return RotationUtil.vecWorldToPlayer(vec3d, gravity);
         }
     }
 }
