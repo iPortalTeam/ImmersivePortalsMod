@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -22,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -492,4 +495,11 @@ public class PortalManipulation {
                 p1.getNormal().dot(portal.getNormal()) < -0.9
         ));
     }
+    
+    public static Optional<Pair<Portal, Vec3>> raytracePortals(
+        Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
+    ) {
+        return PortalCommand.raytracePortals(world, from, to, includeGlobalPortal);
+    }
+    
 }

@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class ChunkVisibility {
-    private static final LimitedLogger limitedLogger = new LimitedLogger(50);
+    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     private static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
@@ -86,7 +86,7 @@ public class ChunkVisibility {
             }
         }
         
-        if (result.size() > 50) {
+        if (result.size() > 100) {
             limitedLogger.err("too many portal nearby " + world + pos);
             
             Optional<Portal> nearest =

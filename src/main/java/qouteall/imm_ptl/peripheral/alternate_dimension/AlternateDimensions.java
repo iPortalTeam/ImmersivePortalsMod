@@ -59,7 +59,7 @@ public class AlternateDimensions {
         WorldOptions worldOptions, RegistryAccess registryManager
     ) {
         Registry<LevelStem> registry = registryManager.registryOrThrow(Registries.LEVEL_STEM);
-    
+        
         long seed = worldOptions.seed();
         if (!IPGlobal.enableAlternateDimensions) {
             return;
@@ -183,7 +183,7 @@ public class AlternateDimensions {
         Registry<Biome> biomeRegistry = rm.registryOrThrow(Registries.BIOME);
         
         Registry<StructureSet> structureSets = rm.registryOrThrow(Registries.STRUCTURE_SET);
-    
+        
         Holder.Reference<Biome> plainsHolder = biomeRegistry.getHolderOrThrow(Biomes.PLAINS);
         
         FlatLevelGeneratorSettings flatChunkGeneratorConfig =

@@ -435,7 +435,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     /**
      * Determines whether the player should be able to reach through the portal or not.
-     * Can be overridden by a sub class.
+     * Can be overridden by a subclass.
      *
      * @return the interactability of the portal
      */
