@@ -7,10 +7,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
@@ -37,11 +35,6 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
     }
     
     @Override
-    public void updateDimensionTravelAdvancements(ServerLevel fromWorld) {
-        triggerDimensionChangeTriggers(fromWorld);
-    }
-    
-    @Override
     public void setIsInTeleportationState(boolean arg) {
         isChangingDimension = arg;
     }
@@ -56,8 +49,14 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
         super.startRiding(newVehicle, true);
     }
     
+    /**
+     * See {@link ServerPlayer#changeDimension(ServerLevel)}
+     */
     @Override
-    public void portal_worldChanged(ServerLevel fromWorld) {
+    public void portal_worldChanged(ServerLevel fromWorld, Vec3 fromPos) {
+        if (fromWorld.dimension() == Level.OVERWORLD && this.level.dimension() == Level.NETHER) {
+            enteredNetherPosition = fromPos;
+        }
         triggerDimensionChangeTriggers(fromWorld);
     }
 }

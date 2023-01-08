@@ -8,15 +8,13 @@ import net.minecraft.world.phys.Vec3;
 public interface IEServerPlayerEntity {
     void setEnteredNetherPos(Vec3 pos);
     
-    void updateDimensionTravelAdvancements(ServerLevel fromWorld);
-    
     void setIsInTeleportationState(boolean arg);
     
     void stopRidingWithoutTeleportRequest();
     
     void startRidingWithoutTeleportRequest(Entity newVehicle);
     
-    void portal_worldChanged(ServerLevel fromWorld);
+    void portal_worldChanged(ServerLevel fromWorld, Vec3 fromPos);
     
     boolean ip_getRealIsContainerMenuValid(AbstractContainerMenu instance);
 }

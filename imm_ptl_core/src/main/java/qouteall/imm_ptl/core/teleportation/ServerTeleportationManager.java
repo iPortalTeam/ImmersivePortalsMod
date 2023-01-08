@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import com.fusionflux.gravity_api.api.GravityChangerAPI;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,7 +17,6 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.imm_ptl.core.portal.global_portals.GlobalTrackedPortal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -389,7 +386,7 @@ public class ServerTeleportationManager {
         );
         
         //update advancements
-        ((IEServerPlayerEntity) player).portal_worldChanged(fromWorld);
+        ((IEServerPlayerEntity) player).portal_worldChanged(fromWorld, oldPos);
     }
     
     public static void sendPositionConfirmMessage(ServerPlayer player) {
