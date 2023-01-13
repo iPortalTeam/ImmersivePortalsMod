@@ -1,13 +1,9 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
@@ -20,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
-import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.MiscHelper;
@@ -43,28 +38,37 @@ public class IPNetworking {
         new ResourceLocation("imm_ptl", "right_click");
     
     public static void init() {
-        ServerPlayNetworking.registerGlobalReceiver(
-            id_ctsTeleport,
-            (server, player, handler, buf, responseSender) -> {
-                processCtsTeleport(player, buf);
-            }
-        );
         
-        ServerPlayNetworking.registerGlobalReceiver(
-            id_ctsPlayerAction,
-            (server, player, handler, buf, responseSender) -> {
-                processCtsPlayerAction(player, buf);
-            }
-        );
-        
-        ServerPlayNetworking.registerGlobalReceiver(
-            id_ctsRightClick,
-            (server, player, handler, buf, responseSender) -> {
-                processCtsRightClick(player, buf);
-            }
-        );
-        
-        
+    }
+    
+    // return true for handled
+    public static boolean handleImmPtlCorePacketServerSide(
+        ResourceLocation packedId,
+        ServerPlayer player, FriendlyByteBuf buf
+    ) {
+        if (id_ctsTeleport.equals(packedId)) {
+            processCtsTeleport(player, buf);
+            return true;
+        }
+        else if (id_ctsPlayerAction.equals(packedId)) {
+            processCtsPlayerAction(player, buf);
+            return true;
+        }
+        else if (id_ctsRightClick.equals(packedId)) {
+            processCtsRightClick(player, buf);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    // invoking client-only method. avoid dedicated server crash
+    public static boolean handleImmPtlCorePacketClientSide(
+        ResourceLocation packedId,
+        FriendlyByteBuf buf
+    ) {
+        return IPNetworkingClient.handleImmPtlCorePacketClientSide(packedId, buf);
     }
     
     public static Packet createStcDimensionConfirm(

@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.imm_ptl.core.network.PacketRedirection;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ClientboundCustomPayloadPacket.class)
@@ -31,6 +32,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
     @Final
     private FriendlyByteBuf data;
     
+    // eliminate the size limitation
     @ModifyConstant(
         method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V",
         constant = @Constant(intValue = 1048576)
@@ -99,6 +101,12 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
                 ip_redirectedDimension, ip_redirectedPacket, handler
             );
             ci.cancel();
+        }
+        else {
+            boolean handled = IPNetworking.handleImmPtlCorePacketClientSide(identifier, data);
+            if (handled) {
+                ci.cancel();
+            }
         }
     }
     

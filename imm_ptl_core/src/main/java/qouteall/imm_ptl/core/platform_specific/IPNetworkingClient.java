@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.platform_specific;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
@@ -13,6 +12,7 @@ import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -36,30 +36,28 @@ public class IPNetworkingClient {
     private static final Minecraft client = Minecraft.getInstance();
     
     public static void init() {
-        
-        ClientPlayNetworking.registerGlobalReceiver(
-            IPNetworking.id_stcSpawnEntity,
-            (c, handler, buf, responseSender) -> {
-                processStcSpawnEntity(buf);
-                
-            }
-        );
-        
-        ClientPlayNetworking.registerGlobalReceiver(
-            IPNetworking.id_stcDimensionConfirm,
-            (c, handler, buf, responseSender) -> {
-                processStcDimensionConfirm(buf);
-            }
-        );
-        
-        ClientPlayNetworking.registerGlobalReceiver(
-            IPNetworking.id_stcUpdateGlobalPortal,
-            (c, handler, buf, responseSender) -> {
-                processGlobalPortalUpdate(buf);
-            }
-        );
-        
-        
+    
+    }
+    
+    public static boolean handleImmPtlCorePacketClientSide(
+        ResourceLocation packedId,
+        FriendlyByteBuf buf
+    ) {
+        if (packedId.equals(IPNetworking.id_stcSpawnEntity)) {
+            processStcSpawnEntity(buf);
+            return true;
+        }
+        else if (packedId.equals(IPNetworking.id_stcDimensionConfirm)) {
+            processStcDimensionConfirm(buf);
+            return true;
+        }
+        else if (packedId.equals(IPNetworking.id_stcUpdateGlobalPortal)) {
+            processGlobalPortalUpdate(buf);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     
     private static void processStcSpawnEntity(FriendlyByteBuf buf) {

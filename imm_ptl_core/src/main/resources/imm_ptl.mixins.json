@@ -39,6 +39,7 @@
     "common.miscellaneous.MixinBlockGetter",
     "common.miscellaneous.MixinMob",
     "common.networking.MixinClientboundCustomPayloadPacket",
+    "common.networking.MixinServerGamePacketListenerImpl_N",
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayerList",
     "common.portal_generation.MixinItemEntity_P",
