@@ -1,29 +1,19 @@
 package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
-import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
-import net.minecraft.client.multiplayer.prediction.PredictiveAction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
-import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
+import qouteall.imm_ptl.core.network.IPNetworkingClient;
 import qouteall.q_misc_util.Helper;
 
 @Mixin(MultiPlayerGameMode.class)

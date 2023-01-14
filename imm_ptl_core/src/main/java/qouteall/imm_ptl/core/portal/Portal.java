@@ -43,7 +43,7 @@ import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderer;

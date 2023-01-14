@@ -13,7 +13,7 @@ import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;

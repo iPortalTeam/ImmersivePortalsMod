@@ -23,7 +23,7 @@ import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.network.PacketRedirectionClient;
-import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
+import qouteall.imm_ptl.core.network.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;

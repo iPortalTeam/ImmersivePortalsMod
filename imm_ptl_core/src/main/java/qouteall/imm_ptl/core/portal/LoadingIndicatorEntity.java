@@ -2,13 +2,11 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -21,12 +19,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.my_util.IntBox;
-
-import java.util.Random;
 
 public class LoadingIndicatorEntity extends Entity {
     public static EntityType<LoadingIndicatorEntity> entityType;

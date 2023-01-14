@@ -1,10 +1,6 @@
 package qouteall.imm_ptl.core;
 
-import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
@@ -15,13 +11,12 @@ import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;

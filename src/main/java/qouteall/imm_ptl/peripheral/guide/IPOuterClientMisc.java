@@ -9,7 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
+import qouteall.imm_ptl.core.network.IPNetworkingClient;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
 import qouteall.q_misc_util.my_util.MyTaskList;
 

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.platform_specific;
+package qouteall.imm_ptl.core.network;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
