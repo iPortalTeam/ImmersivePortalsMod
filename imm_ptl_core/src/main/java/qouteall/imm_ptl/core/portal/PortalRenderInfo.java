@@ -306,7 +306,7 @@ public class PortalRenderInfo {
             if (itsGroup != null) {
                 //flipped portal pairs cannot be in the same group
                 if (itsGroup.portals.stream().noneMatch(p -> Portal.isFlippedPortal(p, portal))) {
-                    if (itsGroup.transformationDesc.equals(thisDesc)) {
+                    if (Portal.TransformationDesc.isRoughlyEqual(itsGroup.transformationDesc, thisDesc)) {
                         if (renderingGroup == null) {
                             // this is not in group, put into its group
                             setGroup(portal, itsGroup);
@@ -321,7 +321,7 @@ public class PortalRenderInfo {
             }
             else {
                 Portal.TransformationDesc itsDesc = that.getTransformationDesc();
-                if (thisDesc.equals(itsDesc)) {
+                if (Portal.TransformationDesc.isRoughlyEqual(thisDesc, itsDesc)) {
                     if (renderingGroup == null) {
                         // this and that are not in any group
                         PortalGroup newGroup = new PortalGroup(thisDesc);

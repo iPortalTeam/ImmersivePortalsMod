@@ -4,6 +4,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4d;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class Mirror extends Portal {
     public static EntityType<Mirror> entityType;
@@ -37,5 +39,18 @@ public class Mirror extends Portal {
     @Override
     public Vec3 inverseTransformLocalVecNonScale(Vec3 localVec) {
         return super.inverseTransformLocalVecNonScale(getMirrored(localVec));
+    }
+    
+    @Override
+    public Matrix4d getFullSpaceTransformation() {
+        Vec3 originPos = getOriginPos();
+        Vec3 destPos = getDestPos();
+        DQuaternion rot = getRotationD();
+        return new Matrix4d()
+            .translation(destPos.x, destPos.y, destPos.z)
+            .reflect(getNormal().x, getNormal().y, getNormal().z, 0)
+            .scale(getScale())
+            .rotate(rot.toMcQuaternion())
+            .translate(-originPos.x, -originPos.y, -originPos.z);
     }
 }

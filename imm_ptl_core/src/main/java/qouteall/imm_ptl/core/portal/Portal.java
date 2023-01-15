@@ -30,6 +30,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -582,6 +583,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     /**
      * NOTE: This is not the portal orientation. It's the rotation transformation.
+     *
      * @param quaternion The new rotation transformation.
      */
     public void setRotation(@Nullable DQuaternion quaternion) {
@@ -1133,7 +1135,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (rotation == null) {
             return localVec;
         }
-    
+        
         return rotation.rotate(localVec);
     }
     
@@ -1141,7 +1143,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (rotation == null) {
             return localVec;
         }
-    
+        
         return rotation.getConjugated().rotate(localVec);
     }
     
@@ -1383,67 +1385,48 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 );
     }
     
-    public static class TransformationDesc {
-        public final ResourceKey<Level> dimensionTo;
-        @Nullable
-        public final DQuaternion rotation;
-        public final double scaling;
-        public final Vec3 offset;
-        public final boolean isMirror;
-        
-        public TransformationDesc(
-            ResourceKey<Level> dimensionTo,
-            @Nullable DQuaternion rotation, double scaling,
-            Vec3 offset, boolean isMirror
-        ) {
-            this.dimensionTo = dimensionTo;
-            this.rotation = rotation;
-            this.scaling = scaling;
-            this.offset = offset;
-            this.isMirror = isMirror;
-        }
-        
-        private static boolean rotationRoughlyEquals(DQuaternion a, DQuaternion b) {
-            if (a == null && b == null) {
-                return true;
-            }
-            if (a == null || b == null) {
+    public Matrix4d getFullSpaceTransformation() {
+        Vec3 originPos = getOriginPos();
+        Vec3 destPos = getDestPos();
+        DQuaternion rot = getRotationD();
+        return new Matrix4d()
+            .translation(destPos.x, destPos.y, destPos.z)
+            .scale(getScale())
+            .rotate(rot.toMcQuaternion())
+            .translate(-originPos.x, -originPos.y, -originPos.z);
+    }
+    
+    public record TransformationDesc(ResourceKey<Level> dimensionTo, Matrix4d fullSpaceTransformation) {
+        public static boolean isRoughlyEqual(TransformationDesc a, TransformationDesc b) {
+            if (a.dimensionTo != b.dimensionTo) {
                 return false;
             }
             
-            return DQuaternion.isClose(a, b, 0.01f);
-        }
-        
-        //roughly equals
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TransformationDesc that = (TransformationDesc) o;
-            
-            if (isMirror || that.isMirror) {
-                return false;
-            }
-            
-            return Double.compare(that.scaling, scaling) == 0 &&
-                dimensionTo == that.dimensionTo &&
-                rotationRoughlyEquals(rotation, that.rotation) &&//approximately
-                offset.distanceToSqr(that.offset) < 0.01;//approximately
-        }
-        
-        @Override
-        public int hashCode() {
-            throw new RuntimeException("This cannot be put into a container");
+            Matrix4d diff = new Matrix4d().set(a.fullSpaceTransformation).sub(b.fullSpaceTransformation);
+            double diffSquareSum = diff.m00() * diff.m00()
+                + diff.m01() * diff.m01()
+                + diff.m02() * diff.m02()
+                + diff.m03() * diff.m03()
+                + diff.m10() * diff.m10()
+                + diff.m11() * diff.m11()
+                + diff.m12() * diff.m12()
+                + diff.m13() * diff.m13()
+                + diff.m20() * diff.m20()
+                + diff.m21() * diff.m21()
+                + diff.m22() * diff.m22()
+                + diff.m23() * diff.m23()
+                + diff.m30() * diff.m30()
+                + diff.m31() * diff.m31()
+                + diff.m32() * diff.m32()
+                + diff.m33() * diff.m33();
+            return diffSquareSum < 0.1;
         }
     }
     
     public TransformationDesc getTransformationDesc() {
         return new TransformationDesc(
             getDestDim(),
-            getRotation(),
-            getScale(),
-            getDestPos().scale(1.0 / getScale()).subtract(getOriginPos()),
-            this instanceof Mirror
+            getFullSpaceTransformation()
         );
     }
     
@@ -1686,7 +1669,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 );
             }
         }
-    
+        
         if (extension.reversePortal != null) {
             if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
                 return new AnimationView(
@@ -1695,7 +1678,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 );
             }
         }
-    
+        
         if (extension.parallelPortal != null) {
             if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
                 return new AnimationView(
@@ -1704,7 +1687,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 );
             }
         }
-    
+        
         return new AnimationView(
             this, this,
             IntraClusterRelation.SAME

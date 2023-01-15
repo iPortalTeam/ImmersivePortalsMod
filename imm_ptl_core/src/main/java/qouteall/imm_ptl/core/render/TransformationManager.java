@@ -206,14 +206,15 @@ public class TransformationManager {
         float x = (float) normal.x;
         float y = (float) normal.y;
         float z = (float) normal.z;
-        float[] arr = new float[]{
-            1 - 2 * x * x, 0 - 2 * x * y, 0 - 2 * x * z, 0,
-            0 - 2 * y * x, 1 - 2 * y * y, 0 - 2 * y * z, 0,
-            0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
-            0, 0, 0, 1
-        };
+//        float[] arr = new float[]{
+//            1 - 2 * x * x, 0 - 2 * x * y, 0 - 2 * x * z, 0,
+//            0 - 2 * y * x, 1 - 2 * y * y, 0 - 2 * y * z, 0,
+//            0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
+//            0, 0, 0, 1
+//        };
         Matrix4f matrix = new Matrix4f();
-        matrix.set(arr);
+//        matrix.set(arr);
+        matrix.reflection(x, y, z, 0);
         return matrix;
     }
     
