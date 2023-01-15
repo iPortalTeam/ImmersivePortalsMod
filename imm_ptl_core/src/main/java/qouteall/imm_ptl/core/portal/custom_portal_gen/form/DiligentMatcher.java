@@ -10,6 +10,7 @@ import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.AARotation;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.IntMatrix3;
 
