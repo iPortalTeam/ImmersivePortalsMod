@@ -36,7 +36,6 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class CollisionHelper {
     
@@ -97,6 +96,8 @@ public class CollisionHelper {
         return testingPos.subtract(planePos).dot(planeNormal) < 0;
     }
     
+    // For single portals, the player can collide with it only if the eye pos is in portal projection.
+    // However, for portal groups, there is no in-projection restriction.
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float partialTick) {
         if (portal.canTeleportEntity(entity)) {
             Vec3 cameraPosVec = entity.getEyePosition(partialTick);
@@ -288,6 +289,18 @@ public class CollisionHelper {
         Portal collidingPortal,
         AABB originalBoundingBox
     ) {
+        PortalLike collisionHandlingUnit = getCollisionHandlingUnit(collidingPortal);
+        if (collisionHandlingUnit instanceof PortalGroup) {
+            // This is a workaround for scale boxes.
+            // Currently, the portal groups are mostly scale boxes.
+            // There is no collision inside the entrance of scale box, so do no clipping.
+            // Handling it correctly requires complex clipping code and is slower.
+            return handleCollisionWithShapeProcessor(
+                entity, attemptedMove,
+                s -> s
+            );
+        }
+        
         Vec3 clippingPlanePos = collidingPortal.getOriginPos();
         Vec3 clippingPlaneNormal = collidingPortal.getNormal();
         
@@ -337,7 +350,11 @@ public class CollisionHelper {
             
             return result;
         };
-        
+    
+        return handleCollisionWithShapeProcessor(entity, attemptedMove, filter);
+    }
+    
+    private static Vec3 handleCollisionWithShapeProcessor(Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter) {
         AABB boundingBox = entity.getBoundingBox();
         List<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, boundingBox.expandTowards(attemptedMove));
         Vec3 collidedMovement = attemptedMove.lengthSqr() == 0.0D ? attemptedMove : collideBoundingBox(
