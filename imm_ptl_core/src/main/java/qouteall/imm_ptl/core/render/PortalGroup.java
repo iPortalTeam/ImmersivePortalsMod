@@ -133,7 +133,7 @@ public class PortalGroup implements PortalLike {
     @Override
     public double getDestAreaRadiusEstimation() {
         double maxDimension = getSizeEstimation();
-        return maxDimension * transformationDesc.scaling;
+        return maxDimension * transformationDesc.scaling();
     }
     
     
@@ -192,12 +192,12 @@ public class PortalGroup implements PortalLike {
     @Nullable
     @Override
     public DQuaternion getRotation() {
-        return transformationDesc.rotation;
+        return transformationDesc.rotation();
     }
     
     @Override
     public double getScale() {
-        return transformationDesc.scaling;
+        return transformationDesc.scaling();
     }
     
     @Override

@@ -1396,7 +1396,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             .translate(-originPos.x, -originPos.y, -originPos.z);
     }
     
-    public record TransformationDesc(ResourceKey<Level> dimensionTo, Matrix4d fullSpaceTransformation) {
+    public record TransformationDesc(
+        ResourceKey<Level> dimensionTo,
+        Matrix4d fullSpaceTransformation,
+        DQuaternion rotation,
+        double scaling
+    ) {
         public static boolean isRoughlyEqual(TransformationDesc a, TransformationDesc b) {
             if (a.dimensionTo != b.dimensionTo) {
                 return false;
@@ -1426,7 +1431,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public TransformationDesc getTransformationDesc() {
         return new TransformationDesc(
             getDestDim(),
-            getFullSpaceTransformation()
+            getFullSpaceTransformation(),
+            getRotationD(),
+            getScale()
         );
     }
     

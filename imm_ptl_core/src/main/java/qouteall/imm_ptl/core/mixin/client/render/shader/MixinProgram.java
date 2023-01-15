@@ -61,7 +61,8 @@ public class MixinProgram {
         method = "compileShaderInternal",
         at = @At(
             value = "INVOKE",
-            target = "Lorg/apache/commons/io/IOUtils;toString(Ljava/io/InputStream;Ljava/nio/charset/Charset;)Ljava/lang/String;"
+            target = "Lorg/apache/commons/io/IOUtils;toString(Ljava/io/InputStream;Ljava/nio/charset/Charset;)Ljava/lang/String;",
+            remap = false
         )
     )
     private static String redirectReadShaderSource(
