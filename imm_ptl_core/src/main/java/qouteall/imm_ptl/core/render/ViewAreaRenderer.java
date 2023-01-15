@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -39,11 +40,16 @@ public class ViewAreaRenderer {
             GlStateManager._disableCull();
         }
         
-        if (portal.isFuseView()) {
+        if (portal.isFuseView() && IPGlobal.maxPortalLayer != 0) {
             GlStateManager._colorMask(false, false, false, false);
         }
         else {
-            GlStateManager._colorMask(true, true, true, true);
+            if (!doModifyColor) {
+                GlStateManager._colorMask(false, false, false, false);
+            }
+            else {
+                GlStateManager._colorMask(true, true, true, true);
+            }
         }
         
         if (doModifyDepth) {
@@ -56,10 +62,6 @@ public class ViewAreaRenderer {
         }
         else {
             GlStateManager._depthMask(false);
-        }
-        
-        if (!doModifyColor) {
-            GlStateManager._colorMask(false, false, false, false);
         }
         
         boolean shouldReverseCull = PortalRendering.isRenderingOddNumberOfMirrors();
