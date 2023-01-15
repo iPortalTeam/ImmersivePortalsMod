@@ -18,8 +18,9 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.WeakHashMap;
 
-// Java does not provide a program-accessible interface to tell GC pause time
-// so I can only roughly measure it
+// Java does not provide a program-accessible interface to tell GC pause time.
+// (There are GC logs, but not accessible from within program)
+// so I can only roughly measure it.
 public class GcMonitor {
     private static boolean memoryNotEnough = false;
     
@@ -49,8 +50,14 @@ public class GcMonitor {
     }
     
     private static void update() {
+        double longPauseThresholdSeconds = 0.3;
+        if (PortalDebugCommands.toMiB(Runtime.getRuntime().maxMemory()) < 2049) {
+            // if only allocated 2048 MB, be more sensitive
+            longPauseThresholdSeconds = 0.1;
+        }
+        
         long currTime = System.nanoTime();
-        if (currTime - lastUpdateTime > Helper.secondToNano(0.3)) {
+        if (currTime - lastUpdateTime > Helper.secondToNano(longPauseThresholdSeconds)) {
             lastLongPauseTime = currTime;
         }
         lastUpdateTime = currTime;
@@ -99,6 +106,8 @@ public class GcMonitor {
                 long totalMemory1 = Runtime.getRuntime().totalMemory();
                 long freeMemory1 = Runtime.getRuntime().freeMemory();
                 long usedMemory1 = totalMemory1 - freeMemory1;
+                
+                // When using ZGC, the memory usage amount is decreased with a delay
                 
                 Helper.err(String.format(
                     "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
