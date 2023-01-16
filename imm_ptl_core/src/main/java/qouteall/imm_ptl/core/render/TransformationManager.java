@@ -19,11 +19,22 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
+import javax.annotation.Nullable;
+
+/**
+ * The camera rotations are applied in this order:
+ * 1. portal transformation (rotation and mirror)
+ * 2. animation delta
+ * 3. gravity rotation
+ * 4. raw camera rotation (by pitch and yaw)
+ * The right side of multiplication applies first.
+ * finalRot = rawCameraRotation * gravity * animationDelta * portalRot
+ */
 @Environment(EnvType.CLIENT)
 public class TransformationManager {
     
-    private static DQuaternion interpolationStart;
-    private static DQuaternion lastCameraRotation;
+    // the animation delta gradually reduces to identity
+    private static DQuaternion animationDeltaStart;
     
     private static long interpolationStartTime = 0;
     private static long interpolationEndTime = 1;
@@ -33,37 +44,39 @@ public class TransformationManager {
     public static boolean isIsometricView = false;
     public static float isometricViewLength = 50;
     
-    private static DQuaternion getNormalCameraRotation(
+    // gets rawCameraRotation * gravity
+    private static DQuaternion getCameraRotationWithGravity(
         Direction gravityDirection,
         float pitch, float yaw
     ) {
-        DQuaternion extra = GravityChangerInterface.invoker.getExtraCameraRotation(gravityDirection);
-        DQuaternion cameraRotation = DQuaternion.getCameraRotation(pitch, yaw);
-        if (extra == null) {
-            return cameraRotation;
+        DQuaternion gravity = GravityChangerInterface.invoker.getExtraCameraRotation(gravityDirection);
+        DQuaternion rawCameraRotation = DQuaternion.getCameraRotation(pitch, yaw);
+        if (gravity == null) {
+            return rawCameraRotation;
         }
         else {
-            return cameraRotation.hamiltonProduct(extra);
+            return rawCameraRotation.hamiltonProduct(gravity);
         }
     }
     
+    @Nullable
+    private static DQuaternion getCurrentAnimationDelta() {
+        Double animationProgress = getAnimationProgress();
+        if (animationProgress != null) {
+            double progress = animationProgress;
+            return DQuaternion.interpolate(
+                animationDeltaStart,
+                DQuaternion.identity,
+                mapProgress(progress)
+            );
+        }
+        return null;
+    }
+    
     public static void processTransformation(Camera camera, PoseStack matrixStack) {
-//        if (!WorldRenderInfo.isRendering()) {
-//            ((IECamera) camera).portal_setPos(RenderStates.viewBobbedCameraPos);
-//        }
-        
-        if (isAnimationRunning()) {
-            // override vanilla camera transformation
-            matrixStack.last().pose().identity();
-            matrixStack.last().normal().identity();
-            
-            Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(client.player);
-            
-            DQuaternion cameraRotation = getNormalCameraRotation(gravityDir, camera.getXRot(), camera.getYRot());
-            
-            DQuaternion finalRotation = getAnimatedCameraRotation(cameraRotation);
-            
-            matrixStack.mulPose(finalRotation.toMcQuaternion());
+        DQuaternion currentAnimationDelta = getCurrentAnimationDelta();
+        if (currentAnimationDelta != null) {
+            matrixStack.mulPose(currentAnimationDelta.toMcQuaternion());
         }
         
         WorldRenderInfo.applyAdditionalTransformations(matrixStack);
@@ -71,37 +84,27 @@ public class TransformationManager {
     }
     
     public static boolean isAnimationRunning() {
-        if (interpolationStartTime == 0) {
-            return false;
-        }
-        
-        double progress = (RenderStates.renderStartNanoTime - interpolationStartTime) /
-            ((double) interpolationEndTime - interpolationStartTime);
-        
-        return progress >= -0.1 && progress <= 1.1;
+        return getAnimationProgress() != null;
     }
     
-    public static DQuaternion getAnimatedCameraRotation(DQuaternion cameraRotation) {
+    @Nullable
+    public static Double getAnimationProgress() {
+        if (interpolationStartTime == 0) {
+            return null;
+        }
+        if (animationDeltaStart == null) {
+            return null;
+        }
+        
         double progress = (RenderStates.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
         
-        if (progress < 0 || progress >= 1) {
-            return cameraRotation;
+        if (progress >= 0 && progress <= 1) {
+            return progress;
         }
-        
-        progress = mapProgress(progress);
-        
-        // adjust the interpolation start
-        DQuaternion cameraRotDelta = cameraRotation.hamiltonProduct(lastCameraRotation.getConjugated());
-        interpolationStart = interpolationStart.hamiltonProduct(cameraRotDelta);
-        
-        lastCameraRotation = cameraRotation;
-        
-        return DQuaternion.interpolate(
-            interpolationStart,
-            cameraRotation,
-            progress
-        );
+        else {
+            return null;
+        }
     }
     
     public static double mapProgress(double progress) {
@@ -117,16 +120,21 @@ public class TransformationManager {
         if (portal.getRotation() != null) {
             LocalPlayer player = client.player;
             
+            // finalRot = rawCameraRotation * gravity * animationDelta * portalRot
+            
             Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
             
-            DQuaternion oldCameraRotation = getNormalCameraRotation(
+            DQuaternion oldCameraRotation = getCameraRotationWithGravity(
                 oldGravityDir,
                 player.getViewXRot(RenderStates.tickDelta), player.getViewYRot(RenderStates.tickDelta)
             );
-            DQuaternion currentCameraRotationInterpolated = getAnimatedCameraRotation(oldCameraRotation);
+            DQuaternion currentAnimationDelta = getCurrentAnimationDelta();
+            if (currentAnimationDelta != null) {
+                oldCameraRotation = oldCameraRotation.hamiltonProduct(currentAnimationDelta);
+            }
             
-            DQuaternion cameraRotationThroughPortal =
-                currentCameraRotationInterpolated.hamiltonProduct(
+            DQuaternion immediateFinalRot =
+                oldCameraRotation.hamiltonProduct(
                     portal.getRotation().getConjugated()
                 );
             
@@ -139,19 +147,18 @@ public class TransformationManager {
                 );
             }
             
-            DQuaternion newExtraCameraRot = GravityChangerInterface.invoker.getExtraCameraRotation(newGravityDir);
+            // rawCameraRotation = finalRot * portalRot^-1 * animationDelta^-1 * gravity^-1
+            // when getting the new pitch yaw, no need to consider portalRot and animation
+            // rawCameraRotation = finalRot * gravity^-1
             
-            DQuaternion newCameraRotationWithNormalGravity;
-            if (newExtraCameraRot != null) {
-                newCameraRotationWithNormalGravity =
-                    (cameraRotationThroughPortal).hamiltonProduct(newExtraCameraRot.getConjugated());
-            }
-            else {
-                newCameraRotationWithNormalGravity = cameraRotationThroughPortal;
-            }
+            DQuaternion newGravityRot = DQuaternion.fromNullable(
+                GravityChangerInterface.invoker.getExtraCameraRotation(newGravityDir)
+            );
+            
+            DQuaternion newRawCameraRotation = immediateFinalRot.hamiltonProduct(newGravityRot.getConjugated());
             
             Tuple<Double, Double> pitchYaw =
-                DQuaternion.getPitchYawFromRotation(newCameraRotationWithNormalGravity);
+                DQuaternion.getPitchYawFromRotation(newRawCameraRotation);
             
             float finalYaw = (float) (double) (pitchYaw.getB());
             float finalPitch = (float) (double) (pitchYaw.getA());
@@ -173,11 +180,18 @@ public class TransformationManager {
             player.yBobO = finalYaw;
             player.xBobO = finalPitch;
             
-            DQuaternion newCameraRotation = getNormalCameraRotation(newGravityDir, finalPitch, finalYaw);
+            // now we need to keep immediate final rotation unchanged, to keep teleportation seamless.
+            // no need to consider portalRot for now.
+            // finalRot = rawCameraRotation * gravity * animationDelta
+            // animationDelta = gravity^-1 * rawCameraRotation^-1 * finalRot
+            // animationDelta = (rawCameraRotation * gravity)^-1 * finalRot
             
-            if (!DQuaternion.isClose(newCameraRotation, cameraRotationThroughPortal, 0.001f)) {
-                interpolationStart = cameraRotationThroughPortal;
-                lastCameraRotation = newCameraRotation;
+            DQuaternion newCameraRotationWithGravity = getCameraRotationWithGravity(newGravityDir, finalPitch, finalYaw);
+    
+            DQuaternion newAnimationDelta = newCameraRotationWithGravity.getConjugated().hamiltonProduct(immediateFinalRot);
+    
+            if (newAnimationDelta.getRotatingAngleDegrees() > 0.1) {
+                animationDeltaStart = newAnimationDelta;
                 interpolationStartTime = RenderStates.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
                     Helper.secondToNano(getAnimationDurationSeconds());

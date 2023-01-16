@@ -11,7 +11,9 @@ import qouteall.q_misc_util.Helper;
 import java.util.Objects;
 
 // matrix for horizontal vector transformation.
-// usage: p * m
+// usage: p * m.
+// the left matrix gets applied first.
+// Note: it's different to the MC transformation. MC transformation uses vertical vector. It's m * p. The right matrix applies first.
 public class IntMatrix3 {
     // the 3 rows of the matrix
     public final Vec3i x;
@@ -40,6 +42,7 @@ public class IntMatrix3 {
             .offset(Helper.scale(z, p.getZ()));
     }
     
+    // `this` is applied first.
     public IntMatrix3 multiply(IntMatrix3 m) {
         return new IntMatrix3(
             m.transform(x),

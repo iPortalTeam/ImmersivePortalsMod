@@ -55,6 +55,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.*;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -528,13 +529,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * @return the portal's rotation transformation. will not be null.
      */
+    @Nonnull
     public DQuaternion getRotationD() {
-        if (rotation == null) {
-            return DQuaternion.identity;
-        }
-        else {
-            return rotation;
-        }
+        return DQuaternion.fromNullable(getRotation());
     }
     
     @Override
