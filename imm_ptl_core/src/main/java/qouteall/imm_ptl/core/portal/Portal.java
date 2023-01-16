@@ -1538,6 +1538,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return hasCrossPortalCollision;
     }
     
+    public boolean getTeleportChangesScale() {
+        return teleportChangesScale;
+    }
+    
+    public void setTeleportChangesScale(boolean teleportChangesScale) {
+        this.teleportChangesScale = teleportChangesScale;
+    }
+    
     public boolean getTeleportChangesGravity() {
         return teleportChangesGravity;
     }

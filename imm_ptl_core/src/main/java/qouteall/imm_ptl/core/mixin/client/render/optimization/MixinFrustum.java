@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -68,6 +69,15 @@ public class MixinFrustum implements IEFrustum {
                 cir.setReturnValue(false);
             }
         }
+    }
+    
+    // with scaling transformation, the view vector may be not unit-len
+    @Inject(
+        method = "calculateFrustum",
+        at = @At("RETURN")
+    )
+    private void onCalculateFrustumReturn(Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
+        viewVector.normalize();
     }
     
     @Override
