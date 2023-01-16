@@ -2,32 +2,19 @@ package qouteall.imm_ptl.core.compat;
 
 import com.fusionflux.gravity_api.api.GravityChangerAPI;
 import com.fusionflux.gravity_api.api.RotationParameters;
-import com.fusionflux.gravity_api.util.GravityChannel;
 import com.fusionflux.gravity_api.util.GravityComponent;
 import com.fusionflux.gravity_api.util.RotationUtil;
-import com.fusionflux.gravity_api.util.packet.DefaultGravityPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
@@ -44,7 +31,7 @@ public class GravityChangerInterface {
             return new Vec3(0, entity.getEyeHeight(), 0);
         }
         
-        public Direction getGravityDirection(Player entity) {
+        public Direction getGravityDirection(Entity entity) {
             return Direction.DOWN;
         }
         
@@ -112,7 +99,7 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public Direction getGravityDirection(Player entity) {
+        public Direction getGravityDirection(Entity entity) {
             return GravityChangerAPI.getGravityDirection(entity);
         }
         

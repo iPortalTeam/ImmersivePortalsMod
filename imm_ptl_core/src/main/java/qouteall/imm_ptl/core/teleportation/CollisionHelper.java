@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +24,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.collision.IEEntity_Collision;
@@ -36,6 +38,7 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CollisionHelper {
@@ -208,14 +211,7 @@ public class CollisionHelper {
         entity.level = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
         
-        if (collidingPortal.getRotationD().getRotatingAngleDegrees() > 0.01f) {
-            // this is a temporary workaround
-            // currently the step-up only works on positive Y direction
-            // it cannot handle step up with rotated portals
-            // so disable step up if the portal has rotation
-            entity.maxUpStep = 0;
-        }
-        else if (collidingPortal.getScale() > 1) {
+        if (collidingPortal.getScale() > 1) {
             entity.maxUpStep = (float) (oldStepHeight * collidingPortal.getScale() * 1.01);
         }
         
@@ -227,9 +223,10 @@ public class CollisionHelper {
                 );
             }
             
-            Vec3 collided = handleCollisionWithClipping(
+            Vec3 collided = handleCollisionWithShapeProcessor(
                 entity, transformedAttemptedMove,
-                collidingPortal.getDestPos(), collidingPortal.getContentDirection()
+                shape -> clipVoxelShape(shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()),
+                collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity))
             );
             
             collided = new Vec3(
@@ -273,6 +270,8 @@ public class CollisionHelper {
         Portal collidingPortal,
         AABB originalBoundingBox
     ) {
+        Direction gravity = GravityChangerInterface.invoker.getGravityDirection(entity);
+        
         PortalLike collisionHandlingUnit = getCollisionHandlingUnit(collidingPortal);
         if (collisionHandlingUnit instanceof PortalGroup) {
             // This is a workaround for scale boxes.
@@ -281,22 +280,18 @@ public class CollisionHelper {
             // Handling it correctly requires complex clipping code and is slower.
             return handleCollisionWithShapeProcessor(
                 entity, attemptedMove,
-                s -> s
+                s -> s,
+                gravity
             );
         }
         
         Vec3 clippingPlanePos = collidingPortal.getOriginPos();
         Vec3 clippingPlaneNormal = collidingPortal.getNormal();
         
-        return handleCollisionWithClipping(entity, attemptedMove, clippingPlanePos, clippingPlaneNormal);
-    }
-    
-    private static Vec3 handleCollisionWithClipping(
-        Entity entity, Vec3 attemptedMove, Vec3 clippingPlanePos, Vec3 clippingPlaneNormal
-    ) {
         return handleCollisionWithShapeProcessor(
             entity, attemptedMove,
-            shape -> clipVoxelShape(shape, clippingPlanePos, clippingPlaneNormal)
+            shape -> clipVoxelShape(shape, clippingPlanePos, clippingPlaneNormal),
+            gravity
         );
     }
     
@@ -341,59 +336,144 @@ public class CollisionHelper {
         return result;
     }
     
-    /**
-     * Vanilla copy {@link Entity#collide(Vec3)}
-     * But filters collisions behind the clipping plane.
-     * TODO handle up step with rotation
-     */
-    @IPVanillaCopy
-    private static Vec3 handleCollisionWithShapeProcessor(
-        Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter
-    ) {
+    // only for reference
+    private static Vec3 refHandleCollisionWithShapeProcessor(Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter) {
         AABB boundingBox = entity.getBoundingBox();
         List<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, boundingBox.expandTowards(attemptedMove));
-        Vec3 collidedMovement = attemptedMove.lengthSqr() == 0.0D ? attemptedMove : collideBoundingBox(
-            entity, attemptedMove, boundingBox, entity.level, entityCollisions, filter
-        );
-        boolean moveX = attemptedMove.x != collidedMovement.x;
-        boolean moveY = attemptedMove.y != collidedMovement.y;
-        boolean moveZ = attemptedMove.z != collidedMovement.z;
-        boolean touchGround = entity.isOnGround() || moveY && attemptedMove.y < 0.0D;
-        if (entity.maxUpStep > 0.0F && touchGround && (moveX || moveZ)) {
-            Vec3 stepping = collideBoundingBox(
-                entity,
+        
+        // introduce a helper func to reduce argument count
+        BiFunction<Vec3, AABB, Vec3> collisionFunc = (attempt, bb) ->
+            collideBoundingBox(entity, attempt, bb, entity.level, entityCollisions, filter);
+        
+        // firstly do a normal collision regardless of stepping
+        Vec3 collidedMovement = attemptedMove.lengthSqr() == 0.0D ? attemptedMove :
+            collisionFunc.apply(attemptedMove, boundingBox);
+        boolean collideX = attemptedMove.x != collidedMovement.x;
+        boolean collideY = attemptedMove.y != collidedMovement.y;
+        boolean collideZ = attemptedMove.z != collidedMovement.z;
+        boolean collidesWithFloor = collideY && attemptedMove.y < 0.0D;
+        boolean touchGround = entity.isOnGround() || collidesWithFloor;
+        boolean collidesHorizontally = collideX || collideZ;
+        if (entity.maxUpStep > 0.0F && touchGround && collidesHorizontally) {
+            // the entity is touching ground and has horizontal collision now
+            // try to directly move to stepped position, make it approach the stair
+            Vec3 stepping = collisionFunc.apply(
                 new Vec3(attemptedMove.x, (double) entity.maxUpStep, attemptedMove.z),
-                boundingBox, entity.level, entityCollisions, filter
+                boundingBox
             );
-            Vec3 verticalStep = collideBoundingBox(
-                entity, new Vec3(0.0D, (double) entity.maxUpStep, 0.0D),
-                boundingBox.expandTowards(attemptedMove.x, 0.0D, attemptedMove.z),
-                entity.level, entityCollisions, filter
+            // try to move up in step height with expanded box
+            Vec3 verticalStep = collisionFunc.apply(
+                new Vec3(0.0D, (double) entity.maxUpStep, 0.0D),
+                boundingBox.expandTowards(attemptedMove.x, 0.0D, attemptedMove.z)
             );
             if (verticalStep.y < (double) entity.maxUpStep) {
-                Vec3 horizontalMoveAfterVerticalStepping = collideBoundingBox(
-                    entity, new Vec3(attemptedMove.x, 0.0D, attemptedMove.z),
-                    boundingBox.move(verticalStep), entity.level, entityCollisions, filter
+                // try to move horizontally after moving up
+                Vec3 horizontalMoveAfterVerticalStepping = collisionFunc.apply(
+                    new Vec3(attemptedMove.x, 0.0D, attemptedMove.z),
+                    boundingBox.move(verticalStep)
                 ).add(verticalStep);
+                // if it's further than directly stepping, use that as the stepped movement
                 if (horizontalMoveAfterVerticalStepping.horizontalDistanceSqr() > stepping.horizontalDistanceSqr()) {
                     stepping = horizontalMoveAfterVerticalStepping;
                 }
             }
             
             if (stepping.horizontalDistanceSqr() > collidedMovement.horizontalDistanceSqr()) {
-                Vec3 moveAfterStepping = collideBoundingBox(
-                    entity,
+                // in the stepped position, move down (because the max step height may be higher than slab height)
+                Vec3 movingDown = collisionFunc.apply(
                     new Vec3(0.0D, -stepping.y + attemptedMove.y, 0.0D),
-                    boundingBox.move(stepping),
-                    entity.level,
-                    entityCollisions,
-                    filter
+                    boundingBox.move(stepping)
                 );
-                return stepping.add(moveAfterStepping);
+                return stepping.add(movingDown);
             }
         }
         
         return collidedMovement;
+    }
+    
+    /**
+     * Vanilla copy {@link Entity#collide(Vec3)}
+     * But filters collisions behind the clipping plane and handles stepping with rotated gravity.
+     */
+    @IPVanillaCopy
+    private static Vec3 handleCollisionWithShapeProcessor(
+        Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter,
+        Direction gravity
+    ) {
+        Direction jumpDirection = gravity.getOpposite();
+        Direction.Axis gravityAxis = gravity.getAxis();
+        
+        AABB boundingBox = entity.getBoundingBox();
+        List<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, boundingBox.expandTowards(attemptedMove));
+        
+        // introduce a helper func to reduce argument count
+        BiFunction<Vec3, AABB, Vec3> collisionFunc = (attempt, bb) ->
+            collideBoundingBox(entity, attempt, bb, entity.level, entityCollisions, filter);
+        
+        // firstly do a normal collision regardless of stepping
+        Vec3 collidedMovement = attemptedMove.lengthSqr() == 0.0D ? attemptedMove :
+            collisionFunc.apply(attemptedMove, boundingBox);
+        Vec3 collisionDelta = attemptedMove.subtract(collidedMovement);
+        boolean collidesOnGravityAxis = Helper.getCoordinate(collisionDelta, gravityAxis) != 0;
+        boolean attemptToMoveAlongGravity = Helper.getSignedCoordinate(attemptedMove, gravity) > 0;
+        boolean collidesWithFloor = collidesOnGravityAxis && attemptToMoveAlongGravity;
+        boolean touchGround = entity.isOnGround() || collidesWithFloor;
+        boolean collidesHorizontally = movesOnNonGravityAxis(collisionDelta, gravityAxis);
+        float maxUpStep = entity.maxUpStep;
+        if (maxUpStep > 0.0F && touchGround && collidesHorizontally) {
+            // the entity is touching ground and has horizontal collision now
+            // try to directly move to stepped position, make it approach the stair
+            Vec3 stepping = collisionFunc.apply(
+                Helper.putSignedCoordinate(attemptedMove, jumpDirection, maxUpStep),
+                boundingBox
+            );
+            // try to move up in step height with expanded box
+            Vec3 expandVec = Helper.putSignedCoordinate(attemptedMove, gravity, 0);
+            Vec3 verticalStep = collisionFunc.apply(
+                Helper.putSignedCoordinate(Vec3.ZERO, jumpDirection, maxUpStep),
+                boundingBox.expandTowards(expandVec)
+            );
+            if (Helper.getSignedCoordinate(verticalStep, jumpDirection) < (double) maxUpStep) {
+                // try to move horizontally after moving up
+                Vec3 horizontalMoveAfterVerticalStepping = collisionFunc.apply(
+                    expandVec,
+                    boundingBox.move(verticalStep)
+                ).add(verticalStep);
+                // if it's further than directly stepping, use that as the stepped movement
+                if (Helper.getDistanceSqrOnAxisPlane(horizontalMoveAfterVerticalStepping, gravityAxis) >
+                    Helper.getDistanceSqrOnAxisPlane(stepping, gravityAxis)
+                ) {
+                    stepping = horizontalMoveAfterVerticalStepping;
+                }
+            }
+            
+            if (Helper.getDistanceSqrOnAxisPlane(stepping, gravityAxis) >
+                Helper.getDistanceSqrOnAxisPlane(collidedMovement, gravityAxis)
+            ) {
+                double steppingVerticalLen = Helper.getSignedCoordinate(stepping, jumpDirection);
+                double attemptMoveVerticalLen = Helper.getSignedCoordinate(attemptedMove, jumpDirection);
+                
+                // in the stepped position, move down (because the max step height may be higher than slab height)
+                Vec3 movingDown = collisionFunc.apply(
+                    Helper.putSignedCoordinate(
+                        Vec3.ZERO, jumpDirection,
+                        -steppingVerticalLen + attemptMoveVerticalLen
+                    ),
+                    boundingBox.move(stepping)
+                );
+                return stepping.add(movingDown);
+            }
+        }
+        
+        return collidedMovement;
+    }
+    
+    private static boolean movesOnNonGravityAxis(Vec3 vec, Direction.Axis gravityAxis) {
+        return switch (gravityAxis) {
+            case X -> vec.y != 0 || vec.z != 0;
+            case Y -> vec.x != 0 || vec.z != 0;
+            case Z -> vec.x != 0 || vec.y != 0;
+        };
     }
     
     /**
