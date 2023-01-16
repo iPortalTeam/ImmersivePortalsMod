@@ -43,8 +43,9 @@ public class RenderStates {
     /**
      * This does not always equal Minecraft.getFrameTime.
      * It will be 0 right after ticking.
+     * TODO rename to partialTick in MC 1.20
      */
-    public static float tickDelta = 0; // TODO rename to partialTick in MC 1.20
+    public static float tickDelta = 0;
     
     public static Set<ResourceKey<Level>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();

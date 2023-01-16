@@ -39,6 +39,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.Comparator;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
@@ -176,7 +177,7 @@ public class ClientTeleportationManager {
                     ) {
                         // the portal is running a real animation
                         assert portal.animation.clientCurrentFramePortalState != null;
-        
+                        
                         TeleportationUtil.Teleportation teleportation =
                             TeleportationUtil.checkDynamicTeleportation(
                                 portal,
@@ -189,7 +190,7 @@ public class ClientTeleportationManager {
                                 McHelper.getLastTickEyePos(player),
                                 McHelper.getEyePos(player)
                             );
-        
+                        
                         if (teleportation != null) {
                             return Stream.of(teleportation);
                         }
@@ -304,7 +305,7 @@ public class ClientTeleportationManager {
             portal.getUUID()
         ));
         
-        tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
+        updateCollidingPortalAfterTeleportation(player, newEyePos, newLastTickEyePos);
         
         McHelper.adjustVehicle(player);
         
@@ -469,8 +470,7 @@ public class ClientTeleportationManager {
         teleportTickTimeLimit = tickTimeForTeleportation + ticks;
     }
     
-    private static void tickAfterTeleportation(LocalPlayer player, Vec3 newEyePos, Vec3 newLastTickEyePos) {
-        // update collidingPortal
+    private static void updateCollidingPortalAfterTeleportation(LocalPlayer player, Vec3 newEyePos, Vec3 newLastTickEyePos) {
         float partialTicks = RenderStates.tickDelta;
         
         McHelper.findEntitiesByBox(
@@ -494,28 +494,28 @@ public class ClientTeleportationManager {
             return;
         }
         
-        // TODO cut bounding box by colliding portal
         AABB playerBoundingBox = player.getBoundingBox();
+        Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
         
         Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
         Direction levitationDir = gravityDir.getOpposite();
         Vec3 eyeOffset = GravityChangerInterface.invoker.getEyeOffset(player);
         
         AABB bottomHalfBox = playerBoundingBox.contract(eyeOffset.x / 2, eyeOffset.y / 2, eyeOffset.z / 2);
-        Iterable<VoxelShape> collisions = player.level.getBlockCollisions(
-            player, bottomHalfBox
-        );
-        
-        AABB collisionUnion = null;
-        for (VoxelShape collision : collisions) {
-            AABB collisionBoundingBox = collision.bounds();
-            if (collisionUnion == null) {
-                collisionUnion = collisionBoundingBox;
+        Function<VoxelShape, VoxelShape> shapeFilter = c -> {
+            if (collidingPortal != null) {
+                return CollisionHelper.clipVoxelShape(
+                    c, collidingPortal.getOriginPos(), collidingPortal.getNormal()
+                );
             }
             else {
-                collisionUnion = collisionUnion.minmax(collisionBoundingBox);
+                return c;
             }
-        }
+        };
+        
+        AABB collisionUnion = CollisionHelper.getTotalBlockCollisionBox(
+            player, bottomHalfBox, shapeFilter
+        );
         
         if (collisionUnion == null) {
             return;
@@ -581,11 +581,11 @@ public class ClientTeleportationManager {
                 Helper.getCoordinate(expectedPos, levitationDir.getAxis())
             );
             
-            Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
-            if (collidingPortal != null) {
+            Portal currentCollidingPortal = ((IEEntity) player).getCollidingPortal();
+            if (currentCollidingPortal != null) {
                 Vec3 eyePos = McHelper.getEyePos(player);
                 Vec3 newEyePos = newPos.add(McHelper.getEyeOffset(player));
-                if (collidingPortal.rayTrace(eyePos, newEyePos) != null) {
+                if (currentCollidingPortal.rayTrace(eyePos, newEyePos) != null) {
                     return true;//avoid going back into the portal
                 }
             }
