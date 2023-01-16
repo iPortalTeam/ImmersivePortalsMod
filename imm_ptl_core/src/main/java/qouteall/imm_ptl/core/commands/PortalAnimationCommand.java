@@ -80,6 +80,43 @@ public class PortalAnimationCommand {
             })
         );
         
+        builder.then(Commands.literal("remove_at")
+            .then(Commands.argument("index", IntegerArgumentType.integer())
+                .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                    int index = IntegerArgumentType.getInteger(context, "index");
+                    AnimationView animationView = portal.getAnimationView();
+                    List<PortalAnimationDriver> thisSideAnimations = animationView.getThisSideAnimations();
+                    if (index >= 0 && index < thisSideAnimations.size()) {
+                        thisSideAnimations.remove(index);
+                        PortalCommand.reloadPortal(portal);
+                        context.getSource().sendSuccess(getAnimationInfo(portal), false);
+                    }
+                    else {
+                        context.getSource().sendFailure(
+                            Component.literal("Invalid index " + index)
+                        );
+                    }
+                }))
+            )
+        );
+        
+        builder.then(Commands.literal("remove_last")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                AnimationView animationView = portal.getAnimationView();
+                List<PortalAnimationDriver> thisSideAnimations = animationView.getThisSideAnimations();
+                if (!thisSideAnimations.isEmpty()) {
+                    thisSideAnimations.remove(thisSideAnimations.size() - 1);
+                    PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
+                }
+                else {
+                    context.getSource().sendFailure(
+                        Component.literal("No animation")
+                    );
+                }
+            }))
+        );
+        
         builder.then(Commands.literal("rotate_infinitely")
             .then(Commands.argument("rotationCenterEntity", EntityArgument.entity())
                 .then(Commands.argument("rotationAxis", Vec3Argument.vec3(false))

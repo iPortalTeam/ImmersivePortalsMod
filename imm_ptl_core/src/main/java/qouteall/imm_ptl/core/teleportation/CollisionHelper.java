@@ -302,6 +302,10 @@ public class CollisionHelper {
     
     @Nullable
     public static VoxelShape clipVoxelShape(VoxelShape shape, Vec3 clippingPlanePos, Vec3 clippingPlaneNormal) {
+        if (shape.isEmpty()) {
+            return null;
+        }
+        
         AABB shapeBoundingBox = shape.bounds();
         boolean boxBehindPlane = isBoxFullyBehindPlane(
             clippingPlanePos, clippingPlaneNormal, shapeBoundingBox
@@ -675,7 +679,7 @@ public class CollisionHelper {
         AABB collisionUnion = null;
         for (VoxelShape c : collisions) {
             VoxelShape currCollision = shapeFilter.apply(c);
-            if (currCollision != null) {
+            if (currCollision != null && !currCollision.isEmpty()) {
                 AABB collisionBoundingBox = currCollision.bounds();
                 if (collisionUnion == null) {
                     collisionUnion = collisionBoundingBox;

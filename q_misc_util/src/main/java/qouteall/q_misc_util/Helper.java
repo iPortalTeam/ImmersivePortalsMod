@@ -490,12 +490,16 @@ public class Helper {
     
     /**
      * It's safe to modify the result array list.
+     * Note: if the deserializer returns null, it won't be in the result list.
      */
     public static <X> ArrayList<X> listTagToList(ListTag listTag, Function<CompoundTag, X> deserializer) {
         ArrayList<X> result = new ArrayList<>();
         listTag.forEach(tag -> {
             CompoundTag compoundTag = (CompoundTag) tag;
-            result.add(deserializer.apply(compoundTag));
+            X obj = deserializer.apply(compoundTag);
+            if (obj != null) {
+                result.add(obj);
+            }
         });
         return result;
     }

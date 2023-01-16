@@ -11,7 +11,7 @@ public record AnimationView(
     Portal animationHolder,
     IntraClusterRelation relationToHolder
 ) {
-    
+    // it doesn't consider flipping
     public List<PortalAnimationDriver> getThisSideAnimations() {
         if (relationToHolder.isReverse) {
             return animationHolder.animation.otherSideAnimations;
@@ -21,6 +21,7 @@ public record AnimationView(
         }
     }
     
+    // it doesn't consider flipping
     public List<PortalAnimationDriver> getOtherSideAnimations() {
         if (relationToHolder.isReverse) {
             return animationHolder.animation.thisSideAnimations;
