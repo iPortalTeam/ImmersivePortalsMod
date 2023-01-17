@@ -1554,6 +1554,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         teleportChangesGravity = cond;
     }
     
+    public Direction getTeleportedGravityDirection(Direction oldGravityDir) {
+        if (!getTeleportChangesGravity()) {
+            return oldGravityDir;
+        }
+        return getTransformedGravityDirection(oldGravityDir);
+    }
+    
     public Direction getTransformedGravityDirection(Direction oldGravityDir) {
         Vec3 oldGravityVec = Vec3.atLowerCornerOf(oldGravityDir.getNormal());
         

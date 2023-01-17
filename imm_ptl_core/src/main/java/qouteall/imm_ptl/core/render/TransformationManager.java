@@ -138,8 +138,7 @@ public class TransformationManager {
                     portal.getRotation().getConjugated()
                 );
             
-            Direction newGravityDir = portal.getTeleportChangesGravity() ?
-                portal.getTransformedGravityDirection(oldGravityDir) : oldGravityDir;
+            Direction newGravityDir = portal.getTeleportedGravityDirection(oldGravityDir);
             
             if (newGravityDir != oldGravityDir) {
                 GravityChangerInterface.invoker.setClientPlayerGravityDirection(
