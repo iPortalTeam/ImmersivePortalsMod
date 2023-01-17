@@ -6,11 +6,13 @@ import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
@@ -56,6 +58,8 @@ public class WorldRenderInfo {
     
     public final boolean doRenderHand;
     
+    public final boolean enableViewBobbing;
+    
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
     
     public WorldRenderInfo(
@@ -86,6 +90,26 @@ public class WorldRenderInfo {
         this.renderDistance = renderDistance;
         this.overwriteCameraTransformation = overwriteCameraTransformation;
         this.doRenderHand = doRenderHand;
+        this.enableViewBobbing = true;
+    }
+    
+    public WorldRenderInfo(
+        ClientLevel world, Vec3 cameraPos,
+        @Nullable Matrix4f cameraTransformation,
+        boolean overwriteCameraTransformation,
+        @Nullable UUID description,
+        int renderDistance,
+        boolean doRenderHand,
+        boolean enableViewBobbing
+    ) {
+        this.world = world;
+        this.cameraPos = cameraPos;
+        this.cameraTransformation = cameraTransformation;
+        this.description = description;
+        this.renderDistance = renderDistance;
+        this.overwriteCameraTransformation = overwriteCameraTransformation;
+        this.doRenderHand = doRenderHand;
+        this.enableViewBobbing = enableViewBobbing;
     }
     
     public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {
@@ -154,5 +178,9 @@ public class WorldRenderInfo {
     public static Vec3 getCameraPos() {
         Validate.isTrue(!renderInfoStack.isEmpty());
         return renderInfoStack.peek().cameraPos;
+    }
+    
+    public static boolean isViewBobbingEnabled() {
+        return renderInfoStack.stream().allMatch(info -> info.enableViewBobbing);
     }
 }

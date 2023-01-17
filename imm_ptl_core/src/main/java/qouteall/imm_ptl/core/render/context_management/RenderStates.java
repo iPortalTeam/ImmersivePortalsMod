@@ -179,6 +179,10 @@ public class RenderStates {
         if (!IPGlobal.viewBobbingReduce) {
             return 1;
         }
+    
+        if (!WorldRenderInfo.isViewBobbingEnabled()) {
+            return 0;
+        }
         
         double allScaling = PortalRendering.getExtraModelViewScaling();
         

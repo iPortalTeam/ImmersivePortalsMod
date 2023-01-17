@@ -62,7 +62,7 @@ public class CrossPortalViewRendering {
         Portal portal = portalHit.getFirst();
         Vec3 hitPos = portalHit.getSecond();
         
-        if (!portal.isInteractable()) {
+        if (!portal.canTeleportEntity(cameraEntity)) {
             return false;
         }
         
@@ -87,7 +87,8 @@ public class CrossPortalViewRendering {
             renderingCameraPos, portal.getAdditionalCameraTransformation(),
             false, null,
             client.options.getEffectiveRenderDistance(),
-            ((IEGameRenderer) client.gameRenderer).getDoRenderHand()
+            ((IEGameRenderer) client.gameRenderer).getDoRenderHand(),
+            false
         );
         
         IPCGlobal.renderer.invokeWorldRendering(worldRenderInfo);
