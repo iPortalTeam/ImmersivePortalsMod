@@ -236,7 +236,8 @@ public class ServerTeleportationManager {
         }
         
         return portal.canTeleportEntity(player)
-            && canPlayerReachPos(player, dimensionBefore, posBefore)
+            && player.level.dimension() == dimensionBefore
+            && player.position().distanceToSqr(posBefore) < 256
             && portal.getDistanceToPlane(posBefore) < 20;
     }
     
@@ -626,6 +627,8 @@ public class ServerTeleportationManager {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
+    // it may cause player to go through portal without changing scale and gravity
+    @Deprecated
     public void acceptDubiousMovePacket(
         ServerPlayer player,
         ServerboundMovePlayerPacket packet,

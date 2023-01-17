@@ -103,6 +103,8 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         ResourceKey<Level> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
         
         if (packetDimension == null) {
+            // this actually never happens, because the vanilla client will disconnect immediately
+            // when receiving the position sync packet that has the extra dimension field
             Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
             IPGlobal.serverTaskList.addTask(() -> {
                 player.connection.disconnect(Component.literal(
@@ -118,12 +120,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         }
         
         if (player.level.dimension() != packetDimension) {
-            IPGlobal.serverTaskList.addTask(() -> {
-                IPGlobal.serverTeleportationManager.acceptDubiousMovePacket(
-                    player, packet, packetDimension
-                );
-                return true;
-            });
+            Helper.log("Ignoring player move packet %s %s".formatted(player, packetDimension.location()));
             ci.cancel();
         }
     }

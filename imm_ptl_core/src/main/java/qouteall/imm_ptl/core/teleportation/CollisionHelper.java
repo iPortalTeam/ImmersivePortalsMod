@@ -25,6 +25,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
+import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.collision.IEEntity_Collision;
@@ -216,6 +217,9 @@ public class CollisionHelper {
         }
         
         try {
+            // TODO the indirect collision handling is still incomplete
+            // it should firstly check whether the entity can touch that portal
+            // it should also transform gravity direction if needed
             if (!indirectCollidingPortals.isEmpty()) {
                 return getOtherSideMove(
                     entity, transformedAttemptedMove, indirectCollidingPortals.get(0),
@@ -223,11 +227,28 @@ public class CollisionHelper {
                 );
             }
             
-            Vec3 collided = handleCollisionWithShapeProcessor(
-                entity, transformedAttemptedMove,
-                shape -> clipVoxelShape(shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()),
-                collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity))
-            );
+            PortalLike collisionHandlingUnit = getCollisionHandlingUnit(collidingPortal);
+            Direction transformedGravityDirection = collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity));
+            
+            Vec3 collided;
+            if (collisionHandlingUnit instanceof PortalGroup) {
+                // This is a workaround for scale boxes.
+                // Currently, the portal groups are mostly scale boxes.
+                // There is no collision inside the entrance of scale box, so do no clipping.
+                // Handling it correctly requires complex clipping code and is slower.
+                collided = handleCollisionWithShapeProcessor(
+                    entity, transformedAttemptedMove,
+                    s -> s,
+                    transformedGravityDirection
+                );
+            }
+            else {
+                collided = handleCollisionWithShapeProcessor(
+                    entity, transformedAttemptedMove,
+                    shape -> clipVoxelShape(shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()),
+                    transformedGravityDirection
+                );
+            }
             
             collided = new Vec3(
                 fixCoordinateFloatingPointError(transformedAttemptedMove.x, collided.x),
@@ -419,7 +440,7 @@ public class CollisionHelper {
         boolean collidesWithFloor = collidesOnGravityAxis && attemptToMoveAlongGravity;
         boolean touchGround = entity.isOnGround() || collidesWithFloor;
         boolean collidesHorizontally = movesOnNonGravityAxis(collisionDelta, gravityAxis);
-        float maxUpStep = entity.maxUpStep;
+        float maxUpStep = entity.maxUpStep * PehkuiInterface.invoker.getBaseScale(entity);
         if (maxUpStep > 0.0F && touchGround && collidesHorizontally) {
             // the entity is touching ground and has horizontal collision now
             // try to directly move to stepped position, make it approach the stair
@@ -433,7 +454,8 @@ public class CollisionHelper {
                 Helper.putSignedCoordinate(Vec3.ZERO, jumpDirection, maxUpStep),
                 boundingBox.expandTowards(expandVec)
             );
-            if (Helper.getSignedCoordinate(verticalStep, jumpDirection) < (double) maxUpStep) {
+            // add 0.001 because of floating point error
+            if (Helper.getSignedCoordinate(verticalStep, jumpDirection) < (double) maxUpStep + 0.001) {
                 // try to move horizontally after moving up
                 Vec3 horizontalMoveAfterVerticalStepping = collisionFunc.apply(
                     expandVec,
@@ -633,7 +655,7 @@ public class CollisionHelper {
         
         McHelper.foreachEntitiesByBoxApproximateRegions(
             Entity.class, portal.level,
-            portalBoundingBox, 3,
+            portalBoundingBox, 8,
             entity -> {
                 if (entity instanceof Portal) {
                     return;
@@ -686,7 +708,15 @@ public class CollisionHelper {
         // the velocity updates later after updating colliding portal
         // expand the velocity to avoid not collide with portal in time
         Vec3 expand = McHelper.getWorldVelocity(entity).scale(1.2);
-        return entity.getBoundingBox().expandTowards(expand);
+        AABB box = entity.getBoundingBox().expandTowards(expand);
+    
+        // when the scale is big, the entity could move quickly abruptly
+        float scale = PehkuiInterface.invoker.getBaseScale(entity);
+        if (scale > 4) {
+            box = box.inflate(scale);
+        }
+        
+        return box;
     }
     
     private static boolean thisTickStagnate = false;
