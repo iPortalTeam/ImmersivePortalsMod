@@ -230,6 +230,14 @@ public class Helper {
         return new BlockPos(v.getX() / d, v.getY() / d, v.getZ() / d);
     }
     
+    public static BlockPos floorDiv(Vec3i v, int d) {
+        return new BlockPos(
+            Math.floorDiv(v.getX(), d),
+            Math.floorDiv(v.getY(), d),
+            Math.floorDiv(v.getZ(), d)
+        );
+    }
+    
     public static Direction[] getAnotherFourDirections(Direction.Axis axisOfNormal) {
         Tuple<Direction.Axis, Direction.Axis> anotherTwoAxis = getAnotherTwoAxis(
             axisOfNormal
@@ -380,7 +388,8 @@ public class Helper {
     ) {
         try {
             func.run();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -598,7 +607,8 @@ public class Helper {
     public static <T> T noError(Callable<T> func) {
         try {
             return func.call();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }

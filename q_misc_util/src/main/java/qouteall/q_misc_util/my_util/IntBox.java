@@ -408,6 +408,30 @@ public class IntBox {
         }
     }
     
+    public boolean isOnSurface(BlockPos pos) {
+        boolean xOnEnd = pos.getX() == l.getX() || pos.getX() == h.getX();
+        boolean yOnEnd = pos.getY() == l.getY() || pos.getY() == h.getY();
+        boolean zOnEnd = pos.getZ() == l.getZ() || pos.getZ() == h.getZ();
+        
+        return xOnEnd || yOnEnd || zOnEnd;
+    }
+    
+    public boolean isOnEdge(BlockPos pos) {
+        boolean xOnEnd = pos.getX() == l.getX() || pos.getX() == h.getX();
+        boolean yOnEnd = pos.getY() == l.getY() || pos.getY() == h.getY();
+        boolean zOnEnd = pos.getZ() == l.getZ() || pos.getZ() == h.getZ();
+        
+        return (xOnEnd && yOnEnd) || (yOnEnd && zOnEnd) || (zOnEnd && xOnEnd);
+    }
+    
+    public boolean isOnVertex(BlockPos pos) {
+        boolean xOnEnd = pos.getX() == l.getX() || pos.getX() == h.getX();
+        boolean yOnEnd = pos.getY() == l.getY() || pos.getY() == h.getY();
+        boolean zOnEnd = pos.getZ() == l.getZ() || pos.getZ() == h.getZ();
+        
+        return xOnEnd && yOnEnd && zOnEnd;
+    }
+    
     @Override
     public String toString() {
         return String.format(
