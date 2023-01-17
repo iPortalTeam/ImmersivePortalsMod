@@ -96,6 +96,8 @@
     "client.render.shader.MixinProgram",
     "client.render.shader.MixinShaderInstance",
     "client.sound.MixinClientLevel_Sound",
+    "client.sync.IEBlockStatePredictionHandler",
+    "client.sync.MixinBlockStatePredictionHandler",
     "client.sync.MixinClientboundPlayerPositionPacket",
     "client.sync.MixinClientPacketListener",
     "client.sync.MixinMinecraft_RedirectedPacket",

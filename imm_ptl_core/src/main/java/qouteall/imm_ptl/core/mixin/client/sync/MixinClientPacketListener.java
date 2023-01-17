@@ -8,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
@@ -175,6 +176,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         return entity;
     }
     
+    // for debug
     @Redirect(
         method = "Lnet/minecraft/client/multiplayer/ClientPacketListener;handleSetEntityMotion(Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;)V",
         at = @At(
@@ -204,6 +206,30 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
                     clientWorld.setGameTime(packet.getGameTime());
                 }
             }
+        }
+    }
+    
+    /**
+     * Vanilla has a block change acknowledge system.
+     * All player actions that involve block change has a sequence number.
+     * The server will send acknowledge packet to client every tick to tell that the server acknowledged the action.
+     * In the client, each dimension has a {@link BlockStatePredictionHandler}.
+     * When the player is performing action, it will start prediction and all client-side block changes will be enqueued with sequence number.
+     * When the server send acknowledge packet, the client will apply and dequeue the block changes with sequence number smaller or equal than the acknowledgement sequence number.
+     * When the server sends block update, the block state in the queue of block changes will get updated.
+     * As ImmPtl has cross-dimensional block interaction, it needs to acknowledge all worlds.
+     * In {@link MixinBlockStatePredictionHandler} the sequence number is kept sync across dimensions.
+     */
+    @Redirect(
+        method = "handleBlockChangedAck",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/multiplayer/ClientLevel;handleBlockChangedAck(I)V"
+        )
+    )
+    private void redirectHandleBlockChangedAck(ClientLevel instance, int seqNumber) {
+        for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
+            clientWorld.handleBlockChangedAck(seqNumber);
         }
     }
 }

@@ -26,7 +26,7 @@ public class MixinLivingEntity_C {
     @Shadow
     protected int lerpSteps;
     
-    //avoid entity position interpolate when crossing portal when not travelling dimension
+    // avoid entity position interpolate when crossing portal to the same dimension
     @Inject(
         method = "Lnet/minecraft/world/entity/LivingEntity;lerpTo(DDDFFIZ)V",
         at = @At("RETURN")

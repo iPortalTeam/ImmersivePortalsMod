@@ -16,6 +16,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -29,6 +30,7 @@ import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
@@ -194,7 +196,7 @@ public class BlockManipulationClient {
     }
     
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
-
+        
         if (!client.player.isUsingItem()) {
             if (isKeyPressed && isPointingToPortal()) {
                 BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
@@ -333,7 +335,7 @@ public class BlockManipulationClient {
             targetWorld,
             () -> {
                 Level oldWorld = client.player.level;
-    
+                
                 isContextSwitched = true;
                 client.player.level = targetWorld;
                 try {
@@ -345,5 +347,23 @@ public class BlockManipulationClient {
                 }
             }
         );
+    }
+    
+    @Nullable
+    public static String getDebugString() {
+        if (remotePointedDim == null) {
+            return null;
+        }
+        if (remoteHitResult instanceof BlockHitResult blockHitResult) {
+            return "Point:%s %d %d %d".formatted(
+                remotePointedDim.location(),
+                blockHitResult.getBlockPos().getX(),
+                blockHitResult.getBlockPos().getY(),
+                blockHitResult.getBlockPos().getZ()
+            );
+        }
+        else {
+            return null;
+        }
     }
 }

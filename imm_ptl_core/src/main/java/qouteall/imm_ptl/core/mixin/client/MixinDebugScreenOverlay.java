@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -47,6 +48,11 @@ public class MixinDebugScreenOverlay {
         }
         
         returnValue.add(StableClientTimer.getDebugString());
+        
+        String blockPointingInfo = BlockManipulationClient.getDebugString();
+        if (blockPointingInfo != null) {
+            returnValue.add(blockPointingInfo);
+        }
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.addAll(Helper.splitStringByLen(

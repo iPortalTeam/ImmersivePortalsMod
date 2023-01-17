@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -67,6 +68,7 @@ public abstract class MixinClientLevel implements IEClientWorld {
     
     @Shadow protected abstract void addMapData(Map<String, MapItemSavedData> map);
     
+    @Shadow @Final private BlockStatePredictionHandler blockStatePredictionHandler;
     private List<Portal> portal_globalPortals;
     
     @Override
@@ -168,5 +170,10 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Override
     public void ip_addMapData(Map<String, MapItemSavedData> map) {
         addMapData(map);
+    }
+    
+    @Override
+    public BlockStatePredictionHandler ip_getBlockStatePredictionHandler() {
+        return blockStatePredictionHandler;
     }
 }
