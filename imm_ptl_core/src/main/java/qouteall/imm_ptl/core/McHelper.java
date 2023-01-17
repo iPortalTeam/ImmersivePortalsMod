@@ -426,6 +426,20 @@ public class McHelper {
         }).filter(b -> b != null).reduce(AABB::minmax).orElse(null);
     }
     
+    public static boolean isServerChunkFullyLoaded(ServerLevel world, ChunkPos chunkPos) {
+        LevelChunk chunk = getServerChunkIfPresent(
+            world.dimension(), chunkPos.x, chunkPos.z
+        );
+        
+        if (chunk == null) {
+            return false;
+        }
+        
+        boolean entitiesLoaded = world.areEntitiesLoaded(chunkPos.toLong());
+        
+        return entitiesLoaded;
+    }
+    
     public static interface ChunkAccessor {
         LevelChunk getChunk(int x, int z);
     }

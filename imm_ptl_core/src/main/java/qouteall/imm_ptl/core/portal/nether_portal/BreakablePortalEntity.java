@@ -208,6 +208,12 @@ public abstract class BreakablePortalEntity extends Portal {
             return true;
         }
         
+        // test
+//        BreakablePortalEntity rev = getReversePortal();
+//        if (rev == null) {
+//            Helper.err("ouch");
+//        }
+        
         List<BreakablePortalEntity> revs = findReversePortals(this);
         if (revs.size() == 1) {
             BreakablePortalEntity reversePortal = revs.get(0);
