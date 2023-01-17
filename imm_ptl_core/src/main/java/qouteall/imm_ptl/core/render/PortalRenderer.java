@@ -192,7 +192,9 @@ public abstract class PortalRenderer {
             PortalRendering.getRenderingCameraPos(),
             portal.getAdditionalCameraTransformation(),
             false, portal.getDiscriminator(),
-            renderDistance
+            renderDistance,
+            false,
+            true
         ));
         
         PortalRendering.onEndPortalWorldRendering();

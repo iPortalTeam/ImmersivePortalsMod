@@ -169,7 +169,9 @@ public class ExampleGuiPortalRendering {
                 cameraTransformation,// the camera transformation
                 true,// does not apply this transformation to the existing player camera
                 null,
-                minecraft.options.getEffectiveRenderDistance()// render distance
+                minecraft.options.getEffectiveRenderDistance(),// render distance
+                false,
+                false
             );
             
             // Ask it to render the world into the framebuffer the next frame
