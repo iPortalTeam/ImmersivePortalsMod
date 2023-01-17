@@ -127,13 +127,14 @@ public class DiligentMatcher {
         int shrinkedShapeLen = Math.max(shrinkedShapeSize.getX(), Math.max(shrinkedShapeSize.getY(), shrinkedShapeSize.getZ()));
         int maxMultiplyFactor = (int) Math.floor(((double) maxShapeLen) / shrinkedShapeLen);
         
-        for (IntMatrix3 rotation : rotationTransformations) {
-            BlockPortalShape rotatedShape = rotateShape(shrinked, rotation);
+        for (AARotation rotation : AARotation.rotationsSortedByAngle) {
+            IntMatrix3 rotationMatrix = rotation.matrix;
+            BlockPortalShape rotatedShape = rotateShape(shrinked, rotationMatrix);
             BlockPortalShape newShape = regularizeShape(rotatedShape);
             boolean isNew = shapeSet.add(newShape);
             if (isNew) {
                 result.add(new TransformedShape(
-                    original, newShape, rotation, 1.0 / divFactor
+                    original, newShape, rotationMatrix, 1.0 / divFactor
                 ));
                 
                 for (int mul = 2; mul <= maxMultiplyFactor; mul++) {
@@ -142,7 +143,7 @@ public class DiligentMatcher {
                     if (isNew) {
                         result.add(new TransformedShape(
                             original, expanded,
-                            rotation, ((double) mul) / divFactor
+                            rotationMatrix, ((double) mul) / divFactor
                         ));
                     }
                 }

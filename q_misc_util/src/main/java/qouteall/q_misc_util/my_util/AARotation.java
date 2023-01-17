@@ -1,12 +1,20 @@
 package qouteall.q_misc_util.my_util;
 
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mojang.math.OctahedralGroup;
+import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Axis-Aligned Rotations.
@@ -71,12 +79,23 @@ public enum AARotation {
         return Direction.fromNormal(transform(direction.getNormal()));
     }
     
+    @Nonnull
     public static Direction dirCrossProduct(Direction a, Direction b) {
-        return Direction.fromNormal(
+        Validate.isTrue(a.getAxis() != b.getAxis());
+        Direction result = Direction.fromNormal(
             a.getStepY() * b.getStepZ() - a.getStepZ() * b.getStepY(),
             a.getStepZ() * b.getStepX() - a.getStepX() * b.getStepZ(),
             a.getStepX() * b.getStepY() - a.getStepY() * b.getStepX()
         );
+        Validate.notNull(result);
+        return result;
+    }
+    
+    public static Direction rotateDir90DegreesAlong(Direction direction, Direction axis) {
+        if (direction.getAxis() == axis.getAxis()) {
+            return direction;
+        }
+        return dirCrossProduct(axis, direction);
     }
     
     private static final AARotation[][] multiplicationCache = new AARotation[24][24];
@@ -144,6 +163,27 @@ public enum AARotation {
     
     public AARotation getInverse() {
         return inverseCache[this.ordinal()];
+    }
+    
+    public static AARotation get90DegreesRotationAlong(Direction direction) {
+        Direction defaultX = Direction.EAST;
+        Direction defaultY = Direction.UP;
+        
+        Direction newX = rotateDir90DegreesAlong(defaultX, direction);
+        Direction newY = rotateDir90DegreesAlong(defaultY, direction);
+        
+        return AARotation.getAARotationFromXY(newX, newY);
+    }
+    
+    public static final ImmutableList<AARotation> rotationsSortedByAngle;
+    
+    static {
+        AARotation[] array = Arrays.copyOf(values(), 24);
+        // this is a stable sort
+        Arrays.sort(array, Comparator.comparingDouble(
+            r -> r.matrix.toQuaternion().getRotatingAngleDegrees()
+        ));
+        rotationsSortedByAngle = ImmutableList.copyOf(array);
     }
 }
 
