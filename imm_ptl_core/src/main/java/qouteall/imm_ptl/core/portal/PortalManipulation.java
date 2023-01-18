@@ -492,7 +492,8 @@ public class PortalManipulation {
             portal.getOriginPos(),
             0,
             p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
-                p1.getNormal().dot(portal.getNormal()) < -0.9
+                p1.getNormal().dot(portal.getNormal()) < -0.9 &&
+                p1.getDestPos().distanceToSqr(portal.getDestPos()) < 0.01
         ));
     }
     
