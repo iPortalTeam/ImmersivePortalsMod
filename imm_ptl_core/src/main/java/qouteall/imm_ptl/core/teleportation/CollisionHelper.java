@@ -231,7 +231,7 @@ public class CollisionHelper {
             Direction transformedGravityDirection = collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity));
             
             Vec3 collided;
-            if (collisionHandlingUnit instanceof PortalGroup) {
+            if (collisionHandlingUnit != collidingPortal) {
                 // This is a workaround for scale boxes.
                 // Currently, the portal groups are mostly scale boxes.
                 // There is no collision inside the entrance of scale box, so do no clipping.
@@ -294,7 +294,7 @@ public class CollisionHelper {
         Direction gravity = GravityChangerInterface.invoker.getGravityDirection(entity);
         
         PortalLike collisionHandlingUnit = getCollisionHandlingUnit(collidingPortal);
-        if (collisionHandlingUnit instanceof PortalGroup) {
+        if (collisionHandlingUnit != collidingPortal) {
             // This is a workaround for scale boxes.
             // Currently, the portal groups are mostly scale boxes.
             // There is no collision inside the entrance of scale box, so do no clipping.
