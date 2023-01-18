@@ -183,11 +183,17 @@ public class CollisionHelper {
             }
             Vec3 innerDirection = collidingPortal.getNormal().scale(-1);
             
+            // when the other side chunk is not loaded, don't let the player to go into the portal.
+            // this works fine for global portals.
+            // however, for normal portals, if the portal is not in the same chunk as player, the portal
+            // may not load in time and this will not stop player from falling through solid ground on the other side
+            // TODO put information into player storage to solve this issue
             if (attemptedMove.dot(innerDirection) < 0) {
                 return attemptedMove;
             }
             else {
-                return attemptedMove.subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
+                Vec3 test = attemptedMove.subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
+                return test;
             }
         }
         

@@ -111,17 +111,12 @@ public abstract class MixinEntity implements IEEntity {
             
             return attemptedMove;
         }
-
-//        if (getDeltaMovement().lengthSqr() > 2) {
-//            CollisionHelper.updateCollidingPortalNow(entity);
-//        }
         
         if (collidingPortal == null ||
-//            entity.hasPassengers() ||
-//            entity.hasVehicle() ||
             !IPGlobal.crossPortalCollision
         ) {
-            return collide(attemptedMove);
+            Vec3 simpleCollideResult = collide(attemptedMove);
+            return simpleCollideResult;
         }
         
         Vec3 result = CollisionHelper.handleCollisionHalfwayInPortal(

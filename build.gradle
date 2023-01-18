@@ -116,7 +116,7 @@ allprojects {
             officialMojangMappings() {
                 setNameSyntheticMembers(false)
             }
-            parchment("org.parchmentmc.data:parchment-1.18.2:2022.06.26@zip")
+            parchment("org.parchmentmc.data:parchment-1.19.3:2022.12.18")
         }
 
 //        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
