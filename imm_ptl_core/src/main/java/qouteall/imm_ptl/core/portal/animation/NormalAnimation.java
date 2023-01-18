@@ -44,13 +44,13 @@ public class NormalAnimation implements PortalAnimationDriver {
         public Phase getFlippedVersion() {
             return new Phase(durationTicks, delta.getFlipped(), timingFunction);
         }
-    
+        
         public Component getInfo() {
             return Component.literal("Phase(%d,".formatted(durationTicks))
                 .append(delta.toString())
                 .append(")");
         }
-    
+        
         public static class Builder {
             private long durationTicks = 0;
             private DeltaUnilateralPortalState delta = DeltaUnilateralPortalState.identity;
@@ -153,8 +153,8 @@ public class NormalAnimation implements PortalAnimationDriver {
         long totalDuration = getTotalDuration();
         
         boolean ends = false;
-        if (passedTicks >= totalDuration - 1) {
-            passedTicks = totalDuration - 1;
+        if (passedTicks >= totalDuration) {
+            passedTicks = totalDuration;
             ends = true;
         }
         
@@ -169,14 +169,14 @@ public class NormalAnimation implements PortalAnimationDriver {
         }
         
         // modulo works for double!
-        double passedTicksInThisRound = passedTicks % ((double) ticksPerRound);
+        double passedTicksInThisRound = ends ? ticksPerRound : (passedTicks % ((double) ticksPerRound));
         long roundIndex = Math.floorDiv((long) passedTicks, ticksPerRound);
         
         long traversedTicks = 0;
         DeltaUnilateralPortalState lastDelta = DeltaUnilateralPortalState.identity;
         for (Phase phase : phases) {
             if (phase.durationTicks != 0 && passedTicksInThisRound < traversedTicks + phase.durationTicks) {
-                double phaseProgress = (1 + passedTicksInThisRound - traversedTicks) / (double) phase.durationTicks;
+                double phaseProgress = (passedTicksInThisRound - traversedTicks) / (double) phase.durationTicks;
                 phaseProgress = phase.timingFunction.mapProgress(phaseProgress);
                 
                 DeltaUnilateralPortalState interpolated = DeltaUnilateralPortalState.interpolate(
@@ -221,6 +221,13 @@ public class NormalAnimation implements PortalAnimationDriver {
         private int loopCount;
         
         public Builder() {
+        }
+        
+        public Builder from(NormalAnimation animation) {
+            this.phases = animation.phases;
+            this.startingGameTime = animation.startingGameTime;
+            this.loopCount = animation.loopCount;
+            return this;
         }
         
         public Builder phases(List<Phase> phases) {

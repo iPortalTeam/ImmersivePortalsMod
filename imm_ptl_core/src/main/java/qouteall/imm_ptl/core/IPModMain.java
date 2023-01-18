@@ -9,6 +9,7 @@ import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
+import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.IPNetworking;
@@ -69,13 +70,11 @@ public class IPModMain {
             (dispatcher, registryAccess, environment) -> PortalCommand.register(dispatcher)
         );
         SubCommandArgumentType.init();
+        TimingFunctionArgumentType.init();
         
         // intrinsic animation driver types
         RotationAnimation.init();
         NormalAnimation.init();
-        
-        LifecycleHack.markNamespaceStable("immersive_portals");
-        LifecycleHack.markNamespaceStable("imm_ptl");
     }
     
 }

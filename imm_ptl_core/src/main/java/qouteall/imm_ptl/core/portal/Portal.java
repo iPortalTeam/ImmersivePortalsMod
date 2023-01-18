@@ -1680,7 +1680,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public AnimationView getAnimationView() {
         PortalExtension extension = PortalExtension.get(this);
         if (extension.flippedPortal != null) {
-            if (extension.flippedPortal.animation.hasRunningAnimationDriver()) {
+            if (extension.flippedPortal.animation.hasAnimationDriver()) {
                 return new AnimationView(
                     this, extension.flippedPortal,
                     IntraClusterRelation.FLIPPED
@@ -1689,7 +1689,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         if (extension.reversePortal != null) {
-            if (extension.reversePortal.animation.hasRunningAnimationDriver()) {
+            if (extension.reversePortal.animation.hasAnimationDriver()) {
                 return new AnimationView(
                     this, extension.reversePortal,
                     IntraClusterRelation.REVERSE
@@ -1698,7 +1698,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         if (extension.parallelPortal != null) {
-            if (extension.parallelPortal.animation.hasRunningAnimationDriver()) {
+            if (extension.parallelPortal.animation.hasAnimationDriver()) {
                 return new AnimationView(
                     this, extension.parallelPortal,
                     IntraClusterRelation.PARALLEL

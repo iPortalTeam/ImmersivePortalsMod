@@ -9,12 +9,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
@@ -78,6 +76,12 @@ public class PortalAnimationCommand {
                 }
                 return 0;
             })
+        );
+        
+        builder.then(Commands.literal("view")
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                context.getSource().sendSuccess(getAnimationInfo(portal), false);
+            }))
         );
         
         builder.then(Commands.literal("remove_at")
@@ -325,76 +329,20 @@ public class PortalAnimationCommand {
         buildBuilder.then(Commands.literal("append_phase")
             .then(Commands.argument("durationTicks", IntegerArgumentType.integer(0, 1000))
                 .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
-                    Portal animationHolder = portal.getAnimationHolder();
-                    if (animationHolder != null && animationHolder != portal) {
-                        sendAnimationHolderFailure(context, animationHolder);
-                        return;
-                    }
-                    
                     int durationTicks = IntegerArgumentType.getInteger(context, "durationTicks");
                     
-                    PortalAnimation animation = portal.animation;
-                    
-                    AnimationBuilderContext animationBuilderContext = getAnimationBuilderContext(portal);
-                    
-                    if (animationBuilderContext == null) {
-                        context.getSource().sendFailure(Component.literal("No animation to build"));
-                        return;
-                    }
-                    
-                    PortalState currentPortalState = portal.getPortalState();
-                    assert currentPortalState != null;
-                    
-                    UnilateralPortalState thisSideReferenceState = animation.thisSideReferenceState;
-                    if (thisSideReferenceState == null) {
-                        context.getSource().sendFailure(Component.literal("No reference state"));
-                        return;
-                    }
-                    DeltaUnilateralPortalState thisSideDelta =
-                        UnilateralPortalState.extractThisSide(currentPortalState)
-                            .subtract(thisSideReferenceState);
-                    
-                    UnilateralPortalState otherSideReferenceState = animation.otherSideReferenceState;
-                    if (otherSideReferenceState == null) {
-                        context.getSource().sendFailure(Component.literal("No reference state"));
-                        return;
-                    }
-                    DeltaUnilateralPortalState otherSideDelta =
-                        UnilateralPortalState.extractOtherSide(currentPortalState)
-                            .subtract(otherSideReferenceState);
-                    
-                    NormalAnimation thisSideAnimation = animationBuilderContext.thisSideAnimation().get();
-                    animationBuilderContext.thisSideAnimation().set(new NormalAnimation.Builder()
-                        .phases(ImmutableList.<NormalAnimation.Phase>builder()
-                            .addAll(thisSideAnimation.phases)
-                            .add(new NormalAnimation.Phase.Builder()
-                                .durationTicks(durationTicks)
-                                .timingFunction(TimingFunction.sine)
-                                .delta(thisSideDelta)
-                                .build())
-                            .build())
-                        .loopCount(thisSideAnimation.loopCount)
-                        .startingGameTime(thisSideAnimation.startingGameTime)
-                        .build()
-                    );
-                    NormalAnimation otherSideAnimation = animationBuilderContext.otherSideAnimation().get();
-                    animationBuilderContext.otherSideAnimation().set(new NormalAnimation.Builder()
-                        .phases(ImmutableList.<NormalAnimation.Phase>builder()
-                            .addAll(otherSideAnimation.phases)
-                            .add(new NormalAnimation.Phase.Builder()
-                                .durationTicks(durationTicks)
-                                .timingFunction(TimingFunction.sine)
-                                .delta(otherSideDelta)
-                                .build())
-                            .build())
-                        .loopCount(otherSideAnimation.loopCount)
-                        .startingGameTime(otherSideAnimation.startingGameTime)
-                        .build()
-                    );
-                    
-                    PortalCommand.reloadPortal(portal);
-                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
+                    executeAppendPhase(context, portal, durationTicks, TimingFunction.sine);
                 }))
+                .then(Commands.argument("timingFunction", TimingFunctionArgumentType.instance)
+                    .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                        int durationTicks = IntegerArgumentType.getInteger(context, "durationTicks");
+                        TimingFunction timingFunction = TimingFunctionArgumentType.get(
+                            context, "timingFunction"
+                        );
+                        
+                        executeAppendPhase(context, portal, durationTicks, timingFunction);
+                    }))
+                )
             )
         );
         
@@ -411,7 +359,129 @@ public class PortalAnimationCommand {
             )
         );
         
+        buildBuilder.then(Commands.literal("jump_to_phase")
+            .then(Commands.argument("index", IntegerArgumentType.integer(0, 100000))
+                .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                    int index = IntegerArgumentType.getInteger(context, "index");
+    
+                    Portal animationHolder = portal.getAnimationHolder();
+                    if (animationHolder != null && animationHolder != portal) {
+                        sendAnimationHolderFailure(context, animationHolder);
+                        return;
+                    }
+                    
+                    PortalAnimation animation = portal.animation;
+                    
+                    AnimationBuilderContext animationBuilderContext = getAnimationBuilderContext(portal);
+                    
+                    if (animationBuilderContext == null) {
+                        context.getSource().sendFailure(Component.literal("No animation to build"));
+                        return;
+                    }
+                    
+                    NormalAnimation thisSideAnimation = animationBuilderContext.thisSideAnimation().get();
+                    
+                    List<NormalAnimation.Phase> phases = thisSideAnimation.phases;
+                    
+                    if (index >= phases.size()) {
+                        context.getSource().sendFailure(Component.literal("Index out of range"));
+                        return;
+                    }
+                    
+                    long totalTicksBefore = phases.stream().limit(index + 1)
+                        .mapToLong(p -> p.durationTicks()).sum();
+                    
+                    // effectiveTime = animationStartTime + totalTicksBefore
+                    long newStartingGameTime = portal.getAnimationEffectiveTime() - totalTicksBefore;
+                    animationBuilderContext.thisSideAnimation().set(
+                        new NormalAnimation.Builder().from(animationBuilderContext.thisSideAnimation().get())
+                            .startingGameTime(newStartingGameTime)
+                            .build()
+                    );
+                    animationBuilderContext.otherSideAnimation().set(
+                        new NormalAnimation.Builder().from(animationBuilderContext.otherSideAnimation().get())
+                            .startingGameTime(newStartingGameTime)
+                            .build()
+                    );
+                    
+                    PortalCommand.reloadPortal(portal);
+                    context.getSource().sendSuccess(getAnimationInfo(portal), false);
+                }))
+            )
+        );
+        
         builder.then(buildBuilder);
+    }
+    
+    private static void executeAppendPhase(
+        CommandContext<CommandSourceStack> context,
+        Portal portal, int durationTicks,
+        TimingFunction timingFunction
+    ) {
+        Portal animationHolder = portal.getAnimationHolder();
+        if (animationHolder != null && animationHolder != portal) {
+            sendAnimationHolderFailure(context, animationHolder);
+            return;
+        }
+        
+        PortalAnimation animation = portal.animation;
+        
+        AnimationBuilderContext animationBuilderContext = getAnimationBuilderContext(portal);
+        
+        if (animationBuilderContext == null) {
+            context.getSource().sendFailure(Component.literal("No animation to build"));
+            return;
+        }
+        
+        PortalState currentPortalState = portal.getPortalState();
+        assert currentPortalState != null;
+        
+        UnilateralPortalState thisSideReferenceState = animation.thisSideReferenceState;
+        UnilateralPortalState otherSideReferenceState = animation.otherSideReferenceState;
+        
+        if (thisSideReferenceState == null || otherSideReferenceState == null) {
+            context.getSource().sendFailure(Component.literal("No reference state"));
+            return;
+        }
+        
+        DeltaUnilateralPortalState thisSideDelta =
+            UnilateralPortalState.extractThisSide(currentPortalState)
+                .subtract(thisSideReferenceState);
+        DeltaUnilateralPortalState otherSideDelta =
+            UnilateralPortalState.extractOtherSide(currentPortalState)
+                .subtract(otherSideReferenceState);
+        
+        NormalAnimation thisSideAnimation = animationBuilderContext.thisSideAnimation().get();
+        animationBuilderContext.thisSideAnimation().set(new NormalAnimation.Builder()
+            .phases(ImmutableList.<NormalAnimation.Phase>builder()
+                .addAll(thisSideAnimation.phases)
+                .add(new NormalAnimation.Phase.Builder()
+                    .durationTicks(durationTicks)
+                    .timingFunction(timingFunction)
+                    .delta(thisSideDelta)
+                    .build())
+                .build())
+            .loopCount(thisSideAnimation.loopCount)
+            .startingGameTime(thisSideAnimation.startingGameTime)
+            .build()
+        );
+        NormalAnimation otherSideAnimation = animationBuilderContext.otherSideAnimation().get();
+        animationBuilderContext.otherSideAnimation().set(new NormalAnimation.Builder()
+            .phases(ImmutableList.<NormalAnimation.Phase>builder()
+                .addAll(otherSideAnimation.phases)
+                .add(new NormalAnimation.Phase.Builder()
+                    .durationTicks(durationTicks)
+                    .timingFunction(timingFunction)
+                    .delta(otherSideDelta)
+                    .build())
+                .build())
+            .loopCount(otherSideAnimation.loopCount)
+            .startingGameTime(otherSideAnimation.startingGameTime)
+            .build()
+        );
+        
+        PortalCommand.reloadPortal(portal);
+        context.getSource().sendSuccess(getAnimationInfo(portal), false);
     }
     
     private static AnimationBuilderContext getAnimationBuilderContext(
@@ -558,7 +628,7 @@ public class PortalAnimationCommand {
         return portal.getAnimationView().getInfo();
     }
     
-    private static record AnimationBuilderContext(
+    public static record AnimationBuilderContext(
         Portal portal,
         Access<NormalAnimation> thisSideAnimation,
         Access<NormalAnimation> otherSideAnimation

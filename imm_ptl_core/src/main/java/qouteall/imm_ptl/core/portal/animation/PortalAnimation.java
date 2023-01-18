@@ -274,7 +274,7 @@ public class PortalAnimation {
         }
         else {
             // handled on client
-            if (hasRunningAnimationDriver()) {
+            if (hasAnimationDriver()) {
                 markRequiresClientAnimationUpdate(portal);
             }
         }
@@ -306,9 +306,9 @@ public class PortalAnimation {
         assert thisSideReferenceState != null;
         assert otherSideReferenceState != null;
         
-        if (isPaused()) {
-            return;
-        }
+//        if (isPaused()) {
+//            return;
+//        }
         
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;

@@ -18,6 +18,7 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -81,49 +82,11 @@ public class SubCommandArgumentType implements ArgumentType<String> {
         return context.getArgument(name, String.class);
     }
     
-    private static class CustomArgumentTypeInfo implements ArgumentTypeInfo<SubCommandArgumentType, ArgumentTypeInfo.Template<SubCommandArgumentType>> {
-        @Override
-        public void serializeToNetwork(Template<SubCommandArgumentType> template, FriendlyByteBuf friendlyByteBuf) {
-            // no data needs serializing
-        }
-        
-        @Override
-        public ArgumentTypeInfo.Template<SubCommandArgumentType> deserializeFromNetwork(FriendlyByteBuf friendlyByteBuf) {
-            return getTemplate();
-        }
-        
-        @Override
-        public void serializeToJson(Template<SubCommandArgumentType> template, JsonObject jsonObject) {
-            // no data needs serializing
-        }
-        
-        @Override
-        public ArgumentTypeInfo.Template<SubCommandArgumentType> unpack(SubCommandArgumentType argumentType) {
-            return getTemplate();
-        }
-        
-        private ArgumentTypeInfo.Template<SubCommandArgumentType> getTemplate() {
-            // the new java feature "var" is surprisingly useful here
-            var this_ = this;
-            return new ArgumentTypeInfo.Template<SubCommandArgumentType>() {
-                @Override
-                public SubCommandArgumentType instantiate(CommandBuildContext commandBuildContext) {
-                    return instance;
-                }
-                
-                @Override
-                public ArgumentTypeInfo<SubCommandArgumentType, ?> type() {
-                    return this_;
-                }
-            };
-        }
-    }
-    
     public static void init() {
         ArgumentTypeRegistry.registerArgumentType(
             new ResourceLocation("imm_ptl:sub_command_argument_type"),
             SubCommandArgumentType.class,
-            new CustomArgumentTypeInfo()
+            SingletonArgumentInfo.contextFree(() -> instance)
         );
         
     }

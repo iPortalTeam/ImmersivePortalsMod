@@ -109,19 +109,19 @@ public class ClientPortalAnimationManagement {
                 return true;
             }
             
-            if (!portal.animation.hasRunningAnimationDriver()) {
+            if (!portal.animation.hasAnimationDriver()) {
                 return true;
             }
-    
-            if (portal.animation.isPaused()) {
-                return false;
-            }
+
+//            if (portal.animation.isPaused()) {
+//                return false;
+//            }
             
             portal.animation.updateAnimationDriver(
                 portal,
                 portal.animation,
                 usedTickTime,
-                usedPartialTicks,
+                portal.animation.isPaused() ? 0 : usedPartialTicks,
                 isTicking,
                 !isTicking
                 // in client, the animation is updated in two cases: ticking and before rendering a frame
@@ -130,7 +130,7 @@ public class ClientPortalAnimationManagement {
             );
             
             // remove the entry if animation finishes or is paused
-            return !portal.animation.hasRunningAnimationDriver();
+            return !portal.animation.hasAnimationDriver();
         });
     }
     
