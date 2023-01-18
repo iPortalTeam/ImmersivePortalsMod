@@ -783,8 +783,8 @@ public class CollisionHelper {
     }
     
     @Nullable
-    public static AABB getTotalBlockCollisionBox(LocalPlayer player, AABB box, Function<VoxelShape, VoxelShape> shapeFilter) {
-        Iterable<VoxelShape> collisions = player.level.getBlockCollisions(player, box);
+    public static AABB getTotalBlockCollisionBox(Entity entity, AABB box, Function<VoxelShape, VoxelShape> shapeFilter) {
+        Iterable<VoxelShape> collisions = entity.level.getBlockCollisions(entity, box);
         
         AABB collisionUnion = null;
         for (VoxelShape c : collisions) {
