@@ -143,6 +143,7 @@ public class BreakableMirror extends Mirror {
         
         boolean isPane = isGlassPane(world, glassPos);
         
+        // the top of stick-shape glass pane is too small. should not generate mirror there.
         if (facing.getAxis() == Direction.Axis.Y && isPane) {
             return null;
         }

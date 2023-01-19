@@ -327,7 +327,6 @@ public class PortalExtension {
                 flippedPortal.height = portal.height;
             }
             
-            // it will copy animation
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
             flippedPortal.animation.defaultAnimation.inverseScale = false;
@@ -364,7 +363,6 @@ public class PortalExtension {
                 reversePortal.height = portal.height * portal.getScale();
             }
             
-            // it will copy animation
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
             reversePortal.animation.defaultAnimation.inverseScale = true;
@@ -401,7 +399,6 @@ public class PortalExtension {
                 parallelPortal.height = portal.height * portal.getScale();
             }
             
-            // it will copy animation
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             
             parallelPortal.animation.defaultAnimation.inverseScale = true;

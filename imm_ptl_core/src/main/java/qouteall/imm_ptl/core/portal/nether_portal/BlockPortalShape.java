@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BlockPortalShape {
+    public static final int lengthLimit = 20;
     public BlockPos anchor;
     public Set<BlockPos> area;
     public IntBox innerAreaBox;
@@ -212,7 +213,7 @@ public class BlockPortalShape {
         newlyAdded.addLast(startingPos);
         
         while (!newlyAdded.isEmpty()) {
-            if (foundArea.size() > 400) {
+            if (foundArea.size() > (lengthLimit * lengthLimit)) {
                 return false;
             }
             
@@ -234,7 +235,10 @@ public class BlockPortalShape {
             }
             
             BlockPos delta = initialPos.subtract(startingPos);
-            if (Math.abs(delta.getX()) > 20 || Math.abs(delta.getY()) > 20 || Math.abs(delta.getZ()) > 20) {
+            if (Math.abs(delta.getX()) > lengthLimit ||
+                Math.abs(delta.getY()) > lengthLimit ||
+                Math.abs(delta.getZ()) > lengthLimit
+            ) {
                 return false;
             }
         }
@@ -242,51 +246,8 @@ public class BlockPortalShape {
         return true;
     }
     
-    @Deprecated
-    private static boolean findAreaRecursively(
-        BlockPos currPos,
-        Predicate<BlockPos> isAir,
-        Predicate<BlockPos> isObsidian,
-        Direction[] directions,
-        Set<BlockPos> foundArea,
-        BlockPos initialPos
-    ) {
-        if (foundArea.size() > 400) {
-            return false;
-        }
-        BlockPos delta = initialPos.subtract(currPos);
-        if (Math.abs(delta.getX()) > 20 || Math.abs(delta.getY()) > 20 || Math.abs(delta.getZ()) > 20) {
-            return false;
-        }
-        for (Direction direction : directions) {
-            BlockPos newPos = currPos.offset(direction.getNormal());
-            if (!foundArea.contains(newPos)) {
-                if (isAir.test(newPos)) {
-                    foundArea.add(newPos.immutable());
-                    boolean shouldContinue = findAreaRecursively(
-                        newPos,
-                        isAir,
-                        isObsidian,
-                        directions,
-                        foundArea,
-                        initialPos
-                    );
-                    if (!shouldContinue) {
-                        return false;
-                    }
-                }
-                else {
-                    if (!isObsidian.test(newPos)) {
-                        //abort
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-    
     //return null for not match
+    @Nullable
     public BlockPortalShape matchShape(
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian,
@@ -355,7 +316,7 @@ public class BlockPortalShape {
     public boolean isFrameIntact(
         Predicate<BlockPos> isObsidian
     ) {
-        return frameAreaWithoutCorner.stream().allMatch(isObsidian::test);
+        return frameAreaWithoutCorner.stream().allMatch(isObsidian);
     }
     
     public boolean isPortalIntact(
