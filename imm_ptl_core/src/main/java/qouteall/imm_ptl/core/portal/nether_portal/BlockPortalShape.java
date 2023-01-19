@@ -14,6 +14,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -74,6 +75,9 @@ public class BlockPortalShape {
         return result;
     }
     
+    public static BlockPortalShape fromTag(CompoundTag tag) {
+        return new BlockPortalShape(tag);
+    }
     
     public CompoundTag toTag() {
         CompoundTag data = new CompoundTag();
@@ -155,6 +159,7 @@ public class BlockPortalShape {
     }
     
     //null for not found
+    @Nullable
     public static BlockPortalShape findArea(
         BlockPos startingPos,
         Direction.Axis axis,
@@ -168,6 +173,7 @@ public class BlockPortalShape {
         return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian);
     }
     
+    @Nullable
     public static BlockPortalShape findShapeWithoutRegardingStartingPos(
         BlockPos startingPos, Direction.Axis axis, Predicate<BlockPos> isAir, Predicate<BlockPos> isObsidian
     ) {
@@ -360,21 +366,20 @@ public class BlockPortalShape {
             area.stream().allMatch(isPortalBlock);
     }
     
-    public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
+    public void initPortalPosAxisShape(Portal portal, Direction.AxisDirection axisDirection) {
         Vec3 center = innerAreaBox.getCenterVec();
         portal.setPos(center.x, center.y, center.z);
         
-        Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
-        Direction wDirection;
-        Direction hDirection;
-        if (doInvert) {
-            wDirection = anotherFourDirections[0];
-            hDirection = anotherFourDirections[1];
-        }
-        else {
-            wDirection = anotherFourDirections[1];
-            hDirection = anotherFourDirections[0];
-        }
+        initPortalAxisShape(portal, center, Direction.fromAxisAndDirection(axis, axisDirection));
+    }
+    
+    public void initPortalAxisShape(Portal portal, Vec3 center, Direction facing) {
+        Validate.isTrue(facing.getAxis() == axis);
+        
+        Tuple<Direction, Direction> perpendicularDirections = Helper.getPerpendicularDirections(facing);
+        Direction wDirection = perpendicularDirections.getA();
+        Direction hDirection = perpendicularDirections.getB();
+        
         portal.axisW = Vec3.atLowerCornerOf(wDirection.getNormal());
         portal.axisH = Vec3.atLowerCornerOf(hDirection.getNormal());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());

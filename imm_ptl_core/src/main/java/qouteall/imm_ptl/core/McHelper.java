@@ -65,6 +65,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
@@ -415,7 +416,13 @@ public class McHelper {
     //it's a little bit incorrect with corner glass pane
     @Nullable
     public static AABB getWallBox(Level world, IntBox glassArea) {
-        return glassArea.stream().map(blockPos -> {
+        Stream<BlockPos> blockPosStream = glassArea.stream();
+        return getWallBox(world, blockPosStream);
+    }
+    
+    @Nullable
+    public static AABB getWallBox(Level world, Stream<BlockPos> blockPosStream) {
+        return blockPosStream.map(blockPos -> {
             VoxelShape collisionShape = world.getBlockState(blockPos).getCollisionShape(world, blockPos);
             
             if (collisionShape.isEmpty()) {
@@ -425,6 +432,7 @@ public class McHelper {
             return collisionShape.bounds().move(Vec3.atLowerCornerOf(blockPos));
         }).filter(b -> b != null).reduce(AABB::minmax).orElse(null);
     }
+    
     
     public static boolean isServerChunkFullyLoaded(ServerLevel world, ChunkPos chunkPos) {
         LevelChunk chunk = getServerChunkIfPresent(
@@ -713,8 +721,6 @@ public class McHelper {
     
     /**
      * It will spawn even if the chunk is not loaded
-     *
-     * @link ServerWorld#addEntity(Entity)
      */
     public static void spawnServerEntity(Entity entity) {
         Validate.isTrue(!entity.level.isClientSide());

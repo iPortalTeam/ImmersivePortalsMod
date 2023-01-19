@@ -186,7 +186,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         BlockPortalShape fromShape, BlockPortalShape toShape
     ) {
         GeneralBreakablePortal pa = GeneralBreakablePortal.entityType.create(fromWorld);
-        fromShape.initPortalPosAxisShape(pa, true);
+        fromShape.initPortalPosAxisShape(pa, Direction.AxisDirection.POSITIVE);
         
         pa.setDestination(toShape.innerAreaBox.getCenterVec());
         pa.dimensionTo = toWorld.dimension();

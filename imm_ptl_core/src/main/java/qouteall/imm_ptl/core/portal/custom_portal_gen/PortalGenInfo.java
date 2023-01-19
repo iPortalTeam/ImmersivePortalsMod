@@ -1,10 +1,12 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -69,10 +71,11 @@ public class PortalGenInfo {
     }
     
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {
-        ServerLevel fromWorld = MiscHelper.getServer().getLevel(from);
+        ServerLevel fromWorld = McHelper.getServerWorld(from);
         
         T portal = entityType.create(fromWorld);
-        fromShape.initPortalPosAxisShape(portal, false);
+        assert portal != null;
+        fromShape.initPortalPosAxisShape(portal, Direction.AxisDirection.POSITIVE);
         portal.dimensionTo = to;
         portal.setDestination(toShape.innerAreaBox.getCenterVec());
         portal.scaling = scale;
@@ -84,9 +87,6 @@ public class PortalGenInfo {
     public <T extends BreakablePortalEntity> BreakablePortalEntity[] generateBiWayBiFacedPortal(
         EntityType<T> entityType
     ) {
-        ServerLevel fromWorld = MiscHelper.getServer().getLevel(from);
-        ServerLevel toWorld = MiscHelper.getServer().getLevel(to);
-        
         T f1 = createTemplatePortal(entityType);
         
         T f2 = PortalManipulation.createFlippedPortal(f1, entityType);
