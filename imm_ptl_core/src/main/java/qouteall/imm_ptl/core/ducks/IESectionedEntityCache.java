@@ -1,14 +1,17 @@
 package qouteall.imm_ptl.core.ducks;
 
+import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
 
-import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import java.util.function.Function;
 
-public interface IESectionedEntityCache {
-    public void forEachSectionInBox(
+public interface IESectionedEntityCache<T extends EntityAccess> {
+    @Nullable
+    public <R> R ip_traverseSectionInBox(
         int chunkXStart, int chunkXEnd,
         int chunkYStart, int chunkYEnd,
         int chunkZStart, int chunkZEnd,
-        Consumer<EntitySection> action
+        Function<EntitySection<T>, R> function
     );
 }

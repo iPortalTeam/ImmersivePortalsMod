@@ -25,6 +25,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -49,6 +50,7 @@ public class CHelper {
         return ClientWorldLoader.getWorld(dimension);
     }
     
+    @Nullable
     public static List<Portal> getClientGlobalPortal(Level world) {
         if (world instanceof ClientLevel) {
             return ((IEClientWorld) world).getGlobalPortals();

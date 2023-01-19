@@ -1,33 +1,48 @@
 package qouteall.imm_ptl.core.mixin.common.mc_util;
 
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Mixin(EntitySection.class)
-public class MixinEntitySection implements IEEntityTrackingSection {
+public class MixinEntitySection<T extends EntityAccess> implements IEEntityTrackingSection<T> {
     @Shadow
     @Final
-    private ClassInstanceMultiMap storage;
+    private ClassInstanceMultiMap<T> storage;
     
+    /**
+     * {@link EntitySection#getEntities(EntityTypeTest, AABB, AbortableIterationConsumer)}
+     */
+    @IPVanillaCopy
     @Override
-    public void myForeach(EntityTypeTest type, Consumer action) {
-        Collection collection = this.storage.find(type.getBaseClass());
+    @Nullable
+    public <Sub extends T, R> R ip_traverse(EntityTypeTest<T, Sub> type, Function<Sub, R> func) {
+        Class<? extends T> baseClass = type.getBaseClass();
+        Collection<? extends T> collection = this.storage.find(baseClass);
         if (collection.isEmpty()) {
-            return;
+            return null;
         }
-        for (Object entityLike : collection) {
-            EntityAccess entityLike2 = (EntityAccess) type.tryCast(entityLike);
-            if (entityLike2 == null) continue;
-            action.accept(entityLike2);
+        for (T entity1 : collection) {
+            Sub entity2 = type.tryCast(entity1);
+            if (entity2 != null) {
+                R result = func.apply(entity2);
+                if (result != null) {
+                    return result;
+                }
+            }
         }
+        return null;
     }
 }

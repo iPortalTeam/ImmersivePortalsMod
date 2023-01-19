@@ -75,6 +75,25 @@ public class IPMcHelper {
         return getNearbyPortalList(world, pos, range, e -> true).stream();
     }
     
+    public static void traverseNearbyPortals(
+        Level world, Vec3 pos, int range, Consumer<Portal> func
+    ) {
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
+    
+        for (Portal globalPortal : globalPortals) {
+            if (globalPortal.getDistanceToNearestPointInPortal(pos) < range * 2) {
+                func.accept(globalPortal);
+            }
+        }
+        
+        McHelper.traverseEntitiesByPointAndRoughRadius(
+            Portal.class, world, pos, range, portal -> {
+                func.accept(portal);
+                return null;
+            }
+        );
+    }
+    
     //avoid dedicated server crash
     public static void onClientEntityTick(Entity entity) {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
