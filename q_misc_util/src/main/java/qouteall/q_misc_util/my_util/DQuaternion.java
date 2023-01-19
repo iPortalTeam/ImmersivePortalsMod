@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Quaterniond;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import qouteall.q_misc_util.Helper;
@@ -44,6 +45,12 @@ public class DQuaternion {
      * Converts from Minecraft's mutable quaternion to immutable DQuaternion
      */
     public static DQuaternion fromMcQuaternion(Quaternionf quaternion) {
+        return new DQuaternion(
+            quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w()
+        );
+    }
+    
+    public static DQuaternion fromMcQuaternion(Quaterniond quaternion) {
         return new DQuaternion(
             quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w()
         );

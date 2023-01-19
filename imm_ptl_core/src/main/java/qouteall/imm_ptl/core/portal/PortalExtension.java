@@ -146,6 +146,10 @@ public class PortalExtension {
     }
     
     private void updateClusterStatusServer(Portal portal) {
+        if (portal instanceof Mirror) {
+            return;
+        }
+        
         boolean needsUpdate = false;
         
         if (bindCluster) {

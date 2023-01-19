@@ -483,6 +483,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return visible;
     }
     
+    /**
+     * Set whether the portal is visible.
+     * Note: Don't use vanilla's {@link Entity#setInvisible(boolean)}. It has no effect on portals.
+     */
     public void setIsVisible(boolean visible) {
         this.visible = visible;
     }

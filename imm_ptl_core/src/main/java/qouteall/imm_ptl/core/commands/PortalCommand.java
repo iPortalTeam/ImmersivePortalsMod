@@ -59,6 +59,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -929,6 +930,12 @@ public class PortalCommand {
                 portal.commandsOnTeleported = null;
                 portal.reloadAndSyncToClient();
                 sendPortalInfo(context, portal);
+            }))
+        );
+        
+        builder.then(Commands.literal("turn_info_fake_enterable_mirror")
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                invokeTurnIntoFakeEnterableMirror(context, portal);
             }))
         );
     }
@@ -2306,32 +2313,32 @@ public class PortalCommand {
                                         double height = DoubleArgumentType.getDouble(context, "height");
                                         double scale = DoubleArgumentType.getDouble(context, "scale");
                                         CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, "nbt");
-                                    
+                                        
                                         ServerLevel world = context.getSource().getLevel();
-                                    
+                                        
                                         Portal portal = Portal.entityType.create(world);
                                         Validate.notNull(portal);
                                         portal.setOriginPos(origin);
-                                    
+                                        
                                         // make the destination not the same as origin, avoid hiding the portal
                                         portal.setDestination(origin.add(0, 10, 0));
-                                    
+                                        
                                         portal.setDestinationDimension(world.dimension());
-                                    
+                                        
                                         DQuaternion orientationRotation = DQuaternion.fromEulerAngle(
                                             new Vec3(rotation.x, rotation.y, 0)
                                         );
                                         portal.setOrientationRotation(orientationRotation);
-                                    
+                                        
                                         portal.setWidth(width);
                                         portal.setHeight(height);
-                                    
+                                        
                                         portal.setScaleTransformation(scale);
-                                    
+                                        
                                         updateEntityFullNbt(portal, nbt);
-                                    
+                                        
                                         McHelper.spawnServerEntity(portal);
-                                    
+                                        
                                         return 0;
                                     })
                                 )
@@ -2383,7 +2390,7 @@ public class PortalCommand {
                                     
                                     portal.setWidth(width);
                                     portal.setHeight(height);
-    
+                                    
                                     updateEntityFullNbt(portal, nbt);
                                     
                                     reloadPortal(portal);
@@ -2429,6 +2436,78 @@ public class PortalCommand {
         );
         
         
+    }
+    
+    private static void invokeTurnIntoFakeEnterableMirror(
+        CommandContext<CommandSourceStack> context, Portal portal
+    ) {
+        if (portal instanceof Mirror) {
+            context.getSource().sendFailure(Component.literal("This command targets non-mirror portals"));
+            return;
+        }
+        
+        PortalState portalState = portal.getPortalState();
+        assert portalState != null;
+        UnilateralPortalState thisSideState = UnilateralPortalState.extractThisSide(portalState);
+        UnilateralPortalState otherSideState = UnilateralPortalState.extractOtherSide(portalState);
+        Level fromWorld = portal.level;
+        Level toWorld = portal.getDestinationWorld();
+        @Nullable
+        GeometryPortalShape specialShape = portal.specialShape;
+        DQuaternion spacialRotation = portal.getRotationD();
+        
+        // remove the old portal
+        PortalManipulation.removeConnectedPortals(
+            portal,
+            p -> {}
+        );
+        portal.remove(Entity.RemovalReason.KILLED);
+        
+        // create the 2 mirrors
+        Mirror thisSideMirror = Mirror.entityType.create(fromWorld);
+        assert thisSideMirror != null;
+        thisSideMirror.dimensionTo = thisSideMirror.level.dimension();
+        thisSideMirror.setOriginPos(thisSideState.position());
+        thisSideMirror.setOrientationRotation(thisSideState.orientation());
+        thisSideMirror.setDestination(thisSideState.position());
+        thisSideMirror.width = thisSideState.width();
+        thisSideMirror.height = thisSideState.height();
+        thisSideMirror.specialShape = specialShape;
+        thisSideMirror.setRotationTransformationForMirror(spacialRotation);
+        
+        Mirror otherSideMirror = Mirror.entityType.create(toWorld);
+        assert otherSideMirror != null;
+        otherSideMirror.dimensionTo = otherSideMirror.level.dimension();
+        otherSideMirror.setOriginPos(otherSideState.position());
+        otherSideMirror.setOrientationRotation(otherSideState.orientation());
+        otherSideMirror.setDestination(otherSideState.position());
+        otherSideMirror.width = otherSideState.width();
+        otherSideMirror.height = otherSideState.height();
+        otherSideMirror.specialShape = specialShape != null ? specialShape.getFlippedWithScaling(1) : null;
+        otherSideMirror.setRotationTransformationForMirror(spacialRotation.getConjugated());
+        
+        McHelper.spawnServerEntity(thisSideMirror);
+        McHelper.spawnServerEntity(otherSideMirror);
+        
+        // create the invisible portal
+        Portal invisiblePortal = Portal.entityType.create(fromWorld);
+        assert invisiblePortal != null;
+        invisiblePortal.dimensionTo = toWorld.dimension();
+        invisiblePortal.setPortalState(UnilateralPortalState.combine(thisSideState, otherSideState));
+        invisiblePortal.specialShape = specialShape;
+        invisiblePortal.setIsVisible(false);
+        invisiblePortal.setOriginPos(invisiblePortal.getOriginPos().add(portal.getNormal().scale(0.001)));
+        invisiblePortal.setDestination(invisiblePortal.getDestPos().add(portal.getContentDirection().scale(0.001)));
+        
+        Portal reverseInvisiblePortal = PortalManipulation.createReversePortal(invisiblePortal, Portal.entityType);
+        
+        McHelper.spawnServerEntity(invisiblePortal);
+        McHelper.spawnServerEntity(reverseInvisiblePortal);
+        
+        context.getSource().sendSuccess(Component.literal(
+            "The portal has been turned into a fake enterable mirror. You need to manually make the two sides symmetric. " +
+                "Two invisible portal entities are generated. If you want to remove that, don't forget to remove the invisible portals."
+        ), false);
     }
     
     public static class RemoteCallables {

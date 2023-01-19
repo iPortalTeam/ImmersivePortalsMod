@@ -6,6 +6,7 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GeometryPortalShape {
     public static class TriangleInPlane {
@@ -85,6 +86,10 @@ public class GeometryPortalShape {
         triangles = new ArrayList<>();
     }
     
+    public GeometryPortalShape(List<TriangleInPlane> triangles) {
+        this.triangles = triangles;
+    }
+    
     public GeometryPortalShape(ListTag tag) {
         triangles = new ArrayList<>();
         
@@ -144,5 +149,18 @@ public class GeometryPortalShape {
         return triangles.stream().allMatch(
             triangleInPlane -> triangleInPlane.getArea() > 0.001
         );
+    }
+    
+    public GeometryPortalShape getFlippedWithScaling(double scale) {
+        List<TriangleInPlane> newTriangleList = triangles.stream()
+            .map(triangle -> new TriangleInPlane(
+                -triangle.x1 * scale,
+                triangle.y1 * scale,
+                -triangle.x2 * scale,
+                triangle.y2 * scale,
+                -triangle.x3 * scale,
+                triangle.y3 * scale
+            )).toList();
+        return new GeometryPortalShape(newTriangleList);
     }
 }
