@@ -173,6 +173,9 @@ public class MyGameRenderer {
         if (BlockManipulationClient.remotePointedDim == newDimension) {
             client.hitResult = BlockManipulationClient.remoteHitResult;
         }
+        if (!PortalRendering.shouldRenderHitResult()) {
+            client.hitResult = null;
+        }
         ieGameRenderer.setCamera(newCamera);
         
         RenderBuffers newRenderBuffers = null;

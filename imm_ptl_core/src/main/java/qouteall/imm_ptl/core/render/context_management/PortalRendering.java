@@ -165,4 +165,13 @@ public class PortalRendering {
         return false;
     }
     
+    // disable rendering hit result in mirror
+    // because currently the block frame is not being culled
+    // when pointing on the glass block or a mirror, it will wrongly render the block frame
+    public static boolean shouldRenderHitResult() {
+        if (isRendering()) {
+            return !(getRenderingPortal() instanceof Mirror);
+        }
+        return true;
+    }
 }
