@@ -7,6 +7,7 @@ import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
+import qouteall.imm_ptl.core.commands.AxisArgumentType;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
@@ -71,6 +72,7 @@ public class IPModMain {
         );
         SubCommandArgumentType.init();
         TimingFunctionArgumentType.init();
+        AxisArgumentType.init();
         
         // intrinsic animation driver types
         RotationAnimation.init();

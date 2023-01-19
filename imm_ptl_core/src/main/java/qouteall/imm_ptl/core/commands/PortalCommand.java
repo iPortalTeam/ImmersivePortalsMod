@@ -1620,6 +1620,50 @@ public class PortalCommand {
             )
         );
         
+        builder.then(Commands.literal("create_diagonal_portal")
+            .then(Commands.argument("fromPos", Vec3Argument.vec3(false))
+                .then(Commands.argument("toPos", Vec3Argument.vec3(false))
+                    .then(Commands.argument("axis", AxisArgumentType.instance)
+                        .executes(context -> {
+                            Vec3 fromPos = Vec3Argument.getVec3(context, "fromPos");
+                            Vec3 toPos = Vec3Argument.getVec3(context, "toPos");
+                            Direction.Axis axis = AxisArgumentType.getAxis(context, "axis");
+                            Vec3 axisVec = Vec3.atLowerCornerOf(
+                                Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE).getNormal()
+                            );
+                            
+                            Vec3 delta = toPos.subtract(fromPos);
+                            Vec3 vecAlongAxis = axisVec.scale(delta.dot(axisVec));
+                            Vec3 vecNotAlongAxis = delta.subtract(vecAlongAxis);
+                            
+                            Vec3 center = fromPos.add(toPos).scale(0.5);
+                            
+                            Portal portal = Portal.entityType.create(context.getSource().getLevel());
+                            assert portal != null;
+                            portal.setOriginPos(center);
+                            portal.setOrientation(vecAlongAxis.normalize(), vecNotAlongAxis.normalize());
+                            portal.setWidth(vecAlongAxis.length());
+                            portal.setHeight(vecNotAlongAxis.length());
+                            portal.setDestination(center.add(0, 10, 0));
+                            portal.setDestinationDimension(context.getSource().getLevel().dimension());
+                            
+                            if (portal.width > 64 || portal.height > 64) {
+                                context.getSource().sendFailure(Component.literal("portal size is too large"));
+                                return 0;
+                            }
+                            
+                            McHelper.spawnServerEntity(portal);
+                            
+                            Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+                            McHelper.spawnServerEntity(flippedPortal);
+                            
+                            return 0;
+                        })
+                    )
+                )
+            )
+        );
+        
         builder.then(Commands
             .literal("dimension_stack")
             .requires(commandSource -> commandSource.hasPermission(2))
