@@ -47,7 +47,7 @@ public class CrossPortalEntityRenderer {
         IPGlobal.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
         
         IPGlobal.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
-    
+        
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanUp());
     }
     
@@ -321,9 +321,24 @@ public class CrossPortalEntityRenderer {
         if (!WorldRenderInfo.isRendering()) {
             return false;
         }
-        if (client.level == client.player.level) {
+        LocalPlayer player = client.player;
+        assert player != null;
+        
+        PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+        if (renderingPortal instanceof Mirror) {
+            // if the camera pos is too close to the mirror,
+            // it will show the inside of the player head.
+            // avoid rendering player in this case.
+            float width = player.getBbWidth();
+            if (renderingPortal.getDistanceToNearestPointInPortal(player.getEyePosition()) < width * 0.8) {
+                return false;
+            }
+        }
+        
+        if (client.level == player.level) {
             return true;
         }
+        
         return false;
     }
     
