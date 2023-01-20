@@ -295,7 +295,15 @@ public class ServerTeleportationManager {
         MiscHelper.getServer().getProfiler().pop();
     }
     
-    // TODO rename
+    public void forceMovePlayer(
+        ServerPlayer player,
+        ResourceKey<Level> dimensionTo,
+        Vec3 newPos
+    ) {
+        invokeTpmeCommand(player, dimensionTo, newPos);
+    }
+    
+    // TODO rename in 1.20
     public void invokeTpmeCommand(
         ServerPlayer player,
         ResourceKey<Level> dimensionTo,
