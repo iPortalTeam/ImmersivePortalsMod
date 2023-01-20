@@ -38,6 +38,8 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -183,17 +185,31 @@ public class CollisionHelper {
             }
             Vec3 innerDirection = collidingPortal.getNormal().scale(-1);
             
-            // when the other side chunk is not loaded, don't let the player to go into the portal.
-            // this works fine for global portals.
-            // however, for normal portals, if the portal is not in the same chunk as player, the portal
-            // may not load in time and this will not stop player from falling through solid ground on the other side
-            // TODO put information into player storage to solve this issue
             if (attemptedMove.dot(innerDirection) < 0) {
                 return attemptedMove;
             }
             else {
-                Vec3 test = attemptedMove.subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
-                return test;
+                // when the other side chunk is not loaded, don't let the player to go into the portal.
+                // this works fine for global portals.
+                // however, for normal portals, if the portal is not in the same chunk as player, the portal
+                // may not load in time and this will not stop player from start falling through solid ground on the other side.
+                // When the portal loads, push the bounding box out of portal.
+                
+                double innerSignedDistance = Arrays.stream(Helper.eightVerticesOf(originalBoundingBox))
+                    .mapToDouble(
+                        pos -> pos.subtract(collidingPortal.getOriginPos()).dot(collidingPortal.getNormal())
+                    )
+                    .min().orElseThrow();
+                
+                if (innerSignedDistance < 0) {
+                    return attemptedMove
+                        .add(collidingPortal.getNormal().scale(-innerSignedDistance))
+                        .subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
+                }
+                else {
+                    return attemptedMove
+                        .subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
+                }
             }
         }
         
@@ -715,7 +731,7 @@ public class CollisionHelper {
         // expand the velocity to avoid not collide with portal in time
         Vec3 expand = McHelper.getWorldVelocity(entity).scale(1.2);
         AABB box = entity.getBoundingBox().expandTowards(expand);
-    
+        
         // when the scale is big, the entity could move quickly abruptly
         float scale = PehkuiInterface.invoker.getBaseScale(entity);
         if (scale > 4) {
