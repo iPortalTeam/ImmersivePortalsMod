@@ -9,6 +9,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BlockPortalShape {
-    public static final int lengthLimit = 20;
+    public static final int defaultLengthLimit = IPGlobal.maxNormalPortalRadius * 2;
     public BlockPos anchor;
     public Set<BlockPos> area;
     public IntBox innerAreaBox;
@@ -159,7 +160,6 @@ public class BlockPortalShape {
         firstFramePos = frameAreaWithoutCorner.iterator().next();
     }
     
-    //null for not found
     @Nullable
     public static BlockPortalShape findArea(
         BlockPos startingPos,
@@ -167,16 +167,36 @@ public class BlockPortalShape {
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian
     ) {
+        return findArea(startingPos, axis, isAir, isObsidian, defaultLengthLimit);
+    }
+    
+    @Nullable
+    public static BlockPortalShape findArea(
+        BlockPos startingPos,
+        Direction.Axis axis,
+        Predicate<BlockPos> isAir,
+        Predicate<BlockPos> isObsidian,
+        int lengthLimit
+    ) {
         if (!isAir.test(startingPos)) {
             return null;
         }
         
-        return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian);
+        return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian, lengthLimit);
     }
     
     @Nullable
     public static BlockPortalShape findShapeWithoutRegardingStartingPos(
         BlockPos startingPos, Direction.Axis axis, Predicate<BlockPos> isAir, Predicate<BlockPos> isObsidian
+    ) {
+        return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian, defaultLengthLimit);
+    }
+    
+    @Nullable
+    private static BlockPortalShape findShapeWithoutRegardingStartingPos(
+        BlockPos startingPos, Direction.Axis axis,
+        Predicate<BlockPos> isAir, Predicate<BlockPos> isObsidian,
+        int lengthLimit
     ) {
         startingPos = startingPos.immutable();
         
@@ -190,14 +210,22 @@ public class BlockPortalShape {
             isObsidian,
             directions,
             area,
-            startingPos
+            startingPos,
+            lengthLimit
         );
         
         if (!isNormalFrame) {
             return null;
         }
         
-        return new BlockPortalShape(area, axis);
+        BlockPortalShape result = new BlockPortalShape(area, axis);
+        
+        BlockPos innerSize = result.innerAreaBox.getSize();
+        if (innerSize.getX() > lengthLimit || innerSize.getY() > lengthLimit || innerSize.getZ() > lengthLimit) {
+            return null;
+        }
+        
+        return result;
     }
     
     private static boolean findAreaBreadthFirst(
@@ -206,7 +234,8 @@ public class BlockPortalShape {
         Predicate<BlockPos> isObsidian,
         Direction[] directions,
         Set<BlockPos> foundArea,
-        BlockPos initialPos
+        BlockPos initialPos,
+        int lengthLimit
     ) {
         
         ArrayDeque<BlockPos> newlyAdded = new ArrayDeque<>();

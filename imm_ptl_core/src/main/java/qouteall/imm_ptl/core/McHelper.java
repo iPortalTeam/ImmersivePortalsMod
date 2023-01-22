@@ -75,6 +75,10 @@ import java.util.stream.Stream;
 // mc related helper methods
 public class McHelper {
     
+    public static class Placeholder {}
+    
+    public static final Placeholder placeholder = new Placeholder();
+    
     public static IEThreadedAnvilChunkStorage getIEStorage(ResourceKey<Level> dimension) {
         return (IEThreadedAnvilChunkStorage) (
             (ServerChunkCache) getServerWorld(dimension).getChunkSource()
@@ -518,6 +522,27 @@ public class McHelper {
         );
     }
     
+    public static <E extends Entity, R> R traverseEntitiesByBox(
+        Class<E> entityClass,
+        Level world,
+        AABB box,
+        double maxEntityRadius,
+        Function<E, R> function
+    ) {
+        return traverseEntitiesByApproximateRegion(
+            entityClass, world, box,
+            maxEntityRadius,
+            entity -> {
+                if (entity.getBoundingBox().intersects(box)) {
+                    return function.apply(entity);
+                }
+                else {
+                    return null;
+                }
+            }
+        );
+    }
+    
     /**
      * the range is inclusive on both ends
      * similar to {@link EntitySectionStorage#forEachAccessibleNonEmptySection(AABB, AbortableIterationConsumer)}
@@ -617,6 +642,30 @@ public class McHelper {
             Mth.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
             zMin >> 4, zMax >> 4,
             consumer
+        );
+    }
+    
+    public static <E extends Entity, R> R traverseEntitiesByApproximateRegion(
+        Class<E> entityClass, Level world, AABB box, double maxEntityRadius,
+        Function<E, R> function
+    ) {
+        int xMin = (int) Math.floor(box.minX - maxEntityRadius);
+        int yMin = (int) Math.floor(box.minY - maxEntityRadius);
+        int zMin = (int) Math.floor(box.minZ - maxEntityRadius);
+        int xMax = (int) Math.ceil(box.maxX + maxEntityRadius);
+        int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
+        int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
+        
+        int minChunkY = McHelper.getMinSectionY(world);
+        int maxChunkYExclusive = McHelper.getMaxSectionYExclusive(world);
+        
+        return traverseEntities(
+            entityClass, ((IEWorld) world).portal_getEntityLookup(),
+            xMin >> 4, xMax >> 4,
+            Mth.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
+            Mth.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
+            zMin >> 4, zMax >> 4,
+            function
         );
     }
     

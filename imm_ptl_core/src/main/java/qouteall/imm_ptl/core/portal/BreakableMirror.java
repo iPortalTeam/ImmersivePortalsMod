@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
@@ -209,7 +210,7 @@ public class BreakableMirror extends Mirror {
         McHelper.getEntitiesNearby(
             newMirror,
             BreakableMirror.class,
-            20
+            IPGlobal.maxNormalPortalRadius
         ).stream().filter(
             mirror1 -> mirror1.getNormal().dot(newMirror.getNormal()) > 0.5
         ).filter(

@@ -170,7 +170,7 @@ public class ClientTeleportationManager {
         IPMcHelper.traverseNearbyPortals(
             player.level,
             thisFrameEyePos,
-            32,
+            IPGlobal.maxNormalPortalRadius,
             portal -> {
                 if (!portal.canTeleportEntity(player)) {
                     return;
@@ -491,7 +491,7 @@ public class ClientTeleportationManager {
             Portal.class,
             player.level,
             CollisionHelper.getStretchedBoundingBox(player),
-            10,
+            IPGlobal.maxNormalPortalRadius,
             p -> true
         ).forEach(p -> CollisionHelper.notifyCollidingPortals(p, partialTicks));
         

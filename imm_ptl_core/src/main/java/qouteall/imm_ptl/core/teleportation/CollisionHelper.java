@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -39,7 +38,6 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -616,14 +614,19 @@ public class CollisionHelper {
         }
     }
     
-    private static void updateGlobalPortalCollidingPortalForWorld(Level world) {
-        world.getProfiler().push("global_portal_colliding_portal");
+    private static void updateCollidingPortalForWorld(Level world) {
+        world.getProfiler().push("update_colliding_portal");
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
-        if (!globalPortals.isEmpty()) {
-            for (Entity entity : worldEntityList) {
+        for (Entity entity : worldEntityList) {
+            if (entity instanceof Portal portal) {
+                // the colliding portal update must happen after all entities finishes ticking,
+                // because the entity moves during ticking.
+                CollisionHelper.notifyCollidingPortals(portal, 0);
+            }
+            else {
                 AABB entityBoundingBoxStretched = getStretchedBoundingBox(entity);
                 for (Portal globalPortal : globalPortals) {
                     AABB globalPortalBoundingBox = globalPortal.getBoundingBox();
@@ -642,7 +645,7 @@ public class CollisionHelper {
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
             for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
-                updateGlobalPortalCollidingPortalForWorld(world);
+                updateCollidingPortalForWorld(world);
             }
         });
     }
@@ -654,16 +657,16 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void tickClient() {
-        updateGlobalPortalCollidingStatus();
+        updateClientCollidingStatus();
         
         updateClientStagnateStatus();
     }
     
     @Environment(EnvType.CLIENT)
-    private static void updateGlobalPortalCollidingStatus() {
+    private static void updateClientCollidingStatus() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
-                updateGlobalPortalCollidingPortalForWorld(world);
+                updateCollidingPortalForWorld(world);
             }
         }
     }

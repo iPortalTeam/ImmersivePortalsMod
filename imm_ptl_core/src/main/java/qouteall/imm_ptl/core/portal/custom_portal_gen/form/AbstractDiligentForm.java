@@ -21,7 +21,7 @@ public abstract class AbstractDiligentForm extends NetherPortalLikeForm {
         ServerLevel fromWorld, ServerLevel toWorld, BlockPortalShape fromShape
     ) {
         List<DiligentMatcher.TransformedShape> matchableShapeVariants =
-            DiligentMatcher.getMatchableShapeVariants(fromShape, 20);
+            DiligentMatcher.getMatchableShapeVariants(fromShape, BlockPortalShape.defaultLengthLimit);
         
         Predicate<BlockState> areaPredicate = getAreaPredicate();
         Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();

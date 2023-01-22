@@ -244,7 +244,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     ) {
         List<DiligentMatcher.TransformedShape> matchableShapeVariants =
             DiligentMatcher.getMatchableShapeVariants(
-                a, 20
+                a, BlockPortalShape.defaultLengthLimit
             );
         
         for (DiligentMatcher.TransformedShape variant : matchableShapeVariants) {

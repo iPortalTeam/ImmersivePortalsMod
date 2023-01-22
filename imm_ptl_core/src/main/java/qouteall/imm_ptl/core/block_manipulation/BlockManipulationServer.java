@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
@@ -80,7 +81,7 @@ public class BlockManipulationServer {
         }
         return IPMcHelper.getNearbyPortals(
             player,
-            20
+            IPGlobal.maxNormalPortalRadius
         ).anyMatch(portal ->
             portal.dimensionTo == dimension &&
                 portal.transformPoint(playerPos).distanceToSqr(pos) <

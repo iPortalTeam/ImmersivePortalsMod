@@ -17,10 +17,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.imm_ptl.core.teleportation.CollisionHelper;
+
+import java.util.List;
 
 @Mixin(ClipContext.class)
 public abstract class MixinClipContext implements IERayTraceContext {
@@ -69,12 +73,16 @@ public abstract class MixinClipContext implements IERayTraceContext {
     ) {
         if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
             if (block == ClipContext.Block.OUTLINE) {
-                if (blockView instanceof Level) {
-                    boolean isIntersectingWithPortal = McHelper.getEntitiesRegardingLargeEntities(
-                        (Level) blockView, new AABB(blockPos),
-                        10, Portal.class, e -> true
-                    ).isEmpty();
-                    if (!isIntersectingWithPortal) {
+                if (blockView instanceof Level world) {
+                    boolean intersectingWithPortal = McHelper.traverseEntitiesByBox(
+                        Portal.class,
+                        world,
+                        new AABB(blockPos),
+                        IPGlobal.maxNormalPortalRadius,
+                        p -> McHelper.placeholder
+                    ) != null;
+                    
+                    if (intersectingWithPortal) {
                         cir.setReturnValue(Shapes.empty());
                     }
                 }
