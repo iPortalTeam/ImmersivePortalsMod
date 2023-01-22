@@ -614,7 +614,7 @@ public class CollisionHelper {
         }
     }
     
-    private static void updateCollidingPortalForWorld(Level world) {
+    private static void updateCollidingPortalForWorld(Level world, float tickDelta) {
         world.getProfiler().push("update_colliding_portal");
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
@@ -624,14 +624,14 @@ public class CollisionHelper {
             if (entity instanceof Portal portal) {
                 // the colliding portal update must happen after all entities finishes ticking,
                 // because the entity moves during ticking.
-                CollisionHelper.notifyCollidingPortals(portal, 0);
+                CollisionHelper.notifyCollidingPortals(portal, tickDelta);
             }
             else {
                 AABB entityBoundingBoxStretched = getStretchedBoundingBox(entity);
                 for (Portal globalPortal : globalPortals) {
                     AABB globalPortalBoundingBox = globalPortal.getBoundingBox();
                     if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
-                        if (canCollideWithPortal(entity, globalPortal, 0)) {
+                        if (canCollideWithPortal(entity, globalPortal, tickDelta)) {
                             ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
                         }
                     }
@@ -645,7 +645,7 @@ public class CollisionHelper {
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
             for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
-                updateCollidingPortalForWorld(world);
+                updateCollidingPortalForWorld(world, 0);
             }
         });
     }
@@ -666,7 +666,7 @@ public class CollisionHelper {
     private static void updateClientCollidingStatus() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
-                updateCollidingPortalForWorld(world);
+                updateCollidingPortalForWorld(world, 0);
             }
         }
     }
@@ -698,34 +698,6 @@ public class CollisionHelper {
                 ((IEEntity) entity).notifyCollidingWithPortal(portal);
             }
         );
-    }
-    
-    @Deprecated
-    public static void updateCollidingPortalNow(Entity entity) {
-        if (entity instanceof Portal) {
-            return;
-        }
-        
-        entity.level.getProfiler().push("update_colliding_portal_now");
-        
-        AABB boundingBox = getStretchedBoundingBox(entity);
-        McHelper.foreachEntitiesByBoxApproximateRegions(
-            Portal.class,
-            entity.level,
-            boundingBox,
-            10,
-            portal -> {
-                if (boundingBox.intersects(portal.getBoundingBox())) {
-                    // partial tick 0 maybe incorrect here
-                    // if this method runs in collision ticking
-                    if (canCollideWithPortal(entity, portal, 0)) {
-                        ((IEEntity) entity).notifyCollidingWithPortal(portal);
-                    }
-                }
-            }
-        );
-        
-        entity.level.getProfiler().pop();
     }
     
     public static AABB getStretchedBoundingBox(Entity entity) {

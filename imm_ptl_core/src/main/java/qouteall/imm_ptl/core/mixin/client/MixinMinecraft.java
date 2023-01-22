@@ -66,10 +66,8 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         )
     )
     private void onAfterClientTick(CallbackInfo ci) {
-        getProfiler().push("imm_ptl_tick_signal");
-        IPGlobal.postClientTickSignal.emit();
-        getProfiler().pop();
-    
+        getProfiler().push("imm_ptl_client_tick");
+        
         /*
           The client ticking process {@link Minecraft#tick()}
           1. Tick entities (including portals)
@@ -81,6 +79,10 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
         ClientPortalAnimationManagement.onAfterClientTick();
         IPCGlobal.clientTeleportationManager.manageTeleportation();
+        
+        IPGlobal.postClientTickSignal.emit();
+        
+        getProfiler().pop();
     }
     
     @Inject(

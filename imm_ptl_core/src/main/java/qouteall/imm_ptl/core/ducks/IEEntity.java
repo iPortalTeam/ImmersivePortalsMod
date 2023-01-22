@@ -13,6 +13,8 @@ public interface IEEntity {
     
     boolean isRecentlyCollidingWithPortal();
     
+    void ip_clearCollidingPortal();
+    
     void portal_unsetRemoved();
     
     // don't trigger entity section update or other update

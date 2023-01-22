@@ -434,10 +434,11 @@ public class ClientTeleportationManager {
         }
         
         Helper.log(String.format(
-            "Client Changed Dimension from %s to %s time: %s",
+            "Client Changed Dimension from %s to %s time: %s age: %s",
             fromDimension.location(),
             toDimension.location(),
-            tickTimeForTeleportation
+            tickTimeForTeleportation,
+            player.tickCount
         ));
         
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
@@ -487,6 +488,8 @@ public class ClientTeleportationManager {
     private static void updateCollidingPortalAfterTeleportation(LocalPlayer player, Vec3 newEyePos, Vec3 newLastTickEyePos) {
         float partialTicks = RenderStates.tickDelta;
         
+        ((IEEntity) player).ip_clearCollidingPortal();
+        
         McHelper.findEntitiesByBox(
             Portal.class,
             player.level,
@@ -494,8 +497,6 @@ public class ClientTeleportationManager {
             IPGlobal.maxNormalPortalRadius,
             p -> true
         ).forEach(p -> CollisionHelper.notifyCollidingPortals(p, partialTicks));
-        
-        CollisionHelper.tickClient();
         
         ((IEEntity) player).tickCollidingPortal(partialTicks);
         

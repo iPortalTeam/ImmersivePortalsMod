@@ -129,6 +129,8 @@ public class IPGlobal {
     
     public static boolean enableUpdateNotification = true;
     
+    public static boolean logClientPlayerCollidingPortalUpdate = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

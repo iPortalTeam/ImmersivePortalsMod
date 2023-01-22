@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -235,24 +236,30 @@ public abstract class MixinEntity implements IEEntity {
     public void tickCollidingPortal(float tickDelta) {
         Entity this_ = (Entity) (Object) this;
         
+        ip_updateCollidingPortalStatus();
+        
+        if (level.isClientSide) {
+            IPMcHelper.onClientEntityTick(this_);
+        }
+    }
+    
+    private void ip_updateCollidingPortalStatus() {
+        Entity this_ = (Entity) (Object) this;
+        
         if (collidingPortal != null) {
             if (collidingPortal.level != level) {
-                collidingPortal = null;
+                ip_setCollidingPortal(null);
             }
             else {
                 AABB stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
                 if (!stretchedBoundingBox.inflate(0.5).intersects(collidingPortal.getBoundingBox())) {
-                    collidingPortal = null;
+                    ip_setCollidingPortal(null);
                 }
             }
             
             if (Math.abs(ip_getStableTiming() - collidingPortalActiveTickTime) >= 3) {
-                collidingPortal = null;
+                ip_setCollidingPortal(null);
             }
-        }
-        
-        if (level.isClientSide) {
-            IPMcHelper.onClientEntityTick(this_);
         }
     }
     
@@ -260,19 +267,26 @@ public abstract class MixinEntity implements IEEntity {
     public void notifyCollidingWithPortal(Entity portal) {
         Entity this_ = (Entity) (Object) this;
         
+        ip_updateCollidingPortalStatus();
+        
         long timing = ip_getStableTiming();
         
         if (collidingPortalActiveTickTime != timing || collidingPortal == null) {
-            collidingPortal = portal;
+            if (portal != collidingPortal) {
+                ip_setCollidingPortal(portal);
+            }
         }
         else {
-            // it's colliding with at least 2 portals
-            // currently immptl only supports handling collision with colliding with one portal
-            // so select one portal
-            
-            collidingPortal = CollisionHelper.chooseCollidingPortalBetweenTwo(
-                this_, getCollidingPortal(), ((Portal) portal)
-            );
+            if (portal != collidingPortal) {
+                // it's colliding with at least 2 portals
+                // currently immptl only supports handling collision with colliding with one portal
+                // so select one portal
+                
+                Portal newOne = CollisionHelper.chooseCollidingPortalBetweenTwo(
+                    this_, ((Portal) collidingPortal), ((Portal) portal)
+                );
+                ip_setCollidingPortal(newOne);
+            }
         }
         
         collidingPortalActiveTickTime = timing;
@@ -295,8 +309,35 @@ public abstract class MixinEntity implements IEEntity {
         this.blockPosition = new BlockPos(newPos);
     }
     
+    @Override
+    public void ip_clearCollidingPortal() {
+        ip_setCollidingPortal(null);
+        collidingPortalActiveTickTime = 0;
+    }
+    
     // don't use game time because client game time may jump due to time synchronization
     private long ip_getStableTiming() {
         return tickCount;
+    }
+    
+    private void ip_setCollidingPortal(Entity newCollidingPortal) {
+        Entity this_ = (Entity) (Object) this;
+        
+        if (IPGlobal.logClientPlayerCollidingPortalUpdate) {
+            if (newCollidingPortal != collidingPortal) {
+                if (this_.level.isClientSide() && this_ instanceof Player) {
+                    Helper.log(String.format(
+                        "Client player colliding portal changed from %s to %s age: %s pos: %s %s",
+                        collidingPortal,
+                        newCollidingPortal,
+                        this_.tickCount,
+                        McHelper.getLastTickEyePos(this_),
+                        McHelper.getEyePos(this_)
+                    ));
+                }
+            }
+        }
+        
+        collidingPortal = newCollidingPortal;
     }
 }

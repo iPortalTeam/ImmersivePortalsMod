@@ -581,6 +581,11 @@ public class ClientDebugCommand {
             "portal_rendering_cave_culling",
             cond -> MyGameRenderer.enablePortalCaveCulling = cond
         );
+        registerSwitchCommand(
+            builder,
+            "log_client_player_colliding_portal_update",
+            cond -> IPGlobal.logClientPlayerCollidingPortalUpdate = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
