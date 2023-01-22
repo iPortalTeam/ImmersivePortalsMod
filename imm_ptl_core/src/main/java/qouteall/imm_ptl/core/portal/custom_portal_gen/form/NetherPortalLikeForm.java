@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
@@ -91,7 +93,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                     return null;
                 }
                 
-                return getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape);
+                return getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape, triggeringEntity);
             },
             () -> {
                 // check portal integrity while loading chunk
@@ -132,17 +134,38 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         };
     }
     
+    @Nullable
     public PortalGenInfo getNewPortalPlacement(
         ServerLevel toWorld, BlockPos toPos,
-        ServerLevel fromWorld, BlockPortalShape fromShape
+        ServerLevel fromWorld, BlockPortalShape fromShape,
+        @Nullable Entity triggeringEntity
     ) {
-        
+        boolean canForcePlace = false;
+        if (triggeringEntity instanceof ServerPlayer player) {
+            if (player.isCreative()) {
+                canForcePlace = true;
+            }
+        }
         
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
                 toWorld, toPos,
-                fromShape.axis, fromShape.totalAreaBox.getSize()
+                fromShape.axis, fromShape.totalAreaBox.getSize(),
+                canForcePlace
             );
+    
+        if (!canForcePlace && airCubePlacement == null) {
+            if (triggeringEntity instanceof ServerPlayer player) {
+                player.displayClientMessage(
+                    Component.translatable("imm_ptl.no_place_to_generate_portal"),
+                    false
+                );
+            }
+        }
+    
+        if (airCubePlacement == null) {
+            return null;
+        }
         
         BlockPortalShape placedShape = fromShape.getShapeWithMovedTotalAreaBox(
             airCubePlacement

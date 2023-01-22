@@ -7,11 +7,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.PortalShape;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -61,9 +63,15 @@ public class IntrinsicPortalGeneration {
         portalHelper.identifier = new ResourceLocation("imm_ptl:intrinsic_portal_helper");
     }
     
+    /**
+     * There are two ways of creating nether portal:
+     * 1. the player ignites on obsidian (using flint and steel or other items)
+     * 2. the fire spreads to obsidian
+     */
     public static boolean onFireLitOnObsidian(
         ServerLevel fromWorld,
-        BlockPos firePos
+        BlockPos firePos,
+        @Nullable Entity triggeringEntity
     ) {
         ResourceKey<Level> fromDimension = fromWorld.dimension();
         
@@ -72,14 +80,14 @@ public class IntrinsicPortalGeneration {
                 IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicToNether :
                     diligentToNether;
-            return gen.perform(fromWorld, firePos, null);
+            return gen.perform(fromWorld, firePos, triggeringEntity);
         }
         else if (fromDimension == Level.NETHER) {
             CustomPortalGeneration gen =
                 IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicFromNether :
                     diligentFromNether;
-            return gen.perform(fromWorld, firePos, null);
+            return gen.perform(fromWorld, firePos, triggeringEntity);
         }
         
         return false;

@@ -2,13 +2,12 @@ package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +21,7 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -38,18 +38,15 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public PortalGenInfo getNewPortalPlacement(ServerLevel toWorld, BlockPos toPos, ServerLevel fromWorld, BlockPortalShape fromShape) {
+    public PortalGenInfo getNewPortalPlacement(
+        ServerLevel toWorld, BlockPos toPos,
+        ServerLevel fromWorld, BlockPortalShape fromShape,
+        @Nullable Entity triggeringEntity
+    ) {
         if (encounteredVanillaPortalBlock) {
             encounteredVanillaPortalBlock = false;
             if (IPGlobal.enableWarning) {
-                List<ServerPlayer> nearbyPlayers = McHelper.findEntitiesRough(
-                    ServerPlayer.class,
-                    fromWorld,
-                    Vec3.atLowerCornerOf(fromShape.anchor),
-                    2,
-                    p -> true
-                );
-                for (ServerPlayer player : nearbyPlayers) {
+                if(triggeringEntity instanceof ServerPlayer player){
                     player.displayClientMessage(
                         Component.translatable("imm_ptl.cannot_connect_to_vanilla_portal"),
                         false
@@ -58,7 +55,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
             }
         }
         
-        return super.getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape);
+        return super.getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape, triggeringEntity);
     }
     
     @Override
@@ -69,8 +66,8 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
         return portals;
     }
     
-    // not thread safe but mostly fine
-    private static boolean encounteredVanillaPortalBlock = false;
+    // not per-player, but mostly fine
+    private static volatile boolean encounteredVanillaPortalBlock = false;
     
     @Override
     public Predicate<BlockState> getOtherSideFramePredicate() {

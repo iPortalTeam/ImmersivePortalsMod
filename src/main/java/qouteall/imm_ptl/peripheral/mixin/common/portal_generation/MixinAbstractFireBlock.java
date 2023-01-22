@@ -36,7 +36,8 @@ public class MixinAbstractFireBlock {
         if (isNearObsidian(worldAccess, blockPos)) {
             IntrinsicPortalGeneration.onFireLitOnObsidian(
                 ((ServerLevel) worldAccess),
-                blockPos
+                blockPos,
+                null
             );
         }
         

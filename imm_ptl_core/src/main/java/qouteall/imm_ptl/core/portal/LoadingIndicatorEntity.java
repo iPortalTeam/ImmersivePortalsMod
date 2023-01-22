@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -63,7 +64,14 @@ public class LoadingIndicatorEntity extends Entity {
         addParticles();
         
         if (tickCount > 40) {
-            showMessageClient();
+            LocalPlayer player = Minecraft.getInstance().player;
+            
+            if (player != null &&
+                player.level == level &&
+                player.position().distanceToSqr(position()) < 16 * 16
+            ) {
+                showMessageClient();
+            }
         }
     }
     

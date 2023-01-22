@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -15,7 +14,6 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.IntMatrix3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -49,9 +47,8 @@ public class DiligentMatcher {
         int divFactor = getShapeShrinkFactor(original);
         
         BlockPortalShape shrinked = shrinkShapeBy(original, divFactor);
-        
-        BlockPos shrinkedShapeSize = shrinked.innerAreaBox.getSize();
-        int shrinkedShapeLen = Math.max(shrinkedShapeSize.getX(), Math.max(shrinkedShapeSize.getY(), shrinkedShapeSize.getZ()));
+    
+        int shrinkedShapeLen = shrinked.getShapeInnerLength();
         int maxMultiplyFactor = (int) Math.floor(((double) maxShapeLen) / shrinkedShapeLen);
         
         for (AARotation rotation : AARotation.rotationsSortedByAngle) {

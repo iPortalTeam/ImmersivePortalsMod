@@ -501,6 +501,11 @@ public class BlockPortalShape {
         );
     }
     
+    public int getShapeInnerLength() {
+        BlockPos size = this.innerAreaBox.getSize();
+        return Math.max(size.getX(), Math.max(size.getY(), size.getZ()));
+    }
+    
     public boolean isRectangle() {
         BlockPos size = innerAreaBox.getSize();
         return size.getX() * size.getY() * size.getZ() == area.size();

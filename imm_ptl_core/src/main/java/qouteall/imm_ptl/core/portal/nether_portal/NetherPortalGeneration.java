@@ -24,6 +24,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
@@ -34,11 +35,13 @@ import java.util.function.Supplier;
 
 public class NetherPortalGeneration {
     
+    @Nullable
     public static IntBox findAirCubePlacement(
         ServerLevel toWorld,
         BlockPos mappedPosInOtherDimension,
         Direction.Axis axis,
-        BlockPos neededAreaSize
+        BlockPos neededAreaSize,
+        boolean allowForcePlacement
     ) {
         BlockPos randomShift = new BlockPos(
             toWorld.getRandom().nextBoolean() ? 1 : -1,
@@ -69,13 +72,18 @@ public class NetherPortalGeneration {
         }
         
         if (foundAirCube == null) {
-            Helper.err("Cannot find air cube within 32 blocks? " +
-                "Force placed portal. It will occupy normal blocks.");
-            
-            foundAirCube = IntBox.getBoxByBasePointAndSize(
-                neededAreaSize,
-                mappedPosInOtherDimension
-            );
+            if (allowForcePlacement) {
+                Helper.err("Cannot find air cube within 32 blocks? " +
+                    "Force placed portal. It will occupy normal blocks.");
+                
+                return IntBox.getBoxByBasePointAndSize(
+                    neededAreaSize,
+                    mappedPosInOtherDimension
+                );
+            }
+            else {
+                return null;
+            }
         }
         return foundAirCube;
     }
@@ -150,7 +158,7 @@ public class NetherPortalGeneration {
         
         /**
          * if the other side chunk is already generated, generate 128 range for searching the frame
-         * if the other side chunk is not yet generated, generate 1 chunk range for searching the frame placing position
+         * if the other side chunk is not yet generated, generate 1 or 2 chunk range for searching the frame placing position
          * when generating chunks by getBlockState, subsequent setBlockState may leave lighting issues
          * {@link net.minecraft.server.world.ServerLightingProvider#light(Chunk, boolean)}
          *  may get invoked twice for a chunk.
@@ -158,7 +166,9 @@ public class NetherPortalGeneration {
          * Rough experiments shows that the lighting issue won't possibly manifest when manipulating blocks
          *  after the chunk has been fully generated.
          */
-        int loaderRadius = otherSideChunkAlreadyGenerated ? frameSearchingRadius : 1;
+        int loaderRadius = otherSideChunkAlreadyGenerated ?
+            frameSearchingRadius :
+            (fromShape.getShapeInnerLength() < 16 ? 1 : 2);
         ChunkLoader chunkLoader = new ChunkLoader(
             new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
@@ -180,9 +190,7 @@ public class NetherPortalGeneration {
             }
             
             int loadedChunks = chunkLoader.getLoadedChunkNum();
-            
             int allChunksNeedsLoading = chunkLoader.getChunkNum();
-            
             if (loadedChunks < allChunksNeedsLoading) {
                 indicatorEntity.inform(Component.translatable(
                     "imm_ptl.loading_chunks", loadedChunks, allChunksNeedsLoading

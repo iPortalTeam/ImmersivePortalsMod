@@ -42,12 +42,15 @@ public class MixinFlintAndSteelItem {
                     ((ServerLevel) world), targetPos, side
                 );
                 cir.setReturnValue(InteractionResult.SUCCESS);
+                return;
             }
             else if (targetBlock == PeripheralModMain.portalHelperBlock) {
                 boolean result = IntrinsicPortalGeneration.activatePortalHelper(
                     ((ServerLevel) world),
                     firePos
                 );
+                cir.setReturnValue(InteractionResult.SUCCESS);
+                return;
             }
             else if (targetBlock == Blocks.OBSIDIAN) {
                 Player player = context.getPlayer();
@@ -60,8 +63,18 @@ public class MixinFlintAndSteelItem {
                         );
                         if (succeeded) {
                             cir.setReturnValue(InteractionResult.SUCCESS);
-                            
+                            return;
                         }
+                    }
+                    boolean succ = IntrinsicPortalGeneration.onFireLitOnObsidian(
+                        ((ServerLevel) world),
+                        firePos,
+                        player
+                    );
+                    if (succ) {
+                        // it won't create the fire block
+                        cir.setReturnValue(InteractionResult.SUCCESS);
+                        return;
                     }
                 }
             }
