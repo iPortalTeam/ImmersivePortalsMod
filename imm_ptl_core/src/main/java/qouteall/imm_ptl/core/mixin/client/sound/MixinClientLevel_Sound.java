@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 
 @Mixin(ClientLevel.class)
@@ -25,6 +26,7 @@ public class MixinClientLevel_Sound {
     @Final
     private Minecraft minecraft;
     
+    @IPVanillaCopy
     @Inject(
         method = "playSound",
         at = @At("HEAD"),
@@ -51,7 +53,7 @@ public class MixinClientLevel_Sound {
         
         if (!portal_isPosNearPlayer(soundPos)) {
             SimpleSoundInstance crossPortalSound = CrossPortalSound.createCrossPortalSound(
-                this_, soundEvent, soundSource, soundPos, volume, pitch, this_.random.nextLong()
+                this_, soundEvent, soundSource, soundPos, volume, pitch, seed
             );
             if (crossPortalSound != null) {
                 portal_playSound(crossPortalSound, distanceDelay);
