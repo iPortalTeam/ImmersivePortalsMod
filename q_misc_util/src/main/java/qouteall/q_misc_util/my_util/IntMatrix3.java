@@ -10,10 +10,12 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.Objects;
 
-// matrix for horizontal vector transformation.
+// matrix for row vector transformation.
 // usage: p * m.
-// the left matrix gets applied first.
-// Note: it's different to the MC transformation. MC transformation uses vertical vector. It's m * p. The right matrix applies first.
+// the left one gets applied first.
+// Note: it's different to the MC transformation. MC transformation uses column vector. It's m * p. The right one applies first.
+// Rotation-only matrices are orthogonal. Orthogonal matrices are symmetric,
+// so the matrix for column vectors are the same as the matrices for row vectors for the same rotations.
 public class IntMatrix3 {
     // the 3 rows of the matrix
     public final Vec3i x;

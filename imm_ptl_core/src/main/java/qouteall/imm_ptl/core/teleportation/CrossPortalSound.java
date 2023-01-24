@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -53,7 +54,7 @@ public class CrossPortalSound {
         
         // find portals in range of the sound
         SimpleSoundInstance result = IPMcHelper.getNearbyPortalList(
-            soundWorld, soundPos, soundRadius,
+            soundWorld, soundPos, IPGlobal.maxNormalPortalRadius,
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
                 isPlayerInRange(portal, soundPos, soundRadius, playerCameraPos)
         ).stream().min(
