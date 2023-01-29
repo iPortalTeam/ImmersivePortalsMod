@@ -25,5 +25,5 @@ body:
     id: logs
     attributes:
       label: Post the log here
-      description: The log is `game_directory/logs/latest.log`. The log provides useful information (including the mod list) for debugging the issue.
+      description: The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
       render: shell

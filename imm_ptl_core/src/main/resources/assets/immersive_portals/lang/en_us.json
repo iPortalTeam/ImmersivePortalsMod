@@ -189,5 +189,6 @@
   "imm_ptl.client_performance_adjustment": "Enable Client Performance Adjustment",
   "imm_ptl.no_place_to_generate_portal": "Cannot find space to place the other-side portal. Try lighting a smaller portal.",
   "entity.immersive_portals.portal": "Portal",
-  "entity.immersive_portals.nether_portal_new": "Nether Portal"
+  "entity.immersive_portals.nether_portal_new": "Nether Portal",
+  "imm_ptl.nvidia_warning": "[Immersive Portals] You are using Nvidia videocard. The game may crash because of a Nvidia driver bug. It's recommended to install Sodium to workaround this issue. Details: "
 }

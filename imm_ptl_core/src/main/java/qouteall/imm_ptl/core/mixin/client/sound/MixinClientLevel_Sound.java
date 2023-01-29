@@ -66,8 +66,6 @@ public class MixinClientLevel_Sound {
         }
     }
     
-    // TODO also modify playSeededSound
-    
     private void portal_playSound(SimpleSoundInstance sound, boolean repeat) {
         double d = minecraft.gameRenderer.getMainCamera().getPosition().distanceToSqr(sound.getX(), sound.getY(), sound.getZ());
         if (repeat && d > 100.0D) {

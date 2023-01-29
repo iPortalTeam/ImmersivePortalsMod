@@ -12,6 +12,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRen
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.IPNetworkingClient;
@@ -103,14 +104,29 @@ public class IPModMainClient {
             })
         ));
     }
+
+//    private static void showIntelVideoCardWarning() {
+//        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+//            () -> Minecraft.getInstance().level == null,
+//            MyTaskList.oneShotTask(() -> {
+//                if (GlUtil.getVendor().toLowerCase().contains("intel")) {
+//                    CHelper.printChat(Component.translatable("imm_ptl.intel_warning"));
+//                }
+//            })
+//        ));
+//    }
     
-    // TODO check whether it still have issue on Intel videocard
-    private static void showIntelVideoCardWarning() {
+    private static void showNvidiaVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
-                if (GlUtil.getVendor().toLowerCase().contains("intel")) {
-                    CHelper.printChat(Component.translatable("imm_ptl.intel_warning"));
+                if (GlUtil.getVendor().toLowerCase().contains("nvidia")) {
+                    if (!SodiumInterface.invoker.isSodiumPresent()) {
+                        CHelper.printChat(
+                            Component.translatable("imm_ptl.nvidia_warning")
+                                .append(McHelper.getLinkText("https://github.com/CaffeineMC/sodium-fabric/issues/1486"))
+                        );
+                    }
                 }
             })
         ));
@@ -153,9 +169,11 @@ public class IPModMainClient {
             ClientDebugCommand.register(dispatcher);
         });
         
-        showPreviewWarning();
+//        showPreviewWarning();
+
+//        showIntelVideoCardWarning();
         
-        showIntelVideoCardWarning();
+        showNvidiaVideoCardWarning();
         
         StableClientTimer.init();
         

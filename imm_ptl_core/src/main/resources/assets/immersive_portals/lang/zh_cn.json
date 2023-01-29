@@ -188,5 +188,7 @@
   "imm_ptl.command_desc.clear_animation": "",
   "imm_ptl.client_performance_adjustment": "启用客户端性能调整",
   "imm_ptl.command.rotate_around_y": "绕Y轴旋转",
-  "imm_ptl.command_desc.rotate_around_y": ""
+  "imm_ptl.command_desc.rotate_around_y": "",
+  "imm_ptl.no_place_to_generate_portal": "没有找到空间放置对面的传送门。请尝试点亮更小的传送门。",
+  "imm_ptl.nvidia_warning": "[沉浸传送门] 你正在使用Nvidia显卡。由于Nvidia显卡驱动的问题，游戏可能会崩溃，建议安装Sodium以规避该问题。相关信息："
 }
