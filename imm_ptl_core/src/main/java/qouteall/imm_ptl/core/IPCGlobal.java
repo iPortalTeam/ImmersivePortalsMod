@@ -36,7 +36,7 @@ public class IPCGlobal {
     public static boolean useSuperAdvancedFrustumCulling = true;
     public static boolean earlyFrustumCullingPortal = true;
     
-    public static boolean useAnotherStencilFormat = false;
+    public static boolean useSeparatedStencilFormat = false;
     
     public static boolean experimentalIrisPortalRenderer = false;
     

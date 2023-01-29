@@ -2,8 +2,10 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL43C;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
@@ -48,4 +50,53 @@ public class IPIrisHelper {
         
         from.unbindWrite();
     }
+    
+    private static boolean isCopyImageSubDataSupported() {
+        return GL.getCapabilities().glCopyImageSubData != 0;
+    }
+    
+    public static void newCopyDepthStencil(
+        RenderTarget from, RenderTarget to
+    ) {
+        GL43C.glCopyImageSubData(
+            from.getDepthTextureId(),
+            GL43C.GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            0,
+            to.getDepthTextureId(),
+            GL43C.GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            0,
+            from.width,
+            from.height,
+            1
+        );
+    }
+    
+    public static void copyColor(
+        RenderTarget from, RenderTarget to
+    ) {
+        GL43C.glCopyImageSubData(
+            from.getColorTextureId(),
+            GL43C.GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            0,
+            to.getColorTextureId(),
+            GL43C.GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            0,
+            from.width,
+            from.height,
+            1
+        );
+    }
+    
 }

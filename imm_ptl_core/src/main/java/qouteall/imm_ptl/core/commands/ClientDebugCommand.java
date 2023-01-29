@@ -46,7 +46,6 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -569,7 +568,7 @@ public class ClientDebugCommand {
         registerSwitchCommand(
             builder,
             "another_stencil",
-            cond -> IPCGlobal.useAnotherStencilFormat = cond
+            cond -> IPCGlobal.useSeparatedStencilFormat = cond
         );
         registerSwitchCommand(
             builder,

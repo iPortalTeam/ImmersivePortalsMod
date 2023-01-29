@@ -6,8 +6,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -22,7 +23,6 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
 public class IrisCompatibilityPortalRenderer extends PortalRenderer {
@@ -173,14 +173,22 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         CHelper.checkGlError();
         
         // save the main framebuffer to deferredBuffer
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getMainRenderTarget().frameBufferId);
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.frameBufferId);
-        GL30.glBlitFramebuffer(
-            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
-            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
-            GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
-            GL_NEAREST
+        IPIrisHelper.newCopyDepthStencil(
+            client.getMainRenderTarget(),
+            deferredBuffer.fb
         );
+        IPIrisHelper.copyColor(
+            client.getMainRenderTarget(),
+            deferredBuffer.fb
+        );
+//        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getMainRenderTarget().frameBufferId);
+//        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.frameBufferId);
+//        GL30.glBlitFramebuffer(
+//            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
+//            0, 0, deferredBuffer.fb.width, deferredBuffer.fb.height,
+//            GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
+//            GL_NEAREST
+//        );
         
         CHelper.checkGlError();
         
@@ -204,7 +212,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
     protected void renderPortals(PoseStack matrixStack) {
         List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
-    
+        
         for (PortalLike portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
