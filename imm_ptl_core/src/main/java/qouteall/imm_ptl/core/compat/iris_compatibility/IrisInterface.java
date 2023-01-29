@@ -59,7 +59,6 @@ public class IrisInterface {
         
         @Override
         public Object getPipeline(LevelRenderer worldRenderer) {
-//            return null;
             return Helper.noError(() ->
                 ((WorldRenderingPipeline) worldRendererPipelineField.get(worldRenderer))
             );

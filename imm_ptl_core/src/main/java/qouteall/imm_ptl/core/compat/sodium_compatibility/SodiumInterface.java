@@ -24,12 +24,6 @@ public class SodiumInterface {
             return false;
         }
         
-//        public ClientChunkManager createClientChunkManager(
-//            ClientWorld world, int loadDistance
-//        ) {
-//            return new MyClientChunkManager(world, loadDistance);
-//        }
-        
         public Object createNewContext(int renderDistance) {
             return null;
         }
@@ -50,11 +44,6 @@ public class SodiumInterface {
         public boolean isSodiumPresent() {
             return true;
         }
-        
-//        @Override
-//        public ClientChunkManager createClientChunkManager(ClientWorld world, int loadDistance) {
-//            return new ClientChunkManagerWithSodium(world, loadDistance);
-//        }
         
         @Override
         public Object createNewContext(int renderDistance) {
