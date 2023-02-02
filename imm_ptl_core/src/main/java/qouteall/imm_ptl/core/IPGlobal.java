@@ -2,12 +2,16 @@ package qouteall.imm_ptl.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.shedaniel.autoconfig.ConfigHolder;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Signal;
 
 public class IPGlobal {
+    
+    public static ConfigHolder<IPConfig> configHolder;
     
     public static final int maxNormalPortalRadius = 32;
     

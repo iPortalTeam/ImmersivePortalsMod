@@ -37,28 +37,9 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     
     @Shadow
     @Final
-    protected LevelStorageSource.LevelStorageAccess storageSource;
-    
+    public LevelStorageSource.LevelStorageAccess storageSource;
     
     private boolean portal_areAllWorldsLoaded;
-    
-    @Inject(
-        method = "<init>",
-        at = @At("RETURN")
-    )
-    private void onServerConstruct(
-        Thread thread,
-        LevelStorageSource.LevelStorageAccess levelStorageAccess,
-        PackRepository packRepository,
-        WorldStem worldStem,
-        Proxy proxy,
-        DataFixer dataFixer,
-        Services services,
-        ChunkProgressListenerFactory chunkProgressListenerFactory,
-        CallbackInfo ci
-    ) {
-        O_O.onServerConstructed();
-    }
     
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V",

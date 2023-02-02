@@ -7,8 +7,9 @@ body:
   - type: dropdown
     id: only_immptl
     attributes:
-      label: According to your testing, does the issue occur with ONLY Immersive Portals mod and Farbic API?
+      label: According to your testing, does the issue occur with ONLY Immersive Portals mod and Fabric API?
       options:
+        - "Select One"
         - "Yes"
         - "No"
     validations:
@@ -17,13 +18,7 @@ body:
     id: what-happened
     attributes:
       label: Describe the issue
-      description: Please tell how to reproduce the issue.
+      description: Describe the issue. Drag the log and crash report to here. The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
       value: "Describe the issue."
     validations:
       required: true
-  - type: textarea
-    id: logs
-    attributes:
-      label: Post the log here
-      description: The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
-      render: shell

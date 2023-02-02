@@ -8,7 +8,6 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
@@ -19,9 +18,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class O_O {
@@ -71,15 +70,8 @@ public class O_O {
         RequiemCompat.onPlayerTeleportedServer(player);
     }
     
-    public static void loadConfigFabric() {
-        Helper.log("Loading Immersive Portals config");
-        IPConfig ipConfig = IPConfig.readConfig();
-        ipConfig.onConfigChanged();
-        ipConfig.saveConfigFile();
-    }
-    
-    public static void onServerConstructed() {
-        // forge version initialize server config
+    public static Path getGameDir() {
+        return FabricLoader.getInstance().getGameDir();
     }
     
     private static final BlockState obsidianState = Blocks.OBSIDIAN.defaultBlockState();
@@ -149,7 +141,8 @@ public class O_O {
                         return false;
                     }
                 }
-            } catch (VersionParsingException e) {
+            }
+            catch (VersionParsingException e) {
                 e.printStackTrace();
             }
             
@@ -170,7 +163,8 @@ public class O_O {
             if (latestVersion.compareTo(currentVersion) > 0) {
                 return true;
             }
-        } catch (VersionParsingException e) {
+        }
+        catch (VersionParsingException e) {
             e.printStackTrace();
         }
         

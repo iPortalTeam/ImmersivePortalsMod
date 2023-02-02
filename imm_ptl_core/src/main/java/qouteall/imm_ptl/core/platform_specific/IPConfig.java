@@ -1,5 +1,8 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -16,119 +19,104 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
-public class IPConfig {
+@Config(name = "immersive_portals")
+public class IPConfig implements ConfigData {
     // json does not allow comments...
+    @ConfigEntry.Gui.Excluded
     public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
+    // client visible configs
+    
+    @ConfigEntry.Category("client")
     public boolean enableWarning = true;
-    public boolean enableMirrorCreation = true;
+    @ConfigEntry.Category("client")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int maxPortalLayer = 5;
-    public boolean sharedBlockMeshBufferOptimization = true;
+    @ConfigEntry.Category("client")
     public boolean lagAttackProof = true;
-    public int portalRenderLimit = 200;
-    public int indirectLoadingRadiusCap = 8;
-    public boolean enableCrossPortalSound = true;
+    @ConfigEntry.Category("client")
     public boolean compatibilityRenderMode = false;
-    public boolean doCheckGlError = false;
-    public int portalSearchingRange = 128;
-    public boolean renderYourselfInPortal = true;
-    public boolean serverSideNormalChunkLoading = true;
-    public boolean teleportationDebug = false;
-    public boolean correctCrossPortalEntityRendering = true;
-    public boolean looseMovementCheck = false;
+    @ConfigEntry.Category("client")
+    public boolean enableMirrorCreation = true;
+    @ConfigEntry.Category("client")
+    public boolean enableCrossPortalSound = true;
+    @ConfigEntry.Category("client")
     public boolean pureMirror = false;
-    public boolean enableAlternateDimensions = true;
+    @ConfigEntry.Category("client")
+    public boolean renderYourselfInPortal = true;
+    @ConfigEntry.Category("client")
+    public boolean correctCrossPortalEntityRendering = true;
+    @ConfigEntry.Category("client")
     public boolean reducedPortalRendering = false;
-    public boolean visibilityPrediction = true;
+    @ConfigEntry.Category("client")
     public boolean netherPortalOverlay = false;
+    @ConfigEntry.Category("client")
+    public boolean enableNetherPortalEffect = true;
+    @ConfigEntry.Category("client")
+    public boolean enableClientPerformanceAdjustment = true;
+    
+    // client invisible configs
+    
+    @ConfigEntry.Gui.Excluded
+    public boolean checkModInfoFromInternet = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean enableUpdateNotification = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean sharedBlockMeshBufferOptimization = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean enableClippingMechanism = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean visibilityPrediction = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean enableDepthClampForPortalRendering = false;
+    @ConfigEntry.Gui.Excluded
+    public boolean enableCrossPortalView = true;
+    @ConfigEntry.Gui.Excluded
+    public int portalRenderLimit = 200;
+    @ConfigEntry.Gui.Excluded
+    public boolean doCheckGlError = false;
+    
+    // server visible configs
+    
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
+    public boolean lightVanillaNetherPortalWhenCrouching = true;
+    public boolean enableAlternateDimensions = true;
+    public boolean enableServerPerformanceAdjustment = true;
+    public boolean enableDatapackPortalGen = true;
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 32)
+    public int indirectLoadingRadiusCap = 8;
+    @ConfigEntry.BoundedDiscrete(min = 8, max = 128)
     public int scaleLimit = 30;
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
-    public boolean enableDatapackPortalGen = true;
-    public boolean enableCrossPortalView = true;
-    public boolean enableClippingMechanism = true;
-    public boolean enableDepthClampForPortalRendering = false;
-    public boolean lightVanillaNetherPortalWhenCrouching = true;
-    public boolean enableNetherPortalEffect = true;
-    public boolean enableClientPerformanceAdjustment = true;
-    public boolean enableServerPerformanceAdjustment = true;
-    public boolean checkModInfoFromInternet = true;
-    public boolean enableUpdateNotification = true;
-    public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
-    public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
-//    public boolean enableServerCollision = true;
     
-    private static File getGameDir() {
-        Path gameDir = FabricLoader.getInstance().getGameDir();
-        
-        return gameDir.toFile();
-    }
+    // server invisible configs
+    
+    @ConfigEntry.Gui.Excluded
+    public int portalSearchingRange = 128;
+    @ConfigEntry.Gui.Excluded
+    public boolean serverSideNormalChunkLoading = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean teleportationDebug = false;
+    @ConfigEntry.Gui.Excluded
+    public boolean looseMovementCheck = false;
     
     public static IPConfig readConfig() {
-        File oldConfigFile = new File(getGameDir(), "imm_ptl_config.json");
-        File newConfigFile = getConfigFileLocation();
-        
-        if (oldConfigFile.exists()) {
-            Helper.log("Detected the old config file. deleted.");
-            IPConfig result = readConfigFromFile(oldConfigFile);
-            oldConfigFile.delete();
-            return result;
-        }
-        else {
-            return readConfigFromFile(newConfigFile);
-        }
-    }
-    
-    public static File getConfigFileLocation() {
-        return new File(
-            getGameDir(), "config/immersive_portals_fabric.json"
-        );
-    }
-    
-    public static IPConfig readConfigFromFile(File configFile) {
-        if (configFile.exists()) {
-            try {
-                String data = Files.lines(configFile.toPath()).collect(Collectors.joining());
-                IPConfig result = IPGlobal.gson.fromJson(data, IPConfig.class);
-                if (result == null) {
-                    return new IPConfig();
-                }
-                return result;
-            }
-            catch (Throwable e) {
-                e.printStackTrace();
-                return new IPConfig();
-            }
-        }
-        else {
-            IPConfig configObject = new IPConfig();
-            configObject.saveConfigFile();
-            return configObject;
-        }
+        return IPGlobal.configHolder.getConfig();
     }
     
     public void saveConfigFile() {
-        File configFile1 = getConfigFileLocation();
-        try {
-            configFile1.getParentFile().mkdirs();
-            configFile1.createNewFile();
-            FileWriter fileWriter = new FileWriter(configFile1);
-            
-            fileWriter.write(IPGlobal.gson.toJson(this));
-            fileWriter.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        IPGlobal.configHolder.setConfig(this);
+        IPGlobal.configHolder.save();
     }
     
     public void onConfigChanged() {
-        if (compatibilityRenderMode) {
-            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
-        }
-        else {
-            IPGlobal.renderMode = IPGlobal.RenderMode.normal;
-        }
+        // TODO validate config
+        
+        IPGlobal.renderMode = compatibilityRenderMode ? IPGlobal.RenderMode.compatibility : IPGlobal.RenderMode.normal;
         IPGlobal.enableWarning = enableWarning;
         IPGlobal.enableMirrorCreation = enableMirrorCreation;
         IPGlobal.doCheckGlError = doCheckGlError;
@@ -162,10 +150,7 @@ public class IPConfig {
         IPGlobal.enableCrossPortalSound = enableCrossPortalSound;
         IPGlobal.checkModInfoFromInternet = checkModInfoFromInternet;
         IPGlobal.enableUpdateNotification = enableUpdateNotification;
-        
-        if (enableDepthClampForPortalRendering) {
-            IPGlobal.enableDepthClampForPortalRendering = true;
-        }
+        IPGlobal.enableDepthClampForPortalRendering = enableDepthClampForPortalRendering;
         
         Helper.log("IP Config Applied");
         
