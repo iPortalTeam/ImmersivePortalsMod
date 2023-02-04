@@ -113,13 +113,12 @@ public class O_O {
     public static String getImmPtlModInfoUrl() {
         String gameVersion = SharedConstants.getCurrentVersion().getName();
         
-        int lastDotIndex = gameVersion.lastIndexOf('.');
-        
-        // only take the major version
-        // if it's 1.19.2, the major version is 1.19
-        String majorGameVersion = gameVersion.substring(0, lastDotIndex);
-        
-        return "https://qouteall.fun/immptl_info/%s.x.json".formatted(majorGameVersion);
+        if (O_O.isForge()) {
+            return "https://qouteall.fun/immptl_info/forge-%s.json".formatted(gameVersion);
+        }
+        else {
+            return "https://qouteall.fun/immptl_info/%s.json".formatted(gameVersion);
+        }
     }
     
     public static boolean isModLoadedWithinVersion(String modId, @Nullable String startVersion, @Nullable String endVersion) {

@@ -436,6 +436,15 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+    
+        builder.then(ClientCommandManager
+            .literal("disable_update_check")
+            .executes(context -> {
+                disableUpdateCheck();
+                context.getSource().sendFeedback(Component.translatable("imm_ptl.update_check_disabled"));
+                return 0;
+            })
+        );
         
         builder.then(ClientCommandManager
             .literal("view_portal_data")
@@ -790,4 +799,9 @@ public class ClientDebugCommand {
         ipConfig.saveConfigFile();
     }
     
+    public static void disableUpdateCheck() {
+        IPConfig ipConfig = IPConfig.readConfig();
+        ipConfig.enableUpdateNotification = false;
+        ipConfig.saveConfigFile();
+    }
 }

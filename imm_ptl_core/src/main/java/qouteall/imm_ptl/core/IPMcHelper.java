@@ -290,6 +290,15 @@ public class IPMcHelper {
             ));
     }
     
+    public static Component getDisableUpdateCheckText() {
+        return Component.literal(" ").append(
+            Component.translatable("imm_ptl.disable_update_check").withStyle(
+                style -> style.withClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND, "/imm_ptl_client_debug disable_update_check"
+                )).withUnderlined(true)
+            ));
+    }
+    
     @Environment(EnvType.CLIENT)
     public static boolean isNvidiaVideocard() {
         return GlUtil.getVendor().toLowerCase().contains("nvidia");
