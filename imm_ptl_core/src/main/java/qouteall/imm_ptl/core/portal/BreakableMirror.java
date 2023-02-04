@@ -10,10 +10,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GlassBlock;
-import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
@@ -163,6 +164,8 @@ public class BreakableMirror extends Mirror {
         assert breakableMirror != null;
         double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
         
+        breakableMirror.blockPortalShape = shape;
+        
         AABB wallBox = McHelper.getWallBox(world, shape.area.stream());
         if (wallBox == null) {
             return null;
@@ -183,15 +186,58 @@ public class BreakableMirror extends Mirror {
         breakableMirror.setDestination(pos);
         breakableMirror.dimensionTo = world.dimension();
         
-        shape.initPortalAxisShape(breakableMirror, pos, facing);
+        Tuple<Direction, Direction> perpendicularDirections = Helper.getPerpendicularDirections(facing);
+        Direction wDirection = perpendicularDirections.getA();
+        Direction hDirection = perpendicularDirections.getB();
+        breakableMirror.width = Helper.getCoordinate(Helper.getBoxSize(wallBox), wDirection.getAxis());
+        breakableMirror.height = Helper.getCoordinate(Helper.getBoxSize(wallBox), hDirection.getAxis());
+        breakableMirror.axisW = Vec3.atLowerCornerOf(wDirection.getNormal());
+        breakableMirror.axisH = Vec3.atLowerCornerOf(hDirection.getNormal());
         
-        breakableMirror.blockPortalShape = shape;
+        initializeMirrorGeometryShape(breakableMirror, facing, shape);
         
         breakIntersectedMirror(breakableMirror);
         
         world.addFreshEntity(breakableMirror);
         
         return breakableMirror;
+    }
+    
+    private static void initializeMirrorGeometryShape(
+        BreakableMirror breakableMirror, Direction facing, BlockPortalShape shape
+    ) {
+        if (shape.isRectangle()) {
+            // if it's rectangular, no special shape
+            // this does not handle the jagged glass pane edge
+            breakableMirror.specialShape = null;
+            return;
+        }
+        
+        Vec3 center = breakableMirror.getOriginPos();
+        Level world = breakableMirror.level;
+        Vec3 axisW = breakableMirror.axisW;
+        Vec3 axisH = breakableMirror.axisH;
+        
+        GeometryPortalShape geometryPortalShape = new GeometryPortalShape();
+        for (BlockPos blockPos : shape.area) {
+            VoxelShape collisionShape = world.getBlockState(blockPos).getCollisionShape(world, blockPos);
+            
+            if (!collisionShape.isEmpty()) {
+                AABB bounds = collisionShape.bounds().move(Vec3.atLowerCornerOf(blockPos));
+                Vec3 p1 = new Vec3(bounds.minX, bounds.minY, bounds.minZ);
+                Vec3 p2 = new Vec3(bounds.maxX, bounds.maxY, bounds.maxZ);
+                double p1LocalX = p1.subtract(center).dot(axisW);
+                double p1LocalY = p1.subtract(center).dot(axisH);
+                double p2LocalX = p2.subtract(center).dot(axisW);
+                double p2LocalY = p2.subtract(center).dot(axisH);
+                geometryPortalShape.addTriangleForRectangle(
+                    p1LocalX, p1LocalY,
+                    p2LocalX, p2LocalY
+                );
+            }
+        }
+        
+        breakableMirror.specialShape = geometryPortalShape;
     }
     
     public IntBox getAreaBox() {
