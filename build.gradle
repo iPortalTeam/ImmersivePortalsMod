@@ -134,7 +134,7 @@ allprojects {
         modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
+        modImplementation "maven.modrinth:modmenu:${modmenu_version}"
 
         modCompileOnly("com.github.Virtuoel:Pehkui:3.6.3", {
             exclude group: "net.fabricmc.fabric-api"
@@ -142,10 +142,10 @@ allprojects {
 
         modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.8"
 
-        modCompileOnly 'maven.modrinth:iris:1.5.1+1.19.3'
-//        implementation "org.anarres:jcpp:1.4.14" // for iris
-//        implementation 'io.github.douira:glsl-transformer:2.0.0-pre8' // for iris
-//        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
+        modImplementation 'maven.modrinth:iris:1.5.1+1.19.3'
+        implementation "org.anarres:jcpp:1.4.14" // for iris
+        implementation 'io.github.douira:glsl-transformer:2.0.0-pre8' // for iris
+        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
         modImplementation("com.github.qouteall:Gravity-Api:0.8.0-mc1.19.3") {
             transitive = false

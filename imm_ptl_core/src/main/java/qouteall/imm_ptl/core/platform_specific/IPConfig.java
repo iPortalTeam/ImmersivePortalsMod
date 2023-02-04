@@ -8,7 +8,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -88,6 +90,8 @@ public class IPConfig implements ConfigData {
     public boolean enableDatapackPortalGen = true;
     @ConfigEntry.BoundedDiscrete(min = 1, max = 32)
     public int indirectLoadingRadiusCap = 8;
+    @ConfigEntry.BoundedDiscrete(min = 3, max = 64)
+    public int regularPortalLengthLimit = 64;
     @ConfigEntry.BoundedDiscrete(min = 8, max = 128)
     public int scaleLimit = 30;
     public boolean easeCreativePermission = true;
@@ -114,7 +118,15 @@ public class IPConfig implements ConfigData {
     }
     
     public void onConfigChanged() {
-        // TODO validate config
+        indirectLoadingRadiusCap = Mth.clamp(indirectLoadingRadiusCap, 1, 32);
+        regularPortalLengthLimit = Mth.clamp(regularPortalLengthLimit, 3, 64);
+        scaleLimit = Mth.clamp(scaleLimit, 8, 128);
+        if (netherPortalMode == null) {
+            netherPortalMode = IPGlobal.NetherPortalMode.normal;
+        }
+        if (endPortalMode == null) {
+            endPortalMode = IPGlobal.EndPortalMode.normal;
+        }
         
         IPGlobal.renderMode = compatibilityRenderMode ? IPGlobal.RenderMode.compatibility : IPGlobal.RenderMode.normal;
         IPGlobal.enableWarning = enableWarning;
@@ -151,6 +163,8 @@ public class IPConfig implements ConfigData {
         IPGlobal.checkModInfoFromInternet = checkModInfoFromInternet;
         IPGlobal.enableUpdateNotification = enableUpdateNotification;
         IPGlobal.enableDepthClampForPortalRendering = enableDepthClampForPortalRendering;
+        BlockPortalShape.defaultLengthLimit = regularPortalLengthLimit;
+        IPGlobal.maxNormalPortalRadius = Math.max(regularPortalLengthLimit / 2, 16);
         
         Helper.log("IP Config Applied");
         

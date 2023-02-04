@@ -13,7 +13,7 @@ public class IPGlobal {
     
     public static ConfigHolder<IPConfig> configHolder;
     
-    public static final int maxNormalPortalRadius = 32;
+    public static int maxNormalPortalRadius = 32;
     
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();

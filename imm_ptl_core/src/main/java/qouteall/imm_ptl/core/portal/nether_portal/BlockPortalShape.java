@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BlockPortalShape {
-    public static final int defaultLengthLimit = IPGlobal.maxNormalPortalRadius * 2;
+    public static int defaultLengthLimit = 64;
     public BlockPos anchor;
     public Set<BlockPos> area;
     public IntBox innerAreaBox;
