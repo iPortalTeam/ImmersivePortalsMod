@@ -46,7 +46,8 @@
     "canvas": "*",
     "cardboard": "*",
     "iris": ["<1.5.1", ">1.5.1"],
-    "sodium": ["<0.4.8", ">0.4.8"]
+    "sodium": ["<0.4.8", ">0.4.8"],
+    "portalcubed": "*"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

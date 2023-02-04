@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core;
 
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -63,6 +64,7 @@ public class IPModMainClient {
                     if (!SodiumInterface.invoker.isSodiumPresent()) {
                         CHelper.printChat(
                             Component.translatable("imm_ptl.nvidia_warning")
+                                .withStyle(ChatFormatting.RED)
                                 .append(McHelper.getLinkText("https://github.com/CaffeineMC/sodium-fabric/issues/1486"))
                         );
                     }
