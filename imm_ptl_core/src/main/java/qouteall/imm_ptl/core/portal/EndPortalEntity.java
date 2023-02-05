@@ -45,6 +45,11 @@ public class EndPortalEntity extends Portal {
     }
     
     public static void onEndPortalComplete(ServerLevel world, Vec3 portalCenter) {
+        if (MiscHelper.getServer().getLevel(Level.END) == null) {
+            // there is no end dimension (custom preset can remove the end dimension)
+            return;
+        }
+        
         if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.normal) {
             generateClassicalEndPortal(world, new Vec3(0, 120, 0), portalCenter);
         }
