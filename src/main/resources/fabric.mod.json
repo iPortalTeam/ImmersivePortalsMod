@@ -50,16 +50,6 @@
     "portalcubed": "*"
   },
   "custom": {
-    "fabric-renderer-indigo:force_compatibility": true,
-    "lithium:options": {
-      "mixin.world.player_chunk_tick": false
-    },
-    "dashloader:disableoption": [
-      "CACHE_SHADER"
-    ],
-    "polymer:disable_mixin": {
-      "compat.immersive_portals.ip_IPNetworkingMixin": "Implemented"
-    }
   },
   "accessWidener": "imm_ptl_peripheral.accesswidener"
 }

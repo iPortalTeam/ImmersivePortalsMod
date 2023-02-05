@@ -220,6 +220,8 @@ dependencies {
 //        exclude module: "fabric-loader"
 //    }
 
+//    modImplementation 'maven.modrinth:lithium:mc1.19.3-0.10.4'
+
     modImplementation ("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
         transitive = false
         exclude(group: "net.fabricmc.fabric-api")
