@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -22,6 +23,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public class BreakableMirror extends Mirror {
     
@@ -126,12 +128,15 @@ public class BreakableMirror extends Mirror {
     
     public static boolean isGlass(Level world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block instanceof GlassBlock || block == Blocks.GLASS_PANE || block instanceof StainedGlassBlock;
+        return block instanceof GlassBlock
+            || block == Blocks.GLASS_PANE
+            || block instanceof StainedGlassBlock
+            || block instanceof StainedGlassPaneBlock;
     }
     
     private static boolean isGlassPane(Level world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block == Blocks.GLASS_PANE || block instanceof StainedGlassBlock;
+        return block == Blocks.GLASS_PANE || block instanceof StainedGlassPaneBlock;
     }
     
     public static BreakableMirror createMirror(
@@ -149,11 +154,15 @@ public class BreakableMirror extends Mirror {
         if (facing.getAxis() == Direction.Axis.Y && isPane) {
             return null;
         }
-        
+    
+        Predicate<BlockPos> glassWallPredicate = blockPos ->
+            isGlass(world, blockPos)
+                && (isPane == isGlassPane(world, blockPos))
+                && world.getBlockState(blockPos.relative(facing)).isAir();
         BlockPortalShape shape = BlockPortalShape.findArea(
             glassPos, facing.getAxis(),
-            blockPos -> isGlass(world, blockPos) && (isPane == isGlassPane(world, blockPos)),
-            blockPos -> !(isGlass(world, blockPos) && (isPane == isGlassPane(world, blockPos)))
+            glassWallPredicate,
+            blockPos -> !glassWallPredicate.test(blockPos)
         );
         
         if (shape == null) {

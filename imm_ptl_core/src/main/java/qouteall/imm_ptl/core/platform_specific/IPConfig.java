@@ -32,7 +32,7 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Category("client")
     public boolean enableWarning = true;
     @ConfigEntry.Category("client")
-    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
     public int maxPortalLayer = 5;
     @ConfigEntry.Category("client")
     public boolean lagAttackProof = true;
