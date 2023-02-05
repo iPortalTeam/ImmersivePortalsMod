@@ -125,7 +125,7 @@
   "imm_ptl.command.accelerate200": "Ускориться на 200",
   "imm_ptl.command_desc.accelerate200": "Лети!",
   "imm_ptl.portal_helper_not_linked": "Рядом нет совместимой рамки портального помощника. Создана новая рамка. Портальный помощник может соединяться только с совместимой рамкой. 1x3 может соединяться с 2x6, но 1x2 не может соединяться с 2x5. ",
-  "imm_ptl.preview_warning": "Вы используете предварительную версию мода Immersive Portals, которая ещё не стабильна. Сообщить об ошибках:",,
+  "imm_ptl.preview_warning": "Вы используете предварительную версию мода Immersive Portals, которая ещё не стабильна. Сообщить об ошибках:",,,
   "imm_ptl.common_config": "Common Side",
   "imm_ptl.client_side_config": "Client Side",
   "imm_ptl.loading_chunks": "Loading Chunks %1$s/%2$s",
@@ -324,6 +324,6 @@
   "text.autoconfig.immersive_portals.option.scaleLimit": "Scale Limit",
   "text.autoconfig.immersive_portals.option.easeCreativePermission": "Ease Creative Permission",
   "text.autoconfig.immersive_portals.option.easeCommandStickPermission": "Ease Command Stick Permission",
+  "text.autoconfig.immersive_portals.option.regularPortalLengthLimit": "Regular Portal Length Limit",
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": ""
-
 }

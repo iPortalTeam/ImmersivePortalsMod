@@ -196,6 +196,7 @@
   "text.autoconfig.immersive_portals.option.easeCreativePermission": "创造模式下放款权限",
   "text.autoconfig.immersive_portals.option.easeCommandStickPermission": "命令杖放宽权限",
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": "",
-  "imm_ptl.disable_update_check": "Disable update check",
-  "imm_ptl.update_check_disabled": "Update check disabled"
+  "imm_ptl.disable_update_check": "禁用更新检查",
+  "imm_ptl.update_check_disabled": "更新检查已禁用",
+  "text.autoconfig.immersive_portals.option.regularPortalLengthLimit": "普通传送门宽度限制"
 }
