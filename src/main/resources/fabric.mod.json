@@ -45,8 +45,8 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "iris": ["<1.5.1", ">1.5.1"],
-    "sodium": ["<0.4.8", ">0.4.8"],
+    "iris": ["<1.5.2", ">1.5.2"],
+    "sodium": ["<0.4.9", ">0.4.9"],
     "portalcubed": "*"
   },
   "custom": {
