@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
@@ -88,7 +89,7 @@ public record DeltaUnilateralPortalState(
     public DeltaUnilateralPortalState getFlipped() {
         return new DeltaUnilateralPortalState(
             offset,
-            rotation == null ? null : rotation.hamiltonProduct(UnilateralPortalState.flipAxisW),
+            rotation == null ? null : rotation.hamiltonProduct(PortalManipulation.flipAxisW),
             sizeScaling
         );
     }

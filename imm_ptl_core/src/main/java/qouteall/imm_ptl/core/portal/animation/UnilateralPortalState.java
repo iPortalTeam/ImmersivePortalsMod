@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
@@ -24,10 +25,6 @@ public record UnilateralPortalState(
     double width,
     double height
 ) {
-    // its inverse is itself
-    public static final DQuaternion flipAxisW = DQuaternion.rotationByDegrees(
-        new Vec3(0, 1, 0), 180
-    ).fixFloatingPointErrorAccumulation();
     
     public static UnilateralPortalState extractThisSide(PortalState portalState) {
         return new UnilateralPortalState(
@@ -42,7 +39,7 @@ public record UnilateralPortalState(
     public static UnilateralPortalState extractOtherSide(PortalState portalState) {
         DQuaternion otherSideOrientation = portalState.rotation
             .hamiltonProduct(portalState.orientation)
-            .hamiltonProduct(flipAxisW);
+            .hamiltonProduct(PortalManipulation.flipAxisW);
         return new UnilateralPortalState(
             portalState.toWorld,
             portalState.toPos,
@@ -56,13 +53,11 @@ public record UnilateralPortalState(
         UnilateralPortalState thisSide,
         UnilateralPortalState otherSide
     ) {
-        // otherSideOrientation * axis = rotation * thisSideOrientation * flipAxisH * axis
-        // otherSideOrientation = rotation * thisSideOrientation * flipAxisH
-        // rotation = otherSideOrientation * flipAxisH^-1 * thisSideOrientation^-1
-        
-        DQuaternion rotation = otherSide.orientation
-            .hamiltonProduct(flipAxisW)
-            .hamiltonProduct(thisSide.orientation.getConjugated());
+        DQuaternion otherSideOrientation = otherSide.orientation;
+        DQuaternion thisSideOrientation = thisSide.orientation;
+        DQuaternion rotation = PortalManipulation.computeDeltaTransformation(
+            thisSideOrientation, otherSideOrientation
+        );
         
         double scale = otherSide.width / thisSide.width;
         // ignore other side's aspect ratio changing

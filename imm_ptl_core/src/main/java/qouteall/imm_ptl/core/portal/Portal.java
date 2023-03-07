@@ -590,6 +590,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         setRotationTransformationD(quaternion);
     }
     
+    public void setRotationTransformation(@Nullable DQuaternion quaternion) {
+        setRotationTransformationD(quaternion);
+    }
+    
     public void setRotationTransformationD(@Nullable DQuaternion quaternion) {
         if (quaternion == null) {
             rotation = null;
@@ -598,6 +602,12 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             rotation = quaternion.fixFloatingPointErrorAccumulation();
         }
         updateCache();
+    }
+    
+    public void setOtherSideOrientation(DQuaternion otherSideOrientation) {
+        setRotation(PortalManipulation.computeDeltaTransformation(
+            getOrientationRotation(), otherSideOrientation
+        ));
     }
     
     public void setScaleTransformation(double newScale) {

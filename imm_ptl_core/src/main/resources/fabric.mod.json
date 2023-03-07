@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "imm_ptl_core",
+  "provides": ["immersive_portals_core"],
   "version": "${version}",
   "name": "Immersive Portals Core",
   "description": "The core functionality of see-through portals and seamless teleportation. Provide the portal commands and datapack-based custom portal generation. The core does not change vanila nether portal and end portal mechanics.",

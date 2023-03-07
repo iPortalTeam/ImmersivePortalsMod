@@ -31,6 +31,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PortalManipulation {
+    // its inverse is itself
+    public static final DQuaternion flipAxisW = DQuaternion.rotationByDegrees(
+        new Vec3(0, 1, 0), 180
+    ).fixFloatingPointErrorAccumulation();
+    
     public static void setPortalTransformation(
         Portal portal,
         ResourceKey<Level> destDim,
@@ -493,4 +498,14 @@ public class PortalManipulation {
         return PortalCommand.raytracePortals(world, from, to, includeGlobalPortal);
     }
     
+    public static DQuaternion computeDeltaTransformation(
+        DQuaternion thisSideOrientation, DQuaternion otherSideOrientation
+    ) {
+        // otherSideOrientation * axis = rotation * thisSideOrientation * flipAxisW * axis
+        // otherSideOrientation = rotation * thisSideOrientation * flipAxisW
+        // rotation = otherSideOrientation * flipAxisW^-1 * thisSideOrientation^-1
+        return otherSideOrientation
+            .hamiltonProduct(flipAxisW)
+            .hamiltonProduct(thisSideOrientation.getConjugated());
+    }
 }
