@@ -8,6 +8,8 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
 
@@ -16,6 +18,8 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 
 public class MiscHelper {
+    
+    private static final Logger LOGGER = LogManager.getLogger();
     
     public static <T> MappedRegistry<T> filterAndCopyRegistry(
         MappedRegistry<T> registry, BiPredicate<ResourceKey<T>, T> predicate
@@ -47,7 +51,12 @@ public class MiscHelper {
         Minecraft client = Minecraft.getInstance();
         
         if (client.isSameThread()) {
-            runnable.run();
+            try {
+                runnable.run();
+            }
+            catch (Exception e) {
+                LOGGER.error("Processing task on render thread", e);
+            }
         }
         else {
             client.execute(runnable);
@@ -62,7 +71,12 @@ public class MiscHelper {
         MinecraftServer server = getServer();
         
         if (server.isSameThread()) {
-            runnable.run();
+            try {
+                runnable.run();
+            }
+            catch (Exception e) {
+                LOGGER.error("Processing task on server thread", e);
+            }
         }
         else {
             server.execute(runnable);
