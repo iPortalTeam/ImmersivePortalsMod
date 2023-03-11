@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
     
-    public static final int updateInterval = 40;
+    public static final int updateInterval = 13;
     
     public static class PlayerWatchRecord {
         public final ServerPlayer player;

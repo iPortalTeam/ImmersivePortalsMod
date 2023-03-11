@@ -1156,7 +1156,7 @@ public class PortalCommand {
                 .executes(context -> {
                     Entity entity = EntityArgument.getEntity(context, "target");
                     
-                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                         context.getSource().getPlayerOrException(),
                         entity.level.dimension(),
                         entity.position()
@@ -1178,7 +1178,7 @@ public class PortalCommand {
                     Vec3 dest = Vec3Argument.getVec3(context, "dest");
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     
-                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                         player,
                         player.level.dimension(),
                         dest
@@ -1204,7 +1204,7 @@ public class PortalCommand {
                         ).dimension();
                         Vec3 dest = Vec3Argument.getVec3(context, "dest");
                         
-                        IPGlobal.serverTeleportationManager.invokeTpmeCommand(
+                        IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                             context.getSource().getPlayerOrException(),
                             dim,
                             dest
@@ -1336,7 +1336,7 @@ public class PortalCommand {
                     sendMessage(context, "You haven't teleported");
                 }
                 else {
-                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                         player, lastPos.getA(), lastPos.getB()
                     );
                 }

@@ -26,6 +26,13 @@ public class MyTaskList {
         tasksToAdd.add(task);
     }
     
+    public void addOneShotTask(Runnable runnable) {
+        addTask(() -> {
+            runnable.run();
+            return true;
+        });
+    }
+    
     public synchronized void processTasks() {
         tasks.addAll(tasksToAdd);
         tasksToAdd.clear();

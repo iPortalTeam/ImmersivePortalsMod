@@ -138,7 +138,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
                     "[ImmPtl] Force move player {} {} {}",
                     player, player.level.dimension().location(), player.position()
                 );
-                IPGlobal.serverTeleportationManager.forceMovePlayer(
+                IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                     player, player.level.dimension(), player.position()
                 );
                 ip_dubiousMoveCount = 0;
