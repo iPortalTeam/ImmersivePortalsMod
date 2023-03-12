@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PortalManipulation {
     // its inverse is itself
@@ -507,5 +508,23 @@ public class PortalManipulation {
         return otherSideOrientation
             .hamiltonProduct(flipAxisW)
             .hamiltonProduct(thisSideOrientation.getConjugated());
+    }
+    
+    public static void makePortalRound(Portal portal, int triangleNum) {
+        GeometryPortalShape shape = new GeometryPortalShape();
+        double twoPi = Math.PI * 2;
+        shape.triangles = IntStream.range(0, triangleNum)
+            .mapToObj(i -> new GeometryPortalShape.TriangleInPlane(
+                0, 0,
+                portal.width * 0.5 * Math.cos(twoPi * ((double) i) / triangleNum),
+                portal.height * 0.5 * Math.sin(twoPi * ((double) i) / triangleNum),
+                portal.width * 0.5 * Math.cos(twoPi * ((double) i + 1) / triangleNum),
+                portal.height * 0.5 * Math.sin(twoPi * ((double) i + 1) / triangleNum)
+            )).collect(Collectors.toList());
+        portal.specialShape = shape;
+        portal.cullableXStart = 0;
+        portal.cullableXEnd = 0;
+        portal.cullableYStart = 0;
+        portal.cullableYEnd = 0;
     }
 }

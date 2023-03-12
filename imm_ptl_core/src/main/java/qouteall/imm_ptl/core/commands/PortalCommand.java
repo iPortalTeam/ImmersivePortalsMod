@@ -63,8 +63,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PortalCommand {
@@ -683,7 +681,7 @@ public class PortalCommand {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
-                    makePortalRound(portal);
+                    PortalManipulation.makePortalRound(portal, 30);
                     reloadPortal(portal);
                 }
             ))
@@ -2298,25 +2296,6 @@ public class PortalCommand {
                 portalAndHitPos -> portalAndHitPos.getSecond().distanceToSqr(from)
             )
         );
-    }
-    
-    private static void makePortalRound(Portal portal) {
-        GeometryPortalShape shape = new GeometryPortalShape();
-        final int triangleNum = 30;
-        double twoPi = Math.PI * 2;
-        shape.triangles = IntStream.range(0, triangleNum)
-            .mapToObj(i -> new GeometryPortalShape.TriangleInPlane(
-                0, 0,
-                portal.width * 0.5 * Math.cos(twoPi * ((double) i) / triangleNum),
-                portal.height * 0.5 * Math.sin(twoPi * ((double) i) / triangleNum),
-                portal.width * 0.5 * Math.cos(twoPi * ((double) i + 1) / triangleNum),
-                portal.height * 0.5 * Math.sin(twoPi * ((double) i + 1) / triangleNum)
-            )).collect(Collectors.toList());
-        portal.specialShape = shape;
-        portal.cullableXStart = 0;
-        portal.cullableXEnd = 0;
-        portal.cullableYStart = 0;
-        portal.cullableYEnd = 0;
     }
     
     /**
