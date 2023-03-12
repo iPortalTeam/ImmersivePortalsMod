@@ -33,16 +33,20 @@ import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.Map;
 import java.util.UUID;
 
 @Mixin(ClientPacketListener.class)
 public abstract class MixinClientPacketListener implements IEClientPlayNetworkHandler {
+    private static final LimitedLogger immptl_limitedLogger = new LimitedLogger(20);
+    
     @Shadow
     private ClientLevel level;
     
     @Shadow
+    @Final
     private Minecraft minecraft;
     
     @Mutable
@@ -116,7 +120,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         if (world != null) {
             if (world.dimension() != playerDimension) {
                 if (!Minecraft.getInstance().player.isRemoved()) {
-                    Helper.log(String.format(
+                    immptl_limitedLogger.log(String.format(
                         "denied position packet %s %s %s %s",
                         ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension(),
                         packet.getX(), packet.getY(), packet.getZ()
@@ -171,7 +175,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     private Entity redirectGetEntityById(ClientLevel clientWorld, int id) {
         Entity entity = clientWorld.getEntity(id);
         if (entity == null) {
-            Helper.err("missing entity for data tracking " + clientWorld + id);
+            immptl_limitedLogger.err("missing entity for data tracking " + clientWorld + id);
         }
         return entity;
     }
@@ -189,7 +193,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             entity.lerpMotion(x, y, z);
         }
         else {
-            Helper.err("wrong velocity update packet " + entity);
+            immptl_limitedLogger.err("wrong velocity update packet " + entity);
         }
     }
     

@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -30,8 +31,7 @@ public class ChunkLoader {
     public int getLoadedChunkNum() {
         int[] numBox = {0};
         foreachChunkPos((dim, x, z, dist) -> {
-            LevelChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
-            if (chunk != null) {
+            if (McHelper.isServerChunkFullyLoaded(McHelper.getServerWorld(dim), new ChunkPos(x, z))) {
                 numBox[0] += 1;
             }
         });
@@ -61,6 +61,10 @@ public class ChunkLoader {
         return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
     }
     
+    /**
+     * Load chunks and execute something when the chunks are loaded, then remove the chunk loader.
+     * Note: if the server closes before the chunks load, it won't be executed when server starts again.
+     */
     public void loadChunksAndDo(Runnable runnable) {
         NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(this);
         

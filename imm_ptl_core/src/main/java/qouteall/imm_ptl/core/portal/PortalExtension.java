@@ -99,19 +99,19 @@ public class PortalExtension {
             bindCluster = true;
         }
         
-        if (compoundTag.contains("reversePortalId")) {
+        if (compoundTag.hasUUID("reversePortalId")) {
             reversePortalId = compoundTag.getUUID("reversePortalId");
         }
         else {
             reversePortalId = null;
         }
-        if (compoundTag.contains("flippedPortalId")) {
+        if (compoundTag.hasUUID("flippedPortalId")) {
             flippedPortalId = compoundTag.getUUID("flippedPortalId");
         }
         else {
             flippedPortalId = null;
         }
-        if (compoundTag.contains("parallelPortalId")) {
+        if (compoundTag.hasUUID("parallelPortalId")) {
             parallelPortalId = compoundTag.getUUID("parallelPortalId");
         }
         else {
