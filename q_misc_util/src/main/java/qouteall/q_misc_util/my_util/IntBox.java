@@ -3,6 +3,7 @@ package qouteall.q_misc_util.my_util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -430,6 +431,35 @@ public class IntBox {
         boolean zOnEnd = pos.getZ() == l.getZ() || pos.getZ() == h.getZ();
         
         return xOnEnd && yOnEnd && zOnEnd;
+    }
+    
+    public CompoundTag toTag() {
+        CompoundTag tag = new CompoundTag();
+        
+        tag.putInt("lX", l.getX());
+        tag.putInt("lY", l.getY());
+        tag.putInt("lZ", l.getZ());
+        
+        tag.putInt("hX", h.getX());
+        tag.putInt("hY", h.getY());
+        tag.putInt("hZ", h.getZ());
+        
+        return tag;
+    }
+    
+    public static IntBox fromTag(CompoundTag tag) {
+        return new IntBox(
+            new BlockPos(
+                tag.getInt("lX"),
+                tag.getInt("lY"),
+                tag.getInt("lZ")
+            ),
+            new BlockPos(
+                tag.getInt("hX"),
+                tag.getInt("hY"),
+                tag.getInt("hZ")
+            )
+        );
     }
     
     @Override
