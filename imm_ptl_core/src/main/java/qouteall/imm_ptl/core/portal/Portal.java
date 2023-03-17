@@ -1818,6 +1818,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return holder.animation.getEffectiveTime(holder.level.getGameTime());
     }
     
+    public void disableDefaultAnimation() {
+        animation.defaultAnimation.durationTicks = 0;
+        reloadAndSyncToClientNextTick();
+    }
+    
     public static class RemoteCallables {
         public static void acceptPortalDataSync(
             ResourceKey<Level> dim,

@@ -336,6 +336,8 @@ public class ServerTeleportationManager {
         );
         player.connection.resetPosition();
         ((IEServerPlayNetworkHandler) player.connection).cancelTeleportRequest();
+        
+        NewChunkTrackingGraph.updateForPlayer(player);
     }
     
     /**

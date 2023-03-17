@@ -198,19 +198,15 @@ public class MyGameRenderer {
         }
         
         //invoke rendering
-        try {
-            invokeWrapper.accept(() -> {
-                client.getProfiler().push("render_portal_content");
-                client.gameRenderer.renderLevel(
-                    tickDelta,
-                    Util.getNanos(),
-                    new PoseStack()
-                );
-                client.getProfiler().pop();
-            });
-        } catch (Throwable e) {
-            limitedLogger.invoke(e::printStackTrace);
-        }
+        invokeWrapper.accept(() -> {
+            client.getProfiler().push("render_portal_content");
+            client.gameRenderer.renderLevel(
+                tickDelta,
+                Util.getNanos(),
+                new PoseStack()
+            );
+            client.getProfiler().pop();
+        });
         
         SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
