@@ -324,14 +324,16 @@ public class CrossPortalEntityRenderer {
         LocalPlayer player = client.player;
         assert player != null;
         
-        PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-        if (renderingPortal instanceof Mirror) {
-            // if the camera pos is too close to the mirror,
-            // it will show the inside of the player head.
-            // avoid rendering player in this case.
-            float width = player.getBbWidth();
-            if (renderingPortal.getDistanceToNearestPointInPortal(player.getEyePosition()) < width * 0.8) {
-                return false;
+        if (PortalRendering.isRendering()) {
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+            if (renderingPortal instanceof Mirror) {
+                // if the camera pos is too close to the mirror,
+                // it will show the inside of the player head.
+                // avoid rendering player in this case.
+                float width = player.getBbWidth();
+                if (renderingPortal.getDistanceToNearestPointInPortal(player.getEyePosition()) < width * 0.8) {
+                    return false;
+                }
             }
         }
         
