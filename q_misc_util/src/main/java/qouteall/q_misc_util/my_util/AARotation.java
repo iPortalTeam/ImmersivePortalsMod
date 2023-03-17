@@ -58,6 +58,7 @@ public enum AARotation {
     public final Direction transformedY;
     public final Direction transformedZ;
     public final IntMatrix3 matrix;
+    public final DQuaternion quaternion;
     
     
     AARotation(Direction transformedZ, Direction transformedX) {
@@ -69,6 +70,7 @@ public enum AARotation {
             this.transformedY.getNormal(),
             this.transformedZ.getNormal()
         );
+        quaternion = matrix.toQuaternion();
     }
     
     public BlockPos transform(Vec3i vec) {
@@ -181,7 +183,7 @@ public enum AARotation {
         AARotation[] array = Arrays.copyOf(values(), 24);
         // this is a stable sort
         Arrays.sort(array, Comparator.comparingDouble(
-            r -> r.matrix.toQuaternion().getRotatingAngleDegrees()
+            r -> r.quaternion.getRotatingAngleDegrees()
         ));
         rotationsSortedByAngle = ImmutableList.copyOf(array);
     }
