@@ -926,4 +926,8 @@ public class Helper {
         }
     }
     
+    public static boolean boxContains(AABB outer, AABB inner) {
+        return outer.contains(inner.minX, inner.minY, inner.minZ) &&
+            outer.contains(inner.maxX, inner.maxY, inner.maxZ);
+    }
 }

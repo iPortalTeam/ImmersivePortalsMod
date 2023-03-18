@@ -28,6 +28,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
@@ -48,7 +50,6 @@ import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
-import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -214,6 +215,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     private PortalState thisTickPortalState;
     
     private boolean reloadAndSyncNextTick = false;
+    
+    @Nullable
+    private VoxelShape thisSideCollisionExclusion;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -537,6 +541,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         normal = null;
         contentDirection = null;
         thisTickPortalState = null;
+        thisSideCollisionExclusion = null;
         
         if (updates) {
             portalCacheUpdateSignal.emit(this);
@@ -997,14 +1002,18 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             "%s{%s,%s,(%s %.1f %.1f %.1f)->(%s %.1f %.1f %.1f)%s%s%s}",
             getClass().getSimpleName(),
             getId(),
-            Direction.getNearest(
-                getNormal().x, getNormal().y, getNormal().z
-            ),
+            getApproximateFacingDirection(),
             level.dimension().location(), getX(), getY(), getZ(),
             dimensionTo.location(), getDestPos().x, getDestPos().y, getDestPos().z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : "",
             portalTag != null ? "," + portalTag : ""
+        );
+    }
+    
+    public Direction getApproximateFacingDirection() {
+        return Direction.getNearest(
+            getNormal().x, getNormal().y, getNormal().z
         );
     }
     
@@ -1174,10 +1183,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public AABB getThinAreaBox() {
+        double w = width;
+        double h = height;
         return new AABB(
-            getPointInPlane(width / 2, height / 2),
-            getPointInPlane(-width / 2, -height / 2)
-        );
+            getPointInPlane(w / 2, h / 2),
+            getPointInPlane(-w / 2, -h / 2)
+        ).minmax(new AABB(
+            getPointInPlane(-w / 2, h / 2),
+            getPointInPlane(w / 2, -h / 2)
+        ));
     }
     
     /**
@@ -1821,6 +1835,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void disableDefaultAnimation() {
         animation.defaultAnimation.durationTicks = 0;
         reloadAndSyncToClientNextTick();
+    }
+    
+    public VoxelShape getThisSideCollisionExclusion() {
+        if (thisSideCollisionExclusion == null) {
+            AABB boundingBox = getThinAreaBox();
+            Vec3 reaching = getNormal().scale(-10);
+            AABB ignorance = boundingBox.minmax(boundingBox.move(reaching));
+            thisSideCollisionExclusion = Shapes.create(ignorance);
+        }
+        return thisSideCollisionExclusion;
     }
     
     public static class RemoteCallables {

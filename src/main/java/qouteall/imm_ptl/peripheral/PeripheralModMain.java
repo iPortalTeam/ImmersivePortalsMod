@@ -187,4 +187,58 @@ public class PeripheralModMain {
             Lists.newArrayList("imm_ptl.command_desc." + name)
         ));
     }
+    
+//    public static class IndirectMerger {
+//        private static final DoubleList EMPTY = DoubleLists.unmodifiable(DoubleArrayList.wrap(new double[]{0.0}));
+//        private final double[] result;
+//        private final int[] firstIndices;
+//        private final int[] secondIndices;
+//        private final int resultLength;
+//
+//        public IndirectMerger(DoubleList l1, DoubleList l2, boolean override1, boolean override2) {
+//            double limit = Double.NaN;
+//            int size1 = l1.size();
+//            int size2 = l2.size();
+//            int sumSize = size1 + size2;
+//            this.result = new double[sumSize];
+//            this.firstIndices = new int[sumSize];
+//            this.secondIndices = new int[sumSize];
+//            boolean skipEndpointsOf2 = !override1;
+//            boolean skipEndpointsOf1 = !override2;
+//            int resultIndex = 0;
+//            int index1 = 0;
+//            int index2 = 0;
+//            while (true) {
+//                boolean reachLimit1 = index1 >= size1;
+//                boolean reachLimit2 = index2 >= size2;
+//                if (reachLimit1 && reachLimit2) break;
+//                boolean shouldMove1 = !reachLimit1 && (reachLimit2 || l1.getDouble(index1) < l2.getDouble(index2) + 1.0E-7);
+//                if (shouldMove1) {
+//                    ++index1;
+//                    if (skipEndpointsOf2 && (index2 == 0 || reachLimit2)) {
+//                        continue;
+//                    }
+//                } else {
+//                    ++index2;
+//                    if (skipEndpointsOf1 && (index1 == 0 || reachLimit1)) continue;
+//                }
+//                int lastIndex1 = index1 - 1;
+//                int lastIndex2 = index2 - 1;
+//                double number = shouldMove1 ? l1.getDouble(lastIndex1) : l2.getDouble(lastIndex2);
+//                if (!(limit >= number - 1.0E-7)) {
+//                    this.firstIndices[resultIndex] = lastIndex1;
+//                    this.secondIndices[resultIndex] = lastIndex2;
+//                    this.result[resultIndex] = number;
+//                    ++resultIndex;
+//                    limit = number;
+//                    continue;
+//                }
+//                this.firstIndices[resultIndex - 1] = lastIndex1;
+//                this.secondIndices[resultIndex - 1] = lastIndex2;
+//            }
+//            this.resultLength = Math.max(1, resultIndex);
+//        }
+//    }
+
+
 }

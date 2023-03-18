@@ -326,14 +326,30 @@ public class CollisionHelper {
             );
         }
         
-        Vec3 clippingPlanePos = collidingPortal.getOriginPos();
-        Vec3 clippingPlaneNormal = collidingPortal.getNormal();
-        
         return handleCollisionWithShapeProcessor(
             entity, attemptedMove,
-            shape -> clipVoxelShape(shape, clippingPlanePos, clippingPlaneNormal),
+            shape -> processThisSideCollisionShape(shape, collidingPortal),
             gravity
         );
+    }
+    
+    @Nullable
+    public static VoxelShape processThisSideCollisionShape(
+        VoxelShape shape, Portal portal
+    ) {
+        VoxelShape exclusion = portal.getThisSideCollisionExclusion();
+        
+        if (Helper.boxContains(exclusion.bounds(), shape.bounds())) {
+            return null;
+        }
+        
+        VoxelShape result = Shapes.joinUnoptimized(
+            shape,
+            exclusion,
+            BooleanOp.ONLY_FIRST
+        );
+        
+        return result;
     }
     
     @Nullable
