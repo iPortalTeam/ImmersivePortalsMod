@@ -4,6 +4,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
@@ -13,6 +15,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
+import qouteall.q_misc_util.my_util.Plane;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -170,7 +173,25 @@ public class PortalRendering {
     // when pointing on the glass block or a mirror, it will wrongly render the block frame
     public static boolean shouldRenderHitResult() {
         if (isRendering()) {
-            return !(getRenderingPortal() instanceof Mirror);
+            HitResult hitResult = Minecraft.getInstance().hitResult;
+            if (hitResult == null) {
+                return false;
+            }
+            
+            PortalLike renderingPortal = getRenderingPortal();
+            if (renderingPortal instanceof Mirror) {
+                return false;
+            }
+    
+            if ((hitResult instanceof BlockHitResult blockHitResult) && hitResult.getType() == HitResult.Type.BLOCK) {
+                BlockPos blockPos = blockHitResult.getBlockPos();
+                Plane innerClipping = renderingPortal.getInnerClipping();
+                if (innerClipping != null) {
+                    boolean roughlyInside = innerClipping.move(-0.1)
+                        .isPointOnPositiveSide(Vec3.atCenterOf(blockPos));
+                    return roughlyInside;
+                }
+            }
         }
         return true;
     }
