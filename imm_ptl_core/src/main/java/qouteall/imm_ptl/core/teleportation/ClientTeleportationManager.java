@@ -38,6 +38,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Vec2d;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -127,17 +128,26 @@ public class ClientTeleportationManager {
         // the real partial ticks (not from stable timer)
         float realPartialTicks = RenderStates.tickDelta;
         
+        TeleportationUtil.Teleportation lastTeleportation = null;
+        
         if (lastPlayerEyePos != null) {
             for (int i = 0; i < teleportLimitPerFrame; i++) {
-                boolean teleported = tryTeleport(realPartialTicks);
-                if (!teleported) {
+                TeleportationUtil.Teleportation teleportation = tryTeleport(realPartialTicks);
+                if (teleportation == null) {
                     break;
                 }
                 else {
+                    lastTeleportation = teleportation;
                     if (i != 0) {
                         Helper.log("The client player made a combo-teleport");
                     }
                 }
+            }
+        }
+        
+        if (lastTeleportation != null) {
+            if (PortalExtension.get(lastTeleportation.portal()).adjustPositionAfterTeleport) {
+                adjustPlayerPosition(client.player);
             }
         }
         
@@ -152,7 +162,9 @@ public class ClientTeleportationManager {
         Portal portal, Vec2d portalLocalXY, Vec3 collisionPos
     ) {}
     
-    private boolean tryTeleport(float partialTicks) {
+    // return null if failed
+    @Nullable
+    private TeleportationUtil.Teleportation tryTeleport(float partialTicks) {
         LocalPlayer player = client.player;
         assert player != null;
         
@@ -160,7 +172,7 @@ public class ClientTeleportationManager {
         
         if (lastPlayerEyePos.distanceToSqr(thisFrameEyePos) > 1600) {
             // when the player is moving too fast, don't do teleportation
-            return false;
+            return null;
         }
         
         assert client.level != null;
@@ -229,6 +241,7 @@ public class ClientTeleportationManager {
             ))
             .orElse(null);
         
+        
         if (teleportation != null) {
             Portal portal = teleportation.portal();
             Vec3 collidingPos = teleportation.collidingPos();
@@ -244,10 +257,10 @@ public class ClientTeleportationManager {
                 .add(portal.getContentDirection().scale(adjustment));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
-            return true;
+            return teleportation;
         }
         else {
-            return false;
+            return null;
         }
     }
     
@@ -335,10 +348,6 @@ public class ClientTeleportationManager {
         
         isTeleportingTick = true;
         isTeleportingFrame = true;
-        
-        if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
-            adjustPlayerPosition(player);
-        }
         
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }

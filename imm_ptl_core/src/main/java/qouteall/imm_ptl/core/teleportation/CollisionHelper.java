@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -211,18 +212,6 @@ public class CollisionHelper {
             }
         }
         
-        List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
-            Portal.class,
-            collidingPortal.getDestinationWorld(),
-            boxOtherSide.expandTowards(transformedAttemptedMove),
-            8,
-            p -> p.getHasCrossPortalCollision()
-                && canCollideWithPortal(entity, p, 0)
-                && !Portal.isReversePortal(collidingPortal, p)
-                && !Portal.isParallelPortal(collidingPortal, p)
-                && Portal.isFlippedPortal(collidingPortal, p)
-        );
-        
         //switch world and check collision
         Level oldWorld = entity.level;
         Vec3 oldPos = entity.position();
@@ -230,6 +219,11 @@ public class CollisionHelper {
         float oldStepHeight = entity.maxUpStep;
         
         entity.level = destinationWorld;
+        McHelper.setPosAndLastTickPos(
+            entity,
+            collidingPortal.transformPoint(oldPos),
+            collidingPortal.transformPoint(oldLastTickPos)
+        );
         entity.setBoundingBox(boxOtherSide);
         
         if (collidingPortal.getScale() > 1) {
@@ -237,9 +231,18 @@ public class CollisionHelper {
         }
         
         try {
-            // TODO the indirect collision handling is still incomplete
-            // it should firstly check whether the entity can touch that portal
-            // it should also transform gravity direction if needed
+            List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
+                Portal.class,
+                collidingPortal.getDestinationWorld(),
+                boxOtherSide.expandTowards(transformedAttemptedMove),
+                IPGlobal.maxNormalPortalRadius,
+                p -> p.getHasCrossPortalCollision()
+                    && canCollideWithPortal(entity, p, 0)
+                    && !Portal.isReversePortal(collidingPortal, p)
+                    && !Portal.isParallelPortal(collidingPortal, p)
+                    && !Portal.isFlippedPortal(collidingPortal, p)
+            );
+            
             if (!indirectCollidingPortals.isEmpty()) {
                 return getOtherSideMove(
                     entity, transformedAttemptedMove, indirectCollidingPortals.get(0),
@@ -277,6 +280,27 @@ public class CollisionHelper {
             );
             
             Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
+            
+            // debug
+//            if (entity instanceof LocalPlayer) {
+//                if (attemptedMove.y < 0 && result.y > attemptedMove.y) {
+//                    Helper.log("ouch");
+//                    indirectCollidingPortals = McHelper.findEntitiesByBox(
+//                        Portal.class,
+//                        collidingPortal.getDestinationWorld(),
+//                        boxOtherSide.expandTowards(transformedAttemptedMove),
+//                        IPGlobal.maxNormalPortalRadius,
+//                        p -> {
+//                            if (!p.getHasCrossPortalCollision()) {return false;}
+//                            if (!canCollideWithPortal(entity, p, 0)) {return false;}
+//                            if (Portal.isReversePortal(collidingPortal, p)) {return false;}
+//                            if (Portal.isParallelPortal(collidingPortal, p)) {return false;}
+//                            if (Portal.isFlippedPortal(collidingPortal, p)) return false;
+//                            return true;
+//                        }
+//                    );
+//                }
+//            }
             
             return result;
         }
@@ -720,8 +744,11 @@ public class CollisionHelper {
         // normal colliding portal update lags 1 tick before collision calculation
         // the velocity updates later after updating colliding portal
         // expand the velocity to avoid not collide with portal in time
-        Vec3 expand = McHelper.getWorldVelocity(entity).scale(1.2);
-        AABB box = entity.getBoundingBox().expandTowards(expand);
+        Vec3 backwardExpand = McHelper.lastTickPosOf(entity).subtract(entity.position());
+        Vec3 forwardExpand = McHelper.getWorldVelocity(entity);
+        AABB box = entity.getBoundingBox()
+            .expandTowards(forwardExpand.scale(1.2))
+            .expandTowards(backwardExpand);
         
         // when the scale is big, the entity could move quickly abruptly
         float scale = PehkuiInterface.invoker.getBaseScale(entity);
