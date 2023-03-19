@@ -1839,9 +1839,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public VoxelShape getThisSideCollisionExclusion() {
         if (thisSideCollisionExclusion == null) {
-            AABB boundingBox = getThinAreaBox();
+            AABB thinAreaBox = getThinAreaBox();
             Vec3 reaching = getNormal().scale(-10);
-            AABB ignorance = boundingBox.minmax(boundingBox.move(reaching));
+            AABB ignorance = thinAreaBox.minmax(thinAreaBox.move(reaching));
             thisSideCollisionExclusion = Shapes.create(ignorance);
         }
         return thisSideCollisionExclusion;

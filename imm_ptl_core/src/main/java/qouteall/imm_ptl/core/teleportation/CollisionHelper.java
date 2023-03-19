@@ -361,9 +361,22 @@ public class CollisionHelper {
     public static VoxelShape processThisSideCollisionShape(
         VoxelShape shape, Portal portal
     ) {
+        AABB shapeBounds = shape.bounds();
+        
+        boolean boxFullyBehindPlane = isBoxFullyBehindPlane(
+            portal.getOriginPos(), portal.getNormal(), shapeBounds
+        );
+        
+        // it's a workaround for diagonal portals
+        // MC does not support not axis-aligned shape collision
+        if (!boxFullyBehindPlane) {
+            return shape;
+        }
+        
         VoxelShape exclusion = portal.getThisSideCollisionExclusion();
         
-        if (Helper.boxContains(exclusion.bounds(), shape.bounds())) {
+        
+        if (Helper.boxContains(exclusion.bounds(), shapeBounds)) {
             return null;
         }
         
