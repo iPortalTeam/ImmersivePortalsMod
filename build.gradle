@@ -64,6 +64,9 @@ allprojects {
             url = 'https://ladysnake.jfrog.io/artifactory/mods'
         }
 
+        // geckolib, for testing with portal gun
+//        maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+
         // for test with create
 //        maven { url = "https://cursemaven.com" }
 //        maven { url = "https://maven.parchmentmc.org" }
@@ -227,6 +230,11 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+
+    // for testing portal gun
+//    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4') {
+//        transitive(false)
+//    }
 
     fileTree(dir: 'deps', include: '*.jar').each {
         String baseName = it.name.replace(".jar", "")
