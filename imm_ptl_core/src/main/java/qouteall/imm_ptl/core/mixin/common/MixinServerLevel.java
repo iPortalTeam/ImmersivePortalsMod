@@ -12,8 +12,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 
 import java.util.List;
@@ -57,6 +59,15 @@ public abstract class MixinServerLevel implements IEServerWorld {
         final ServerLevel this_ = (ServerLevel) (Object) this;
         cir.setReturnValue("ServerWorld " + this_.dimension().location() +
             " " + serverLevelData.getLevelName());
+    }
+    
+    @Inject(
+        method = "tickNonPassenger",
+        at = @At("HEAD")
+    )
+    private void onTickNonPassenger(Entity entity, CallbackInfo ci) {
+        // this should be done right before setting last tick pos to this tick pos
+        ((IEEntity) entity).tickCollidingPortal(1);
     }
     
     @Override

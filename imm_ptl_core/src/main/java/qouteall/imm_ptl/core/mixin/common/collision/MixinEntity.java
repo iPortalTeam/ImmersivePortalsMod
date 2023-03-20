@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -75,11 +76,13 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     private BlockPos blockPosition;
     
-    //maintain collidingPortal field
-    @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
-    private void onTicking(CallbackInfo ci) {
-        tickCollidingPortal(1);
-    }
+    @Shadow private Vec3 deltaMovement;
+    
+//    //maintain collidingPortal field
+//    @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
+//    private void onTicking(CallbackInfo ci) {
+//        tickCollidingPortal(1);
+//    }
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
@@ -227,11 +230,46 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
+//    // debug, should remove in production
+//    @Inject(
+//        method = "setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V",
+//        at = @At("HEAD")
+//    )
+//    private void onSetDeltaMovement(Vec3 motion, CallbackInfo ci) {
+//        Entity this_ = (Entity) (Object) this;
+//        if (this_ instanceof LocalPlayer) {
+//            if (deltaMovement.y < 0) {
+//                if (motion.y > deltaMovement.y) {
+//                    Helper.log("debug");
+//                }
+//            }
+//        }
+//    }
+//
+//    // debug, should remove in production
+//    @Inject(
+//        method = "addDeltaMovement",
+//        at = @At("HEAD")
+//    )
+//    private void onAddDeltaMovement(Vec3 vec3, CallbackInfo ci) {
+//        Entity this_ = (Entity) (Object) this;
+//        if (this_ instanceof LocalPlayer) {
+//            if (deltaMovement.y < 0) {
+//                if (vec3.y > 0) {
+//                    Helper.log("debug");
+//                }
+//            }
+//        }
+//    }
+    
     @Override
     public Portal getCollidingPortal() {
         return ((Portal) collidingPortal);
     }
     
+    // this should be called between the range of updating last tick pos and calculating movement
+    // because between these two operations, this tick pos is the same as last tick pos
+    // CollisionHelper.getStretchedBoundingBox uses the difference between this tick pos and last tick pos
     @Override
     public void tickCollidingPortal(float tickDelta) {
         Entity this_ = (Entity) (Object) this;

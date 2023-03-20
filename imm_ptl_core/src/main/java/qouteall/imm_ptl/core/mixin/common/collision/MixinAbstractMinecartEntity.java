@@ -14,13 +14,13 @@ public class MixinAbstractMinecartEntity {
     @Shadow
     private int lSteps;
     
-    @Inject(
-        method = "Lnet/minecraft/world/entity/vehicle/AbstractMinecart;tick()V",
-        at = @At("HEAD")
-    )
-    private void onTick(CallbackInfo ci) {
-        ((IEEntity) this).tickCollidingPortal(1);
-    }
+//    @Inject(
+//        method = "Lnet/minecraft/world/entity/vehicle/AbstractMinecart;tick()V",
+//        at = @At("HEAD")
+//    )
+//    private void onTick(CallbackInfo ci) {
+//        ((IEEntity) this).tickCollidingPortal(1);
+//    }
     
     @Inject(
         method = "Lnet/minecraft/world/entity/vehicle/AbstractMinecart;lerpTo(DDDFFIZ)V",

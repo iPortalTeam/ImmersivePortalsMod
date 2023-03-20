@@ -9,11 +9,11 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 
 @Mixin(HangingEntity.class)
 public class MixinHangingEntity {
-    @Inject(
-        method = "Lnet/minecraft/world/entity/decoration/HangingEntity;tick()V",
-        at = @At("HEAD")
-    )
-    private void onTick(CallbackInfo ci) {
-        ((IEEntity) this).tickCollidingPortal(1);
-    }
+//    @Inject(
+//        method = "Lnet/minecraft/world/entity/decoration/HangingEntity;tick()V",
+//        at = @At("HEAD")
+//    )
+//    private void onTick(CallbackInfo ci) {
+//        ((IEEntity) this).tickCollidingPortal(1);
+//    }
 }
