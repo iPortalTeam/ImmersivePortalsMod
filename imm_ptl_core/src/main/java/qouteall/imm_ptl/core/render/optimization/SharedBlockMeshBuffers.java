@@ -1,19 +1,16 @@
 package qouteall.imm_ptl.core.render.optimization;
 
 import com.google.common.collect.Queues;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
+import net.minecraft.client.renderer.RenderType;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
-import net.minecraft.client.renderer.RenderType;
 
 /**
  * This optimization makes that different dimensions of ChunkRenderDispatcher
@@ -96,7 +93,7 @@ public class SharedBlockMeshBuffers {
     }
     
     public static String getDebugString() {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (IPGlobal.enableSharedBlockMeshBuffers && threadBuffers != null) {
             return "SharedBlockMeshBuffers " + Integer.toString(threadBuffers.size());
         }
         return "";
