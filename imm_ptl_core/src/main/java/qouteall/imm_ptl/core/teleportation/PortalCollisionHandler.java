@@ -34,7 +34,7 @@ public class PortalCollisionHandler {
         return getTiming(entity) - lastActiveTime < 20;
     }
     
-    public void update(Entity entity, float partialTicks) {
+    public void update(Entity entity) {
         portalCollisions.removeIf(p -> {
             if (p.portal.level != entity.level) {
                 return true;
@@ -49,7 +49,11 @@ public class PortalCollisionHandler {
                 return true;
             }
             
-            if (!CollisionHelper.canCollideWithPortal(entity, p.portal, partialTicks)) {
+            // because that teleportation is based on rendering camera pos,
+            // the camera pos is behind this tick pos,
+            // this tick pos may go behind the portal before teleportation.
+            // use last tick pos to check whether it should collide
+            if (!CollisionHelper.canCollideWithPortal(entity, p.portal, 0)) {
                 return true;
             }
             

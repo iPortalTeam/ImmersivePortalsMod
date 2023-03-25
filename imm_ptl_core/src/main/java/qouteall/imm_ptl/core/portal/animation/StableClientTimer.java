@@ -209,7 +209,7 @@ public class StableClientTimer {
         else {
             // projectedStableTime -- targetTime
             // stable time is behind the target time
-            // exponential increase the time flow scale
+            // exponentially increase the time flow scale
             if (timeFlowScale < 1) {
                 timeFlowScale = 1;
             }

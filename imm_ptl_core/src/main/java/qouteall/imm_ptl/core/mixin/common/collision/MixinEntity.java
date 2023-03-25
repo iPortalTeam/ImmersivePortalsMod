@@ -322,7 +322,7 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         
         if (ip_portalCollisionHandler != null) {
-            ip_portalCollisionHandler.update(this_, partialTick);
+            ip_portalCollisionHandler.update(this_);
         }
         
         if (level.isClientSide) {

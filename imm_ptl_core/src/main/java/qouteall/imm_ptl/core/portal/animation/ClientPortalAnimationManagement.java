@@ -50,7 +50,7 @@ public class ClientPortalAnimationManagement {
         defaultAnimatedPortals.remove(portal);
     }
     
-    public static void onAfterClientTick() {
+    public static void tick() {
         // update the portal state to the end of the tick
         updateCustomAnimations(true);
         
@@ -112,10 +112,6 @@ public class ClientPortalAnimationManagement {
             if (!portal.animation.hasAnimationDriver()) {
                 return true;
             }
-
-//            if (portal.animation.isPaused()) {
-//                return false;
-//            }
             
             portal.animation.updateAnimationDriver(
                 portal,

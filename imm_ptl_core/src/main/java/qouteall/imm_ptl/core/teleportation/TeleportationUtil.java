@@ -1,11 +1,9 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
@@ -50,7 +48,8 @@ public class TeleportationUtil {
         PortalState lastFrameState, PortalState thisFrameState,
         PortalState lastTickState, PortalState thisTickState,
         PortalPointVelocity portalPointVelocity,
-        Vec3 teleportationCheckpoint
+        Vec3 teleportationCheckpoint,
+        Vec3 newLastTickEyePos, Vec3 newThisTickEyePos
     ) {}
     
     public static record PortalPointVelocity(
@@ -73,7 +72,8 @@ public class TeleportationUtil {
     // check teleportation to an un-animated portal
     @Nullable
     public static Teleportation checkStaticTeleportation(
-        Portal portal, Vec3 lastPos, Vec3 currentPos
+        Portal portal, Vec3 lastPos, Vec3 currentPos,
+        Vec3 lastTickEyePos, Vec3 thisTickEyePos
     ) {
         Vec3 lastLocalPos = portal.transformFromWorldToPortalLocal(lastPos);
         Vec3 currentLocalPos = portal.transformFromWorldToPortalLocal(currentPos);
@@ -86,6 +86,9 @@ public class TeleportationUtil {
             return null;
         }
         
+        Vec3 newLastTickEyePos = portal.transformPoint(lastTickEyePos);
+        Vec3 newThisTickEyePos = portal.transformPoint(thisTickEyePos);
+        
         PortalState portalState = portal.getPortalState();
         return new Teleportation(
             false,
@@ -97,7 +100,8 @@ public class TeleportationUtil {
             portalState, portalState,
             portalState, portalState,
             new PortalPointVelocity(Vec3.ZERO, Vec3.ZERO),
-            portal.transformPoint(collisionInfo.collisionPos)
+            portal.transformPoint(collisionInfo.collisionPos),
+            newLastTickEyePos, newThisTickEyePos
         );
     }
     
@@ -108,51 +112,94 @@ public class TeleportationUtil {
         PortalState lastFrameState, PortalState currentFrameState,
         Vec3 lastFrameEyePos, Vec3 currentFrameEyePos,
         PortalState lastTickState, PortalState thisTickState,
-        Vec3 lastTickEyePos, Vec3 thisTickEyePos
+        Vec3 lastTickEyePos, Vec3 thisTickEyePos, float partialTicks
     ) {
         Vec3 lastLocalPos = lastFrameState.worldPosToPortalLocalPos(lastFrameEyePos);
         Vec3 currentLocalPos = currentFrameState.worldPosToPortalLocalPos(currentFrameEyePos);
         
-        CollisionInfo collisionInfo = checkTeleportationByPortalLocalPos(portal, lastLocalPos, currentLocalPos);
+        CollisionInfo collisionInfo = checkTeleportationByPortalLocalPos(
+            portal, lastLocalPos, currentLocalPos
+        );
         
         if (collisionInfo == null) {
             return null;
         }
         
+        double collisionLocalX = collisionInfo.portalLocalX;
+        double collisionLocalY = collisionInfo.portalLocalY;
         PortalPointVelocity portalPointVelocity = getPortalPointVelocity(
             lastTickState, thisTickState,
-            collisionInfo.portalLocalX, collisionInfo.portalLocalY
+            collisionLocalX, collisionLocalY
         );
-//        PortalPointVelocity portalPointVelocity = getConservativePortalPointVelocity(
-//            lastTickState, thisTickState, lastTickEyePos, thisTickEyePos
-//        );
         
         PortalState collisionPortalState =
             PortalState.interpolate(lastFrameState, currentFrameState, collisionInfo.tOfCollision, false);
-        Vec3 collisionPointMappedToThisFrame = thisTickState.transformPoint(thisTickState.portalLocalPosToWorldPos(new Vec3(
-            collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
-        )));
-        Vec3 collisionPointMappedToLastFrame = lastFrameState.transformPoint(lastFrameState.portalLocalPosToWorldPos(new Vec3(
-            collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
-        )));
+        Vec3 collisionPointMappedToThisFrame =
+            thisTickState.getLocalPosTransformed(collisionLocalX, collisionLocalY);
+        Vec3 collisionPointMappedToLastFrame =
+            lastFrameState.getLocalPosTransformed(collisionLocalX, collisionLocalY);
         Vec3 teleportationCheckpoint = Helper.maxBy(
             collisionPointMappedToThisFrame, collisionPointMappedToLastFrame,
             Comparator.comparingDouble(
                 v -> v.subtract(portal.getDestPos()).dot(portal.getContentDirection())
             )
         );
+    
+        Vec3 newOtherSideLastTickPos = lastTickState.transformPoint(lastTickEyePos);
+        Vec3 newOtherSideThisTickPos = thisTickState.transformPoint(thisTickEyePos);
+    
+        Vec3 newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+    
+        Vec3 correctImmediateCameraPos =
+            collisionPortalState.transformPoint(currentFrameEyePos);
+    
+        Vec3 deltaVelocity = portalPointVelocity.otherSidePointVelocity().subtract(
+            collisionPortalState.transformVec(portalPointVelocity.thisSidePointVelocity())
+        );
+    
+        Vec3 offset = correctImmediateCameraPos.subtract(newImmediateCameraPos);
+    
+        newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset);
+        newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset);
+    
+        {
+            double dot = newOtherSideThisTickPos
+                .subtract(thisTickState.toPos)
+                .dot(thisTickState.getContentDirection());
+            if (dot < 0) {
+                Helper.log("Teleported to behind the end-tick portal destination. Corrected.");
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(
+                    thisTickState.getContentDirection().scale(-dot + 0.001)
+                );
+            }
+        }
+    
+        {
+            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+        
+            double dot = newImmediateCameraPos
+                .subtract(currentFrameState.toPos)
+                .dot(currentFrameState.getContentDirection());
+            if (dot < 0) {
+                Helper.log("Teleported to behind the end-frame portal destination. Corrected.");
+                Vec3 offset1 = currentFrameState.getContentDirection().scale(-dot + 0.001);
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+            }
+        }
         
         return new Teleportation(
             true,
             portal,
             lastFrameEyePos, currentFrameEyePos,
-            collisionInfo.portalLocalX, collisionInfo.portalLocalY,
+            collisionLocalX, collisionLocalY,
             collisionInfo.tOfCollision, collisionInfo.collisionPos,
             collisionPortalState,
             lastFrameState, currentFrameState,
             lastTickState, thisTickState,
             portalPointVelocity,
-            teleportationCheckpoint
+            teleportationCheckpoint,
+            newOtherSideLastTickPos, newOtherSideThisTickPos
         );
     }
     
@@ -187,73 +234,6 @@ public class TeleportationUtil {
         else {
             return null;
         }
-    }
-    
-    public static Tuple<Vec3, Vec3> getTransformedLastTickPosAndCurrentTickPos(
-        Teleportation teleportation,
-        Vec3 lastTickPos, Vec3 thisTickPos
-    ) {
-        if (!teleportation.isDynamic()) {
-            // simple static teleportation
-            Portal portal = teleportation.portal;
-            Vec3 newLastTickPos = portal.transformPoint(lastTickPos);
-            Vec3 newThisTickPos = portal.transformPoint(thisTickPos);
-            return new Tuple<>(newLastTickPos, newThisTickPos);
-        }
-        
-        // dynamic teleportation
-        
-        PortalState lastTickState = teleportation.lastTickState;
-        PortalState thisTickState = teleportation.thisTickState;
-        
-        Vec3 newOtherSideLastTickPos = lastTickState.transformPoint(lastTickPos);
-        Vec3 newOtherSideThisTickPos = thisTickState.transformPoint(thisTickPos);
-        
-        float partialTicks = RenderStates.tickDelta;
-        
-        Vec3 newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
-
-        Vec3 correctImmediateCameraPos =
-            teleportation.collidingPortalState().transformPoint(teleportation.thisFrameEyePos());
-        
-        Vec3 deltaVelocity = teleportation.portalPointVelocity().otherSidePointVelocity().subtract(
-            teleportation.collidingPortalState().transformVec(teleportation.portalPointVelocity().thisSidePointVelocity())
-        );
-        
-        Vec3 offset = correctImmediateCameraPos.subtract(newImmediateCameraPos);
-        
-        newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset);
-        newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset);
-        
-        {
-            PortalState targetingPortalState = teleportation.thisTickState();
-            double dot = newOtherSideThisTickPos
-                .subtract(targetingPortalState.toPos)
-                .dot(targetingPortalState.getContentDirection());
-            if (dot < 0) {
-                Helper.log("Teleported to behind the end-tick portal destination. Corrected.");
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(
-                    targetingPortalState.getContentDirection().scale(-dot + 0.001)
-                );
-            }
-        }
-        
-        {
-            PortalState thisFrameState = teleportation.thisFrameState();
-            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
-            
-            double dot = newImmediateCameraPos
-                .subtract(thisFrameState.toPos)
-                .dot(thisFrameState.getContentDirection());
-            if (dot < 0) {
-                Helper.log("Teleported to behind the end-frame portal destination. Corrected.");
-                Vec3 offset1 = thisFrameState.getContentDirection().scale(-dot + 0.001);
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
-                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
-            }
-        }
-        
-        return new Tuple<>(newOtherSideLastTickPos, newOtherSideThisTickPos);
     }
     
     /**

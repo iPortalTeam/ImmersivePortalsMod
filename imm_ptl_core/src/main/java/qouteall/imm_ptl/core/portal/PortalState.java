@@ -146,6 +146,14 @@ public class PortalState {
             .add(axisW.cross(axisH).scale(portalLocalPos.z));
     }
     
+    public Vec3 getLocalPosTransformed(double collisionLocalX, double collisionLocalY) {
+        return transformPoint(
+            portalLocalPosToWorldPos(
+                new Vec3(collisionLocalX, collisionLocalY, 0)
+            )
+        );
+    }
+    
     public Vec3 getNormal() {
         return McHelper.getNormalFromOrientation(this.orientation);
     }

@@ -57,6 +57,7 @@ public class ClientTeleportationManager {
     // for debug
     public static boolean isTeleportingTick = false;
     public static boolean isTeleportingFrame = false;
+    public static boolean isTicking = false;
     
     private static final int teleportLimitPerFrame = 2;
     
@@ -98,10 +99,12 @@ public class ClientTeleportationManager {
         }
     }
     
-    public void manageTeleportation() {
+    public void manageTeleportation(boolean isTicking_) {
         if (IPGlobal.disableTeleportation) {
             return;
         }
+        
+        isTicking = isTicking_;
         
         teleportationCounter++;
         
@@ -175,6 +178,9 @@ public class ClientTeleportationManager {
         
         assert client.level != null;
         long currentGameTime = client.level.getGameTime();
+    
+        Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
+        Vec3 thisTickEyePos = McHelper.getEyePos(player);
         
         ArrayList<TeleportationUtil.Teleportation> teleportationCandidates = new ArrayList<>();
         IPMcHelper.traverseNearbyPortals(
@@ -209,8 +215,9 @@ public class ClientTeleportationManager {
                             thisFrameEyePos,
                             portal.animation.lastTickAnimatedState,
                             portal.animation.thisTickAnimatedState,
-                            McHelper.getLastTickEyePos(player),
-                            McHelper.getEyePos(player)
+                            lastTickEyePos,
+                            thisTickEyePos,
+                            partialTicks
                         );
                     
                     if (teleportation != null) {
@@ -222,8 +229,8 @@ public class ClientTeleportationManager {
                     TeleportationUtil.Teleportation teleportation =
                         TeleportationUtil.checkStaticTeleportation(
                             portal,
-                            lastPlayerEyePos,
-                            thisFrameEyePos
+                            lastPlayerEyePos, thisFrameEyePos,
+                            lastTickEyePos, thisTickEyePos
                         );
                     if (teleportation != null) {
                         teleportationCandidates.add(teleportation);
@@ -293,12 +300,8 @@ public class ClientTeleportationManager {
         Vec3 thisTickEyePos = McHelper.getEyePos(player);
         Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
         
-        Tuple<Vec3, Vec3> t = TeleportationUtil.getTransformedLastTickPosAndCurrentTickPos(
-            teleportation, lastTickEyePos, thisTickEyePos
-        );
-        
-        Vec3 newEyePos = t.getB();
-        Vec3 newLastTickEyePos = t.getA();
+        Vec3 newThisTickEyePos = teleportation.newThisTickEyePos();
+        Vec3 newLastTickEyePos = teleportation.newLastTickEyePos();
         
         ClientLevel fromWorld = client.level;
         ResourceKey<Level> fromDimension = fromWorld.dimension();
@@ -306,7 +309,7 @@ public class ClientTeleportationManager {
         if (fromDimension != toDimension) {
             ClientLevel toWorld = ClientWorldLoader.getWorld(toDimension);
             
-            changePlayerDimension(player, fromWorld, toWorld, newEyePos);
+            changePlayerDimension(player, fromWorld, toWorld, newThisTickEyePos);
         }
         
         Vec3 oldRealVelocity = McHelper.getWorldVelocity(player);
@@ -325,7 +328,7 @@ public class ClientTeleportationManager {
             portal.transformVelocity(player.getVehicle());
         }
         
-        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.setEyePos(player, newThisTickEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
         
         PehkuiInterface.invoker.onClientPlayerTeleported(portal);
@@ -337,7 +340,7 @@ public class ClientTeleportationManager {
         ));
         
         PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
-            player, newEyePos, newLastTickEyePos, RenderStates.tickDelta
+            player, newThisTickEyePos, newLastTickEyePos, RenderStates.tickDelta
         );
         
         McHelper.adjustVehicle(player);
@@ -350,7 +353,7 @@ public class ClientTeleportationManager {
         //but after pre render info being updated
         RenderStates.updatePreRenderInfo(tickDelta);
         
-        Helper.log(String.format("Client Teleported %s %s", portal, tickTimeForTeleportation));
+        Helper.log(String.format("Client Teleported %s %s ticking:%s", portal, tickTimeForTeleportation, isTicking));
         
         isTeleportingTick = true;
         isTeleportingFrame = true;
