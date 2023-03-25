@@ -4,7 +4,11 @@ import qouteall.imm_ptl.core.portal.Portal;
 
 public class PortalCollisionEntry {
     public final Portal portal;
-    public long activeTime = 0;
+    public long activeTime;
     
-    public PortalCollisionEntry(Portal portal) {this.portal = portal;}
+    public PortalCollisionEntry(Portal portal, long activeTime) {
+        this.portal = portal;
+        this.activeTime = activeTime;
+    }
+    
 }

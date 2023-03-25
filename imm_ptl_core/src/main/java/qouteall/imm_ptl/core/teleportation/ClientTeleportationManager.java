@@ -336,7 +336,7 @@ public class ClientTeleportationManager {
             portal.getUUID()
         ));
         
-        CollisionHelper.updateCollidingPortalAfterTeleportation(
+        PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
             player, newEyePos, newLastTickEyePos, RenderStates.tickDelta
         );
         

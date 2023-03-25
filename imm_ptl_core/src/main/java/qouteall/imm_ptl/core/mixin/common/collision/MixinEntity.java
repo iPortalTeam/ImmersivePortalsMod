@@ -23,23 +23,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.CollisionHelper;
-import qouteall.imm_ptl.core.teleportation.PortalCollisionEntry;
+import qouteall.imm_ptl.core.teleportation.PortalCollisionHandler;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
-
-import java.util.List;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity {
     
     @Nullable
-    private List<PortalCollisionEntry> ip_portalCollisions;
+    private PortalCollisionHandler ip_portalCollisionHandler;
     
     @Shadow
     public abstract AABB getBoundingBox();
@@ -88,12 +84,6 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow
     private Vec3 deltaMovement;
-
-//    //maintain collidingPortal field
-//    @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
-//    private void onTicking(CallbackInfo ci) {
-//        tickCollidingPortal(1);
-//    }
     
     @Shadow
     protected abstract AABB getBoundingBoxForPose(Pose pose);
@@ -135,15 +125,16 @@ public abstract class MixinEntity implements IEEntity {
             return attemptedMove;
         }
         
-        if (ip_portalCollisions == null || !IPGlobal.crossPortalCollision) {
-            Vec3 simpleCollideResult = collide(attemptedMove);
-            return simpleCollideResult;
+        if (!IPGlobal.crossPortalCollision
+            || ip_portalCollisionHandler == null
+            || !ip_portalCollisionHandler.hasCollisionEntry()
+        ) {
+            Vec3 normalCollisionResult = collide(attemptedMove);
+            return normalCollisionResult;
         }
         
-        Vec3 result = CollisionHelper.handleCollisionHalfwayInPortal(
-            (Entity) (Object) this,
-            attemptedMove,
-            getCollidingPortal()
+        Vec3 result = ip_portalCollisionHandler.handleCollision(
+            (Entity) (Object) this, attemptedMove
         );
         return result;
     }
@@ -170,7 +161,7 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private AABB redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
-        return CollisionHelper.getActiveCollisionBox(entity, entity.getBoundingBox());
+        return ip_getActiveCollisionBox(entity.getBoundingBox());
     }
     
     @Inject(
@@ -245,8 +236,7 @@ public abstract class MixinEntity implements IEEntity {
     @Overwrite
     public boolean canEnterPose(Pose pose) {
         Entity this_ = (Entity) (Object) this;
-        AABB activeCollisionBox =
-            CollisionHelper.getActiveCollisionBox(this_, getBoundingBoxForPose(pose));
+        AABB activeCollisionBox = ip_getActiveCollisionBox(getBoundingBoxForPose(pose));
         if (activeCollisionBox == null) {
             return true;
         }
@@ -315,13 +305,13 @@ public abstract class MixinEntity implements IEEntity {
     
     @Override
     public Portal getCollidingPortal() {
-        if (ip_portalCollisions == null) {
+        if (ip_portalCollisionHandler == null) {
             return null;
         }
-        if (ip_portalCollisions.isEmpty()) {
+        if (ip_portalCollisionHandler.portalCollisions.isEmpty()) {
             return null;
         }
-        return ip_portalCollisions.get(0).portal;
+        return ip_portalCollisionHandler.portalCollisions.get(0).portal;
     }
     
     // this should be called between the range of updating last tick pos and calculating movement
@@ -331,72 +321,32 @@ public abstract class MixinEntity implements IEEntity {
     public void tickCollidingPortal(float tickDelta) {
         Entity this_ = (Entity) (Object) this;
         
-        ip_updateCollidingPortalStatus();
+        if (ip_portalCollisionHandler != null) {
+            ip_portalCollisionHandler.tick(this_);
+        }
         
         if (level.isClientSide) {
             IPMcHelper.onClientEntityTick(this_);
         }
     }
     
-    private void ip_updateCollidingPortalStatus() {
-        Entity this_ = (Entity) (Object) this;
-        
-        if (ip_portalCollisions == null) {
-            return;
-        }
-        
-        ip_portalCollisions.removeIf(p -> {
-            if (p.portal.level != level) {
-                return true;
-            }
-            else {
-                AABB stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
-                if (!stretchedBoundingBox.inflate(0.5).intersects(p.portal.getBoundingBox())) {
-                    return true;
-                }
-            }
-            
-            if (Math.abs(ip_getStableTiming() - p.activeTime) >= 3) {
-                return true;
-            }
-            
-            return false;
-        });
-    }
-    
     @Override
     public void ip_notifyCollidingWithPortal(Entity portal) {
         Entity this_ = (Entity) (Object) this;
         
-        ip_updateCollidingPortalStatus();
-        
-        long timing = ip_getStableTiming();
-        
-        if (collidingPortalActiveTickTime != timing || collidingPortal == null) {
-            if (portal != collidingPortal) {
-                ip_setCollidingPortal(portal);
-            }
-        }
-        else {
-            if (portal != collidingPortal) {
-                // it's colliding with at least 2 portals
-                // currently immptl only supports handling collision with colliding with one portal
-                // so select one portal
-                
-                Portal newOne = CollisionHelper.chooseCollidingPortalBetweenTwo(
-                    this_, ((Portal) collidingPortal), ((Portal) portal)
-                );
-                ip_setCollidingPortal(newOne);
-            }
+        if (ip_portalCollisionHandler == null) {
+            ip_portalCollisionHandler = new PortalCollisionHandler();
         }
         
-        collidingPortalActiveTickTime = timing;
-        ((Portal) portal).onCollidingWithEntity(this_);
+        ip_portalCollisionHandler.notifyCollidingWithPortal(this_, ((Portal) portal));
     }
     
     @Override
     public boolean isRecentlyCollidingWithPortal() {
-        return (ip_getStableTiming() - collidingPortalActiveTickTime) < 20;
+        if (ip_portalCollisionHandler == null) {
+            return false;
+        }
+        return ip_portalCollisionHandler.isRecentlyCollidingWithPortal((Entity) (Object) this);
     }
     
     @Override
@@ -416,13 +366,18 @@ public abstract class MixinEntity implements IEEntity {
         
         if (this.position.x != x || this.position.y != y || this.position.z != z) {
             this.position = new Vec3(x, y, z);
-            int i = Mth.floor(x);
-            int j = Mth.floor(y);
-            int k = Mth.floor(z);
-            if (i != this.blockPosition.getX() || j != this.blockPosition.getY() || k != this.blockPosition.getZ()) {
-                this.blockPosition = new BlockPos(i, j, k);
+            int bx = Mth.floor(x);
+            int by = Mth.floor(y);
+            int bz = Mth.floor(z);
+            if (bx != this.blockPosition.getX()
+                || by != this.blockPosition.getY()
+                || bz != this.blockPosition.getZ()
+            ) {
+                this.blockPosition = new BlockPos(bx, by, bz);
                 this.feetBlockState = null;
-                if (SectionPos.blockToSectionCoord(i) != this.chunkPosition.x || SectionPos.blockToSectionCoord(k) != this.chunkPosition.z) {
+                if (SectionPos.blockToSectionCoord(bx) != this.chunkPosition.x
+                    || SectionPos.blockToSectionCoord(bz) != this.chunkPosition.z
+                ) {
                     this.chunkPosition = new ChunkPos(this.blockPosition);
                 }
             }
@@ -431,33 +386,42 @@ public abstract class MixinEntity implements IEEntity {
     
     @Override
     public void ip_clearCollidingPortal() {
-        ip_setCollidingPortal(null);
-        collidingPortalActiveTickTime = 0;
+        ip_portalCollisionHandler = null;
+    }
+    
+    @Nullable
+    @Override
+    public AABB ip_getActiveCollisionBox(AABB originalBox) {
+        Entity this_ = (Entity) (Object) this;
+        
+        if (ip_portalCollisionHandler == null) {
+            return originalBox;
+        }
+        
+        return ip_portalCollisionHandler.getActiveCollisionBox(this_, originalBox);
+    }
+    
+    @Nullable
+    @Override
+    public PortalCollisionHandler ip_getPortalCollisionHandler() {
+        return ip_portalCollisionHandler;
+    }
+    
+    @Override
+    public PortalCollisionHandler ip_getOrCreatePortalCollisionHandler() {
+        if (ip_portalCollisionHandler == null) {
+            ip_portalCollisionHandler = new PortalCollisionHandler();
+        }
+        return ip_portalCollisionHandler;
+    }
+    
+    @Override
+    public void ip_setPortalCollisionHandler(@Nullable PortalCollisionHandler handler) {
+        ip_portalCollisionHandler = handler;
     }
     
     // don't use game time because client game time may jump due to time synchronization
     private long ip_getStableTiming() {
         return tickCount;
-    }
-    
-    private void ip_setCollidingPortal(Entity newCollidingPortal) {
-        Entity this_ = (Entity) (Object) this;
-        
-        if (IPGlobal.logClientPlayerCollidingPortalUpdate) {
-            if (newCollidingPortal != collidingPortal) {
-                if (this_.level.isClientSide() && this_ instanceof Player) {
-                    Helper.log(String.format(
-                        "Client player colliding portal changed from %s to %s age: %s pos: %s %s",
-                        collidingPortal,
-                        newCollidingPortal,
-                        this_.tickCount,
-                        McHelper.getLastTickEyePos(this_),
-                        McHelper.getEyePos(this_)
-                    ));
-                }
-            }
-        }
-        
-        collidingPortal = newCollidingPortal;
     }
 }

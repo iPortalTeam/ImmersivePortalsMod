@@ -1,9 +1,11 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.teleportation.PortalCollisionEntry;
+import qouteall.imm_ptl.core.teleportation.PortalCollisionHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -12,9 +14,11 @@ public interface IEEntity {
     void ip_notifyCollidingWithPortal(Entity portal);
     
     @Nullable
-    List<PortalCollisionEntry> ip_getPortalCollisions();
+    PortalCollisionHandler ip_getPortalCollisionHandler();
     
-    void ip_setPortalCollisions(@Nullable List<PortalCollisionEntry> list);
+    PortalCollisionHandler ip_getOrCreatePortalCollisionHandler();
+    
+    void ip_setPortalCollisionHandler(@Nullable PortalCollisionHandler handler);
     
     @Nullable
     @Deprecated
@@ -27,6 +31,9 @@ public interface IEEntity {
     void ip_clearCollidingPortal();
     
     void portal_unsetRemoved();
+    
+    @Nullable
+    AABB ip_getActiveCollisionBox(AABB originalBox);
     
     // don't trigger entity section update or other update
     // as we are temporarily switching the position
