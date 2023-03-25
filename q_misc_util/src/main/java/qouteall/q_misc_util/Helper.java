@@ -3,12 +3,9 @@ package qouteall.q_misc_util;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,6 +21,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -929,5 +927,21 @@ public class Helper {
     public static boolean boxContains(AABB outer, AABB inner) {
         return outer.contains(inner.minX, inner.minY, inner.minZ) &&
             outer.contains(inner.maxX, inner.maxY, inner.maxZ);
+    }
+    
+    public static <A, B> List<B> mappedListView(
+        List<A> originalList, Function<A, B> mapping
+    ) {
+        return new AbstractList<B>() {
+            @Override
+            public B get(int index) {
+                return mapping.apply(originalList.get(index));
+            }
+        
+            @Override
+            public int size() {
+                return originalList.size();
+            }
+        };
     }
 }

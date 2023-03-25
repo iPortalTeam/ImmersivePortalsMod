@@ -7,6 +7,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -56,6 +57,31 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     @Final
     private RenderBuffers renderBuffers;
     
+    /**
+     * The whole process:
+     * - begin ticking
+     * - manage teleportation
+     * - update portal collision {@link qouteall.imm_ptl.core.teleportation.PortalCollisionHandler#update(Entity, float)}
+     * - set last tick pos to current pos
+     * - do collision calculation for movements, update current pos
+     * - end ticking
+     * - partialTick should be 0
+     * - rendering (interpolate between last tick pos and current pos)
+     * - partialTick should be 1
+     * - loop
+     */
+    @Inject(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/multiplayer/ClientLevel;tickEntities()V"
+        )
+    )
+    private void onBeforeTickingEntities(CallbackInfo ci) {
+        RenderStates.tickDelta = 1;
+        IPCGlobal.clientTeleportationManager.manageTeleportation();
+    }
+    
     // this happens after ticking client world and entities
     @Inject(
         method = "Lnet/minecraft/client/Minecraft;tick()V",
@@ -78,7 +104,6 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         StableClientTimer.tick();
         StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
         ClientPortalAnimationManagement.onAfterClientTick();
-        IPCGlobal.clientTeleportationManager.manageTeleportation();
         
         IPGlobal.postClientTickSignal.emit();
         

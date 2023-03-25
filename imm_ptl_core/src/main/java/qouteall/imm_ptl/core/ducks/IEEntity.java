@@ -24,7 +24,7 @@ public interface IEEntity {
     @Deprecated
     Portal getCollidingPortal();
     
-    void tickCollidingPortal(float tickDelta);
+    void tickCollidingPortal(float partialTick);
     
     boolean isRecentlyCollidingWithPortal();
     
