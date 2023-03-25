@@ -1,20 +1,23 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.checkerframework.checker.units.qual.A;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -83,6 +86,8 @@ public abstract class MixinEntity implements IEEntity {
 //    private void onTicking(CallbackInfo ci) {
 //        tickCollidingPortal(1);
 //    }
+    
+    @Shadow protected abstract AABB getBoundingBoxForPose(Pose pose);
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
@@ -153,7 +158,23 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private AABB redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
-        return CollisionHelper.getActiveCollisionBox(entity);
+        return CollisionHelper.getActiveCollisionBox(entity, entity.getBoundingBox());
+    }
+    
+    @Inject(
+        method = "checkInsideBlocks",
+        at = @At(
+            value = "INVOKE_ASSIGN",
+            target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;",
+            shift = At.Shift.AFTER
+        ),
+        locals = LocalCapture.CAPTURE_FAILHARD,
+        cancellable = true
+    )
+    private void onCheckInsideBlocks(CallbackInfo ci, AABB box) {
+        if (box == null) {
+            ci.cancel();
+        }
     }
     
     // avoid suffocation when colliding with a portal on wall
@@ -192,17 +213,35 @@ public abstract class MixinEntity implements IEEntity {
     // when going through a portal with scaling, it sometimes wrongly crouch
     // because of floating-point inaccuracy with bounding box
     // NOTE even it does not crouch, the player is slightly inside the block, and the collision won't always work
-    // TODO find the correct way of fixing floating-point inaccuracy of collision box after teleportation
-    @ModifyConstant(
-        method = "canEnterPose",
-        constant = @Constant(doubleValue = 1.0E-7)
-    )
-    double modifyShrinkNum(double originalValue) {
-        if (isRecentlyCollidingWithPortal()) {
-            return 0.01;
+    // This is a workaround before finding the correct way of fixing floating-point inaccuracy of collision box after teleportation
+//    @ModifyConstant(
+//        method = "canEnterPose",
+//        constant = @Constant(doubleValue = 1.0E-7)
+//    )
+//    double modifyShrinkNum(double originalValue) {
+//        if (isRecentlyCollidingWithPortal()) {
+//            return 0.01;
+//        }
+//
+//        return originalValue;
+//    }
+    
+    /**
+     * @author qouteall
+     * @reason hard to do without performance loss without overwriting
+     */
+    @Overwrite
+    public boolean canEnterPose(Pose pose) {
+        Entity this_ = (Entity) (Object) this;
+        AABB activeCollisionBox =
+            CollisionHelper.getActiveCollisionBox(this_, getBoundingBoxForPose(pose));
+        if (activeCollisionBox == null) {
+            return true;
         }
-        
-        return originalValue;
+        return this.level.noCollision(
+            this_,
+            activeCollisionBox.deflate(0.1)
+        );
     }
     
     // fix climbing onto ladder cross portal

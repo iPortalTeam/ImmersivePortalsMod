@@ -41,9 +41,7 @@ import qouteall.q_misc_util.my_util.Vec2d;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
@@ -257,6 +255,12 @@ public class ClientTeleportationManager {
                 .add(portal.getContentDirection().scale(adjustment));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
+            // debug
+//            Vec3 debugCurrEyePos = getPlayerEyePos(partialTicks);
+//            if (debugCurrEyePos.distanceToSqr(lastPlayerEyePos) > 0.001) {
+//                Helper.log("ouch");
+//            }
+            
             return teleportation;
         }
         else {
@@ -332,7 +336,9 @@ public class ClientTeleportationManager {
             portal.getUUID()
         ));
         
-        updateCollidingPortalAfterTeleportation(player, newEyePos, newLastTickEyePos);
+        CollisionHelper.updateCollidingPortalAfterTeleportation(
+            player, newEyePos, newLastTickEyePos, RenderStates.tickDelta
+        );
         
         McHelper.adjustVehicle(player);
         
@@ -492,25 +498,6 @@ public class ClientTeleportationManager {
     
     public void disableTeleportFor(int ticks) {
         teleportTickTimeLimit = tickTimeForTeleportation + ticks;
-    }
-    
-    private static void updateCollidingPortalAfterTeleportation(LocalPlayer player, Vec3 newEyePos, Vec3 newLastTickEyePos) {
-        float partialTicks = RenderStates.tickDelta;
-        
-        ((IEEntity) player).ip_clearCollidingPortal();
-        
-        McHelper.findEntitiesByBox(
-            Portal.class,
-            player.level,
-            CollisionHelper.getStretchedBoundingBox(player),
-            IPGlobal.maxNormalPortalRadius,
-            p -> true
-        ).forEach(p -> CollisionHelper.notifyCollidingPortals(p, partialTicks));
-        
-        ((IEEntity) player).tickCollidingPortal(partialTicks);
-        
-        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
-        McHelper.updateBoundingBox(player);
     }
     
     private static void adjustPlayerPosition(LocalPlayer player) {

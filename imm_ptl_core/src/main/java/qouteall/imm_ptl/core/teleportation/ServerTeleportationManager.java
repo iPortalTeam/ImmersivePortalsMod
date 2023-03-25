@@ -292,6 +292,10 @@ public class ServerTeleportationManager {
         McHelper.adjustVehicle(player);
         player.connection.resetPosition();
         
+//        CollisionHelper.updateCollidingPortalAfterTeleportation(
+//            player, newEyePos, newEyePos, 0
+//        );
+        
         MiscHelper.getServer().getProfiler().pop();
     }
     

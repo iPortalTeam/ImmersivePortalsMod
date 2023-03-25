@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -153,6 +154,14 @@ public class IPNetworking {
             );
             return true;
         });
+    }
+    
+    public static class RemoteCallables {
+        public static void onClientPlayerUpdatePose(
+            ServerPlayer player, Pose pose
+        ) {
+            player.setPose(pose);
+        }
     }
     
 }

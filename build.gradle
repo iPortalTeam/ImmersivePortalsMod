@@ -65,7 +65,7 @@ allprojects {
         }
 
         // geckolib, for testing with portal gun
-//        maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+        maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
         // for test with create
 //        maven { url = "https://cursemaven.com" }
@@ -156,6 +156,9 @@ allprojects {
         }
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
+
+//        api("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
+//        annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
     }
 
     processResources {
@@ -231,10 +234,12 @@ dependencies {
     }
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
+//    include("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
+
     // for testing portal gun
-//    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4') {
-//        transitive(false)
-//    }
+    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4') {
+        transitive(false)
+    }
 
     fileTree(dir: 'deps', include: '*.jar').each {
         String baseName = it.name.replace(".jar", "")

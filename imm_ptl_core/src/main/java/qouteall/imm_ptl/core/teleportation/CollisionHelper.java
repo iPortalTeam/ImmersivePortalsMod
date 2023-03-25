@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -46,6 +45,7 @@ import java.util.function.Function;
 public class CollisionHelper {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
+    private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
     
     //cut a box with a plane
     //the facing that normal points to will be remained
@@ -241,13 +241,17 @@ public class CollisionHelper {
                     && !Portal.isReversePortal(collidingPortal, p)
                     && !Portal.isParallelPortal(collidingPortal, p)
                     && !Portal.isFlippedPortal(collidingPortal, p)
+                // TODO filter out portals behind collidingPortal's destination
             );
             
             if (!indirectCollidingPortals.isEmpty()) {
-                return getOtherSideMove(
-                    entity, transformedAttemptedMove, indirectCollidingPortals.get(0),
+                Portal indirectCollidingPortal = indirectCollidingPortals.get(0);
+                Vec3 collided = getOtherSideMove(
+                    entity, transformedAttemptedMove, indirectCollidingPortal,
                     entity.getBoundingBox(), portalLayer + 1
                 );
+                Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
+                return result;
             }
             
             PortalLike collisionHandlingUnit = getCollisionHandlingUnit(collidingPortal);
@@ -647,23 +651,24 @@ public class CollisionHelper {
         return ((IEEntity) entity).getCollidingPortal() != null;
     }
     
-    public static AABB getActiveCollisionBox(Entity entity) {
+    @Nullable
+    public static AABB getActiveCollisionBox(Entity entity, AABB rawBoundingBox) {
         Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
         if (collidingPortal != null) {
             AABB thisSideBox = getCollisionBoxThisSide(
                 collidingPortal,
-                entity.getBoundingBox(),
+                rawBoundingBox,
                 Vec3.ZERO //is it ok?
             );
             if (thisSideBox != null) {
                 return thisSideBox;
             }
             else {
-                return new AABB(0, 0, 0, 0, 0, 0);
+                return null;
             }
         }
         else {
-            return entity.getBoundingBox();
+            return rawBoundingBox;
         }
     }
     
@@ -853,5 +858,22 @@ public class CollisionHelper {
             }
         }
         return collisionUnion;
+    }
+    
+    public static void updateCollidingPortalAfterTeleportation(Player player, Vec3 newEyePos, Vec3 newLastTickEyePos, float partialTicks) {
+        ((IEEntity) player).ip_clearCollidingPortal();
+        
+        McHelper.findEntitiesByBox(
+            Portal.class,
+            player.level,
+            getStretchedBoundingBox(player),
+            IPGlobal.maxNormalPortalRadius,
+            p -> true
+        ).forEach(p -> notifyCollidingPortals(p, partialTicks));
+        
+        ((IEEntity) player).tickCollidingPortal(partialTicks);
+        
+        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
     }
 }

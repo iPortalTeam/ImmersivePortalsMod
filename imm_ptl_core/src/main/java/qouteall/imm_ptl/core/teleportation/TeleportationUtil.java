@@ -131,7 +131,7 @@ public class TeleportationUtil {
             PortalState.interpolate(lastFrameState, currentFrameState, collisionInfo.tOfCollision, false);
         Vec3 collisionPointMappedToThisFrame = thisTickState.transformPoint(thisTickState.portalLocalPosToWorldPos(new Vec3(
             collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
-        ))); ;
+        )));
         Vec3 collisionPointMappedToLastFrame = lastFrameState.transformPoint(lastFrameState.portalLocalPosToWorldPos(new Vec3(
             collisionInfo.portalLocalX, collisionInfo.portalLocalY, 0
         )));
