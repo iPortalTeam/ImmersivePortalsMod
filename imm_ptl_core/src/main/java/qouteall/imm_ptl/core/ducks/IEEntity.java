@@ -3,10 +3,21 @@ package qouteall.imm_ptl.core.ducks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.teleportation.PortalCollisionEntry;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public interface IEEntity {
-    void notifyCollidingWithPortal(Entity portal);
+    void ip_notifyCollidingWithPortal(Entity portal);
     
+    @Nullable
+    List<PortalCollisionEntry> ip_getPortalCollisions();
+    
+    void ip_setPortalCollisions(@Nullable List<PortalCollisionEntry> list);
+    
+    @Nullable
+    @Deprecated
     Portal getCollidingPortal();
     
     void tickCollidingPortal(float tickDelta);

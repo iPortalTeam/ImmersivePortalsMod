@@ -22,9 +22,6 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
-import qouteall.imm_ptl.core.teleportation.CollisionHelper;
-
-import java.util.List;
 
 @Mixin(ClipContext.class)
 public abstract class MixinClipContext implements IERayTraceContext {

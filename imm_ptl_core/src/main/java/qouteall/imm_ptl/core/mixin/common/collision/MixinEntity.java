@@ -1,16 +1,19 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,17 +25,21 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
+import qouteall.imm_ptl.core.teleportation.PortalCollisionEntry;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
+
+import java.util.List;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity {
     
-    private Entity collidingPortal;
-    private long collidingPortalActiveTickTime;
+    @Nullable
+    private List<PortalCollisionEntry> ip_portalCollisions;
     
     @Shadow
     public abstract AABB getBoundingBox();
@@ -79,16 +86,23 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     private BlockPos blockPosition;
     
-    @Shadow private Vec3 deltaMovement;
-    
+    @Shadow
+    private Vec3 deltaMovement;
+
 //    //maintain collidingPortal field
 //    @Inject(method = "Lnet/minecraft/world/entity/Entity;tick()V", at = @At("HEAD"))
 //    private void onTicking(CallbackInfo ci) {
 //        tickCollidingPortal(1);
 //    }
     
-    @Shadow protected abstract AABB getBoundingBoxForPose(Pose pose);
+    @Shadow
+    protected abstract AABB getBoundingBoxForPose(Pose pose);
     
+    @Shadow
+    @Nullable
+    private BlockState feetBlockState;
+    @Shadow
+    private ChunkPos chunkPosition;
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     @Redirect(
@@ -121,9 +135,7 @@ public abstract class MixinEntity implements IEEntity {
             return attemptedMove;
         }
         
-        if (collidingPortal == null ||
-            !IPGlobal.crossPortalCollision
-        ) {
+        if (ip_portalCollisions == null || !IPGlobal.crossPortalCollision) {
             Vec3 simpleCollideResult = collide(attemptedMove);
             return simpleCollideResult;
         }
@@ -268,7 +280,7 @@ public abstract class MixinEntity implements IEEntity {
             }
         }
     }
-    
+
 //    // debug, should remove in production
 //    @Inject(
 //        method = "setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V",
@@ -303,7 +315,13 @@ public abstract class MixinEntity implements IEEntity {
     
     @Override
     public Portal getCollidingPortal() {
-        return ((Portal) collidingPortal);
+        if (ip_portalCollisions == null) {
+            return null;
+        }
+        if (ip_portalCollisions.isEmpty()) {
+            return null;
+        }
+        return ip_portalCollisions.get(0).portal;
     }
     
     // this should be called between the range of updating last tick pos and calculating movement
@@ -323,25 +341,31 @@ public abstract class MixinEntity implements IEEntity {
     private void ip_updateCollidingPortalStatus() {
         Entity this_ = (Entity) (Object) this;
         
-        if (collidingPortal != null) {
-            if (collidingPortal.level != level) {
-                ip_setCollidingPortal(null);
+        if (ip_portalCollisions == null) {
+            return;
+        }
+        
+        ip_portalCollisions.removeIf(p -> {
+            if (p.portal.level != level) {
+                return true;
             }
             else {
                 AABB stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
-                if (!stretchedBoundingBox.inflate(0.5).intersects(collidingPortal.getBoundingBox())) {
-                    ip_setCollidingPortal(null);
+                if (!stretchedBoundingBox.inflate(0.5).intersects(p.portal.getBoundingBox())) {
+                    return true;
                 }
             }
             
-            if (Math.abs(ip_getStableTiming() - collidingPortalActiveTickTime) >= 3) {
-                ip_setCollidingPortal(null);
+            if (Math.abs(ip_getStableTiming() - p.activeTime) >= 3) {
+                return true;
             }
-        }
+            
+            return false;
+        });
     }
     
     @Override
-    public void notifyCollidingWithPortal(Entity portal) {
+    public void ip_notifyCollidingWithPortal(Entity portal) {
         Entity this_ = (Entity) (Object) this;
         
         ip_updateCollidingPortalStatus();
@@ -380,10 +404,29 @@ public abstract class MixinEntity implements IEEntity {
         unsetRemoved();
     }
     
+    /**
+     * {@link Entity#setPosRaw(double, double, double)}
+     */
+    @IPVanillaCopy
     @Override
     public void ip_setPositionWithoutTriggeringCallback(Vec3 newPos) {
-        this.position = newPos;
-        this.blockPosition = new BlockPos(newPos);
+        double x = newPos.x;
+        double y = newPos.y;
+        double z = newPos.z;
+        
+        if (this.position.x != x || this.position.y != y || this.position.z != z) {
+            this.position = new Vec3(x, y, z);
+            int i = Mth.floor(x);
+            int j = Mth.floor(y);
+            int k = Mth.floor(z);
+            if (i != this.blockPosition.getX() || j != this.blockPosition.getY() || k != this.blockPosition.getZ()) {
+                this.blockPosition = new BlockPos(i, j, k);
+                this.feetBlockState = null;
+                if (SectionPos.blockToSectionCoord(i) != this.chunkPosition.x || SectionPos.blockToSectionCoord(k) != this.chunkPosition.z) {
+                    this.chunkPosition = new ChunkPos(this.blockPosition);
+                }
+            }
+        }
     }
     
     @Override

@@ -45,11 +45,12 @@ import java.util.function.Function;
 public class CollisionHelper {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
-    private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
     
-    //cut a box with a plane
-    //the facing that normal points to will be remained
-    //return null for empty box
+    /**
+     * cut a box with a plane.
+     * the facing that normal points to will be remained.
+     * return null for empty box.
+     */
     @Nullable
     private static AABB clipBox(AABB box, Vec3 planePos, Vec3 planeNormal) {
         
@@ -690,7 +691,7 @@ public class CollisionHelper {
                     AABB globalPortalBoundingBox = globalPortal.getBoundingBox();
                     if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
                         if (canCollideWithPortal(entity, globalPortal, tickDelta)) {
-                            ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
+                            ((IEEntity) entity).ip_notifyCollidingWithPortal(globalPortal);
                         }
                     }
                 }
@@ -753,7 +754,7 @@ public class CollisionHelper {
                     return;
                 }
                 
-                ((IEEntity) entity).notifyCollidingWithPortal(portal);
+                ((IEEntity) entity).ip_notifyCollidingWithPortal(portal);
             }
         );
     }

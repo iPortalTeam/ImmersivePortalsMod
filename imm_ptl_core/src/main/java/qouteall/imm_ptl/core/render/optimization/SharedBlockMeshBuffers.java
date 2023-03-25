@@ -107,7 +107,7 @@ public class SharedBlockMeshBuffers {
     
     @Nullable
     public static String getDebugString() {
-        if (SharedBlockMeshBuffers.isEnabled()) {
+        if (SharedBlockMeshBuffers.isEnabled() && threadBuffers != null) {
             return "SharedBlockMeshBuffers " + Integer.toString(threadBuffers.size());
         }
         return null;

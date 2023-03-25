@@ -45,6 +45,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -224,6 +225,20 @@ public class McHelper {
         Vec3 lastTickPos
     ) {
         entity.setPosRaw(pos.x, pos.y, pos.z);
+        entity.xOld = lastTickPos.x;
+        entity.yOld = lastTickPos.y;
+        entity.zOld = lastTickPos.z;
+        entity.xo = lastTickPos.x;
+        entity.yo = lastTickPos.y;
+        entity.zo = lastTickPos.z;
+    }
+    
+    public static void setPosAndLastTickPosWithoutTriggeringCallback(
+        Entity entity,
+        Vec3 pos,
+        Vec3 lastTickPos
+    ) {
+        ((IEEntity) entity).ip_setPositionWithoutTriggeringCallback(pos);
         entity.xOld = lastTickPos.x;
         entity.yOld = lastTickPos.y;
         entity.zOld = lastTickPos.z;
