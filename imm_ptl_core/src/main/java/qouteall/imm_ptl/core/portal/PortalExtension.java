@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -199,6 +200,7 @@ public class PortalExtension {
                     }
                     else {
                         if (portal.isOtherSideChunkLoaded()) {
+                            Helper.log("portal linking break");
                             reversePortalId = null;
                             needsUpdate = true;
                         }
@@ -221,6 +223,7 @@ public class PortalExtension {
                     }
                     else {
                         if (portal.isOtherSideChunkLoaded()) {
+                            Helper.log("portal linking break");
                             parallelPortalId = null;
                             needsUpdate = true;
                         }

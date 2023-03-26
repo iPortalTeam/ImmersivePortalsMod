@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 
@@ -56,6 +57,21 @@ public class ClientPortalAnimationManagement {
         
         // update the portal state to the immediate state for teleportation
         updateCustomAnimations(false);
+        
+//        debugCheck();
+    }
+    
+    public static void debugCheck() {
+        // debug
+        for (Portal portal : customAnimatedPortals) {
+            PortalExtension.forClusterPortals(portal,p->{
+                PortalState thisTickAnimatedState = p.animation.thisTickAnimatedState;
+                PortalState lastTickAnimatedState = p.animation.lastTickAnimatedState;
+                if (thisTickAnimatedState == null || lastTickAnimatedState == null) {
+                    Helper.log("ouch");
+                }
+            });
+        }
     }
     
     public static void update() {

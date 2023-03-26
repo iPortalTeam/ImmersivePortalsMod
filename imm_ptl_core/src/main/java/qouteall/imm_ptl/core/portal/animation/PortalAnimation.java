@@ -53,6 +53,7 @@ public class PortalAnimation {
     public PortalState lastTickAnimatedState;
     @Nullable
     public PortalState thisTickAnimatedState;
+    public long updateCounter;
     
     // for client player teleportation
     @Environment(EnvType.CLIENT)
@@ -242,8 +243,7 @@ public class PortalAnimation {
     }
     
     public void tick(Portal portal) {
-        lastTickAnimatedState = thisTickAnimatedState;
-        thisTickAnimatedState = null;
+        swapTickRelativeStateIfNeeded(portal);
         
         if (!portal.level.isClientSide()) {
             /*
@@ -280,6 +280,32 @@ public class PortalAnimation {
         }
     }
     
+    /**
+     * There should not be any assumption about ticking order between entities in one tick.
+     * We need to make sure that it works the same whether the driver portal ticks first or not.
+     */
+    public void swapTickRelativeStateIfNeeded(Portal portal) {
+        int counter = portal.tickCount;
+        if (counter != updateCounter) {
+            lastTickAnimatedState = thisTickAnimatedState;
+            thisTickAnimatedState = null;
+            updateCounter = counter;
+        }
+    }
+    
+    private void provideThisTickState(Portal portal, PortalState portalState) {
+        swapTickRelativeStateIfNeeded(portal);
+        if (thisTickAnimatedState != null) {
+            if (!portal.level.isClientSide()) {
+                Helper.log("Conflicting animation in " + portal);
+                portal.clearAnimationDrivers(true, true);
+                thisTickAnimatedState = null;
+                return;
+            }
+        }
+        thisTickAnimatedState = portalState;
+    }
+    
     @Environment(EnvType.CLIENT)
     private static void markRequiresClientAnimationUpdate(Portal portal) {
         ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(portal);
@@ -305,7 +331,7 @@ public class PortalAnimation {
         initializeReferenceStates(portalState);
         assert thisSideReferenceState != null;
         assert otherSideReferenceState != null;
-        
+
 //        if (isPaused()) {
 //            return;
 //        }
@@ -378,22 +404,22 @@ public class PortalAnimation {
         portal.setPortalState(newPortalState);
         
         if (isTicking) {
-            portal.animation.thisTickAnimatedState = newPortalState;
+            provideThisTickState(portal, newPortalState);
         }
         
         portal.rectifyClusterPortals(false);
         if (isTicking) {
-            PortalExtension extension = PortalExtension.get(portal);
-            updateThisTickAnimatedState(extension.flippedPortal);
-            updateThisTickAnimatedState(extension.reversePortal);
-            updateThisTickAnimatedState(extension.parallelPortal);
+            PortalExtension.forConnectedPortals(
+                portal,
+                p -> p.animation.provideThisTickState(p, p.getPortalState())
+            );
         }
         
         if (!portal.level.isClientSide()) {
             if (thisSideAnimations.size() != originalThisSideAnimationCount ||
                 otherSideAnimations.size() != originalOtherSideAnimationCount
             ) {
-                // delay a little to make client animation stopping smoother
+                // delay a little to make client animation to stop smoother
                 PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
             }
         }
@@ -507,19 +533,9 @@ public class PortalAnimation {
         }
     }
     
-    static void updateThisTickAnimatedState(Portal secondaryPortal) {
-        if (secondaryPortal != null) {
-            if (!secondaryPortal.level.isClientSide() && secondaryPortal.animation.thisTickAnimatedState != null) {
-                Helper.log("Conflicting animation in " + secondaryPortal);
-                secondaryPortal.clearAnimationDrivers(true, true);
-            }
-            secondaryPortal.animation.thisTickAnimatedState = secondaryPortal.getPortalState();
-        }
-    }
-    
     public Component getInfo(Portal portal, boolean reverse) {
         MutableComponent component = Component.literal("");
-    
+        
         List<PortalAnimationDriver> l1 = reverse ? otherSideAnimations : thisSideAnimations;
         List<PortalAnimationDriver> l2 = reverse ? thisSideAnimations : otherSideAnimations;
         

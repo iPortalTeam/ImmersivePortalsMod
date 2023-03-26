@@ -138,31 +138,32 @@ public class TeleportationUtil {
             thisTickState.getLocalPosTransformed(collisionLocalX, collisionLocalY);
         Vec3 collisionPointMappedToLastFrame =
             lastFrameState.getLocalPosTransformed(collisionLocalX, collisionLocalY);
-        Vec3 teleportationCheckpoint = Helper.maxBy(
-            collisionPointMappedToThisFrame, collisionPointMappedToLastFrame,
-            Comparator.comparingDouble(
-                v -> v.subtract(portal.getDestPos()).dot(portal.getContentDirection())
-            )
-        );
-    
+//        Vec3 teleportationCheckpoint = Helper.maxBy(
+//            collisionPointMappedToThisFrame, collisionPointMappedToLastFrame,
+//            Comparator.comparingDouble(
+//                v -> v.subtract(portal.getDestPos()).dot(portal.getContentDirection())
+//            )
+//        );
+        
         Vec3 newOtherSideLastTickPos = lastTickState.transformPoint(lastTickEyePos);
         Vec3 newOtherSideThisTickPos = thisTickState.transformPoint(thisTickEyePos);
-    
+        
         Vec3 newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
-    
+        
         Vec3 correctImmediateCameraPos =
             collisionPortalState.transformPoint(currentFrameEyePos);
-    
+        
         Vec3 deltaVelocity = portalPointVelocity.otherSidePointVelocity().subtract(
             collisionPortalState.transformVec(portalPointVelocity.thisSidePointVelocity())
         );
-    
+        
         Vec3 offset = correctImmediateCameraPos.subtract(newImmediateCameraPos);
-    
+        
         newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset);
         newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset);
-    
+        
         {
+            // make sure that the end-tick pos is in portal destination side
             double dot = newOtherSideThisTickPos
                 .subtract(thisTickState.toPos)
                 .dot(thisTickState.getContentDirection());
@@ -173,10 +174,11 @@ public class TeleportationUtil {
                 );
             }
         }
-    
-        {
-            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
         
+        {
+            // make sure that the end-frame camera pos in portal destination side
+            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+            
             double dot = newImmediateCameraPos
                 .subtract(currentFrameState.toPos)
                 .dot(currentFrameState.getContentDirection());
@@ -187,6 +189,8 @@ public class TeleportationUtil {
                 newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
             }
         }
+        
+        Vec3 teleportationCheckpoint = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
         
         return new Teleportation(
             true,

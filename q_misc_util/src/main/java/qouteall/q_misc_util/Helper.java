@@ -890,11 +890,12 @@ public class Helper {
     }
     
     public static Vec3 interpolatePos(Vec3 from, Vec3 to, double progress) {
-        return new Vec3(
-            Mth.lerp(progress, from.x, to.x),
-            Mth.lerp(progress, from.y, to.y),
-            Mth.lerp(progress, from.z, to.z)
-        );
+        return from.lerp(to, progress);
+//        return new Vec3(
+//            Mth.lerp(progress, from.x, to.x),
+//            Mth.lerp(progress, from.y, to.y),
+//            Mth.lerp(progress, from.z, to.z)
+//        );
     }
     
     public static <T> T getFirstNullable(List<T> list) {

@@ -123,8 +123,15 @@ public class ClientTeleportationManager {
         client.getProfiler().push("ip_teleport");
         
         ClientPortalAnimationManagement.foreachCustomAnimatedPortals(
-            portal -> portal.animation.updateClientState(portal, teleportationCounter)
+            portal -> {
+                // update teleportation-related data
+                PortalExtension.forClusterPortals(
+                    portal, p -> p.animation.updateClientState(p, teleportationCounter)
+                );
+            }
         );
+        
+//        ClientPortalAnimationManagement.debugCheck();
         
         // the real partial ticks (not from stable timer)
         float realPartialTicks = RenderStates.tickDelta;
@@ -178,7 +185,7 @@ public class ClientTeleportationManager {
         
         assert client.level != null;
         long currentGameTime = client.level.getGameTime();
-    
+        
         Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
         Vec3 thisTickEyePos = McHelper.getEyePos(player);
         
@@ -191,9 +198,6 @@ public class ClientTeleportationManager {
                 if (!portal.canTeleportEntity(player)) {
                     return;
                 }
-                
-                // update teleportation related data
-                portal.animation.updateClientState(portal, teleportationCounter);
                 
                 // Separately handle dynamic teleportation and static teleportation.
                 // Although the dynamic teleportation code can handle static teleportation.
@@ -353,7 +357,10 @@ public class ClientTeleportationManager {
         //but after pre render info being updated
         RenderStates.updatePreRenderInfo(tickDelta);
         
-        Helper.log(String.format("Client Teleported %s %s ticking:%s", portal, tickTimeForTeleportation, isTicking));
+        Helper.log(String.format(
+            "Client Teleported\nportal: %s\ntickTime: %s\nduring ticking: %s\ncounter: %s\ndynamic: %s",
+            portal, tickTimeForTeleportation, isTicking, teleportationCounter, teleportation.isDynamic()
+        ));
         
         isTeleportingTick = true;
         isTeleportingFrame = true;

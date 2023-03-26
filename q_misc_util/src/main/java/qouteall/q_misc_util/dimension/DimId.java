@@ -50,9 +50,6 @@ public class DimId {
         }
     }
     
-    // NOTE Minecraft use a global map to store these
-    // that map can only grow but cannot be cleaned.
-    // so a malicious client may make the server memory leak by that
     public static ResourceKey<Level> idToKey(ResourceLocation identifier) {
         return ResourceKey.create(Registries.DIMENSION, identifier);
     }

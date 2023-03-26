@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
@@ -60,18 +61,18 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     /**
      * The whole process involving portal animation and teleportation:
      * - begin ticking
-
+     * <p>
      * - tick entities:
-     *   - set last tick pos to current pos
-     *   - do collision calculation for movements, update current pos
-     *   - portal.animation.lastTickAnimatedState = thisTickAnimatedState, thisTickAnimatedState = null
+     * - set last tick pos to current pos
+     * - do collision calculation for movements, update current pos
+     * - portal.animation.lastTickAnimatedState = thisTickAnimatedState, thisTickAnimatedState = null
      * - increase game time
      * - end ticking
      * - partialTick should be 0
      * - update portal animation (set thisTickAnimatedState as 1 tick later)
      * - manage teleportation (right after updating portal animation)
      * - rendering (interpolate between last tick pos and current pos)
-     *   Note: the camera position is always behind the current tick position
+     * Note: the camera position is always behind the current tick position
      * - partialTick should be 1
      * - loop
      */
@@ -100,11 +101,14 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     )
     private void onAfterClientTick(CallbackInfo ci) {
         getProfiler().push("imm_ptl_client_tick");
-    
+        
+        // including ticking remote worlds
+        ClientWorldLoader.tick();
+        
         RenderStates.tickDelta = 0;
         StableClientTimer.tick();
         StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
-        ClientPortalAnimationManagement.tick();
+        ClientPortalAnimationManagement.tick(); // must be after remote world ticking
         IPCGlobal.clientTeleportationManager.manageTeleportation(true);
         
         IPGlobal.postClientTickSignal.emit();
