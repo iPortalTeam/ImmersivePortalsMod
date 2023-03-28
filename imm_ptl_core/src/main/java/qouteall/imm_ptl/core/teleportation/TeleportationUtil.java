@@ -190,6 +190,22 @@ public class TeleportationUtil {
             }
         }
         
+        {
+            // make sure that the last-frame camera pos in portal destination side
+            // the portal destination may move backwards
+            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+            
+            double dot = newImmediateCameraPos
+                .subtract(lastFrameState.toPos)
+                .dot(lastFrameState.getContentDirection());
+            if (dot < 0) {
+                Helper.log("Teleported to behind the last-frame portal destination. Corrected.");
+                Vec3 offset1 = lastFrameState.getContentDirection().scale(-dot + 0.001);
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+            }
+        }
+        
         Vec3 teleportationCheckpoint = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
         
         return new Teleportation(
