@@ -8,13 +8,10 @@ import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.spongepowered.asm.mixin.Final;
@@ -165,7 +162,7 @@ public abstract class MixinClientLevel implements IEClientWorld {
     )
     private void onTickNonPassenger(Entity entity, CallbackInfo ci) {
         // this should be done right before setting last tick pos to this tick pos
-        ((IEEntity) entity).tickCollidingPortal(1);
+        ((IEEntity) entity).tickCollidingPortal();
     }
     
     @Override

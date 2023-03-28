@@ -348,7 +348,7 @@ public class PortalCollisionHandler {
             p -> true
         ).forEach(p -> CollisionHelper.notifyCollidingPortals(p, partialTicks));
         
-        ((IEEntity) entity).tickCollidingPortal(partialTicks);
+        // don't tickCollidingPortal() as it only removes collisions
         
         McHelper.setEyePos(entity, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(entity);

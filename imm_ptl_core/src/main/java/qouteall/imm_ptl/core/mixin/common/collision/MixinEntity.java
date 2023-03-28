@@ -318,7 +318,7 @@ public abstract class MixinEntity implements IEEntity {
     // because between these two operations, this tick pos is the same as last tick pos
     // CollisionHelper.getStretchedBoundingBox uses the difference between this tick pos and last tick pos
     @Override
-    public void tickCollidingPortal(float partialTick) {
+    public void tickCollidingPortal() {
         Entity this_ = (Entity) (Object) this;
         
         if (ip_portalCollisionHandler != null) {

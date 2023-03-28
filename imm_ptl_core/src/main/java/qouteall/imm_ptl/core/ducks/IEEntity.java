@@ -4,11 +4,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.PortalCollisionEntry;
 import qouteall.imm_ptl.core.teleportation.PortalCollisionHandler;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public interface IEEntity {
     void ip_notifyCollidingWithPortal(Entity portal);
@@ -24,7 +22,7 @@ public interface IEEntity {
     @Deprecated
     Portal getCollidingPortal();
     
-    void tickCollidingPortal(float partialTick);
+    void tickCollidingPortal();
     
     boolean isRecentlyCollidingWithPortal();
     
