@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersive_portals",
-  "version": "${version}",
+  "version": "9.0",
   "name": "Immersive Portals",
   "description": "See through portals and travel between dimensions seamlessly.",
   "authors": [
@@ -46,8 +46,7 @@
     "canvas": "*",
     "cardboard": "*",
     "iris": ["<1.5.2", ">1.5.2"],
-    "sodium": ["<0.4.9", ">0.4.9"],
-    "portalcubed": "*"
+    "sodium": ["<0.4.9", ">0.4.9"]
   },
   "custom": {
   },

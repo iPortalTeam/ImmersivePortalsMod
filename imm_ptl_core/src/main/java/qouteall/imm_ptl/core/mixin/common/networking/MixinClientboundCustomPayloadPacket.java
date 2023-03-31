@@ -35,7 +35,9 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
     // eliminate the size limitation
     @ModifyConstant(
         method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V",
-        constant = @Constant(intValue = 1048576)
+        constant = @Constant(intValue = 1048576),
+        require = 0 // minecells also mixins this
+        // https://github.com/mim1q/MineCells/blob/6f995b86e00bb1c8bbea86ca91e5cd7e54fce44c/src/main/java/com/github/mim1q/minecells/mixin/network/CustomPayloadS2CPacketMixin.java#L24
     )
     private int modifySizeLimitWhenReadingPacket(int oldValue) {
         return 233333333;
