@@ -182,7 +182,7 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public boolean isInside(Vec3 entityPos, double valve) {
+    public boolean isOnDestinationSide(Vec3 entityPos, double valve) {
         if (isEnclosed()) {
             return getDestAreaBox().contains(entityPos);
         }

@@ -1017,35 +1017,32 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         );
     }
     
-    // TODO in 1.20 change this method to: Vec3 transformVelocity(Entity, Vec3)
-    //  to handle animated portal teleportation more elegantly
-    public void transformVelocity(Entity entity) {
-        Vec3 oldVelocity = McHelper.getWorldVelocity(entity);
+    public Vec3 transformVelocityRelativeToPortal(Vec3 originalVelocityRelativeToPortal, Entity entity) {
+        Vec3 result;
         if (PehkuiInterface.invoker.isPehkuiPresent()) {
             if (teleportChangesScale) {
-                McHelper.setWorldVelocity(entity, transformLocalVecNonScale(oldVelocity));
+                result = transformLocalVecNonScale(originalVelocityRelativeToPortal);
             }
             else {
-                McHelper.setWorldVelocity(entity, transformLocalVec(oldVelocity));
+                result = transformLocalVec(originalVelocityRelativeToPortal);
             }
         }
         else {
-            McHelper.setWorldVelocity(entity, transformLocalVec(oldVelocity));
+            result = transformLocalVec(originalVelocityRelativeToPortal);
         }
         
         final int maxVelocity = 15;
-        if (oldVelocity.length() > maxVelocity) {
+        if (originalVelocityRelativeToPortal.length() > maxVelocity) {
             // cannot be too fast
-            McHelper.setWorldVelocity(
-                entity,
-                McHelper.getWorldVelocity(entity).normalize().scale(maxVelocity)
-            );
+            result = result.normalize().scale(maxVelocity);
         }
         
         // avoid cannot push minecart out of nether portal
-        if (entity instanceof AbstractMinecart && oldVelocity.lengthSqr() < 0.5) {
-            McHelper.setWorldVelocity(entity, McHelper.getWorldVelocity(entity).scale(2));
+        if (entity instanceof AbstractMinecart && result.lengthSqr() < 0.5) {
+            result = result.scale(2);
         }
+        
+        return result;
     }
     
     /**
@@ -1320,13 +1317,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return currPortal.level.dimension() == outerPortal.dimensionTo &&
             currPortal.dimensionTo == outerPortal.level.dimension() &&
             !(currPortal.getNormal().dot(outerPortal.getContentDirection()) > -0.9) &&
-            !outerPortal.isInside(currPortal.getOriginPos(), 0.1);
+            !outerPortal.isOnDestinationSide(currPortal.getOriginPos(), 0.1);
     }
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
         return currPortal.level.dimension() == outerPortal.dimensionTo &&
             currPortal.getNormal().dot(outerPortal.getContentDirection()) < -0.9 &&
-            !outerPortal.isInside(currPortal.getOriginPos(), 0.1);
+            !outerPortal.isOnDestinationSide(currPortal.getOriginPos(), 0.1);
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {

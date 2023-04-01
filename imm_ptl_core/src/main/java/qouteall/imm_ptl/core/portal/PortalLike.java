@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.resources.ResourceKey;
@@ -103,8 +102,7 @@ public interface PortalLike {
         return getOriginWorld().dimension();
     }
     
-    // TODO rename to isInsideDestination in 1.20
-    default boolean isInside(Vec3 entityPos, double valve) {
+    default boolean isOnDestinationSide(Vec3 entityPos, double valve) {
         Plane innerClipping = getInnerClipping();
         
         if (innerClipping == null) {

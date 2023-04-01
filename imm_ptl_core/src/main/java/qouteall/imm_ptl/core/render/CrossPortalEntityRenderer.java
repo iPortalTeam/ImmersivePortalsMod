@@ -276,7 +276,7 @@ public class CrossPortalEntityRenderer {
         ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
             entity,
             cameraPos.x, cameraPos.y, cameraPos.z,
-            RenderStates.tickDelta, matrixStack,
+            RenderStates.getPartialTick(), matrixStack,
             consumers
         );
         //immediately invoke draw call
@@ -300,7 +300,7 @@ public class CrossPortalEntityRenderer {
         
         Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
-        Vec3 anchor = entity.getEyePosition(RenderStates.tickDelta).subtract(cameraPos);
+        Vec3 anchor = entity.getEyePosition(RenderStates.getPartialTick()).subtract(cameraPos);
         
         matrixStack.translate(anchor.x, anchor.y, anchor.z);
         
@@ -372,7 +372,7 @@ public class CrossPortalEntityRenderer {
                 }
             }
             
-            return renderingPortal.isInside(
+            return renderingPortal.isOnDestinationSide(
                 getRenderingCameraPos(entity), -0.01
             );
         }
@@ -401,6 +401,6 @@ public class CrossPortalEntityRenderer {
                 McHelper.getEyeOffset(entity)
             );
         }
-        return entity.getEyePosition(RenderStates.tickDelta);
+        return entity.getEyePosition(RenderStates.getPartialTick());
     }
 }

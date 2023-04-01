@@ -7,7 +7,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -134,7 +133,7 @@ public class ClientTeleportationManager {
 //        ClientPortalAnimationManagement.debugCheck();
         
         // the real partial ticks (not from stable timer)
-        float realPartialTicks = RenderStates.tickDelta;
+        float realPartialTicks = RenderStates.getPartialTick();
         
         TeleportationUtil.Teleportation lastTeleportation = null;
         
@@ -299,7 +298,7 @@ public class ClientTeleportationManager {
         Validate.isTrue(player != null);
         
         ResourceKey<Level> toDimension = portal.dimensionTo;
-        float tickDelta = RenderStates.tickDelta;
+        float tickDelta = RenderStates.getPartialTick();
         
         Vec3 thisTickEyePos = McHelper.getEyePos(player);
         Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
@@ -320,16 +319,11 @@ public class ClientTeleportationManager {
         TransformationManager.managePlayerRotationAndChangeGravity(portal);
         McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
         
-        // subtract this side's portal point velocity
-        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).subtract(teleportation.portalPointVelocity().thisSidePointVelocity()));
-        
-        portal.transformVelocity(player);
-        
-        // add other side's portal point velocity
-        McHelper.setWorldVelocity(player, McHelper.getWorldVelocity(player).add(teleportation.portalPointVelocity().otherSidePointVelocity()));
-        
+        TeleportationUtil.PortalPointVelocity portalPointVelocity = teleportation.portalPointVelocity();
+        TeleportationUtil.transformEntityVelocity(portal, player, portalPointVelocity);
+    
         if (player.getVehicle() != null) {
-            portal.transformVelocity(player.getVehicle());
+            TeleportationUtil.transformEntityVelocity(portal, player.getVehicle(), portalPointVelocity);
         }
         
         McHelper.setEyePos(player, newThisTickEyePos, newLastTickEyePos);
@@ -344,7 +338,7 @@ public class ClientTeleportationManager {
         ));
         
         PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
-            player, newThisTickEyePos, newLastTickEyePos, RenderStates.tickDelta
+            player, newThisTickEyePos, newLastTickEyePos, RenderStates.getPartialTick()
         );
         
         McHelper.adjustVehicle(player);
@@ -397,7 +391,7 @@ public class ClientTeleportationManager {
         lastPlayerEyePos = null;
         disableTeleportFor(20);
         
-        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
+        RenderStates.updatePreRenderInfo(RenderStates.getPartialTick());
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }
     

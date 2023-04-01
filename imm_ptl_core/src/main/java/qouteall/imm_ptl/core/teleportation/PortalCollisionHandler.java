@@ -163,7 +163,7 @@ public class PortalCollisionHandler {
                 boxOtherSide.expandTowards(transformedAttemptedMove),
                 IPGlobal.maxNormalPortalRadius,
                 p -> CollisionHelper.canCollideWithPortal(entity, p, 0)
-                    && collidingPortal.isInside(p.getOriginPos(), 0.1)
+                    && collidingPortal.isOnDestinationSide(p.getOriginPos(), 0.1)
             );
             
             PortalLike collisionHandlingUnit = CollisionHelper.getCollisionHandlingUnit(collidingPortal);

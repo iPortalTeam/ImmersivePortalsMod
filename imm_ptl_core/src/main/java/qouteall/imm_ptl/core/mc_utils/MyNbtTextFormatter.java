@@ -33,7 +33,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-// copy to avoid mixin or access widener
+/**
+ * copy to avoid mixin or access widener
+ * {@link net.minecraft.nbt.SnbtPrinterTagVisitor}
+ */
 @IPVanillaCopy
 public class MyNbtTextFormatter
     implements TagVisitor {

@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -33,12 +32,10 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class OverlayRendering {
@@ -73,7 +70,7 @@ public class OverlayRendering {
         if (portal instanceof BreakablePortalEntity) {
             renderBreakablePortalOverlay(
                 ((BreakablePortalEntity) portal),
-                RenderStates.tickDelta,
+                RenderStates.getPartialTick(),
                 matrixStack,
                 vertexConsumerProvider
             );

@@ -22,9 +22,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
 
-import static org.lwjgl.opengl.GL11.GL_DEPTH_WRITEMASK;
-import static org.lwjgl.opengl.GL11.glGetBoolean;
-
 public class ViewAreaRenderer {
     
     public static void renderPortalArea(
@@ -87,7 +84,7 @@ public class ViewAreaRenderer {
             fogColor,
             portal,
             CHelper.getCurrentCameraPos(),
-            RenderStates.tickDelta
+            RenderStates.getPartialTick()
         );
         
         shader.clear();

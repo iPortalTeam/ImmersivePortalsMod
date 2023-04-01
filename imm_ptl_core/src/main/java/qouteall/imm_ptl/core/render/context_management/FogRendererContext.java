@@ -85,10 +85,10 @@ public class FogRendererContext {
         try {
             FogRenderer.setupColor(
                 newCamera,
-                RenderStates.tickDelta,
+                RenderStates.getPartialTick(),
                 destWorld,
                 client.options.getEffectiveRenderDistance(),
-                client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
+                client.gameRenderer.getDarkenWorldAmount(RenderStates.getPartialTick())
             );
             
             Vec3 result = getCurrentFogColor.get();

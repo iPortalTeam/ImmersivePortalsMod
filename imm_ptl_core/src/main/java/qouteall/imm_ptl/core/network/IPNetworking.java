@@ -149,8 +149,7 @@ public class IPNetworking {
         ServerboundUseItemOnPacket packet = new ServerboundUseItemOnPacket(buf);
         IPGlobal.serverTaskList.addTask(() -> {
             BlockManipulationServer.processRightClickBlock(
-                dim, packet,
-                player
+                dim, packet, player, packet.getSequence()
             );
             return true;
         });

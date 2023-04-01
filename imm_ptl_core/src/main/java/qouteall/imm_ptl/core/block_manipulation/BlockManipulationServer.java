@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
@@ -169,14 +170,15 @@ public class BlockManipulationServer {
     public static void processRightClickBlock(
         ResourceKey<Level> dimension,
         ServerboundUseItemOnPacket packet,
-        ServerPlayer player
+        ServerPlayer player,
+        int sequenceNumber
     ) {
         InteractionHand hand = packet.getHand();
         BlockHitResult blockHitResult = packet.getHitResult();
         
         ServerLevel world = MiscHelper.getServer().getLevel(dimension);
         
-        doProcessRightClick(dimension, player, hand, blockHitResult);
+        doProcessRightClick(dimension, player, hand, blockHitResult, sequenceNumber);
     }
     
     /**
@@ -187,12 +189,20 @@ public class BlockManipulationServer {
         ResourceKey<Level> dimension,
         ServerPlayer player,
         InteractionHand hand,
-        BlockHitResult blockHitResult
+        BlockHitResult blockHitResult,
+        int sequenceNumber
     ) {
-        ItemStack itemStack = player.getItemInHand(hand);
+        player.connection.ackBlockChangesUpTo(sequenceNumber);
         
+        ItemStack itemStack = player.getItemInHand(hand);
+    
         MinecraftServer server = MiscHelper.getServer();
         ServerLevel targetWorld = server.getLevel(dimension);
+        Validate.notNull(targetWorld);
+        
+        if (!itemStack.isItemEnabled(targetWorld.enabledFeatures())) {
+            return;
+        }
         
         BlockPos blockPos = blockHitResult.getBlockPos();
         Direction direction = blockHitResult.getDirection();

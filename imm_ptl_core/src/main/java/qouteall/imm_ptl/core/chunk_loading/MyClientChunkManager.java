@@ -46,7 +46,7 @@ public class MyClientChunkManager extends ClientChunkCache {
     public static final SignalArged<LevelChunk> clientChunkUnloadSignal = new SignalArged<>();
     
     public MyClientChunkManager(ClientLevel clientWorld, int loadDistance) {
-        super(clientWorld, loadDistance);
+        super(clientWorld, 1); // the chunk array is unused. make it small by passing 1 as load distance to super constructor
         this.world = clientWorld;
         this.emptyChunk = new EmptyLevelChunk(
             clientWorld, new ChunkPos(0, 0),
@@ -59,7 +59,6 @@ public class MyClientChunkManager extends ClientChunkCache {
             true,
             clientWorld.dimensionType().hasSkyLight()
         );
-        
     }
     
     @Override
@@ -104,6 +103,24 @@ public class MyClientChunkManager extends ClientChunkCache {
     @Override
     public BlockGetter getLevel() {
         return this.world;
+    }
+    
+    @Override
+    public void replaceBiomes(int x, int z, FriendlyByteBuf friendlyByteBuf) {
+        long chunkPosLong = ChunkPos.asLong(x, z);
+    
+        LevelChunk worldChunk;
+    
+        synchronized (chunkMap) {
+            worldChunk = chunkMap.get(chunkPosLong);
+            ChunkPos chunkPos = new ChunkPos(x, z);
+            if (!isValidChunk(worldChunk, x, z)) {
+                LOGGER.error("Trying to replace biomes for missing chunk {} {}", x, z);
+            }
+            else {
+                worldChunk.replaceBiomes(friendlyByteBuf);
+            }
+        }
     }
     
     @Override

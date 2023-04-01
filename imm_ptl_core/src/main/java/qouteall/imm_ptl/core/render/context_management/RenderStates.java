@@ -43,9 +43,8 @@ public class RenderStates {
     /**
      * This does not always equal Minecraft.getFrameTime.
      * It will be 0 right after ticking.
-     * TODO rename to partialTick in MC 1.20
      */
-    public static float tickDelta = 0;
+    private static float partialTick = 0;
     
     public static Set<ResourceKey<Level>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();
@@ -93,7 +92,7 @@ public class RenderStates {
         originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerInfo entry = CHelper.getClientPlayerListEntry();
         originalGameMode = entry != null ? entry.getGameMode() : GameType.CREATIVE;
-        tickDelta = tickDelta_;
+        partialTick = tickDelta_;
         
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
@@ -110,7 +109,7 @@ public class RenderStates {
         originalCamera = MyRenderHelper.client.gameRenderer.getMainCamera();
         
         originalCameraLightPacked = MyRenderHelper.client.getEntityRenderDispatcher()
-            .getPackedLightCoords(MyRenderHelper.client.cameraEntity, tickDelta);
+            .getPackedLightCoords(MyRenderHelper.client.cameraEntity, getPartialTick());
         
         updateIsLaggy();
         
@@ -158,7 +157,7 @@ public class RenderStates {
 //            }
 //        }
         
-        Vec3 cameraPosVec = cameraEntity.getEyePosition(tickDelta);
+        Vec3 cameraPosVec = cameraEntity.getEyePosition(getPartialTick());
         double minPortalDistance = CHelper.getClientNearbyPortals(16)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(100.0);
@@ -232,8 +231,20 @@ public class RenderStates {
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Vec3 particlePos = particle.getBoundingBox().getCenter();
-            return renderingPortal.isInside(particlePos, 0.5);
+            return renderingPortal.isOnDestinationSide(particlePos, 0.5);
         }
         return true;
+    }
+    
+    public static void setPartialTick(float partialTick_) {
+        partialTick = partialTick_;
+    }
+    
+    /**
+     * This does not always equal Minecraft.getFrameTime.
+     * It will be 0 right after ticking.
+     */
+    public static float getPartialTick() {
+        return partialTick;
     }
 }

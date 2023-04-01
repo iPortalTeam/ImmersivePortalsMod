@@ -311,26 +311,6 @@ public class ServerTeleportationManager {
         MiscHelper.getServer().getProfiler().pop();
     }
     
-    // TODO remove in 1.20
-    @Deprecated
-    public void forceMovePlayer(
-        ServerPlayer player,
-        ResourceKey<Level> dimensionTo,
-        Vec3 newPos
-    ) {
-        forceTeleportPlayer(player, dimensionTo, newPos);
-    }
-    
-    // TODO remove in 1.20
-    @Deprecated
-    public void invokeTpmeCommand(
-        ServerPlayer player,
-        ResourceKey<Level> dimensionTo,
-        Vec3 newPos
-    ) {
-        forceTeleportPlayer(player, dimensionTo, newPos);
-    }
-    
     public void forceTeleportPlayer(ServerPlayer player, ResourceKey<Level> dimensionTo, Vec3 newPos) {
         ServerLevel fromWorld = (ServerLevel) player.level;
         ServerLevel toWorld = MiscHelper.getServer().getLevel(dimensionTo);
@@ -507,8 +487,8 @@ public class ServerTeleportationManager {
         List<Entity> passengerList = entity.getPassengers();
         
         Vec3 newEyePos = getRegularEntityTeleportedEyePos(entity, portal);
-        
-        portal.transformVelocity(entity);
+    
+        TeleportationUtil.transformEntityVelocity(portal, entity, TeleportationUtil.PortalPointVelocity.zero);
         
         if (portal.dimensionTo != entity.level.dimension()) {
             entity = changeEntityDimension(entity, portal.dimensionTo, newEyePos, true);

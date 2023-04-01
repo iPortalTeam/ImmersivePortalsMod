@@ -10,18 +10,15 @@ import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -29,7 +26,6 @@ import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
@@ -128,7 +124,7 @@ public class MyGameRenderer {
         
         CHelper.checkGlError();
         
-        float tickDelta = RenderStates.tickDelta;
+        float tickDelta = RenderStates.getPartialTick();
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
@@ -254,6 +250,9 @@ public class MyGameRenderer {
         client.smartCull = true;
     }
     
+    /**
+     * {@link LevelRenderer#renderLevel(PoseStack, float, long, boolean, Camera, GameRenderer, LightTexture, Matrix4f)}
+     */
     @IPVanillaCopy
     public static void resetFogState() {
         Camera camera = client.gameRenderer.getMainCamera();
@@ -264,13 +263,11 @@ public class MyGameRenderer {
         double e = cameraPos.y();
         double f = cameraPos.z();
         
-        boolean bl2 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
+        boolean isFoggy = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
             client.gui.getBossOverlay().shouldCreateWorldFog();
         
-        boolean bl3 = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) || client.gui.getBossOverlay().shouldCreateWorldFog();
-        
         FogRenderer.setupFog(
-            camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g, 32.0F), bl3, RenderStates.tickDelta
+            camera, FogRenderer.FogMode.FOG_TERRAIN, Math.max(g, 32.0F), isFoggy, RenderStates.getPartialTick()
         );
         FogRenderer.levelFogColor();
     }
@@ -278,10 +275,10 @@ public class MyGameRenderer {
     public static void updateFogColor() {
         FogRenderer.setupColor(
             client.gameRenderer.getMainCamera(),
-            RenderStates.tickDelta,
+            RenderStates.getPartialTick(),
             client.level,
             client.options.getEffectiveRenderDistance(),
-            client.gameRenderer.getDarkenWorldAmount(RenderStates.tickDelta)
+            client.gameRenderer.getDarkenWorldAmount(RenderStates.getPartialTick())
         );
     }
     

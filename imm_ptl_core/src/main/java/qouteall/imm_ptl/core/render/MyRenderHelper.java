@@ -15,16 +15,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -174,7 +171,7 @@ public class MyRenderHelper {
             Vec3.ZERO,//fog
             portal,
             CHelper.getCurrentCameraPos(),
-            RenderStates.tickDelta
+            RenderStates.getPartialTick()
         );
     
         
@@ -377,7 +374,6 @@ public class MyRenderHelper {
         
         BufferUploader.draw(bufferBuilder.end());
         
-        // unbind
         shader.clear();
         
         GlStateManager._depthMask(true);

@@ -126,7 +126,7 @@ public class TransformationManager {
             
             DQuaternion oldCameraRotation = getCameraRotationWithGravity(
                 oldGravityDir,
-                player.getViewXRot(RenderStates.tickDelta), player.getViewYRot(RenderStates.tickDelta)
+                player.getViewXRot(RenderStates.getPartialTick()), player.getViewYRot(RenderStates.getPartialTick())
             );
             DQuaternion currentAnimationDelta = getCurrentAnimationDelta();
             if (currentAnimationDelta != null) {
@@ -211,7 +211,7 @@ public class TransformationManager {
             client.player,
             !client.options.getCameraType().isFirstPerson(),
             client.options.getCameraType().isMirrored(),
-            RenderStates.tickDelta
+            RenderStates.getPartialTick()
         );
     }
     

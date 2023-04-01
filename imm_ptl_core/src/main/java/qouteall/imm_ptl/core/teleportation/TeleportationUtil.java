@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
@@ -38,6 +40,16 @@ public class TeleportationUtil {
         return new PortalPointVelocity(thisSideVelocity, otherSideVelocity);
     }
     
+    public static void transformEntityVelocity(
+        Portal portal, Entity entity,
+        PortalPointVelocity portalPointVelocity
+    ) {
+        Vec3 oldVelocityRelativeToPortal = McHelper.getWorldVelocity(entity).subtract(portalPointVelocity.thisSidePointVelocity());
+        Vec3 transformedVelocityRelativeToPortal = portal.transformVelocityRelativeToPortal(oldVelocityRelativeToPortal, entity);
+        Vec3 newVelocity = transformedVelocityRelativeToPortal.add(portalPointVelocity.otherSidePointVelocity());
+        McHelper.setWorldVelocity(entity, newVelocity);
+    }
+    
     public static record Teleportation(
         boolean isDynamic,
         Portal portal,
@@ -56,7 +68,7 @@ public class TeleportationUtil {
         Vec3 thisSidePointVelocity,
         Vec3 otherSidePointVelocity
     ) {
-    
+        public static final PortalPointVelocity zero = new PortalPointVelocity(Vec3.ZERO, Vec3.ZERO);
     }
     
     public static record PortalPointOffset(
@@ -99,7 +111,7 @@ public class TeleportationUtil {
             portalState,
             portalState, portalState,
             portalState, portalState,
-            new PortalPointVelocity(Vec3.ZERO, Vec3.ZERO),
+            PortalPointVelocity.zero,
             portal.transformPoint(collisionInfo.collisionPos),
             newLastTickEyePos, newThisTickEyePos
         );

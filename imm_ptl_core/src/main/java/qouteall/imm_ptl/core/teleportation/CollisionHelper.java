@@ -355,22 +355,6 @@ public class CollisionHelper {
         return IEEntity_Collision.ip_CollideWithShapes(vec, collisionBox, builder.build());
     }
     
-    @Deprecated
-    @Nullable
-    public static AABB getCollisionBoxThisSide(
-        Portal portal,
-        @NotNull AABB originalBox
-    ) {
-        //cut the collision box a little bit more for horizontal portals
-        //because the box will be stretched by attemptedMove when calculating collision
-        Vec3 clippingPos = portal.getOriginPos();
-        return clipBox(
-            originalBox,
-            clippingPos,
-            portal.getNormal()
-        );
-    }
-    
     public static AABB transformBox(PortalLike portal, AABB originalBox) {
         if (portal.getRotation() == null && portal.getScale() == 1) {
             return originalBox.move(portal.getDestPos().subtract(portal.getOriginPos()));

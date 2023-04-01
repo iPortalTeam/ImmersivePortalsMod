@@ -7,7 +7,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -105,9 +104,9 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         // including ticking remote worlds
         ClientWorldLoader.tick();
         
-        RenderStates.tickDelta = 0;
+        RenderStates.setPartialTick(0);
         StableClientTimer.tick();
-        StableClientTimer.update(level.getGameTime(), RenderStates.tickDelta);
+        StableClientTimer.update(level.getGameTime(), RenderStates.getPartialTick());
         ClientPortalAnimationManagement.tick(); // must be after remote world ticking
         IPCGlobal.clientTeleportationManager.manageTeleportation(true);
         

@@ -32,7 +32,7 @@ public class MixinBlockEntityRenderDispatcher {
         }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            boolean canRender = renderingPortal.isInside(
+            boolean canRender = renderingPortal.isOnDestinationSide(
                 Vec3.atCenterOf(blockEntity.getBlockPos()),
                 -0.1
             );

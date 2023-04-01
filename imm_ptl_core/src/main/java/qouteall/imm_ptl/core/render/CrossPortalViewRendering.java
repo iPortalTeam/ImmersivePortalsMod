@@ -42,14 +42,14 @@ public class CrossPortalViewRendering {
             client.level, cameraEntity,
             isThirdPerson(),
             isFrontView(),
-            RenderStates.tickDelta
+            RenderStates.getPartialTick()
         );
     
         Vec3 realCameraPos = camera.getPosition();
         Vec3 isometricAdjustedOriginalCameraPos =
             TransformationManager.getIsometricAdjustedCameraPos(camera);
         
-        Vec3 physicalPlayerHeadPos = ClientTeleportationManager.getPlayerEyePos(RenderStates.tickDelta);
+        Vec3 physicalPlayerHeadPos = ClientTeleportationManager.getPlayerEyePos(RenderStates.getPartialTick());
         
         Pair<Portal, Vec3> portalHit = PortalCommand.raytracePortals(
             client.level, physicalPlayerHeadPos, isometricAdjustedOriginalCameraPos, true

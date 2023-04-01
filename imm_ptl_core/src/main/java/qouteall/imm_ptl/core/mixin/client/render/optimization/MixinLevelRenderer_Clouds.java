@@ -78,7 +78,7 @@ public abstract class MixinLevelRenderer_Clouds {
     }
     
     private void portal_yieldCloudContext(CloudContext context) {
-        Vec3 cloudsColor = this.level.getCloudColor(RenderStates.tickDelta);
+        Vec3 cloudsColor = this.level.getCloudColor(RenderStates.getPartialTick());
         
         context.lastCloudsBlockX = prevCloudX;
         context.lastCloudsBlockY = prevCloudY;
