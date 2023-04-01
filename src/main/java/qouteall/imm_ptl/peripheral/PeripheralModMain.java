@@ -7,8 +7,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
+import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ErrorTerrainGenerator;
@@ -17,7 +21,9 @@ import qouteall.imm_ptl.peripheral.alternate_dimension.NormalSkylandGenerator;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackGameRule;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
+import qouteall.imm_ptl.peripheral.mixin.common.end_portal.IEEndDragonFight;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.List;
 
@@ -57,6 +63,20 @@ public class PeripheralModMain {
             new ResourceLocation("immersive_portals:chaos_biome_source"),
             ChaosBiomeSource.CODEC
         );
+    
+        EndPortalEntity.updateDragonFightStatusFunc = () -> {
+            ServerLevel world = MiscHelper.getServer().getLevel(Level.END);
+            if (world == null) {
+                return;
+            }
+            EndDragonFight dragonFight = world.dragonFight();
+            if (dragonFight == null) {
+                return;
+            }
+            if (((IEEndDragonFight) dragonFight).ip_getNeedsStateScanning()) {
+                ((IEEndDragonFight) dragonFight).ip_scanState();
+            }
+        };
     }
     
     public static void registerCommandStickTypes() {

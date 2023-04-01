@@ -39,7 +39,7 @@ public class PacketRedirection {
     public static void withForceRedirect(ServerLevel world, Runnable func) {
         Validate.isTrue(
             ((IEWorld) world).portal_getThread() == Thread.currentThread(),
-            "Maybe a mod is trying to add entity in a non-server thread. This is probably not ImmPtl's issue"
+            "Maybe a mod is trying to manipulate world in a non-server thread. This is probably not ImmPtl's issue"
         );
         
         ResourceKey<Level> oldRedirection = serverPacketRedirection.get();

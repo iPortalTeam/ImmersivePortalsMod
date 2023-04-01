@@ -12,11 +12,12 @@
     "common.dim_stack.MixinLevelInfo",
     "common.dim_stack.MixinLevelProperties",
     "common.dim_stack.MixinMinecraftServer_DimStack",
+    "common.end_portal.IEEndDragonFight",
+    "common.end_portal.MixinEnderEyeItem",
     "common.fix_concurrency.MixinWeightedList",
-    "common.portal_generation.MixinAbstractFireBlock",
-    "common.portal_generation.MixinEnderEyeItem",
-    "common.portal_generation.MixinFlintAndSteelItem",
-    "common.portal_generation.MixinNetherPortalBlock"
+    "common.nether_portal.MixinAbstractFireBlock",
+    "common.nether_portal.MixinFlintAndSteelItem",
+    "common.nether_portal.MixinNetherPortalBlock"
   ],
   "client": [
     "client.MixinBossHealthOverlay",

@@ -20,6 +20,8 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -29,16 +31,22 @@ import qouteall.q_misc_util.MiscHelper;
 import java.util.Objects;
 
 public class EndPortalEntity extends Portal {
+    private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
+    
+    // call code in the outer mod
+    // TODO move end portal to the outer mod
+    public static Runnable updateDragonFightStatusFunc;
+    
     public static EntityType<EndPortalEntity> entityType;
     
     // only used by scaled view type end portal
     private EndPortalEntity clientFakedReversePortal;
     
     public EndPortalEntity(
-        EntityType<?> entityType_1,
-        Level world_1
+        EntityType<?> entityType,
+        Level world
     ) {
-        super(entityType_1, world_1);
+        super(entityType, world);
         
         renderingMergable = true;
         hasCrossPortalCollision = false;
@@ -68,7 +76,11 @@ public class EndPortalEntity extends Portal {
         
         // for toObsidianPlatform mode, if the platform does not get generated before
         // going through portal, the player may fall into void
-        generateObsidianPlatform();
+        ServerLevel.makeObsidianPlatform(world);
+        
+        if (updateDragonFightStatusFunc != null) {
+            updateDragonFightStatusFunc.run();
+        }
     }
     
     private static void generateClassicalEndPortal(ServerLevel world, Vec3 destination, Vec3 portalCenter) {
@@ -181,7 +193,9 @@ public class EndPortalEntity extends Portal {
             );
         }
         
-        generateObsidianPlatform();
+        ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
+        
+        ServerLevel.makeObsidianPlatform(endWorld);
     }
     
     @Override
@@ -224,12 +238,6 @@ public class EndPortalEntity extends Portal {
         return false;
     }
     
-    private static void generateObsidianPlatform() {
-        ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
-        
-        ServerLevel.makeObsidianPlatform(endWorld);
-    }
-    
     @Override
     public void onCollidingWithEntity(Entity entity) {
         // fix https://github.com/qouteall/ImmersivePortalsMod/issues/698
@@ -237,9 +245,12 @@ public class EndPortalEntity extends Portal {
         if (!level.isClientSide()) {
             if (entity instanceof ServerPlayer) {
                 if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
-                    generateObsidianPlatform();
+                    ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
+                    
+                    ServerLevel.makeObsidianPlatform(endWorld);
                 }
             }
         }
     }
+    
 }

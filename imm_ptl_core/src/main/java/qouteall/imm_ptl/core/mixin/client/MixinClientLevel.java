@@ -131,20 +131,18 @@ public abstract class MixinClientLevel implements IEClientWorld {
     /**
      * If the player goes into a portal when the other side chunk is not yet loaded
      * freeze the player so the player won't drop
-     * {@link ClientPlayerEntity#tick()}
+     * {@link net.minecraft.client.player.LocalPlayer#tick()}
      */
     @Inject(
         method = "Lnet/minecraft/client/multiplayer/ClientLevel;hasChunk(II)Z",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onIsChunkLoaded(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
+    private void onHasChunk(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
         if (IPGlobal.tickOnlyIfChunkLoaded) {
             LevelChunk chunk = chunkSource.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
             if (chunk == null || chunk instanceof EmptyLevelChunk) {
                 cir.setReturnValue(false);
-                //            Helper.log("chunk not loaded");
-                //            new Throwable().printStackTrace();
             }
         }
     }

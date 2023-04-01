@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
+package qouteall.imm_ptl.peripheral.mixin.common.nether_portal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

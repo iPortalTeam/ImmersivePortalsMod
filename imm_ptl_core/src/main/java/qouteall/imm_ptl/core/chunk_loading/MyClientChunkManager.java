@@ -76,7 +76,6 @@ public class MyClientChunkManager extends ClientChunkCache {
             if (isValidChunk(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 O_O.postClientChunkUnloadEvent(chunk);
-                // wrong yarn name, also unloads entities
                 world.unload(chunk);
                 clientChunkUnloadSignal.emit(chunk);
             }
@@ -110,7 +109,8 @@ public class MyClientChunkManager extends ClientChunkCache {
     @Override
     public LevelChunk replaceWithPacketData(
         int x, int z,
-        FriendlyByteBuf buf, CompoundTag nbt, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+        FriendlyByteBuf buf, CompoundTag nbt,
+        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         long chunkPosLong = ChunkPos.asLong(x, z);
         
@@ -129,7 +129,6 @@ public class MyClientChunkManager extends ClientChunkCache {
             }
         }
         
-        // wrong yarn name. it loads entities
         this.world.onChunkLoaded(new ChunkPos(x, z));
         
         O_O.postClientChunkLoadEvent(worldChunk);
