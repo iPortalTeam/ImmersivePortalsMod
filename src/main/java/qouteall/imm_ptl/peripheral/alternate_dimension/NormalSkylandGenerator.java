@@ -100,50 +100,52 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         HolderGetter<NoiseGeneratorSettings> noiseGeneratorSettingsHolderGetter,
         long seed
     ) {
-        MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
-        Set<Holder<Biome>> overworldBiomes = overworldBiomeSource.possibleBiomes();
+        // TODO
+        throw new RuntimeException();
         
-        NoiseGeneratorSettings overworldNGS = noiseGeneratorSettingsHolderGetter
-            .getOrThrow(NoiseGeneratorSettings.OVERWORLD).value();
-        
-        NoiseGeneratorSettings intrinsicSkylandNGS = noiseGeneratorSettingsHolderGetter
-            .getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS).value();
-        
-//        NoiseGeneratorSettings endNGS = IENoiseGeneratorSettings.ip_end();
-        
-        NoiseGeneratorSettings usedSkylandNGS = new NoiseGeneratorSettings(
-            intrinsicSkylandNGS.noiseSettings(),
-            intrinsicSkylandNGS.defaultBlock(),
-            intrinsicSkylandNGS.defaultFluid(),
-            IENoiseRouterData.ip_noNewCaves(
-                densityFunctionHolderGetter,
-                noiseParametersHolderGetter,
-                IENoiseRouterData.ip_slideEndLike(IENoiseRouterData.ip_getFunction(
-                    densityFunctionHolderGetter, IENoiseRouterData.get_BASE_3D_NOISE_END()
-                ), 0, 128)
-            ),
-            intrinsicSkylandNGS.surfaceRule(),
-            intrinsicSkylandNGS.spawnTarget(),
-            intrinsicSkylandNGS.seaLevel(),
-            intrinsicSkylandNGS.disableMobGeneration(),
-            intrinsicSkylandNGS.aquifersEnabled(),
-            intrinsicSkylandNGS.oreVeinsEnabled(),
-            intrinsicSkylandNGS.useLegacyRandomSource()
-        );
-        
-        NoiseBasedChunkGenerator overworldGenerator = new NoiseBasedChunkGenerator(
-            overworldBiomeSource, Holder.direct(overworldNGS)
-        );
-        
-        return new NormalSkylandGenerator(
-            overworldBiomeSource,
-            Holder.direct(usedSkylandNGS),
-            overworldGenerator,
-            biomeHolderGetter,
-            densityFunctionHolderGetter,
-            noiseParametersHolderGetter,
-            seed
-        );
+//        MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
+//
+//        NoiseGeneratorSettings overworldNGS = noiseGeneratorSettingsHolderGetter
+//            .getOrThrow(NoiseGeneratorSettings.OVERWORLD).value();
+//
+//        NoiseGeneratorSettings intrinsicSkylandNGS = noiseGeneratorSettingsHolderGetter
+//            .getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS).value();
+//
+////        NoiseGeneratorSettings endNGS = IENoiseGeneratorSettings.ip_end();
+//
+//        NoiseGeneratorSettings usedSkylandNGS = new NoiseGeneratorSettings(
+//            intrinsicSkylandNGS.noiseSettings(),
+//            intrinsicSkylandNGS.defaultBlock(),
+//            intrinsicSkylandNGS.defaultFluid(),
+//            IENoiseRouterData.ip_noNewCaves(
+//                densityFunctionHolderGetter,
+//                noiseParametersHolderGetter,
+//                IENoiseRouterData.ip_slideEndLike(IENoiseRouterData.ip_getFunction(
+//                    densityFunctionHolderGetter, IENoiseRouterData.get_BASE_3D_NOISE_END()
+//                ), 0, 128)
+//            ),
+//            intrinsicSkylandNGS.surfaceRule(),
+//            intrinsicSkylandNGS.spawnTarget(),
+//            intrinsicSkylandNGS.seaLevel(),
+//            intrinsicSkylandNGS.disableMobGeneration(),
+//            intrinsicSkylandNGS.aquifersEnabled(),
+//            intrinsicSkylandNGS.oreVeinsEnabled(),
+//            intrinsicSkylandNGS.useLegacyRandomSource()
+//        );
+//
+//        NoiseBasedChunkGenerator overworldGenerator = new NoiseBasedChunkGenerator(
+//            overworldBiomeSource, Holder.direct(overworldNGS)
+//        );
+//
+//        return new NormalSkylandGenerator(
+//            overworldBiomeSource,
+//            Holder.direct(usedSkylandNGS),
+//            overworldGenerator,
+//            biomeHolderGetter,
+//            densityFunctionHolderGetter,
+//            noiseParametersHolderGetter,
+//            seed
+//        );
     }
     
     private final NoiseBasedChunkGenerator delegate;

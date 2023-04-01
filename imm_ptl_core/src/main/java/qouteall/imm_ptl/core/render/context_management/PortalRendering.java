@@ -143,7 +143,7 @@ public class PortalRendering {
         
         Vec3 result = portal.transformPoint(nearestPoint);
         
-        return new BlockPos(result);
+        return BlockPos.containing(result);
     }
     
     /**

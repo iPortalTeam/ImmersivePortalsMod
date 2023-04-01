@@ -962,7 +962,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                     Helper.err("Portal Dest Dimension Missing " + dimensionTo.location());
                     return false;
                 }
-                boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(new BlockPos(getDestPos()));
+                boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(BlockPos.containing(getDestPos()));
                 if (!inWorldBorder) {
                     Helper.err("Destination out of World Border " + this);
                     return false;
@@ -1751,7 +1751,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         
         return McHelper.isServerChunkFullyLoaded(
             (ServerLevel) getDestWorld(),
-            new ChunkPos(new BlockPos(getDestPos()))
+            new ChunkPos(BlockPos.containing(getDestPos()))
         );
     }
     

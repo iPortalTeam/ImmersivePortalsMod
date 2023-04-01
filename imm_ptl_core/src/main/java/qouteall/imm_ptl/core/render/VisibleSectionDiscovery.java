@@ -64,7 +64,7 @@ public class VisibleSectionDiscovery {
         
         Vec3 cameraPos = camera.getPosition();
         vanillaFrustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
-        cameraSectionPos = SectionPos.of(new BlockPos(cameraPos));
+        cameraSectionPos = SectionPos.of(BlockPos.containing(cameraPos));
         
         if (cameraPos.y < world.getMinBuildHeight()) {
             discoverBottomOrTopLayerVisibleChunks(builtChunks.minSectionY);

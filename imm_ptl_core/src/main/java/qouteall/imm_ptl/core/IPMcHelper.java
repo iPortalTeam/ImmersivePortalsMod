@@ -203,7 +203,7 @@ public class IPMcHelper {
                 BlockHitResult.miss(
                     end,
                     Direction.getNearest(diff.x, diff.y, diff.z),
-                    new BlockPos(end)
+                    BlockPos.containing(end)
                 ),
                 portals
             );

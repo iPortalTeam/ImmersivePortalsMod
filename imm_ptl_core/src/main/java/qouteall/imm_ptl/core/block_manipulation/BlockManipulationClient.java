@@ -48,7 +48,7 @@ public class BlockManipulationClient {
     private static BlockHitResult createMissedHitResult(Vec3 from, Vec3 to) {
         Vec3 dir = to.subtract(from).normalize();
         
-        return BlockHitResult.miss(to, Direction.getNearest(dir.x, dir.y, dir.z), new BlockPos(to));
+        return BlockHitResult.miss(to, Direction.getNearest(dir.x, dir.y, dir.z), BlockPos.containing(to));
     }
     
     private static boolean hitResultIsMissedOrNull(HitResult bhr) {
@@ -172,7 +172,7 @@ public class BlockManipulationClient {
                 return BlockHitResult.miss(
                     rayTraceContext.getTo(),
                     Direction.getNearest(vec3d.x, vec3d.y, vec3d.z),
-                    new BlockPos(rayTraceContext.getTo())
+                    BlockPos.containing(rayTraceContext.getTo())
                 );
             }
         );

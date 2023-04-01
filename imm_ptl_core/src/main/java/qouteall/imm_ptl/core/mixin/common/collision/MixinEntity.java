@@ -253,7 +253,7 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         if (collidingPortal != null) {
             if (collidingPortal.getNormal().y > 0) {
-                BlockPos remoteLandingPos = new BlockPos(
+                BlockPos remoteLandingPos = BlockPos.containing(
                     collidingPortal.transformPoint(this_.position())
                 );
                 

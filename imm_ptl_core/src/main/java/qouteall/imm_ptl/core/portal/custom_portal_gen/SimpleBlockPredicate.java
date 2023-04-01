@@ -66,7 +66,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         
         if (server == null) {
             return DataResult.error(
-                "[Immersive Portals] Simple block predicate should not be deserialized in client"
+                () -> "[Immersive Portals] Simple block predicate should not be deserialized in client"
             );
         }
         
@@ -92,8 +92,8 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             Block block = BuiltInRegistries.BLOCK.get(id);
             return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
         }
-        
-        return DataResult.error("Unknown block or block tag:" + string);
+    
+        return DataResult.error(() -> "Unknown block or block tag:" + string);
     }
     
     private static String serialize(SimpleBlockPredicate predicate) {

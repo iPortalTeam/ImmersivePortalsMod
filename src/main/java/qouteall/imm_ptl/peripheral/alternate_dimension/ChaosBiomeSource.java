@@ -6,7 +6,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -14,6 +17,8 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.CheckerboardColumnBiomeSource;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,10 +27,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChaosBiomeSource extends BiomeSource {
     
-    @Deprecated
     public static final String[] vanillaBiomes = new String[]{
         "minecraft:savanna_plateau",
         "minecraft:taiga",
@@ -101,22 +106,20 @@ public class ChaosBiomeSource extends BiomeSource {
     private final HolderSet<Biome> allowedBiomes;
     
     public ChaosBiomeSource(HolderSet<Biome> holderSet) {
-        super(holderSet.stream());
+        super();
         this.allowedBiomes = holderSet;
     }
     
     @NotNull
     static ChaosBiomeSource createChaosBiomeSource(HolderGetter<Biome> biomeHolderGetter) {
-        
-        MultiNoiseBiomeSource overworldBiomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomeHolderGetter);
-        Set<Holder<Biome>> overworldBiomes = overworldBiomeSource.possibleBiomes();
-        
-        MultiNoiseBiomeSource netherBiomeSource = MultiNoiseBiomeSource.Preset.NETHER.biomeSource(biomeHolderGetter);
-        Set<Holder<Biome>> netherBiomes = overworldBiomeSource.possibleBiomes();
-        
         List<Holder<Biome>> holders = new ArrayList<>();
-        holders.addAll(overworldBiomes);
-        holders.addAll(netherBiomes);
+    
+        for (String vanillaBiomeId : vanillaBiomes) {
+            biomeHolderGetter.get(ResourceKey.create(
+                Registries.BIOME,
+                new ResourceLocation(vanillaBiomeId)
+            )).ifPresent(holders::add);
+        }
         
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(
             HolderSet.direct(holders)
@@ -134,6 +137,11 @@ public class ChaosBiomeSource extends BiomeSource {
     @Override
     protected Codec<? extends BiomeSource> codec() {
         return CODEC;
+    }
+    
+    @Override
+    protected Stream<Holder<Biome>> collectPossibleBiomes() {
+        return allowedBiomes.stream();
     }
     
     @Override

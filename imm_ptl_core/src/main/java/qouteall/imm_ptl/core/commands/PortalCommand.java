@@ -966,7 +966,7 @@ public class PortalCommand {
     }
     
     private static void adjustPortalAreaToFitFrame(Portal portal) {
-        BlockPos origin = new BlockPos(portal.getOriginPos());
+        BlockPos origin = BlockPos.containing(portal.getOriginPos());
         
         Direction portalNormalDirection =
             Direction.getNearest(portal.getNormal().x, portal.getNormal().y, portal.getNormal().z);
@@ -1449,7 +1449,7 @@ public class PortalCommand {
                                 
                                 createConnectedRooms(
                                     context.getSource().getLevel(),
-                                    new BlockPos(context.getSource().getPosition()),
+                                    BlockPos.containing(context.getSource().getPosition()),
                                     roomSize,
                                     roomNumber,
                                     text -> context.getSource().sendSuccess(text, false)
@@ -2203,7 +2203,7 @@ public class PortalCommand {
     
     public static BlockPos getRandomShift(int len) {
         Random rand = new Random();
-        return new BlockPos(
+        return BlockPos.containing(
             (rand.nextDouble() * 2 - 1) * len,
             (rand.nextDouble() * 2 - 1) * len,
             (rand.nextDouble() * 2 - 1) * len

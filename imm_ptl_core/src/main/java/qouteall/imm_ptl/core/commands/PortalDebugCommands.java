@@ -208,7 +208,7 @@ public class PortalDebugCommands {
                 .executes(context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     
-                    ChunkPos center = new ChunkPos(new BlockPos(player.position()));
+                    ChunkPos center = new ChunkPos(BlockPos.containing(player.position()));
                     
                     invokeEraseChunk(
                         player.level, center,
@@ -224,7 +224,7 @@ public class PortalDebugCommands {
                             
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             
-                            ChunkPos center = new ChunkPos(new BlockPos(player.position()));
+                            ChunkPos center = new ChunkPos(BlockPos.containing(player.position()));
                             
                             invokeEraseChunk(
                                 player.level, center,

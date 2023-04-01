@@ -45,7 +45,8 @@ public class PeripheralModMain {
         DimStackGameRule.init();
         DimStackManagement.init();
         
-        AlternateDimensions.init();
+        // TODO
+//        AlternateDimensions.init();
         
         Registry.register(
             BuiltInRegistries.CHUNK_GENERATOR,

@@ -154,7 +154,7 @@ public class BlockManipulationServer {
         }
         
         Vec3 newCenter = portal.transformPoint(hitCenter.add(sideVec.scale(0.501)));
-        BlockPos placingBlockPos = new BlockPos(newCenter);
+        BlockPos placingBlockPos = BlockPos.containing(newCenter);
         
         BlockHitResult newHitResult = new BlockHitResult(
             Vec3.ZERO,

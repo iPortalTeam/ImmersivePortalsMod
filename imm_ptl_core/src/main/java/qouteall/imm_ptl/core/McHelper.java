@@ -598,7 +598,7 @@ public class McHelper {
             radiusChunks = 32;
         }
         
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
+        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(center));
         return findEntities(
             entityClass,
             ((IEWorld) world).portal_getEntityLookup(),
@@ -701,7 +701,7 @@ public class McHelper {
         Class<T> entityClass, Level world, Vec3 point, int roughRadius,
         Function<T, R> function
     ) {
-        SectionPos sectionPos = SectionPos.of(new BlockPos(point));
+        SectionPos sectionPos = SectionPos.of(BlockPos.containing(point));
         int roughRadiusChunks = roughRadius / 16;
         if (roughRadiusChunks == 0) {
             roughRadiusChunks = 1;

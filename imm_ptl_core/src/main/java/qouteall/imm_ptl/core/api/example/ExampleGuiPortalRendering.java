@@ -81,7 +81,7 @@ public class ExampleGuiPortalRendering {
         
         ChunkLoader chunkLoader = new ChunkLoader(
             new DimensionalChunkPos(
-                world.dimension(), new ChunkPos(new BlockPos(pos))
+                world.dimension(), new ChunkPos(BlockPos.containing(pos))
             ),
             8
         );

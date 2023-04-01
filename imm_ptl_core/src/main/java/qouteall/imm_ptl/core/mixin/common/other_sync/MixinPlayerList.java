@@ -100,7 +100,7 @@ public class MixinPlayerList {
         double x, double y, double z, double distance,
         ResourceKey<Level> dimension, Packet<?> packet
     ) {
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(new Vec3(x, y, z)));
+        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(new Vec3(x, y, z)));
         
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunkPos.x, chunkPos.z

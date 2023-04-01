@@ -34,7 +34,7 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric-api": ">=0.28.1",
-    "minecraft": "1.19.3",
+    "minecraft": "1.19.4",
     "imm_ptl_core": "*",
     "q_misc_util": "*"
   },
@@ -46,7 +46,7 @@
     "canvas": "*",
     "cardboard": "*",
     "iris": ["<1.5.2", ">1.5.2"],
-    "sodium": ["<0.4.9", ">0.4.9"]
+    "sodium": ["<0.4.10", ">0.4.10"]
   },
   "custom": {
   },

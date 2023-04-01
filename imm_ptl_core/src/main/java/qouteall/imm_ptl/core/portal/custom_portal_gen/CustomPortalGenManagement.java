@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.mixin.common.registry.IERegistryDataLoader;
@@ -175,13 +176,9 @@ public class CustomPortalGenManagement {
         }
     }
     
+    // only called when the item has a thrower
     public static void onItemTick(ItemEntity entity) {
-        if (entity.level.isClientSide()) {
-            return;
-        }
-        if (entity.getThrower() == null) {
-            return;
-        }
+        Validate.isTrue(!entity.level.isClientSide());
         
         if (entity.hasPickUpDelay()) {
             Item item = entity.getItem().getItem();
@@ -219,7 +216,7 @@ public class CustomPortalGenManagement {
             
             ServerLevel startWorld = McHelper.getServerWorld(startCoord.dimension);
             
-            BlockPos startPos = new BlockPos(startCoord.pos);
+            BlockPos startPos = BlockPos.containing(startCoord.pos);
             
             for (CustomPortalGeneration gen : convGen) {
                 boolean succeeded = gen.perform(startWorld, startPos, player);

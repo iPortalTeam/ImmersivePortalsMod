@@ -405,9 +405,9 @@ public class MyBuiltChunkStorage extends ViewArea {
     public ChunkRenderDispatcher.RenderChunk getSectionFromRawArray(
         BlockPos sectionOrigin, ChunkRenderDispatcher.RenderChunk[] chunks
     ) {
-        int i = Mth.intFloorDiv(sectionOrigin.getX(), 16);
-        int j = Mth.intFloorDiv(sectionOrigin.getY() - McHelper.getMinY(level), 16);
-        int k = Mth.intFloorDiv(sectionOrigin.getZ(), 16);
+        int i = Mth.floorDiv(sectionOrigin.getX(), 16);
+        int j = Mth.floorDiv(sectionOrigin.getY() - McHelper.getMinY(level), 16);
+        int k = Mth.floorDiv(sectionOrigin.getZ(), 16);
         if (j >= 0 && j < this.chunkGridSizeY) {
             i = Mth.positiveModulo(i, this.chunkGridSizeX);
             k = Mth.positiveModulo(k, this.chunkGridSizeZ);
@@ -422,9 +422,9 @@ public class MyBuiltChunkStorage extends ViewArea {
     @Nullable
     @Override
     protected RenderChunk getRenderChunkAt(BlockPos pos) {
-        int i = Mth.intFloorDiv(pos.getX(), 16);
-        int j = Mth.intFloorDiv(pos.getY() - McHelper.getMinY(level), 16);
-        int k = Mth.intFloorDiv(pos.getZ(), 16);
+        int i = Mth.floorDiv(pos.getX(), 16);
+        int j = Mth.floorDiv(pos.getY() - McHelper.getMinY(level), 16);
+        int k = Mth.floorDiv(pos.getZ(), 16);
         if (j >= 0 && j < this.chunkGridSizeY) {
             i = Mth.positiveModulo(i, this.chunkGridSizeX);
             k = Mth.positiveModulo(k, this.chunkGridSizeZ);

@@ -263,7 +263,7 @@ public abstract class BreakablePortalEntity extends Portal {
         List<T> revs = McHelper.findEntitiesByBox(
             (Class<T>) portal.getClass(),
             portal.getDestinationWorld(),
-            new AABB(new BlockPos(portal.getDestPos())),
+            new AABB(BlockPos.containing(portal.getDestPos())),
             10,
             e -> (e.getOriginPos().distanceToSqr(portal.getDestPos()) < 0.1) &&
                 e.getContentDirection().dot(portal.getNormal()) > 0.6

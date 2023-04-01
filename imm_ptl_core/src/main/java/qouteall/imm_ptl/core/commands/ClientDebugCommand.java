@@ -258,7 +258,7 @@ public class ClientDebugCommand {
                 Minecraft client = Minecraft.getInstance();
                 client.execute(() -> {
                     client.level.getChunkSource().getLightEngine().updateSectionStatus(
-                        SectionPos.of(new BlockPos(client.player.position())),
+                        SectionPos.of(BlockPos.containing(client.player.position())),
                         false
                     );
                 });

@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
-import net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -59,27 +58,13 @@ import java.util.Map;
 public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {
     
     @Shadow
-    @org.jetbrains.annotations.Nullable
-    protected abstract Pair<File, PackRepository> getDataPackSelectionSettings();
-    
-    @Shadow
     @Final
-    public WorldGenSettingsComponent worldGenSettingsComponent;
+    private static Logger LOGGER;
     
-    @Shadow
-    protected abstract void tryApplyNewDataPacks(PackRepository repository);
-    
-    @Shadow @Final private static Logger LOGGER;
     private Button dimStackButton;
     
     @Nullable
     private DimStackScreen ip_dimStackScreen;
-
-//    @Nullable
-//    private WorldGenSettings ip_lastWorldGenSettings;
-//
-//    @Nullable
-//    private RegistryAccess ip_lastRegistryAccess;
     
     protected MixinCreateWorldScreen(Component title) {
         super(title);
@@ -108,18 +93,19 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         
     }
     
-    @Inject(
-        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;setWorldGenSettingsVisible(Z)V",
-        at = @At("RETURN")
-    )
-    private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {
-        if (moreOptionsOpen) {
-            dimStackButton.visible = true;
-        }
-        else {
-            dimStackButton.visible = false;
-        }
-    }
+    // TODO
+//    @Inject(
+//        method = "Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;setWorldGenSettingsVisible(Z)V",
+//        at = @At("RETURN")
+//    )
+//    private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {
+//        if (moreOptionsOpen) {
+//            dimStackButton.visible = true;
+//        }
+//        else {
+//            dimStackButton.visible = false;
+//        }
+//    }
     
     @Inject(
         method = "createNewWorld",
@@ -147,21 +133,6 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         }
     }
     
-    // Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;method_40209(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/world/level/DataPackConfig;)Lcom/mojang/datafixers/util/Pair
-//    @Inject(
-//        method = "method_40209",
-//        at = @At("RETURN")
-//    )
-//    private void onTryingApplyNewDatapackLoading(
-//        ResourceManager resourceManager,
-//        DataPackConfig dataPackConfig,
-//        CallbackInfoReturnable<Pair<Pair<WorldGenSettings, Lifecycle>, RegistryAccess.Frozen>> cir
-//    ) {
-//        ip_lastWorldGenSettings = cir.getReturnValue().getFirst().getFirst();
-//
-//        ip_lastRegistryAccess = cir.getReturnValue().getSecond();
-//    }
-    
     private void openDimStackScreen() {
         if (ip_dimStackScreen == null) {
             ip_dimStackScreen = new DimStackScreen(
@@ -178,101 +149,39 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     private List<ResourceKey<Level>> portal_getDimensionList(Screen addDimensionScreen) {
         Helper.log("Getting the dimension list");
+    
+        throw new RuntimeException();
         
-        try {
-            WorldCreationContext settings = worldGenSettingsComponent.settings();
-            RegistryAccess.Frozen registryAccess = settings.worldgenLoadContext();
-            
-            WorldDimensions selectedDimensions = settings.selectedDimensions();
-            
-            MappedRegistry<LevelStem> subDimensionRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable());
-            
-            // add vanilla dimensions
-            for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : selectedDimensions.dimensions().entrySet()) {
-                subDimensionRegistry.register(entry.getKey(), entry.getValue(), Lifecycle.stable());
-            }
-            
-            RegistryAccess.Frozen subRegistryAccess =
-                new RegistryAccess.ImmutableRegistryAccess(List.of(subDimensionRegistry)).freeze();
-            
-            LayeredRegistryAccess<Integer> wrappedLayeredRegistryAccess = IELayeredRegistryAccess.ip_init(
-                List.of(1, 2),
-                List.of(registryAccess, subRegistryAccess)
-            );
-            RegistryAccess.Frozen wrappedRegistryAccess = wrappedLayeredRegistryAccess.compositeAccess();
-            
-            DimensionAPI.serverDimensionsLoadEvent.invoker().run(settings.options(), wrappedRegistryAccess);
-            
-            return subDimensionRegistry
-                .keySet().stream().map(DimId::idToKey).toList();
-        }
-        catch (Exception e) {
-            LOGGER.error("ImmPtl getting dimension list", e);
-            return List.of(DimId.idToKey("error:error"));
-        }
-
-//        return datapackDimensions.keySet().stream().map(DimId::idToKey).toList();
-
-//        if (ip_lastWorldGenSettings == null) {
-//            Helper.log("Start reloading datapacks for getting the dimension list");
-//
-//            // if the enabled datapack list does not change, it will not reload
-//            // ensure that it really reloads
-//            this.dataPacks = new DataPackConfig(new ArrayList<>(), new ArrayList<>());
-//
-//            // it will load the pack in render thread
-//            tryApplyNewDataPacks(minecraft.getResourcePackRepository());
-//
-//            // it will switch to the create world screen, switch back
-//            IPGlobal.preTotalRenderTaskList.addTask(() -> {
-//                if (minecraft.screen == this) {
-//                    minecraft.setScreen(addDimensionScreen);
-//                    return true;
-//                }
-//                return false;
-//            });
-//        }
-//
-//        // this won't contain custom dimensions
-//        WorldGenSettings rawGeneratorOptions = worldGenSettingsComponent.createFinalSettings(false).worldGenSettings();
-//
-//        WorldGenSettings copiedGeneratorOptions = new WorldGenSettings(
-//            rawGeneratorOptions.seed(), rawGeneratorOptions.generateStructures(),
-//            rawGeneratorOptions.generateBonusChest(),
-//            MiscHelper.filterAndCopyRegistry(
-//                ((MappedRegistry<LevelStem>) rawGeneratorOptions.dimensions()),
-//                (a, b) -> true
-//            )
-//        );
-//
 //        try {
-//            // register custom dimensions including alternate dimensions
-//            if (ip_lastRegistryAccess != null) {
-//                DimensionAPI.serverDimensionsLoadEvent.invoker().run(copiedGeneratorOptions, ip_lastRegistryAccess);
+//            WorldCreationContext settings = worldGenSettingsComponent.settings();
+//            RegistryAccess.Frozen registryAccess = settings.worldgenLoadContext();
+//
+//            WorldDimensions selectedDimensions = settings.selectedDimensions();
+//
+//            MappedRegistry<LevelStem> subDimensionRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable());
+//
+//            // add vanilla dimensions
+//            for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : selectedDimensions.dimensions().entrySet()) {
+//                subDimensionRegistry.register(entry.getKey(), entry.getValue(), Lifecycle.stable());
 //            }
-//            else {
-//                Helper.err("Null registry access");
-//            }
+//
+//            RegistryAccess.Frozen subRegistryAccess =
+//                new RegistryAccess.ImmutableRegistryAccess(List.of(subDimensionRegistry)).freeze();
+//
+//            LayeredRegistryAccess<Integer> wrappedLayeredRegistryAccess = IELayeredRegistryAccess.ip_init(
+//                List.of(1, 2),
+//                List.of(registryAccess, subRegistryAccess)
+//            );
+//            RegistryAccess.Frozen wrappedRegistryAccess = wrappedLayeredRegistryAccess.compositeAccess();
+//
+//            DimensionAPI.serverDimensionsLoadEvent.invoker().run(settings.options(), wrappedRegistryAccess);
+//
+//            return subDimensionRegistry
+//                .keySet().stream().map(DimId::idToKey).toList();
 //        }
 //        catch (Exception e) {
-//            e.printStackTrace();
+//            LOGGER.error("ImmPtl getting dimension list", e);
+//            return List.of(DimId.idToKey("error:error"));
 //        }
-//
-//        HashSet<ResourceKey<Level>> dims = new HashSet<>();
-//
-//        if (ip_lastWorldGenSettings != null) {
-//            ip_lastWorldGenSettings.dimensions().keySet().forEach(id -> {
-//                dims.add(DimId.idToKey(id));
-//            });
-//        }
-//        else {
-//            Helper.err("Null WorldGen settings");
-//        }
-//
-//        copiedGeneratorOptions.dimensions().keySet().forEach(id -> {
-//            dims.add(DimId.idToKey(id));
-//        });
-//
-//        return dims.stream().toList();
     }
 }

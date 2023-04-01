@@ -188,19 +188,20 @@ public class CollisionHelper {
         boolean collidesWithFloor = collideY && attemptedMove.y < 0.0D;
         boolean touchGround = entity.isOnGround() || collidesWithFloor;
         boolean collidesHorizontally = collideX || collideZ;
-        if (entity.maxUpStep > 0.0F && touchGround && collidesHorizontally) {
+        float maxUpStep = entity.maxUpStep();
+        if (maxUpStep > 0.0F && touchGround && collidesHorizontally) {
             // the entity is touching ground and has horizontal collision now
             // try to directly move to stepped position, make it approach the stair
             Vec3 stepping = collisionFunc.apply(
-                new Vec3(attemptedMove.x, (double) entity.maxUpStep, attemptedMove.z),
+                new Vec3(attemptedMove.x, (double) maxUpStep, attemptedMove.z),
                 boundingBox
             );
             // try to move up in step height with expanded box
             Vec3 verticalStep = collisionFunc.apply(
-                new Vec3(0.0D, (double) entity.maxUpStep, 0.0D),
+                new Vec3(0.0D, (double) maxUpStep, 0.0D),
                 boundingBox.expandTowards(attemptedMove.x, 0.0D, attemptedMove.z)
             );
-            if (verticalStep.y < (double) entity.maxUpStep) {
+            if (verticalStep.y < (double) maxUpStep) {
                 // try to move horizontally after moving up
                 Vec3 horizontalMoveAfterVerticalStepping = collisionFunc.apply(
                     new Vec3(attemptedMove.x, 0.0D, attemptedMove.z),
@@ -232,7 +233,7 @@ public class CollisionHelper {
     @IPVanillaCopy
     public static Vec3 handleCollisionWithShapeProcessor(
         Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter,
-        Direction gravity
+        Direction gravity, double steppingScale
     ) {
         Direction jumpDirection = gravity.getOpposite();
         Direction.Axis gravityAxis = gravity.getAxis();
@@ -253,7 +254,11 @@ public class CollisionHelper {
         boolean collidesWithFloor = collidesOnGravityAxis && attemptToMoveAlongGravity;
         boolean touchGround = entity.isOnGround() || collidesWithFloor;
         boolean collidesHorizontally = movesOnNonGravityAxis(collisionDelta, gravityAxis);
-        float maxUpStep = entity.maxUpStep * PehkuiInterface.invoker.getBaseScale(entity);
+        float maxUpStep = entity.maxUpStep()
+            * PehkuiInterface.invoker.getBaseScale(entity);
+        if (steppingScale > 1) {
+            maxUpStep *= steppingScale;
+        }
         if (maxUpStep > 0.0F && touchGround && collidesHorizontally) {
             // the entity is touching ground and has horizontal collision now
             // try to directly move to stepped position, make it approach the stair

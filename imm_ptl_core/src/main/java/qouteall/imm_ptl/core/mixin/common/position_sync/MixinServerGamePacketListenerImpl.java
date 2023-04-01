@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
@@ -186,7 +187,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
      */
     @Overwrite
     @IPVanillaCopy
-    public void teleport(double x, double y, double z, float yaw, float pitch, Set<ClientboundPlayerPositionPacket.RelativeArgument> flags, boolean shouldDismount) {
+    public void teleport(double x, double y, double z, float yaw, float pitch, Set<RelativeMovement> nonRelative) {
         // it may request teleport while this.player is marked removed during respawn
         
         if (player.getRemovalReason() != null) {
@@ -195,24 +196,22 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             return;
         }
         
-        double d = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0D;
-        double e = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0D;
-        double f = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0D;
-        float g = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.getYRot() : 0.0F;
-        float h = flags.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.getXRot() : 0.0F;
+        double xDiff = nonRelative.contains(RelativeMovement.X) ? this.player.getX() : 0.0;
+        double yDiff = nonRelative.contains(RelativeMovement.Y) ? this.player.getY() : 0.0;
+        double zDiff = nonRelative.contains(RelativeMovement.Z) ? this.player.getZ() : 0.0;
+        float yawDiff = nonRelative.contains(RelativeMovement.Y_ROT) ? this.player.getYRot() : 0.0f;
+        float pitchDiff = nonRelative.contains(RelativeMovement.X_ROT) ? this.player.getXRot() : 0.0f;
+        
         this.awaitingPositionFromClient = new Vec3(x, y, z);
         if (++this.awaitingTeleport == Integer.MAX_VALUE) {
             this.awaitingTeleport = 0;
         }
-
-//        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-//            Helper.err("Teleport request cancelled " + player.getName().asString());
-//            return;
-//        }
         
         this.awaitingTeleportTime = this.tickCount;
         this.player.absMoveTo(x, y, z, yaw, pitch);
-        ClientboundPlayerPositionPacket lookPacket = new ClientboundPlayerPositionPacket(x - d, y - e, z - f, yaw - g, pitch - h, flags, this.awaitingTeleport, shouldDismount);
+        ClientboundPlayerPositionPacket lookPacket = new ClientboundPlayerPositionPacket(
+            x - xDiff, y - yDiff, z - zDiff, yaw - yawDiff, pitch - pitchDiff, nonRelative, this.awaitingTeleport
+        );
         
         ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.level.dimension());
         
