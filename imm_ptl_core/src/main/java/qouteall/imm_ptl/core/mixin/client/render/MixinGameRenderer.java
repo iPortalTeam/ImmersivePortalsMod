@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -127,7 +128,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         RenderStates.onTotalRenderEnd();
         
         GuiPortalRendering.onGameRenderEnd();
-    
+        
         if (IPCGlobal.lateClientLightUpdate) {
             minecraft.getProfiler().push("ip_late_update_light");
             MyRenderHelper.lateUpdateLight();
@@ -201,25 +202,68 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         portal_isRenderingHand = false;
     }
     
-    // do not translate
-    @Redirect(
-        method = "Lnet/minecraft/client/renderer/GameRenderer;bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"
-        )
+    // not using ModifyArgs because ModifyArgs seems broken on Forge
+    @ModifyArg(
+        method = "bobView",
+        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"),
+        index = 0
     )
-    private void redirectBobViewTranslate(PoseStack matrixStack, float x, float y, float z) {
+    private float modifyBobViewTranslateX(float f) {
         if (portal_isRenderingHand) {
-            matrixStack.translate(x, y, z);
+            return f;
         }
         else {
-            double multiplier = RenderStates.getViewBobbingOffsetMultiplier();
-            matrixStack.translate(
-                x * multiplier, y * multiplier, z * multiplier
-            );
+            return (float) (f * RenderStates.getViewBobbingOffsetMultiplier());
         }
     }
+    
+    @ModifyArg(
+        method = "bobView",
+        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"),
+        index = 1
+    )
+    private float modifyBobViewTranslateY(float f) {
+        if (portal_isRenderingHand) {
+            return f;
+        }
+        else {
+            return (float) (f * RenderStates.getViewBobbingOffsetMultiplier());
+        }
+    }
+    
+    @ModifyArg(
+        method = "bobView",
+        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"),
+        index = 2
+    )
+    private float modifyBobViewTranslateZ(float f) {
+        if (portal_isRenderingHand) {
+            return f;
+        }
+        else {
+            return (float) (f * RenderStates.getViewBobbingOffsetMultiplier());
+        }
+    }
+
+
+//    @Redirect(
+//        method = "Lnet/minecraft/client/renderer/GameRenderer;bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"
+//        )
+//    )
+//    private void redirectBobViewTranslate(PoseStack matrixStack, float x, float y, float z) {
+//        if (portal_isRenderingHand) {
+//            matrixStack.translate(x, y, z);
+//        }
+//        else {
+//            double multiplier = RenderStates.getViewBobbingOffsetMultiplier();
+//            matrixStack.translate(
+//                x * multiplier, y * multiplier, z * multiplier
+//            );
+//        }
+//    }
     
     // make sure that the portal rendering basic projection matrix is right
     // the basic projection matrix does not contain view bobbing
