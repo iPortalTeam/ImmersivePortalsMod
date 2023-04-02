@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -7,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -56,6 +58,22 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     @Shadow
     @Final
     private RenderBuffers renderBuffers;
+    
+    @Shadow
+    @Final
+    private static Logger LOGGER;
+    
+    @ModifyExpressionValue(
+        method = "Lnet/minecraft/client/Minecraft;run()V",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/lang/Thread;currentThread()Ljava/lang/Thread;"
+        )
+    )
+    private Thread testMixinExtra(Thread original) {
+        LOGGER.info("[ImmPtl] MixinExtra is working!");
+        return original;
+    }
     
     /**
      * The whole process involving portal animation and teleportation:
