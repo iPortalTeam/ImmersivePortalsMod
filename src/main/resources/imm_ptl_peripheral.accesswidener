@@ -27,4 +27,5 @@ extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
 
 accessible class net/minecraft/resources/RegistryDataLoader$Loader
 
+accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab
 

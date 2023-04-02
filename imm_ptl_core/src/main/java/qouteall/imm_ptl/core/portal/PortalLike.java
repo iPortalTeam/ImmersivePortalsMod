@@ -40,12 +40,10 @@ public interface PortalLike {
     
     Vec3 inverseTransformPoint(Vec3 point);
     
-    // TODO remove this and use the area box
     double getDistanceToNearestPointInPortal(
         Vec3 point
     );
     
-    // TODO remove this and use the area box
     double getDestAreaRadiusEstimation();
     
     Vec3 getOriginPos();

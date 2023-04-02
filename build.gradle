@@ -157,8 +157,8 @@ allprojects {
         modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
         modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
 
-//        api("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
-//        annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
+        api("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
+        annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
     }
 
     processResources {
@@ -234,7 +234,7 @@ dependencies {
     }
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
-//    include("com.github.LlamaLad7:MixinExtras:${mixin_extra_version}")
+    include("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
 
     // for testing portal gun
 //    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4') {

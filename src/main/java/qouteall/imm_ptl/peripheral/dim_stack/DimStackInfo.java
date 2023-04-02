@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -115,13 +116,16 @@ public class DimStackInfo {
             if (server.getLevel(entry.getDimension()) == null) {
                 McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
                     "Failed to apply dimension stack. Missing dimension " + entry.dimensionIdStr
-                ));
+                ).withStyle(ChatFormatting.RED));
                 return;
             }
         }
         
         if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).getDimension())).isEmpty()) {
             Helper.err("There are already global portals when initializing dimension stack");
+            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+                "Failed to apply dimension stack because there are already global portals when initializing dimension stack"
+            ).withStyle(ChatFormatting.RED));
             return;
         }
         
