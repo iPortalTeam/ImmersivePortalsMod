@@ -23,6 +23,7 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.mixin.common.end_portal.IEEndDragonFight;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
+import qouteall.q_misc_util.LifecycleHack;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.List;
@@ -47,6 +48,9 @@ public class PeripheralModMain {
         
         AlternateDimensions.init();
         
+        LifecycleHack.markNamespaceStable("immersive_portals");
+        LifecycleHack.markNamespaceStable("imm_ptl");
+        
         Registry.register(
             BuiltInRegistries.CHUNK_GENERATOR,
             new ResourceLocation("immersive_portals:error_terrain_generator"),
@@ -57,13 +61,13 @@ public class PeripheralModMain {
             new ResourceLocation("immersive_portals:normal_skyland_generator"),
             NormalSkylandGenerator.codec
         );
-    
+        
         Registry.register(
             BuiltInRegistries.BIOME_SOURCE,
             new ResourceLocation("immersive_portals:chaos_biome_source"),
             ChaosBiomeSource.CODEC
         );
-    
+        
         EndPortalEntity.updateDragonFightStatusFunc = () -> {
             ServerLevel world = MiscHelper.getServer().getLevel(Level.END);
             if (world == null) {
@@ -207,7 +211,7 @@ public class PeripheralModMain {
             Lists.newArrayList("imm_ptl.command_desc." + name)
         ));
     }
-    
+
 //    public static class IndirectMerger {
 //        private static final DoubleList EMPTY = DoubleLists.unmodifiable(DoubleArrayList.wrap(new double[]{0.0}));
 //        private final double[] result;

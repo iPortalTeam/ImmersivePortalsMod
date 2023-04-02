@@ -139,23 +139,23 @@ allprojects {
         }
         modImplementation "maven.modrinth:modmenu:${modmenu_version}"
 
-        modCompileOnly("com.github.Virtuoel:Pehkui:3.7.2", {
+        modImplementation("com.github.Virtuoel:Pehkui:3.7.2", {
             exclude group: "net.fabricmc.fabric-api"
         })
 
         modImplementation "maven.modrinth:sodium:mc1.19.4-0.4.10"
 
-        modCompileOnly 'maven.modrinth:iris:1.5.2+1.19.4'
+        modImplementation 'maven.modrinth:iris:1.5.2+1.19.4'
         implementation "org.anarres:jcpp:1.4.14" // for iris
         implementation 'io.github.douira:glsl-transformer:2.0.0-pre8' // for iris
         implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
-        modCompileOnly("com.github.qouteall:Gravity-Api:0.8.0-mc1.19.3") {
+        modImplementation("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
-        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
 
         api("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
         annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
@@ -313,7 +313,7 @@ modrinth {
     projectId = "zJpHMkdD"
     versionNumber = "${project.version}-${project.minecraft_version}"
     // You don't need to set this manually. Will fail if Modrinth has this version already
-    versionType = "release" // This is the default -- can also be `beta` or `alpha`
+    versionType = "alpha" // This is the default -- can also be `beta` or `alpha`
     uploadFile = remapJar
     gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
     loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle

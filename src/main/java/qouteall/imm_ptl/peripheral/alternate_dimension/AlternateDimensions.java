@@ -2,6 +2,7 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AlternateDimensions {
-    public static final HolderLookup.Provider vanillaRegistriesLookup = VanillaRegistries.createLookup();
+//    public static final HolderLookup.Provider vanillaRegistriesLookup = VanillaRegistries.createLookup();
     
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
@@ -175,7 +176,7 @@ public class AlternateDimensions {
         
         FlatLevelGeneratorSettings flatChunkGeneratorConfig =
             new FlatLevelGeneratorSettings(
-                Optional.empty(),
+                Optional.of(HolderSet.direct()),
                 plainsHolder,
                 List.of()
             );

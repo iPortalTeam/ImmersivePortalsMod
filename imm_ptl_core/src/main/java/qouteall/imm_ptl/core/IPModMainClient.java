@@ -11,6 +11,7 @@ import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.IPNetworkingClient;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
@@ -30,13 +31,15 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class IPModMainClient {
     
+    private static final boolean isPreview = true;
+    
     private static void showPreviewWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (IPGlobal.enableWarning) {
                     MutableComponent text = Component.translatable("imm_ptl.preview_warning").append(
-                        McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
+                        McHelper.getLinkText(O_O.getIssueLink())
                     );
                     
                     CHelper.printChat(text);
@@ -110,7 +113,9 @@ public class IPModMainClient {
             ClientDebugCommand.register(dispatcher);
         });
         
-//        showPreviewWarning();
+        if (isPreview) {
+            showPreviewWarning();
+        }
 
 //        showIntelVideoCardWarning();
         

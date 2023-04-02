@@ -13,6 +13,7 @@
     "dimension.MixinLevelProperties_D",
     "dimension.MixinMinecraftServer_D",
     "dimension.MixinPlayerList_Misc",
+    "dimension.MixinWorldDimensions",
     "dimension.MixinWorldGenSettings"
   ],
   "client": [

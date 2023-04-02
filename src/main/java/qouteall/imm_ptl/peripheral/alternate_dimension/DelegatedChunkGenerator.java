@@ -40,6 +40,7 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunk1;
 
 import java.util.List;
@@ -49,6 +50,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+@IPVanillaCopy
 public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     
     protected ChunkGenerator delegate;
