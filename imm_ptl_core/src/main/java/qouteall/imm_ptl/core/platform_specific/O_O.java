@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
 import javax.annotation.Nullable;
@@ -102,7 +102,7 @@ public class O_O {
     
     @Environment(EnvType.CLIENT)
     public static ClientChunkCache createMyClientChunkManager(ClientLevel world, int loadDistance) {
-        return new MyClientChunkManager(world, loadDistance);
+        return new ImmPtlClientChunkMap(world, loadDistance);
     }
     
     public static boolean getIsPehkuiPresent() {

@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +32,7 @@ import java.util.function.Consumer;
 // allow storing chunks that are far away from the player
 @Environment(EnvType.CLIENT)
 @IPVanillaCopy
-public class MyClientChunkManager extends ClientChunkCache {
+public class ImmPtlClientChunkMap extends ClientChunkCache {
     private static final Logger LOGGER = LogManager.getLogger();
     protected final LevelChunk emptyChunk;
     protected final LevelLightEngine lightingProvider;
@@ -45,7 +44,7 @@ public class MyClientChunkManager extends ClientChunkCache {
     public static final SignalArged<LevelChunk> clientChunkLoadSignal = new SignalArged<>();
     public static final SignalArged<LevelChunk> clientChunkUnloadSignal = new SignalArged<>();
     
-    public MyClientChunkManager(ClientLevel clientWorld, int loadDistance) {
+    public ImmPtlClientChunkMap(ClientLevel clientWorld, int loadDistance) {
         super(clientWorld, 1); // the chunk array is unused. make it small by passing 1 as load distance to super constructor
         this.world = clientWorld;
         this.emptyChunk = new EmptyLevelChunk(

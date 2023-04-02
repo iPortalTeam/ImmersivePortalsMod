@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
@@ -67,7 +67,7 @@ public class MyBuiltChunkStorage extends ViewArea {
     private boolean isAlive = true;
     
     public static void init() {
-        MyClientChunkManager.clientChunkUnloadSignal.connect(chunk -> {
+        ImmPtlClientChunkMap.clientChunkUnloadSignal.connect(chunk -> {
             ResourceKey<Level> dimension = chunk.getLevel().dimension();
             
             LevelRenderer worldRenderer = ClientWorldLoader.worldRendererMap.get(dimension);
