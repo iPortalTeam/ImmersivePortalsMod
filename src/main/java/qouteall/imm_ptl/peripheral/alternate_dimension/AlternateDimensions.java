@@ -154,6 +154,7 @@ public class AlternateDimensions {
             rm.registryOrThrow(Registries.DENSITY_FUNCTION).asLookup(),
             rm.registryOrThrow(Registries.NOISE).asLookup(),
             rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup(),
+            rm.registryOrThrow(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST).asLookup(),
             seed
         );
     }

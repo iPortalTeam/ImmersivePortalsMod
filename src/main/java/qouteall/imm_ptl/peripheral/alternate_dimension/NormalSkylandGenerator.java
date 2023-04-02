@@ -57,6 +57,7 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
                 RegistryOps.retrieveGetter(Registries.DENSITY_FUNCTION),
                 RegistryOps.retrieveGetter(Registries.NOISE),
                 RegistryOps.retrieveGetter(Registries.NOISE_SETTINGS),
+                RegistryOps.retrieveGetter(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST),
                 Codec.LONG.optionalFieldOf("seed", 0L).forGetter(g -> g.seed)
             )
             .apply(instance, NormalSkylandGenerator::create)
@@ -100,11 +101,9 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
         HolderGetter<DensityFunction> densityFunctionHolderGetter,
         HolderGetter<NormalNoise.NoiseParameters> noiseParametersHolderGetter,
         HolderGetter<NoiseGeneratorSettings> noiseGeneratorSettingsHolderGetter,
+        HolderGetter<MultiNoiseBiomeSourceParameterList> biomeParamListLookup,
         long seed
     ) {
-        HolderLookup.RegistryLookup<MultiNoiseBiomeSourceParameterList> biomeParamListLookup =
-            AlternateDimensions.vanillaRegistriesLookup.lookupOrThrow(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST);
-        
         Holder.Reference<MultiNoiseBiomeSourceParameterList> overworldBiomeParamList =
             biomeParamListLookup.getOrThrow(MultiNoiseBiomeSourceParameterLists.OVERWORLD);
         

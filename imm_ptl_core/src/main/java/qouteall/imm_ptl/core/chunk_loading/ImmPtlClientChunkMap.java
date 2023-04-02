@@ -3,12 +3,14 @@ package qouteall.imm_ptl.core.chunk_loading;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
@@ -20,7 +22,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -29,7 +33,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-// allow storing chunks that are far away from the player
+/**
+ * Vanilla use a 2D array to store the chunk references on client and cannot store the chunks that are far from player.
+ * This use a map to store the chunk references.
+ */
 @Environment(EnvType.CLIENT)
 @IPVanillaCopy
 public class ImmPtlClientChunkMap extends ClientChunkCache {
@@ -93,7 +100,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         }
     }
     
-    public boolean isChunkLoaded(int x,int z) {
+    public boolean isChunkLoaded(int x, int z) {
         synchronized (chunkMap) {
             return chunkMap.containsKey(ChunkPos.asLong(x, z));
         }
@@ -107,9 +114,9 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     @Override
     public void replaceBiomes(int x, int z, FriendlyByteBuf friendlyByteBuf) {
         long chunkPosLong = ChunkPos.asLong(x, z);
-    
+        
         LevelChunk worldChunk;
-    
+        
         synchronized (chunkMap) {
             worldChunk = chunkMap.get(chunkPosLong);
             ChunkPos chunkPos = new ChunkPos(x, z);
@@ -137,11 +144,11 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             ChunkPos chunkPos = new ChunkPos(x, z);
             if (!isValidChunk(worldChunk, x, z)) {
                 worldChunk = new LevelChunk(this.world, chunkPos);
-                worldChunk.replaceWithPacketData(buf, nbt, consumer);
+                loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
             else {
-                worldChunk.replaceWithPacketData(buf, nbt, consumer);
+                loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
             }
         }
         
@@ -151,6 +158,41 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         clientChunkLoadSignal.emit(worldChunk);
         
         return worldChunk;
+    }
+    
+    /**
+     * {@link net.minecraft.core.IdMap#byIdOrThrow(int)}
+     * {@link net.minecraft.world.level.chunk.LinearPalette#read(FriendlyByteBuf)}
+     */
+    private void loadChunkDataFromPacket(
+        FriendlyByteBuf buf,
+        CompoundTag nbt,
+        LevelChunk worldChunk,
+        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+    ) {
+        try {
+            worldChunk.replaceWithPacketData(buf, nbt, consumer);
+        }
+        catch (Exception e) {
+            LOGGER.error(
+                "Error deserializing chunk packet {} {}",
+                worldChunk.getLevel().dimension().location(),
+                worldChunk.getPos(),
+                e
+            );
+            CHelper.printChat(
+                Component
+                    .literal("Failed to deserialize chunk packet. %s %s %s".formatted(
+                        worldChunk.getLevel().dimension().location(),
+                        worldChunk.getPos().x, worldChunk.getPos().z
+                    ))
+                    .append(Component.literal(" Report issue:"))
+                    .append(McHelper.getLinkText(O_O.getIssueLink()))
+                    .withStyle(ChatFormatting.RED)
+            );
+            
+            throw new RuntimeException(e);
+        }
     }
     
     public List<LevelChunk> getCopiedChunkList() {

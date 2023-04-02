@@ -12,8 +12,10 @@ import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -53,7 +55,9 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PortalDebugCommands {
@@ -407,6 +411,27 @@ public class PortalDebugCommands {
                     "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportResourceConsumption"
                 );
                 
+                return 0;
+            })
+        );
+        
+        builder.then(Commands
+            .literal("check_biome_registry")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+            .executes(context -> {
+                RegistryAccess.Frozen registryAccess = MiscHelper.getServer().registryAccess();
+                Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
+                Map<String, Integer> map = new HashMap<>();
+                for (Map.Entry<ResourceKey<Biome>, Biome> entry : biomes.entrySet()) {
+                    String strId = entry.getKey().location().toString();
+                    int intId = biomes.getId(entry.getValue());
+                    map.put(strId, intId);
+                }
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayerOrException(),
+                    "qouteall.imm_ptl.core.ClientWorldLoader.RemoteCallables.checkBiomeRegistry",
+                    map
+                );
                 return 0;
             })
         );

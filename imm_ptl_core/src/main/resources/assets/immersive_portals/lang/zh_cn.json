@@ -127,7 +127,7 @@
   "imm_ptl.command.bind_cluster": "整合传送门实体",
   "imm_ptl.command_desc.bind_cluster": "允许更简单地编辑双面、双向传送门",
   "imm_ptl.enable_mirror_creation": "允许创建镜子",
-  "imm_ptl.command.reverse_accelerate50": "反向加速 200",
+  "imm_ptl.command.reverse_accelerate50": "反向加速 50",
   "imm_ptl.command_desc.reverse_accelerate50": "飞行!",
   "imm_ptl.command.enable_pos_adjust": "启用传送后调整实体坐标",
   "imm_ptl.command_desc.enable_pos_adjust": "使传送后不会掉到地板里",

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core;
 
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -12,10 +13,14 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
@@ -43,6 +48,8 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientWorldLoader.class);
+    
     public static final SignalArged<ResourceKey<Level>> clientDimensionDynamicRemoveSignal =
         new SignalArged<>();
     public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
@@ -491,5 +498,29 @@ public class ClientWorldLoader {
             runnable.run();
             return null;
         });
+    }
+    
+    public static class RemoteCallables {
+        public static void checkBiomeRegistry(
+            Map<String, Integer> idMap
+        ) {
+            RegistryAccess registryAccess = Minecraft.getInstance().player.connection.registryAccess();
+            Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
+            
+            for (Map.Entry<String, Integer> entry : idMap.entrySet()) {
+                ResourceLocation id = new ResourceLocation(entry.getKey());
+                int expectedId = entry.getValue();
+                
+                if (biomes.getId(biomes.get(id)) != expectedId) {
+                    LOGGER.error("Biome id mismatch: " + id + " " + expectedId);
+                }
+            }
+            
+            if (idMap.size() != biomes.keySet().size()) {
+                LOGGER.error("Biome id mismatch: size not equal");
+            }
+            
+            LOGGER.info("Biome id check finished");
+        }
     }
 }
