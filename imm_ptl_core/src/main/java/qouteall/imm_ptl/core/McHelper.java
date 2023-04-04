@@ -598,15 +598,17 @@ public class McHelper {
             radiusChunks = 32;
         }
         
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
+        SectionPos sectionPos = SectionPos.of(center);
+        
         return findEntities(
             entityClass,
             ((IEWorld) world).portal_getEntityLookup(),
-            chunkPos.x - radiusChunks,
-            chunkPos.x + radiusChunks,
-            McHelper.getMinSectionY(world), McHelper.getMaxSectionYExclusive(world) - 1,
-            chunkPos.z - radiusChunks,
-            chunkPos.z + radiusChunks,
+            sectionPos.x() - radiusChunks,
+            sectionPos.x() + radiusChunks,
+            sectionPos.y() - radiusChunks,
+            sectionPos.y() + radiusChunks,
+            sectionPos.z() - radiusChunks,
+            sectionPos.z() + radiusChunks,
             predicate
         );
     }
@@ -647,14 +649,11 @@ public class McHelper {
         int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
         int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
-        int minChunkY = McHelper.getMinSectionY(world);
-        int maxChunkYExclusive = McHelper.getMaxSectionYExclusive(world);
         
         foreachEntities(
             entityClass, ((IEWorld) world).portal_getEntityLookup(),
             xMin >> 4, xMax >> 4,
-            Mth.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
-            Mth.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
+            yMin >> 4, yMax >> 4,
             zMin >> 4, zMax >> 4,
             consumer
         );
@@ -671,14 +670,10 @@ public class McHelper {
         int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
         int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
-        int minChunkY = McHelper.getMinSectionY(world);
-        int maxChunkYExclusive = McHelper.getMaxSectionYExclusive(world);
-        
         return traverseEntities(
             entityClass, ((IEWorld) world).portal_getEntityLookup(),
             xMin >> 4, xMax >> 4,
-            Mth.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
-            Mth.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
+            yMin >> 4, yMax >> 4,
             zMin >> 4, zMax >> 4,
             function
         );
