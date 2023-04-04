@@ -36,7 +36,7 @@ public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
     
     // call code in the outer mod
-    // TODO move end portal to the outer mod
+    // TODO move end portal to the outer mod in 1.20
     public static Runnable updateDragonFightStatusFunc;
     
     public static EntityType<EndPortalEntity> entityType;
