@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
 
     id "com.modrinth.minotaur" version "2.+"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 
 //    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
 }
@@ -324,5 +325,34 @@ modrinth {
         required.project "P7dR8mSH" // Creates a new required dependency on Fabric API
     }
 }
+
+//curseforge {
+//    if (System.getenv().CURSEFORGE_API_KEY) {
+//        apiKey = System.getenv().CURSEFORGE_API_KEY
+////        System.out.println("Curseforge api key found")
+//    } else {
+////        System.out.println("Curseforge api key not found")
+//    }
+//
+//    project {
+//        id = "332273"
+//        changelog = "No changelog provided"
+//        releaseType = "beta"
+//        addGameVersion "1.19.4"
+//        addGameVersion "Fabric"
+//
+//        mainArtifact(remapJar) {
+//            displayName = "${project.version}-mc${project.minecraft_version}"
+//        }
+//
+//        afterEvaluate {
+//            uploadTask.dependsOn("remapJar")
+//        }
+//    }
+//
+//    options {
+//        forgeGradleIntegration = false
+//    }
+//}
 
 // Enable ZGC: -XX:+UseZGC
