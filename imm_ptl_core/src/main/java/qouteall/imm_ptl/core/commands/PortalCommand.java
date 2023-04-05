@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.commands;
 
-import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -2253,6 +2252,7 @@ public class PortalCommand {
         return 0;
     }
     
+    @Deprecated
     public static Portal getPlayerPointingPortal(
         ServerPlayer player, boolean includeGlobalPortal
     ) {
@@ -2260,6 +2260,7 @@ public class PortalCommand {
             .map(Pair::getFirst).orElse(null);
     }
     
+    @Deprecated
     public static Optional<Pair<Portal, Vec3>> getPlayerPointingPortalRaw(
         Player player, float tickDelta, double maxDistance, boolean includeGlobalPortal
     ) {
@@ -2272,30 +2273,7 @@ public class PortalCommand {
     public static Optional<Pair<Portal, Vec3>> raytracePortals(
         Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
     ) {
-        Stream<Portal> portalStream = McHelper.getEntitiesNearby(
-            world,
-            from,
-            Portal.class,
-            from.distanceTo(to)
-        ).stream();
-        if (includeGlobalPortal) {
-            List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
-            portalStream = Streams.concat(
-                portalStream,
-                globalPortals.stream()
-            );
-        }
-        return portalStream.map(
-            portal -> new Pair<Portal, Vec3>(
-                portal, portal.rayTrace(from, to)
-            )
-        ).filter(
-            portalAndHitPos -> portalAndHitPos.getSecond() != null
-        ).min(
-            Comparator.comparingDouble(
-                portalAndHitPos -> portalAndHitPos.getSecond().distanceToSqr(from)
-            )
-        );
+        return PortalUtils.raytracePortals(world, from, to, includeGlobalPortal, p->true);
     }
     
     /**

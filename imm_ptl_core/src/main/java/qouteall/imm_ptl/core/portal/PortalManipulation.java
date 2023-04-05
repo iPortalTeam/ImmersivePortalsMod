@@ -493,6 +493,10 @@ public class PortalManipulation {
         ));
     }
     
+    /**
+     * Use {@link PortalUtils#raytracePortals(Level, Vec3, Vec3, boolean, Predicate)}
+     */
+    @Deprecated
     public static Optional<Pair<Portal, Vec3>> raytracePortals(
         Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
     ) {

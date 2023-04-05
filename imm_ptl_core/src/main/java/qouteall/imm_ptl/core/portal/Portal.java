@@ -632,7 +632,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     /**
      * Determines whether the player should be able to reach through the portal or not.
-     * Can be overridden by a subclass.
+     * Update: Should use {@link Portal#isInteractableBy(Player)}.
      *
      * @return the interactability of the portal
      */
@@ -714,6 +714,19 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         return entity.canChangeDimensions();
+    }
+    
+    /**
+     * Can the player interact with blocks through portal
+     */
+    public boolean isInteractableBy(Player player) {
+        if (!isInteractable()) {
+            return false;
+        }
+        if (!isVisible()) {
+            return false;
+        }
+        return canTeleportEntity(player);
     }
     
     /**

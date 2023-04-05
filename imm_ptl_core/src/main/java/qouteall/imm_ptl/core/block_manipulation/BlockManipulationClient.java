@@ -29,6 +29,7 @@ import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.imm_ptl.core.portal.PortalUtils;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -67,24 +68,23 @@ public class BlockManipulationClient {
         
         float reachDistance = client.gameMode.getPickRange();
         
-        PortalCommand.getPlayerPointingPortalRaw(
-            client.player, tickDelta, reachDistance, true
+        PortalUtils.raytracePortalsFromPlayer(
+            client.player, tickDelta, reachDistance, true,
+            portal -> portal.isInteractableBy(client.player)
         ).ifPresent(pair -> {
             Portal portal = pair.getFirst();
-            if (portal.isInteractable() && portal.isVisible()) {
-                double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
-                if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
-                    client.hitResult = createMissedHitResult(cameraPos, pair.getSecond());
-                    
-                    updateTargetedBlockThroughPortal(
-                        cameraPos,
-                        client.player.getViewVector(tickDelta),
-                        client.player.level.dimension(),
-                        distanceToPortalPointing,
-                        reachDistance,
-                        portal
-                    );
-                }
+            double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
+            if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
+                client.hitResult = createMissedHitResult(cameraPos, pair.getSecond());
+                
+                updateTargetedBlockThroughPortal(
+                    cameraPos,
+                    client.player.getViewVector(tickDelta),
+                    client.player.level.dimension(),
+                    distanceToPortalPointing,
+                    reachDistance,
+                    portal
+                );
             }
         });
     }
