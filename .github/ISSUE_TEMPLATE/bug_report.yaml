@@ -24,4 +24,4 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: "# The maintainer may ask questions for clarifying this issue. Simply submitting a vague issue without replying WILL GET IGNORED."
+      value: "** The maintainer may ask questions for clarifying this issue. Simply submitting a vague issue without replying will get ignored. **"
