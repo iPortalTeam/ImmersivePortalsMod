@@ -43,50 +43,33 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         PacketRedirection.validateForceRedirecting();
     }
     
-    /**
-     * @author qouteall
-     * @reason make incompat fail fast
-     */
-    @Overwrite
-    public void removePairing(ServerPlayer player) {
-        PacketRedirection.withForceRedirect(
-            ((ServerLevel) entity.level), () -> {
-                entity.stopSeenByPlayer(player);
-                player.connection.send(new ClientboundRemoveEntitiesPacket(entity.getId()));
-            }
-        );
+    @Redirect(
+        method = "removePairing",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"
+        )
+    )
+    private void onSendRemoveEntityPacket(
+        ServerGamePacketListenerImpl networkHandler,
+        Packet packet
+    ) {
+        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level.dimension());
     }
     
-    /**
-     * @author qouteall
-     * @reason make incompat fail fast
-     */
-    @Overwrite
-    public void addPairing(ServerPlayer player) {
-        PacketRedirection.withForceRedirect(
-            ((ServerLevel) entity.level), () -> {
-                ServerGamePacketListenerImpl networkHandler = player.connection;
-                Objects.requireNonNull(networkHandler);
-                this.sendPairingData(networkHandler::send);
-                this.entity.startSeenByPlayer(player);
-            }
-        );
+    @Redirect(
+        method = "addPairing",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"
+        )
+    )
+    private void onSendAddEntityPacket(
+        ServerGamePacketListenerImpl networkHandler,
+        Packet packet
+    ) {
+        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level.dimension());
     }
-
-//    @Inject(
-//        method = "startTracking",
-//        at = @At("HEAD")
-//    )
-//    private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-//        CommonNetwork.validateForceRedirecting();
-//    }
-//
-//    @Inject(
-//        method = "stopTracking", at = @At("HEAD")
-//    )
-//    private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
-//        CommonNetwork.validateForceRedirecting();
-//    }
     
     @Redirect(
         method = "Lnet/minecraft/server/level/ServerEntity;broadcastAndSend(Lnet/minecraft/network/protocol/Packet;)V",
@@ -97,12 +80,15 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     )
     private void onSendToWatcherAndSelf(
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        Packet packet_1
+        Packet packet
     ) {
-        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet, entity.level.dimension());
     }
     
-    // It encodes position into 1/4096 units. That precision is not enough for portals.
+    /**
+     * It encodes position into 1/4096 units. That precision is not enough for portals.
+     * The portal position is synced in {@link Portal#reloadAndSyncToClient()}
+     */
     @Inject(
         method = "sendChanges",
         at = @At("HEAD"),
