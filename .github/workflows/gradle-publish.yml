@@ -30,6 +30,8 @@ jobs:
     - uses: Kir-Antipov/mc-publish@v3.2
       with:
         version-type: alpha
+        dependencies: ""
+        files-secondary: ""
 
         modrinth-id: zJpHMkdD
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
