@@ -3,9 +3,11 @@ package qouteall.imm_ptl.core.network;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.BundleDelimiterPacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +21,8 @@ import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PacketRedirection {
     
@@ -84,26 +88,41 @@ public class PacketRedirection {
         Validate.isTrue(getForceRedirectDimension() != null);
     }
     
-    // avoid ClassNotFound in dedicated server
-    public static void do_handleRedirectedPacketFromNetworkingThread(
+    /**
+     * This can be called both in networking thread (for normal packets) or in render thread (for bundle packet).
+     * avoid ClassNotFound in dedicated server
+     */
+    public static void do_handleRedirectedPacket(
         ResourceKey<Level> dimension,
         Packet<ClientGamePacketListener> packet,
         ClientGamePacketListener handler
     ) {
-        PacketRedirectionClient.handleRedirectedPacketFromNetworkingThread(dimension, packet, handler);
+        PacketRedirectionClient.handleRedirectedPacket(dimension, packet, handler);
     }
     
     public static Packet<ClientGamePacketListener> createRedirectedMessage(
         ResourceKey<Level> dimension,
         Packet<ClientGamePacketListener> packet
     ) {
-        ClientboundCustomPayloadPacket result =
-            new ClientboundCustomPayloadPacket(id_stcRedirected, dummyByteBuf);
-        
-        ((IECustomPayloadPacket) result).ip_setRedirectedDimension(dimension);
-        ((IECustomPayloadPacket) result).ip_setRedirectedPacket(packet);
-        
-        return result;
+        Validate.isTrue(!(packet instanceof BundleDelimiterPacket<ClientGamePacketListener>));
+        if (packet instanceof ClientboundBundlePacket bundlePacket) {
+            // vanilla has special handling to bundle packet
+            // don't wrap a bundle packet into a normal packet
+            List<Packet<ClientGamePacketListener>> newSubPackets = new ArrayList<>();
+            for (Packet<ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
+                newSubPackets.add(createRedirectedMessage(dimension, subPacket));
+            }
+            return new ClientboundBundlePacket(newSubPackets);
+        }
+        else {
+            ClientboundCustomPayloadPacket result =
+                new ClientboundCustomPayloadPacket(id_stcRedirected, dummyByteBuf);
+            
+            ((IECustomPayloadPacket) result).ip_setRedirectedDimension(dimension);
+            ((IECustomPayloadPacket) result).ip_setRedirectedPacket(packet);
+            
+            return result;
+        }
     }
     
     public static void sendRedirectedMessage(

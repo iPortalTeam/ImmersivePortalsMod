@@ -500,6 +500,20 @@ public class ClientWorldLoader {
         });
     }
     
+    public static void withSwitchedWorldFailSoft(ResourceKey<Level> dim, Runnable runnable) {
+        ClientLevel world = getOptionalWorld(dim);
+        
+        if (world == null) {
+            Helper.err(
+                "Ignoring redirected task of invalid dimension %s"
+                    .formatted(dim.location())
+            );
+            return;
+        }
+        
+        withSwitchedWorld(world, runnable);
+    }
+    
     public static class RemoteCallables {
         public static void checkBiomeRegistry(
             Map<String, Integer> idMap

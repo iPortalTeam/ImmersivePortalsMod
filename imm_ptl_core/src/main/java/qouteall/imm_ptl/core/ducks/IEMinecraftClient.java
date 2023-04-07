@@ -13,4 +13,6 @@ public interface IEMinecraftClient {
     void setWorldRenderer(LevelRenderer r);
     
     void ip_setRenderBuffers(RenderBuffers arg);
+    
+    Thread ip_getRunningThread();
 }

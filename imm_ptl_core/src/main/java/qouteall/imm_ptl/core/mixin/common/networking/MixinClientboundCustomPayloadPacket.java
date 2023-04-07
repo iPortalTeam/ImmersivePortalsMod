@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.networking;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
@@ -99,7 +100,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
     )
     private void onHandle(ClientGamePacketListener handler, CallbackInfo ci) {
         if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
-            PacketRedirection.do_handleRedirectedPacketFromNetworkingThread(
+            PacketRedirection.do_handleRedirectedPacket(
                 ip_redirectedDimension, ip_redirectedPacket, handler
             );
             ci.cancel();
@@ -121,6 +122,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
     
     @Override
     public void ip_setRedirectedPacket(Packet<ClientGamePacketListener> packet) {
+        Validate.isTrue(!(packet instanceof BundlePacket<ClientGamePacketListener>));
         ip_redirectedPacket = packet;
     }
     

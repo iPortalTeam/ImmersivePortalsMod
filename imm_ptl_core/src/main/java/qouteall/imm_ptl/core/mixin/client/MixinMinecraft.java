@@ -63,6 +63,8 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     @Final
     private static Logger LOGGER;
     
+    @Shadow private Thread gameThread;
+    
     @ModifyExpressionValue(
         method = "Lnet/minecraft/client/Minecraft;run()V",
         at = @At(
@@ -179,5 +181,10 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     @Override
     public void ip_setRenderBuffers(RenderBuffers arg) {
         renderBuffers = arg;
+    }
+    
+    @Override
+    public Thread ip_getRunningThread() {
+        return gameThread;
     }
 }
