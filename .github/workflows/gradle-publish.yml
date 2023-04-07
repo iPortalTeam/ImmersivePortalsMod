@@ -23,14 +23,18 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - uses: eskatos/gradle-command-action@v1
-      env:
-        MODRINTH: ${{ secrets.MODRINTH }}
       with:
         gradle-version: 7.3
-        arguments: build additionalCopy modrinth
+        arguments: build
 
-    - name: Upload assets to GitHub
-      uses: AButler/upload-release-assets@v2.0
+    - uses: Kir-Antipov/mc-publish@v3.2
       with:
-        files: 'build/to_upload/*'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        version-type: alpha
+
+        modrinth-id: zJpHMkdD
+        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+        curseforge-id: 332273
+        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+        github-token: ${{ secrets.GITHUB_TOKEN }}
