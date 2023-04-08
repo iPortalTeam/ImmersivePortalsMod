@@ -32,6 +32,8 @@ jobs:
         version-type: alpha
         dependencies: ""
         files-secondary: ""
+        changelog: ""
+        modrinth-featured: false
 
         modrinth-id: zJpHMkdD
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
