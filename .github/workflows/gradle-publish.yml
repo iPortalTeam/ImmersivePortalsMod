@@ -31,7 +31,6 @@ jobs:
       with:
         version-type: alpha
         dependencies: ""
-        files-secondary: ""
         changelog: ""
         modrinth-featured: false
 
@@ -40,5 +39,6 @@ jobs:
 
         curseforge-id: 332273
         curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+        curseforge-files-secondary: ""
 
         github-token: ${{ secrets.GITHUB_TOKEN }}
