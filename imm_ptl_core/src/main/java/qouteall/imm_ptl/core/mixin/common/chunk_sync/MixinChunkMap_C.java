@@ -87,6 +87,7 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
     /**
      * @author qouteall
      * @reason make mod incompatibility fail fast
+     * Actually handled in {@link qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager}
      */
     @Overwrite
     private void playerLoadedChunk(

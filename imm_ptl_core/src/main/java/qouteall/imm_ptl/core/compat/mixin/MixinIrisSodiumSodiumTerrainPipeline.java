@@ -14,7 +14,7 @@ import java.util.Optional;
 @Pseudo
 @Mixin(value = SodiumTerrainPipeline.class, remap = false)
 public class MixinIrisSodiumSodiumTerrainPipeline {
-    @Inject(method = "getTerrainVertexShaderSource", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getTerrainSolidVertexShaderSource", at = @At("RETURN"), cancellable = true)
     private void onGetTerrainVertexShaderSource(CallbackInfoReturnable<Optional<String>> cir) {
         Optional<String> original = cir.getReturnValue();
         cir.setReturnValue(original.map(code ->
