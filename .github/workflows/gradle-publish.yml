@@ -32,13 +32,15 @@ jobs:
         version-type: alpha
         dependencies: ""
         changelog: ""
-        modrinth-featured: false
+
+        files-primary: build/libs/!(*-@(dev|sources|javadoc)).jar
+        files-secondary: ""
 
         modrinth-id: zJpHMkdD
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+        modrinth-featured: false
 
         curseforge-id: 332273
         curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-        curseforge-files-secondary: ""
 
         github-token: ${{ secrets.GITHUB_TOKEN }}
