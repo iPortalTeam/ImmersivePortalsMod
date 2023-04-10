@@ -14,7 +14,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,11 +112,24 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, dimIconPath);
             RenderSystem.enableBlend();
+            matrixStack.pushPose();
+            matrixStack.translate(x, y, 0);
+            
+            int iconLen = widgetHeight - 4;
+            
+            if (entry != null && entry.flipped) {
+                matrixStack.rotateAround(
+                    DQuaternion.rotationByDegrees(new Vec3(0, 0, 1), 180).toMcQuaternion(),
+                    iconLen / 2.0f, iconLen / 2.0f, 0
+                );
+            }
+            
             GuiComponent.blit(
-                matrixStack, x, y, 0.0F, 0.0F,
-                widgetHeight - 4, widgetHeight - 4,
-                widgetHeight - 4, widgetHeight - 4
+                matrixStack, 0, 0, 0.0F, 0.0F,
+                iconLen, iconLen,
+                iconLen, iconLen
             );
+            matrixStack.popPose();
             RenderSystem.disableBlend();
         }
         
@@ -128,7 +144,47 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
                 x + widgetHeight + 3, (float) (y + 30),
                 0xFF999999
             );
+            
+            if (shouldRenderUpArrow()) {
+                matrixStack.pushPose();
+                matrixStack.translate(x + rowWidth - 13, y, 0);
+                matrixStack.scale(1.5f, 1.5f, 1.5f);
+                client.font.draw(
+                    matrixStack, Component.literal("↑"),
+                    0, 0,
+                    0xFF999999
+                );
+                matrixStack.popPose();
+            }
+            
+            if (shouldRenderDownArrow()) {
+                matrixStack.pushPose();
+                matrixStack.translate(x + rowWidth - 13, y + widgetHeight - 14.5f, 0);
+                matrixStack.scale(1.5f, 1.5f, 1.5f);
+                client.font.draw(
+                    matrixStack, Component.literal("↓"),
+                    0, 0,
+                    0xFF999999
+                );
+                matrixStack.popPose();
+            }
         }
+    }
+    
+    private boolean shouldRenderDownArrow() {
+        if (parent.entryWidgets.indexOf(this) == parent.entryWidgets.size() - 1) {
+            return false;
+        }
+        
+        return entry.connectsNext;
+    }
+    
+    private boolean shouldRenderUpArrow() {
+        if (parent.entryWidgets.indexOf(this) == 0) {
+            return false;
+        }
+        
+        return entry.connectsPrevious;
     }
     
     private Component getText1() {
@@ -147,11 +203,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
                 .append(Component.literal(" "))
             : Component.literal("");
         
-        MutableComponent flippedText = entry.flipped ?
-            Component.translatable("imm_ptl.flipped")
-            : Component.literal("");
-        
-        return horizontalRotationText.append(flippedText);
+        return horizontalRotationText;
     }
     
     @Override
@@ -159,12 +211,10 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         selectCallback.accept(this);
         super.mouseClicked(mouseX, mouseY, button);
         return true;//allow outer dragging
-        /**
-         * {@link EntryListWidget#mouseClicked(double, double, int)}
-         */
     }
     
     public static ResourceLocation getDimensionIconPath(ResourceKey<Level> dimension) {
+        // TODO get icon from mod icon
         ResourceLocation id = dimension.location();
         return new ResourceLocation(
             id.getNamespace(),
@@ -173,6 +223,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     }
     
     private static Component getDimensionName(ResourceKey<Level> dimension) {
+        // TODO get name from mod name
         return Component.translatable(
             "dimension." + dimension.location().getNamespace() + "."
                 + dimension.location().getPath()
