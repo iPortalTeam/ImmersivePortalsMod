@@ -47,7 +47,10 @@ public class PacketRedirection {
     
     public static void withForceRedirect(ServerLevel world, Runnable func) {
         if (((IEWorld) world).portal_getThread() != Thread.currentThread()) {
-            LOGGER.error("[ImmPtl] Seems that a mod is trying to manipulate server world information in non-server thread. This is generally unsafe! (ImmPtl is just doing checking)");
+            LOGGER.error(
+                "It's possible that a mod is trying to handle packet in networking thread instead of server thread. This is not thread safe and can cause rare bugs! (ImmPtl is just doing checking, it's not an issue of ImmPtl)",
+                new Throwable()
+            );
         }
         
         ResourceKey<Level> oldRedirection = serverPacketRedirection.get();

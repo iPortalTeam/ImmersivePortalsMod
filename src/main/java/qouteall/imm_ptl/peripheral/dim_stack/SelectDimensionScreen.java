@@ -33,7 +33,8 @@ public class SelectDimensionScreen extends Screen {
             height - 30,
             DimEntryWidget.widgetHeight,
             this,
-            DimListWidget.Type.addDimensionList
+            DimListWidget.Type.addDimensionList,
+            null
         );
         addWidget(dimListWidget);
         
@@ -42,7 +43,7 @@ public class SelectDimensionScreen extends Screen {
         List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.apply(this);
         
         for (ResourceKey<Level> dim : dimensionList) {
-            dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple, new DimStackEntry(dim)));
+            dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, new DimStackEntry(dim)));
         }
         
         dimListWidget.update();

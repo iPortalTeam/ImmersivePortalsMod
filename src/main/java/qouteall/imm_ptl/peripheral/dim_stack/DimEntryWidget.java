@@ -15,10 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,15 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     private final ResourceLocation dimIconPath;
     private final Component dimensionName;
     private boolean dimensionIconPresent = true;
-    private final Type type;
+    
+    // if null, it's in select dimension screen
+    // if not null, it's in dim stack screen
+    @Nullable
     public final DimStackEntry entry;
+    
+    // updated by DimListWidget
+    public boolean isFirst = false;
+    public boolean isLast = false;
     
     public final static int widgetHeight = 50;
     
@@ -43,21 +51,15 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         return List.of();
     }
     
-    public static enum Type {
-        simple, withAdvancedOptions
-    }
-    
     public DimEntryWidget(
         ResourceKey<Level> dimension,
         DimListWidget parent,
         Consumer<DimEntryWidget> selectCallback,
-        Type type,
-        DimStackEntry entry
+        @Nullable DimStackEntry entry
     ) {
         this.dimension = dimension;
         this.parent = parent;
         this.selectCallback = selectCallback;
-        this.type = type;
         
         this.dimIconPath = getDimensionIconPath(this.dimension);
         
@@ -82,7 +84,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     
     @Override
     public void render(
-        PoseStack matrixStack,
+        @NotNull PoseStack matrixStack,
         int index,
         int y,
         int x,
@@ -133,7 +135,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
             RenderSystem.disableBlend();
         }
         
-        if (type == Type.withAdvancedOptions) {
+        if (entry != null) {
             client.font.draw(
                 matrixStack, getText1(),
                 x + widgetHeight + 3, (float) (y + 20),
@@ -145,7 +147,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
                 0xFF999999
             );
             
-            if (shouldRenderUpArrow()) {
+            if (effectivelyConnectsPrevious()) {
                 matrixStack.pushPose();
                 matrixStack.translate(x + rowWidth - 13, y, 0);
                 matrixStack.scale(1.5f, 1.5f, 1.5f);
@@ -157,7 +159,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
                 matrixStack.popPose();
             }
             
-            if (shouldRenderDownArrow()) {
+            if (effectivelyConnectsNext()) {
                 matrixStack.pushPose();
                 matrixStack.translate(x + rowWidth - 13, y + widgetHeight - 14.5f, 0);
                 matrixStack.scale(1.5f, 1.5f, 1.5f);
@@ -171,20 +173,63 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         }
     }
     
-    private boolean shouldRenderDownArrow() {
-        if (parent.entryWidgets.indexOf(this) == parent.entryWidgets.size() - 1) {
+    public boolean effectivelyConnectsPrevious() {
+        // TODO refactor this
+        if (isFirst && !((DimStackScreen) parent.parent).loopEnabled) {
             return false;
         }
         
+        assert entry != null;
+        return entry.connectsPrevious;
+    }
+    
+    public boolean effectivelyConnectsNext() {
+        if (isLast && !((DimStackScreen) parent.parent).loopEnabled) {
+            return false;
+        }
+        
+        assert entry != null;
         return entry.connectsNext;
     }
     
-    private boolean shouldRenderUpArrow() {
-        if (parent.entryWidgets.indexOf(this) == 0) {
-            return false;
+    public boolean hasCeilConnection() {
+        assert entry != null;
+        if (entry.flipped) {
+            return effectivelyConnectsNext();
         }
-        
-        return entry.connectsPrevious;
+        else {
+            return effectivelyConnectsPrevious();
+        }
+    }
+    
+    public boolean hasFloorConnection() {
+        assert entry != null;
+        if (entry.flipped) {
+            return effectivelyConnectsPrevious();
+        }
+        else {
+            return effectivelyConnectsNext();
+        }
+    }
+    
+    public void setPossibleCeilConnection(boolean cond) {
+        assert entry != null;
+        if (entry.flipped) {
+            entry.connectsNext = cond;
+        }
+        else {
+            entry.connectsPrevious = cond;
+        }
+    }
+    
+    public void setPossibleFloorConnection(boolean cond) {
+        assert entry != null;
+        if (entry.flipped) {
+            entry.connectsPrevious = cond;
+        }
+        else {
+            entry.connectsNext = cond;
+        }
     }
     
     private Component getText1() {

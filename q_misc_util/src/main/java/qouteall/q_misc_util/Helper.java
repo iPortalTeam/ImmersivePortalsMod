@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -945,4 +947,25 @@ public class Helper {
             }
         };
     }
+    
+    // parse double without try catching
+    public static OptionalDouble parseDouble(String str) {
+        try {
+            return OptionalDouble.of(Double.parseDouble(str));
+        }
+        catch (NumberFormatException e) {
+            return OptionalDouble.empty();
+        }
+    }
+    
+    // parse int without try catching
+    public static OptionalInt parseInt(String str) {
+        try {
+            return OptionalInt.of(Integer.parseInt(str));
+        }
+        catch (NumberFormatException e) {
+            return OptionalInt.empty();
+        }
+    }
+    
 }

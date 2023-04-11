@@ -11,6 +11,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class DimStackScreen extends Screen {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DimStackScreen.class);
+    
     @org.jetbrains.annotations.Nullable
     public final Screen parent;
     private final Button finishButton;
@@ -73,6 +77,7 @@ public class DimStackScreen extends Screen {
             (buttonWidget) -> {
                 loopEnabled = !loopEnabled;
                 updateButtonText();
+                removeConflictingConnectionsForAll();
             }
         ).build();
         
@@ -118,11 +123,20 @@ public class DimStackScreen extends Screen {
             200,
             DimEntryWidget.widgetHeight,
             this,
-            DimListWidget.Type.mainDimensionList
+            DimListWidget.Type.mainDimensionList,
+            (listWidget, selected, mouseOn) -> {
+                listWidget.switchEntries(selected, mouseOn);
+                int index = listWidget.entryWidgets.indexOf(selected);
+                if (index == -1) {
+                    LOGGER.error("Cannot find selected entry after dragging");
+                    return;
+                }
+                removeConflictingConnections(index);
+            }
         );
         
         helpButton = createHelpButton(this);
-    
+        
         this.setAsPresetButton = Button.builder(
             Component.translatable("imm_ptl.set_as_dim_stack_default"),
             button -> {
@@ -191,7 +205,6 @@ public class DimStackScreen extends Screen {
             entry.getDimension(),
             dimListWidget,
             getElementSelectCallback(),
-            DimEntryWidget.Type.withAdvancedOptions,
             entry
         );
     }
@@ -380,16 +393,11 @@ public class DimStackScreen extends Screen {
                         insertingPosition,
                         createDimEntryWidget(new DimStackEntry(dimensionType))
                     );
-                    removeDuplicate(insertingPosition);
                     dimListWidget.update();
+                    removeConflictingConnections(insertingPosition);
                 }
             )
         );
-
-//        IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
-//
-//            return true;
-//        }));
     }
     
     private void onRemoveEntry() {
@@ -415,18 +423,50 @@ public class DimStackScreen extends Screen {
         }
         
         Minecraft.getInstance().setScreen(new DimStackEntryEditScreen(
-            this, selected
+            this, selected,
+            () -> {
+                int newlyChangingEntryIndex = dimListWidget.entryWidgets.indexOf(selected);
+                if (newlyChangingEntryIndex == -1) {
+                    LOGGER.error("The edited entry is missing in the list");
+                    return;
+                }
+                removeConflictingConnections(newlyChangingEntryIndex);
+            }
         ));
     }
     
-    private void removeDuplicate(int insertedIndex) {
-        ResourceKey<Level> inserted = dimListWidget.entryWidgets.get(insertedIndex).dimension;
-        for (int i = dimListWidget.entryWidgets.size() - 1; i >= 0; i--) {
-            if (dimListWidget.entryWidgets.get(i).dimension == inserted) {
-                if (i != insertedIndex) {
-                    dimListWidget.entryWidgets.remove(i);
+    /**
+     * In dimension stack, each dimension's floor or ceil can have at most one connection (portal).
+     * This method removes all connections that are conflicting with the newly added entry.
+     * <p>
+     * Note: must called after {@link DimListWidget#update()} because it uses {@link DimEntryWidget#isFirst}
+     * and {@link DimEntryWidget#isLast}
+     */
+    private void removeConflictingConnections(int newlyChangingEntryIndex) {
+        DimEntryWidget dimEntryWidget = dimListWidget.entryWidgets.get(newlyChangingEntryIndex);
+        ResourceKey<Level> dimension = dimEntryWidget.dimension;
+        DimStackEntry entry = dimEntryWidget.entry;
+        boolean hasCeilConnection = dimEntryWidget.hasCeilConnection();
+        boolean hasFloorConnection = dimEntryWidget.hasFloorConnection();
+        
+        for (int i = 0; i < dimListWidget.entryWidgets.size(); i++) {
+            if (i != newlyChangingEntryIndex) {
+                DimEntryWidget other = dimListWidget.entryWidgets.get(i);
+                if (other.dimension == dimension) {
+                    if (hasCeilConnection && other.hasCeilConnection()) {
+                        other.setPossibleCeilConnection(false);
+                    }
+                    if (hasFloorConnection && other.hasFloorConnection()) {
+                        other.setPossibleFloorConnection(false);
+                    }
                 }
             }
+        }
+    }
+    
+    private void removeConflictingConnectionsForAll() {
+        for (int i = 0; i < dimListWidget.entryWidgets.size(); i++) {
+            removeConflictingConnections(i);
         }
     }
     
