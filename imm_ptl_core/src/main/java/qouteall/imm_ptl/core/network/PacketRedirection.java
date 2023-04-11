@@ -1,8 +1,10 @@
 package qouteall.imm_ptl.core.network;
 
+import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.BundleDelimiterPacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -16,6 +18,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PacketRedirection {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PacketRedirection.class);
     
     public static final ResourceLocation id_stcRedirected =
         new ResourceLocation("imm_ptl", "rd");
@@ -41,10 +46,9 @@ public class PacketRedirection {
     private static final FriendlyByteBuf dummyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
     
     public static void withForceRedirect(ServerLevel world, Runnable func) {
-        Validate.isTrue(
-            ((IEWorld) world).portal_getThread() == Thread.currentThread(),
-            "Maybe a mod is trying to manipulate world in a non-server thread. This is probably not ImmPtl's issue"
-        );
+        if (((IEWorld) world).portal_getThread() != Thread.currentThread()) {
+            LOGGER.error("[ImmPtl] Seems that a mod is trying to manipulate server world information in non-server thread. This is generally unsafe! (ImmPtl is just doing checking)");
+        }
         
         ResourceKey<Level> oldRedirection = serverPacketRedirection.get();
         serverPacketRedirection.set(world.dimension());
