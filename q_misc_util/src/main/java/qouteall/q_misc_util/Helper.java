@@ -356,6 +356,12 @@ public class Helper {
         return Math.sqrt(dx * dx + dy * dy);
     }
     
+    public static <T> void swapListElement(List<T> entries, int i1, int i2) {
+        T temp = entries.get(i1);
+        entries.set(i1, entries.get(i2));
+        entries.set(i2, temp);
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         

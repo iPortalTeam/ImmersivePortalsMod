@@ -28,6 +28,10 @@ import java.util.function.Consumer;
 // extending EntryListWidget.Entry is also fine
 public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryWidget> {
     
+    public static enum ArrowType {
+        none, enabled, conflicting
+    }
+    
     public final ResourceKey<Level> dimension;
     public final DimListWidget parent;
     private final Consumer<DimEntryWidget> selectCallback;
@@ -40,9 +44,10 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     @Nullable
     public final DimStackEntry entry;
     
-    // updated by DimListWidget
-    public boolean isFirst = false;
-    public boolean isLast = false;
+    public int entryIndex;
+    
+    ArrowType arrowToPrevious = ArrowType.none;
+    ArrowType arrowToNext = ArrowType.none;
     
     public final static int widgetHeight = 50;
     
@@ -147,88 +152,29 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
                 0xFF999999
             );
             
-            if (effectivelyConnectsPrevious()) {
+            if (arrowToPrevious != ArrowType.none) {
                 matrixStack.pushPose();
                 matrixStack.translate(x + rowWidth - 13, y, 0);
                 matrixStack.scale(1.5f, 1.5f, 1.5f);
                 client.font.draw(
                     matrixStack, Component.literal("↑"),
                     0, 0,
-                    0xFF999999
+                    arrowToPrevious == ArrowType.enabled ? 0xFF999999 : 0xFFFF0000
                 );
                 matrixStack.popPose();
             }
             
-            if (effectivelyConnectsNext()) {
+            if (arrowToNext != ArrowType.none) {
                 matrixStack.pushPose();
                 matrixStack.translate(x + rowWidth - 13, y + widgetHeight - 14.5f, 0);
                 matrixStack.scale(1.5f, 1.5f, 1.5f);
                 client.font.draw(
                     matrixStack, Component.literal("↓"),
                     0, 0,
-                    0xFF999999
+                    arrowToNext == ArrowType.enabled ? 0xFF999999 : 0xFFFF0000
                 );
                 matrixStack.popPose();
             }
-        }
-    }
-    
-    public boolean effectivelyConnectsPrevious() {
-        // TODO refactor this
-        if (isFirst && !((DimStackScreen) parent.parent).loopEnabled) {
-            return false;
-        }
-        
-        assert entry != null;
-        return entry.connectsPrevious;
-    }
-    
-    public boolean effectivelyConnectsNext() {
-        if (isLast && !((DimStackScreen) parent.parent).loopEnabled) {
-            return false;
-        }
-        
-        assert entry != null;
-        return entry.connectsNext;
-    }
-    
-    public boolean hasCeilConnection() {
-        assert entry != null;
-        if (entry.flipped) {
-            return effectivelyConnectsNext();
-        }
-        else {
-            return effectivelyConnectsPrevious();
-        }
-    }
-    
-    public boolean hasFloorConnection() {
-        assert entry != null;
-        if (entry.flipped) {
-            return effectivelyConnectsPrevious();
-        }
-        else {
-            return effectivelyConnectsNext();
-        }
-    }
-    
-    public void setPossibleCeilConnection(boolean cond) {
-        assert entry != null;
-        if (entry.flipped) {
-            entry.connectsNext = cond;
-        }
-        else {
-            entry.connectsPrevious = cond;
-        }
-    }
-    
-    public void setPossibleFloorConnection(boolean cond) {
-        assert entry != null;
-        if (entry.flipped) {
-            entry.connectsPrevious = cond;
-        }
-        else {
-            entry.connectsNext = cond;
         }
     }
     

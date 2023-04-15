@@ -4,9 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -136,9 +134,9 @@ public class DimStackManagement {
             List<ResourceKey<Level>> dimensionList =
                 dimensions.stream().map(DimId::idToKey).collect(Collectors.toList());
             
-            Minecraft.getInstance().setScreen(new DimStackScreen(
+            DimStackGuiController controller = new DimStackGuiController(
                 null,
-                (screen) -> dimensionList,
+                () -> dimensionList,
                 dimStackInfo -> {
                     if (dimStackInfo != null) {
                         McRemoteProcedureCall.tellServerToInvoke(
@@ -151,8 +149,11 @@ public class DimStackManagement {
                             "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.serverRemoveDimStack"
                         );
                     }
-                })
+                    Minecraft.getInstance().setScreen(null);
+                }
             );
+            controller.initializeAsDefault();
+            Minecraft.getInstance().setScreen(controller.view);
         }
         
         public static void serverSetupDimStack(

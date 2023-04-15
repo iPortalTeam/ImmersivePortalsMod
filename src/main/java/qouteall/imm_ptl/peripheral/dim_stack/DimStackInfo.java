@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,6 +21,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +32,13 @@ public class DimStackInfo {
     
     public boolean loop;
     public boolean gravityTransform;
-    public List<DimStackEntry> entries;
+    public final List<DimStackEntry> entries;
     
-    public DimStackInfo() {}
+    public DimStackInfo() {
+        entries = new ArrayList<>();
+        loop = false;
+        gravityTransform = false;
+    }
     
     public DimStackInfo(List<DimStackEntry> entries, boolean loop, boolean gravityTransform) {
         this.entries = entries;
@@ -129,13 +135,27 @@ public class DimStackInfo {
             return;
         }
         
+        // check connection conflict
+        Map<PortalInfo, List<DimStackEntry>> portalInfoMap = getPortalInfoMap();
+        for (Map.Entry<PortalInfo, List<DimStackEntry>> entry : portalInfoMap.entrySet()) {
+            PortalInfo key = entry.getKey();
+            List<DimStackEntry> value = entry.getValue();
+            if (value != null && value.size() > 1) {
+                McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+                    "Failed to apply dimension stack because of connection conflict. There are multiple connections in the %s of %s"
+                        .formatted(key.connectorType, key.dimension.location())
+                ).withStyle(ChatFormatting.RED));
+                return;
+            }
+        }
+        
         Helper.wrapAdjacentAndMap(
             entries.stream(),
-            (before, after) -> {
-                createConnectionBetween(before, after, gravityTransform);
-                return null;
-            }
-        ).forEach(k -> {
+            Pair::of
+        ).forEach(pair -> {
+            DimStackEntry before = pair.getFirst();
+            DimStackEntry after = pair.getSecond();
+            createConnectionBetween(before, after, gravityTransform);
         });
         
         if (loop) {
@@ -162,6 +182,83 @@ public class DimStackInfo {
         );
     }
     
+    public boolean isEffectivelyConnectingPrevious(int index) {
+        DimStackEntry entry = entries.get(index);
+        if (!entry.connectsPrevious) {
+            return false;
+        }
+        
+        if (index == 0) {
+            return loop;
+        }
+        return true;
+    }
+    
+    public boolean isEffectivelyConnectionNext(int index) {
+        DimStackEntry entry = entries.get(index);
+        if (!entry.connectsNext) {
+            return false;
+        }
+        
+        if (index == entries.size() - 1) {
+            return loop;
+        }
+        return true;
+    }
+    
+    public boolean isEffectivelyConnectingCeil(int index) {
+        DimStackEntry entry = entries.get(index);
+        
+        if (!entry.flipped) {
+            return isEffectivelyConnectingPrevious(index);
+        }
+        else {
+            return isEffectivelyConnectionNext(index);
+        }
+    }
+    
+    public boolean isEffectivelyConnectingFloor(int index) {
+        DimStackEntry entry = entries.get(index);
+        
+        if (!entry.flipped) {
+            return isEffectivelyConnectionNext(index);
+        }
+        else {
+            return isEffectivelyConnectingPrevious(index);
+        }
+    }
+    
+    public static record PortalInfo(
+        ResourceKey<Level> dimension,
+        VerticalConnectingPortal.ConnectorType connectorType
+    ) {}
+    
+    public Map<PortalInfo, List<DimStackEntry>> getPortalInfoMap() {
+        Map<PortalInfo, List<DimStackEntry>> map = new HashMap<>();
+        
+        for (int i = 0; i < entries.size(); i++) {
+            DimStackEntry entry = entries.get(i);
+            
+            if (isEffectivelyConnectingCeil(i)) {
+                PortalInfo portalInfo = new PortalInfo(
+                    entry.getDimension(),
+                    VerticalConnectingPortal.ConnectorType.ceil
+                );
+                map.computeIfAbsent(portalInfo, k -> new ArrayList<>()).add(entry);
+            }
+            
+            if (isEffectivelyConnectingFloor(i)) {
+                PortalInfo portalInfo = new PortalInfo(
+                    entry.getDimension(),
+                    VerticalConnectingPortal.ConnectorType.floor
+                );
+                map.computeIfAbsent(portalInfo, k -> new ArrayList<>()).add(entry);
+            }
+        }
+        
+        return map;
+    }
+    
     @Nullable
     public static BlockState parseBlockString(@Nullable String str) {
         if (str == null) {
@@ -174,7 +271,8 @@ public class DimStackInfo {
         try {
             Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(new ResourceLocation(str));
             return block.map(Block::defaultBlockState).orElse(null);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }

@@ -16,12 +16,18 @@ public class SelectDimensionScreen extends Screen {
     public final DimStackScreen parent;
     private DimListWidget dimListWidget;
     private Button confirmButton;
-    private Consumer<ResourceKey<Level>> outerCallback;
+    private final Consumer<ResourceKey<Level>> outerCallback;
+    private final List<ResourceKey<Level>> dimensionList;
     
-    protected SelectDimensionScreen(DimStackScreen parent, Consumer<ResourceKey<Level>> callback) {
+    protected SelectDimensionScreen(
+        DimStackScreen parent,
+        Consumer<ResourceKey<Level>> callback,
+        List<ResourceKey<Level>> dimensionList
+    ) {
         super(Component.translatable("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
+        this.dimensionList = dimensionList;
     }
     
     @Override
@@ -40,15 +46,11 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
-        List<ResourceKey<Level>> dimensionList = parent.dimensionListSupplier.apply(this);
-        
         for (ResourceKey<Level> dim : dimensionList) {
-            dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, new DimStackEntry(dim)));
+            dimListWidget.children().add(new DimEntryWidget(dim, dimListWidget, callback, new DimStackEntry(dim)));
         }
-        
-        dimListWidget.update();
-        
-        Button button = Button
+    
+        confirmButton = (Button) addRenderableWidget(Button
             .builder(
                 Component.translatable("imm_ptl.confirm_select_dimension"),
                 (buttonWidget) -> {
@@ -56,15 +58,13 @@ public class SelectDimensionScreen extends Screen {
                     if (selected == null) {
                         return;
                     }
-                    outerCallback.accept(selected.dimension);
                     Minecraft.getInstance().setScreen(parent);
+                    outerCallback.accept(selected.dimension);
                 }
             )
             .pos(this.width / 2 - 75, this.height - 28)
             .size(150, 20)
-            .build();
-        confirmButton = (Button) addRenderableWidget(button);
-        
+            .build());
     }
     
     @Override

@@ -2,7 +2,6 @@ package qouteall.imm_ptl.peripheral.mixin.client.dim_stack;
 
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
@@ -24,8 +23,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackGuiController;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
-import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackScreen;
 import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.function.Supplier;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {
@@ -50,8 +50,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Shadow
     @Final
     private WorldCreationUiState uiState;
+    
     @Nullable
-    private DimStackScreen ip_dimStackScreen;
+    private DimStackGuiController ip_dimStackController;
     
     protected MixinCreateWorldScreen(Component title) {
         super(title);
@@ -74,20 +75,23 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     @Override
     public void ip_openDimStackScreen() {
-        if (ip_dimStackScreen == null) {
-            ip_dimStackScreen = new DimStackScreen(
-                (CreateWorldScreen) (Object) this,
-                this::portal_getDimensionList,
+        if (ip_dimStackController == null) {
+            CreateWorldScreen this_ = (CreateWorldScreen) (Object) this;
+            ip_dimStackController = new DimStackGuiController(
+                this_,
+                () -> portal_getDimensionList(),
                 info -> {
                     DimStackManagement.dimStackToApply = info;
+                    Minecraft.getInstance().setScreen(this_);
                 }
             );
+            ip_dimStackController.initializeAsDefault();
         }
         
-        Minecraft.getInstance().setScreen(ip_dimStackScreen);
+        Minecraft.getInstance().setScreen(ip_dimStackController.view);
     }
     
-    private List<ResourceKey<Level>> portal_getDimensionList(Screen addDimensionScreen) {
+    private List<ResourceKey<Level>> portal_getDimensionList() {
         Helper.log("Getting the dimension list");
         
         try {

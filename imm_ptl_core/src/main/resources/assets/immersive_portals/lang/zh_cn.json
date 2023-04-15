@@ -42,7 +42,7 @@
   "dimension.minecraft.overworld": "主世界",
   "dimension.minecraft.the_nether": "地狱",
   "dimension.minecraft.the_end": "末路之地",
-  "dimension.immersive_portals.alternate1": "主世界空岛1",
+  "dimension.immersive_portals.alternate1": "主世界空岛1 (满亮度)",
   "dimension.immersive_portals.alternate2": "主世界空岛2",
   "dimension.immersive_portals.alternate3": "混沌世界1",
   "dimension.immersive_portals.alternate4": "混沌世界2",
@@ -87,7 +87,7 @@
   "imm_ptl.command.disable_isometric": "关闭平行投影",
   "imm_ptl.command_desc.disable_isometric": "",
   "imm_ptl.command.reset_scale": "重置玩家尺度",
-  "imm_ptl.command_desc.reset_scale": "Requires Pehkui mod",
+  "imm_ptl.command_desc.reset_scale": "需要Pehkui模组",
   "imm_ptl.command.goback": "返回",
   "imm_ptl.command_desc.goback": "返回上一个进入的传送门处",
   "imm_ptl.command.show_wiki": "查看说明书",
@@ -98,7 +98,7 @@
   "imm_ptl.command_desc.disable_rendering_yourself": "",
   "imm_ptl.command.create_5_connected_rooms": "在玩家身边生成5个相连的房间",
   "imm_ptl.command_desc.create_5_connected_rooms": "",
-  "imm_ptl.command.long_reach": "延长",
+  "imm_ptl.command.long_reach": "延长可操作距离",
   "imm_ptl.command_desc.long_reach": "需要Pehkui模组",
   "imm_ptl.about_lag": "[沉浸传送门] 传送门会加载许多区块，导致卡顿，在1到2分钟后卡顿会减轻。",
   "imm_ptl.portal_helper_not_linked": "无法在附近找到形状相同的传送门框架，将会生成新传送门框架。注：必须形状相同才能连接，1x3形状能连接到2x6，但1x2不能连接到2x5",
@@ -202,5 +202,7 @@
   "entity.immersive_portals.general_breakable_portal": "可破坏传送门",
   "entity.immersive_portals.end_portal": "末地传送门",
   "entity.immersive_portals.mirror": "镜子",
-  "entity.immersive_portals.breakable_mirror": "镜子"
+  "entity.immersive_portals.breakable_mirror": "镜子",
+  "imm_ptl.conflicting_dim_stack": "存在传送门冲突，无法设置位面纵向堆叠",
+  "imm_ptl.conflicting_dim_stack_detail": "红色箭头表示冲突的传送门。一个位面的底侧或顶侧最多有一个传送门。\n可以通过移除一些位面或禁用某些连接来解决该问题。"
 }
