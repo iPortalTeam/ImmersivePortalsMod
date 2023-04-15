@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.teleportation;
+package qouteall.imm_ptl.core.collision;
 
 import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
@@ -17,7 +17,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;

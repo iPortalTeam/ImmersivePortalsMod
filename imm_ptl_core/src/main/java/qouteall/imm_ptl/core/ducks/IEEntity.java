@@ -4,7 +4,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.PortalCollisionHandler;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 
 import javax.annotation.Nullable;
 

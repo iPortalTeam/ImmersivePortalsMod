@@ -85,12 +85,13 @@ public class BlockManipulationServer {
             IPGlobal.maxNormalPortalRadius
         ).anyMatch(portal ->
             portal.dimensionTo == dimension &&
+                portal.isInteractableBy(player) &&
                 portal.transformPoint(playerPos).distanceToSqr(pos) <
                     distanceSquare * portal.getScale() * portal.getScale()
         );
     }
     
-    // vanilla copy
+    @IPVanillaCopy
     private static void doDestroyBlock(
         ResourceKey<Level> dimension,
         ServerboundPlayerActionPacket packet,
@@ -116,6 +117,7 @@ public class BlockManipulationServer {
         }
     }
     
+    @IPVanillaCopy
     private static boolean canInstantMine(
         ServerLevel world,
         ServerPlayer player,

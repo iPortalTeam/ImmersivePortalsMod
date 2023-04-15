@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.teleportation;
+package qouteall.imm_ptl.core.collision;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

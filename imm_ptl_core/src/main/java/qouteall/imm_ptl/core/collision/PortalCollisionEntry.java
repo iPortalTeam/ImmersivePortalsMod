@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.teleportation;
+package qouteall.imm_ptl.core.collision;
 
 import qouteall.imm_ptl.core.portal.Portal;
 

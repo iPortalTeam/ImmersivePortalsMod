@@ -14,6 +14,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.*;
+import qouteall.imm_ptl.core.collision.CollisionHelper;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;

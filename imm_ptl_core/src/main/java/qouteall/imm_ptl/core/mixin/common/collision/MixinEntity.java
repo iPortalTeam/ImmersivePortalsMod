@@ -27,7 +27,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.PortalCollisionHandler;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 

@@ -26,7 +26,7 @@ import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.optimization.GLResourceCache;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
-import qouteall.imm_ptl.core.teleportation.CollisionHelper;
+import qouteall.imm_ptl.core.collision.CollisionHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class IPModMainClient {

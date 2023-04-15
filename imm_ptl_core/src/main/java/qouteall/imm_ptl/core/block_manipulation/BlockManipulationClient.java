@@ -322,7 +322,7 @@ public class BlockManipulationClient {
     }
     
     /**
-     * In {@link MultiPlayerGameMode#useItemOn(LocalPlayer, ClientLevel, InteractionHand, BlockHitResult)}
+     * In {@link MultiPlayerGameMode#performUseItemOn(LocalPlayer, InteractionHand, BlockHitResult)}
      * {@link UseOnContext#UseOnContext(Player, InteractionHand, BlockHitResult)}
      * It will use the player's current dimension which may be wrong when interacting another dimension's block
      * So also switch the player's dimension
