@@ -100,7 +100,7 @@ public class CollisionHelper {
     }
     
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float partialTick) {
-        if (portal.canTeleportEntity(entity)) {
+        if (portal.canCollideWithEntity(entity)) {
             Vec3 cameraPosVec = entity.getEyePosition(partialTick);
             return portal.isInFrontOfPortal(cameraPosVec);
         }

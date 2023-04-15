@@ -485,7 +485,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Update the portal's cache and send the portal data to client.
      * Call this when you changed the portal after spawning the portal.
      * Note portal position is not updated via vanilla packet because vanilla packet
-     *  encodes position in 1/4096 unit which is not precise enough (for portal animation).
+     * encodes position in 1/4096 unit which is not precise enough (for portal animation).
      * This is the only place of syncing portal position.
      * The /tp command won't work for portals.
      * {@link qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerEntity}
@@ -719,6 +719,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         return entity.canChangeDimensions();
+    }
+    
+    /**
+     * @return Can the entity collide with the portal.
+     * Note: {@link Portal#hasCrossPortalCollision} determined other-side collision.
+     * This limits both this-side and other-side collision.
+     */
+    public boolean canCollideWithEntity(Entity entity) {
+        // by default, a non-teleportable portal disallows collision
+        return canTeleportEntity(entity);
     }
     
     /**
