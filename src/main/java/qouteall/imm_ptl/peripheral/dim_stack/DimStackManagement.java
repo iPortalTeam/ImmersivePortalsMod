@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 public class DimStackManagement {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    // This is for client dimension stack initialization
     public static DimStackInfo dimStackToApply = null;
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
@@ -61,6 +60,8 @@ public class DimStackManagement {
     }
     
     public static void onServerCreatedWorlds(MinecraftServer server) {
+        applyDimStackPresetInDedicatedServer();
+        
         if (dimStackToApply != null) {
             dimStackToApply.apply();
             dimStackToApply = null;
@@ -77,6 +78,25 @@ public class DimStackManagement {
                 o.set(false, server);
                 
                 upgradeLegacyDimensionStack(server);
+            }
+        }
+    }
+    
+    private static void applyDimStackPresetInDedicatedServer() {
+        if (O_O.isDedicatedServer()) {
+            DimStackInfo dimStackPreset = getDimStackPreset();
+            
+            if (dimStackPreset != null) {
+                if (!hasDimStackPortal()) {
+                    LOGGER.info("Applying dimension stack preset in dedicated server");
+                    dimStackToApply = dimStackPreset;
+                }
+                else {
+                    LOGGER.info("There are already dim stack portals, so the preset is not applied");
+                }
+            }
+            else {
+                LOGGER.info("The server has no dimension stack preset.");
             }
         }
     }
@@ -181,6 +201,12 @@ public class DimStackManagement {
                 Component.translatable("imm_ptl.dim_stack_established"),
                 false
             );
+            
+            // on dedicated server, the preset should be consistent with the current dimension stack
+            // because it will try to apply dimension stack preset when initializing the server
+            if (O_O.isDedicatedServer()) {
+                setDimStackPreset(dimStackInfo);
+            }
         }
         
         public static void serverRemoveDimStack(
@@ -197,7 +223,24 @@ public class DimStackManagement {
                 Component.translatable("imm_ptl.dim_stack_removed"),
                 false
             );
+            
+            // on dedicated server, the preset should be consistent with the current dimension stack
+            // because it will try to apply dimension stack preset when initializing the server
+            if (O_O.isDedicatedServer()) {
+                setDimStackPreset(null);
+            }
         }
+    }
+    
+    public static boolean hasDimStackPortal() {
+        MinecraftServer server = MiscHelper.getServer();
+        for (ServerLevel world : server.getAllLevels()) {
+            GlobalPortalStorage gps = GlobalPortalStorage.get(world);
+            if (Helper.indexOf(gps.data, p -> p instanceof VerticalConnectingPortal) != -1) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private static void clearDimStackPortals() {
