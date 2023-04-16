@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.DefaultedMappedRegistry;
 import net.minecraft.core.Holder;
+import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import org.apache.commons.lang3.Validate;
@@ -24,8 +26,11 @@ import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
+import qouteall.q_misc_util.mixin.dimension.IELayeredRegistryAccess;
 import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DimensionAPI {
@@ -38,13 +43,22 @@ public class DimensionAPI {
         void run(WorldOptions worldOptions, RegistryAccess registryAccess);
     }
     
+    /**
+     * This event is fired when loading custom dimensions when the server is starting.
+     * Note: when showing the dimension list on client dimension stack menu, this event will also be fired.
+     */
     public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
         EventFactory.createArrayBacked(
             ServerDimensionsLoadCallback.class,
             (listeners) -> ((worldOptions, registryManager) -> {
                 Registry<LevelStem> levelStems = registryManager.registryOrThrow(Registries.LEVEL_STEM);
                 for (ServerDimensionsLoadCallback listener : listeners) {
-                    listener.run(worldOptions, registryManager);
+                    try {
+                        listener.run(worldOptions, registryManager);
+                    }
+                    catch (Exception e) {
+                        logger.error("Error registering custom dimension", e);
+                    }
                 }
             })
         );
@@ -168,4 +182,27 @@ public class DimensionAPI {
                 }
             }
         );
+    
+    /**
+     * This is called when opening "Add Dimension" GUI in dimension stack
+     */
+    public static MappedRegistry<LevelStem> collectCustomDimensions(
+        RegistryAccess.Frozen worldGenLoadContext,
+        WorldOptions options
+    ) {
+        MappedRegistry<LevelStem> subDimensionRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable());
+        
+        RegistryAccess.Frozen subRegistryAccess =
+            new RegistryAccess.ImmutableRegistryAccess(List.of(subDimensionRegistry)).freeze();
+        
+        LayeredRegistryAccess<Integer> wrappedLayeredRegistryAccess = IELayeredRegistryAccess.ip_init(
+            List.of(1, 2),
+            List.of(worldGenLoadContext, subRegistryAccess)
+        );
+        RegistryAccess.Frozen wrappedRegistryAccess = wrappedLayeredRegistryAccess.compositeAccess();
+        
+        DimensionAPI.serverDimensionsLoadEvent.invoker().run(options, wrappedRegistryAccess);
+        
+        return subDimensionRegistry;
+    }
 }

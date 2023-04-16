@@ -31,7 +31,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class IPModMainClient {
     
-    private static final boolean isPreview = true;
+    private static final boolean isPreview = false;
     
     private static void showPreviewWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(

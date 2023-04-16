@@ -11,6 +11,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -176,5 +177,40 @@ public class O_O {
     
     public static String getIssueLink() {
         return "https://github.com/iPortalTeam/ImmersivePortalsMod/issues";
+    }
+    
+    @Nullable
+    public static ResourceLocation getModIconLocation(String modid) {
+        String path = FabricLoader.getInstance().getModContainer(modid)
+            .flatMap(c -> c.getMetadata().getIconPath(512))
+            .orElse(null);
+        if (path == null) {
+            return null;
+        }
+        
+        // for example, if the icon path is "assets/modid/icon.png"
+        // then the result should be modid:icon.png
+        
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        if (path.startsWith("assets")) {
+            path = path.substring("assets".length());
+        }
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        String[] parts = path.split("/");
+        if (parts.length != 2) {
+            return null;
+        }
+        return new ResourceLocation(parts[0], parts[1]);
+    }
+    
+    @Nullable
+    public static String getModName(String modid) {
+        return FabricLoader.getInstance().getModContainer(modid)
+            .map(c -> c.getMetadata().getName())
+            .orElse(null);
     }
 }

@@ -34,6 +34,7 @@ import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.mixin.dimension.IELayeredRegistryAccess;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,6 +95,8 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     private List<ResourceKey<Level>> portal_getDimensionList() {
         Helper.log("Getting the dimension list");
         
+        List<ResourceKey<Level>> result = new ArrayList<>();
+        
         try {
             WorldCreationContext settings = uiState.getSettings();
             
@@ -101,30 +104,32 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             
             WorldDimensions selectedDimensions = settings.selectedDimensions();
             
-            MappedRegistry<LevelStem> subDimensionRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable());
-            
             // add vanilla dimensions
             for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : selectedDimensions.dimensions().entrySet()) {
-                subDimensionRegistry.register(entry.getKey(), entry.getValue(), Lifecycle.stable());
+                result.add(DimId.idToKey(entry.getKey().location()));
             }
             
-            RegistryAccess.Frozen subRegistryAccess =
-                new RegistryAccess.ImmutableRegistryAccess(List.of(subDimensionRegistry)).freeze();
-            
-            LayeredRegistryAccess<Integer> wrappedLayeredRegistryAccess = IELayeredRegistryAccess.ip_init(
-                List.of(1, 2),
-                List.of(registryAccess, subRegistryAccess)
+            // add ImmPtl API custom dimensions
+            MappedRegistry<LevelStem> customDims = DimensionAPI.collectCustomDimensions(
+                settings.worldgenLoadContext(),
+                settings.options()
             );
-            RegistryAccess.Frozen wrappedRegistryAccess = wrappedLayeredRegistryAccess.compositeAccess();
+            for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : customDims.entrySet()) {
+                result.add(DimId.idToKey(entry.getKey().location()));
+            }
             
-            DimensionAPI.serverDimensionsLoadEvent.invoker().run(settings.options(), wrappedRegistryAccess);
-            
-            return subDimensionRegistry
-                .keySet().stream().map(DimId::idToKey).toList();
+            // add datapack dimensions
+            for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : settings.datapackDimensions().entrySet()) {
+                result.add(DimId.idToKey(entry.getKey().location()));
+            }
         }
         catch (Exception e) {
             LOGGER.error("ImmPtl getting dimension list", e);
-            return List.of(DimId.idToKey("error:error"));
+            if (result.isEmpty()) {
+                result.add(DimId.idToKey("error:error"));
+            }
         }
+        
+        return result;
     }
 }
