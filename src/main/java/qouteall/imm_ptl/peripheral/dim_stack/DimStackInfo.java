@@ -32,7 +32,7 @@ public class DimStackInfo {
     
     public boolean loop;
     public boolean gravityTransform;
-    public final List<DimStackEntry> entries;
+    public List<DimStackEntry> entries;
     
     public DimStackInfo() {
         entries = new ArrayList<>();

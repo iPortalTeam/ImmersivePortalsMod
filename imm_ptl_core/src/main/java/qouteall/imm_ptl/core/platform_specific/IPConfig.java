@@ -1,25 +1,15 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import com.google.gson.JsonObject;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @Config(name = "immersive_portals")
 public class IPConfig implements ConfigData {
@@ -78,7 +68,7 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.Excluded
     public boolean doCheckGlError = false;
     
-    // server visible configs
+    // common visible configs
     
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
@@ -97,7 +87,7 @@ public class IPConfig implements ConfigData {
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
     
-    // server invisible configs
+    // common invisible configs
     
     @ConfigEntry.Gui.Excluded
     public int portalSearchingRange = 128;
@@ -108,7 +98,11 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.Excluded
     public boolean looseMovementCheck = false;
     
-    public static IPConfig readConfig() {
+    @ConfigEntry.Gui.Excluded
+    @Nullable
+    public JsonObject dimStackPreset = null;
+    
+    public static IPConfig getConfig() {
         return IPGlobal.configHolder.getConfig();
     }
     

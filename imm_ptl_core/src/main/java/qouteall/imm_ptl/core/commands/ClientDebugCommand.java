@@ -794,13 +794,13 @@ public class ClientDebugCommand {
     
     
     public static void disableWarning() {
-        IPConfig ipConfig = IPConfig.readConfig();
+        IPConfig ipConfig = IPConfig.getConfig();
         ipConfig.enableWarning = false;
         ipConfig.saveConfigFile();
     }
     
     public static void disableUpdateCheck() {
-        IPConfig ipConfig = IPConfig.readConfig();
+        IPConfig ipConfig = IPConfig.getConfig();
         ipConfig.enableUpdateNotification = false;
         ipConfig.saveConfigFile();
     }

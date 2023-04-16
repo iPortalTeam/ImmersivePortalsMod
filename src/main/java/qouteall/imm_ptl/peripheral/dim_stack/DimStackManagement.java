@@ -1,5 +1,8 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -15,6 +18,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import org.slf4j.Logger;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -22,12 +28,15 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DimStackManagement {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     // This is for client dimension stack initialization
     public static DimStackInfo dimStackToApply = null;
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
@@ -201,5 +210,32 @@ public class DimStackManagement {
         }
         
         updateBedrockReplacementFromStorage(server);
+    }
+    
+    @Nullable
+    public static DimStackInfo getDimStackPreset() {
+        JsonObject json = IPConfig.getConfig().dimStackPreset;
+        if (json == null) {
+            return null;
+        }
+        
+        try {
+            DimStackInfo dimStackInfo = IPGlobal.gson.fromJson(json, DimStackInfo.class);
+            return dimStackInfo;
+        }
+        catch (Exception e) {
+            LOGGER.error("Cannot parse dimension stack preset JSON {}", json, e);
+            return null;
+        }
+    }
+    
+    public static void setDimStackPreset(@Nullable DimStackInfo preset) {
+        JsonObject json = null;
+        if (preset != null) {
+            json = IPGlobal.gson.toJsonTree(preset).getAsJsonObject();
+        }
+        IPConfig config = IPConfig.getConfig();
+        config.dimStackPreset = json;
+        config.saveConfigFile();
     }
 }

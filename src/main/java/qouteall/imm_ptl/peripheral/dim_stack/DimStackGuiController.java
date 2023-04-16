@@ -160,7 +160,7 @@ public class DimStackGuiController {
     }
     
     public void initializeAsDefault() {
-        DimStackInfo preset = IPOuterClientMisc.getDimStackPreset();
+        DimStackInfo preset = DimStackManagement.getDimStackPreset();
         
         if (preset != null) {
             setEnabled(true);
@@ -243,7 +243,7 @@ public class DimStackGuiController {
             showConflictingAlert();
         }
         else {
-            IPOuterClientMisc.setDimStackPreset(model.getResult());
+            DimStackManagement.setDimStackPreset(model.getResult());
             
             Minecraft.getInstance().setScreen(new AlertScreen(
                 () -> {

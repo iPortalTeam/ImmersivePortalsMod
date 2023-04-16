@@ -106,7 +106,7 @@ public class IPModMain {
             ipConfig.onConfigChanged();
             return InteractionResult.SUCCESS;
         });
-        IPConfig ipConfig = IPConfig.readConfig();
+        IPConfig ipConfig = IPConfig.getConfig();
         ipConfig.onConfigChanged();
     }
 }

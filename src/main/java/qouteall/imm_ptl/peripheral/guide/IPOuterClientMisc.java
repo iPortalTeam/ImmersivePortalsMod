@@ -1,16 +1,21 @@
 package qouteall.imm_ptl.peripheral.guide;
 
+import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.network.IPNetworkingClient;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import javax.annotation.Nullable;
@@ -21,13 +26,15 @@ import java.io.IOException;
 
 @Environment(EnvType.CLIENT)
 public class IPOuterClientMisc {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static class OuterConfig {
         public boolean wikiInformed = false;
         public boolean portalHelperInformed = false;
         public boolean lagInformed = false;
         
-        // the dimension stack feature is not in imm_ptl_core
-        // so put the config here
+        // the dimension stack preset has been moved into IPConfig
+        // this is still here for deserialization for upgrade
         @Nullable
         public DimStackInfo dimensionStackDefault = null;
         
@@ -74,6 +81,22 @@ public class IPOuterClientMisc {
     
     public static void initClient() {
         outerConfig = readFromFile();
+        
+        // upgrade dimension stack preset
+        DimStackInfo dimStackPreset = outerConfig.dimensionStackDefault;
+        if (dimStackPreset != null) {
+            try {
+                IPConfig config = IPConfig.getConfig();
+                config.dimStackPreset = ((JsonObject) IPGlobal.gson.toJsonTree(dimStackPreset));
+                config.saveConfigFile();
+                outerConfig.dimensionStackDefault = null;
+                writeToFile(outerConfig);
+                LOGGER.info("Successfully upgraded dimension stack preset");
+            }
+            catch (Exception e) {
+                LOGGER.info("Failed to upgrade dimension stack preset", e);
+            }
+        }
         
         IPNetworkingClient.clientPortalSpawnSignal.connect(p -> {
             LocalPlayer player = Minecraft.getInstance().player;
@@ -123,16 +146,6 @@ public class IPOuterClientMisc {
                 McHelper.getLinkText(link)
             )
         );
-    }
-    
-    @Nullable
-    public static DimStackInfo getDimStackPreset() {
-        return outerConfig.dimensionStackDefault;
-    }
-    
-    public static void setDimStackPreset(@Nullable DimStackInfo info) {
-        outerConfig.dimensionStackDefault = info;
-        writeToFile(outerConfig);
     }
     
     @Environment(EnvType.CLIENT)

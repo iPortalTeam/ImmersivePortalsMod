@@ -67,7 +67,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         Minecraft minecraft, Screen screen, WorldCreationContext worldCreationContext,
         Optional<ResourceKey<WorldPreset>> optional, OptionalLong optionalLong, CallbackInfo ci
     ) {
-        DimStackManagement.dimStackToApply = IPOuterClientMisc.getDimStackPreset();
+        DimStackManagement.dimStackToApply = DimStackManagement.getDimStackPreset();
         if (DimStackManagement.dimStackToApply != null) {
             LOGGER.info("[ImmPtl] Applying dimension stack preset");
         }

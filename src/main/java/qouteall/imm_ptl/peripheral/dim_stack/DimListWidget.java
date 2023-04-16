@@ -7,10 +7,11 @@ import net.minecraft.client.gui.screens.Screen;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
+    
+    public static final int ROW_WIDTH = 300;
+    
     public static interface DraggingCallback {
         void run(int selectedIndex, int mouseOnIndex);
     }
@@ -43,6 +44,8 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
         this.parent = parent;
         this.type = type;
         this.draggingCallback = draggingCallback;
+        setRenderBackground(false);
+        setRenderTopAndBottom(false);
     }
     
     @Override
@@ -68,5 +71,16 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
         }
         
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+    
+    // make it wider
+    @Override
+    public int getRowWidth() {
+        return ROW_WIDTH;
+    }
+    
+    @Override
+    protected int getScrollbarPosition() {
+        return (width - ROW_WIDTH) / 2 + ROW_WIDTH;
     }
 }

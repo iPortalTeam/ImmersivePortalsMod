@@ -45,7 +45,7 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "iris": ["<1.6.0", ">1.6.0"],
+    "iris": ["<1.6.1", ">1.6.1"],
     "sodium": ["<0.4.10", ">0.4.10"]
   },
   "custom": {
