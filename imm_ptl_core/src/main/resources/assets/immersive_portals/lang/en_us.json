@@ -156,7 +156,7 @@
   "imm_ptl.dim_stack.gravity_transform_disabled": "Gravity: Relative to World",
   "imm_ptl.missing_gravity_changer": "Gravity Changer mod is not present. Your gravity direction is not changed",
   "imm_ptl.sodium_warning": "[Immersive Portals] You are using Sodium with Immersive Portals. The compatibility is not perfect. Rendering issues may occur.",
-  "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. Portal rendering mostly works with most shaders, but there may be some rendering artifacts.",
+  "imm_ptl.iris_warning": "[Immersive Portals] You are using Iris with Immersive Portals. Portal rendering mostly works with most shaders, but there may be some rendering artifacts. If there are blurring when looking at a portal, turn off \"TAA\" and \"Motion Blur\".",
   "imm_ptl.disable_warning": "Disable warning",
   "imm_ptl.warning_disabled": "Warning Disabled",
   "imm_ptl.set_as_dim_stack_default": "Set as Default",

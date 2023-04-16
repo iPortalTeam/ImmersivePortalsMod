@@ -132,7 +132,7 @@
   "imm_ptl.command.enable_pos_adjust": "启用传送后调整实体坐标",
   "imm_ptl.command_desc.enable_pos_adjust": "使传送后不会掉到地板里",
   "imm_ptl.sodium_warning": "[沉浸传送门] 你正在使用Sodium。兼容不完美，可能会发生渲染错误。",
-  "imm_ptl.iris_warning": "[沉浸传送门] 你正在使用Iris。兼容不完美，可能会发生渲染错误。",
+  "imm_ptl.iris_warning": "[沉浸传送门] 你正在使用Iris。兼容不完美，可能会发生渲染错误。若出现模糊，应关闭TAA和Motion Blur。",
   "imm_ptl.disable_warning": "关闭警告",
   "imm_ptl.warning_disabled": "警告已关闭",
   "imm_ptl.dim_stack.gravity_transform_enabled": "引力: 相对于视角",

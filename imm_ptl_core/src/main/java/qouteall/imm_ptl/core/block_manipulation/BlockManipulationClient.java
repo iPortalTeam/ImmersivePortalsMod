@@ -151,7 +151,7 @@ public class BlockManipulationClient {
                 FluidState fluidState = world.getFluidState(blockPos);
                 Vec3 start = rayTraceContext.getFrom();
                 Vec3 end = rayTraceContext.getTo();
-                /**{@link VoxelShape#rayTrace(Vec3d, Vec3d, BlockPos)}*/
+                
                 //correct the start pos to avoid being considered inside block
                 Vec3 correctedStart = start.subtract(end.subtract(start).scale(0.0015));
 //                Vec3d correctedStart = start;
@@ -218,7 +218,6 @@ public class BlockManipulationClient {
         }
     }
     
-    //hacky switch
     public static boolean myUpdateBlockBreakingProgress(
         BlockPos blockPos,
         Direction direction
@@ -233,9 +232,9 @@ public class BlockManipulationClient {
         );
     }
     
-    /**
-     * {@link Minecraft#startAttack()}
-     */
+//    /**
+//     * {@link Minecraft#startAttack()}
+//     */
     public static boolean myAttackBlock() {
         ClientLevel targetWorld =
             ClientWorldLoader.getWorld(remotePointedDim);
@@ -321,12 +320,12 @@ public class BlockManipulationClient {
         );
     }
     
-    /**
-     * In {@link MultiPlayerGameMode#performUseItemOn(LocalPlayer, InteractionHand, BlockHitResult)}
-     * {@link UseOnContext#UseOnContext(Player, InteractionHand, BlockHitResult)}
-     * It will use the player's current dimension which may be wrong when interacting another dimension's block
-     * So also switch the player's dimension
-     */
+//    /**
+//     * In {@link MultiPlayerGameMode#performUseItemOn(LocalPlayer, InteractionHand, BlockHitResult)}
+//     * {@link UseOnContext#UseOnContext(Player, InteractionHand, BlockHitResult)}
+//     * It will use the player's current dimension which may be wrong when interacting another dimension's block
+//     * So also switch the player's dimension
+//     */
     private static <T> T withWorldSwitchedAndPlayerDimensionSwitched(
         ClientLevel targetWorld,
         Supplier<T> supplier
