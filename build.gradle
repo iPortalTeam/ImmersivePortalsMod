@@ -241,7 +241,7 @@ dependencies {
     include("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
 
     // for testing portal gun
-//    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4') {
+//    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.4:4.1.3') {
 //        transitive(false)
 //    }
 

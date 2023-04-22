@@ -232,9 +232,9 @@ public class BlockManipulationClient {
         );
     }
     
-//    /**
-//     * {@link Minecraft#startAttack()}
-//     */
+    /**
+     * {@link Minecraft#startAttack()}
+     */
     public static boolean myAttackBlock() {
         ClientLevel targetWorld =
             ClientWorldLoader.getWorld(remotePointedDim);

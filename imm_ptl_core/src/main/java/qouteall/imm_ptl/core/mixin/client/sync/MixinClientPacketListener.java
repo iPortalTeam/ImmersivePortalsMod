@@ -180,23 +180,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         return entity;
     }
     
-    // for debug
-    @Redirect(
-        method = "Lnet/minecraft/client/multiplayer/ClientPacketListener;handleSetEntityMotion(Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;lerpMotion(DDD)V"
-        )
-    )
-    private void redirectSetVelocityOnOnVelocityUpdate(Entity entity, double x, double y, double z) {
-        if (!entity.isControlledByLocalInstance()) {
-            entity.lerpMotion(x, y, z);
-        }
-        else {
-            immptl_limitedLogger.err("wrong velocity update packet " + entity);
-        }
-    }
-    
     // make sure that the game time is synchronized for all dimensions
     @Inject(
         method = "handleSetTime",

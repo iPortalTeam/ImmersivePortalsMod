@@ -156,10 +156,13 @@ public class IPNetworking {
     }
     
     public static class RemoteCallables {
+        // TODO remove in 1.20
+        // this kept because older versions of ImmPtl client sends that packet
+        // failing to handle a packet cause kicking the player
         public static void onClientPlayerUpdatePose(
             ServerPlayer player, Pose pose
         ) {
-            player.setPose(pose);
+        
         }
     }
     

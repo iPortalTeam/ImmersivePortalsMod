@@ -25,6 +25,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
@@ -111,6 +112,10 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         return entity;
     }
     
+    /**
+     * {@link ChunkMap.TrackedEntity#updatePlayer(ServerPlayer)}
+     */
+    @IPVanillaCopy
     @Override
     public void updateEntityTrackingStatus(ServerPlayer player) {
         IEThreadedAnvilChunkStorage storage = (IEThreadedAnvilChunkStorage)
