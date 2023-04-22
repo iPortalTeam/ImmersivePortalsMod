@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.compat;
 
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -10,26 +11,28 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import javax.annotation.Nullable;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class IPModInfoChecking {
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     public static record ModIncompatInfo(
         String modId,
@@ -83,7 +86,6 @@ public class IPModInfoChecking {
     
     // NOTE do not run it on render thread
     @Nullable
-    @Environment(EnvType.CLIENT)
     public static ImmPtlInfo fetchImmPtlInfoFromInternet() {
         String url = O_O.getImmPtlModInfoUrl();
         
@@ -92,36 +94,29 @@ public class IPModInfoChecking {
             return null;
         }
         
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
-            HttpGet request = new HttpGet(url);
-            request.addHeader(HttpHeaders.USER_AGENT, "Immersive Portals mod");
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("User-Agent", "Immersive Portals mod")
+                    .build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
             
-            try (CloseableHttpResponse httpResponse = httpClient.execute(request)) {
-                int statusCode = httpResponse.getStatusLine().getStatusCode();
-                if (statusCode != 200) {
-                    Helper.err("Failed to fetch immptl mod info " + statusCode);
-                    return null;
-                }
-                
-                HttpEntity entity = httpResponse.getEntity();
-                
-                if (entity == null) {
-                    return null;
-                }
-                
-                String jsonStr = EntityUtils.toString(entity);
-                ImmPtlInfo immPtlInfo = Helper.gson.fromJson(jsonStr, ImmPtlInfo.class);
-                return immPtlInfo;
+            if (response.statusCode() != 200) {
+                Helper.err("Failed to fetch immptl mod info " + response.statusCode());
+                return null;
             }
+            
+            String jsonStr = response.body();
+            ImmPtlInfo immPtlInfo = Helper.gson.fromJson(jsonStr, ImmPtlInfo.class);
+            LOGGER.info("ImmPtl mod info fetched");
+            return immPtlInfo;
         }
         catch (Throwable e) {
             e.printStackTrace();
             return null;
         }
-    }
-    
-    public static void initDedicatedServer() {
-        // currently not doing it in dedicated server
     }
     
     @Environment(EnvType.CLIENT)
@@ -140,72 +135,76 @@ public class IPModInfoChecking {
             IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
                 MyTaskList.oneShotTask(() -> {
+                    List<Component> texts = new ArrayList<>();
+                    
                     if (IPGlobal.enableUpdateNotification) {
                         if (O_O.shouldUpdateImmPtl(immPtlInfo.latestReleaseVersion)) {
-                            MutableComponent text = Component.translatable(
+                            MutableComponent text1 = Component.translatable(
                                 "imm_ptl.new_version_available",
                                 immPtlInfo.latestReleaseVersion
                             );
-                            text.append(McHelper.getLinkText(O_O.getModDownloadLink()));
+                            text1.append(McHelper.getLinkText(O_O.getModDownloadLink()));
                             
-                            text.append(Component.literal("  "));
-                            text.append(IPMcHelper.getDisableUpdateCheckText());
+                            text1.append(Component.literal("  "));
+                            text1.append(IPMcHelper.getDisableUpdateCheckText());
                             
-                            CHelper.printChat(text);
+                            texts.add(text1);
                         }
                     }
                     
                     for (ModIncompatInfo mod : immPtlInfo.severelyIncompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
-                            MutableComponent text;
+                            MutableComponent text1;
                             if (mod.startVersion != null || mod.endVersion != null) {
-                                text = Component.translatable(
+                                text1 = Component.translatable(
                                     "imm_ptl.severely_incompatible_within_version",
                                     mod.modName, mod.modId,
                                     mod.getVersionRangeStr()
                                 ).withStyle(ChatFormatting.RED);
                             }
                             else {
-                                text = Component.translatable("imm_ptl.severely_incompatible", mod.modName, mod.modId)
+                                text1 = Component.translatable("imm_ptl.severely_incompatible", mod.modName, mod.modId)
                                     .withStyle(ChatFormatting.RED);
                             }
                             
                             if (mod.desc != null) {
-                                text.append(Component.literal(" " + mod.desc + " "));
+                                text1.append(Component.literal(" " + mod.desc + " "));
                             }
                             
                             if (mod.link != null) {
-                                text.append(Component.literal(" "));
-                                text.append(McHelper.getLinkText(mod.link));
+                                text1.append(Component.literal(" "));
+                                text1.append(McHelper.getLinkText(mod.link));
                             }
                             
-                            CHelper.printChat(text);
+                            texts.add(text1);
                         }
                     }
                     
                     for (ModIncompatInfo mod : immPtlInfo.incompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
                             if (IPGlobal.enableWarning) {
-                                MutableComponent text = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
+                                MutableComponent text1 = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
                                     .withStyle(ChatFormatting.RED)
                                     .append(IPMcHelper.getDisableWarningText());
                                 
                                 if (mod.desc != null) {
-                                    text.append(Component.literal(" " + mod.desc + " "));
+                                    text1.append(Component.literal(" " + mod.desc + " "));
                                 }
                                 
                                 if (mod.link != null) {
-                                    text.append(McHelper.getLinkText(" " + mod.link));
+                                    text1.append(McHelper.getLinkText(" " + mod.link));
                                 }
                                 
-                                CHelper.printChat(text);
+                                texts.add(text1);
                             }
                         }
                     }
+                    
+                    for (Component text : texts) {
+                        CHelper.printChat(text);
+                    }
                 })
             ));
-            
-            
         });
         
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
@@ -226,5 +225,91 @@ public class IPModInfoChecking {
             })
         ));
         
+    }
+    
+    public static void initDedicatedServer() {
+        Util.backgroundExecutor().execute(() -> {
+            if (!IPGlobal.checkModInfoFromInternet) {
+                return;
+            }
+            
+            ImmPtlInfo immPtlInfo = fetchImmPtlInfoFromInternet();
+            
+            if (immPtlInfo == null) {
+                return;
+            }
+            
+            MiscHelper.getServer().execute(() -> {
+                if (IPGlobal.enableUpdateNotification) {
+                    if (O_O.shouldUpdateImmPtl(immPtlInfo.latestReleaseVersion)) {
+                        LOGGER.info("[Immersive Portals] A new version is available. It is recommended to update to " + immPtlInfo.latestReleaseVersion);
+                    }
+                }
+                
+                for (ModIncompatInfo mod : immPtlInfo.severelyIncompatible) {
+                    if (mod != null && mod.isModLoadedWithinVersion()) {
+                        MutableComponent text1;
+                        if (mod.startVersion != null || mod.endVersion != null) {
+                            text1 = Component.translatable(
+                                "imm_ptl.severely_incompatible_within_version",
+                                mod.modName, mod.modId,
+                                mod.getVersionRangeStr()
+                            ).withStyle(ChatFormatting.RED);
+                            LOGGER.error(
+                                "[Immersive Portals] Detected an incompatible mod: {} {} version range: {} description: {} link: {}",
+                                mod.modName, mod.modId, mod.getVersionRangeStr(), mod.desc, mod.link
+                            );
+                        }
+                        else {
+                            text1 = Component.translatable("imm_ptl.severely_incompatible", mod.modName, mod.modId)
+                                .withStyle(ChatFormatting.RED);
+                            LOGGER.error(
+                                "[Immersive Portals] Detected an incompatible mod: {} {} description: {} link: {}",
+                                mod.modName, mod.modId, mod.desc, mod.link
+                            );
+                        }
+                        
+                        if (mod.desc != null) {
+                            text1.append(Component.literal(" " + mod.desc + " "));
+                        }
+                        
+                        if (mod.link != null) {
+                            text1.append(Component.literal(" "));
+                            text1.append(McHelper.getLinkText(mod.link));
+                        }
+                        
+                        McHelper.sendMessageToFirstLoggedPlayer(
+                            Component.translatable("imm_ptl.message_from_server")
+                                .append(text1)
+                        );
+                    }
+                }
+                
+                for (ModIncompatInfo mod : immPtlInfo.incompatible) {
+                    if (mod != null && mod.isModLoadedWithinVersion()) {
+                        if (IPGlobal.enableWarning) {
+                            MutableComponent text1 = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
+                                .withStyle(ChatFormatting.RED);
+                            
+                            if (mod.desc != null) {
+                                text1.append(Component.literal(" " + mod.desc + " "));
+                            }
+                            
+                            if (mod.link != null) {
+                                text1.append(McHelper.getLinkText(" " + mod.link));
+                            }
+                            
+                            LOGGER.error("[Immersive Portals] Detected a mildly incompatible mod: {} {} description: {} link: {}",
+                                mod.modName, mod.modId, mod.desc, mod.link
+                            );
+                            McHelper.sendMessageToFirstLoggedPlayer(
+                                Component.translatable("imm_ptl.message_from_server")
+                                    .append(text1)
+                            );
+                        }
+                    }
+                }
+            });
+        });
     }
 }

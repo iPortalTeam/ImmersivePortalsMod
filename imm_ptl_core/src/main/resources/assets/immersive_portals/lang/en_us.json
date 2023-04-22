@@ -205,6 +205,7 @@
   "imm_ptl.conflicting_dim_stack": "Cannot set dimension stack because of portal conflicts",
   "imm_ptl.conflicting_dim_stack_detail": "The red arrows indicate conflicting portals. There cannot be two portals in the floor or ceiling of a dimension.\nTo fix that, you can remove entries or disable a specific connection.",
   "imm_ptl.a_dimension_of": "A dimension of %1$s",
+  "imm_ptl.message_from_server": "[Immersive Portals] Message from server: ",
 
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": ""
 }

@@ -73,6 +73,7 @@ public class ImplRemoteProcedureCall {
             .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
             .put(CompoundTag.class, (buf, o) -> buf.writeNbt(((CompoundTag) o)))
             .put(Component.class, (buf, o) -> buf.writeComponent(((Component) o)))
+            .put(byte[].class, (buf, o) -> buf.writeByteArray(((byte[]) o)))
             .build();
         
         deserializerMap = ImmutableMap.<Type, Function<FriendlyByteBuf, Object>>builder()
@@ -100,6 +101,7 @@ public class ImplRemoteProcedureCall {
             .put(ItemStack.class, buf -> deserializeByCodec(buf, ItemStack.CODEC))
             .put(CompoundTag.class, buf -> buf.readNbt())
             .put(Component.class, buf -> buf.readComponent())
+            .put(byte[].class, buf -> buf.readByteArray())
             .build();
     }
     
