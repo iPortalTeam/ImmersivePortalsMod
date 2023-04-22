@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.platform_specific.MiscNetworking;
 
 @Mixin(PlayerList.class)
 public class MixinPlayerList_Misc {

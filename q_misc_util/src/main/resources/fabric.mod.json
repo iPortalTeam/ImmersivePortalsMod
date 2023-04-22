@@ -14,10 +14,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "qouteall.q_misc_util.MiscUtilModEntry"
+      "qouteall.q_misc_util.platform_specific.MiscUtilModEntry"
     ],
     "client": [
-      "qouteall.q_misc_util.MiscUtilModEntryClient"
+      "qouteall.q_misc_util.platform_specific.MiscUtilModEntryClient"
     ],
     "server": [
 

@@ -1,4 +1,4 @@
-package qouteall.q_misc_util;
+package qouteall.q_misc_util.platform_specific;
 
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -13,6 +13,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.ImplRemoteProcedureCall;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
