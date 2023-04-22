@@ -2264,10 +2264,7 @@ public class PortalCommand {
     public static Optional<Pair<Portal, Vec3>> getPlayerPointingPortalRaw(
         Player player, float tickDelta, double maxDistance, boolean includeGlobalPortal
     ) {
-        Vec3 from = player.getEyePosition(tickDelta);
-        Vec3 to = from.add(player.getViewVector(tickDelta).scale(maxDistance));
-        Level world = player.level;
-        return raytracePortals(world, from, to, includeGlobalPortal);
+        return PortalUtils.raytracePortalFromEntityView(player, tickDelta, maxDistance, includeGlobalPortal, p -> true);
     }
     
     public static Optional<Pair<Portal, Vec3>> raytracePortals(

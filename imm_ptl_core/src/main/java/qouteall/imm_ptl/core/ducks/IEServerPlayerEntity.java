@@ -16,5 +16,5 @@ public interface IEServerPlayerEntity {
     
     void portal_worldChanged(ServerLevel fromWorld, Vec3 fromPos);
     
-    boolean ip_getRealIsContainerMenuValid(AbstractContainerMenu instance);
+//    boolean ip_getRealIsContainerMenuValid(AbstractContainerMenu instance);
 }

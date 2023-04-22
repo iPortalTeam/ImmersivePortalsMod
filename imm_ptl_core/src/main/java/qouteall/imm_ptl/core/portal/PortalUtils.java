@@ -58,6 +58,16 @@ public class PortalUtils {
         );
     }
     
+    public static Optional<Pair<Portal, Vec3>> raytracePortalFromEntityView(
+        Entity player, float tickDelta, double maxDistance, boolean includeGlobalPortal,
+        Predicate<Portal> predicate
+    ) {
+        Vec3 from = player.getEyePosition(tickDelta);
+        Vec3 to = from.add(player.getViewVector(tickDelta).scale(maxDistance));
+        Level world = player.level;
+        return raytracePortals(world, from, to, includeGlobalPortal, predicate);
+    }
+    
     public static record PortalAwareRaytraceResult(
         Level world,
         BlockHitResult hitResult,
@@ -177,13 +187,11 @@ public class PortalUtils {
         }
     }
     
+    @Deprecated
     public static Optional<Pair<Portal, Vec3>> raytracePortalsFromPlayer(
         Player player, float tickDelta, double maxDistance, boolean includeGlobalPortal,
         Predicate<Portal> p
     ) {
-        Vec3 from = player.getEyePosition(tickDelta);
-        Vec3 to = from.add(player.getViewVector(tickDelta).scale(maxDistance));
-        Level world = player.level;
-        return raytracePortals(world, from, to, includeGlobalPortal, p);
+        return raytracePortalFromEntityView(player, tickDelta, maxDistance, includeGlobalPortal, p);
     }
 }
