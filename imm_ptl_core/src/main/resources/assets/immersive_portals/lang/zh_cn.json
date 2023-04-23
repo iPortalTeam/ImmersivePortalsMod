@@ -204,5 +204,8 @@
   "entity.immersive_portals.mirror": "镜子",
   "entity.immersive_portals.breakable_mirror": "镜子",
   "imm_ptl.conflicting_dim_stack": "存在传送门冲突，无法设置位面纵向堆叠",
-  "imm_ptl.conflicting_dim_stack_detail": "红色箭头表示冲突的传送门。一个位面的底侧或顶侧最多有一个传送门。\n可以通过移除一些位面或禁用某些连接来解决该问题。"
+  "imm_ptl.conflicting_dim_stack_detail": "红色箭头表示冲突的传送门。一个位面的底侧或顶侧最多有一个传送门。\n可以通过移除一些位面或禁用某些连接来解决该问题。",
+  "imm_ptl.a_dimension_of": "%1$s 的位面",
+  "imm_ptl.message_from_server": "[沉浸传送门] 来自服务器的信息: ",
+  "imm_ptl.incompatible_shaderpack": "[沉浸传送门] 当前的光影包与沉浸传送门不兼容，传送门渲染会出现较大问题。如果想要更好的传送门渲染，建议更换另一个光影包。"
 }

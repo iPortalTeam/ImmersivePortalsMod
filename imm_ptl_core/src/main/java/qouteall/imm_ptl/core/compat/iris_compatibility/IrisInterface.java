@@ -3,9 +3,11 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
+import net.coderbot.iris.shaderpack.ShaderPack;
 import net.minecraft.client.renderer.LevelRenderer;
 import qouteall.q_misc_util.Helper;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
 public class IrisInterface {
@@ -32,6 +34,11 @@ public class IrisInterface {
         }
         
         public void reloadPipelines() {}
+    
+        @Nullable
+        public String getShaderpackName() {
+            return null;
+        }
     }
     
     public static class OnIrisPresent extends Invoker {
@@ -77,6 +84,12 @@ public class IrisInterface {
         @Override
         public void reloadPipelines() {
             Iris.getPipelineManager().destroyPipeline();
+        }
+    
+        @Nullable
+        @Override
+        public String getShaderpackName() {
+            return Iris.getCurrentPackName();
         }
     }
     

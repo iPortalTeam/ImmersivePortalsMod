@@ -13,6 +13,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.IPModInfoChecking;
 import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -301,6 +302,8 @@ public abstract class PortalRenderer {
                 CHelper.printChat(Component.translatable("imm_ptl.fabulous_warning"));
             }
         }
+    
+        IPModInfoChecking.checkShaderpack();
         
         if (IrisInterface.invoker.isIrisPresent()) {
             if (IrisInterface.invoker.isShaders()) {
@@ -325,7 +328,6 @@ public abstract class PortalRenderer {
             case debug -> switchRenderer(IPCGlobal.rendererDebug);
             case none -> switchRenderer(IPCGlobal.rendererDummy);
         }
-        
     }
     
     private static void switchRenderer(PortalRenderer renderer) {

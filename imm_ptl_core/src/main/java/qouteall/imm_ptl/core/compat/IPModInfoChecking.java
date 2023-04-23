@@ -16,6 +16,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -28,6 +29,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class IPModInfoChecking {
@@ -67,6 +69,7 @@ public class IPModInfoChecking {
         public String latestReleaseVersion;
         public List<ModIncompatInfo> severelyIncompatible;
         public List<ModIncompatInfo> incompatible;
+        public List<String> incompatibleShaderpacks;
         
         public ImmPtlInfo(String latestReleaseVersion, List<ModIncompatInfo> severelyIncompatible, List<ModIncompatInfo> incompatible) {
             this.latestReleaseVersion = latestReleaseVersion;
@@ -131,6 +134,8 @@ public class IPModInfoChecking {
             if (immPtlInfo == null) {
                 return;
             }
+            
+            incompatibleShaderpacks = immPtlInfo.incompatibleShaderpacks;
             
             IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
@@ -311,5 +316,31 @@ public class IPModInfoChecking {
                 }
             });
         });
+    }
+    
+    @Nullable
+    private static List<String> incompatibleShaderpacks;
+    @Nullable
+    private static String lastShaderpackName;
+    
+    public static void checkShaderpack() {
+        String shaderpackName = IrisInterface.invoker.getShaderpackName();
+        if (!Objects.equals(lastShaderpackName, shaderpackName)) {
+            lastShaderpackName = shaderpackName;
+            
+            if (shaderpackName != null) {
+                if (incompatibleShaderpacks != null) {
+                    boolean incompatible = incompatibleShaderpacks.stream().anyMatch(
+                        n -> shaderpackName.toLowerCase().contains(n.toLowerCase())
+                    );
+                    if (incompatible) {
+                        CHelper.printChat(
+                            Component.translatable("imm_ptl.incompatible_shaderpack")
+                                .withStyle(ChatFormatting.RED)
+                        );
+                    }
+                }
+            }
+        }
     }
 }
