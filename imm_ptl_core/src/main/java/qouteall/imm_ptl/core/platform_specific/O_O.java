@@ -118,6 +118,8 @@ public class O_O {
             return "https://qouteall.fun/immptl_info/forge-%s.json".formatted(gameVersion);
         }
         else {
+            // it's in github pages
+            // https://github.com/qouteall/immptl_info
             return "https://qouteall.fun/immptl_info/%s.json".formatted(gameVersion);
         }
     }

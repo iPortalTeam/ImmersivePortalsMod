@@ -67,6 +67,8 @@ public class IPConfig implements ConfigData {
     public int portalRenderLimit = 200;
     @ConfigEntry.Gui.Excluded
     public boolean doCheckGlError = false;
+    @ConfigEntry.Gui.Excluded
+    public boolean shaderpackWarning = true;
     
     // common visible configs
     

@@ -17,6 +17,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -324,6 +325,10 @@ public class IPModInfoChecking {
     private static String lastShaderpackName;
     
     public static void checkShaderpack() {
+        if (!IPConfig.getConfig().shaderpackWarning) {
+            return;
+        }
+        
         String shaderpackName = IrisInterface.invoker.getShaderpackName();
         if (!Objects.equals(lastShaderpackName, shaderpackName)) {
             lastShaderpackName = shaderpackName;
