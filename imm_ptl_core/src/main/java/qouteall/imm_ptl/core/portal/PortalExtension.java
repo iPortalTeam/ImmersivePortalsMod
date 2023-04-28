@@ -257,6 +257,24 @@ public class PortalExtension {
             PortalExtension.get(parallelPortal).bindCluster = true;
         }
         
+        // in older versions, the parallel portal could be itself
+        // correct it
+        if (flippedPortal == portal) {
+            flippedPortal = null;
+            flippedPortalId = null;
+            needsUpdate = true;
+        }
+        if (reversePortal == portal) {
+            reversePortal = null;
+            reversePortalId = null;
+            needsUpdate = true;
+        }
+        if (parallelPortal == portal) {
+            parallelPortal = null;
+            parallelPortalId = null;
+            needsUpdate = true;
+        }
+        
         if (needsUpdate) {
             portal.reloadAndSyncToClient();
         }

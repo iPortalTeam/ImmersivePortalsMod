@@ -461,7 +461,9 @@ public class PortalManipulation {
             p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSqr() < 0.01 &&
                 p1.getDestPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
                 p1.getNormal().dot(portal.getContentDirection()) < -0.9 &&
-                !(p1 instanceof Mirror)
+                p1.getContentDirection().dot(portal.getNormal()) < -0.9 &&
+                !(p1 instanceof Mirror) &&
+                p1 != portal
         ));
     }
     
@@ -475,7 +477,8 @@ public class PortalManipulation {
             p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSqr() < 0.01 &&
                 p1.getDestPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
                 p1.getNormal().dot(portal.getContentDirection()) > 0.9 &&
-                !(p1 instanceof Mirror)
+                !(p1 instanceof Mirror) &&
+                p1 != portal
         ));
     }
     
@@ -489,7 +492,8 @@ public class PortalManipulation {
             p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
                 p1.getNormal().dot(portal.getNormal()) < -0.9 &&
                 p1.getDestPos().distanceToSqr(portal.getDestPos()) < 0.01 &&
-                !(p1 instanceof Mirror)
+                !(p1 instanceof Mirror) &&
+                p1 != portal
         ));
     }
     
