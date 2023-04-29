@@ -3,11 +3,11 @@ description: File a bug report
 body:
   - type: markdown
     attributes:
-      value: "To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation. \nIf Immersive Portals mod makes other mod's functionality break, you don't need to test it, simply select No below."
+      value: "To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation. \nIf Immersive Portals mod makes other mod's functionality break, you don't need to test it, simply select Yes below."
   - type: dropdown
     id: only_immptl
     attributes:
-      label: According to your testing, does the issue occur with ONLY Immersive Portals mod and Fabric API?
+      label: Is it a mod compatibility issue?
       options:
         - "Select One"
         - "Yes"
