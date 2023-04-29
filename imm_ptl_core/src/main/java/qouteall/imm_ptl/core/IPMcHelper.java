@@ -281,11 +281,12 @@ public class IPMcHelper {
         return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
     }
     
-    public static Component getDisableWarningText() {
+    public static Component getDisableWarningText(String warningKey) {
         return Component.literal(" ").append(
             Component.translatable("imm_ptl.disable_warning").withStyle(
                 style -> style.withClickEvent(new ClickEvent(
-                    ClickEvent.Action.RUN_COMMAND, "/imm_ptl_client_debug disable_warning"
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/imm_ptl_client_debug disable_warning_for \"" + warningKey + "\""
                 )).withUnderlined(true)
             ));
     }

@@ -157,6 +157,10 @@ public class O_O {
     }
     
     public static boolean shouldUpdateImmPtl(String latestReleaseVersion) {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            return false;
+        }
+        
         Version currentVersion = FabricLoader.getInstance()
             .getModContainer("imm_ptl_core").get().getMetadata().getVersion();
         try {

@@ -188,10 +188,10 @@ public class IPModInfoChecking {
                     
                     for (ModIncompatInfo mod : immPtlInfo.incompatible) {
                         if (mod != null && mod.isModLoadedWithinVersion()) {
-                            if (IPGlobal.enableWarning) {
+                            if (IPConfig.getConfig().shouldDisplayWarning(mod.modId)) {
                                 MutableComponent text1 = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
                                     .withStyle(ChatFormatting.RED)
-                                    .append(IPMcHelper.getDisableWarningText());
+                                    .append(IPMcHelper.getDisableWarningText(mod.modId));
                                 
                                 if (mod.desc != null) {
                                     text1.append(Component.literal(" " + mod.desc + " "));
@@ -216,16 +216,15 @@ public class IPModInfoChecking {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
-                if (IPGlobal.enableWarning && !FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                if (IPConfig.getConfig().shouldDisplayWarning("many_mods") && !FabricLoader.getInstance().isDevelopmentEnvironment()) {
                     List<ModContainer> topLevelMods = FabricLoader.getInstance().getAllMods().stream()
-                        .filter(modContainer -> modContainer.getContainingMod().isEmpty())
-                        .collect(Collectors.toList());
+                        .filter(modContainer -> modContainer.getContainingMod().isEmpty()).toList();
                     
                     if (topLevelMods.size() > 20) {
                         CHelper.printChat(Component.literal(
                             "[Immersive Portals] WARNING: You are using many mods. It's likely that one of them has compatibility issues with Immersive Portals. " +
                                 "If you are sure that there is no compatibility issue, disable this warning."
-                        ).withStyle(ChatFormatting.RED).append(IPMcHelper.getDisableWarningText()));
+                        ).withStyle(ChatFormatting.RED).append(IPMcHelper.getDisableWarningText("many_mods")));
                     }
                 }
             })
@@ -293,7 +292,7 @@ public class IPModInfoChecking {
                 
                 for (ModIncompatInfo mod : immPtlInfo.incompatible) {
                     if (mod != null && mod.isModLoadedWithinVersion()) {
-                        if (IPGlobal.enableWarning) {
+                        if (IPConfig.getConfig().shouldDisplayWarning(mod.modId)) {
                             MutableComponent text1 = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
                                 .withStyle(ChatFormatting.RED);
                             

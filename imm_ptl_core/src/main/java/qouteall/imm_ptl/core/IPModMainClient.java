@@ -11,6 +11,7 @@ import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.IPNetworkingClient;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -37,7 +38,7 @@ public class IPModMainClient {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
-                if (IPGlobal.enableWarning) {
+                if (IPConfig.getConfig().shouldDisplayWarning("preview")) {
                     MutableComponent text = Component.translatable("imm_ptl.preview_warning").append(
                         McHelper.getLinkText(O_O.getIssueLink())
                     );

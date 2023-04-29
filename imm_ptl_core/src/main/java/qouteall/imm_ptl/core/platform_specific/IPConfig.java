@@ -10,6 +10,8 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.HashSet;
 
 @Config(name = "immersive_portals")
 public class IPConfig implements ConfigData {
@@ -19,8 +21,6 @@ public class IPConfig implements ConfigData {
     
     // client visible configs
     
-    @ConfigEntry.Category("client")
-    public boolean enableWarning = true;
     @ConfigEntry.Category("client")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
     public int maxPortalLayer = 5;
@@ -76,6 +76,7 @@ public class IPConfig implements ConfigData {
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
+    public boolean enableWarning = true;
     public boolean lightVanillaNetherPortalWhenCrouching = true;
     public boolean enableAlternateDimensions = true;
     public boolean enableServerPerformanceAdjustment = true;
@@ -99,6 +100,8 @@ public class IPConfig implements ConfigData {
     public boolean teleportationDebug = false;
     @ConfigEntry.Gui.Excluded
     public boolean looseMovementCheck = false;
+    @ConfigEntry.Gui.Excluded
+    public HashSet<String> disabledWarnings = new HashSet<>();
     
     @ConfigEntry.Gui.Excluded
     @Nullable
@@ -164,6 +167,10 @@ public class IPConfig implements ConfigData {
         
         Helper.log("IP Config Applied");
         
+    }
+    
+    public boolean shouldDisplayWarning(String warningKey) {
+        return enableWarning && !disabledWarnings.contains(warningKey);
     }
     
 }

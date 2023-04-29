@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.commands;
 import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -436,7 +437,19 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-    
+        
+        builder.then(ClientCommandManager
+            .literal("disable_warning_for")
+            .then(ClientCommandManager
+                .argument("warningKey", StringArgumentType.string())
+                .executes(context -> {
+                    disableWarningFor(StringArgumentType.getString(context, "warningKey"));
+                    context.getSource().sendFeedback(Component.translatable("imm_ptl.warning_disabled"));
+                    return 0;
+                })
+            )
+        );
+        
         builder.then(ClientCommandManager
             .literal("disable_update_check")
             .executes(context -> {
@@ -796,6 +809,12 @@ public class ClientDebugCommand {
     public static void disableWarning() {
         IPConfig ipConfig = IPConfig.getConfig();
         ipConfig.enableWarning = false;
+        ipConfig.saveConfigFile();
+    }
+    
+    public static void disableWarningFor(String warningKey) {
+        IPConfig ipConfig = IPConfig.getConfig();
+        ipConfig.disabledWarnings.add(warningKey);
         ipConfig.saveConfigFile();
     }
     
