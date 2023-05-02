@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.compat.mixin;
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexType;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import org.lwjgl.opengl.GL20C;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -40,12 +40,13 @@ public class MixinSodiumChunkShaderInterface {
         ip_init(((GlObject) context).handle());
     }
     
+    // TODO change to use non-deprecated things
     @Inject(
-        method = "setup",
+        method = "setupState",
         at = @At("RETURN"),
         remap = false
     )
-    private void onSetup(ChunkVertexType vertexType, CallbackInfo ci) {
+    private void onSetup(CallbackInfo ci) {
         if (uIPClippingEquation != -1) {
             if (FrontClipping.isClippingEnabled) {
                 double[] equation = FrontClipping.getActiveClipPlaneEquationForEntities();

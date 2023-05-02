@@ -178,7 +178,7 @@ public class O_O {
     }
     
     public static String getModDownloadLink() {
-        return "https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod";
+        return "https://modrinth.com/mod/immersiveportals";
     }
     
     public static String getIssueLink() {
