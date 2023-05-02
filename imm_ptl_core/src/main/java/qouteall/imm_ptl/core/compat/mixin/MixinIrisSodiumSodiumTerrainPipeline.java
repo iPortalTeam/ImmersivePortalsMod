@@ -30,7 +30,7 @@ public class MixinIrisSodiumSodiumTerrainPipeline {
         method = "patchShaders",
         at = @At("RETURN")
     )
-    private void onPathShaderEnds(ChunkVertexType par1, CallbackInfo ci) {
+    private void onPatchShaderEnds(ChunkVertexType par1, CallbackInfo ci) {
         terrainSolidVertex = terrainSolidVertex.map(code ->
             ShaderCodeTransformation.transform(
                 Program.Type.VERTEX,

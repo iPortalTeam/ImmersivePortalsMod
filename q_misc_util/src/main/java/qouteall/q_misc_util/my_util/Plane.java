@@ -2,6 +2,7 @@ package qouteall.q_misc_util.my_util;
 
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class Plane {
@@ -31,6 +32,19 @@ public class Plane {
     
     public Plane move(double distance) {
         return new Plane(pos.add(normal.scale(distance)), normal);
+    }
+    
+    @Nullable
+    public Vec3 raytrace(Vec3 origin, Vec3 vec) {
+        double denominator = normal.dot(vec);
+        if (Math.abs(denominator) < 0.0001) {
+            return null;
+        }
+        double t = getDistanceTo(origin) / denominator;
+        if (t <= 0) {
+            return null;
+        }
+        return origin.add(vec.scale(t));
     }
     
     @Override

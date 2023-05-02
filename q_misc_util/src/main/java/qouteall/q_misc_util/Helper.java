@@ -18,13 +18,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
+import qouteall.q_misc_util.my_util.LongBlockPos;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -972,6 +975,41 @@ public class Helper {
         catch (NumberFormatException e) {
             return OptionalInt.empty();
         }
+    }
+    
+    public static List<Vec3> deduplicateWithPrecision(
+        Collection<Vec3> points,
+        int precision
+    ) {
+        HashSet<LongBlockPos> set = new HashSet<>();
+        for (Vec3 point : points) {
+            set.add(new LongBlockPos(
+                (int) Math.round(point.x * precision),
+                (int) Math.round(point.y * precision),
+                (int) Math.round(point.z * precision)
+            ));
+        }
+        return set.stream().map(
+            blockPos -> new Vec3(
+                blockPos.x() / (double) precision,
+                blockPos.y() / (double) precision,
+                blockPos.z() / (double) precision
+            )
+        ).collect(Collectors.toList());
+    }
+    
+    public static double getDistanceFromPointToLine(
+        Vec3 point,
+        Vec3 lineOrigin,
+        Vec3 lineDirection
+    ) {
+        Vec3 lineDirectionNormalized = lineDirection.normalize();
+        
+        Vec3 pointToLineOrigin = lineOrigin.subtract(point);
+        Vec3 pointToLineOriginProjected = pointToLineOrigin.subtract(
+            lineDirectionNormalized.scale(pointToLineOrigin.dot(lineDirectionNormalized))
+        );
+        return pointToLineOriginProjected.length();
     }
     
 }
