@@ -128,6 +128,7 @@ public class EndPortalEntity extends Portal {
             portal.scaling = scale;
             portal.teleportChangesScale = false;
             portal.portalTag = "view_box";
+            portal.setInteractable(false);
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
             
