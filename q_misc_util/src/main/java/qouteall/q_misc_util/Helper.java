@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.AABB;
@@ -536,18 +537,37 @@ public class Helper {
      * Note: if the deserializer returns null, it won't be in the result list.
      */
     public static <X> ArrayList<X> listTagToList(ListTag listTag, Function<CompoundTag, X> deserializer) {
+        return listTagDeserialize(listTag, deserializer, CompoundTag.class);
+    }
+    
+    public static <X> ListTag listToListTag(List<X> list, Function<X, CompoundTag> serializer) {
+        return listTagSerialize(list, serializer);
+    }
+    
+    /**
+     * It's safe to modify the result array list.
+     * Note: if the deserializer returns null, it won't be in the result list.
+     */
+    public static <X, TT extends Tag> ArrayList<X> listTagDeserialize(
+        ListTag listTag, Function<TT, X> deserializer,
+        Class<TT> tagClass
+    ) {
         ArrayList<X> result = new ArrayList<>();
         listTag.forEach(tag -> {
-            CompoundTag compoundTag = (CompoundTag) tag;
-            X obj = deserializer.apply(compoundTag);
-            if (obj != null) {
-                result.add(obj);
+            if (tag.getClass() == tagClass) {
+                X obj = deserializer.apply((TT) tag);
+                if (obj != null) {
+                    result.add(obj);
+                }
+            }
+            else {
+                logger.error("Unexpected tag class: {}", tag.getClass(), new Throwable());
             }
         });
         return result;
     }
     
-    public static <X> ListTag listToListTag(List<X> list, Function<X, CompoundTag> serializer) {
+    public static <X, TT extends Tag> ListTag listTagSerialize(List<X> list, Function<X, TT> serializer) {
         ListTag listTag = new ListTag();
         for (X x : list) {
             listTag.add(serializer.apply(x));

@@ -34,6 +34,14 @@ public class LimitedLogger {
         invoke(() -> logger.error(template, args));
     }
     
+    public void lInfo(org.apache.logging.log4j.Logger logger, String template, Object... args) {
+        invoke(() -> logger.info(template, args));
+    }
+    
+    public void lErr(org.apache.logging.log4j.Logger logger, String template, Object... args) {
+        invoke(() -> logger.error(template, args));
+    }
+    
     public void invoke(Runnable r) {
         if (remain > 0) {
             remain--;
