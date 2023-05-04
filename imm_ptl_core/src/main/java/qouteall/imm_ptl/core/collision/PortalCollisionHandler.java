@@ -277,7 +277,12 @@ public class PortalCollisionHandler {
         VoxelShape originalShape, List<Portal> portalCollisions
     ) {
         VoxelShape shape = originalShape;
-        AABB shapeBounds = originalShape.bounds();
+    
+        if (shape.isEmpty()) {
+            return shape;
+        }
+        
+        AABB shapeBounds = shape.bounds();
         
         for (int i = 0; i < portalCollisions.size(); i++) {
             Portal portal = portalCollisions.get(i);
@@ -305,7 +310,12 @@ public class PortalCollisionHandler {
                 exclusion,
                 BooleanOp.ONLY_FIRST
             );
-            shapeBounds = originalShape.bounds();
+    
+            if (shape.isEmpty()) {
+                return shape;
+            }
+            
+            shapeBounds = shape.bounds();
         }
         
         return shape;
