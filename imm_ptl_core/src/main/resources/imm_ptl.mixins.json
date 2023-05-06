@@ -58,6 +58,7 @@
     "common.registry.IERegistryDataLoader"
   ],
   "client": [
+    "client.MixinAbstractClientPlayer",
     "client.MixinClientConnection",
     "client.MixinClientLevel",
     "client.MixinDebugScreenOverlay",
