@@ -20,6 +20,7 @@ import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
+import qouteall.imm_ptl.peripheral.portal_generation.PortalWandItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -80,10 +81,18 @@ public class PeripheralModEntry implements ModInitializer {
             new ResourceLocation("immersive_portals:command_stick"),
             CommandStickItem.instance
         );
+    
+        Registry.register(
+            BuiltInRegistries.ITEM,
+            new ResourceLocation("immersive_portals:portal_wand"),
+            PortalWandItem.instance
+        );
         
         PeripheralModMain.registerCommandStickTypes();
         
         CommandStickItem.init();
+        
+        PortalWandItem.init();
     }
     
     @Override

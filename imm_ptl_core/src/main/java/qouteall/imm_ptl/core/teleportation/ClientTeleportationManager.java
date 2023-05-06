@@ -23,6 +23,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
+import qouteall.imm_ptl.core.ducks.IEAbstractClientPlayer;
 import qouteall.imm_ptl.core.network.PacketRedirectionClient;
 import qouteall.imm_ptl.core.network.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -422,6 +423,7 @@ public class ClientTeleportationManager {
         ((IEEntity) player).portal_unsetRemoved();
         
         toWorld.addPlayer(player.getId(), player);
+        ((IEAbstractClientPlayer) player).ip_setClientLevel(toWorld);
         
         IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(ClientWorldLoader

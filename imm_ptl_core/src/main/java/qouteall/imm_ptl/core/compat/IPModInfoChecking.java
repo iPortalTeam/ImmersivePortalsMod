@@ -244,7 +244,7 @@ public class IPModInfoChecking {
                 return;
             }
             
-            MiscHelper.getServer().execute(() -> {
+            IPGlobal.serverTaskList.addOneShotTask(() -> {
                 if (IPGlobal.enableUpdateNotification) {
                     if (O_O.shouldUpdateImmPtl(immPtlInfo.latestReleaseVersion)) {
                         LOGGER.info("[Immersive Portals] A new version is available. It is recommended to update to " + immPtlInfo.latestReleaseVersion);

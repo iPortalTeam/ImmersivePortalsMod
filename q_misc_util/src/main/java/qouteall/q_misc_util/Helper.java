@@ -10,7 +10,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -1004,9 +1003,9 @@ public class Helper {
         HashSet<LongBlockPos> set = new HashSet<>();
         for (Vec3 point : points) {
             set.add(new LongBlockPos(
-                (int) Math.round(point.x * precision),
-                (int) Math.round(point.y * precision),
-                (int) Math.round(point.z * precision)
+                (long) Math.round(point.x * precision),
+                (long) Math.round(point.y * precision),
+                (long) Math.round(point.z * precision)
             ));
         }
         return set.stream().map(
@@ -1030,6 +1029,54 @@ public class Helper {
             lineDirectionNormalized.scale(pointToLineOrigin.dot(lineDirectionNormalized))
         );
         return pointToLineOriginProjected.length();
+    }
+    
+    public static interface BoxEdgeConsumer {
+        void consume(
+            int ax, int ay, int az,
+            int bx, int by, int bz
+        );
+    }
+    
+    public static void traverseBoxEdge(
+        BoxEdgeConsumer consumer
+    ) {
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                consumer.consume(dx, dy, 0, dx, dy, 1);
+            }
+        }
+        
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dz = 0; dz <= 1; dz++) {
+                consumer.consume(dx, 0, dz, dx, 1, dz);
+            }
+        }
+        
+        for (int dy = 0; dy <= 1; dy++) {
+            for (int dz = 0; dz <= 1; dz++) {
+                consumer.consume(0, dy, dz, 1, dy, dz);
+            }
+        }
+    }
+    
+    public static List<Vec3> verticesAndEdgeMidpoints(AABB box) {
+        List<Vec3> result = new ArrayList<>();
+        for (int xi = 0; xi <= 2; xi++) {
+            for (int yi = 0; yi <= 2; yi++) {
+                for (int zi = 0; zi <= 2; zi++) {
+                    if (xi != 1 || yi != 1 || zi != 1) {
+                        double x = box.minX + (xi / 2.0) * (box.maxX - box.minX);
+                        double y = box.minY + (yi / 2.0) * (box.maxY - box.minY);
+                        double z = box.minZ + (zi / 2.0) * (box.maxZ - box.minZ);
+                        
+                        result.add(new Vec3(x, y, z));
+                    }
+                }
+            }
+        }
+        
+        return result;
     }
     
 }

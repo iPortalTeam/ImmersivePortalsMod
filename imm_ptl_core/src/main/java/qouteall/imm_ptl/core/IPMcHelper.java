@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -82,7 +83,7 @@ public class IPMcHelper {
         Level world, Vec3 pos, int range, Consumer<Portal> func
     ) {
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
-    
+        
         for (Portal globalPortal : globalPortals) {
             if (globalPortal.getDistanceToNearestPointInPortal(pos) < range * 2) {
                 func.accept(globalPortal);
@@ -281,23 +282,30 @@ public class IPMcHelper {
         return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
     }
     
+    public static MutableComponent getTextWithCommand(
+        MutableComponent component,
+        String command
+    ) {
+        return component.withStyle(
+            style -> style.withClickEvent(new ClickEvent(
+                ClickEvent.Action.RUN_COMMAND,
+                command
+            )).withUnderlined(true)
+        );
+    }
+    
     public static Component getDisableWarningText(String warningKey) {
-        return Component.literal(" ").append(
-            Component.translatable("imm_ptl.disable_warning").withStyle(
-                style -> style.withClickEvent(new ClickEvent(
-                    ClickEvent.Action.RUN_COMMAND,
-                    "/imm_ptl_client_debug disable_warning_for \"" + warningKey + "\""
-                )).withUnderlined(true)
-            ));
+        return Component.literal(" ").append(getTextWithCommand(
+            Component.translatable("imm_ptl.disable_warning"),
+            "/imm_ptl_client_debug disable_warning_for \"" + warningKey + "\""
+        ));
     }
     
     public static Component getDisableUpdateCheckText() {
-        return Component.literal(" ").append(
-            Component.translatable("imm_ptl.disable_update_check").withStyle(
-                style -> style.withClickEvent(new ClickEvent(
-                    ClickEvent.Action.RUN_COMMAND, "/imm_ptl_client_debug disable_update_check"
-                )).withUnderlined(true)
-            ));
+        return Component.literal(" ").append(getTextWithCommand(
+            Component.translatable("imm_ptl.disable_update_check"),
+            "/imm_ptl_client_debug disable_update_check"
+        ));
     }
     
     @Environment(EnvType.CLIENT)

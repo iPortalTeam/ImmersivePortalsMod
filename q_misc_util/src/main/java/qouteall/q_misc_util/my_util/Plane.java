@@ -1,6 +1,7 @@
 package qouteall.q_misc_util.my_util;
 
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -18,6 +19,7 @@ public class Plane {
         return normal.dot(point.subtract(pos));
     }
     
+    @NotNull
     public Vec3 getProjection(Vec3 point) {
         return point.subtract(normal.scale(getDistanceTo(point)));
     }
@@ -40,7 +42,7 @@ public class Plane {
         if (Math.abs(denominator) < 0.0001) {
             return null;
         }
-        double t = getDistanceTo(origin) / denominator;
+        double t = -getDistanceTo(origin) / denominator;
         if (t <= 0) {
             return null;
         }

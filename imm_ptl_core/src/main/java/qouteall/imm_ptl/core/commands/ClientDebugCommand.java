@@ -485,6 +485,22 @@ public class ClientDebugCommand {
             })
         );
         
+        builder.then(ClientCommandManager
+            .literal("show_portal_wand_instruction")
+            .executes(context -> {
+                LocalPlayer player = context.getSource().getPlayer();
+    
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_1"));
+                player.sendSystemMessage(Component.literal(""));
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_2"));
+                player.sendSystemMessage(Component.literal(""));
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_3"));
+                player.sendSystemMessage(Component.literal(""));
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_4"));
+                return 0;
+            })
+        );
+        
         
         registerSwitchCommand(
             builder,

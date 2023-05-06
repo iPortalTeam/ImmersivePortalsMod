@@ -26,7 +26,9 @@
     "client.alternate_dimension.MixinFogRenderer_A",
     "client.alternate_dimension.MixinWorldRenderer_A",
     "client.dim_stack.MixinCreateWorldScreen",
-    "client.dim_stack.MixinCreateWorldScreenMoreTab"
+    "client.dim_stack.MixinCreateWorldScreenMoreTab",
+    "client.portal_wand.MixinDebugRenderer",
+    "client.portal_wand.MixinMinecraft_PortalWand"
   ],
   "injectors": {
     "defaultRequire": 1

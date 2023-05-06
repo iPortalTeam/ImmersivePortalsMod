@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 
@@ -121,8 +122,10 @@ public class CHelper {
     }
     
     public static double getSmoothCycles(long unitTicks) {
-        int playerAge = Minecraft.getInstance().player.tickCount;
-        return (playerAge % unitTicks + RenderStates.getPartialTick()) / (double) unitTicks;
+        return (
+            StableClientTimer.getStableTickTime() % unitTicks +
+                StableClientTimer.getStablePartialTicks()
+        ) / (double) unitTicks;
     }
     
     public static void disableDepthClamp() {
