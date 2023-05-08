@@ -218,9 +218,11 @@
   "imm_ptl.wand.use_instruction_1": "Portal wand is a convenient tool for creating rectangle portals. By holding the portal wand pointing to a block, a white rotating box appears. It's the cursor. The cursor aligns to half-block points. Right-click to place the portal anchors.",
   "imm_ptl.wand.use_instruction_2": "You need to respectively place the left-bottom point, the right-bottom point, and the left-top point of the first side. Then place the left-bottom, right-bottom, left-top points of the second side. After that, a bi-way bi-faced portal will be created.",
   "imm_ptl.wand.use_instruction_3": "The left-top point on this side is limited to a plane because it can only create rectangle portals. The left-top point on the other side is limited to a circle because the aspect ratio should match.",
-  "imm_ptl.wand.use_instruction_4": "Left-click to remove the selected anchors and reset the process.",
+  "imm_ptl.wand.use_instruction_4": "Left-click to undo.",
 
   "item.immersive_portals.portal_wand": "Portal Wand",
+
+  "imm_ptl.wand.finished": "Portal Generated",
 
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": ""
 }

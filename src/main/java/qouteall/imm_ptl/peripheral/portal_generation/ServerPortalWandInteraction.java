@@ -1,9 +1,12 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -11,6 +14,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class ServerPortalWandInteraction {
@@ -55,7 +59,7 @@ public class ServerPortalWandInteraction {
                 LOGGER.error("The horizontal and vertical axis are not perpendicular in first side");
                 return;
             }
-    
+            
             if (firstSideWidth > SIZE_LIMIT || firstSideHeight > SIZE_LIMIT) {
                 player.sendSystemMessage(Component.literal("The first side is too large"));
                 LOGGER.error("The first side is too large");
@@ -129,10 +133,31 @@ public class ServerPortalWandInteraction {
             McHelper.spawnServerEntity(flippedPortal);
             McHelper.spawnServerEntity(reversePortal);
             McHelper.spawnServerEntity(parallelPortal);
+            
+            player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
+            
+            giveDeletingPortalCommandStickIfNotPresent(player);
         }
     }
     
     private static boolean canPlayerUsePortalWand(ServerPlayer player) {
         return player.isCreative() || player.hasPermissions(2);
+    }
+    
+    private static void giveDeletingPortalCommandStickIfNotPresent(ServerPlayer player) {
+        CommandStickItem.Data stickData = CommandStickItem.commandStickTypeRegistry.get(
+            new ResourceLocation("imm_ptl:eradicate_portal_cluster")
+        );
+        
+        if (stickData == null) {
+            return;
+        }
+        
+        ItemStack stack = new ItemStack(CommandStickItem.instance);
+        stack.setTag(stickData.toTag());
+        
+        if (!player.getInventory().contains(stack)) {
+            player.getInventory().add(stack);
+        }
     }
 }

@@ -2,12 +2,10 @@ package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,6 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -27,7 +26,6 @@ import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
@@ -49,6 +47,8 @@ import java.util.Random;
 @Environment(EnvType.CLIENT)
 public class ClientPortalWandInteraction {
     
+    public static record Circle(Plane plane, Vec3 circleCenter, double radius) {}
+    
     private static final Logger LOGGER = LogUtils.getLogger();
     
     @Nullable
@@ -57,12 +57,16 @@ public class ClientPortalWandInteraction {
     @Nullable
     public static Vec3 renderedCursorPointing;
     
+    public static double renderedPlaneScale = 0;
+    
     @Nullable
     public static ResourceKey<Level> renderedPlaneDimension;
     @Nullable
     public static Plane renderedPlane;
     @Nullable
-    public static Pair<Vec3, Double> renderedCircle;
+    public static ResourceKey<Level> renderedCircleDimension;
+    @Nullable
+    public static Circle renderedCircle;
     
     @Nullable
     public static ResourceKey<Level> firstSideDimension;
@@ -70,7 +74,7 @@ public class ClientPortalWandInteraction {
     @Nullable
     public static Vec3 firstSideLeftBottom;
     @Nullable
-    public static Vec3 firstRightRightBottom;
+    public static Vec3 firstSideRightBottom;
     @Nullable
     public static Vec3 firstSideLeftUp;
     
@@ -87,7 +91,7 @@ public class ClientPortalWandInteraction {
     
     public static void reset() {
         firstSideLeftBottom = null;
-        firstRightRightBottom = null;
+        firstSideRightBottom = null;
         firstSideLeftUp = null;
         firstSideDimension = null;
         
@@ -95,6 +99,36 @@ public class ClientPortalWandInteraction {
         secondSideRightBottom = null;
         secondSideLeftUp = null;
         secondSideDimension = null;
+    }
+    
+    public static void undo() {
+        if (secondSideLeftUp != null) {
+            secondSideLeftUp = null;
+            return;
+        }
+        if (secondSideRightBottom != null) {
+            secondSideRightBottom = null;
+            return;
+        }
+        if (secondSideLeftBottom != null) {
+            secondSideLeftBottom = null;
+            secondSideDimension = null;
+            return;
+        }
+        
+        if (firstSideLeftUp != null) {
+            firstSideLeftUp = null;
+            return;
+        }
+        if (firstSideRightBottom != null) {
+            firstSideRightBottom = null;
+            return;
+        }
+        if (firstSideLeftBottom != null) {
+            firstSideLeftBottom = null;
+            firstSideDimension = null;
+            return;
+        }
     }
     
     public static void onRightClick() {
@@ -107,8 +141,8 @@ public class ClientPortalWandInteraction {
             firstSideDimension = Minecraft.getInstance().level.dimension();
             return;
         }
-        if (firstRightRightBottom == null) {
-            firstRightRightBottom = cursorPointing;
+        if (firstSideRightBottom == null) {
+            firstSideRightBottom = cursorPointing;
             return;
         }
         if (firstSideLeftUp == null) {
@@ -137,6 +171,7 @@ public class ClientPortalWandInteraction {
         renderedPlane = null;
         renderedPlaneDimension = null;
         renderedCircle = null;
+        renderedCircleDimension = null;
     }
     
     public static void updateDisplay() {
@@ -144,6 +179,9 @@ public class ClientPortalWandInteraction {
         renderedPlane = null;
         renderedPlaneDimension = null;
         renderedCircle = null;
+        renderedCircleDimension = null;
+        
+        updateMessage();
         
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -179,11 +217,21 @@ public class ClientPortalWandInteraction {
         
         Plane cursorLimitingPlane = getCursorLimitingPlane();
         
-        if (cursorLimitingPlane != null) {
-            cursorPointing = cursorLimitingPlane.raytrace(eyePos, viewVec);
-            
+        Circle cursorLimitingCircle = getCursorLimitingCircle();
+        
+        // if the circle is present, don't render the plane
+        if (cursorLimitingCircle != null) {
+            renderedCircle = cursorLimitingCircle;
+            renderedCircleDimension = player.level.dimension();
+        }
+        else if (cursorLimitingPlane != null) {
             renderedPlane = cursorLimitingPlane;
             renderedPlaneDimension = player.level.dimension();
+        }
+        
+        // update cursor
+        if (cursorLimitingPlane != null) {
+            cursorPointing = cursorLimitingPlane.raytrace(eyePos, viewVec);
             
             if (cursorPointing != null) {
                 // align it and then project onto plane
@@ -191,14 +239,10 @@ public class ClientPortalWandInteraction {
                 cursorPointing = align(player.level, cursorPointing);
                 cursorPointing = cursorLimitingPlane.getProjection(cursorPointing);
                 
-                Pair<Vec3, Double> cursorLimitingCircle = getCursorLimitingCircle();
-                
                 if (cursorLimitingCircle != null) {
-                    renderedCircle = cursorLimitingCircle;
-                    
                     // align it into the circle
-                    Vec3 center = cursorLimitingCircle.getFirst();
-                    double radius = cursorLimitingCircle.getSecond();
+                    Vec3 center = cursorLimitingCircle.circleCenter;
+                    double radius = cursorLimitingCircle.radius;
                     
                     Vec3 offset = cursorPointing.subtract(center);
                     
@@ -212,7 +256,7 @@ public class ClientPortalWandInteraction {
             }
         }
         else {
-            HitResult hitResult = player.pick(100, RenderStates.getPartialTick(), false);
+            HitResult hitResult = player.pick(20, RenderStates.getPartialTick(), false);
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
@@ -220,7 +264,89 @@ public class ClientPortalWandInteraction {
             }
         }
         
-        updateMessage();
+        removeCursorIfInvalid(player);
+    }
+    
+    private static void removeCursorIfInvalid(LocalPlayer player) {
+        if (cursorPointing == null) {
+            return;
+        }
+        
+        // it cannot be too close to existing anchors
+        if (player.level.dimension() == firstSideDimension) {
+            if (firstSideLeftBottom != null && firstSideLeftBottom.distanceToSqr(cursorPointing) < 0.001) {
+                cursorPointing = null;
+                return;
+            }
+            if (firstSideRightBottom != null && firstSideRightBottom.distanceToSqr(cursorPointing) < 0.001) {
+                cursorPointing = null;
+                return;
+            }
+            if (firstSideLeftUp != null && firstSideLeftUp.distanceToSqr(cursorPointing) < 0.001) {
+                cursorPointing = null;
+                return;
+            }
+        }
+        
+        if (player.level.dimension() == secondSideDimension) {
+            if (secondSideLeftBottom != null && secondSideLeftBottom.distanceToSqr(cursorPointing) < 0.001) {
+                cursorPointing = null;
+                return;
+            }
+            if (secondSideRightBottom != null && secondSideRightBottom.distanceToSqr(cursorPointing) < 0.001) {
+                cursorPointing = null;
+                return;
+            }
+        }
+        
+        // the portal side length cannot be too large
+        
+        
+        if (firstSideLeftBottom == null) {
+            return;
+        }
+        if (firstSideLeftUp == null) {
+            // cursor is pointing to first side left up
+            if (cursorPointing.distanceToSqr(firstSideLeftBottom) > 64 * 64) {
+                cursorPointing = null;
+                return;
+            }
+        }
+        if (firstSideRightBottom == null) {
+            // cursor is pointing to first side right bottom
+            if (cursorPointing.distanceToSqr(firstSideLeftBottom) > 64 * 64) {
+                cursorPointing = null;
+                return;
+            }
+        }
+        
+        if (secondSideLeftBottom == null) {
+            return;
+        }
+        if (secondSideLeftUp == null) {
+            // cursor is pointing to second side left up
+            if (cursorPointing.distanceToSqr(secondSideLeftBottom) > 64 * 64) {
+                cursorPointing = null;
+                return;
+            }
+        }
+        if (secondSideRightBottom == null) {
+            // cursor is pointing to second side right bottom
+            
+            double firstSideWidth = firstSideLeftBottom.distanceTo(firstSideRightBottom);
+            double firstSideHeight = firstSideLeftBottom.distanceTo(firstSideLeftUp);
+            
+            if (firstSideWidth == 0) {
+                return;
+            }
+            
+            double heightDivWidth = firstSideHeight / firstSideWidth;
+            
+            if (cursorPointing.distanceToSqr(secondSideLeftBottom) * heightDivWidth * heightDivWidth > 64 * 64) {
+                cursorPointing = null;
+                return;
+            }
+        }
     }
     
     private static void updateMessage() {
@@ -236,7 +362,7 @@ public class ClientPortalWandInteraction {
             return;
         }
         
-        if (firstRightRightBottom == null) {
+        if (firstSideRightBottom == null) {
             Minecraft.getInstance().gui.setOverlayMessage(
                 Component.translatable("imm_ptl.wand.first_side_right_bottom"), false
             );
@@ -286,9 +412,10 @@ public class ClientPortalWandInteraction {
                 VoxelShape collisionShape = blockState.getCollisionShape(world, pos)
                     .move(pos.getX(), pos.getY(), pos.getZ());
                 List<AABB> aabbs = collisionShape.toAabbs();
-                if (aabbs.size() > 1) {
+                if (aabbs.size() != 1) {
                     // in the case of hopper, not all of its collision boxes are symmetric
                     // without this, the north and south side of top edge mid-point of hopper cannot be selected
+                    // also make air blocks alignable
                     aabbs.add(new AABB(pos));
                 }
                 return aabbs.stream();
@@ -307,11 +434,11 @@ public class ClientPortalWandInteraction {
             );
         }
 
-        relevantPoints = Helper.deduplicateWithPrecision(relevantPoints, 4096);
+//        relevantPoints = Helper.deduplicateWithPrecision(relevantPoints, 4096);
         
         return relevantPoints.stream().min(
             Comparator.comparingDouble(
-                p -> p.distanceTo(vec3)
+                p -> p.distanceToSqr(vec3)
             )
         ).orElse(null);
     }
@@ -320,10 +447,10 @@ public class ClientPortalWandInteraction {
     // the left up point can only be in a plane because the portal is a rectangle
     @Nullable
     private static Plane getCursorLimitingPlane() {
-        if (firstSideLeftBottom != null && firstRightRightBottom != null && firstSideLeftUp == null) {
+        if (firstSideLeftBottom != null && firstSideRightBottom != null && firstSideLeftUp == null) {
             return new Plane(
                 firstSideLeftBottom,
-                firstRightRightBottom.subtract(firstSideLeftBottom).normalize()
+                firstSideRightBottom.subtract(firstSideLeftBottom).normalize()
             );
         }
         
@@ -337,14 +464,10 @@ public class ClientPortalWandInteraction {
         return null;
     }
     
-    // the pair contains the center of the circle and the radium
     @Nullable
-    private static Pair<Vec3, Double> getCursorLimitingCircle() {
-        if (firstSideLeftBottom != null && firstRightRightBottom != null && firstSideLeftUp != null &&
-            secondSideLeftBottom != null && secondSideRightBottom != null &&
-            secondSideLeftUp == null
-        ) {
-            Vec3 firstSideHorizontalAxis = firstRightRightBottom.subtract(firstSideLeftBottom);
+    private static Double getHeightDivWidth() {
+        if (firstSideLeftBottom != null && firstSideRightBottom != null && firstSideLeftUp != null) {
+            Vec3 firstSideHorizontalAxis = firstSideRightBottom.subtract(firstSideLeftBottom);
             Vec3 firstSideVerticalAxis = firstSideLeftUp.subtract(firstSideLeftBottom);
             double firstSideWidth = firstSideHorizontalAxis.length();
             double firstSideHeight = firstSideVerticalAxis.length();
@@ -353,14 +476,57 @@ public class ClientPortalWandInteraction {
                 return null;
             }
             
-            double heightDivideWidth = firstSideHeight / firstSideWidth;
+            return firstSideHeight / firstSideWidth;
+        }
+        return null;
+    }
+    
+    // the pair contains the center of the circle and the radium
+    @Nullable
+    private static Circle getCursorLimitingCircle() {
+        if (firstSideLeftBottom != null && firstSideRightBottom != null && firstSideLeftUp != null &&
+            secondSideLeftBottom != null && secondSideRightBottom != null && secondSideLeftUp == null
+        ) {
+            Plane plane = new Plane(
+                secondSideLeftBottom, secondSideRightBottom.subtract(secondSideLeftBottom).normalize()
+            );
+            
+            Double heightDivWidth = getHeightDivWidth();
+            
+            if (heightDivWidth == null) {
+                return null;
+            }
             
             Vec3 secondSideHorizontalAxis = secondSideRightBottom.subtract(secondSideLeftBottom);
             double secondSideWidth = secondSideHorizontalAxis.length();
             
-            double secondSideHeight = secondSideWidth * heightDivideWidth;
+            double secondSideHeight = secondSideWidth * heightDivWidth;
             
-            return Pair.of(secondSideLeftBottom, secondSideHeight);
+            return new Circle(plane, secondSideLeftBottom, secondSideHeight);
+        }
+        
+        return null;
+    }
+    
+    @Nullable
+    private static Circle getPreviewPlaneCircle() {
+        Double heightDivWidth = getHeightDivWidth();
+        
+        if (heightDivWidth == null) {
+            return null;
+        }
+        
+        if (secondSideLeftBottom != null && secondSideRightBottom == null && renderedCursorPointing != null) {
+            Vec3 secondSideHorizontalAxis = renderedCursorPointing.subtract(secondSideLeftBottom);
+            double secondSideWidth = secondSideHorizontalAxis.length();
+            
+            double secondSideHeight = secondSideWidth * heightDivWidth;
+            
+            Plane plane = new Plane(
+                secondSideLeftBottom, secondSideHorizontalAxis.normalize()
+            );
+            
+            return new Circle(plane, secondSideLeftBottom, secondSideHeight);
         }
         
         return null;
@@ -372,7 +538,7 @@ public class ClientPortalWandInteraction {
             return;
         }
         
-        if (firstSideLeftBottom == null || firstRightRightBottom == null || firstSideLeftUp == null ||
+        if (firstSideLeftBottom == null || firstSideRightBottom == null || firstSideLeftUp == null ||
             secondSideLeftBottom == null || secondSideRightBottom == null || secondSideLeftUp == null ||
             firstSideDimension == null || secondSideDimension == null
         ) {
@@ -382,7 +548,7 @@ public class ClientPortalWandInteraction {
         
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.peripheral.portal_generation.ServerPortalWandInteraction.RemoteCallables.finish",
-            firstSideDimension, firstSideLeftBottom, firstRightRightBottom, firstSideLeftUp,
+            firstSideDimension, firstSideLeftBottom, firstSideRightBottom, firstSideLeftUp,
             secondSideDimension, secondSideLeftBottom, secondSideRightBottom, secondSideLeftUp
         );
         
@@ -390,23 +556,59 @@ public class ClientPortalWandInteraction {
     }
     
     // ARGB
-    private static final int colorOfFirstSideLeftBottom = 0xffeb2feb;
+    private static final int colorOfFirstSideLeftBottom = 0xfffb00ff;
     private static final int colorOfFirstSideRightBottom = 0xffe63262;
-    private static final int colorOfFirstSideLeftUp = 0xffffd9b5;
+    private static final int colorOfFirstSideLeftUp = 0xfffcef60;
     
-    private static final int colorOfSecondSideLeftBottom = 0xfff5fc6a;
-    private static final int colorOfSecondSideRightBottom = 0xff8cfa43;
+    private static final int colorOfSecondSideLeftBottom = 0xffaeff57;
+    private static final int colorOfSecondSideRightBottom = 0xff57ffd2;
+    private static final int colorOfSecondSideLeftUp = 0xffbdb3ff;
     
-    private static final int colorOfCursor = 0xffffffff;
+    private static final int colorOfPlane = 0xffafd3fa;
+    private static final int colorOfCircle = 0xff03fce3;
+    private static final int colorOfFirstPortalArea = 0xfffc9003;
+    private static final int colorOfSecondPortalArea = 0xff60f2fc;
+    
+    private static int getCursorColor() {
+        if (firstSideLeftBottom == null) {
+            return colorOfFirstSideLeftBottom;
+        }
+        
+        if (firstSideRightBottom == null) {
+            return colorOfFirstSideRightBottom;
+        }
+        
+        if (firstSideLeftUp == null) {
+            return colorOfFirstSideLeftUp;
+        }
+        
+        if (secondSideLeftBottom == null) {
+            return colorOfSecondSideLeftBottom;
+        }
+        
+        if (secondSideRightBottom == null) {
+            return colorOfSecondSideRightBottom;
+        }
+        
+        if (secondSideLeftUp == null) {
+            return colorOfSecondSideLeftUp;
+        }
+        
+        return 0xffffffff;
+    }
     
     public static void render(
         PoseStack matrixStack,
         MultiBufferSource.BufferSource bufferSource,
         double camX, double camY, double camZ
     ) {
-        ClientLevel world = Minecraft.getInstance().level;
+        LocalPlayer player = Minecraft.getInstance().player;
         
-        if (world == null) {
+        if (player == null) {
+            return;
+        }
+        
+        if (player.getMainHandItem().getItem() != PortalWandItem.instance) {
             return;
         }
         
@@ -430,11 +632,11 @@ public class ClientPortalWandInteraction {
         if (renderedCursorPointing != null) {
             renderSmallCubeFrame(
                 vertexConsumer, cameraPos, renderedCursorPointing,
-                colorOfCursor,
+                getCursorColor(),
                 matrixStack);
         }
         
-        ResourceKey<Level> currDim = world.dimension();
+        ResourceKey<Level> currDim = player.level.dimension();
         
         // render the existing anchor points
         if (firstSideDimension != null) {
@@ -445,9 +647,9 @@ public class ClientPortalWandInteraction {
                         colorOfFirstSideLeftBottom, matrixStack
                     );
                 }
-                if (firstRightRightBottom != null) {
+                if (firstSideRightBottom != null) {
                     renderSmallCubeFrame(
-                        vertexConsumer, cameraPos, firstRightRightBottom,
+                        vertexConsumer, cameraPos, firstSideRightBottom,
                         colorOfFirstSideRightBottom, matrixStack
                     );
                 }
@@ -475,40 +677,75 @@ public class ClientPortalWandInteraction {
             }
         }
         
+        if (firstSideLeftBottom != null && firstSideRightBottom != null) {
+            if (firstSideLeftUp != null) {
+                renderPortalAreaGrid(
+                    vertexConsumer,
+                    cameraPos,
+                    firstSideLeftBottom, firstSideRightBottom, firstSideLeftUp,
+                    colorOfFirstPortalArea,
+                    matrixStack
+                );
+            }
+            else if (renderedCursorPointing != null) {
+                renderPortalAreaGrid(
+                    vertexConsumer,
+                    cameraPos,
+                    firstSideLeftBottom, firstSideRightBottom, renderedCursorPointing,
+                    colorOfFirstPortalArea,
+                    matrixStack
+                );
+            }
+        }
+        
+        if (secondSideLeftBottom != null && secondSideRightBottom != null) {
+            if (renderedCursorPointing != null) {
+                renderPortalAreaGrid(
+                    vertexConsumer,
+                    cameraPos,
+                    secondSideLeftBottom, secondSideRightBottom, renderedCursorPointing,
+                    colorOfSecondPortalArea,
+                    matrixStack
+                );
+            }
+        }
+        
         VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
         
         // render the limiting plane
-        if (renderedPlane != null) {
+        if (renderedPlane != null && currDim == renderedPlaneDimension) {
+            renderedPlaneScale = Mth.lerp(0.003f, renderedPlaneScale, 1);
             renderPlane(
                 // use the debug line strip to make it more clear
                 debugLineStripConsumer,
                 cameraPos, renderedPlane,
-                0xff037bfc,
+                renderedPlaneScale,
+                colorOfPlane,
                 matrixStack
             );
-            
-            if (renderedCircle != null) {
-                Pair<Vec3, Double> circle = getCursorLimitingCircle();
-                if (circle != null) {
-                    renderCircle(
-                        debugLineStripConsumer, cameraPos,
-                        renderedPlane, circle,
-                        0xff03fce3,
-                        matrixStack
-                    );
-                }
-            }
+        }else{
+            renderedPlaneScale = 0;
+        }
+    
+        if (renderedCircle != null && currDim == renderedCircleDimension) {
+            renderCircle(
+                debugLineStripConsumer, cameraPos,
+                renderedCircle,
+                colorOfCircle,
+                matrixStack
+            );
         }
         
-        if (firstSideLeftBottom != null && firstRightRightBottom != null && firstSideLeftUp != null) {
-            renderFirstSidePortalArea(
-                debugLineStripConsumer,
-                cameraPos,
-                firstSideLeftBottom, firstRightRightBottom, firstSideLeftUp,
-                0xffffffff,
+        Circle previewPlaneCircle = getPreviewPlaneCircle();
+        if (previewPlaneCircle != null) {
+            renderCircle(
+                debugLineStripConsumer, cameraPos,
+                previewPlaneCircle,
+                colorOfCircle,
                 matrixStack
             );
         }
+        
     }
     
     private static void renderSmallCubeFrame(
@@ -518,7 +755,7 @@ public class ClientPortalWandInteraction {
     ) {
         Random random = new Random(color);
         
-        double boxSize = boxCenter.distanceTo(cameraPos) * 0.04;
+        double boxSize = Math.pow(boxCenter.distanceTo(cameraPos), 0.3) * 0.09;
         
         matrixStack.pushPose();
         matrixStack.translate(
@@ -577,7 +814,9 @@ public class ClientPortalWandInteraction {
     }
     
     private static void renderPlane(
-        VertexConsumer vertexConsumer, Vec3 cameraPos, Plane plane, int color, PoseStack matrixStack
+        VertexConsumer vertexConsumer, Vec3 cameraPos,
+        Plane plane, double renderedPlaneScale,
+        int color, PoseStack matrixStack
     ) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -608,9 +847,12 @@ public class ClientPortalWandInteraction {
         );
         
         Matrix4f matrix = matrixStack.last().pose();
+    
+        double cameraDistanceToCenter = player.getEyePosition(RenderStates.getPartialTick())
+            .distanceTo(planeCenter);
         
         int lineNumPerSide = 10;
-        double lineInterval = player.getEyePosition(RenderStates.getPartialTick()).distanceTo(planeCenter) * 0.2;
+        double lineInterval = cameraDistanceToCenter * 0.2 * renderedPlaneScale;
         double lineLenPerSide = lineNumPerSide * lineInterval;
         
         for (int ix = -lineNumPerSide; ix <= lineNumPerSide; ix++) {
@@ -619,7 +861,7 @@ public class ClientPortalWandInteraction {
             Vec3 lineEnd = planeX.scale(ix * lineInterval)
                 .add(planeY.scale(lineLenPerSide));
             
-            putLineToLineStrip(vertexConsumer, color, normal, matrix, lineStart, lineEnd);
+            putLineToLineStrip(vertexConsumer, color, planeY, matrix, lineStart, lineEnd);
         }
         
         for (int iy = -lineNumPerSide; iy <= lineNumPerSide; iy++) {
@@ -628,7 +870,7 @@ public class ClientPortalWandInteraction {
             Vec3 lineEnd = planeY.scale(iy * lineInterval)
                 .add(planeX.scale(lineLenPerSide));
             
-            putLineToLineStrip(vertexConsumer, color, normal, matrix, lineStart, lineEnd);
+            putLineToLineStrip(vertexConsumer, color, planeX, matrix, lineStart, lineEnd);
         }
         
         matrixStack.popPose();
@@ -636,12 +878,16 @@ public class ClientPortalWandInteraction {
     
     private static void renderCircle(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
-        Plane plane,
-        Pair<Vec3, Double> circle,
+        Circle circle,
         int color, PoseStack matrixStack
     ) {
-        Vec3 planeCenter = plane.pos;
-        Vec3 normal = plane.normal;
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        
+        Vec3 planeCenter = circle.plane.pos;
+        Vec3 normal = circle.plane.normal;
         
         Vec3 anyVecNonNormal = new Vec3(0, 1, 0);
         if (Math.abs(normal.dot(anyVecNonNormal)) > 0.9) {
@@ -651,8 +897,8 @@ public class ClientPortalWandInteraction {
         Vec3 planeX = normal.cross(anyVecNonNormal).normalize();
         Vec3 planeY = normal.cross(planeX).normalize();
         
-        Vec3 circleCenter = circle.getFirst();
-        double circleRadius = circle.getSecond();
+        Vec3 circleCenter = circle.circleCenter;
+        double circleRadius = circle.radius;
         
         matrixStack.pushPose();
         
@@ -664,7 +910,7 @@ public class ClientPortalWandInteraction {
         
         Matrix4f matrix = matrixStack.last().pose();
         
-        int vertexNum = 50;
+        int vertexNum = Mth.clamp((int) Math.round(circleRadius * 40), 20, 400);
         
         for (int i = 0; i < vertexNum; i++) {
             double angle = i * 2 * Math.PI / vertexNum;
@@ -709,23 +955,23 @@ public class ClientPortalWandInteraction {
         matrixStack.popPose();
     }
     
-    private static void renderFirstSidePortalArea(
+    private static void renderPortalAreaGrid(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
-        Vec3 firstSideLeftBottom, Vec3 firstRightRightBottom, Vec3 firstSideLeftUp,
+        Vec3 leftBottom, Vec3 rightBottom, Vec3 leftUp,
         int color, PoseStack matrixStack
     ) {
-        int separation = 10;
+        int separation = 8;
         
-        Vec3 xAxis = firstRightRightBottom.subtract(firstSideLeftBottom);
-        Vec3 yAxis = firstSideLeftUp.subtract(firstSideLeftBottom);
+        Vec3 xAxis = rightBottom.subtract(leftBottom);
+        Vec3 yAxis = leftUp.subtract(leftBottom);
         
         Vec3 normal = xAxis.cross(yAxis).normalize();
         
         matrixStack.pushPose();
         matrixStack.translate(
-            firstSideLeftBottom.x - cameraPos.x,
-            firstSideLeftBottom.y - cameraPos.y,
-            firstSideLeftBottom.z - cameraPos.z
+            leftBottom.x - cameraPos.x,
+            leftBottom.y - cameraPos.y,
+            leftBottom.z - cameraPos.z
         );
         
         Matrix4f matrix = matrixStack.last().pose();
@@ -736,7 +982,7 @@ public class ClientPortalWandInteraction {
             Vec3 lineStart = xAxis.scale(ratio);
             Vec3 lineEnd = xAxis.scale(ratio).add(yAxis);
             
-            putLineToLineStrip(vertexConsumer, color, normal, matrix, lineStart, lineEnd);
+            putLine(vertexConsumer, color, yAxis.normalize(), matrix, lineStart, lineEnd);
         }
         
         for (int i = 0; i <= separation; i++) {
@@ -745,7 +991,7 @@ public class ClientPortalWandInteraction {
             Vec3 lineStart = yAxis.scale(ratio);
             Vec3 lineEnd = yAxis.scale(ratio).add(xAxis);
             
-            putLineToLineStrip(vertexConsumer, color, normal, matrix, lineStart, lineEnd);
+            putLine(vertexConsumer, color, xAxis.normalize(), matrix, lineStart, lineEnd);
         }
         
         matrixStack.popPose();

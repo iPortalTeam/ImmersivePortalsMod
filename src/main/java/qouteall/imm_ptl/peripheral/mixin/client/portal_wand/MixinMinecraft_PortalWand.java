@@ -28,7 +28,7 @@ public class MixinMinecraft_PortalWand {
     private void onStartingAttack(CallbackInfoReturnable<Boolean> cir) {
         assert player != null;
         if (player.getMainHandItem().getItem() instanceof PortalWandItem) {
-            ClientPortalWandInteraction.reset();
+            ClientPortalWandInteraction.undo();
             cir.setReturnValue(false);
         }
     }
