@@ -494,8 +494,6 @@ public class ClientDebugCommand {
                 player.sendSystemMessage(Component.literal(""));
                 player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_2"));
                 player.sendSystemMessage(Component.literal(""));
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_3"));
-                player.sendSystemMessage(Component.literal(""));
                 player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_4"));
                 return 0;
             })

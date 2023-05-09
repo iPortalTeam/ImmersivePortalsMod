@@ -207,5 +207,14 @@
   "imm_ptl.conflicting_dim_stack_detail": "红色箭头表示冲突的传送门。一个位面的底侧或顶侧最多有一个传送门。\n可以通过移除一些位面或禁用某些连接来解决该问题。",
   "imm_ptl.a_dimension_of": "%1$s 的位面",
   "imm_ptl.message_from_server": "[沉浸传送门] 来自服务器的信息: ",
-  "imm_ptl.incompatible_shaderpack": "[沉浸传送门] 当前的光影包与沉浸传送门不兼容，传送门渲染会出现较大问题。如果想要更好的传送门渲染，建议更换另一个光影包。"
+  "imm_ptl.incompatible_shaderpack": "[沉浸传送门] 当前的光影包与沉浸传送门不兼容，传送门渲染会出现较大问题。如果想要更好的传送门渲染，建议更换另一个光影包。",
+  "imm_ptl.wand.first_side_left_bottom": "右键选择传送门左下角点",
+  "imm_ptl.wand.first_side_right_bottom": "选择传送门右下角点 (宽度: %1$s)",
+  "imm_ptl.wand.first_side_left_up": "选择传送门左下角点 (高度: %1$s)",
+  "imm_ptl.wand.second_side_left_bottom": "选择传送门另一侧的左下角点",
+  "imm_ptl.wand.second_side_right_bottom": "选择传送门另一侧的右下角点 (宽度: %1$s, 高度: %2$s)",
+  "imm_ptl.wand.second_side_left_up": "选择传送门左上角点",
+  "imm_ptl.show_portal_wand_instruction": "查看如何使用传送门杖",
+  "item.immersive_portals.portal_wand": "传送门杖",
+  "imm_ptl.wand.finished": "Portal Generated"
 }

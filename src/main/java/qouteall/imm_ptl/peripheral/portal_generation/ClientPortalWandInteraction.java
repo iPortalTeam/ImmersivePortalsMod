@@ -190,16 +190,6 @@ public class ClientPortalWandInteraction {
             return;
         }
         
-        if (!messageInformed) {
-            messageInformed = true;
-            player.sendSystemMessage(
-                IPMcHelper.getTextWithCommand(
-                    Component.translatable("imm_ptl.show_portal_wand_instruction"),
-                    "/imm_ptl_client_debug show_portal_wand_instruction"
-                )
-            );
-        }
-        
         boolean isPlacingFirstSide = firstSideDimension != null && (firstSideLeftBottom == null || firstSideLeftUp == null);
         if (isPlacingFirstSide) {
             if (player.level.dimension() != firstSideDimension) {
@@ -355,6 +345,16 @@ public class ClientPortalWandInteraction {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
+        }
+    
+        if (!messageInformed) {
+            messageInformed = true;
+            player.sendSystemMessage(
+                IPMcHelper.getTextWithCommand(
+                    Component.translatable("imm_ptl.show_portal_wand_instruction"),
+                    "/imm_ptl_client_debug show_portal_wand_instruction"
+                )
+            );
         }
         
         if (firstSideLeftBottom == null) {
