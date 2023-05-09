@@ -60,6 +60,10 @@ public class ClientPortalWandInteraction {
     public static double renderedPlaneScale = 0;
     
     @Nullable
+    public static ResourceKey<Level> displayPlaneDimension;
+    @Nullable
+    public static Plane displayPlane;
+    @Nullable
     public static ResourceKey<Level> renderedPlaneDimension;
     @Nullable
     public static Plane renderedPlane;
@@ -168,20 +172,18 @@ public class ClientPortalWandInteraction {
     public static void clearCursorPointing() {
         cursorPointing = null;
         renderedCursorPointing = null;
-        renderedPlane = null;
-        renderedPlaneDimension = null;
+        displayPlane = null;
+        displayPlaneDimension = null;
         renderedCircle = null;
         renderedCircleDimension = null;
     }
     
     public static void updateDisplay() {
         cursorPointing = null;
-        renderedPlane = null;
-        renderedPlaneDimension = null;
+        displayPlane = null;
+        displayPlaneDimension = null;
         renderedCircle = null;
         renderedCircleDimension = null;
-        
-        updateMessage();
         
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -225,8 +227,8 @@ public class ClientPortalWandInteraction {
             renderedCircleDimension = player.level.dimension();
         }
         else if (cursorLimitingPlane != null) {
-            renderedPlane = cursorLimitingPlane;
-            renderedPlaneDimension = player.level.dimension();
+            displayPlane = cursorLimitingPlane;
+            displayPlaneDimension = player.level.dimension();
         }
         
         // update cursor
@@ -256,7 +258,7 @@ public class ClientPortalWandInteraction {
             }
         }
         else {
-            HitResult hitResult = player.pick(20, RenderStates.getPartialTick(), false);
+            HitResult hitResult = player.pick(64, RenderStates.getPartialTick(), false);
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
@@ -349,7 +351,7 @@ public class ClientPortalWandInteraction {
         }
     }
     
-    private static void updateMessage() {
+    public static void updateMessage() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -363,15 +365,19 @@ public class ClientPortalWandInteraction {
         }
         
         if (firstSideRightBottom == null) {
+            String widthStr = cursorPointing == null ? "?" : String.format("%.3f", firstSideLeftBottom.distanceTo(cursorPointing));
+            
             Minecraft.getInstance().gui.setOverlayMessage(
-                Component.translatable("imm_ptl.wand.first_side_right_bottom"), false
+                Component.translatable("imm_ptl.wand.first_side_right_bottom", widthStr), false
             );
             return;
         }
         
         if (firstSideLeftUp == null) {
+            String heightStr = cursorPointing == null ? "?" : String.format("%.3f", firstSideLeftBottom.distanceTo(cursorPointing));
+            
             Minecraft.getInstance().gui.setOverlayMessage(
-                Component.translatable("imm_ptl.wand.first_side_left_up"), false
+                Component.translatable("imm_ptl.wand.first_side_left_up", heightStr), false
             );
             return;
         }
@@ -384,8 +390,21 @@ public class ClientPortalWandInteraction {
         }
         
         if (secondSideRightBottom == null) {
+            double firstSideWidth = firstSideLeftBottom.distanceTo(firstSideRightBottom);
+            double firstSideHeight = firstSideLeftBottom.distanceTo(firstSideLeftUp);
+            if (firstSideWidth == 0) {firstSideWidth = 0.001;}
+            double heightDivWidth = firstSideHeight / firstSideWidth;
+    
+            String widthStr = "?";
+            String heightStr = "?";
+    
+            if (cursorPointing != null) {
+                widthStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing));
+                heightStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing) * heightDivWidth);
+            }
+            
             Minecraft.getInstance().gui.setOverlayMessage(
-                Component.translatable("imm_ptl.wand.second_side_right_bottom"), false
+                Component.translatable("imm_ptl.wand.second_side_right_bottom", widthStr, heightStr), false
             );
             return;
         }
@@ -625,6 +644,20 @@ public class ClientPortalWandInteraction {
             renderedCursorPointing = null;
         }
         
+        // update plane
+        if (displayPlane != null && displayPlaneDimension != null) {
+            renderedPlaneDimension = displayPlaneDimension;
+            renderedPlane = displayPlane;
+            renderedPlaneScale = Mth.lerp(0.003f, renderedPlaneScale, 1);
+        }
+        else {
+            renderedPlaneScale = Mth.lerp(0.03f, renderedPlaneScale, 0);
+            if (Math.abs(renderedPlaneScale) < 0.001) {
+                renderedPlane = null;
+                renderedPlaneDimension = null;
+            }
+        }
+        
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
         Vec3 cameraPos = new Vec3(camX, camY, camZ);
         
@@ -714,7 +747,6 @@ public class ClientPortalWandInteraction {
         
         // render the limiting plane
         if (renderedPlane != null && currDim == renderedPlaneDimension) {
-            renderedPlaneScale = Mth.lerp(0.003f, renderedPlaneScale, 1);
             renderPlane(
                 // use the debug line strip to make it more clear
                 debugLineStripConsumer,
@@ -723,7 +755,8 @@ public class ClientPortalWandInteraction {
                 colorOfPlane,
                 matrixStack
             );
-        }else{
+        }
+        else {
             renderedPlaneScale = 0;
         }
     

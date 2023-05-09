@@ -29,6 +29,7 @@ public class PortalWandItem extends Item {
             if (client.player != null) {
                 if (client.player.getMainHandItem().getItem() == instance) {
                     ClientPortalWandInteraction.updateDisplay();
+                    ClientPortalWandInteraction.updateMessage();
                 }
                 else {
                     ClientPortalWandInteraction.clearCursorPointing();
