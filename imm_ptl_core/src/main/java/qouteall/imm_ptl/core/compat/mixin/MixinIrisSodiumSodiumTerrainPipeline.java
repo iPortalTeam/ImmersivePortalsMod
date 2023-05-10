@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
 import com.mojang.blaze3d.shaders.Program;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
+import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexType;
 import net.coderbot.iris.pipeline.SodiumTerrainPipeline;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

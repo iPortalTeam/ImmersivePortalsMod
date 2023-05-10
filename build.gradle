@@ -144,16 +144,15 @@ allprojects {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.19.4-0.4.11"
+        modImplementation "maven.modrinth:sodium:mc1.19.4-0.4.10"
 
         // testing
         modImplementation "maven.modrinth:starlight:1.1.1+1.19"
 
-        // modCompileOnly
-        modCompileOnly 'maven.modrinth:iris:1.6.2+1.19.4'
-//        implementation "org.anarres:jcpp:1.4.14" // for iris
-//        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
-//        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
+        modImplementation 'maven.modrinth:iris:1.6.1+1.19.4'
+        implementation "org.anarres:jcpp:1.4.14" // for iris
+        implementation 'io.github.douira:glsl-transformer:2.0.0-pre12' // for iris
+        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
         modImplementation("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
             transitive = false
