@@ -89,10 +89,6 @@ public class PeripheralModEntry implements ModInitializer {
         );
         
         PeripheralModMain.registerCommandStickTypes();
-        
-        CommandStickItem.init();
-        
-        PortalWandItem.init();
     }
     
     @Override

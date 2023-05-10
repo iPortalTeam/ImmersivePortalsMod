@@ -25,6 +25,16 @@ public class PortalWandItem extends Item {
             }
         );
         
+        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+            if (player.getMainHandItem().getItem() == instance) {
+                // cannot break block using the wand
+                return InteractionResult.FAIL;
+            }
+            return InteractionResult.PASS;
+        });
+    }
+    
+    public static void initClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
                 if (client.player.getMainHandItem().getItem() == instance) {
@@ -35,14 +45,6 @@ public class PortalWandItem extends Item {
                     ClientPortalWandInteraction.clearCursorPointing();
                 }
             }
-        });
-        
-        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
-            if (player.getMainHandItem().getItem() == instance) {
-                // cannot break block using the wand
-                return InteractionResult.FAIL;
-            }
-            return InteractionResult.PASS;
         });
         
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandInteraction::reset);

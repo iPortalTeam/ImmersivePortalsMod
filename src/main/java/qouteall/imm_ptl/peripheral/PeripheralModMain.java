@@ -23,6 +23,7 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.mixin.common.end_portal.IEEndDragonFight;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
+import qouteall.imm_ptl.peripheral.portal_generation.PortalWandItem;
 import qouteall.q_misc_util.LifecycleHack;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -36,6 +37,8 @@ public class PeripheralModMain {
     @Environment(EnvType.CLIENT)
     public static void initClient() {
         IPOuterClientMisc.initClient();
+        
+        PortalWandItem.initClient();
     }
     
     public static void init() {
@@ -81,6 +84,10 @@ public class PeripheralModMain {
                 ((IEEndDragonFight) dragonFight).ip_scanState();
             }
         };
+        
+        PortalWandItem.init();
+        
+        CommandStickItem.init();
     }
     
     public static void registerCommandStickTypes() {
