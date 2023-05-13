@@ -73,21 +73,25 @@ public class IntrinsicPortalGeneration {
         BlockPos firePos,
         @Nullable Entity triggeringEntity
     ) {
-        ResourceKey<Level> fromDimension = fromWorld.dimension();
+        IPGlobal.NetherPortalMode mode = IPGlobal.netherPortalMode;
         
-        if (fromDimension == Level.OVERWORLD) {
-            CustomPortalGeneration gen =
-                IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
-                    IntrinsicPortalGeneration.intrinsicToNether :
-                    diligentToNether;
-            return gen.perform(fromWorld, firePos, triggeringEntity);
-        }
-        else if (fromDimension == Level.NETHER) {
-            CustomPortalGeneration gen =
-                IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
-                    IntrinsicPortalGeneration.intrinsicFromNether :
-                    diligentFromNether;
-            return gen.perform(fromWorld, firePos, triggeringEntity);
+        if (mode == IPGlobal.NetherPortalMode.normal || mode == IPGlobal.NetherPortalMode.adaptive) {
+            ResourceKey<Level> fromDimension = fromWorld.dimension();
+            
+            if (fromDimension == Level.OVERWORLD) {
+                CustomPortalGeneration gen =
+                    mode == IPGlobal.NetherPortalMode.normal ?
+                        IntrinsicPortalGeneration.intrinsicToNether :
+                        diligentToNether;
+                return gen.perform(fromWorld, firePos, triggeringEntity);
+            }
+            else if (fromDimension == Level.NETHER) {
+                CustomPortalGeneration gen =
+                    mode == IPGlobal.NetherPortalMode.normal ?
+                        IntrinsicPortalGeneration.intrinsicFromNether :
+                        diligentFromNether;
+                return gen.perform(fromWorld, firePos, triggeringEntity);
+            }
         }
         
         return false;
