@@ -21,6 +21,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,6 +47,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -65,6 +67,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.lang.ref.Reference;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -485,20 +488,9 @@ public class ClientDebugCommand {
             })
         );
         
-        builder.then(ClientCommandManager
-            .literal("show_portal_wand_instruction")
-            .executes(context -> {
-                LocalPlayer player = context.getSource().getPlayer();
-    
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_1"));
-                player.sendSystemMessage(Component.literal(""));
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_2"));
-                player.sendSystemMessage(Component.literal(""));
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_4"));
-                return 0;
-            })
-        );
-        
+        LiteralArgumentBuilder<FabricClientCommandSource> wandBuilder = ClientCommandManager.literal("wand");
+        registerPortalWandCommands(wandBuilder);
+        builder.then(wandBuilder);
         
         registerSwitchCommand(
             builder,
@@ -643,6 +635,40 @@ public class ClientDebugCommand {
         dispatcher.register(builder);
     }
     
+    private static void registerPortalWandCommands(
+        LiteralArgumentBuilder<FabricClientCommandSource> builder
+    ) {
+        builder.then(ClientCommandManager
+            .literal("show_instruction")
+            .executes(context -> {
+                LocalPlayer player = context.getSource().getPlayer();
+                
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_1"));
+                player.sendSystemMessage(Component.literal(""));
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_2"));
+                player.sendSystemMessage(Component.literal(""));
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_4"));
+                return 0;
+            })
+        );
+        
+        builder.then(ClientCommandManager
+            .literal("set_cursor_alignment")
+            .then(ClientCommandManager.argument("alignment", IntegerArgumentType.integer(0))
+                .executes(context -> {
+                    int alignment = IntegerArgumentType.getInteger(context, "alignment");
+                    
+                    IPConfig config = IPConfig.getConfig();
+                    config.portalWandCursorAlignment = alignment;
+                    config.saveConfigFile();
+                    
+                    context.getSource().sendFeedback(Component.translatable("imm_ptl.wand.alignment_updated"));
+                    
+                    return 0;
+                })
+            )
+        );
+    }
     
     private static void printClassPath() {
         System.out.println(

@@ -12,8 +12,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -26,6 +28,7 @@ import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
@@ -35,6 +38,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Plane;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -104,7 +108,11 @@ public class ClientPortalWandInteraction {
         secondSideDimension = null;
     }
     
-    public static void undo() {
+    public static void onLeftClick() {
+        undo();
+    }
+    
+    private static void undo() {
         if (secondSideLeftUp != null) {
             secondSideLeftUp = null;
             return;
@@ -221,13 +229,14 @@ public class ClientPortalWandInteraction {
         }
         
         // update cursor
+        int alignment = IPConfig.getConfig().portalWandCursorAlignment;
         if (cursorLimitingPlane != null) {
             cursorPointing = cursorLimitingPlane.raytrace(eyePos, viewVec);
             
             if (cursorPointing != null) {
                 // align it and then project onto plane
                 // aligning may cause it to be out of the plane
-                cursorPointing = align(player.level, cursorPointing);
+                cursorPointing = align(player.level, cursorPointing, alignment);
                 cursorPointing = cursorLimitingPlane.getProjection(cursorPointing);
                 
                 if (cursorLimitingCircle != null) {
@@ -251,7 +260,7 @@ public class ClientPortalWandInteraction {
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
-                cursorPointing = align(player.level, blockHitResult.getLocation());
+                cursorPointing = align(player.level, blockHitResult.getLocation(), alignment);
             }
         }
         
@@ -353,7 +362,7 @@ public class ClientPortalWandInteraction {
             player.sendSystemMessage(
                 IPMcHelper.getTextWithCommand(
                     Component.translatable("imm_ptl.show_portal_wand_instruction"),
-                    "/imm_ptl_client_debug show_portal_wand_instruction"
+                    "/imm_ptl_client_debug wand show_instruction"
                 )
             );
         }
@@ -398,14 +407,17 @@ public class ClientPortalWandInteraction {
             
             String widthStr = "?";
             String heightStr = "?";
+            String scaleStr = "?";
             
             if (cursorPointing != null) {
                 widthStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing));
                 heightStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing) * heightDivWidth);
+                scaleStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing) / firstSideWidth);
             }
             
             Minecraft.getInstance().gui.setOverlayMessage(
-                Component.translatable("imm_ptl.wand.second_side_right_bottom", widthStr, heightStr), false
+                Component.translatable("imm_ptl.wand.second_side_right_bottom", widthStr, heightStr, scaleStr),
+                false
             );
             return;
         }
@@ -420,47 +432,36 @@ public class ClientPortalWandInteraction {
     }
     
     private static Vec3 align(
-        Level world, Vec3 vec3
+        Level world, Vec3 vec3, int gridCount
     ) {
-        BlockPos blockPos = BlockPos.containing(vec3);
-        List<Vec3> relevantPoints = new IntBox(
-            blockPos.offset(-1, -1, -1),
-            blockPos.offset(1, 1, 1)
-        ).stream().flatMap(
-            pos -> {
-                BlockState blockState = world.getBlockState(pos);
-                VoxelShape collisionShape = blockState.getCollisionShape(world, pos)
-                    .move(pos.getX(), pos.getY(), pos.getZ());
-                List<AABB> aabbs = collisionShape.toAabbs();
-                if (aabbs.size() != 1) {
-                    // in the case of hopper, not all of its collision boxes are symmetric
-                    // without this, the north and south side of top edge mid-point of hopper cannot be selected
-                    // also make air blocks alignable
-                    aabbs.add(new AABB(pos));
-                }
-                return aabbs.stream();
-            }
-        ).flatMap(
-            box -> Helper.verticesAndEdgeMidpoints(box).stream()
-        ).toList();
-        
-        if (relevantPoints.isEmpty()) {
-            // if there are no block nearby
-            // just align it to half-block points
-            return new Vec3(
-                Math.round(vec3.x * 2) / 2.0,
-                Math.round(vec3.y * 2) / 2.0,
-                Math.round(vec3.z * 2) / 2.0
-            );
+        if (gridCount == 0) {
+            return vec3;
         }
-
-//        relevantPoints = Helper.deduplicateWithPrecision(relevantPoints, 4096);
         
-        return relevantPoints.stream().min(
-            Comparator.comparingDouble(
-                p -> p.distanceToSqr(vec3)
+        BlockPos blockPos = BlockPos.containing(vec3);
+        return new IntBox(blockPos.offset(-1, -1, -1), blockPos.offset(1, 1, 1))
+            .stream()
+            .flatMap(
+                pos -> {
+                    BlockState blockState = world.getBlockState(pos);
+                    VoxelShape collisionShape = blockState.getCollisionShape(world, pos)
+                        .move(pos.getX(), pos.getY(), pos.getZ());
+                    List<AABB> aabbs = collisionShape.toAabbs();
+                    if (aabbs.size() != 1) {
+                        // in the case of hopper, not all of its collision boxes are symmetric
+                        // without this, the north and south side of top edge mid-point of hopper cannot be selected
+                        // also make air blocks alignable
+                        aabbs.add(new AABB(pos));
+                    }
+                    return aabbs.stream();
+                }
             )
-        ).orElse(null);
+            .map(box -> Helper.alignToBoxSurface(box, vec3, gridCount))
+            .min(
+                Comparator.comparingDouble(
+                    p -> p.distanceToSqr(vec3)
+                )
+            ).orElse(null);
     }
     
     // when the bottom left and bottom right are determined,
@@ -1070,6 +1071,31 @@ public class ClientPortalWandInteraction {
             .color(0)
             .normal((float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
+    }
+    
+    public static void showSettings(Player player) {
+        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_1"));
+        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_alignment"));
+        
+        int[] alignments = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 32, 64};
+        
+        List<MutableComponent> alignmentSettingTexts = new ArrayList<>();
+        for (int alignment : alignments) {
+            MutableComponent textWithCommand = IPMcHelper.getTextWithCommand(
+                Component.literal("1/" + alignment),
+                "/imm_ptl_client_debug wand set_cursor_alignment " + alignment
+            );
+            alignmentSettingTexts.add(textWithCommand);
+        }
+        
+        alignmentSettingTexts.add(IPMcHelper.getTextWithCommand(
+            Component.translatable("imm_ptl.wand.no_alignment"),
+            "/imm_ptl_client_debug wand set_cursor_alignment 0"
+        ));
+        
+        player.sendSystemMessage(
+            alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b))
+        );
     }
     
 }

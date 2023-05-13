@@ -1,19 +1,28 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
+import com.google.common.base.Splitter;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.peripheral.CommandStickItem;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class PortalWandItem extends Item {
     public static final PortalWandItem instance = new PortalWandItem(new Properties());
@@ -57,9 +66,21 @@ public class PortalWandItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         if (world.isClientSide()) {
-            ClientPortalWandInteraction.onRightClick();
+            if (player.getPose() == Pose.CROUCHING) {
+                ClientPortalWandInteraction.showSettings(player);
+            }
+            else {
+                ClientPortalWandInteraction.onRightClick();
+            }
         }
         
         return super.use(world, player, hand);
+    }
+    
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
+        super.appendHoverText(stack, world, tooltip, context);
+    
+        tooltip.add(Component.translatable("imm_ptl.wand.item_desc_1"));
     }
 }

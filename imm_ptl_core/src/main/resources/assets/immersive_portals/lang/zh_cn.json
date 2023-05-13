@@ -212,7 +212,7 @@
   "imm_ptl.wand.first_side_right_bottom": "选择传送门右下角点 (宽度: %1$s)",
   "imm_ptl.wand.first_side_left_up": "选择传送门左下角点 (高度: %1$s)",
   "imm_ptl.wand.second_side_left_bottom": "选择传送门另一侧的左下角点",
-  "imm_ptl.wand.second_side_right_bottom": "选择传送门另一侧的右下角点 (宽度: %1$s, 高度: %2$s)",
+  "imm_ptl.wand.second_side_right_bottom": "选择传送门另一侧的右下角点 (宽度: %1$s, 高度: %2$s, 缩放: %3$s)",
   "imm_ptl.wand.second_side_left_up": "选择传送门左上角点",
   "imm_ptl.show_portal_wand_instruction": "查看如何使用传送门杖",
   "imm_ptl.wand.use_instruction_1": "传送门杖是一种方便创建传送门的工具。当手持传送门杖的时候，会出现光标。光标会自动吸附半方块位置。右键以放置传送门端点。",

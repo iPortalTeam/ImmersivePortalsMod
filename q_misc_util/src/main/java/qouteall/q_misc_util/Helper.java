@@ -968,7 +968,7 @@ public class Helper {
             public B get(int index) {
                 return mapping.apply(originalList.get(index));
             }
-        
+            
             @Override
             public int size() {
                 return originalList.size();
@@ -1079,8 +1079,68 @@ public class Helper {
         return result;
     }
     
-    public static boolean rangeOverlaps(double range1Start, double range1End, double range2Start, double range2End) {
-        double diff = Math.max(range1Start, range2Start) - Math.min(range1End, range2End);
-        return diff < -0.001;
+    public static Vec3 alignToBoxSurface(AABB box, Vec3 pos, int gridCount) {
+        double x = pos.x;
+        double y = pos.y;
+        double z = pos.z;
+        
+        if (x < box.minX) x = box.minX;
+        if (y < box.minY) y = box.minY;
+        if (z < box.minZ) z = box.minZ;
+        if (x > box.maxX) x = box.maxX;
+        if (y > box.maxY) y = box.maxY;
+        if (z > box.maxZ) z = box.maxZ;
+    
+        double boxSizeX = box.getXsize();
+        double boxSizeY = box.getYsize();
+        double boxSizeZ = box.getZsize();
+        
+        double xOffset = x - box.minX;
+        double yOffset = y - box.minY;
+        double zOffset = z - box.minZ;
+        
+        // align to grid
+        xOffset = Math.round(xOffset * gridCount) / (double) gridCount;
+        yOffset = Math.round(yOffset * gridCount) / (double) gridCount;
+        zOffset = Math.round(zOffset * gridCount) / (double) gridCount;
+        
+        // align to the nearest surface
+        double distanceToXMin = xOffset;
+        double distanceToXMax = boxSizeX - xOffset;
+        double distanceToYMin = yOffset;
+        double distanceToYMax = boxSizeY - yOffset;
+        double distanceToZMin = zOffset;
+        double distanceToZMax = boxSizeZ - zOffset;
+        
+        double minDistance = Math.min(
+            Math.min(distanceToXMin, distanceToXMax),
+            Math.min(
+                Math.min(distanceToYMin, distanceToYMax),
+                Math.min(distanceToZMin, distanceToZMax)
+            )
+        );
+        
+        if (minDistance == distanceToXMin) {
+            xOffset = 0;
+        }
+        else if (minDistance == distanceToXMax) {
+            xOffset = boxSizeX;
+        }
+        else if (minDistance == distanceToYMin) {
+            yOffset = 0;
+        }
+        else if (minDistance == distanceToYMax) {
+            yOffset = boxSizeY;
+        }
+        else if (minDistance == distanceToZMin) {
+            zOffset = 0;
+        }
+        else if (minDistance == distanceToZMax) {
+            zOffset = boxSizeZ;
+        }
+        
+        return new Vec3(
+            box.minX + xOffset, box.minY + yOffset, box.minZ + zOffset
+        );
     }
 }

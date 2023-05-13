@@ -69,6 +69,8 @@ public class IPConfig implements ConfigData {
     public boolean doCheckGlError = false;
     @ConfigEntry.Gui.Excluded
     public boolean shaderpackWarning = true;
+    @ConfigEntry.Gui.Excluded
+    public int portalWandCursorAlignment = 2; // zero for no align
     
     // common visible configs
     
