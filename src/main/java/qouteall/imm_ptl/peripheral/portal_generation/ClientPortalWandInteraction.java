@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * WIP
  * The process and relevant marking rendering is handled purely on client side.
  * When it finishes, it performs a remote procedure call to create the portal.
  */
@@ -265,18 +264,20 @@ public class ClientPortalWandInteraction {
         }
         
         // it cannot be too close to existing anchors
-        if (player.level.dimension() == firstSideDimension) {
-            if (firstSideLeftBottom != null && firstSideLeftBottom.distanceToSqr(cursorPointing) < 0.001) {
-                cursorPointing = null;
-                return;
-            }
-            if (firstSideRightBottom != null && firstSideRightBottom.distanceToSqr(cursorPointing) < 0.001) {
-                cursorPointing = null;
-                return;
-            }
-            if (firstSideLeftUp != null && firstSideLeftUp.distanceToSqr(cursorPointing) < 0.001) {
-                cursorPointing = null;
-                return;
+        if (firstSideLeftUp == null) {
+            if (player.level.dimension() == firstSideDimension) {
+                if (firstSideLeftBottom != null && firstSideLeftBottom.distanceToSqr(cursorPointing) < 0.001) {
+                    cursorPointing = null;
+                    return;
+                }
+                if (firstSideRightBottom != null && firstSideRightBottom.distanceToSqr(cursorPointing) < 0.001) {
+                    cursorPointing = null;
+                    return;
+                }
+                if (firstSideLeftUp != null && firstSideLeftUp.distanceToSqr(cursorPointing) < 0.001) {
+                    cursorPointing = null;
+                    return;
+                }
             }
         }
         
@@ -346,7 +347,7 @@ public class ClientPortalWandInteraction {
         if (player == null) {
             return;
         }
-    
+        
         if (!messageInformed) {
             messageInformed = true;
             player.sendSystemMessage(
@@ -394,10 +395,10 @@ public class ClientPortalWandInteraction {
             double firstSideHeight = firstSideLeftBottom.distanceTo(firstSideLeftUp);
             if (firstSideWidth == 0) {firstSideWidth = 0.001;}
             double heightDivWidth = firstSideHeight / firstSideWidth;
-    
+            
             String widthStr = "?";
             String heightStr = "?";
-    
+            
             if (cursorPointing != null) {
                 widthStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing));
                 heightStr = String.format("%.3f", secondSideLeftBottom.distanceTo(cursorPointing) * heightDivWidth);
@@ -759,7 +760,7 @@ public class ClientPortalWandInteraction {
         else {
             renderedPlaneScale = 0;
         }
-    
+        
         if (renderedCircle != null && currDim == renderedCircleDimension) {
             renderCircle(
                 debugLineStripConsumer, cameraPos,
@@ -880,7 +881,7 @@ public class ClientPortalWandInteraction {
         );
         
         Matrix4f matrix = matrixStack.last().pose();
-    
+        
         double cameraDistanceToCenter = player.getEyePosition(RenderStates.getPartialTick())
             .distanceTo(planeCenter);
         

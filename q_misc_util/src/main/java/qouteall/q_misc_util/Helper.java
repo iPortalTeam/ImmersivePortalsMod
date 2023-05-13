@@ -1079,4 +1079,8 @@ public class Helper {
         return result;
     }
     
+    public static boolean rangeOverlaps(double range1Start, double range1End, double range2Start, double range2End) {
+        double diff = Math.max(range1Start, range2Start) - Math.min(range1End, range2End);
+        return diff < -0.001;
+    }
 }

@@ -15,7 +15,9 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Range;
 
 public class ServerPortalWandInteraction {
     
@@ -96,6 +98,48 @@ public class ServerPortalWandInteraction {
                 LOGGER.error("The two sides have different aspect ratio");
                 return;
             }
+    
+            boolean overlaps = false;
+            if (firstSideDimension == secondSideDimension) {
+                Vec3 firstSideNormal = firstSideHorizontalUnitAxis.cross(firstSideVerticalUnitAxis);
+                Vec3 secondSideNormal = secondSideHorizontalUnitAxis.cross(secondSideVerticalUnitAxis);
+                
+                // check orientation overlap
+                if (Math.abs(firstSideNormal.dot(secondSideNormal)) > 0.99) {
+                    // check plane overlap
+                    if (Math.abs(firstSideLeftBottom.subtract(secondSideLeftBottom).dot(firstSideNormal)) < 0.001) {
+                        // check portal area overlap
+                        
+                        Vec3 coordCenter = firstSideLeftBottom;
+                        Vec3 coordX = firstSideHorizontalAxis;
+                        Vec3 coordY = firstSideVerticalAxis;
+                        
+                        Range firstSideXRange = Range.createUnordered(
+                            firstSideLeftBottom.subtract(coordCenter).dot(coordX),
+                            firstRightRightBottom.subtract(coordCenter).dot(coordX)
+                        );
+                        Range firstSideYRange = Range.createUnordered(
+                            firstSideLeftBottom.subtract(coordCenter).dot(coordY),
+                            firstSideLeftUp.subtract(coordCenter).dot(coordY)
+                        );
+                        
+                        Range secondSideXRange = Range.createUnordered(
+                            secondSideLeftBottom.subtract(coordCenter).dot(coordX),
+                            secondSideRightBottom.subtract(coordCenter).dot(coordX)
+                        );
+                        Range secondSideYRange = Range.createUnordered(
+                            secondSideLeftBottom.subtract(coordCenter).dot(coordY),
+                            secondSideLeftUp.subtract(coordCenter).dot(coordY)
+                        );
+                        
+                        if (firstSideXRange.intersect(secondSideXRange) != null &&
+                            firstSideYRange.intersect(secondSideYRange) != null
+                        ) {
+                            overlaps = true;
+                        }
+                    }
+                }
+            }
             
             Portal portal = Portal.entityType.create(McHelper.getServerWorld(firstSideDimension));
             Validate.notNull(portal);
@@ -130,9 +174,15 @@ public class ServerPortalWandInteraction {
             Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
             
             McHelper.spawnServerEntity(portal);
-            McHelper.spawnServerEntity(flippedPortal);
-            McHelper.spawnServerEntity(reversePortal);
-            McHelper.spawnServerEntity(parallelPortal);
+            
+            if (overlaps) {
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.overlap"));
+            }
+            else {
+                McHelper.spawnServerEntity(flippedPortal);
+                McHelper.spawnServerEntity(reversePortal);
+                McHelper.spawnServerEntity(parallelPortal);
+            }
             
             player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
             
