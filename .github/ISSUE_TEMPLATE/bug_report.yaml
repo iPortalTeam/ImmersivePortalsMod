@@ -42,4 +42,4 @@ body:
       value: "### The maintainer may ask questions for clarifying this issue. Simply submitting a vague issue without replying will get ignored."
   - type: markdown
     attributes:
-      value: "### Be polite to the maintainer. Do not criticize the developer's hard work. Impolite issues will be directly closed."
+      value: "### Be polite to the maintainer. Do not debase the developer's hard work. Impolite issues will be directly closed."
