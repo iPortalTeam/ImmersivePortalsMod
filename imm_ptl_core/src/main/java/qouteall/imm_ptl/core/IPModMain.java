@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.world.InteractionResult;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
@@ -11,7 +10,6 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.commands.AxisArgumentType;
-import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
@@ -72,10 +70,7 @@ public class IPModMain {
         MyLoadingTicket.init();
         
         IPPortingLibCompat.init();
-        
-        CommandRegistrationCallback.EVENT.register(
-            (dispatcher, registryAccess, environment) -> PortalCommand.register(dispatcher)
-        );
+
         SubCommandArgumentType.init();
         TimingFunctionArgumentType.init();
         AxisArgumentType.init();
@@ -84,7 +79,7 @@ public class IPModMain {
         RotationAnimation.init();
         NormalAnimation.init();
     }
-    
+
     private static void loadConfig() {
         // upgrade old config
         Path gameDir = O_O.getGameDir();

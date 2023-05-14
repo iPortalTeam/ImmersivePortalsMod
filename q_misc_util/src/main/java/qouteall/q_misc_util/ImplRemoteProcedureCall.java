@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.platform_specific.MiscNetworking;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

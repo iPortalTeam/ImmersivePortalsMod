@@ -1,6 +1,8 @@
 package qouteall.q_misc_util.api;
 
 import com.mojang.serialization.Lifecycle;
+// FIXME Usage of Fabric Api Outside of Fabric package. I'm still thinking about an approach to fix this,
+//  as I don't want to move it to the platform specific package in the long term.
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.DefaultedMappedRegistry;

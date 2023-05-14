@@ -9,6 +9,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+// FIXME Usage of Fabric Api Outside of Fabric package. I'm still thinking about an approach to fix this,
+//  as I don't want to move it to the platform specific package in the long term.
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;

@@ -2,7 +2,6 @@ package qouteall.q_misc_util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
@@ -12,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
+import qouteall.q_misc_util.platform_specific.PlatformHelper;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -84,7 +84,7 @@ public class MiscHelper {
     }
     
     public static boolean isDedicatedServer() {
-        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+        return PlatformHelper.getEnvironmentType() == qouteall.q_misc_util.platform_specific.EnvType.SERVER;
     }
     
     

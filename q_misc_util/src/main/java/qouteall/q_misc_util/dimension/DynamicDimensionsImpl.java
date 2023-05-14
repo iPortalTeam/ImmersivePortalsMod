@@ -1,7 +1,6 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscGlobals;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.platform_specific.MiscNetworking;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.dimension.IEWorldBorder;

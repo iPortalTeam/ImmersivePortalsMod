@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.compat;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+// FIXME Usage of Fabric Api Outside of Fabric package. I'm still thinking about an approach to fix this,
+//  as I don't want to move it to the platform specific package in the long term. Maybe a wrapper class?
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.ChatFormatting;
@@ -24,6 +26,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
+import qouteall.q_misc_util.platform_specific.PlatformHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;

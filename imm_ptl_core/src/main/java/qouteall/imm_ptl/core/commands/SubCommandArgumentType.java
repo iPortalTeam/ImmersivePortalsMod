@@ -15,6 +15,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
+// FIXME Usage of Fabric Api Outside of Fabric package.
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
