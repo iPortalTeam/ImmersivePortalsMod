@@ -12,12 +12,10 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -27,9 +25,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
@@ -43,7 +42,6 @@ import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.WithDim;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -110,7 +108,7 @@ public class ClientPortalWandInteraction {
             world.dimension(),
             cursorTarget
         );
-    
+        
         if (protoPortal.isComplete()) {
             finish();
         }
@@ -260,18 +258,6 @@ public class ClientPortalWandInteraction {
     private static final int colorOfCircle = 0xff03fce3;
     private static final int colorOfFirstPortalArea = 0xfffc9003;
     private static final int colorOfSecondPortalArea = 0xff60f2fc;
-
-//    private static int getCursorColor() {
-//        return switch (protoPortal.getStage()) {
-//            case PlacingFirstSideLeftBottom -> colorOfFirstSideLeftBottom;
-//            case PlacingFirstSideRightBottom -> colorOfFirstSideRightBottom;
-//            case PlacingFirstSideLeftTop -> colorOfFirstSideLeftUp;
-//            case PlacingSecondSideLeftBottom -> colorOfSecondSideLeftBottom;
-//            case PlacingSecondSideRightBottom -> colorOfSecondSideRightBottom;
-//            case PlacingSecondSideLeftTop -> colorOfSecondSideLeftUp;
-//            case Completed -> 0xffffffff;
-//        };
-//    }
     
     public static void render(
         PoseStack matrixStack,
@@ -296,6 +282,14 @@ public class ClientPortalWandInteraction {
         WithDim<Circle> circle = protoPortal.getCursorConstraintCircle();
         
         Vec3 renderedCursor = ClientPortalWandInteraction.cursor.getCurrent();
+        
+//        if (renderedCursor != null) {
+//            drawLockShape(
+//                vertexConsumer, cameraPos,
+//                renderedCursor.add(0, 0.5, 0),
+//                0xffffffff, matrixStack
+//            );
+//        }
         
         if (circle != null && renderedCursor != null) {
             // the cursor interpolates along line
@@ -657,6 +651,76 @@ public class ClientPortalWandInteraction {
         matrixStack.popPose();
     }
     
+    private static void drawLockShape(
+        VertexConsumer vertexConsumer, Vec3 cameraPos,
+        Vec3 center,
+        int color, PoseStack matrixStack
+    ) {
+        matrixStack.pushPose();
+        
+        matrixStack.translate(
+            center.x - cameraPos.x,
+            center.y - cameraPos.y,
+            center.z - cameraPos.z
+        );
+
+        matrixStack.mulPose(
+            DQuaternion.rotationByDegrees(
+                new Vec3(0, 1, 0),
+                CHelper.getSmoothCycles(60) * 360
+            ).toMcQuaternion()
+        );
+        
+        float scale = 1.0f / 3000;
+        matrixStack.scale(scale, scale, scale);
+        
+        Matrix4f matrix = matrixStack.last().pose();
+        
+        double w = 380;
+        double h = 270;
+        double ringWidth = 60;
+        double ringAreaWidth = 152;
+        double rightAreaHeight = 136;
+        
+        Vec3[] lineVertices = new Vec3[]{
+            // the body
+            new Vec3(w / 2, h / 2, 0),
+            new Vec3(-w / 2, h / 2, 0),
+            new Vec3(-w / 2, h / 2, 0),
+            new Vec3(-w / 2, -h / 2, 0),
+            new Vec3(-w / 2, -h / 2, 0),
+            new Vec3(w / 2, -h / 2, 0),
+            new Vec3(w / 2, -h / 2, 0),
+            new Vec3(w / 2, h / 2, 0),
+            
+            // the ring inner edges
+            new Vec3(ringAreaWidth / 2, h / 2, 0),
+            new Vec3(ringAreaWidth / 2, h / 2 + rightAreaHeight, 0),
+            new Vec3(ringAreaWidth / 2, h / 2 + rightAreaHeight, 0),
+            new Vec3(-ringAreaWidth / 2, h / 2 + rightAreaHeight, 0),
+            new Vec3(-ringAreaWidth / 2, h / 2 + rightAreaHeight, 0),
+            new Vec3(-ringAreaWidth / 2, h / 2, 0),
+            
+            // the ring outer edges
+            new Vec3(ringAreaWidth / 2 + ringWidth, h / 2, 0),
+            new Vec3(ringAreaWidth / 2 + ringWidth, h / 2 + rightAreaHeight + ringWidth, 0),
+            new Vec3(ringAreaWidth / 2 + ringWidth, h / 2 + rightAreaHeight + ringWidth, 0),
+            new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2 + rightAreaHeight + ringWidth, 0),
+            new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2 + rightAreaHeight + ringWidth, 0),
+            new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2, 0),
+        };
+        
+        for (int i = 0; i < lineVertices.length / 2; i++) {
+            putLine(vertexConsumer, color, matrix, lineVertices[i * 2], lineVertices[i * 2 + 1]);
+        }
+        
+        matrixStack.popPose();
+    }
+    
+    private static void putLine(VertexConsumer vertexConsumer, int color, Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd) {
+        putLine(vertexConsumer, color, lineEnd.subtract(lineStart).normalize(), matrix, lineStart, lineEnd);
+    }
+    
     private static void putLine(VertexConsumer vertexConsumer, int color, Vec3 normal, Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd) {
         vertexConsumer
             .vertex(matrix, (float) (lineStart.x), (float) (lineStart.y), (float) (lineStart.z))
@@ -696,31 +760,6 @@ public class ClientPortalWandInteraction {
             .color(0)
             .normal((float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
-    }
-    
-    public static void showSettings(Player player) {
-        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_1"));
-        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_alignment"));
-        
-        int[] alignments = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 32, 64};
-        
-        List<MutableComponent> alignmentSettingTexts = new ArrayList<>();
-        for (int alignment : alignments) {
-            MutableComponent textWithCommand = IPMcHelper.getTextWithCommand(
-                Component.literal("1/" + alignment),
-                "/imm_ptl_client_debug wand set_cursor_alignment " + alignment
-            );
-            alignmentSettingTexts.add(textWithCommand);
-        }
-        
-        alignmentSettingTexts.add(IPMcHelper.getTextWithCommand(
-            Component.translatable("imm_ptl.wand.no_alignment"),
-            "/imm_ptl_client_debug wand set_cursor_alignment 0"
-        ));
-        
-        player.sendSystemMessage(
-            alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b))
-        );
     }
     
 }
