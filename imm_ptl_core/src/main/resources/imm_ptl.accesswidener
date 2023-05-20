@@ -1,32 +1,32 @@
 accessWidener v2 named
 
-accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
+transitive-accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 
-accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
+transitive-accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
 
-accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
-mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
+transitive-accessible field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
+transitive-mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIME_NANOS J
 
-accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+transitive-accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 
-accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
+transitive-accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
 
-accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
+transitive-accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
 
-accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
+transitive-accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
 
-extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
+transitive-extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
 
-accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
+transitive-accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
 
-accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
+transitive-accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
 
-accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
+transitive-accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 
-extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
+transitive-extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
 
-accessible class net/minecraft/resources/RegistryDataLoader$Loader
+transitive-accessible class net/minecraft/resources/RegistryDataLoader$Loader
 
-accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab
+transitive-accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab
 
 

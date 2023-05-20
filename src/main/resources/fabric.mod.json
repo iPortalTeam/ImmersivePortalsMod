@@ -49,6 +49,5 @@
     "sodium": ["<0.4.10", ">0.4.10"]
   },
   "custom": {
-  },
-  "accessWidener": "imm_ptl_peripheral.accesswidener"
+  }
 }
