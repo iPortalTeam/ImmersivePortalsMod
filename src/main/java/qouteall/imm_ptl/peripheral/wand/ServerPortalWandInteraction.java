@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
@@ -204,7 +205,7 @@ public class ServerPortalWandInteraction {
     }
     
     private static boolean canPlayerUsePortalWand(ServerPlayer player) {
-        return player.isCreative() || player.hasPermissions(2);
+        return player.hasPermissions(2) || (IPGlobal.easeCreativePermission && player.isCreative());
     }
     
     private static void giveDeletingPortalCommandStickIfNotPresent(ServerPlayer player) {

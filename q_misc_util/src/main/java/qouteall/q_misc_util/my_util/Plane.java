@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
+// TODO turn to record in 1.20
 public class Plane {
     public final Vec3 pos;
     public final Vec3 normal;
@@ -69,5 +70,11 @@ public class Plane {
             "pos=" + pos +
             ", normal=" + normal +
             '}';
+    }
+    
+    public static Plane interpolate(Plane a, Plane b, double progress) {
+        Vec3 pos = a.pos.lerp(b.pos, progress);
+        Vec3 normal = a.normal.lerp(b.normal, progress);
+        return new Plane(pos, normal);
     }
 }

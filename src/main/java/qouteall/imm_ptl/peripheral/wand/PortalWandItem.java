@@ -1,8 +1,15 @@
 package qouteall.imm_ptl.peripheral.wand;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
@@ -45,29 +52,96 @@ public class PortalWandItem extends Item {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
                 if (client.player.getMainHandItem().getItem() == instance) {
-                    ClientPortalWandInteraction.updateDisplay();
+                    ClientPortalWandPortalCreation.updateDisplay();
                 }
                 else {
-                    ClientPortalWandInteraction.clearCursorPointing();
+                    ClientPortalWandPortalCreation.clearCursorPointing();
                 }
             }
         });
         
-        IPGlobal.clientCleanupSignal.connect(ClientPortalWandInteraction::reset);
+        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCreation::reset);
+    }
+    
+    public static enum Mode {
+        CREATE_PORTAL,
+        DRAG_PORTAL;
+        
+        public static Mode fromTag(CompoundTag tag) {
+            String mode = tag.getString("mode");
+            
+            return switch (mode) {
+                case "create_portal" -> CREATE_PORTAL;
+                case "drag_portal" -> DRAG_PORTAL;
+                default -> CREATE_PORTAL;
+            };
+        }
+        
+        public Mode next() {
+            return switch (this) {
+                case CREATE_PORTAL -> DRAG_PORTAL;
+                case DRAG_PORTAL -> CREATE_PORTAL;
+            };
+        }
+        
+        public CompoundTag toTag() {
+            CompoundTag tag = new CompoundTag();
+            String modeString = switch (this) {
+                case CREATE_PORTAL -> "create_portal";
+                case DRAG_PORTAL -> "drag_portal";
+            };
+            tag.putString("mode", modeString);
+            return tag;
+        }
+        
+        public MutableComponent getText() {
+            return switch (this) {
+                case CREATE_PORTAL -> Component.translatable("imm_ptl.wand.mode.create_portal");
+                case DRAG_PORTAL -> Component.translatable("imm_ptl.wand.mode.drag_portal");
+            };
+        }
+        
     }
     
     public PortalWandItem(Properties properties) {
         super(properties);
     }
     
+    @Environment(EnvType.CLIENT)
+    public static void onClientLeftClick(LocalPlayer player, ItemStack itemStack) {
+        if (player.getPose() == Pose.CROUCHING) {
+            showSettings(player);
+        }
+        else {
+            Mode mode = Mode.fromTag(itemStack.getOrCreateTag());
+    
+            switch (mode) {
+                case CREATE_PORTAL -> {
+                    ClientPortalWandPortalCreation.undo();
+                }
+                case DRAG_PORTAL -> {
+                
+                }
+            }
+        }
+    }
+    
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-        if (world.isClientSide()) {
-            if (player.getPose() == Pose.CROUCHING) {
-                showSettings(player);
+        ItemStack itemStack = player.getItemInHand(hand);
+        Mode mode = Mode.fromTag(itemStack.getOrCreateTag());
+        
+        if (player.getPose() == Pose.CROUCHING) {
+            if (!world.isClientSide()) {
+               
+                Mode nextMode = mode.next();
+                itemStack.setTag(nextMode.toTag());
+                return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
             }
-            else {
-                ClientPortalWandInteraction.onRightClick();
+        }
+        else {
+            if (world.isClientSide()) {
+                ClientPortalWandPortalCreation.onRightClick();
             }
         }
         
@@ -77,8 +151,20 @@ public class PortalWandItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
         super.appendHoverText(stack, world, tooltip, context);
-    
+        
         tooltip.add(Component.translatable("imm_ptl.wand.item_desc_1"));
+        tooltip.add(Component.translatable("imm_ptl.wand.item_desc_2"));
+    }
+    
+    @Override
+    public Component getName(ItemStack stack) {
+        Mode mode = Mode.fromTag(stack.getOrCreateTag());
+        
+        MutableComponent baseText = Component.translatable("item.immersive_portals.portal_wand");
+        
+        return baseText
+            .append(Component.literal(" : "))
+            .append(mode.getText().withStyle(ChatFormatting.GOLD));
     }
     
     public static void showSettings(Player player) {
@@ -105,4 +191,28 @@ public class PortalWandItem extends Item {
             alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b))
         );
     }
+    
+    private static boolean instructionInformed = false;
+    
+    @Environment(EnvType.CLIENT)
+    public static void clientRender(
+        LocalPlayer player, ItemStack itemStack, PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+        double camX, double camY, double camZ
+    ) {
+        if (!instructionInformed) {
+            instructionInformed = true;
+            player.sendSystemMessage(Component.translatable("imm_ptl.show_portal_wand_instruction"));
+        }
+        
+        CompoundTag tag = itemStack.getOrCreateTag();
+        Mode mode = Mode.fromTag(tag);
+        
+        switch (mode) {
+            case CREATE_PORTAL -> ClientPortalWandPortalCreation.render(poseStack, bufferSource, camX, camY, camZ);
+            case DRAG_PORTAL -> {
+            
+            }
+        }
+    }
+    
 }
