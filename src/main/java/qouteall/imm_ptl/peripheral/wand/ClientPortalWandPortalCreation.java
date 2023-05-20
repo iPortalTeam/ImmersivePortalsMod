@@ -257,10 +257,6 @@ public class ClientPortalWandPortalCreation {
             return;
         }
         
-        if (player.getMainHandItem().getItem() != PortalWandItem.instance) {
-            return;
-        }
-        
         ResourceKey<Level> currDim = player.level.dimension();
         
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());

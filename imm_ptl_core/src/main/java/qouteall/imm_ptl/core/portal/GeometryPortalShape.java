@@ -6,7 +6,6 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GeometryPortalShape {
     public static class TriangleInPlane {
@@ -39,18 +38,22 @@ public class GeometryPortalShape {
             return isOnLeftSideOfTheLine(
                 x3, y3,
                 x1, y1,
-                x2, y2
+                x2, y2, 0
             );
         }
         
         public boolean isPointInTriangle(
             double x, double y
         ) {
+            return lenientIsPointInTriangle(x, y, 0);
+        }
+        
+        public boolean lenientIsPointInTriangle(double x, double y, double leniency) {
             assert isCounterClockWise();
             
-            return isOnLeftSideOfTheLine(x, y, x1, y1, x2, y2) &&
-                isOnLeftSideOfTheLine(x, y, x2, y2, x3, y3) &&
-                isOnLeftSideOfTheLine(x, y, x3, y3, x1, y1);
+            return isOnLeftSideOfTheLine(x, y, x1, y1, x2, y2, leniency) &&
+                isOnLeftSideOfTheLine(x, y, x2, y2, x3, y3, leniency) &&
+                isOnLeftSideOfTheLine(x, y, x3, y3, x1, y1, leniency);
         }
         
         public double getArea() {
@@ -64,12 +67,19 @@ public class GeometryPortalShape {
     private static boolean isOnLeftSideOfTheLine(
         double x, double y,
         double x1, double y1,
-        double x2, double y2
+        double x2, double y2,
+        double leniency
     ) {
-        return crossProduct2D(
+        double cross = crossProduct2D(
             x - x1, x2 - x1,
             y - y1, y2 - y1
-        ) >= 0;
+        );
+        if (leniency == 0) {
+            return cross >= 0;
+        }
+        else {
+            return cross >= -leniency * Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        }
     }
     
     //positive if it's rotating counter clock wise

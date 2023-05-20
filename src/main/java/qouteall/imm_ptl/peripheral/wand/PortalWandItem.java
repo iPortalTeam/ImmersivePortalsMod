@@ -51,8 +51,9 @@ public class PortalWandItem extends Item {
     public static void initClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
-                if (client.player.getMainHandItem().getItem() == instance) {
-                    ClientPortalWandPortalCreation.updateDisplay();
+                ItemStack itemStack = client.player.getMainHandItem();
+                if (itemStack.getItem() == instance) {
+                    updateDisplay(itemStack);
                 }
                 else {
                     ClientPortalWandPortalCreation.clearCursorPointing();
@@ -114,7 +115,7 @@ public class PortalWandItem extends Item {
         }
         else {
             Mode mode = Mode.fromTag(itemStack.getOrCreateTag());
-    
+            
             switch (mode) {
                 case CREATE_PORTAL -> {
                     ClientPortalWandPortalCreation.undo();
@@ -133,7 +134,7 @@ public class PortalWandItem extends Item {
         
         if (player.getPose() == Pose.CROUCHING) {
             if (!world.isClientSide()) {
-               
+                
                 Mode nextMode = mode.next();
                 itemStack.setTag(nextMode.toTag());
                 return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
@@ -195,6 +196,21 @@ public class PortalWandItem extends Item {
     private static boolean instructionInformed = false;
     
     @Environment(EnvType.CLIENT)
+    private static void updateDisplay(ItemStack itemStack) {
+        Mode mode = Mode.fromTag(itemStack.getOrCreateTag());
+        
+        switch (mode) {
+            case CREATE_PORTAL -> ClientPortalWandPortalCreation.updateDisplay();
+            case DRAG_PORTAL -> ClientPortalWandPortalDrag.updateDisplay();
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void clearCursorPointing() {
+        ClientPortalWandPortalCreation.clearCursorPointing();
+    }
+    
+    @Environment(EnvType.CLIENT)
     public static void clientRender(
         LocalPlayer player, ItemStack itemStack, PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
         double camX, double camY, double camZ
@@ -208,10 +224,12 @@ public class PortalWandItem extends Item {
         Mode mode = Mode.fromTag(tag);
         
         switch (mode) {
-            case CREATE_PORTAL -> ClientPortalWandPortalCreation.render(poseStack, bufferSource, camX, camY, camZ);
-            case DRAG_PORTAL -> {
-            
-            }
+            case CREATE_PORTAL -> ClientPortalWandPortalCreation.render(
+                poseStack, bufferSource, camX, camY, camZ
+            );
+            case DRAG_PORTAL -> ClientPortalWandPortalDrag.render(
+                poseStack, bufferSource, camX, camY, camZ
+            );
         }
     }
     

@@ -22,6 +22,10 @@ public class Animated<T> {
         T interpolate(T start, T end, double progress);
         
         boolean isClose(T a, T b);
+    
+        default T getEmpty() {
+            return null;
+        }
     }
     
     public static interface TimeSupplier {
@@ -75,7 +79,7 @@ public class Animated<T> {
     }
     
     public void clearTarget() {
-        setTarget(null, 0);
+        setTarget(typeInfo.getEmpty(), 0);
     }
     
     @Nullable
@@ -204,6 +208,11 @@ public class Animated<T> {
             return a.plane().value().pos.distanceToSqr(b.plane().value().pos) < 0.01
                 && a.plane().value().normal.distanceToSqr(b.plane().value().normal) < 0.01
                 && Math.abs(a.scale() - b.scale()) < 0.01;
+        }
+    
+        @Override
+        public RenderedPlane getEmpty() {
+            return RenderedPlane.NONE;
         }
     };
 }

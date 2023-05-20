@@ -1223,22 +1223,30 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Project the point into the portal plane, is it in the portal area
      */
     public boolean isPointInPortalProjection(Vec3 pos) {
+        return lenientIsPointInPortalProjection(pos, 0.001);
+    }
+    
+    public boolean lenientIsPointInPortalProjection(Vec3 pos, double leniency) {
         Vec3 offset = pos.subtract(getOriginPos());
         
         double yInPlane = offset.dot(axisH);
         double xInPlane = offset.dot(axisW);
         
-        return isLocalXYOnPortal(xInPlane, yInPlane);
+        return lenientIsLocalXYOnPortal(xInPlane, yInPlane, leniency);
     }
     
     public boolean isLocalXYOnPortal(double xInPlane, double yInPlane) {
-        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.001) &&
-            Math.abs(yInPlane) < (height / 2 + 0.001);
+        return lenientIsLocalXYOnPortal(xInPlane, yInPlane, 0.001);
+    }
+    
+    public boolean lenientIsLocalXYOnPortal(double xInPlane, double yInPlane, double leniency) {
+        boolean roughResult = Math.abs(xInPlane) < (width / 2 + leniency) &&
+            Math.abs(yInPlane) < (height / 2 + leniency);
         
         if (roughResult && specialShape != null) {
             return specialShape.triangles.stream()
                 .anyMatch(triangle ->
-                    triangle.isPointInTriangle(xInPlane, yInPlane)
+                    triangle.lenientIsPointInTriangle(xInPlane, yInPlane, leniency)
                 );
         }
         
@@ -1257,9 +1265,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Nullable
     public Vec3 rayTrace(
-        Vec3 from,
-        Vec3 to
+        Vec3 from, Vec3 to
     ) {
+        return lenientRayTrace(from, to, 0.001);
+    }
+    
+    @Nullable
+    public Vec3 lenientRayTrace(Vec3 from, Vec3 to, double leniency) {
         double lastDistance = getDistanceToPlane(from);
         double nowDistance = getDistanceToPlane(to);
         
@@ -1273,7 +1285,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         double collidingT = Helper.getCollidingT(getOriginPos(), normal, lineOrigin, lineDirection);
         Vec3 collidingPoint = lineOrigin.add(lineDirection.scale(collidingT));
         
-        if (isPointInPortalProjection(collidingPoint)) {
+        if (lenientIsPointInPortalProjection(collidingPoint, leniency)) {
             return collidingPoint;
         }
         else {

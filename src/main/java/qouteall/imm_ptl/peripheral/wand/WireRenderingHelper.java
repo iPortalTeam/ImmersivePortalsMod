@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -356,7 +357,10 @@ public class WireRenderingHelper {
             .endVertex();
     }
     
-    private static void putLineToLineStrip(VertexConsumer vertexConsumer, int color, Vec3 normal, Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd) {
+    private static void putLineToLineStrip(
+        VertexConsumer vertexConsumer, int color, Vec3 normal,
+        Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd
+    ) {
         // use alpha 0 vertices to "jump" without leaving visible line
         vertexConsumer
             .vertex(matrix, (float) (lineStart.x), (float) (lineStart.y), (float) (lineStart.z))
@@ -381,5 +385,99 @@ public class WireRenderingHelper {
             .color(0)
             .normal((float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
+    }
+    
+    public static void renderPortalFrameDottedLine(
+        VertexConsumer vertexConsumer, Vec3 cameraPos,
+        Portal portal,
+        int color, PoseStack matrixStack,
+        double timeCycle
+    ) {
+        Matrix4f matrix = matrixStack.last().pose();
+        
+        Vec3 facingOffset = portal.getNormal().scale(0.01);
+        
+        Vec3[] vertices = new Vec3[]{
+            portal.getPointInPlaneLocal(
+                0.99 * portal.width / 2,
+                -0.99 * portal.height / 2
+            ).add(facingOffset),
+            portal.getPointInPlaneLocal(
+                0.99 * portal.width / 2,
+                0.99 * portal.height / 2
+            ).add(facingOffset),
+            portal.getPointInPlaneLocal(
+                -0.99 * portal.width / 2,
+                0.99 * portal.height / 2
+            ).add(facingOffset),
+            portal.getPointInPlaneLocal(
+                -0.99 * portal.width / 2,
+                -0.99 * portal.height / 2
+            ).add(facingOffset),
+        };
+        
+        putDottedLine(
+            vertexConsumer, color, matrix, vertices[0], vertices[1], timeCycle
+        );
+        putDottedLine(
+            vertexConsumer, color, matrix, vertices[1], vertices[2], timeCycle + 1
+        );
+        putDottedLine(
+            vertexConsumer, color, matrix, vertices[2], vertices[3], timeCycle + 2
+        );
+        putDottedLine(
+            vertexConsumer, color, matrix, vertices[3], vertices[0], timeCycle + 3
+        );
+    }
+    
+    private static void putDottedLine(
+        VertexConsumer vertexConsumer, int color,
+        Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd,
+        double timeCycle
+    ) {
+        int partCount = 6;
+        
+        for (int i = 0; i < partCount; i++) {
+            double partStartRatio = ((double) i) / (i * 2) + timeCycle;
+            double partEndRatio = ((double) i + 1) / (i * 2) + timeCycle;
+            
+            if (partStartRatio > 1) {
+                double floor = Math.floor(partStartRatio);
+                partStartRatio -= floor;
+                partEndRatio -= floor;
+            }
+            
+            if (partEndRatio > 1) {
+                putLinePart(
+                    vertexConsumer, color, matrix,
+                    lineStart, lineEnd,
+                    partStartRatio, partEndRatio
+                );
+            }
+            else {
+                putLinePart(
+                    vertexConsumer, color, matrix,
+                    lineStart, lineEnd,
+                    partStartRatio, 1
+                );
+                
+                putLinePart(
+                    vertexConsumer, color, matrix,
+                    lineStart, lineEnd,
+                    0, partEndRatio - 1
+                );
+            }
+        }
+    }
+    
+    private static void putLinePart(
+        VertexConsumer vertexConsumer, int color,
+        Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd,
+        double startRatio, double endRatio
+    ) {
+        Vec3 vec = lineEnd.subtract(lineStart);
+        
+        Vec3 partStartPos = lineStart.add(vec.scale(startRatio));
+        Vec3 partEndPos = lineStart.add(vec.scale(endRatio));
     }
 }

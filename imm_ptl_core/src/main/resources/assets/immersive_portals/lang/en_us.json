@@ -224,6 +224,9 @@
   "imm_ptl.wand.item_desc_1": "Shift right-click to change mode.",
   "imm_ptl.wand.item_desc_2": "Shift left-click to show settings.",
 
+  "imm_ptl.wand.mode.create_portal": "Create Portal",
+  "imm_ptl.wand.mode.drag_portal": "Drag Portal",
+
   "imm_ptl.wand.finished": "Portal Generated",
   "imm_ptl.wand.overlap": "The two side overlaps. Only generates one-way one-faced portal.",
 

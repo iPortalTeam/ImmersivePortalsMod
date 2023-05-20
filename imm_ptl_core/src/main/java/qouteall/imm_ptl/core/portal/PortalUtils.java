@@ -26,10 +26,19 @@ public class PortalUtils {
      * Note: It only considers portals. It does not consider blocks and other entities.
      * Note: Invisible portals are also considered in raytracing. For visible-only use the predicate.
      */
+    @NotNull
     public static Optional<Pair<Portal, Vec3>> raytracePortals(
         Level world, Vec3 from, Vec3 to,
         boolean includeGlobalPortal,
         Predicate<Portal> predicate
+    ) {
+        return lenientRayTracePortals(world, from, to, includeGlobalPortal, predicate, 0.001);
+    }
+    
+    @NotNull
+    public static Optional<Pair<Portal, Vec3>> lenientRayTracePortals(
+        Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal,
+        Predicate<Portal> predicate, double leniency
     ) {
         Stream<Portal> portalStream = McHelper.getEntitiesNearby(
             world,
@@ -46,7 +55,7 @@ public class PortalUtils {
         }
         return portalStream.map(
             portal -> new Pair<Portal, Vec3>(
-                portal, portal.rayTrace(from, to)
+                portal, portal.lenientRayTrace(from, to, leniency)
             )
         ).filter(
             portalAndHitPos -> portalAndHitPos.getSecond() != null
