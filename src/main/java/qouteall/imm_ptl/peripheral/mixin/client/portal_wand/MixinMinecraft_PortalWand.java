@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.peripheral.portal_generation.ClientPortalWandInteraction;
-import qouteall.imm_ptl.peripheral.portal_generation.PortalWandItem;
+import qouteall.imm_ptl.peripheral.wand.ClientPortalWandInteraction;
+import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 
 @Mixin(Minecraft.class)
 public class MixinMinecraft_PortalWand {

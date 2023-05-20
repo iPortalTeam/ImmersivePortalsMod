@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -30,6 +31,7 @@ import qouteall.imm_ptl.core.mixin.common.registry.IERegistryDataLoader;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.UCoordinate;
+import qouteall.q_misc_util.my_util.WithDim;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> throwItemGen = HashMultimap.create();
     
     private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
-    private static final Map<UUID, UCoordinate> playerPosBeforeTravel = new HashMap<>();
+    private static final Map<UUID, WithDim<Vec3>> playerPosBeforeTravel = new HashMap<>();
     
     public static void onDatapackReload() {
         useItemGen.clear();
@@ -204,7 +206,9 @@ public class CustomPortalGenManagement {
     public static void onBeforeConventionalDimensionChange(
         ServerPlayer player
     ) {
-        playerPosBeforeTravel.put(player.getUUID(), new UCoordinate(player));
+        playerPosBeforeTravel.put(
+            player.getUUID(), new WithDim<>(player.level.dimension(), player.position())
+        );
     }
     
     public static void onAfterConventionalDimensionChange(
@@ -212,11 +216,11 @@ public class CustomPortalGenManagement {
     ) {
         UUID uuid = player.getUUID();
         if (playerPosBeforeTravel.containsKey(uuid)) {
-            UCoordinate startCoord = playerPosBeforeTravel.get(uuid);
+            WithDim<Vec3> startCoord = playerPosBeforeTravel.get(uuid);
             
-            ServerLevel startWorld = McHelper.getServerWorld(startCoord.dimension);
+            ServerLevel startWorld = McHelper.getServerWorld(startCoord.dimension());
             
-            BlockPos startPos = BlockPos.containing(startCoord.pos);
+            BlockPos startPos = BlockPos.containing(startCoord.value());
             
             for (CustomPortalGeneration gen : convGen) {
                 boolean succeeded = gen.perform(startWorld, startPos, player);

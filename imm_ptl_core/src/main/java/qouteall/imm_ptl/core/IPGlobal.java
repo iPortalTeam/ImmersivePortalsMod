@@ -1,13 +1,27 @@
 package qouteall.imm_ptl.core;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import me.shedaniel.autoconfig.ConfigHolder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Signal;
+
+import java.lang.reflect.Type;
 
 public class IPGlobal {
     
@@ -35,7 +49,7 @@ public class IPGlobal {
     
     public static ServerTeleportationManager serverTeleportationManager;
     
-    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson gson = MiscHelper.gson;
     
     public static int maxPortalLayer = 5;
     

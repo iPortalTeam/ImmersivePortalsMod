@@ -20,7 +20,7 @@ import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
-import qouteall.imm_ptl.peripheral.portal_generation.PortalWandItem;
+import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 
 import javax.annotation.Nullable;
 import java.util.List;

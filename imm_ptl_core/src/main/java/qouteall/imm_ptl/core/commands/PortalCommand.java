@@ -546,12 +546,14 @@ public class PortalCommand {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
+                    HashSet<Portal> removed = new HashSet<>();
                     PortalManipulation.removeConnectedPortals(
                         portal,
-                        p -> sendMessage(context, "Removed " + p)
+                        removed::add
                     );
                     portal.remove(Entity.RemovalReason.KILLED);
-                    sendMessage(context, "Deleted " + portal);
+                    removed.add(portal);
+                    sendMessage(context, "Deleted %d portal entities".formatted(removed.size()));
                 }
             ))
         );

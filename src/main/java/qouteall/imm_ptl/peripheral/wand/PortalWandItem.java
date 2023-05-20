@@ -1,12 +1,8 @@
-package qouteall.imm_ptl.peripheral.portal_generation;
+package qouteall.imm_ptl.peripheral.wand;
 
-import com.google.common.base.Splitter;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -19,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.peripheral.CommandStickItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -48,7 +43,6 @@ public class PortalWandItem extends Item {
             if (client.player != null) {
                 if (client.player.getMainHandItem().getItem() == instance) {
                     ClientPortalWandInteraction.updateDisplay();
-                    ClientPortalWandInteraction.updateMessage();
                 }
                 else {
                     ClientPortalWandInteraction.clearCursorPointing();

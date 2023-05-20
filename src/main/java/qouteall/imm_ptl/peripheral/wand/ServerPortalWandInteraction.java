@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.portal_generation;
+package qouteall.imm_ptl.peripheral.wand;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -28,14 +28,7 @@ public class ServerPortalWandInteraction {
     public static class RemoteCallables {
         public static void finish(
             ServerPlayer player,
-            ResourceKey<Level> firstSideDimension,
-            Vec3 firstSideLeftBottom,
-            Vec3 firstRightRightBottom,
-            Vec3 firstSideLeftUp,
-            ResourceKey<Level> secondSideDimension,
-            Vec3 secondSideLeftBottom,
-            Vec3 secondSideRightBottom,
-            Vec3 secondSideLeftUp
+            ProtoPortal protoPortal
         ) {
             if (!canPlayerUsePortalWand(player)) {
                 player.sendSystemMessage(Component.literal("You cannot use portal wand"));
@@ -43,7 +36,27 @@ public class ServerPortalWandInteraction {
                 return;
             }
             
-            Vec3 firstSideHorizontalAxis = firstRightRightBottom.subtract(firstSideLeftBottom);
+            Validate.isTrue(protoPortal.firstSide != null);
+            Validate.isTrue(protoPortal.secondSide != null);
+            
+            Vec3 firstSideLeftBottom = protoPortal.firstSide.leftBottom;
+            Vec3 firstSideRightBottom = protoPortal.firstSide.rightBottom;
+            Vec3 firstSideLeftUp = protoPortal.firstSide.leftTop;
+            Vec3 secondSideLeftBottom = protoPortal.secondSide.leftBottom;
+            Vec3 secondSideRightBottom = protoPortal.secondSide.rightBottom;
+            Vec3 secondSideLeftUp = protoPortal.secondSide.leftTop;
+            
+            Validate.notNull(firstSideLeftBottom);
+            Validate.notNull(firstSideRightBottom);
+            Validate.notNull(firstSideLeftUp);
+            Validate.notNull(secondSideLeftBottom);
+            Validate.notNull(secondSideRightBottom);
+            Validate.notNull(secondSideLeftUp);
+            
+            ResourceKey<Level> firstSideDimension = protoPortal.firstSide.dimension;
+            ResourceKey<Level> secondSideDimension = protoPortal.secondSide.dimension;
+            
+            Vec3 firstSideHorizontalAxis = firstSideRightBottom.subtract(firstSideLeftBottom);
             Vec3 firstSideVerticalAxis = firstSideLeftUp.subtract(firstSideLeftBottom);
             double firstSideWidth = firstSideHorizontalAxis.length();
             double firstSideHeight = firstSideVerticalAxis.length();
@@ -98,7 +111,7 @@ public class ServerPortalWandInteraction {
                 LOGGER.error("The two sides have different aspect ratio");
                 return;
             }
-    
+            
             boolean overlaps = false;
             if (firstSideDimension == secondSideDimension) {
                 Vec3 firstSideNormal = firstSideHorizontalUnitAxis.cross(firstSideVerticalUnitAxis);
@@ -116,7 +129,7 @@ public class ServerPortalWandInteraction {
                         
                         Range firstSideXRange = Range.createUnordered(
                             firstSideLeftBottom.subtract(coordCenter).dot(coordX),
-                            firstRightRightBottom.subtract(coordCenter).dot(coordX)
+                            firstSideRightBottom.subtract(coordCenter).dot(coordX)
                         );
                         Range firstSideYRange = Range.createUnordered(
                             firstSideLeftBottom.subtract(coordCenter).dot(coordY),

@@ -43,7 +43,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ImplRemoteProcedureCall {
-    public static final Gson gson;
+    public static final Gson gson = MiscHelper.gson;
     
     private static final ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
     
@@ -53,9 +53,6 @@ public class ImplRemoteProcedureCall {
     private static final JsonParser jsonParser = new JsonParser();
     
     static {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gson = gsonBuilder.create();
-        
         serializerMap = ImmutableMap.<Class, BiConsumer<FriendlyByteBuf, Object>>builder()
             .put(ResourceLocation.class, (buf, o) -> buf.writeResourceLocation(((ResourceLocation) o)))
             .put(ResourceKey.class, (buf, o) -> buf.writeResourceLocation(((ResourceKey) o).location()))

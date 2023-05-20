@@ -12,7 +12,7 @@ public class Plane {
     
     public Plane(Vec3 pos, Vec3 normal) {
         this.pos = pos;
-        this.normal = normal;
+        this.normal = normal.normalize();
     }
     
     public double getDistanceTo(Vec3 point) {
