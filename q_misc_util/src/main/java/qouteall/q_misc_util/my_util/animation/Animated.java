@@ -1,9 +1,12 @@
-package qouteall.q_misc_util.my_util;
+package qouteall.q_misc_util.my_util.animation;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.WithDim;
 
 public class Animated<T> {
     public final TypeInfo<T> typeInfo;
@@ -22,7 +25,7 @@ public class Animated<T> {
         T interpolate(T start, T end, double progress);
         
         boolean isClose(T a, T b);
-    
+        
         default T getEmpty() {
             return null;
         }
@@ -93,13 +96,21 @@ public class Animated<T> {
             return null;
         }
         
-        if (startTime == 0 || duration == 0) {
+        if (startTime == 0) {
             return startValue;
+        }
+        
+        if (duration == 0) {
+            return endValue;
         }
         
         double progress = Mth.clamp(
             (timeSupplier.getTime() - startTime) / (double) duration, 0, 1
         );
+        
+        if (progress >= 0.999) {
+            return endValue;
+        }
         
         return typeInfo.interpolate(
             startValue, endValue, timingFunction.apply(progress)
@@ -209,10 +220,38 @@ public class Animated<T> {
                 && a.plane().value().normal.distanceToSqr(b.plane().value().normal) < 0.01
                 && Math.abs(a.scale() - b.scale()) < 0.01;
         }
-    
+        
         @Override
         public RenderedPlane getEmpty() {
             return RenderedPlane.NONE;
+        }
+    };
+    
+    public static final TypeInfo<RenderedRect> RENDERED_RECT_TYPE_INFO = new TypeInfo<RenderedRect>() {
+        @Override
+        public RenderedRect interpolate(RenderedRect start, RenderedRect end, double progress) {
+            if (start.dimension() != end.dimension()) {
+                return end;
+            }
+            
+            start = start.turnToClosestTo(end.orientation());
+            
+            return new RenderedRect(
+                start.dimension(),
+                start.center().lerp(end.center(), progress),
+                DQuaternion.interpolate(start.orientation(), end.orientation(), progress),
+                Mth.lerp(progress, start.width(), end.width()),
+                Mth.lerp(progress, start.height(), end.height())
+            );
+        }
+        
+        @Override
+        public boolean isClose(RenderedRect a, RenderedRect b) {
+            return a.dimension() == b.dimension() &&
+                a.center().distanceToSqr(b.center()) < 0.01 &&
+                DQuaternion.isClose(a.orientation(), b.orientation(), 0.01) &&
+                Math.abs(a.width() - b.width()) < 0.01 &&
+                Math.abs(a.height() - b.height()) < 0.01;
         }
     };
 }

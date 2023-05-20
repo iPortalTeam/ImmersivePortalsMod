@@ -15,15 +15,15 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalUtils;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.Animated;
-import qouteall.q_misc_util.my_util.RenderedPlane;
+import qouteall.q_misc_util.my_util.animation.Animated;
+import qouteall.q_misc_util.my_util.animation.RenderedPlane;
+import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -55,6 +55,10 @@ public class ClientPortalWandPortalDrag {
             return portal.axisW.scale((portal.width / 2) * getXSign())
                 .add(portal.axisH.scale((portal.height / 2) * getYSign()));
         }
+        
+        public Vec3 getPos(Portal portal) {
+            return portal.getOriginPos().add(getOffset(portal));
+        }
     }
     
     @Nullable
@@ -71,6 +75,13 @@ public class ClientPortalWandPortalDrag {
         Animated.VEC_3_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.circle::mapProgress,
+        null
+    );
+    
+    public static Animated<RenderedRect> renderedRect = new Animated<>(
+        Animated.RENDERED_RECT_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
         null
     );
     
@@ -151,8 +162,18 @@ public class ClientPortalWandPortalDrag {
         
         selectedCorner = corner;
         cursor.setTarget(
-            corner.getOffset(portal), Helper.secondToNano(0.5)
+            corner.getPos(portal), Helper.secondToNano(0.5)
         );
+        renderedRect.setTarget(
+            new RenderedRect(
+                portal.getOriginDim(),
+                portal.getOriginPos(),
+                portal.getOrientationRotation(),
+                portal.width, portal.height
+            ),
+            Helper.secondToNano(0.5)
+        );
+        
     }
     
     private static final int colorOfCursor = 0xffffffff;
@@ -181,15 +202,13 @@ public class ClientPortalWandPortalDrag {
             );
         }
         
-        if (selectedPortalID != null) {
-            Entity e = ((IEWorld) player.level).portal_getEntityLookup().get(selectedPortalID);
-            if (e instanceof Portal selectedPortal) {
-                WireRenderingHelper.renderPortalFrameDottedLine(
-                    vertexConsumer, cameraPos, selectedPortal,
-                    colorOfPortalSelection, matrixStack,
-                    CHelper.getSmoothCycles(50)
-                );
-            }
+        RenderedRect rect = renderedRect.getCurrent();
+        if (rect != null) {
+            WireRenderingHelper.renderRectDottedLine(
+                vertexConsumer, cameraPos, rect,
+                colorOfPortalSelection, matrixStack,
+                CHelper.getSmoothCycles(50)
+            );
         }
         
     }
@@ -202,7 +221,7 @@ public class ClientPortalWandPortalDrag {
         return Arrays.stream(PortalCorner.values())
             .min(Comparator.comparingDouble(
                 (PortalCorner corner) ->
-                    corner.getOffset(portal).distanceTo(hitPos)
+                    corner.getPos(portal).distanceTo(hitPos)
             )).orElseThrow();
     }
 }

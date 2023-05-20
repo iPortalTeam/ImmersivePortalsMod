@@ -1,7 +1,7 @@
-package qouteall.q_misc_util.my_util;
+package qouteall.q_misc_util.my_util.animation;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.WithDim;
 
 import javax.annotation.Nullable;
 

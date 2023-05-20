@@ -24,6 +24,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -217,7 +218,12 @@ public class PortalWandItem extends Item {
     ) {
         if (!instructionInformed) {
             instructionInformed = true;
-            player.sendSystemMessage(Component.translatable("imm_ptl.show_portal_wand_instruction"));
+            player.sendSystemMessage(
+                IPMcHelper.getTextWithCommand(
+                    Component.translatable("imm_ptl.show_portal_wand_instruction"),
+                    "/imm_ptl_client_debug wand show_instruction"
+                )
+            );
         }
         
         CompoundTag tag = itemStack.getOrCreateTag();

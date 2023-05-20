@@ -15,6 +15,7 @@ import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
 import java.util.Random;
 
@@ -42,8 +43,6 @@ public class WireRenderingHelper {
         
         matrixStack.mulPose(rotation.toMcQuaternion());
         Matrix4f matrix = matrixStack.last().pose();
-        
-        Vec3 boxLowerPoint = boxCenter.add(-boxSize / 2, -boxSize / 2, -boxSize / 2);
         
         float alpha = ((color >> 24) & 0xff) / 255f;
         float red = ((color >> 16) & 0xff) / 255f;
@@ -387,33 +386,41 @@ public class WireRenderingHelper {
             .endVertex();
     }
     
-    public static void renderPortalFrameDottedLine(
+    public static void renderRectDottedLine(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
-        Portal portal,
+        RenderedRect rect,
         int color, PoseStack matrixStack,
         double timeCycle
     ) {
-        Matrix4f matrix = matrixStack.last().pose();
+        matrixStack.pushPose();
         
-        Vec3 facingOffset = portal.getNormal().scale(0.01);
+        matrixStack.translate(
+            rect.center().x - cameraPos.x,
+            rect.center().y - cameraPos.y,
+            rect.center().z - cameraPos.z
+        );
+        
+        Matrix4f matrix = matrixStack.last().pose();
+    
+        Vec3 normal = rect.orientation().rotate(new Vec3(0, 0, 1));
+        Vec3 axisW = rect.orientation().rotate(new Vec3(1, 0, 0));
+        Vec3 axisH = rect.orientation().rotate(new Vec3(0, 1, 0));
+        
+        Vec3 facingOffset = normal.scale(0.01);
         
         Vec3[] vertices = new Vec3[]{
-            portal.getPointInPlaneLocal(
-                0.99 * portal.width / 2,
-                -0.99 * portal.height / 2
-            ).add(facingOffset),
-            portal.getPointInPlaneLocal(
-                0.99 * portal.width / 2,
-                0.99 * portal.height / 2
-            ).add(facingOffset),
-            portal.getPointInPlaneLocal(
-                -0.99 * portal.width / 2,
-                0.99 * portal.height / 2
-            ).add(facingOffset),
-            portal.getPointInPlaneLocal(
-                -0.99 * portal.width / 2,
-                -0.99 * portal.height / 2
-            ).add(facingOffset),
+            axisW.scale(0.99 * rect.width() / 2)
+                .add(axisH.scale(0.99 * rect.height() / 2))
+                .add(facingOffset),
+            axisW.scale(0.99 * rect.width() / 2)
+                .add(axisH.scale(-0.99 * rect.height() / 2))
+                .add(facingOffset),
+            axisW.scale(-0.99 * rect.width() / 2)
+                .add(axisH.scale(-0.99 * rect.height() / 2))
+                .add(facingOffset),
+            axisW.scale(-0.99 * rect.width() / 2)
+                .add(axisH.scale(0.99 * rect.height() / 2))
+                .add(facingOffset),
         };
         
         putDottedLine(
@@ -428,6 +435,8 @@ public class WireRenderingHelper {
         putDottedLine(
             vertexConsumer, color, matrix, vertices[3], vertices[0], timeCycle + 3
         );
+        
+        matrixStack.popPose();
     }
     
     private static void putDottedLine(
@@ -435,11 +444,11 @@ public class WireRenderingHelper {
         Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd,
         double timeCycle
     ) {
-        int partCount = 6;
+        int partCount = 5;
         
         for (int i = 0; i < partCount; i++) {
-            double partStartRatio = ((double) i) / (i * 2) + timeCycle;
-            double partEndRatio = ((double) i + 1) / (i * 2) + timeCycle;
+            double partStartRatio = ((double) i * 2) / (partCount * 2) + timeCycle;
+            double partEndRatio = ((double) i * 2 + 1) / (partCount * 2) + timeCycle;
             
             if (partStartRatio > 1) {
                 double floor = Math.floor(partStartRatio);
@@ -447,7 +456,7 @@ public class WireRenderingHelper {
                 partEndRatio -= floor;
             }
             
-            if (partEndRatio > 1) {
+            if (partEndRatio <= 1) {
                 putLinePart(
                     vertexConsumer, color, matrix,
                     lineStart, lineEnd,
@@ -479,5 +488,9 @@ public class WireRenderingHelper {
         
         Vec3 partStartPos = lineStart.add(vec.scale(startRatio));
         Vec3 partEndPos = lineStart.add(vec.scale(endRatio));
+        
+        putLine(
+            vertexConsumer, color, matrix, partStartPos, partEndPos
+        );
     }
 }

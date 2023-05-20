@@ -249,6 +249,10 @@ public class DQuaternion {
      * Is two quaternions roughly the same
      */
     public static boolean isClose(DQuaternion a, DQuaternion b, double valve) {
+        return distance(a, b) < valve;
+    }
+    
+    public static double distance(DQuaternion a, DQuaternion b) {
         double da1 = a.getX() - b.getX();
         double db1 = a.getY() - b.getY();
         double dc1 = a.getZ() - b.getZ();
@@ -261,7 +265,7 @@ public class DQuaternion {
         double dd2 = a.getW() + b.getW();
         double v2 = da2 * da2 + db2 * db2 + dc2 * dc2 + dd2 * dd2;
         
-        return v1 < valve || v2 < valve;
+        return Math.min(v1, v2);
     }
     
     @Override
