@@ -10,7 +10,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -79,6 +78,20 @@ public class WireRenderingHelper {
         return rotation;
     }
     
+    public static double getRandomSmoothCycle(Random random) {
+        double totalFactor = 0.1;
+        double total = 0;
+        for (int i = 0; i < 5; i++) {
+            double smoothCycle = CHelper.getSmoothCycles(random.nextInt(30, 300));
+            double sin = Math.sin(2 * Math.PI * smoothCycle);
+            double factor = random.nextDouble(0.1, 1);
+            totalFactor += factor;
+            total += sin * factor;
+        }
+        
+        return total / totalFactor;
+    }
+    
     @NotNull
     public static Vec3 randomVec(Random random) {
         return new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5);
@@ -96,9 +109,9 @@ public class WireRenderingHelper {
         
         Vec3 planeCenter = plane.pos;
         Vec3 normal = plane.normal;
-        
-        Vec3 anyVecNonNormal = new Vec3(0, 1, 0);
-        if (Math.abs(normal.dot(anyVecNonNormal)) > 0.9) {
+    
+        Vec3 anyVecNonNormal = new Vec3(13, 29, 71).normalize();
+        if (Math.abs(normal.dot(anyVecNonNormal)) > 0.99) {
             anyVecNonNormal = new Vec3(1, 0, 0);
         }
         
@@ -386,11 +399,11 @@ public class WireRenderingHelper {
             .endVertex();
     }
     
-    public static void renderRectDottedLine(
+    public static void renderRectLine(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         RenderedRect rect,
-        int color, PoseStack matrixStack,
-        double timeCycle
+        int partCount, int color, double shrinkFactor,
+        PoseStack matrixStack
     ) {
         matrixStack.pushPose();
         
@@ -401,81 +414,76 @@ public class WireRenderingHelper {
         );
         
         Matrix4f matrix = matrixStack.last().pose();
-    
+        
         Vec3 normal = rect.orientation().rotate(new Vec3(0, 0, 1));
         Vec3 axisW = rect.orientation().rotate(new Vec3(1, 0, 0));
         Vec3 axisH = rect.orientation().rotate(new Vec3(0, 1, 0));
         
         Vec3 facingOffset = normal.scale(0.01);
         
+        Random random = new Random(color);
+        
         Vec3[] vertices = new Vec3[]{
-            axisW.scale(0.99 * rect.width() / 2)
-                .add(axisH.scale(0.99 * rect.height() / 2))
+            axisW.scale(shrinkFactor * rect.width() / 2)
+                .add(axisH.scale(shrinkFactor * rect.height() / 2))
                 .add(facingOffset),
-            axisW.scale(0.99 * rect.width() / 2)
-                .add(axisH.scale(-0.99 * rect.height() / 2))
+            axisW.scale(shrinkFactor * rect.width() / 2)
+                .add(axisH.scale(-1 * shrinkFactor * rect.height() / 2))
                 .add(facingOffset),
-            axisW.scale(-0.99 * rect.width() / 2)
-                .add(axisH.scale(-0.99 * rect.height() / 2))
+            axisW.scale(-1 * shrinkFactor * rect.width() / 2)
+                .add(axisH.scale(-1 * shrinkFactor * rect.height() / 2))
                 .add(facingOffset),
-            axisW.scale(-0.99 * rect.width() / 2)
-                .add(axisH.scale(0.99 * rect.height() / 2))
+            axisW.scale(-1 * shrinkFactor * rect.width() / 2)
+                .add(axisH.scale(shrinkFactor * rect.height() / 2))
                 .add(facingOffset),
         };
         
-        putDottedLine(
-            vertexConsumer, color, matrix, vertices[0], vertices[1], timeCycle
-        );
-        putDottedLine(
-            vertexConsumer, color, matrix, vertices[1], vertices[2], timeCycle + 1
-        );
-        putDottedLine(
-            vertexConsumer, color, matrix, vertices[2], vertices[3], timeCycle + 2
-        );
-        putDottedLine(
-            vertexConsumer, color, matrix, vertices[3], vertices[0], timeCycle + 3
-        );
+        int lineNum = vertices.length;
+        
+        
+        for (int i = 0; i < partCount; i++) {
+            double offset = CHelper.getSmoothCycles(random.nextInt(30, 300));
+//            double offset = getRandomSmoothCycle(random);
+            
+            double totalStartRatio = ((double) i * 2) / (partCount * 2) + offset;
+            double totalEndRatio = ((double) i * 2 + 1) / (partCount * 2) + offset;
+            
+            renderSubLineInLineLoop(
+                vertexConsumer, matrix,
+                vertices, color, totalStartRatio, totalEndRatio
+            );
+        }
         
         matrixStack.popPose();
     }
     
-    private static void putDottedLine(
-        VertexConsumer vertexConsumer, int color,
-        Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd,
-        double timeCycle
+    public static void renderSubLineInLineLoop(
+        VertexConsumer vertexConsumer, Matrix4f matrix,
+        Vec3[] lineVertices, int color,
+        double totalStartRatio, double totalEndRatio
     ) {
-        int partCount = 5;
+        int lineNum = lineVertices.length;
         
-        for (int i = 0; i < partCount; i++) {
-            double partStartRatio = ((double) i * 2) / (partCount * 2) + timeCycle;
-            double partEndRatio = ((double) i * 2 + 1) / (partCount * 2) + timeCycle;
+        double startRatioByLine = totalStartRatio * lineNum;
+        double endRatioByLine = totalEndRatio * lineNum;
+        
+        int startRatioLineIndex = (int) Math.floor(startRatioByLine);
+        int endRatioLineIndex = (int) Math.floor(endRatioByLine);
+        
+        for (int lineIndex = startRatioLineIndex; lineIndex <= endRatioLineIndex; lineIndex++) {
+            double startLimit = lineIndex;
+            double endLimit = lineIndex + 1;
             
-            if (partStartRatio > 1) {
-                double floor = Math.floor(partStartRatio);
-                partStartRatio -= floor;
-                partEndRatio -= floor;
-            }
+            double startRatio = Math.max(startLimit, startRatioByLine);
+            double endRatio = Math.min(endLimit, endRatioByLine);
             
-            if (partEndRatio <= 1) {
-                putLinePart(
-                    vertexConsumer, color, matrix,
-                    lineStart, lineEnd,
-                    partStartRatio, partEndRatio
-                );
-            }
-            else {
-                putLinePart(
-                    vertexConsumer, color, matrix,
-                    lineStart, lineEnd,
-                    partStartRatio, 1
-                );
-                
-                putLinePart(
-                    vertexConsumer, color, matrix,
-                    lineStart, lineEnd,
-                    0, partEndRatio - 1
-                );
-            }
+            putLinePart(
+                vertexConsumer, color, matrix,
+                lineVertices[Math.floorMod(lineIndex, lineNum)],
+                lineVertices[Math.floorMod(lineIndex + 1, lineNum)],
+                startRatio - lineIndex,
+                endRatio - lineIndex
+            );
         }
     }
     

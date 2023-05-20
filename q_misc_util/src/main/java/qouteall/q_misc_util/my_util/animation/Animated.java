@@ -82,7 +82,7 @@ public class Animated<T> {
     }
     
     public void clearTarget() {
-        setTarget(typeInfo.getEmpty(), 0);
+        setTarget(typeInfo.getEmpty(), duration);
     }
     
     @Nullable

@@ -60,9 +60,12 @@ public class PortalWandItem extends Item {
                     ClientPortalWandPortalCreation.clearCursorPointing();
                 }
             }
+            ClientPortalWandPortalDrag.tick();
         });
         
+        
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCreation::reset);
+        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalDrag::reset);
     }
     
     public static enum Mode {

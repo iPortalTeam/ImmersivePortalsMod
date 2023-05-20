@@ -219,6 +219,13 @@
   "imm_ptl.wand.use_instruction_2": "By respectively placing the left-bottom point, the right-bottom point, and the left-top point of the portal, the left-bottom, right-bottom, left-top points of the second side, a bi-way bi-faced portal will be created.",
   "imm_ptl.wand.use_instruction_4": "Left-click to undo.",
 
+  "imm_ptl.wand.plane.x": "YZ Plane",
+  "imm_ptl.wand.plane.y": "XZ Plane",
+  "imm_ptl.wand.plane.z": "XY Plane",
+  "imm_ptl.wand.plane.portal_x": "Portal Vertical Plane",
+  "imm_ptl.wand.plane.portal_y": "Portal Horizontal Plane",
+  "imm_ptl.wand.plane.portal_z": "Portal Plane",
+
   "item.immersive_portals.portal_wand": "Portal Wand",
 
   "imm_ptl.wand.item_desc_1": "Shift right-click to change mode.",

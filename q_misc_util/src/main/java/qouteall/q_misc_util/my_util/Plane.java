@@ -37,6 +37,10 @@ public class Plane {
         return new Plane(pos.add(normal.scale(distance)), normal);
     }
     
+    public Plane getOpposite() {
+        return new Plane(pos, normal.scale(-1));
+    }
+    
     @Nullable
     public Vec3 raytrace(Vec3 origin, Vec3 vec) {
         double denominator = normal.dot(vec);
@@ -75,6 +79,10 @@ public class Plane {
     public static Plane interpolate(Plane a, Plane b, double progress) {
         Vec3 pos = a.pos.lerp(b.pos, progress);
         Vec3 normal = a.normal.lerp(b.normal, progress);
+        return new Plane(pos, normal);
+    }
+    
+    public Plane getParallelPlane(Vec3 pos) {
         return new Plane(pos, normal);
     }
 }
