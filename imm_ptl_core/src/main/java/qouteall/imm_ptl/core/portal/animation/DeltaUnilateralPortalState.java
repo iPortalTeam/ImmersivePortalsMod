@@ -149,6 +149,19 @@ public record DeltaUnilateralPortalState(
         return "Delta(" + str + ')';
     }
     
+    public static DeltaUnilateralPortalState fromDiff(
+        UnilateralPortalState before, UnilateralPortalState after
+    ) {
+        return new DeltaUnilateralPortalState(
+            after.position().subtract(before.position()),
+            after.orientation().hamiltonProduct(before.orientation().getConjugated()),
+            new Vec2d(
+                before.width() == 0 ? 1 : after.width() / before.width(),
+                before.height() == 0 ? 1 : after.height() / before.height()
+            )
+        );
+    }
+    
     public static class Builder {
         @Nullable
         private Vec3 offset;

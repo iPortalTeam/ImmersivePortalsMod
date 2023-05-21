@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.portal.PortalUtils;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Plane;
@@ -77,6 +78,10 @@ public class ClientPortalWandPortalDrag {
     @Nullable
     public static DraggingContext draggingContext;
     
+    // the player will firstly left-click then release right-click
+    // don't restart dragging in the process
+    private static boolean isUndoing = false;
+    
     private static record DraggingContext(
         ResourceKey<Level> dimension,
         @NotNull
@@ -86,7 +91,9 @@ public class ClientPortalWandPortalDrag {
         @Nullable
         Sphere limitingSphere,
         EnumSet<PortalCorner> lockedCorners,
-        PortalCorner draggingCorner
+        PortalCorner draggingCorner,
+        @Nullable
+        Component planeText
     ) {
         
     }
@@ -104,7 +111,9 @@ public class ClientPortalWandPortalDrag {
         selectedCorner = null;
         cursor.clearTarget();
         renderedPlane.clearTarget();
+        renderedRect.clearTarget();
         draggingContext = null;
+        isUndoing = false;
     }
     
     public static void onLeftClick() {
@@ -114,17 +123,22 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        if (selectedCorner != null) {
-            if (lockedCorners.contains(selectedCorner)) {
-                lockedCorners.remove(selectedCorner);
-            }
-            else {
-                if (lockedCorners.size() >= 2) {
-                    player.sendSystemMessage(Component.translatable("imm_ptl.wand.lock_limit"));
-                    return;
+        if (isDragging()) {
+            undoDragging();
+        }
+        else {
+            if (selectedCorner != null) {
+                if (lockedCorners.contains(selectedCorner)) {
+                    lockedCorners.remove(selectedCorner);
                 }
-                
-                lockedCorners.add(selectedCorner);
+                else {
+                    if (lockedCorners.size() >= 2) {
+                        player.sendSystemMessage(Component.translatable("imm_ptl.wand.lock_limit"));
+                        return;
+                    }
+                    
+                    lockedCorners.add(selectedCorner);
+                }
             }
         }
     }
@@ -140,11 +154,15 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
+        if (isUndoing) {
+            return;
+        }
+        
         startDragging();
     }
     
     public static void tick() {
-        
+    
     }
     
     public static boolean isDragging() {
@@ -152,10 +170,15 @@ public class ClientPortalWandPortalDrag {
     }
     
     public static void updateDisplay() {
-        LocalPlayer player = Minecraft.getInstance().player;
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
         
         if (player == null) {
             return;
+        }
+        
+        if (!minecraft.options.keyUse.isDown()) {
+            isUndoing = false;
         }
         
         if (draggingContext != null) {
@@ -184,6 +207,10 @@ public class ClientPortalWandPortalDrag {
             selectedCorner = null;
             cursor.clearTarget();
             renderedPlane.clearTarget();
+            ImmPtlCustomOverlay.putText(
+                Component.translatable("imm_ptl.wand.select_portal"),
+                0.2
+            );
             return;
         }
         
@@ -209,7 +236,10 @@ public class ClientPortalWandPortalDrag {
                 else {
                     // change portal selection, clear the locks and selection
                     selectedCorner = null;
-                    lockedCorners.clear();
+                    if (!lockedCorners.isEmpty()) {
+                        player.sendSystemMessage(Component.translatable("imm_ptl.wand.lock_cleared"));
+                        lockedCorners.clear();
+                    }
                 }
                 selectedPortalId = portal.getUUID();
             }
@@ -225,6 +255,14 @@ public class ClientPortalWandPortalDrag {
         renderedRect.setTarget(
             portalToRenderedRect(portal),
             Helper.secondToNano(1.0)
+        );
+        ImmPtlCustomOverlay.putText(
+            Component.translatable(
+                "imm_ptl.wand.pre_drag",
+                minecraft.options.keyAttack.getTranslatedKeyMessage(),
+                minecraft.options.keyUse.getTranslatedKeyMessage()
+            ),
+            0.2
         );
     }
     
@@ -248,8 +286,9 @@ public class ClientPortalWandPortalDrag {
             stopDragging();
             return;
         }
-        
-        if (!Minecraft.getInstance().options.keyUse.isDown()) {
+    
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.options.keyUse.isDown()) {
             stopDragging();
             return;
         }
@@ -278,6 +317,25 @@ public class ClientPortalWandPortalDrag {
                 
                 cursorPos = sphere.projectToSphere(cursorPos);
             }
+        }
+    
+        MutableComponent undoPrompt = Component.literal("\n").append(Component.translatable(
+            "imm_ptl.wand.left_click_to_undo",
+            minecraft.options.keyAttack.getTranslatedKeyMessage()
+        ));
+        
+        if (draggingContext.planeText() != null) {
+            ImmPtlCustomOverlay.putText(
+                Component.translatable("imm_ptl.wand.dragging_on_plane", draggingContext.planeText())
+                    .append(undoPrompt),
+                0.2
+            );
+        }
+        else {
+            ImmPtlCustomOverlay.putText(
+                Component.translatable("imm_ptl.wand.dragging").append(undoPrompt),
+                0.2
+            );
         }
         
         if (cursorPos != null) {
@@ -360,9 +418,9 @@ public class ClientPortalWandPortalDrag {
                 plane,
                 null,
                 EnumSet.copyOf(lockedCorners),
-                selectedCorner
+                selectedCorner,
+                info.getSecond()
             );
-            
         }
         else if (lockCornerNum == 2) {
             PortalCorner.DraggingConstraint constraint = PortalCorner.getDraggingConstraintWith2LockedCorners(
@@ -383,7 +441,8 @@ public class ClientPortalWandPortalDrag {
                 constraint.plane(),
                 constraint.sphere(),
                 EnumSet.copyOf(lockedCorners),
-                selectedCorner
+                selectedCorner,
+                null
             );
         }
         else {
@@ -396,6 +455,18 @@ public class ClientPortalWandPortalDrag {
         draggingContext = null;
         renderedPlane.clearTarget();
         renderedRect.clearTarget();
+        
+        McRemoteProcedureCall.tellServerToInvoke(
+            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.finishDragging"
+        );
+    }
+    
+    private static void undoDragging() {
+        McRemoteProcedureCall.tellServerToInvoke(
+            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.undoDrag"
+        );
+        reset();
+        isUndoing = true;
     }
     
     private static void onDrag(Vec3 cursorPos, DraggingContext draggingContext) {
@@ -408,12 +479,12 @@ public class ClientPortalWandPortalDrag {
         }
         
         PortalWandInteraction.DraggingInfo draggingInfo = new PortalWandInteraction.DraggingInfo(
-            cursorPos, lockedCorners, selectedCorner
+            lockedCorners, selectedCorner
         );
         
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
-            selectedPortalId, draggingInfo
+            selectedPortalId, cursorPos, draggingInfo
         );
     }
     

@@ -518,4 +518,8 @@ public class DQuaternion {
     public Vec3 getNormal() {
         return this.rotate(new Vec3(0, 0, 1));
     }
+    
+    public boolean isValid() {
+        return Math.abs(this.dotProduct(this)) > 0.9;
+    }
 }

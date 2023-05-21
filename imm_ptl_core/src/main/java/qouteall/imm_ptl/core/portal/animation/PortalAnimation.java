@@ -416,8 +416,8 @@ public class PortalAnimation {
         }
         
         if (!portal.level.isClientSide()) {
-            if (thisSideAnimations.size() != originalThisSideAnimationCount ||
-                otherSideAnimations.size() != originalOtherSideAnimationCount
+            if ((thisSideAnimations.size() != originalThisSideAnimationCount ||
+                otherSideAnimations.size() != originalOtherSideAnimationCount)
             ) {
                 // delay a little to make client animation to stop smoother
                 PortalExtension.forClusterPortals(portal, p -> p.reloadAndSyncToClientWithTickDelay(1));
@@ -425,7 +425,7 @@ public class PortalAnimation {
         }
     }
     
-    private void initializeReferenceStates(PortalState portalState) {
+    public void initializeReferenceStates(PortalState portalState) {
         if (thisSideReferenceState == null) {
             thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
         }
@@ -456,11 +456,12 @@ public class PortalAnimation {
         
         if (clearThisSide) {
             thisSideReferenceState = null;
+            thisSideAnimations.clear();
         }
         if (clearOtherSide) {
             otherSideReferenceState = null;
+            otherSideAnimations.clear();
         }
-        
         
         PortalState newState = UnilateralPortalState.combine(from.build(), to.build());
         portal.setPortalState(newState);
@@ -482,7 +483,6 @@ public class PortalAnimation {
                     from.apply(endingResult);
                 }
             }
-            thisSideAnimations.clear();
         }
         
         if (includeOtherSide) {
@@ -492,7 +492,6 @@ public class PortalAnimation {
                     to.apply(endingResult);
                 }
             }
-            otherSideAnimations.clear();
         }
     }
     

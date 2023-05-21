@@ -24,6 +24,8 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.mixin.common.end_portal.IEEndDragonFight;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
+import qouteall.imm_ptl.peripheral.wand.PortalDraggingAnimation;
+import qouteall.imm_ptl.peripheral.wand.PortalWandInteraction;
 import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.LifecycleHack;
@@ -90,6 +92,10 @@ public class PeripheralModMain {
         PortalWandItem.init();
         
         CommandStickItem.init();
+    
+        PortalWandInteraction.init();
+    
+//        PortalDraggingAnimation.init();
     }
     
     public static void registerCommandStickTypes() {

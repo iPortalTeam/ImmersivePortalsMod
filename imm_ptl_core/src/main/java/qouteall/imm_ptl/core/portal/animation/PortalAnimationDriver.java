@@ -61,12 +61,14 @@ public interface PortalAnimationDriver {
         AnimationContext context
     );
     
+    // TODO remove the default implementation in 1.20
     /**
      * Get the ending state of the animation.
      * This is used when creating a new animation when existing animation is running.
      *
      * @param tickTime World game time.
      * @param context
+     * @return The ending state. Null if the animation is infinite.
      */
     @Nullable
     default DeltaUnilateralPortalState getEndingResult(long tickTime, AnimationContext context) {

@@ -150,8 +150,10 @@ public class PortalWandItem extends Item {
             }
         }
         
-        if (world.isClientSide()) {
-            onUseClient(mode);
+        if (!player.isShiftKeyDown()) {
+            if (world.isClientSide()) {
+                onUseClient(mode);
+            }
         }
         
         return super.use(world, player, hand);

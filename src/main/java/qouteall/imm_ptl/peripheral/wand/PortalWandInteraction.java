@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -17,6 +18,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -25,6 +27,7 @@ import qouteall.q_misc_util.my_util.Range;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 public class PortalWandInteraction {
     
@@ -32,17 +35,48 @@ public class PortalWandInteraction {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
+    private static class DraggingSession {
+        private final ResourceKey<Level> dimension;
+        private final UUID portalId;
+        private final PortalState originalState;
+        private final DraggingInfo lastDraggingInfo;
+        @NotNull
+        private Vec3 lastCursorPos;
+        
+        public DraggingSession(
+            ResourceKey<Level> dimension, UUID portalId,
+            PortalState originalState, DraggingInfo lastDraggingInfo,
+            @NotNull Vec3 lastCursorPos
+        ) {
+            this.dimension = dimension;
+            this.portalId = portalId;
+            this.originalState = originalState;
+            this.lastDraggingInfo = lastDraggingInfo;
+            this.lastCursorPos = lastCursorPos;
+        }
+    }
+    
+    private static final WeakHashMap<ServerPlayer, DraggingSession> draggingSessionMap = new WeakHashMap<>();
+    
+    public static void init() {
+        IPGlobal.postServerTickSignal.connect(() -> {
+            draggingSessionMap.entrySet().removeIf(
+                e -> e.getKey().isRemoved()
+            );
+        });
+        
+        IPGlobal.serverCleanupSignal.connect(draggingSessionMap::clear);
+    }
+    
     public static record DraggingInfo(
-        Vec3 cursorPos,
         Set<PortalCorner> lockedCorners,
         PortalCorner selectedCorner
     ) {
-    
     }
     
     @Nullable
     public static UnilateralPortalState applyDrag(
-        UnilateralPortalState thisSideState, DraggingInfo info
+        UnilateralPortalState thisSideState, Vec3 cursorPos, DraggingInfo info
     ) {
         PortalCorner selectedCorner = info.selectedCorner;
         if (info.lockedCorners.contains(selectedCorner)) {
@@ -56,14 +90,14 @@ public class PortalWandInteraction {
         
         if (lockedCornerNum == 0) {
             return PortalCorner.performDragWithNoLockedCorner(
-                thisSideState, selectedCorner, info.cursorPos
+                thisSideState, selectedCorner, cursorPos
             );
         }
         else if (lockedCornerNum == 1) {
             return PortalCorner.performDragWith1LockedCorner(
                 thisSideState,
                 lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
-                selectedCorner, info.cursorPos
+                selectedCorner, cursorPos
             );
         }
         else if (lockedCornerNum == 2) {
@@ -71,7 +105,7 @@ public class PortalWandInteraction {
                 thisSideState,
                 lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
                 lockedCorners.get(1), lockedCorners.get(1).getPos(thisSideState),
-                selectedCorner, info.cursorPos
+                selectedCorner, cursorPos
             );
         }
         else {
@@ -85,11 +119,7 @@ public class PortalWandInteraction {
             ServerPlayer player,
             ProtoPortal protoPortal
         ) {
-            if (!canPlayerUsePortalWand(player)) {
-                player.sendSystemMessage(Component.literal("You cannot use portal wand"));
-                LOGGER.error("Player cannot use portal wand {}", player);
-                return;
-            }
+            if (!checkPermission(player)) return;
             
             Validate.isTrue(protoPortal.firstSide != null);
             Validate.isTrue(protoPortal.secondSide != null);
@@ -260,13 +290,10 @@ public class PortalWandInteraction {
         public static void requestApplyDrag(
             ServerPlayer player,
             UUID portalId,
+            Vec3 cursorPos,
             DraggingInfo draggingInfo
         ) {
-            if (!canPlayerUsePortalWand(player)) {
-                player.sendSystemMessage(Component.literal("You cannot use portal wand"));
-                LOGGER.error("Player cannot use portal wand {}", player);
-                return;
-            }
+            if (!checkPermission(player)) return;
             
             Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(portalId);
             
@@ -275,16 +302,73 @@ public class PortalWandInteraction {
                 return;
             }
             
-            UnilateralPortalState newThisSideState = applyDrag(portal.getThisSideState(), draggingInfo);
+            DraggingSession session = draggingSessionMap.get(player);
+            
+            if (session != null && session.portalId.equals(portalId)) {
+                // reuse session
+            }
+            else {
+                session = new DraggingSession(
+                    player.level.dimension(),
+                    portalId,
+                    portal.getPortalState(),
+                    draggingInfo,
+                    draggingInfo.selectedCorner.getPos(portal)
+                );
+                draggingSessionMap.put(player, session);
+//                LOGGER.info("Portal dragging session created");
+            }
+            
+            UnilateralPortalState originalThisSideState = portal.getThisSideState();
+            UnilateralPortalState newThisSideState = applyDrag(
+                originalThisSideState, cursorPos, draggingInfo
+            );
             if (validateNewPortalState(portal, newThisSideState)) {
                 portal.setThisSideState(newThisSideState);
                 portal.reloadAndSyncToClient();
                 portal.rectifyClusterPortals(true);
+                
+                session.lastCursorPos = cursorPos;
             }
             else {
                 player.sendSystemMessage(Component.literal("Invalid dragging"));
             }
         }
+        
+        public static void undoDrag(ServerPlayer player) {
+            DraggingSession session = draggingSessionMap.get(player);
+            
+            if (session == null) {
+                player.sendSystemMessage(Component.literal("Cannot undo"));
+                return;
+            }
+            
+            Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(session.portalId);
+            
+            if (!(entity instanceof Portal portal)) {
+                LOGGER.error("Cannot find portal {}", session.portalId);
+                return;
+            }
+            
+            portal.setPortalState(session.originalState);
+            portal.reloadAndSyncToClient();
+            portal.rectifyClusterPortals(true);
+            
+            draggingSessionMap.remove(player);
+        }
+        
+        public static void finishDragging(ServerPlayer player) {
+            draggingSessionMap.remove(player);
+        }
+    }
+    
+    private static boolean checkPermission(ServerPlayer player) {
+        if (!canPlayerUsePortalWand(player)) {
+            player.sendSystemMessage(Component.literal("You cannot use portal wand"));
+            LOGGER.error("Player cannot use portal wand {}", player);
+            return false;
+        }
+        return true;
     }
     
     private static boolean validateNewPortalState(

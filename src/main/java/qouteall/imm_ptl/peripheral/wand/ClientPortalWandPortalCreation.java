@@ -5,15 +5,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -228,7 +225,7 @@ public class ClientPortalWandPortalCreation {
     }
     
     /**
-     * {@link PortalWandInteraction.RemoteCallables#finish(ServerPlayer, ProtoPortal)}
+     * {@link PortalWandInteraction.RemoteCallables#finishPortal(ServerPlayer, ProtoPortal)}
      */
     public static void finish() {
         LocalPlayer player = Minecraft.getInstance().player;
