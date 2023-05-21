@@ -36,12 +36,14 @@ import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.animation.RenderedPlane;
 import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
@@ -161,10 +163,9 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Portal selectedPortal = getSelectedPortal();
-        if (selectedPortal == null) {
-            selectedPortalId = null;
-            lockedCorners.clear();
+        Portal originalSelectedPortal = getSelectedPortal();
+        if (originalSelectedPortal == null) {
+            reset();
         }
         
         Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
@@ -194,10 +195,23 @@ public class ClientPortalWandPortalDrag {
         }
         else {
             if (!Objects.equals(selectedPortalId, portal.getUUID())) {
-                // change portal selection
+                if (originalSelectedPortal != null && Portal.isFlippedPortal(originalSelectedPortal, portal)) {
+                    // going to select its flipped portal. transfer the locks and selection
+                    List<PortalCorner> transferred = lockedCorners.stream().map(
+                        c -> getClosestCorner(portal, c.getPos(originalSelectedPortal))
+                    ).toList();
+                    lockedCorners.clear();
+                    lockedCorners.addAll(transferred);
+                    if (selectedCorner != null) {
+                        selectedCorner = getClosestCorner(portal, selectedCorner.getPos(originalSelectedPortal));
+                    }
+                }
+                else {
+                    // change portal selection, clear the locks and selection
+                    selectedCorner = null;
+                    lockedCorners.clear();
+                }
                 selectedPortalId = portal.getUUID();
-                selectedCorner = null;
-                lockedCorners.clear();
             }
         }
         
@@ -430,42 +444,57 @@ public class ClientPortalWandPortalDrag {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private static Pair<Plane, MutableComponent> getPlayerFacingPlaneAligned(
         Player player, Vec3 cursorPos, Portal portal
     ) {
-        Pair<Plane, MutableComponent>[] candidates = new Pair[]{
-            Pair.of(
-                new Plane(cursorPos, new Vec3(1, 0, 0)),
-                Component.translatable("imm_ptl.wand.plane.x")
-            ),
-            Pair.of(
-                new Plane(cursorPos, new Vec3(0, 1, 0)),
-                Component.translatable("imm_ptl.wand.plane.y")
-            ),
-            Pair.of(
-                new Plane(cursorPos, new Vec3(0, 0, 1)),
-                Component.translatable("imm_ptl.wand.plane.z")
-            ),
-            Pair.of(
+        ArrayList<Pair<Plane, MutableComponent>> candidates = new ArrayList<>();
+        
+        Vec3 X = new Vec3(1, 0, 0);
+        Vec3 Y = new Vec3(0, 1, 0);
+        Vec3 Z = new Vec3(0, 0, 1);
+        
+        candidates.add(Pair.of(
+            new Plane(cursorPos, X),
+            Component.translatable("imm_ptl.wand.plane.x")
+        ));
+        candidates.add(Pair.of(
+            new Plane(cursorPos, Y),
+            Component.translatable("imm_ptl.wand.plane.y")
+        ));
+        candidates.add(Pair.of(
+            new Plane(cursorPos, Z),
+            Component.translatable("imm_ptl.wand.plane.z")
+        ));
+        
+        Predicate<Vec3> isOrthodox = p ->
+            Math.abs(p.dot(X)) > 0.99 || Math.abs(p.dot(Y)) > 0.99 || Math.abs(p.dot(Z)) > 0.99;
+        
+        if (!isOrthodox.test(portal.axisW)) {
+            candidates.add(Pair.of(
                 new Plane(cursorPos, portal.axisW),
                 Component.translatable("imm_ptl.wand.plane.portal_x")
-            ),
-            Pair.of(
+            ));
+        }
+        
+        if (!isOrthodox.test(portal.axisH)) {
+            candidates.add(Pair.of(
                 new Plane(cursorPos, portal.axisH),
                 Component.translatable("imm_ptl.wand.plane.portal_y")
-            ),
-            Pair.of(
+            ));
+        }
+        
+        if (!isOrthodox.test(portal.getNormal())) {
+            candidates.add(Pair.of(
                 new Plane(cursorPos, portal.getNormal()),
                 Component.translatable("imm_ptl.wand.plane.portal_z")
-            )
-        };
+            ));
+        }
         
         Vec3 viewVec = player.getLookAngle();
         
         return Stream.concat(
-            Arrays.stream(candidates),
-            Arrays.stream(candidates).map(p -> Pair.of(p.getFirst().getOpposite(), p.getSecond()))
+            candidates.stream(),
+            candidates.stream().map(p -> Pair.of(p.getFirst().getOpposite(), p.getSecond()))
         ).min(
             Comparator.comparingDouble(p -> p.getFirst().normal.dot(viewVec))
         ).orElseThrow();

@@ -5,12 +5,15 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +29,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Circle;
@@ -147,13 +151,14 @@ public class ClientPortalWandPortalCreation {
                 cursorPointing = align(player.level, blockHitResult.getLocation(), alignment);
             }
         }
-    
+        
         if (limitingPlane != null && limitingCircle == null) {
             renderedPlane.setTarget(
                 new RenderedPlane(limitingPlane, 1.0),
                 Helper.secondToNano(3.0)
             );
-        }else{
+        }
+        else {
             renderedPlane.setTarget(
                 RenderedPlane.NONE, Helper.secondToNano(0.5)
             );
@@ -171,9 +176,13 @@ public class ClientPortalWandPortalCreation {
             
             MutableComponent promptMessage = protoPortal.getPromptMessage(pendingState);
             if (promptMessage != null) {
-                Minecraft.getInstance().gui.setOverlayMessage(
-                    promptMessage, false
+                ImmPtlCustomOverlay.putText(
+                    promptMessage, 0.2
                 );
+
+//                Minecraft.getInstance().gui.setOverlayMessage(
+//                    promptMessage, false
+//                );
             }
         }
         

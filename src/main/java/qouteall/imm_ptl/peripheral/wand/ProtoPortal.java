@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.peripheral.wand;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -165,28 +166,41 @@ public class ProtoPortal {
         if (firstSide == null) {
             return Component.translatable("imm_ptl.wand.first_side_left_bottom");
         }
+        
+        MutableComponent undoPrompt = Component.literal("\n").append(
+            Component.translatable(
+                "imm_ptl.wand.left_click_to_undo",
+                Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage()
+            )
+        );
+        
         if (firstSide.rightBottom == null) {
             String widthStr = pendingState == null ? "?" :
                 String.format("%.3f", Objects.requireNonNull(pendingState.firstSide).getWidth());
-    
-            return Component.translatable("imm_ptl.wand.first_side_right_bottom", widthStr);
+            
+            return Component.translatable("imm_ptl.wand.first_side_right_bottom", widthStr)
+                .append(undoPrompt);
         }
         if (firstSide.leftTop == null) {
+            String widthStr = pendingState == null ? "?" :
+                String.format("%.3f", Objects.requireNonNull(pendingState.firstSide).getWidth());
             String heightStr = pendingState == null ? "?" :
                 String.format("%.3f", Objects.requireNonNull(pendingState.firstSide).getHeight());
             
-            return Component.translatable("imm_ptl.wand.first_side_left_up", heightStr);
+            return Component.translatable("imm_ptl.wand.first_side_left_up", widthStr, heightStr)
+                .append(undoPrompt);
         }
-    
+        
         if (secondSide == null) {
-            return Component.translatable("imm_ptl.wand.second_side_left_bottom");
+            return Component.translatable("imm_ptl.wand.second_side_left_bottom")
+                .append(undoPrompt);
         }
-    
+        
         if (secondSide.rightBottom == null) {
             String widthStr = "?";
             String heightStr = "?";
             String scaleStr = "?";
-    
+            
             if (pendingState != null) {
                 Validate.notNull(pendingState.firstSide);
                 Validate.notNull(pendingState.secondSide);
@@ -199,13 +213,16 @@ public class ProtoPortal {
                 scaleStr = String.format("%.3f", scale);
             }
             
-            return Component.translatable("imm_ptl.wand.second_side_right_bottom", widthStr, heightStr, scaleStr);
+            return Component.translatable(
+                "imm_ptl.wand.second_side_right_bottom", widthStr, heightStr, scaleStr
+            ).append(undoPrompt);
         }
-    
+        
         if (secondSide.leftTop == null) {
-            return Component.translatable("imm_ptl.wand.second_side_left_up");
+            return Component.translatable("imm_ptl.wand.second_side_left_up")
+                .append(undoPrompt);
         }
-    
+        
         return null;
     }
     

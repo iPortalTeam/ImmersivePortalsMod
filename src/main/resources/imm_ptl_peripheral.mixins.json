@@ -21,6 +21,7 @@
   ],
   "client": [
     "client.MixinBossHealthOverlay",
+    "client.MixinGui",
     "client.MixinSplashManager",
     "client.alternate_dimension.MixinClientLevelData",
     "client.alternate_dimension.MixinFogRenderer_A",

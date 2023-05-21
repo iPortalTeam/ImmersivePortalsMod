@@ -169,12 +169,21 @@ public class PortalWandItem extends Item {
         }
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
         super.appendHoverText(stack, world, tooltip, context);
         
-        tooltip.add(Component.translatable("imm_ptl.wand.item_desc_1"));
-        tooltip.add(Component.translatable("imm_ptl.wand.item_desc_2"));
+        tooltip.add(Component.translatable(
+            "imm_ptl.wand.item_desc_1",
+            Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(),
+            Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage()
+        ));
+        tooltip.add(Component.translatable(
+            "imm_ptl.wand.item_desc_2",
+            Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(),
+            Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage()
+        ));
     }
     
     @Override
