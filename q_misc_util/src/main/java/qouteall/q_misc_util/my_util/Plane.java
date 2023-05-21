@@ -41,8 +41,14 @@ public class Plane {
         return new Plane(pos, normal.scale(-1));
     }
     
+    // TODO remove in 1.20
     @Nullable
-    public Vec3 raytrace(Vec3 origin, Vec3 vec) {
+    public Vec3 raytrace(Vec3 origin, Vec3 vec){
+        return rayTrace(origin, vec);
+    }
+    
+    @Nullable
+    public Vec3 rayTrace(Vec3 origin, Vec3 vec) {
         double denominator = normal.dot(vec);
         if (Math.abs(denominator) < 0.0001) {
             return null;

@@ -129,15 +129,15 @@ public record UnilateralPortalState(
     }
     
     public Vec3 getAxisW() {
-        return orientation.rotate(new Vec3(1, 0, 0));
+        return orientation.getAxisW();
     }
     
     public Vec3 getAxisH() {
-        return orientation.rotate(new Vec3(0, 1, 0));
+        return orientation.getAxisH();
     }
     
     public Vec3 getNormal() {
-        return orientation.rotate(new Vec3(0, 0, 1));
+        return orientation.getNormal();
     }
     
     /**

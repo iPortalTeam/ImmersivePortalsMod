@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -46,6 +47,10 @@ public class PortalWandItem extends Item {
                 return InteractionResult.FAIL;
             }
             return InteractionResult.PASS;
+        });
+        
+        BlockManipulationServer.canDoCrossPortalInteractionEvent.register(p -> {
+            return p.getMainHandItem().getItem() != instance;
         });
     }
     
@@ -125,7 +130,7 @@ public class PortalWandItem extends Item {
                     ClientPortalWandPortalCreation.undo();
                 }
                 case DRAG_PORTAL -> {
-                
+                    ClientPortalWandPortalDrag.onLeftClick();
                 }
             }
         }
@@ -146,7 +151,14 @@ public class PortalWandItem extends Item {
         }
         else {
             if (world.isClientSide()) {
-                ClientPortalWandPortalCreation.onRightClick();
+                switch (mode) {
+                    case CREATE_PORTAL -> {
+                        ClientPortalWandPortalCreation.onRightClick();
+                    }
+                    case DRAG_PORTAL -> {
+                        ClientPortalWandPortalDrag.onRightClick();
+                    }
+                }
             }
         }
         

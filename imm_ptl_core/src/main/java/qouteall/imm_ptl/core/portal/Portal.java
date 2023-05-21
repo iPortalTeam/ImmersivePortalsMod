@@ -1689,6 +1689,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setThisSideState(UnilateralPortalState ups) {
+        Validate.notNull(ups);
         PortalState portalState = getPortalState();
         assert portalState != null;
         UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);

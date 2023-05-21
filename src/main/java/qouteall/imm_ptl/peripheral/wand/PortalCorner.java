@@ -1,15 +1,20 @@
 package qouteall.imm_ptl.peripheral.wand;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Sphere;
 
 public enum PortalCorner {
     LEFT_BOTTOM, LEFT_TOP, RIGHT_BOTTOM, RIGHT_TOP;
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     public int getXSign() {
         return switch (this) {
@@ -75,19 +80,29 @@ public enum PortalCorner {
         }
         
         double dot = originalOffset.normalize().dot(newOffset.normalize());
+        
+        
+        DQuaternion rotation;
         if (Math.abs(dot) > 0.99) {
             // the rotation cannot be determined if the two vecs are parallel
-            return null;
+            rotation = null;
+        }
+        else {
+            rotation = DQuaternion.getRotationBetween(originalOffset, newOffset);
         }
         
-        DQuaternion rotation = DQuaternion.getRotationBetween(originalOffset, newOffset);
         double scaling = newOffset.length() / originalOffset.length();
         
-        Vec3 newOrigin = rotation
-            .rotate(originalState.position().subtract(lockedPos))
-            .add(lockedPos);
+        Vec3 offset = originalState.position().subtract(lockedPos).scale(scaling);
         
-        DQuaternion newOrientation = originalState.orientation().hamiltonProduct(rotation);
+        if (rotation != null) {
+            offset = rotation.rotate(offset);
+        }
+        
+        Vec3 newOrigin = lockedPos.add(offset);
+        
+        DQuaternion newOrientation = rotation == null ? originalState.orientation() :
+            rotation.hamiltonProduct(originalState.orientation());
         
         double newWidth = originalState.width() * scaling;
         double newHeight = originalState.height() * scaling;
@@ -109,43 +124,17 @@ public enum PortalCorner {
         public Vec3 constrain(Vec3 pos) {
             if (sphere != null) {
                 if (plane != null) {
-                    // limit on the intersection of the plane and sphere
-                    double distance = plane.getDistanceTo(sphere.center());
+                    Circle circle = sphere.getIntersectionWithPlane(plane);
                     
-                    if (distance > sphere.radius()) {
-                        // there is no intersection
+                    if (circle == null) {
                         return null;
                     }
                     
-                    Vec3 circleCenter = plane.getProjection(sphere.center());
-                    double newRadius = Math.sqrt(
-                        sphere.radius() * sphere.radius() - distance * distance
-                    );
-                    
-                    Vec3 projectedOntoPlane = plane.getProjection(pos);
-                    Vec3 delta = projectedOntoPlane.subtract(circleCenter);
-                    
-                    if (delta.lengthSqr() < 0.001) {
-                        // cannot constraint to the circle
-                        return null;
-                    }
-                    
-                    return circleCenter.add(
-                        delta.normalize().scale(newRadius)
-                    );
+                    return circle.projectToCircle(pos);
                 }
                 else {
                     // limit on sphere
-                    Vec3 delta = pos.subtract(sphere.center());
-                    
-                    if (delta.lengthSqr() < 0.001) {
-                        // cannot constraint to the sphere
-                        return null;
-                    }
-                    
-                    return sphere.center().add(
-                        delta.normalize().scale(sphere.radius())
-                    );
+                    return sphere.projectToSphere(pos);
                 }
             }
             else {
@@ -189,28 +178,44 @@ public enum PortalCorner {
      */
     public static DraggingConstraint getDraggingConstraintWith2LockedCorners(
         PortalCorner lockedCorner1, Vec3 lockedPos1,
-        PortalCorner lockedCorner2, Vec3 lockedPos2
+        PortalCorner lockedCorner2, Vec3 lockedPos2,
+        PortalCorner freeCorner
     ) {
         int corner1XSign = lockedCorner1.getXSign();
         int corner1YSign = lockedCorner1.getYSign();
         int corner2XSign = lockedCorner2.getXSign();
         int corner2YSign = lockedCorner2.getYSign();
+        int freeCornerXSign = freeCorner.getXSign();
+        int freeCornerYSign = freeCorner.getYSign();
         
         if (corner1XSign == corner2XSign || corner1YSign == corner2YSign) {
             // case 1
             // plane: (locked1 - locked2) (locked2 - free) = 0
-            Vec3 planeNormal = lockedPos1.subtract(lockedPos2);
-            Plane plane = new Plane(lockedPos2, planeNormal);
             
-            return new DraggingConstraint(
-                plane, null
-            );
+            if (freeCornerXSign == corner1XSign || freeCornerYSign == corner1YSign) {
+                // the free corner is close to the lockedCorner1
+                Vec3 planeNormal = lockedPos2.subtract(lockedPos1);
+                Plane plane = new Plane(lockedPos1, planeNormal);
+                
+                return new DraggingConstraint(
+                    plane, null
+                );
+            }
+            else {
+                // the free corner is close the lockedCorner2
+                Vec3 planeNormal = lockedPos1.subtract(lockedPos2);
+                Plane plane = new Plane(lockedPos2, planeNormal);
+                
+                return new DraggingConstraint(
+                    plane, null
+                );
+            }
         }
         else {
             // case 2
             // sphere: (free - center)^2 = (locked1 - center)^2
             Vec3 center = lockedPos1.add(lockedPos2).scale(0.5);
-            double radius = lockedPos1.distanceTo(center);
+            double radius = lockedPos1.distanceTo(lockedPos2) * 0.5;
             
             return new DraggingConstraint(
                 null,
@@ -230,7 +235,8 @@ public enum PortalCorner {
     ) {
         DraggingConstraint constraint = getDraggingConstraintWith2LockedCorners(
             lockedCorner1, lockedPos1,
-            lockedCorner2, lockedPos2
+            lockedCorner2, lockedPos2,
+            freeCorner
         );
         
         Vec3 freePosLimited = constraint.constrain(freePos);
@@ -256,7 +262,12 @@ public enum PortalCorner {
         for (int cx = 0; cx <= 1; cx++) {
             for (int cy = 0; cy <= 1; cy++) {
                 if (vertices[cx][cy] == null) {
-                    vertices[cx][cy] = vertices[1 - cx][cy].add(vertices[cx][1 - cy]);
+                    Vec3 sideVertex1 = vertices[1 - cx][cy];
+                    Vec3 sideVertex2 = vertices[cx][1 - cy];
+                    Vec3 diagonalVertex = vertices[1 - cx][1 - cy];
+                    Vec3 v1 = sideVertex1.subtract(diagonalVertex);
+                    Vec3 v2 = sideVertex2.subtract(diagonalVertex);
+                    vertices[cx][cy] = diagonalVertex.add(v1).add(v2);
                 }
             }
         }
@@ -267,9 +278,15 @@ public enum PortalCorner {
         Vec3 axisH = verticalAxis.normalize();
         Vec3 normal = axisW.cross(axisH);
         
+        if (Math.abs(axisW.dot(axisH)) > 0.01) {
+            LOGGER.error("The dragged portal vertices are ill-formed");
+            return null;
+        }
+        
         DQuaternion orientation = DQuaternion.matrixToQuaternion(axisW, axisH, normal);
         
         return new UnilateralPortalState.Builder()
+            .dimension(originalState.dimension())
             .position(vertices[0][0].add(vertices[1][1]).scale(0.5))
             .orientation(orientation)
             .width(horizontalAxis.length())

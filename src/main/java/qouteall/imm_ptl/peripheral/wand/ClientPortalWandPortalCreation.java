@@ -129,7 +129,7 @@ public class ClientPortalWandPortalCreation {
                 Helper.secondToNano(3.0)
             );
             
-            cursorPointing = limitingPlane.value().raytrace(eyePos, viewVec);
+            cursorPointing = limitingPlane.value().rayTrace(eyePos, viewVec);
             
             if (cursorPointing != null) {
                 // align it and then project onto plane
@@ -139,7 +139,7 @@ public class ClientPortalWandPortalCreation {
                 
                 if (limitingCircle != null) {
                     // align it into the circle
-                    cursorPointing = limitingCircle.value().limitToCircle(cursorPointing);
+                    cursorPointing = limitingCircle.value().projectToCircle(cursorPointing);
                 }
             }
         }
@@ -225,7 +225,7 @@ public class ClientPortalWandPortalCreation {
         }
         
         McRemoteProcedureCall.tellServerToInvoke(
-            "qouteall.imm_ptl.peripheral.wand.ServerPortalWandInteraction.RemoteCallables.finish",
+            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.finish",
             protoPortal
         );
         
@@ -269,7 +269,7 @@ public class ClientPortalWandPortalCreation {
         if (circle != null && renderedCursor != null) {
             // the cursor interpolates along line
             // it may not always be on the circle
-            renderedCursor = circle.value().limitToCircle(renderedCursor);
+            renderedCursor = circle.value().projectToCircle(renderedCursor);
         }
         
         ProtoPortal renderedProtoPortal = protoPortal;

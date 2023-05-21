@@ -506,4 +506,16 @@ public class DQuaternion {
         }
         return q;
     }
+    
+    public Vec3 getAxisW() {
+        return this.rotate(new Vec3(1, 0, 0));
+    }
+    
+    public Vec3 getAxisH() {
+        return this.rotate(new Vec3(0, 1, 0));
+    }
+    
+    public Vec3 getNormal() {
+        return this.rotate(new Vec3(0, 0, 1));
+    }
 }

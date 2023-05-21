@@ -57,10 +57,14 @@ public class BlockManipulationClient {
         remotePointedDim = null;
         remoteHitResult = null;
         
+        if (!BlockManipulationServer.canDoCrossPortalInteractionEvent.invoker().test(client.player)) {
+            return;
+        }
+        
         Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
         
         float reachDistance = client.gameMode.getPickRange();
-    
+        
         PortalUtils.raytracePortalFromEntityView(client.player, tickDelta, reachDistance, true, portal1 -> portal1.isInteractableBy(client.player)).ifPresent(pair -> {
             Portal portal = pair.getFirst();
             double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
@@ -310,7 +314,7 @@ public class BlockManipulationClient {
         );
     }
     
-//    /**
+    //    /**
 //     * In {@link MultiPlayerGameMode#performUseItemOn(LocalPlayer, InteractionHand, BlockHitResult)}
 //     * {@link UseOnContext#UseOnContext(Player, InteractionHand, BlockHitResult)}
 //     * It will use the player's current dimension which may be wrong when interacting another dimension's block

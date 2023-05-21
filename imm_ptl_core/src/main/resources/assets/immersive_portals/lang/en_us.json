@@ -226,6 +226,8 @@
   "imm_ptl.wand.plane.portal_y": "Portal Horizontal Plane",
   "imm_ptl.wand.plane.portal_z": "Portal Plane",
 
+  "imm_ptl.wand.lock_limit": "It can lock at most 2 corners (Locking 3 corners freezes the portal)",
+
   "item.immersive_portals.portal_wand": "Portal Wand",
 
   "imm_ptl.wand.item_desc_1": "Shift right-click to change mode.",

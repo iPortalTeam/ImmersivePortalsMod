@@ -15,6 +15,7 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
 import java.util.Random;
@@ -98,6 +99,7 @@ public class WireRenderingHelper {
         return new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5);
     }
     
+    // NOTE it uses line strip
     public static void renderPlane(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         Plane plane, double renderedPlaneScale,
@@ -110,7 +112,7 @@ public class WireRenderingHelper {
         
         Vec3 planeCenter = plane.pos;
         Vec3 normal = plane.normal;
-    
+        
         Vec3 anyVecNonNormal = new Vec3(13, 29, 71).normalize();
         if (Math.abs(normal.dot(anyVecNonNormal)) > 0.99) {
             anyVecNonNormal = new Vec3(1, 0, 0);
@@ -161,6 +163,7 @@ public class WireRenderingHelper {
         matrixStack.popPose();
     }
     
+    // NOTE it uses line strip
     public static void renderCircle(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         Circle circle,
@@ -286,7 +289,7 @@ public class WireRenderingHelper {
         matrixStack.popPose();
     }
     
-    private static void drawLockShape(
+    public static void renderLockShape(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         Vec3 center,
         int color, PoseStack matrixStack
@@ -306,7 +309,7 @@ public class WireRenderingHelper {
             ).toMcQuaternion()
         );
         
-        float scale = 1.0f / 3000;
+        float scale = (float) ((1.0 / 2000) * Math.pow(cameraPos.distanceTo(center), 0.3));
         matrixStack.scale(scale, scale, scale);
         
         Matrix4f matrix = matrixStack.last().pose();
@@ -404,6 +407,7 @@ public class WireRenderingHelper {
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         RenderedRect rect,
         int partCount, int color, double shrinkFactor,
+        int flowDirection,
         PoseStack matrixStack
     ) {
         matrixStack.pushPose();
@@ -416,9 +420,9 @@ public class WireRenderingHelper {
         
         Matrix4f matrix = matrixStack.last().pose();
         
-        Vec3 normal = rect.orientation().rotate(new Vec3(0, 0, 1));
-        Vec3 axisW = rect.orientation().rotate(new Vec3(1, 0, 0));
-        Vec3 axisH = rect.orientation().rotate(new Vec3(0, 1, 0));
+        Vec3 normal = rect.orientation().getNormal();
+        Vec3 axisW = rect.orientation().getAxisW();
+        Vec3 axisH = rect.orientation().getAxisH();
         
         Vec3 facingOffset = normal.scale(0.01);
         
@@ -443,7 +447,7 @@ public class WireRenderingHelper {
         
         
         for (int i = 0; i < partCount; i++) {
-            double offset = CHelper.getSmoothCycles(random.nextInt(30, 300));
+            double offset = flowDirection * CHelper.getSmoothCycles(random.nextInt(30, 300));
 //            double offset = getRandomSmoothCycle(random);
             
             double totalStartRatio = ((double) i * 2) / (partCount * 2) + offset;
@@ -501,5 +505,117 @@ public class WireRenderingHelper {
         putLine(
             vertexConsumer, color, matrix, partStartPos, partEndPos
         );
+    }
+    
+    // NOTE it uses line strip
+    public static void renderSphere(
+        VertexConsumer vertexConsumer, int color,
+        PoseStack matrixStack, Vec3 cameraPos,
+        Sphere sphere, DQuaternion sphereOrientation,
+        double animationProgress, double rotationProgress
+    ) {
+        matrixStack.pushPose();
+        
+        matrixStack.translate(
+            sphere.center().x - cameraPos.x,
+            sphere.center().y - cameraPos.y,
+            sphere.center().z - cameraPos.z
+        );
+        
+        matrixStack.mulPose(sphereOrientation.toMcQuaternion());
+        matrixStack.scale((float) sphere.radius(), (float) sphere.radius(), (float) sphere.radius());
+        
+        Matrix4f matrix = matrixStack.last().pose();
+        
+        int meridianCount = 50;
+        int parallelCount = 50;
+        
+        int vertexNum = Mth.clamp((int) Math.round(sphere.radius() * 40), 20, 400);
+        
+        // render meridians
+        for (int i = 0; i < meridianCount; i++) {
+            double longitude = ((double) i / meridianCount + rotationProgress) * Math.PI * 2;
+            
+            for (int j = 0; j < vertexNum; j++) {
+                double latitudeRatio = (double) j / vertexNum;
+                latitudeRatio = Math.min(latitudeRatio, animationProgress);
+                
+                double latitude = latitudeRatio * Math.PI;
+                
+                double x = Math.cos(longitude) * Math.cos(latitude);
+                double y = Math.sin(longitude);
+                double z = Math.cos(longitude) * Math.sin(latitude);
+                
+                boolean isFirst = j == 0;
+                if (isFirst) {
+                    // use transparent vertices to jump in line strip
+                    vertexConsumer
+                        .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                        .color(0)
+                        .normal(0, 1, 0)
+                        .endVertex();
+                }
+                
+                vertexConsumer
+                    .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                    .color(color)
+                    .normal(0, 1, 0)
+                    .endVertex();
+                
+                boolean isLast = j == vertexNum - 1;
+                if (isLast) {
+                    // use transparent vertices to jump in line strip
+                    vertexConsumer
+                        .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                        .color(0)
+                        .normal(0, 1, 0)
+                        .endVertex();
+                }
+            }
+        }
+        
+        // render parallels
+        for (int i = 0; i < parallelCount; i++) {
+            double latitude = (double) i / parallelCount * Math.PI;
+            
+            for (int j = 0; j <= vertexNum; j++) {
+                double longitudeRatio = (double) j / vertexNum;
+                longitudeRatio = Math.min(longitudeRatio, animationProgress);
+                
+                double longitude = (longitudeRatio + rotationProgress) * Math.PI * 2;
+                
+                double x = Math.cos(longitude) * Math.cos(latitude);
+                double y = Math.sin(longitude);
+                double z = Math.cos(longitude) * Math.sin(latitude);
+                
+                boolean isFirst = j == 0;
+                if (isFirst) {
+                    // use transparent vertices to jump in line strip
+                    vertexConsumer
+                        .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                        .color(0)
+                        .normal(0, 1, 0)
+                        .endVertex();
+                }
+                
+                vertexConsumer
+                    .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                    .color(color)
+                    .normal(0, 1, 0)
+                    .endVertex();
+                
+                boolean isLast = j == vertexNum - 1;
+                if (isLast) {
+                    // use transparent vertices to jump in line strip
+                    vertexConsumer
+                        .vertex(matrix, (float) (x), (float) (y), (float) (z))
+                        .color(0)
+                        .normal(0, 1, 0)
+                        .endVertex();
+                }
+            }
+        }
+        
+        matrixStack.popPose();
     }
 }

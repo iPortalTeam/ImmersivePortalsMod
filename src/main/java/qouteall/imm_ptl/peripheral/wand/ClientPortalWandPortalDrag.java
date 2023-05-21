@@ -17,17 +17,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalUtils;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.WithDim;
 import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.animation.RenderedPlane;
@@ -35,7 +38,8 @@ import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -47,8 +51,8 @@ public class ClientPortalWandPortalDrag {
     @Nullable
     private static UUID selectedPortalId;
     
-    private static final EnumMap<PortalCorner, Vec3> lockedCorners =
-        new EnumMap<PortalCorner, Vec3>(PortalCorner.class);
+    private static final EnumSet<PortalCorner> lockedCorners =
+        EnumSet.noneOf(PortalCorner.class);
     
     @Nullable
     private static PortalCorner selectedCorner;
@@ -67,8 +71,23 @@ public class ClientPortalWandPortalDrag {
         null
     );
     
+    // not null means dragging
     @Nullable
-    public static WithDim<Plane> draggingPlane;
+    public static DraggingContext draggingContext;
+    
+    private static record DraggingContext(
+        ResourceKey<Level> dimension,
+        @NotNull
+        UUID portalId,
+        @Nullable
+        Plane limitingPlane,
+        @Nullable
+        Sphere limitingSphere,
+        EnumSet<PortalCorner> lockedCorners,
+        PortalCorner draggingCorner
+    ) {
+        
+    }
     
     public static Animated<RenderedPlane> renderedPlane = new Animated<>(
         Animated.RENDERED_PLANE_TYPE_INFO,
@@ -83,10 +102,29 @@ public class ClientPortalWandPortalDrag {
         selectedCorner = null;
         cursor.clearTarget();
         renderedPlane.clearTarget();
+        draggingContext = null;
     }
     
     public static void onLeftClick() {
-    
+        LocalPlayer player = Minecraft.getInstance().player;
+        
+        if (player == null) {
+            return;
+        }
+        
+        if (selectedCorner != null) {
+            if (lockedCorners.contains(selectedCorner)) {
+                lockedCorners.remove(selectedCorner);
+            }
+            else {
+                if (lockedCorners.size() >= 2) {
+                    player.sendSystemMessage(Component.literal("imm_ptl.wand.lock_limit"));
+                    return;
+                }
+                
+                lockedCorners.add(selectedCorner);
+            }
+        }
     }
     
     public static void onRightClick() {
@@ -96,18 +134,19 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        RenderedPlane target = renderedPlane.getTarget();
-        
-        if (target != null && target.plane() != null) {
-            if (target.plane().dimension() == player.level.dimension()) {
-                // start dragging
-                draggingPlane = target.plane();
-            }
+        if (isDragging()) {
+            return;
         }
+        
+        startDragging();
     }
     
     public static void tick() {
+        
+    }
     
+    public static boolean isDragging() {
+        return draggingContext != null;
     }
     
     public static void updateDisplay() {
@@ -117,30 +156,19 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
-        
-        Vec3 viewVec = player.getLookAngle();
-        
-        if (draggingPlane != null) {
-            if (player.level.dimension() == draggingPlane.dimension()) {
-                Vec3 cursorPos = draggingPlane.value().raytrace(
-                    eyePos,
-                    eyePos.add(viewVec.scale(20))
-                );
-                cursor.setTarget(
-                    cursorPos, Helper.secondToNano(0.5)
-                );
-                
-                if (cursorPos != null) {
-                    onDrag(cursorPos, draggingPlane);
-                }
-                return;
-            }
-            else {
-                // stop dragging because not in the same dimension
-                draggingPlane = null;
-            }
+        if (draggingContext != null) {
+            handleDragging(player, draggingContext);
+            return;
         }
+        
+        Portal selectedPortal = getSelectedPortal();
+        if (selectedPortal == null) {
+            selectedPortalId = null;
+            lockedCorners.clear();
+        }
+        
+        Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
+        Vec3 viewVec = player.getLookAngle();
         
         Pair<Portal, Vec3> rayTraceResult = PortalUtils.lenientRayTracePortals(
             player.level,
@@ -166,15 +194,10 @@ public class ClientPortalWandPortalDrag {
         }
         else {
             if (!Objects.equals(selectedPortalId, portal.getUUID())) {
-                if (canChangePortalSelection()) {
-                    // change portal selection
-                    selectedPortalId = portal.getUUID();
-                    selectedCorner = null;
-                    lockedCorners.clear();
-                }
-                else {
-                    return;
-                }
+                // change portal selection
+                selectedPortalId = portal.getUUID();
+                selectedCorner = null;
+                lockedCorners.clear();
             }
         }
         
@@ -186,33 +209,183 @@ public class ClientPortalWandPortalDrag {
             cursorPos, Helper.secondToNano(0.5)
         );
         renderedRect.setTarget(
-            new RenderedRect(
-                portal.getOriginDim(),
-                portal.getOriginPos(),
-                portal.getOrientationRotation(),
-                portal.width, portal.height
-            ),
+            portalToRenderedRect(portal),
             Helper.secondToNano(1.0)
         );
-        
-        Pair<Plane, MutableComponent> planeInfo =
-            getPlayerFacingPlaneAligned(player, cursorPos, portal);
-        Plane plane = planeInfo.getFirst();
-        renderedPlane.setTarget(new RenderedPlane(
-            new WithDim<>(player.level.dimension(), plane),
-            1
-        ), Helper.secondToNano(0.5));
     }
     
-    private static void onDrag(Vec3 cursorPos, WithDim<Plane> draggingPlane) {
-        Validate.notNull(ClientPortalWandPortalDrag.draggingPlane);
-        if (selectedCorner == null) {
-            LOGGER.error("selectedCorner is null");
-            reset();
+    @NotNull
+    private static RenderedRect portalToRenderedRect(Portal portal) {
+        return new RenderedRect(
+            portal.getOriginDim(),
+            portal.getOriginPos(),
+            portal.getOrientationRotation(),
+            portal.width, portal.height
+        );
+    }
+    
+    private static void handleDragging(LocalPlayer player, DraggingContext draggingContext) {
+        Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
+        Vec3 viewVec = player.getLookAngle();
+        
+        ResourceKey<Level> currDim = player.level.dimension();
+        
+        if (draggingContext.dimension != currDim) {
+            stopDragging();
+            return;
+        }
+        
+        if (!Minecraft.getInstance().options.keyUse.isDown()) {
+            stopDragging();
+            return;
+        }
+        
+        Vec3 cursorPos = null;
+        
+        Plane plane = draggingContext.limitingPlane();
+        Sphere sphere = draggingContext.limitingSphere;
+        
+        int alignment = IPConfig.getConfig().portalWandCursorAlignment;
+        
+        if (plane != null) {
+            cursorPos = plane.rayTrace(eyePos, viewVec);
+            
+            if (cursorPos != null) {
+                cursorPos = align(cursorPos, alignment);
+                
+                cursorPos = plane.getProjection(cursorPos);
+            }
+        }
+        else if (sphere != null) {
+            cursorPos = sphere.rayTrace(eyePos, viewVec);
+            
+            if (cursorPos != null) {
+                cursorPos = align(cursorPos, alignment);
+                
+                cursorPos = sphere.projectToSphere(cursorPos);
+            }
+        }
+        
+        if (cursorPos != null) {
+            Vec3 originalCursorTarget = cursor.getTarget();
+            if (originalCursorTarget != null && originalCursorTarget.distanceTo(cursorPos) < 0.001) {
+                return;
+            }
+            
+            cursor.setTarget(cursorPos, Helper.secondToNano(0.5));
+            onDrag(cursorPos, draggingContext);
+        }
+    }
+    
+    private static Vec3 align(Vec3 pos, int alignment) {
+        if (alignment == 0) {
+            return pos;
+        }
+        
+        return new Vec3(
+            Math.round(pos.x() * (double) alignment) / (double) alignment,
+            Math.round(pos.y() * (double) alignment) / (double) alignment,
+            Math.round(pos.z() * (double) alignment) / (double) alignment
+        );
+    }
+    
+    private static void startDragging() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        
+        if (player == null) {
+            return;
+        }
+        
+        if (isDragging()) {
+            LOGGER.error("start dragging when already dragging");
+            return;
+        }
+        
+        if (!Minecraft.getInstance().options.keyUse.isDown()) {
+            LOGGER.error("start dragging when not right clicking");
             return;
         }
         
         Portal portal = getSelectedPortal();
+        
+        if (portal == null) {
+            return;
+        }
+        
+        Vec3 cursorPos = cursor.getTarget();
+        
+        if (cursorPos == null) {
+            return;
+        }
+        
+        if (selectedCorner == null) {
+            return;
+        }
+        
+        if (lockedCorners.contains(selectedCorner)) {
+            return;
+        }
+        
+        List<PortalCorner> lockedCornersList = lockedCorners.stream().toList();
+        
+        int lockCornerNum = lockedCornersList.size();
+        
+        ResourceKey<Level> currDim = player.level.dimension();
+        if (lockCornerNum == 0 || lockCornerNum == 1) {
+            Pair<Plane, MutableComponent> info = getPlayerFacingPlaneAligned(player, cursorPos, portal);
+            Plane plane = info.getFirst();
+            
+            renderedPlane.setTarget(new RenderedPlane(
+                new WithDim<>(currDim, plane),
+                1
+            ), Helper.secondToNano(0.5));
+            
+            draggingContext = new DraggingContext(
+                currDim,
+                portal.getUUID(),
+                plane,
+                null,
+                EnumSet.copyOf(lockedCorners),
+                selectedCorner
+            );
+            
+        }
+        else if (lockCornerNum == 2) {
+            PortalCorner.DraggingConstraint constraint = PortalCorner.getDraggingConstraintWith2LockedCorners(
+                lockedCornersList.get(0), lockedCornersList.get(0).getPos(portal),
+                lockedCornersList.get(1), lockedCornersList.get(1).getPos(portal),
+                selectedCorner
+            );
+            
+            if (constraint.plane() != null) {
+                renderedPlane.setTarget(new RenderedPlane(
+                    new WithDim<>(currDim, constraint.plane()), 1
+                ), Helper.secondToNano(0.5));
+            }
+            
+            draggingContext = new DraggingContext(
+                currDim,
+                portal.getUUID(),
+                constraint.plane(),
+                constraint.sphere(),
+                EnumSet.copyOf(lockedCorners),
+                selectedCorner
+            );
+        }
+        else {
+            LOGGER.error("invalid lockCornerNum {}", lockCornerNum);
+            return;
+        }
+    }
+    
+    private static void stopDragging() {
+        draggingContext = null;
+        renderedPlane.clearTarget();
+        renderedRect.clearTarget();
+    }
+    
+    private static void onDrag(Vec3 cursorPos, DraggingContext draggingContext) {
+        Portal portal = getPortalByUUID(draggingContext.portalId());
         
         if (portal == null) {
             LOGGER.error("cannot find portal to drag {}", selectedPortalId);
@@ -220,33 +393,39 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        PortalWandInteraction.applyDrag(
-            portal.getThisSideState(), new PortalWandInteraction.DraggingInfo(
-                cursorPos, lockedCorners.keySet(), selectedCorner
-            )
+        PortalWandInteraction.DraggingInfo draggingInfo = new PortalWandInteraction.DraggingInfo(
+            cursorPos, lockedCorners, selectedCorner
+        );
+        
+        McRemoteProcedureCall.tellServerToInvoke(
+            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
+            selectedPortalId, draggingInfo
         );
     }
     
     @Nullable
     private static Portal getSelectedPortal() {
-        if (selectedPortalId == null) {
+        return getPortalByUUID(selectedPortalId);
+    }
+    
+    @Nullable
+    private static Portal getPortalByUUID(UUID portalId) {
+        if (portalId == null) {
             return null;
         }
         
         LocalPlayer player = Minecraft.getInstance().player;
         
         if (player == null) {
-            selectedPortalId = null;
             return null;
         }
         
-        Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(selectedPortalId);
+        Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(portalId);
         
         if (entity instanceof Portal portal) {
             return portal;
         }
         else {
-            selectedPortalId = null;
             return null;
         }
     }
@@ -293,10 +472,10 @@ public class ClientPortalWandPortalDrag {
     }
     
     private static final int colorOfCursor = 0xff03fcfc;
-    private static final int[] colorOfPortalSelection = new int[]{
-        0xffec03fc, 0xfffca903
-    };
+    private static final int colorOfRect1 = 0xffec03fc;
+    private static final int colorOfRect2 = 0xfffca903;
     private static final int colorOfPlane = 0xffffffff;
+    private static final int colorOfLock = 0xffffffff;
     
     public static void render(
         PoseStack matrixStack,
@@ -319,8 +498,7 @@ public class ClientPortalWandPortalDrag {
         
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
         
-        
-        Vec3 renderedCursor = cursor.getCurrent();
+        Vec3 renderedCursor = getCursorToRender();
         if (renderedCursor != null) {
             WireRenderingHelper.renderSmallCubeFrame(
                 vertexConsumer, cameraPos, renderedCursor,
@@ -328,18 +506,23 @@ public class ClientPortalWandPortalDrag {
             );
         }
         
-        RenderedRect rect = renderedRect.getCurrent();
-        if (rect != null && rect.dimension() == currDim) {
-            WireRenderingHelper.renderRectLine(
-                vertexConsumer, cameraPos, rect,
-                10, colorOfPortalSelection[0], 0.99,
-                matrixStack
-            );
-            WireRenderingHelper.renderRectLine(
-                vertexConsumer, cameraPos, rect,
-                10, colorOfPortalSelection[1], 1.01,
-                matrixStack
-            );
+        if (draggingContext != null) {
+            Portal portal = getPortalByUUID(draggingContext.portalId);
+            if (portal != null) {
+                RenderedRect rect = portalToRenderedRect(portal);
+                renderRectAndLock(
+                    matrixStack, cameraPos, vertexConsumer,
+                    rect,
+                    draggingContext.lockedCorners()
+                );
+                renderedRect.setTarget(rect, 0);
+            }
+        }
+        else {
+            RenderedRect rect = renderedRect.getCurrent();
+            if (rect != null && rect.dimension() == currDim) {
+                renderRectAndLock(matrixStack, cameraPos, vertexConsumer, rect, lockedCorners);
+            }
         }
         
         VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
@@ -363,8 +546,46 @@ public class ClientPortalWandPortalDrag {
         
     }
     
-    private static boolean canChangePortalSelection() {
-        return draggingPlane == null && lockedCorners.isEmpty();
+    @Nullable
+    private static Vec3 getCursorToRender() {
+        if (draggingContext != null) {
+            Portal portal = getPortalByUUID(draggingContext.portalId);
+            if (portal != null) {
+                return draggingContext.draggingCorner().getPos(portal);
+            }
+            return null;
+        }
+        
+        return cursor.getCurrent();
+    }
+    
+    private static void renderRectAndLock(
+        PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer,
+        RenderedRect rect, EnumSet<PortalCorner> lockedCorners
+    ) {
+        WireRenderingHelper.renderRectLine(
+            vertexConsumer, cameraPos, rect,
+            10, colorOfRect1, 0.99, 1,
+            matrixStack
+        );
+        WireRenderingHelper.renderRectLine(
+            vertexConsumer, cameraPos, rect,
+            10, colorOfRect2, 1.01, -1,
+            matrixStack
+        );
+        
+        for (PortalCorner lockedCorner : lockedCorners) {
+            Vec3 lockPos = rect.orientation().getAxisW()
+                .scale(lockedCorner.getXSign() * rect.width() / 2)
+                .add(rect.orientation().getAxisH()
+                    .scale(lockedCorner.getYSign() * rect.height() / 2)
+                ).add(rect.center());
+            
+            WireRenderingHelper.renderLockShape(
+                vertexConsumer, cameraPos,
+                lockPos, colorOfLock, matrixStack
+            );
+        }
     }
     
     private static PortalCorner getClosestCorner(Portal portal, Vec3 hitPos) {

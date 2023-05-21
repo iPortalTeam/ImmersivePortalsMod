@@ -17,16 +17,12 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
-import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Range;
 
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -278,11 +274,47 @@ public class PortalWandInteraction {
                 LOGGER.error("Cannot find portal {}", portalId);
                 return;
             }
-    
+            
             UnilateralPortalState newThisSideState = applyDrag(portal.getThisSideState(), draggingInfo);
-            portal.setThisSideState(newThisSideState);
-            portal.rectifyClusterPortals(true);
+            if (validateNewPortalState(portal, newThisSideState)) {
+                portal.setThisSideState(newThisSideState);
+                portal.reloadAndSyncToClient();
+                portal.rectifyClusterPortals(true);
+            }
+            else {
+                player.sendSystemMessage(Component.literal("Invalid dragging"));
+            }
         }
+    }
+    
+    private static boolean validateNewPortalState(
+        Portal portal, UnilateralPortalState newThisSideState
+    ) {
+        if (newThisSideState == null) {
+            return false;
+        }
+        if (newThisSideState.width() > 64.1) {
+            return false;
+        }
+        if (newThisSideState.height() > 64.1) {
+            return false;
+        }
+        if (newThisSideState.width() < 0.1) {
+            return false;
+        }
+        if (newThisSideState.height() < 0.1) {
+            return false;
+        }
+        
+        if (portal.getOriginDim() != newThisSideState.dimension()) {
+            return false;
+        }
+        
+        if (portal.getOriginPos().distanceTo(newThisSideState.position()) > 32) {
+            return false;
+        }
+        
+        return true;
     }
     
     private static boolean canPlayerUsePortalWand(ServerPlayer player) {
