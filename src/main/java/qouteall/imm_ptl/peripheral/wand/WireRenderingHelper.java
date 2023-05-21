@@ -309,7 +309,7 @@ public class WireRenderingHelper {
             ).toMcQuaternion()
         );
         
-        float scale = (float) ((1.0 / 2000) * Math.pow(cameraPos.distanceTo(center), 0.3));
+        float scale = (float) ((1.0 / 4000) * cameraPos.distanceTo(center));
         matrixStack.scale(scale, scale, scale);
         
         Matrix4f matrix = matrixStack.last().pose();

@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
@@ -119,7 +120,7 @@ public class PortalWandItem extends Item {
     
     @Environment(EnvType.CLIENT)
     public static void onClientLeftClick(LocalPlayer player, ItemStack itemStack) {
-        if (player.getPose() == Pose.CROUCHING) {
+        if (player.isShiftKeyDown()) {
             showSettings(player);
         }
         else {
@@ -141,28 +142,31 @@ public class PortalWandItem extends Item {
         ItemStack itemStack = player.getItemInHand(hand);
         Mode mode = Mode.fromTag(itemStack.getOrCreateTag());
         
-        if (player.getPose() == Pose.CROUCHING) {
+        if (player.isShiftKeyDown()) {
             if (!world.isClientSide()) {
-                
                 Mode nextMode = mode.next();
                 itemStack.setTag(nextMode.toTag());
                 return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
             }
         }
-        else {
-            if (world.isClientSide()) {
-                switch (mode) {
-                    case CREATE_PORTAL -> {
-                        ClientPortalWandPortalCreation.onRightClick();
-                    }
-                    case DRAG_PORTAL -> {
-                        ClientPortalWandPortalDrag.onRightClick();
-                    }
-                }
-            }
+        
+        if (world.isClientSide()) {
+            onUseClient(mode);
         }
         
         return super.use(world, player, hand);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void onUseClient(Mode mode) {
+        switch (mode) {
+            case CREATE_PORTAL -> {
+                ClientPortalWandPortalCreation.onRightClick();
+            }
+            case DRAG_PORTAL -> {
+                ClientPortalWandPortalDrag.onRightClick();
+            }
+        }
     }
     
     @Override

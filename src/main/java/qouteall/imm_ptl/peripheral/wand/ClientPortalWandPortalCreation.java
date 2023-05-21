@@ -111,6 +111,7 @@ public class ClientPortalWandPortalCreation {
         
         if (cursorLimitingDim != null && player.level.dimension() != cursorLimitingDim) {
             cursor.clearTarget();
+            renderedPlane.clearTarget();
             return;
         }
         
@@ -124,11 +125,6 @@ public class ClientPortalWandPortalCreation {
         Vec3 cursorPointing = null;
         int alignment = IPConfig.getConfig().portalWandCursorAlignment;
         if (limitingPlane != null) {
-            renderedPlane.setTarget(
-                new RenderedPlane(limitingPlane, 1.0),
-                Helper.secondToNano(3.0)
-            );
-            
             cursorPointing = limitingPlane.value().rayTrace(eyePos, viewVec);
             
             if (cursorPointing != null) {
@@ -144,16 +140,23 @@ public class ClientPortalWandPortalCreation {
             }
         }
         else {
-            renderedPlane.setTarget(
-                RenderedPlane.NONE, Helper.secondToNano(0.5)
-            );
-            
             HitResult hitResult = player.pick(64, RenderStates.getPartialTick(), false);
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
                 cursorPointing = align(player.level, blockHitResult.getLocation(), alignment);
             }
+        }
+    
+        if (limitingPlane != null && limitingCircle == null) {
+            renderedPlane.setTarget(
+                new RenderedPlane(limitingPlane, 1.0),
+                Helper.secondToNano(3.0)
+            );
+        }else{
+            renderedPlane.setTarget(
+                RenderedPlane.NONE, Helper.secondToNano(0.5)
+            );
         }
         
         // remove cursor if the placement is invalid
@@ -362,8 +365,7 @@ public class ClientPortalWandPortalCreation {
         RenderedPlane currRenderedPlane = renderedPlane.getCurrent();
         if (currRenderedPlane != null &&
             currRenderedPlane.plane() != null &&
-            currRenderedPlane.plane().dimension() == currDim &&
-            renderedCircle == null
+            currRenderedPlane.plane().dimension() == currDim
         ) {
             double scale = currRenderedPlane.scale();
             if (scale > 0.01) {

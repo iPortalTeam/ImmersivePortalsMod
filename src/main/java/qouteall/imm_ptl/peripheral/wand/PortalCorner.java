@@ -81,9 +81,8 @@ public enum PortalCorner {
         
         double dot = originalOffset.normalize().dot(newOffset.normalize());
         
-        
         DQuaternion rotation;
-        if (Math.abs(dot) > 0.99) {
+        if (Math.abs(dot) > 0.99999) {
             // the rotation cannot be determined if the two vecs are parallel
             rotation = null;
         }

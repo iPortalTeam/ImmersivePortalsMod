@@ -118,7 +118,7 @@ public class ClientPortalWandPortalDrag {
             }
             else {
                 if (lockedCorners.size() >= 2) {
-                    player.sendSystemMessage(Component.literal("imm_ptl.wand.lock_limit"));
+                    player.sendSystemMessage(Component.translatable("imm_ptl.wand.lock_limit"));
                     return;
                 }
                 
