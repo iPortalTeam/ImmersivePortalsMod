@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -20,100 +21,66 @@ import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
-import qouteall.q_misc_util.my_util.WithDim;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-public class ServerPortalWandInteraction {
+public class PortalWandInteraction {
     
     private static final double SIZE_LIMIT = 64;
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
     public static record DraggingInfo(
-        Vec3 cursorPos, WithDim<Plane> draggingPlane,
-        EnumMap<PortalCorner, Vec3> lockedCorners,
+        Vec3 cursorPos,
+        Set<PortalCorner> lockedCorners,
         PortalCorner selectedCorner
     ) {
     
     }
     
-    public static void applyDrag(
-        Portal portal, DraggingInfo info
+    @Nullable
+    public static UnilateralPortalState applyDrag(
+        UnilateralPortalState thisSideState, DraggingInfo info
     ) {
         PortalCorner selectedCorner = info.selectedCorner;
-        if (info.lockedCorners.containsKey(selectedCorner)) {
+        if (info.lockedCorners.contains(selectedCorner)) {
             LOGGER.error("Cannot drag locked corner");
-            return;
+            return null;
         }
         
-        int lockedCornerNum = info.lockedCorners.size();
+        List<PortalCorner> lockedCorners = info.lockedCorners().stream().toList();
+        
+        int lockedCornerNum = lockedCorners.size();
         
         if (lockedCornerNum == 0) {
-            // simply move the portal
-    
-            Vec3 offset = selectedCorner.getOffset(portal);
-            Vec3 newCenter = info.cursorPos.subtract(offset);
-            
-            portal.setOriginPos(newCenter);
+            return PortalCorner.performDragWithNoLockedCorner(
+                thisSideState, selectedCorner, info.cursorPos
+            );
         }
         else if (lockedCornerNum == 1) {
-            // rotate and scale the portal based on cursor and locked corner
-            Map.Entry<PortalCorner, Vec3> entry = info.lockedCorners().entrySet().stream().findFirst().orElseThrow();
-            PortalCorner lockedCorner = entry.getKey();
-            Vec3 lockedCornerPos = entry.getValue();
-    
-            Vec3 selectedCornerPos = selectedCorner.getPos(portal);
-    
-            Vec3 originalOffset = selectedCornerPos.subtract(lockedCornerPos);
-            Vec3 newOffset = info.cursorPos.subtract(lockedCornerPos);
-    
-            if (originalOffset.lengthSqr() < 0.001 || newOffset.lengthSqr() < 0.001) {
-                return;
-            }
-    
-            double dot = originalOffset.normalize().dot(newOffset.normalize());
-            if (Math.abs(dot) > 0.99) {
-                // the rotation cannot be determined if the two vecs are parallel
-                return;
-            }
-    
-            DQuaternion rotation = DQuaternion.getRotationBetween(originalOffset, newOffset);
-            double scaling = newOffset.length() / originalOffset.length();
-    
-            PortalState portalState = portal.getPortalState();
-    
-            if (portalState == null) {
-                return;
-            }
-            
-            UnilateralPortalState thisSideState = UnilateralPortalState.extractThisSide(portalState);
-            UnilateralPortalState otherSideState = UnilateralPortalState.extractOtherSide(portalState);
-    
-            Vec3 newOrigin = rotation
-                .rotate(thisSideState.position().subtract(lockedCornerPos))
-                .add(lockedCornerPos);
-    
-            DQuaternion newOrientation = thisSideState.orientation().hamiltonProduct(rotation);
-    
-            double newWidth = thisSideState.width() * scaling;
-            double newHeight = thisSideState.height() * scaling;
-    
-            thisSideState = new UnilateralPortalState.Builder()
-                .position(newOrigin)
-                .orientation(newOrientation)
-                .width(newWidth)
-                .height(newHeight)
-                .build();
-    
-            portal.setPortalState(UnilateralPortalState.combine(thisSideState, otherSideState));
+            return PortalCorner.performDragWith1LockedCorner(
+                thisSideState,
+                lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
+                selectedCorner, info.cursorPos
+            );
         }
         else if (lockedCornerNum == 2) {
-        
+            return PortalCorner.performDragWith2LockedCorners(
+                thisSideState,
+                lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
+                lockedCorners.get(1), lockedCorners.get(1).getPos(thisSideState),
+                selectedCorner, info.cursorPos
+            );
+        }
+        else {
+            LOGGER.error("Locked too many corners");
+            return null;
         }
     }
     
@@ -293,7 +260,7 @@ public class ServerPortalWandInteraction {
             
             giveDeletingPortalCommandStickIfNotPresent(player);
         }
-    
+        
         public static void requestApplyDrag(
             ServerPlayer player,
             UUID portalId,
@@ -304,15 +271,17 @@ public class ServerPortalWandInteraction {
                 LOGGER.error("Player cannot use portal wand {}", player);
                 return;
             }
-    
+            
             Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(portalId);
-    
+            
             if (!(entity instanceof Portal portal)) {
                 LOGGER.error("Cannot find portal {}", portalId);
                 return;
             }
     
-            applyDrag(portal, draggingInfo);
+            UnilateralPortalState newThisSideState = applyDrag(portal.getThisSideState(), draggingInfo);
+            portal.setThisSideState(newThisSideState);
+            portal.rectifyClusterPortals(true);
         }
     }
     

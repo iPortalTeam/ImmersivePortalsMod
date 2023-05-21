@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.wand;
+package qouteall.q_misc_util.my_util;
 
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;

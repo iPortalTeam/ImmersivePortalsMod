@@ -43,6 +43,7 @@ import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.network.IPNetworking;
@@ -1680,6 +1681,21 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         setScaleTransformation(state.scaling);
     }
     
+    public UnilateralPortalState getThisSideState() {
+        return new UnilateralPortalState(
+            getOriginDim(), getOriginPos(),
+            getOrientationRotation(), width, height
+        );
+    }
+    
+    public void setThisSideState(UnilateralPortalState ups) {
+        PortalState portalState = getPortalState();
+        assert portalState != null;
+        UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);
+        
+        PortalState newPortalState = UnilateralPortalState.combine(ups, otherSide);
+        setPortalState(newPortalState);
+    }
     
     @Environment(EnvType.CLIENT)
     private void acceptDataSync(Vec3 pos, CompoundTag customData) {

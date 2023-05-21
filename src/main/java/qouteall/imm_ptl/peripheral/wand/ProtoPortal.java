@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.peripheral.wand;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -10,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.WithDim;
 

@@ -211,17 +211,19 @@ public class ClientPortalWandPortalDrag {
             reset();
             return;
         }
-    
+        
         Portal portal = getSelectedPortal();
-    
+        
         if (portal == null) {
             LOGGER.error("cannot find portal to drag {}", selectedPortalId);
             reset();
             return;
         }
-    
-        ServerPortalWandInteraction.applyDrag(
-            cursorPos, draggingPlane, portal, lockedCorners, selectedCorner
+        
+        PortalWandInteraction.applyDrag(
+            portal.getThisSideState(), new PortalWandInteraction.DraggingInfo(
+                cursorPos, lockedCorners.keySet(), selectedCorner
+            )
         );
     }
     

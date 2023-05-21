@@ -28,6 +28,7 @@ import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Plane;
@@ -215,7 +216,7 @@ public class ClientPortalWandPortalCreation {
     }
     
     /**
-     * {@link ServerPortalWandInteraction.RemoteCallables#finish(ServerPlayer, ProtoPortal)}
+     * {@link PortalWandInteraction.RemoteCallables#finish(ServerPlayer, ProtoPortal)}
      */
     public static void finish() {
         LocalPlayer player = Minecraft.getInstance().player;
