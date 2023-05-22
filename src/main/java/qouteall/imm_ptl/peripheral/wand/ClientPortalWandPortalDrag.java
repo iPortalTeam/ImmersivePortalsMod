@@ -20,22 +20,28 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.PortalUtils;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.WithDim;
 import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.animation.RenderedPlane;
 import qouteall.q_misc_util.my_util.animation.RenderedRect;
+import qouteall.q_misc_util.my_util.animation.RenderedSphere;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +49,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -63,7 +70,7 @@ public class ClientPortalWandPortalDrag {
     public static Animated<Vec3> cursor = new Animated<>(
         Animated.VEC_3_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
-        TimingFunction.circle::mapProgress,
+        TimingFunction.sine::mapProgress,
         null
     );
     
@@ -72,6 +79,20 @@ public class ClientPortalWandPortalDrag {
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         null
+    );
+    
+    public static Animated<RenderedPlane> renderedPlane = new Animated<>(
+        Animated.RENDERED_PLANE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        RenderedPlane.NONE
+    );
+    
+    public static Animated<RenderedSphere> renderedSphere = new Animated<>(
+        Animated.RENDERED_SPHERE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        RenderedSphere.NONE
     );
     
     // not null means dragging
@@ -90,20 +111,19 @@ public class ClientPortalWandPortalDrag {
         Plane limitingPlane,
         @Nullable
         Sphere limitingSphere,
-        EnumSet<PortalCorner> lockedCorners,
-        PortalCorner draggingCorner,
+        PortalWandInteraction.DraggingInfo draggingInfo,
         @Nullable
-        Component planeText
+        Component planeText,
+        PortalState originalPortalState
     ) {
         
     }
     
-    public static Animated<RenderedPlane> renderedPlane = new Animated<>(
-        Animated.RENDERED_PLANE_TYPE_INFO,
-        () -> RenderStates.renderStartNanoTime,
-        TimingFunction.sine::mapProgress,
-        RenderedPlane.NONE
-    );
+    public static void init() {
+        ClientPortalAnimationManagement.clientAnimationUpdateSignal.connect(
+            ClientPortalWandPortalDrag::updateDraggedPortalAnimation
+        );
+    }
     
     public static void reset() {
         selectedPortalId = null;
@@ -112,6 +132,7 @@ public class ClientPortalWandPortalDrag {
         cursor.clearTarget();
         renderedPlane.clearTarget();
         renderedRect.clearTarget();
+        renderedSphere.clearTarget();
         draggingContext = null;
         isUndoing = false;
     }
@@ -180,6 +201,10 @@ public class ClientPortalWandPortalDrag {
         if (!minecraft.options.keyUse.isDown()) {
             isUndoing = false;
         }
+    
+        if (isUndoing) {
+            return;
+        }
         
         if (draggingContext != null) {
             handleDragging(player, draggingContext);
@@ -207,6 +232,7 @@ public class ClientPortalWandPortalDrag {
             selectedCorner = null;
             cursor.clearTarget();
             renderedPlane.clearTarget();
+            renderedSphere.clearTarget();
             ImmPtlCustomOverlay.putText(
                 Component.translatable("imm_ptl.wand.select_portal"),
                 0.2
@@ -286,7 +312,7 @@ public class ClientPortalWandPortalDrag {
             stopDragging();
             return;
         }
-    
+        
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.options.keyUse.isDown()) {
             stopDragging();
@@ -318,22 +344,34 @@ public class ClientPortalWandPortalDrag {
                 cursorPos = sphere.projectToSphere(cursorPos);
             }
         }
-    
+        
         MutableComponent undoPrompt = Component.literal("\n").append(Component.translatable(
             "imm_ptl.wand.left_click_to_undo",
             minecraft.options.keyAttack.getTranslatedKeyMessage()
         ));
         
+        MutableComponent cursorPosText =
+            cursorPos == null ? Component.literal("") :
+                Component.literal("\n").append(Component.translatable(
+                    "imm_ptl.wand.cursor_pos",
+                    "%.3f".formatted(cursorPos.x),
+                    "%.3f".formatted(cursorPos.y),
+                    "%.3f".formatted(cursorPos.z)
+                ));
+        
         if (draggingContext.planeText() != null) {
             ImmPtlCustomOverlay.putText(
                 Component.translatable("imm_ptl.wand.dragging_on_plane", draggingContext.planeText())
-                    .append(undoPrompt),
+                    .append(undoPrompt)
+                    .append(cursorPosText),
                 0.2
             );
         }
         else {
             ImmPtlCustomOverlay.putText(
-                Component.translatable("imm_ptl.wand.dragging").append(undoPrompt),
+                Component.translatable("imm_ptl.wand.dragging")
+                    .append(undoPrompt)
+                    .append(cursorPosText),
                 0.2
             );
         }
@@ -344,7 +382,7 @@ public class ClientPortalWandPortalDrag {
                 return;
             }
             
-            cursor.setTarget(cursorPos, Helper.secondToNano(0.5));
+            cursor.setTarget(cursorPos, Helper.secondToNano(0.2));
             onDrag(cursorPos, draggingContext);
         }
     }
@@ -398,6 +436,11 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
+        PortalWandInteraction.DraggingInfo draggingInfo = new PortalWandInteraction.DraggingInfo(
+            EnumSet.copyOf(lockedCorners),
+            selectedCorner
+        );
+        
         List<PortalCorner> lockedCornersList = lockedCorners.stream().toList();
         
         int lockCornerNum = lockedCornersList.size();
@@ -417,9 +460,9 @@ public class ClientPortalWandPortalDrag {
                 portal.getUUID(),
                 plane,
                 null,
-                EnumSet.copyOf(lockedCorners),
-                selectedCorner,
-                info.getSecond()
+                draggingInfo,
+                info.getSecond(),
+                portal.getPortalState()
             );
         }
         else if (lockCornerNum == 2) {
@@ -435,14 +478,30 @@ public class ClientPortalWandPortalDrag {
                 ), Helper.secondToNano(0.5));
             }
             
+            if (constraint.sphere() != null) {
+                Vec3 sphereXAxis = portal.getNormal();
+                Vec3 sphereYAxis = lockedCornersList.get(0).getPos(portal)
+                    .subtract(lockedCornersList.get(1).getPos(portal))
+                    .normalize();
+                
+                DQuaternion sphereOrientation = DQuaternion.matrixToQuaternion(
+                    sphereXAxis, sphereYAxis, sphereXAxis.cross(sphereYAxis)
+                );
+                
+                renderedSphere.setTarget(new RenderedSphere(
+                    new WithDim<>(currDim, constraint.sphere()),
+                    sphereOrientation, 1
+                ), Helper.secondToNano(2.0));
+            }
+            
             draggingContext = new DraggingContext(
                 currDim,
                 portal.getUUID(),
                 constraint.plane(),
                 constraint.sphere(),
-                EnumSet.copyOf(lockedCorners),
-                selectedCorner,
-                null
+                draggingInfo,
+                null,
+                portal.getPortalState()
             );
         }
         else {
@@ -455,6 +514,7 @@ public class ClientPortalWandPortalDrag {
         draggingContext = null;
         renderedPlane.clearTarget();
         renderedRect.clearTarget();
+        renderedSphere.clearTarget();
         
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.finishDragging"
@@ -482,10 +542,21 @@ public class ClientPortalWandPortalDrag {
             lockedCorners, selectedCorner
         );
         
-        McRemoteProcedureCall.tellServerToInvoke(
-            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
-            selectedPortalId, cursorPos, draggingInfo
+        UnilateralPortalState newThisSideState = PortalWandInteraction.applyDrag(
+            portal.getThisSideState(),
+            cursorPos,
+            draggingInfo
         );
+        
+        boolean isValid = PortalWandInteraction.validateDraggedPortalState(portal, newThisSideState);
+        
+        // only send request for valid draggings (the server side will also check)
+        if (isValid) {
+            McRemoteProcedureCall.tellServerToInvoke(
+                "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
+                selectedPortalId, cursorPos, draggingInfo
+            );
+        }
     }
     
     @Nullable
@@ -576,6 +647,7 @@ public class ClientPortalWandPortalDrag {
     private static final int colorOfRect2 = 0xfffca903;
     private static final int colorOfPlane = 0xffffffff;
     private static final int colorOfLock = 0xffffffff;
+    private static final int colorOfSphere = 0xffffffff;
     
     public static void render(
         PoseStack matrixStack,
@@ -606,14 +678,16 @@ public class ClientPortalWandPortalDrag {
             );
         }
         
+        Portal portal = null;
+        
         if (draggingContext != null) {
-            Portal portal = getPortalByUUID(draggingContext.portalId);
+            portal = getPortalByUUID(draggingContext.portalId);
             if (portal != null) {
                 RenderedRect rect = portalToRenderedRect(portal);
                 renderRectAndLock(
                     matrixStack, cameraPos, vertexConsumer,
                     rect,
-                    draggingContext.lockedCorners()
+                    draggingContext.draggingInfo().lockedCorners()
                 );
                 renderedRect.setTarget(rect, 0);
             }
@@ -644,6 +718,18 @@ public class ClientPortalWandPortalDrag {
             );
         }
         
+        RenderedSphere sphere = renderedSphere.getCurrent();
+        if (sphere != null &&
+            sphere.sphere() != null && sphere.sphere().dimension() == currDim
+        ) {
+            WireRenderingHelper.renderSphere(
+                debugLineStripConsumer, colorOfSphere,
+                matrixStack, cameraPos,
+                sphere.sphere().value(), sphere.orientation(),
+                sphere.scale(), CHelper.getSmoothCycles(400)
+            );
+        }
+        
     }
     
     @Nullable
@@ -651,7 +737,7 @@ public class ClientPortalWandPortalDrag {
         if (draggingContext != null) {
             Portal portal = getPortalByUUID(draggingContext.portalId);
             if (portal != null) {
-                return draggingContext.draggingCorner().getPos(portal);
+                return draggingContext.draggingInfo().selectedCorner().getPos(portal);
             }
             return null;
         }
@@ -661,7 +747,7 @@ public class ClientPortalWandPortalDrag {
     
     private static void renderRectAndLock(
         PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer,
-        RenderedRect rect, EnumSet<PortalCorner> lockedCorners
+        RenderedRect rect, Set<PortalCorner> lockedCorners
     ) {
         WireRenderingHelper.renderRectLine(
             vertexConsumer, cameraPos, rect,
@@ -694,5 +780,40 @@ public class ClientPortalWandPortalDrag {
                 (PortalCorner corner) ->
                     corner.getPos(portal).distanceTo(hitPos)
             )).orElseThrow();
+    }
+    
+    private static void updateDraggedPortalAnimation() {
+        if (draggingContext == null) {
+            return;
+        }
+        
+        LocalPlayer player = Minecraft.getInstance().player;
+        
+        if (player == null) {
+            return;
+        }
+        
+        Vec3 currentCursor = cursor.getCurrent();
+        
+        if (currentCursor == null) {
+            return;
+        }
+        
+        Portal selectedPortal = getSelectedPortal();
+        
+        if (selectedPortal == null) {
+            return;
+        }
+        
+        UnilateralPortalState newState = PortalWandInteraction.applyDrag(
+            UnilateralPortalState.extractThisSide(draggingContext.originalPortalState),
+            currentCursor,
+            draggingContext.draggingInfo
+        );
+        
+        if (PortalWandInteraction.validateDraggedPortalState(selectedPortal, newState)) {
+            selectedPortal.setThisSideState(newState);
+            selectedPortal.rectifyClusterPortals(false);
+        }
     }
 }

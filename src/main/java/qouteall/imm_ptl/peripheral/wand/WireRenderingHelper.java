@@ -527,10 +527,12 @@ public class WireRenderingHelper {
         
         Matrix4f matrix = matrixStack.last().pose();
         
-        int meridianCount = 50;
-        int parallelCount = 50;
+        int meridianCount = 30;
+        int parallelCount = 15;
         
         int vertexNum = Mth.clamp((int) Math.round(sphere.radius() * 40), 20, 400);
+        
+        int transparentColor = color & 0x00ffffff;
         
         // render meridians
         for (int i = 0; i < meridianCount; i++) {
@@ -540,18 +542,18 @@ public class WireRenderingHelper {
                 double latitudeRatio = (double) j / vertexNum;
                 latitudeRatio = Math.min(latitudeRatio, animationProgress);
                 
-                double latitude = latitudeRatio * Math.PI;
+                double latitude = latitudeRatio * Math.PI - 0.5 * Math.PI;
                 
-                double x = Math.cos(longitude) * Math.cos(latitude);
-                double y = Math.sin(longitude);
-                double z = Math.cos(longitude) * Math.sin(latitude);
+                double x = Math.cos(latitude) * Math.cos(longitude);
+                double y = Math.sin(latitude);
+                double z = Math.cos(latitude) * Math.sin(longitude);
                 
                 boolean isFirst = j == 0;
                 if (isFirst) {
                     // use transparent vertices to jump in line strip
                     vertexConsumer
                         .vertex(matrix, (float) (x), (float) (y), (float) (z))
-                        .color(0)
+                        .color(transparentColor)
                         .normal(0, 1, 0)
                         .endVertex();
                 }
@@ -567,33 +569,36 @@ public class WireRenderingHelper {
                     // use transparent vertices to jump in line strip
                     vertexConsumer
                         .vertex(matrix, (float) (x), (float) (y), (float) (z))
-                        .color(0)
+                        .color(transparentColor)
                         .normal(0, 1, 0)
                         .endVertex();
                 }
             }
         }
         
-        // render parallels
+        // render parallels (also rotating)
         for (int i = 0; i < parallelCount; i++) {
-            double latitude = (double) i / parallelCount * Math.PI;
+            double latitudeRatio = ((double) i / parallelCount) + rotationProgress;
+            latitudeRatio = latitudeRatio - Math.floor(latitudeRatio);
+            
+            double latitude = latitudeRatio * Math.PI - 0.5 * Math.PI;
             
             for (int j = 0; j <= vertexNum; j++) {
                 double longitudeRatio = (double) j / vertexNum;
                 longitudeRatio = Math.min(longitudeRatio, animationProgress);
                 
-                double longitude = (longitudeRatio + rotationProgress) * Math.PI * 2;
+                double longitude = (longitudeRatio) * Math.PI * 2;
                 
-                double x = Math.cos(longitude) * Math.cos(latitude);
-                double y = Math.sin(longitude);
-                double z = Math.cos(longitude) * Math.sin(latitude);
+                double x = Math.cos(latitude) * Math.cos(longitude);
+                double y = Math.sin(latitude);
+                double z = Math.cos(latitude) * Math.sin(longitude);
                 
                 boolean isFirst = j == 0;
                 if (isFirst) {
                     // use transparent vertices to jump in line strip
                     vertexConsumer
                         .vertex(matrix, (float) (x), (float) (y), (float) (z))
-                        .color(0)
+                        .color(transparentColor)
                         .normal(0, 1, 0)
                         .endVertex();
                 }
@@ -604,12 +609,12 @@ public class WireRenderingHelper {
                     .normal(0, 1, 0)
                     .endVertex();
                 
-                boolean isLast = j == vertexNum - 1;
+                boolean isLast = j == vertexNum;
                 if (isLast) {
                     // use transparent vertices to jump in line strip
                     vertexConsumer
                         .vertex(matrix, (float) (x), (float) (y), (float) (z))
-                        .color(0)
+                        .color(transparentColor)
                         .normal(0, 1, 0)
                         .endVertex();
                 }

@@ -8,6 +8,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Signal;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ import java.util.function.Consumer;
 public class ClientPortalAnimationManagement {
     private static final Map<Portal, RunningDefaultAnimation> defaultAnimatedPortals = new HashMap<>();
     private static final HashSet<Portal> customAnimatedPortals = new HashSet<>();
+    
+    public static final Signal clientAnimationUpdateSignal = new Signal();
     
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(ClientPortalAnimationManagement::cleanup);
@@ -109,6 +112,8 @@ public class ClientPortalAnimationManagement {
         });
         
         updateCustomAnimations(false);
+    
+        clientAnimationUpdateSignal.emit();
     }
     
     private static void updateCustomAnimations(boolean isTicking) {

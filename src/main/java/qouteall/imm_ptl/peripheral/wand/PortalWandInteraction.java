@@ -61,7 +61,18 @@ public class PortalWandInteraction {
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
             draggingSessionMap.entrySet().removeIf(
-                e -> e.getKey().isRemoved()
+                e -> {
+                    ServerPlayer player = e.getKey();
+                    if (player.isRemoved()) {
+                        return true;
+                    }
+                    
+                    if (player.getMainHandItem().getItem() != PortalWandItem.instance) {
+                        return true;
+                    }
+                    
+                    return false;
+                }
             );
         });
         
@@ -323,7 +334,7 @@ public class PortalWandInteraction {
             UnilateralPortalState newThisSideState = applyDrag(
                 originalThisSideState, cursorPos, draggingInfo
             );
-            if (validateNewPortalState(portal, newThisSideState)) {
+            if (validateDraggedPortalState(portal, newThisSideState)) {
                 portal.setThisSideState(newThisSideState);
                 portal.reloadAndSyncToClient();
                 portal.rectifyClusterPortals(true);
@@ -371,7 +382,7 @@ public class PortalWandInteraction {
         return true;
     }
     
-    private static boolean validateNewPortalState(
+    public static boolean validateDraggedPortalState(
         Portal portal, UnilateralPortalState newThisSideState
     ) {
         if (newThisSideState == null) {
@@ -420,5 +431,9 @@ public class PortalWandInteraction {
         if (!player.getInventory().contains(stack)) {
             player.getInventory().add(stack);
         }
+    }
+    
+    public static boolean isDragging(ServerPlayer player) {
+        return draggingSessionMap.containsKey(player);
     }
 }

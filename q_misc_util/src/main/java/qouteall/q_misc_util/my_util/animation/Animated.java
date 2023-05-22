@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.WithDim;
 
 public class Animated<T> {
@@ -224,6 +225,77 @@ public class Animated<T> {
         @Override
         public RenderedPlane getEmpty() {
             return RenderedPlane.NONE;
+        }
+    };
+    
+    public static final TypeInfo<RenderedSphere> RENDERED_SPHERE_TYPE_INFO = new TypeInfo<RenderedSphere>() {
+        @Override
+        public RenderedSphere interpolate(RenderedSphere start, RenderedSphere end, double progress) {
+            Validate.notNull(start);
+            Validate.notNull(end);
+            
+            if (start.sphere() == null && end.sphere() == null) {
+                return start;
+            }
+            
+            double destScale = start.scale() + (end.scale() - start.scale()) * progress;
+            
+            if (destScale < 0.01) {
+                return RenderedSphere.NONE;
+            }
+            
+            if (start.sphere() == null) {
+                return new RenderedSphere(
+                    end.sphere(),
+                    end.orientation(),
+                    destScale
+                );
+            }
+            
+            if (end.sphere() == null) {
+                return new RenderedSphere(
+                    start.sphere(),
+                    start.orientation(),
+                    destScale
+                );
+            }
+            
+            if (start.sphere().dimension() != end.sphere().dimension()) {
+                return end;
+            }
+            
+            return new RenderedSphere(
+                new WithDim<>(
+                    start.sphere().dimension(),
+                    Sphere.interpolate(start.sphere().value(), end.sphere().value(), progress)
+                ),
+                DQuaternion.interpolate(start.orientation(), end.orientation(), progress),
+                destScale
+            );
+        }
+        
+        @Override
+        public boolean isClose(RenderedSphere a, RenderedSphere b) {
+            if (a.sphere() == null && b.sphere() == null) {
+                return true;
+            }
+            
+            if (a.sphere() == null || b.sphere() == null) {
+                return false;
+            }
+            
+            if (a.sphere().dimension() != b.sphere().dimension()) {
+                return false;
+            }
+            
+            return a.sphere().value().center().distanceToSqr(b.sphere().value().center()) < 0.01
+                && Math.abs(a.sphere().value().radius() - b.sphere().value().radius()) < 0.01
+                && Math.abs(a.scale() - b.scale()) < 0.01;
+        }
+    
+        @Override
+        public RenderedSphere getEmpty() {
+            return RenderedSphere.NONE;
         }
     };
     

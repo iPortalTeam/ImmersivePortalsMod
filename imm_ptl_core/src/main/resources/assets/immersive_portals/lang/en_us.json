@@ -220,6 +220,7 @@
   "imm_ptl.wand.lock_cleared": "The portal corner lock(s) have been cleared because pointing to another portal.",
   "imm_ptl.wand.dragging": "Dragging",
   "imm_ptl.wand.dragging_on_plane": "Dragging on %s",
+  "imm_ptl.wand.cursor_pos": "Cursor: (%s, %s, %s)",
 
   "imm_ptl.show_portal_wand_instruction": "Click this to show how to use portal wand",
   "imm_ptl.wand.use_instruction_1": "Portal wand is a convenient tool for creating rectangle portals. By holding the portal wand pointing to a block the cursor appears. The cursor aligns to half-block points. Right-click to place the portal anchors.",

@@ -225,7 +225,7 @@ public class ClientPortalWandPortalCreation {
     }
     
     /**
-     * {@link PortalWandInteraction.RemoteCallables#finishPortal(ServerPlayer, ProtoPortal)}
+     * {@link PortalWandInteraction.RemoteCallables#finish(ServerPlayer, ProtoPortal)}
      */
     public static void finish() {
         LocalPlayer player = Minecraft.getInstance().player;

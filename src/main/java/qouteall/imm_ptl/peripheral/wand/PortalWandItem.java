@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -144,9 +145,11 @@ public class PortalWandItem extends Item {
         
         if (player.isShiftKeyDown()) {
             if (!world.isClientSide()) {
-                Mode nextMode = mode.next();
-                itemStack.setTag(nextMode.toTag());
-                return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
+                if (!PortalWandInteraction.isDragging(((ServerPlayer) player))) {
+                    Mode nextMode = mode.next();
+                    itemStack.setTag(nextMode.toTag());
+                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
+                }
             }
         }
         

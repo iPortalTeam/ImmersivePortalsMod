@@ -24,6 +24,7 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.mixin.common.end_portal.IEEndDragonFight;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
+import qouteall.imm_ptl.peripheral.wand.ClientPortalWandPortalDrag;
 import qouteall.imm_ptl.peripheral.wand.PortalDraggingAnimation;
 import qouteall.imm_ptl.peripheral.wand.PortalWandInteraction;
 import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
@@ -43,6 +44,8 @@ public class PeripheralModMain {
         IPOuterClientMisc.initClient();
         
         PortalWandItem.initClient();
+    
+        ClientPortalWandPortalDrag.init();
     }
     
     public static void init() {

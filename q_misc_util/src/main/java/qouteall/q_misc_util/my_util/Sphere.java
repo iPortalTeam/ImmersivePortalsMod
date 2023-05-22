@@ -1,5 +1,6 @@
 package qouteall.q_misc_util.my_util;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,4 +75,10 @@ public record Sphere(Vec3 center, double radius) {
         }
     }
     
+    public static Sphere interpolate(Sphere a, Sphere b, double progress) {
+        return new Sphere(
+            a.center().lerp(b.center(), progress),
+            Mth.lerp(progress, a.radius(), b.radius())
+        );
+    }
 }
