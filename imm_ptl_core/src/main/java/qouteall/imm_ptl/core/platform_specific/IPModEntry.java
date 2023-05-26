@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import qouteall.imm_ptl.core.IPModMain;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
+import qouteall.imm_ptl.core.compat.IPVanishCompat;
 import qouteall.q_misc_util.Helper;
 
 public class IPModEntry implements ModInitializer {
@@ -17,6 +18,7 @@ public class IPModEntry implements ModInitializer {
     public void onInitialize() {
         IPModMain.init();
         RequiemCompat.init();
+        IPVanishCompat.init();
         
         IPRegistry.registerEntitiesFabric();
         

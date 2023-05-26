@@ -146,6 +146,7 @@ allprojects {
         modImplementation "maven.modrinth:starlight:1.1.1+1.19"
 
         modCompileOnly 'maven.modrinth:iris:1.6.3+1.19.4'
+        modCompileOnly 'maven.modrinth:vanish:1.4.0+1.19.4'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
 //        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris

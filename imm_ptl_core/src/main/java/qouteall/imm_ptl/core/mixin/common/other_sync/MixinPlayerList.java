@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.compat.IPVanishCompat;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
@@ -38,7 +39,7 @@ public class MixinPlayerList {
     @Shadow
     @Final
     private MinecraftServer server;
-    
+
     @Inject(method = "Lnet/minecraft/server/players/PlayerList;sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayer player, ServerLevel world, CallbackInfo ci) {
         if (!IPGlobal.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
@@ -106,7 +107,7 @@ public class MixinPlayerList {
             dimension, chunkPos.x, chunkPos.z
         ).filter(playerEntity -> NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
             playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
-        )).forEach(playerEntity -> {
+        ) && IPVanishCompat.canSeePlayer(excludingPlayer, playerEntity)).forEach(playerEntity -> {
             if (playerEntity != excludingPlayer) {
                 PacketRedirection.sendRedirectedMessage(
                     playerEntity, dimension, packet
