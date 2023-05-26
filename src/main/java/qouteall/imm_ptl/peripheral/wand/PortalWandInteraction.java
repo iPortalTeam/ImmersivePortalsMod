@@ -4,8 +4,10 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -53,6 +55,18 @@ public class PortalWandInteraction {
             this.originalState = originalState;
             this.lastDraggingInfo = lastDraggingInfo;
             this.lastCursorPos = lastCursorPos;
+        }
+        
+        @Nullable
+        public Portal getPortal() {
+            Entity entity = McHelper.getServerWorld(dimension).getEntity(portalId);
+            
+            if (entity instanceof Portal) {
+                return (Portal) entity;
+            }
+            else {
+                return null;
+            }
         }
     }
     
@@ -306,7 +320,7 @@ public class PortalWandInteraction {
         ) {
             if (!checkPermission(player)) return;
             
-            Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(portalId);
+            Entity entity = ((ServerLevel) player.level).getEntity(portalId);
             
             if (!(entity instanceof Portal portal)) {
                 LOGGER.error("Cannot find portal {}", portalId);
@@ -334,7 +348,7 @@ public class PortalWandInteraction {
             UnilateralPortalState newThisSideState = applyDrag(
                 originalThisSideState, cursorPos, draggingInfo
             );
-            if (validateDraggedPortalState(portal, newThisSideState)) {
+            if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
                 portal.setThisSideState(newThisSideState);
                 portal.reloadAndSyncToClient();
                 portal.rectifyClusterPortals(true);
@@ -354,9 +368,9 @@ public class PortalWandInteraction {
                 return;
             }
             
-            Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(session.portalId);
+            Portal portal = session.getPortal();
             
-            if (!(entity instanceof Portal portal)) {
+            if (portal == null) {
                 LOGGER.error("Cannot find portal {}", session.portalId);
                 return;
             }
@@ -369,7 +383,12 @@ public class PortalWandInteraction {
         }
         
         public static void finishDragging(ServerPlayer player) {
-            draggingSessionMap.remove(player);
+            DraggingSession session = draggingSessionMap.remove(player);
+            Portal portal = session.getPortal();
+            
+            if (portal != null) {
+                portal.reloadAndSyncToClient();
+            }
         }
     }
     
@@ -383,7 +402,8 @@ public class PortalWandInteraction {
     }
     
     public static boolean validateDraggedPortalState(
-        Portal portal, UnilateralPortalState newThisSideState
+        PortalState originalState, UnilateralPortalState newThisSideState,
+        Player player
     ) {
         if (newThisSideState == null) {
             return false;
@@ -394,18 +414,22 @@ public class PortalWandInteraction {
         if (newThisSideState.height() > 64.1) {
             return false;
         }
-        if (newThisSideState.width() < 0.1) {
+        if (newThisSideState.width() < 0.05) {
             return false;
         }
-        if (newThisSideState.height() < 0.1) {
-            return false;
-        }
-        
-        if (portal.getOriginDim() != newThisSideState.dimension()) {
+        if (newThisSideState.height() < 0.05) {
             return false;
         }
         
-        if (portal.getOriginPos().distanceTo(newThisSideState.position()) > 32) {
+        if (originalState.fromWorld != newThisSideState.dimension()) {
+            return false;
+        }
+        
+        if (originalState.fromPos.distanceTo(newThisSideState.position()) > 128) {
+            return false;
+        }
+    
+        if (newThisSideState.position().distanceTo(player.position()) > 64) {
             return false;
         }
         

@@ -201,7 +201,7 @@ public class ClientPortalWandPortalDrag {
         if (!minecraft.options.keyUse.isDown()) {
             isUndoing = false;
         }
-    
+        
         if (isUndoing) {
             return;
         }
@@ -222,7 +222,7 @@ public class ClientPortalWandPortalDrag {
         Pair<Portal, Vec3> rayTraceResult = PortalUtils.lenientRayTracePortals(
             player.level,
             eyePos,
-            eyePos.add(viewVec.scale(20)),
+            eyePos.add(viewVec.scale(64)),
             false,
             Portal::isVisible,
             1.0
@@ -282,11 +282,25 @@ public class ClientPortalWandPortalDrag {
             portalToRenderedRect(portal),
             Helper.secondToNano(1.0)
         );
+        
+        Component planeText;
+        if (lockedCorners.size() == 0 || lockedCorners.size() == 1) {
+            Pair<Plane, MutableComponent> planeInfo = getPlayerFacingPlaneAligned(
+                player, cursorPos, portal
+            );
+            
+            planeText = Component.translatable("imm_ptl.wand.on_plane", planeInfo.getSecond());
+        }
+        else {
+            planeText = Component.literal("");
+        }
+        
         ImmPtlCustomOverlay.putText(
             Component.translatable(
                 "imm_ptl.wand.pre_drag",
                 minecraft.options.keyAttack.getTranslatedKeyMessage(),
-                minecraft.options.keyUse.getTranslatedKeyMessage()
+                minecraft.options.keyUse.getTranslatedKeyMessage(),
+                planeText
             ),
             0.2
         );
@@ -345,13 +359,35 @@ public class ClientPortalWandPortalDrag {
             }
         }
         
+        if (cursorPos != null) {
+            Vec3 originalCursorTarget = cursor.getTarget();
+            
+            if (originalCursorTarget == null) {
+                return;
+            }
+            
+            if (originalCursorTarget.distanceTo(cursorPos) > 0.000001) {
+                cursor.setTarget(cursorPos, Helper.secondToNano(0.2));
+                onDrag(cursorPos, draggingContext);
+            }
+        }
+        
+        // update text
+        
+        MutableComponent draggingText = Component.translatable("imm_ptl.wand.dragging");
+        
+        Component planeText = draggingContext.planeText() == null ?
+            Component.literal("") :
+            Component.translatable("imm_ptl.wand.on_plane", draggingContext.planeText());
+        
         MutableComponent undoPrompt = Component.literal("\n").append(Component.translatable(
             "imm_ptl.wand.left_click_to_undo",
             minecraft.options.keyAttack.getTranslatedKeyMessage()
         ));
         
         MutableComponent cursorPosText =
-            cursorPos == null ? Component.literal("") :
+            cursorPos == null ?
+                Component.literal("") :
                 Component.literal("\n").append(Component.translatable(
                     "imm_ptl.wand.cursor_pos",
                     "%.3f".formatted(cursorPos.x),
@@ -359,32 +395,32 @@ public class ClientPortalWandPortalDrag {
                     "%.3f".formatted(cursorPos.z)
                 ));
         
-        if (draggingContext.planeText() != null) {
-            ImmPtlCustomOverlay.putText(
-                Component.translatable("imm_ptl.wand.dragging_on_plane", draggingContext.planeText())
-                    .append(undoPrompt)
-                    .append(cursorPosText),
-                0.2
+        Portal portal = getPortalByUUID(draggingContext.portalId());
+        
+        boolean draggingChangesPortalSize = draggingContext.draggingInfo.lockedCorners().size() != 0;
+        
+        UnilateralPortalState animationEndingState = getAnimationEndingState();
+        
+        Component portalSizeText;
+        if (portal != null && draggingChangesPortalSize && animationEndingState != null) {
+            portalSizeText = Component.literal(" ").append(
+                Component.translatable("imm_ptl.wand.portal_size",
+                    "%.3f".formatted(animationEndingState.width()),
+                    "%.3f".formatted(animationEndingState.height())
+                )
             );
         }
         else {
-            ImmPtlCustomOverlay.putText(
-                Component.translatable("imm_ptl.wand.dragging")
-                    .append(undoPrompt)
-                    .append(cursorPosText),
-                0.2
-            );
+            portalSizeText = Component.literal("");
         }
         
-        if (cursorPos != null) {
-            Vec3 originalCursorTarget = cursor.getTarget();
-            if (originalCursorTarget != null && originalCursorTarget.distanceTo(cursorPos) < 0.001) {
-                return;
-            }
-            
-            cursor.setTarget(cursorPos, Helper.secondToNano(0.2));
-            onDrag(cursorPos, draggingContext);
-        }
+        ImmPtlCustomOverlay.putText(
+            draggingText
+                .append(planeText)
+                .append(undoPrompt)
+                .append(cursorPosText).append(portalSizeText),
+            0.2
+        );
     }
     
     private static Vec3 align(Vec3 pos, int alignment) {
@@ -525,11 +561,22 @@ public class ClientPortalWandPortalDrag {
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.undoDrag"
         );
-        reset();
+        
+        renderedPlane.clearTarget();
+        renderedRect.clearTarget();
+        renderedSphere.clearTarget();
+        draggingContext = null;
+        
         isUndoing = true;
     }
     
     private static void onDrag(Vec3 cursorPos, DraggingContext draggingContext) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        
+        if (player == null) {
+            return;
+        }
+    
         Portal portal = getPortalByUUID(draggingContext.portalId());
         
         if (portal == null) {
@@ -548,7 +595,9 @@ public class ClientPortalWandPortalDrag {
             draggingInfo
         );
         
-        boolean isValid = PortalWandInteraction.validateDraggedPortalState(portal, newThisSideState);
+        boolean isValid = PortalWandInteraction.validateDraggedPortalState(
+            draggingContext.originalPortalState(), newThisSideState, player
+        );
         
         // only send request for valid draggings (the server side will also check)
         if (isValid) {
@@ -810,10 +859,37 @@ public class ClientPortalWandPortalDrag {
             currentCursor,
             draggingContext.draggingInfo
         );
-        
-        if (PortalWandInteraction.validateDraggedPortalState(selectedPortal, newState)) {
+    
+        if (PortalWandInteraction.validateDraggedPortalState(
+            draggingContext.originalPortalState(), newState, player
+        )) {
             selectedPortal.setThisSideState(newState);
             selectedPortal.rectifyClusterPortals(false);
         }
+    }
+    
+    @Nullable
+    private static UnilateralPortalState getAnimationEndingState() {
+        if (draggingContext == null) {
+            return null;
+        }
+        
+        Portal portal = getPortalByUUID(draggingContext.portalId());
+        
+        if (portal == null) {
+            return null;
+        }
+        
+        Vec3 cursorTarget = cursor.getTarget();
+        
+        if (cursorTarget == null) {
+            return null;
+        }
+        
+        return PortalWandInteraction.applyDrag(
+            UnilateralPortalState.extractThisSide(draggingContext.originalPortalState),
+            cursorTarget,
+            draggingContext.draggingInfo()
+        );
     }
 }
