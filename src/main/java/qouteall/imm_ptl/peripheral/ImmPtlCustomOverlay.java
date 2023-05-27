@@ -58,15 +58,17 @@ public class ImmPtlCustomOverlay {
         
         poseStack.pushPose();
         
-        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-        int screenHeight = minecraft.getWindow().getGuiScaledHeight();
-        
-        poseStack.translate(0, screenHeight * 0.3, 0);
+        int guiScaledWidth = minecraft.getWindow().getGuiScaledWidth();
+        int guiScaledHeight = minecraft.getWindow().getGuiScaledHeight();
         
         Font font = minecraft.gui.getFont();
         
         minecraft.getProfiler().push("imm_ptl_custom_overlay");
-        multiLineLabel.renderCentered(poseStack, screenWidth / 2, 90);
+        // Note: the parchment names are incorrect
+        multiLineLabel.renderCentered(
+            poseStack,
+            guiScaledWidth / 2, (int) (guiScaledHeight * 0.75)
+        );
         poseStack.popPose();
         
         minecraft.getProfiler().pop();
