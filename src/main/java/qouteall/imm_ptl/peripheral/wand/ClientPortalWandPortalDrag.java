@@ -601,7 +601,7 @@ public class ClientPortalWandPortalDrag {
         );
         
         UnilateralPortalState newThisSideState = PortalWandInteraction.applyDrag(
-            portal.getThisSideState(),
+            draggingContext.originalPortalState().getThisSideState(),
             cursorPos,
             draggingInfo
         );
@@ -866,7 +866,7 @@ public class ClientPortalWandPortalDrag {
         }
         
         UnilateralPortalState newState = PortalWandInteraction.applyDrag(
-            UnilateralPortalState.extractThisSide(draggingContext.originalPortalState),
+            draggingContext.originalPortalState().getThisSideState(),
             currentCursor,
             draggingContext.draggingInfo
         );
@@ -898,7 +898,7 @@ public class ClientPortalWandPortalDrag {
         }
         
         return PortalWandInteraction.applyDrag(
-            UnilateralPortalState.extractThisSide(draggingContext.originalPortalState),
+            draggingContext.originalPortalState().getThisSideState(),
             cursorTarget,
             draggingContext.draggingInfo()
         );

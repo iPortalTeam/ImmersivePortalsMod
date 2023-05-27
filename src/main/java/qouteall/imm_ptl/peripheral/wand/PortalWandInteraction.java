@@ -101,7 +101,7 @@ public class PortalWandInteraction {
     
     @Nullable
     public static UnilateralPortalState applyDrag(
-        UnilateralPortalState thisSideState, Vec3 cursorPos, DraggingInfo info
+        UnilateralPortalState originalThisSideState, Vec3 cursorPos, DraggingInfo info
     ) {
         PortalCorner selectedCorner = info.selectedCorner;
         if (info.lockedCorners.contains(selectedCorner)) {
@@ -115,21 +115,21 @@ public class PortalWandInteraction {
         
         if (lockedCornerNum == 0) {
             return PortalCorner.performDragWithNoLockedCorner(
-                thisSideState, selectedCorner, cursorPos
+                originalThisSideState, selectedCorner, cursorPos
             );
         }
         else if (lockedCornerNum == 1) {
             return PortalCorner.performDragWith1LockedCorner(
-                thisSideState,
-                lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
+                originalThisSideState,
+                lockedCorners.get(0), lockedCorners.get(0).getPos(originalThisSideState),
                 selectedCorner, cursorPos
             );
         }
         else if (lockedCornerNum == 2) {
             return PortalCorner.performDragWith2LockedCorners(
-                thisSideState,
-                lockedCorners.get(0), lockedCorners.get(0).getPos(thisSideState),
-                lockedCorners.get(1), lockedCorners.get(1).getPos(thisSideState),
+                originalThisSideState,
+                lockedCorners.get(0), lockedCorners.get(0).getPos(originalThisSideState),
+                lockedCorners.get(1), lockedCorners.get(1).getPos(originalThisSideState),
                 selectedCorner, cursorPos
             );
         }
@@ -344,9 +344,8 @@ public class PortalWandInteraction {
 //                LOGGER.info("Portal dragging session created");
             }
             
-            UnilateralPortalState originalThisSideState = portal.getThisSideState();
             UnilateralPortalState newThisSideState = applyDrag(
-                originalThisSideState, cursorPos, draggingInfo
+                session.originalState.getThisSideState(), cursorPos, draggingInfo
             );
             if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
                 portal.setThisSideState(newThisSideState);
