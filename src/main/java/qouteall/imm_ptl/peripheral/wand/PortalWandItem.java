@@ -251,12 +251,12 @@ public class PortalWandItem extends Item {
     ) {
         if (!instructionInformed) {
             instructionInformed = true;
-            player.sendSystemMessage(
-                IPMcHelper.getTextWithCommand(
-                    Component.translatable("imm_ptl.show_portal_wand_instruction"),
-                    "/imm_ptl_client_debug wand show_instruction"
-                )
-            );
+//            player.sendSystemMessage(
+//                IPMcHelper.getTextWithCommand(
+//                    Component.translatable("imm_ptl.show_portal_wand_instruction"),
+//                    "/imm_ptl_client_debug wand show_instruction"
+//                )
+//            );
         }
         
         CompoundTag tag = itemStack.getOrCreateTag();

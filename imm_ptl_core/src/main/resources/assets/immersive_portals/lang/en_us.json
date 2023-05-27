@@ -218,15 +218,10 @@
   "imm_ptl.wand.select_portal": "Select a portal to drag",
   "imm_ptl.wand.pre_drag": "Use %s to lock/unlock portal corner\nUse %s to drag portal corner %s",
   "imm_ptl.wand.lock_cleared": "The portal corner lock(s) have been cleared because pointing to another portal.",
-  "imm_ptl.wand.dragging": "Dragging",
+  "imm_ptl.wand.dragging": "Dragging ",
   "imm_ptl.wand.on_plane": "(on %s)",
   "imm_ptl.wand.cursor_pos": "Cursor: (%s, %s, %s)",
   "imm_ptl.wand.portal_size": "Width: %s, Height: %s",
-
-  "imm_ptl.show_portal_wand_instruction": "Click this to show how to use portal wand",
-  "imm_ptl.wand.use_instruction_1": "Portal wand is a convenient tool for creating rectangle portals. By holding the portal wand pointing to a block the cursor appears. The cursor aligns to half-block points. Right-click to place the portal anchors.",
-  "imm_ptl.wand.use_instruction_2": "By respectively placing the left-bottom point, the right-bottom point, and the left-top point of the portal, the left-bottom, right-bottom, left-top points of the second side, a bi-way bi-faced portal will be created.",
-  "imm_ptl.wand.use_instruction_4": "Left-click to undo.",
 
   "imm_ptl.wand.plane.x": "YZ Plane",
   "imm_ptl.wand.plane.y": "XZ Plane",

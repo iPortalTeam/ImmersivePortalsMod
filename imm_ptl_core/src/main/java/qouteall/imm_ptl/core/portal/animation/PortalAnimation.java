@@ -274,7 +274,7 @@ public class PortalAnimation {
         }
         else {
             // handled on client
-            if (hasAnimationDriver()) {
+            if (hasAnimationDriver() && !isPaused()) {
                 markRequiresClientAnimationUpdate(portal);
             }
         }
@@ -322,6 +322,10 @@ public class PortalAnimation {
         if (!hasAnimationDriver()) {
             return;
         }
+    
+        if (isPaused()) {
+            return;
+        }
         
         PortalState portalState = portal.getPortalState();
         if (portalState == null) {
@@ -331,10 +335,6 @@ public class PortalAnimation {
         initializeReferenceStates(portalState);
         assert thisSideReferenceState != null;
         assert otherSideReferenceState != null;
-
-//        if (isPaused()) {
-//            return;
-//        }
         
         long effectiveGameTime = animation.getEffectiveTime(gameTime);
         float effectivePartialTicks = animation.isPaused() ? 0 : partialTicks;

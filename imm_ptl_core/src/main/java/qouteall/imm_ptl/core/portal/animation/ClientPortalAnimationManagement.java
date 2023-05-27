@@ -67,7 +67,7 @@ public class ClientPortalAnimationManagement {
     public static void debugCheck() {
         // debug
         for (Portal portal : customAnimatedPortals) {
-            PortalExtension.forClusterPortals(portal,p->{
+            PortalExtension.forClusterPortals(portal, p -> {
                 PortalState thisTickAnimatedState = p.animation.thisTickAnimatedState;
                 PortalState lastTickAnimatedState = p.animation.lastTickAnimatedState;
                 if (thisTickAnimatedState == null || lastTickAnimatedState == null) {
@@ -146,7 +146,7 @@ public class ClientPortalAnimationManagement {
                 // to make the animation stop smoothly, don't remove the animation during ticking
             );
             
-            // remove the entry if animation finishes or is paused
+            // remove the entry if animation finishes
             return !portal.animation.hasAnimationDriver();
         });
     }

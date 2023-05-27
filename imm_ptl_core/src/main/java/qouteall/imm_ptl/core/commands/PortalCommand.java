@@ -2078,7 +2078,10 @@ public class PortalCommand {
     }
     
     public static void sendPortalInfo(CommandContext<CommandSourceStack> context, Portal portal) {
-        sendPortalInfo(c -> sendMessage(context, c), portal);
+        sendPortalInfo(c -> {
+            sendMessage(context, c);
+            Helper.log(c.getString());
+        }, portal);
     }
     
     public static void sendPortalInfo(Consumer<Component> func, Portal portal) {
