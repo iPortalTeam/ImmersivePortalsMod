@@ -1,8 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common.other_sync;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,10 +28,11 @@ import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Mixin(PlayerList.class)
+@Mixin(value = PlayerList.class, priority = 800)
 public class MixinPlayerList {
     @Shadow
     @Final
@@ -102,16 +105,26 @@ public class MixinPlayerList {
     ) {
         ChunkPos chunkPos = new ChunkPos(BlockPos.containing(new Vec3(x, y, z)));
         
-        NewChunkTrackingGraph.getPlayersViewingChunk(
+        ArrayList<NewChunkTrackingGraph.PlayerWatchRecord> recs = NewChunkTrackingGraph.getPlayerWatchListRecord(
             dimension, chunkPos.x, chunkPos.z
-        ).filter(playerEntity -> NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
-            playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
-        )).forEach(playerEntity -> {
-            if (playerEntity != excludingPlayer) {
-                PacketRedirection.sendRedirectedMessage(
-                    playerEntity, dimension, packet
-                );
+        );
+        
+        if (recs == null) {
+            return;
+        }
+        
+        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs) {
+            if (rec.isLoadedToPlayer && rec.player != excludingPlayer) {
+                if (NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
+                    rec.player, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
+                )) {
+                    rec.player.connection.send(
+                        PacketRedirection.createRedirectedMessage(
+                            dimension, (Packet<ClientGamePacketListener>) packet
+                        )
+                    );
+                }
             }
-        });
+        }
     }
 }

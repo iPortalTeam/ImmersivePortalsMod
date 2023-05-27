@@ -44,6 +44,7 @@
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayer_Pose",
     "common.other_sync.MixinPlayerList",
+    "common.other_sync.MixinPlayerList_Test",
     "common.portal_generation.MixinItemEntity_P",
     "common.portal_generation.MixinItemStack",
     "common.portal_generation.MixinMinecraftServer_P",

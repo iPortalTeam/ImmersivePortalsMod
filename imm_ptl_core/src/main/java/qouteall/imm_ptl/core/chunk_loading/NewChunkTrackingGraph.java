@@ -454,16 +454,29 @@ public class NewChunkTrackingGraph {
         additionalChunkLoaders.clear();
     }
     
+    /**
+     * Note when update should also check {@link qouteall.imm_ptl.core.mixin.common.other_sync.MixinPlayerList}
+     */
     public static Stream<ServerPlayer> getPlayersViewingChunk(
         ResourceKey<Level> dimension,
         int x, int z
     ) {
-        ArrayList<PlayerWatchRecord> records = getChunkRecordMap(dimension)
-            .get(ChunkPos.asLong(x, z));
+        ArrayList<PlayerWatchRecord> records = getPlayerWatchListRecord(dimension, x, z);
         if (records == null) {
             return Stream.empty();
         }
         return records.stream().filter(r -> r.isLoadedToPlayer).map(r -> r.player);
+    }
+    
+    /**
+     *
+     */
+    public static ArrayList<PlayerWatchRecord> getPlayerWatchListRecord(
+        ResourceKey<Level> dimension, int x, int z
+    ) {
+        ArrayList<PlayerWatchRecord> records = getChunkRecordMap(dimension)
+            .get(ChunkPos.asLong(x, z));
+        return records;
     }
     
     // return -1 for none
