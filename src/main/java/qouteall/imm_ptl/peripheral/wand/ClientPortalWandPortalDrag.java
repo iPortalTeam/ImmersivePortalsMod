@@ -237,6 +237,17 @@ public class ClientPortalWandPortalDrag {
                 Component.translatable("imm_ptl.wand.select_portal"),
                 0.2
             );
+            
+            if (originalSelectedPortal == null) {
+                renderedRect.clearTarget();
+            }
+            else {
+                renderedRect.setTarget(
+                    portalToRenderedRect(originalSelectedPortal),
+                    Helper.secondToNano(1.0)
+                );
+            }
+            
             return;
         }
         
@@ -576,7 +587,7 @@ public class ClientPortalWandPortalDrag {
         if (player == null) {
             return;
         }
-    
+        
         Portal portal = getPortalByUUID(draggingContext.portalId());
         
         if (portal == null) {
@@ -859,7 +870,7 @@ public class ClientPortalWandPortalDrag {
             currentCursor,
             draggingContext.draggingInfo
         );
-    
+        
         if (PortalWandInteraction.validateDraggedPortalState(
             draggingContext.originalPortalState(), newState, player
         )) {
