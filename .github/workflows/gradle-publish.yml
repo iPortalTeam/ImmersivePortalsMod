@@ -24,7 +24,7 @@ jobs:
 
     - uses: eskatos/gradle-command-action@v1
       with:
-        gradle-version: 7.3
+        gradle-version: 8.1.1
         arguments: build
 
     - uses: Kir-Antipov/mc-publish@v3.2
