@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.guide;
+package qouteall.imm_ptl.peripheral;
 
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -111,19 +111,19 @@ public class IPOuterClientMisc {
                 }
             }
             
-            if (!outerConfig.lagInformed) {
-                if (player != null) {
-                    outerConfig.lagInformed = true;
-                    writeToFile(outerConfig);
-                    
-                    IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
-                        CHelper.printChat(
-                            Component.translatable("imm_ptl.about_lag")
-                        );
-                        return true;
-                    }));
-                }
-            }
+//            if (!outerConfig.lagInformed) {
+//                if (player != null) {
+//                    outerConfig.lagInformed = true;
+//                    writeToFile(outerConfig);
+//
+//                    IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
+//                        CHelper.printChat(
+//                            Component.translatable("imm_ptl.about_lag")
+//                        );
+//                        return true;
+//                    }));
+//                }
+//            }
         });
     }
     

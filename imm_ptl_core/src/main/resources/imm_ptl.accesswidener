@@ -29,4 +29,11 @@ transitive-accessible class net/minecraft/resources/RegistryDataLoader$Loader
 
 transitive-accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab
 
+transitive-accessible field net/minecraft/client/multiplayer/ClientChunkCache emptyChunk Lnet/minecraft/world/level/chunk/LevelChunk;
+
+transitive-accessible field net/minecraft/client/multiplayer/ClientChunkCache lightEngine Lnet/minecraft/world/level/lighting/LevelLightEngine;
+
+transitive-accessible field net/minecraft/client/multiplayer/ClientChunkCache storage Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+
+transitive-accessible field net/minecraft/client/multiplayer/ClientChunkCache level Lnet/minecraft/client/multiplayer/ClientLevel;
 

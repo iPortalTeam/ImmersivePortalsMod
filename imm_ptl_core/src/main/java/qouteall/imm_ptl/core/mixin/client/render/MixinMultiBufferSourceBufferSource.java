@@ -13,7 +13,7 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 @Mixin(MultiBufferSource.BufferSource.class)
 public class MixinMultiBufferSourceBufferSource {
     @Inject(
-        method = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
+        method = "endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
         at = @At("HEAD")
     )
     private void onBeginDraw(RenderType layer, CallbackInfo ci) {
@@ -24,7 +24,7 @@ public class MixinMultiBufferSourceBufferSource {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
+        method = "endBatch(Lnet/minecraft/client/renderer/RenderType;)V",
         at = @At("RETURN")
     )
     private void onEndDraw(RenderType layer, CallbackInfo ci) {

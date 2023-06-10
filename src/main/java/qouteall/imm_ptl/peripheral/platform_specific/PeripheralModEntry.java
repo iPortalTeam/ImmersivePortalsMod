@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
-import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
+import qouteall.imm_ptl.peripheral.IPOuterClientMisc;
 import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 
 import javax.annotation.Nullable;

@@ -41,9 +41,6 @@ import java.util.function.Consumer;
 @IPVanillaCopy
 public class ImmPtlClientChunkMap extends ClientChunkCache {
     private static final Logger LOGGER = LogManager.getLogger();
-    protected final LevelChunk emptyChunk;
-    protected final LevelLightEngine lightingProvider;
-    protected final ClientLevel world;
     
     protected final Long2ObjectLinkedOpenHashMap<LevelChunk> chunkMap =
         new Long2ObjectLinkedOpenHashMap<>();
@@ -53,23 +50,6 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     
     public ImmPtlClientChunkMap(ClientLevel clientWorld, int loadDistance) {
         super(clientWorld, 1); // the chunk array is unused. make it small by passing 1 as load distance to super constructor
-        this.world = clientWorld;
-        this.emptyChunk = new EmptyLevelChunk(
-            clientWorld, new ChunkPos(0, 0),
-            clientWorld.registryAccess()
-                .registryOrThrow(Registries.BIOME)
-                .getHolderOrThrow(Biomes.PLAINS)
-        );
-        this.lightingProvider = new LevelLightEngine(
-            this,
-            true,
-            clientWorld.dimensionType().hasSkyLight()
-        );
-    }
-    
-    @Override
-    public LevelLightEngine getLightEngine() {
-        return this.lightingProvider;
     }
     
     @Override
@@ -81,7 +61,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             if (isValidChunk(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 O_O.postClientChunkUnloadEvent(chunk);
-                world.unload(chunk);
+                this.level.unload(chunk);
                 clientChunkUnloadSignal.emit(chunk);
             }
         }
@@ -104,11 +84,6 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         synchronized (chunkMap) {
             return chunkMap.containsKey(ChunkPos.asLong(x, z));
         }
-    }
-    
-    @Override
-    public BlockGetter getLevel() {
-        return this.world;
     }
     
     @Override
@@ -143,7 +118,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             worldChunk = chunkMap.get(chunkPosLong);
             ChunkPos chunkPos = new ChunkPos(x, z);
             if (!isValidChunk(worldChunk, x, z)) {
-                worldChunk = new LevelChunk(this.world, chunkPos);
+                worldChunk = new LevelChunk(this.level, chunkPos);
                 loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
@@ -152,7 +127,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             }
         }
         
-        this.world.onChunkLoaded(new ChunkPos(x, z));
+        this.level.onChunkLoaded(new ChunkPos(x, z));
         
         O_O.postClientChunkLoadEvent(worldChunk);
         clientChunkLoadSignal.emit(worldChunk);
@@ -226,7 +201,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     @Override
     public void onLightUpdate(LightLayer lightType, SectionPos chunkSectionPos) {
         ClientWorldLoader.getWorldRenderer(
-            world.dimension()
+            level.dimension()
         ).setSectionDirty(
             chunkSectionPos.x(),
             chunkSectionPos.y(),

@@ -32,7 +32,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class IPModMainClient {
     
-    private static final boolean isPreview = false;
+    private static final boolean isPreview = true;
     
     private static void showPreviewWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
@@ -49,17 +49,6 @@ public class IPModMainClient {
         ));
     }
 
-//    private static void showIntelVideoCardWarning() {
-//        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-//            () -> Minecraft.getInstance().level == null,
-//            MyTaskList.oneShotTask(() -> {
-//                if (GlUtil.getVendor().toLowerCase().contains("intel")) {
-//                    CHelper.printChat(Component.translatable("imm_ptl.intel_warning"));
-//                }
-//            })
-//        ));
-//    }
-    
     private static void showNvidiaVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
