@@ -55,7 +55,7 @@ public class IntMatrix3 {
     
     public Direction transformDirection(Direction direction) {
         BlockPos vec = transform(direction.getNormal());
-        return Direction.fromNormal(vec.getX(), vec.getY(), vec.getZ());
+        return Direction.fromDelta(vec.getX(), vec.getY(), vec.getZ());
     }
     
     @Override

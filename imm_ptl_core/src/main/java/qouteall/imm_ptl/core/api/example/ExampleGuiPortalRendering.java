@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -141,8 +142,8 @@ public class ExampleGuiPortalRendering {
         }
         
         @Override
-        public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-            super.render(matrices, mouseX, mouseY, delta);
+        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+            super.render(guiGraphics, mouseX, mouseY, delta);
             
             double t1 = CHelper.getSmoothCycles(503);
             double t2 = CHelper.getSmoothCycles(197);
@@ -187,8 +188,8 @@ public class ExampleGuiPortalRendering {
                 h * 0.2f, h * 0.8f
             );
             
-            drawCenteredString(
-                matrices, this.font, this.title, this.width / 2, 70, 16777215
+            guiGraphics.drawCenteredString(
+                this.font, this.title, this.width / 2, 70, 16777215
             );
         }
         

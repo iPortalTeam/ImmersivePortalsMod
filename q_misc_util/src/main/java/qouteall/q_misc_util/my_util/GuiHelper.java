@@ -3,6 +3,7 @@ package qouteall.q_misc_util.my_util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -105,22 +106,11 @@ public class GuiHelper {
             this(0, 0, 0, 0);
         }
         
-        public void renderTextCentered(Component text, PoseStack matrixStack) {
+        public void renderTextLeft(Component text, GuiGraphics guiGraphics) {
             Font textRenderer = Minecraft.getInstance().font;
-            
-            FormattedCharSequence orderedText = text.getVisualOrderText();
-            textRenderer.drawShadow(
-                matrixStack, orderedText,
-                (((xMin + xMax) / 2.0f) - textRenderer.width(orderedText) / 2.0f), yMin+5,
-                -1
-            );
-        }
-        
-        public void renderTextLeft(Component text, PoseStack matrixStack) {
-            Font textRenderer = Minecraft.getInstance().font;
-            textRenderer.drawShadow(
-                matrixStack, text,
-                xMin, yMin+5, -1
+            guiGraphics.drawString(
+                textRenderer, text,
+                (int) xMin, (int) yMin + 5, -1
             );
         }
     }

@@ -16,7 +16,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
@@ -52,7 +51,7 @@ public class PeripheralModEntry implements ModInitializer {
     }
     
     private static void registerBlockItems() {
-        PeripheralModMain.portalHelperBlock = new Block(FabricBlockSettings.of(Material.METAL).noOcclusion()
+        PeripheralModMain.portalHelperBlock = new Block(FabricBlockSettings.of().noOcclusion()
             .isRedstoneConductor((a, b, c) -> false));
         
         PeripheralModMain.portalHelperBlockItem = new PortalHelperItem(

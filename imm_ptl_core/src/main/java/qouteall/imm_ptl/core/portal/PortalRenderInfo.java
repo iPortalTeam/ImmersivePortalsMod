@@ -88,7 +88,7 @@ public class PortalRenderInfo {
         });
         
         Portal.portalCacheUpdateSignal.connect(portal -> {
-            if (portal.level.isClientSide()) {
+            if (portal.level().isClientSide()) {
                 PortalRenderInfo renderInfo = getOptional(portal);
                 if (renderInfo != null) {
                     renderInfo.onPortalCacheUpdate(portal);
@@ -97,7 +97,7 @@ public class PortalRenderInfo {
         });
         
         Portal.portalDisposeSignal.connect(portal -> {
-            if (portal.level.isClientSide()) {
+            if (portal.level().isClientSide()) {
                 PortalRenderInfo renderInfo = getOptional(portal);
                 if (renderInfo != null) {
                     renderInfo.dispose();
@@ -109,13 +109,13 @@ public class PortalRenderInfo {
     
     @Nullable
     public static PortalRenderInfo getOptional(Portal portal) {
-        Validate.isTrue(portal.level.isClientSide());
+        Validate.isTrue(portal.level().isClientSide());
         
         return portal.portalRenderInfo;
     }
     
     public static PortalRenderInfo get(Portal portal) {
-        Validate.isTrue(portal.level.isClientSide());
+        Validate.isTrue(portal.level().isClientSide());
         
         if (portal.portalRenderInfo == null) {
             portal.portalRenderInfo = new PortalRenderInfo();
@@ -128,7 +128,7 @@ public class PortalRenderInfo {
     }
     
     private void tick(Portal portal) {
-        Validate.isTrue(portal.level.isClientSide());
+        Validate.isTrue(portal.level().isClientSide());
         
         if (needsGroupingUpdate) {
             needsGroupingUpdate = false;

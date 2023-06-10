@@ -53,7 +53,7 @@ public class PortalManipulation {
     
     public static void removeConnectedPortals(Portal portal, Consumer<Portal> removalInformer) {
         removeOverlappedPortals(
-            portal.level,
+            portal.level(),
             portal.getOriginPos(),
             portal.getNormal().scale(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
@@ -89,7 +89,7 @@ public class PortalManipulation {
         Level world = portal.getDestinationWorld();
         
         T newPortal = entityType.create(world);
-        newPortal.dimensionTo = portal.level.dimension();
+        newPortal.dimensionTo = portal.level().dimension();
         newPortal.setPos(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
         newPortal.setDestination(portal.getOriginPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
@@ -137,7 +137,7 @@ public class PortalManipulation {
     }
     
     public static <T extends Portal> T createFlippedPortal(Portal portal, EntityType<T> entityType) {
-        Level world = portal.level;
+        Level world = portal.level();
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
@@ -171,7 +171,7 @@ public class PortalManipulation {
     
     //the new portal will not be added into world
     public static Portal copyPortal(Portal portal, EntityType<Portal> entityType) {
-        Level world = portal.level;
+        Level world = portal.level();
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
@@ -206,7 +206,7 @@ public class PortalManipulation {
         Consumer<Portal> addingInformer, EntityType<Portal> entityType
     ) {
         removeOverlappedPortals(
-            ((ServerLevel) portal.level),
+            ((ServerLevel) portal.level()),
             portal.getOriginPos(),
             portal.getNormal().scale(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
@@ -361,7 +361,7 @@ public class PortalManipulation {
         
         Tuple<BlockHitResult, List<Portal>> rayTrace =
             IPMcHelper.rayTrace(
-                entity.level,
+                entity.level(),
                 new ClipContext(
                     entity.getEyePosition(1.0f),
                     entity.getEyePosition(1.0f).add(playerLook.scale(100.0)),
@@ -399,7 +399,7 @@ public class PortalManipulation {
             .add(axisH.scale(0.5 + height / 2));
         
         Level world = hitPortals.isEmpty()
-            ? entity.level
+            ? entity.level()
             : hitPortals.get(hitPortals.size() - 1).getDestinationWorld();
         
         Portal portal = new Portal(Portal.entityType, world);
@@ -474,11 +474,7 @@ public class PortalManipulation {
             portal.getDestinationWorld(),
             portal.getDestPos(),
             0,
-            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSqr() < 0.01 &&
-                p1.getDestPos().subtract(portal.getOriginPos()).lengthSqr() < 0.01 &&
-                p1.getNormal().dot(portal.getContentDirection()) > 0.9 &&
-                !(p1 instanceof Mirror) &&
-                p1 != portal
+            p1 -> Portal.isReversePortal(portal,p1)
         ));
     }
     

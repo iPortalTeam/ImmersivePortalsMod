@@ -234,7 +234,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
         
-        RenderSystem.setProjectionMatrix(oldProjectionMatrix);
+        client.gameRenderer.resetProjectionMatrix(oldProjectionMatrix);
         
         IrisInterface.invoker.setPipeline(worldRenderer, irisPipeline);
         

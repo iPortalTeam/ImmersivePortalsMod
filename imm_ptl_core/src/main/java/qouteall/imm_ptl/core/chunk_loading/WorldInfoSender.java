@@ -22,7 +22,7 @@ public class WorldInfoSender {
                 for (ServerPlayer player : McHelper.getCopiedPlayerList()) {
                     Set<ResourceKey<Level>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
                     
-                    if (player.level.dimension() != Level.OVERWORLD) {
+                    if (player.level().dimension() != Level.OVERWORLD) {
                         sendWorldInfo(
                             player,
                             MiscHelper.getServer().getLevel(Level.OVERWORLD)

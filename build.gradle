@@ -1,10 +1,10 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '1.1-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '1.2-SNAPSHOT' apply(false)
     id 'maven-publish'
 
-    id "com.modrinth.minotaur" version "2.+"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
+//    id "com.modrinth.minotaur" version "2.+"
+//    id "com.matthewprenger.cursegradle" version "1.4.0"
 
 //    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
 }
@@ -140,22 +140,19 @@ allprojects {
             exclude group: "net.fabricmc.fabric-api"
         })
 
-        modImplementation "maven.modrinth:sodium:mc1.19.4-0.4.10"
+        modImplementation "maven.modrinth:sodium:mc1.20-0.4.10"
 
-        // testing
-        modImplementation "maven.modrinth:starlight:1.1.1+1.19"
-
-        modCompileOnly 'maven.modrinth:iris:1.6.3+1.19.4'
+        modCompileOnly 'maven.modrinth:iris:1.6.4+1.20'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
 //        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
-        modImplementation("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
+        modCompileOnly("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
         annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
@@ -297,33 +294,33 @@ task printClasspath {
     }
 }
 
-task additionalCopy(type: Copy) {
-    dependsOn(remapJar)
-    from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
-    into file("${project.buildDir}/to_upload")
-    rename { n -> "$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar" }
-}
+//task additionalCopy(type: Copy) {
+//    dependsOn(remapJar)
+//    from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
+//    into file("${project.buildDir}/to_upload")
+//    rename { n -> "$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar" }
+//}
 
 
 // modrinth
 
-modrinth {
-    token = System.getenv("MODRINTH")
-    // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
-    projectId = "zJpHMkdD"
-    versionNumber = "${project.version}-${project.minecraft_version}"
-    // You don't need to set this manually. Will fail if Modrinth has this version already
-    versionType = "alpha" // This is the default -- can also be `beta` or `alpha`
-    uploadFile = remapJar
-    gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
-    loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
-    dependencies { // A special DSL for creating dependencies
-        // scope.type
-        // The scope can be `required`, `optional`, or `incompatible`
-        // The type can either be `project` or `version`
-        required.project "P7dR8mSH" // Creates a new required dependency on Fabric API
-    }
-}
+//modrinth {
+//    token = System.getenv("MODRINTH")
+//    // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+//    projectId = "zJpHMkdD"
+//    versionNumber = "${project.version}-${project.minecraft_version}"
+//    // You don't need to set this manually. Will fail if Modrinth has this version already
+//    versionType = "alpha" // This is the default -- can also be `beta` or `alpha`
+//    uploadFile = remapJar
+//    gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
+//    loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+//    dependencies { // A special DSL for creating dependencies
+//        // scope.type
+//        // The scope can be `required`, `optional`, or `incompatible`
+//        // The type can either be `project` or `version`
+//        required.project "P7dR8mSH" // Creates a new required dependency on Fabric API
+//    }
+//}
 
 //curseforge {
 //    if (System.getenv().CURSEFORGE_API_KEY) {

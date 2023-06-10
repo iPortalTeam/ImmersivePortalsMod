@@ -41,7 +41,7 @@ public abstract class MixinEntity implements IEEntity {
     public abstract AABB getBoundingBox();
     
     @Shadow
-    public Level level;
+    private Level level;
     
     @Shadow
     public abstract void setBoundingBox(AABB box_1);
@@ -62,7 +62,7 @@ public abstract class MixinEntity implements IEEntity {
     public abstract double getZ();
     
     @Shadow
-    protected abstract BlockPos getOnPos();
+    public abstract BlockPos getOnPos();
     
     @Shadow
     public boolean blocksBuilding;
@@ -104,7 +104,7 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Vec3 redirectHandleCollisions(Entity entity, Vec3 attemptedMove) {
         if (!IPGlobal.enableServerCollision) {
-            if (!entity.level.isClientSide()) {
+            if (!entity.level().isClientSide()) {
                 if (entity instanceof Player) {
                     return attemptedMove;
                 }
@@ -118,7 +118,7 @@ public abstract class MixinEntity implements IEEntity {
             // avoid loading too many chunks in collision calculation and lag the server
             limitedLogger.invoke(() -> {
                 Helper.err("Skipping collision calculation because entity moves too fast %s%s%d"
-                    .formatted(entity, attemptedMove, entity.level.getGameTime()));
+                    .formatted(entity, attemptedMove, entity.level().getGameTime()));
                 new Throwable().printStackTrace();
             });
             
@@ -418,6 +418,11 @@ public abstract class MixinEntity implements IEEntity {
     @Override
     public void ip_setPortalCollisionHandler(@Nullable PortalCollisionHandler handler) {
         ip_portalCollisionHandler = handler;
+    }
+    
+    @Override
+    public void ip_setWorld(Level world) {
+        this.level = world;
     }
     
     // don't use game time because client game time may jump due to time synchronization

@@ -49,7 +49,7 @@ public class EntitySync {
         
         for (ServerPlayer player : playerList) {
             ChunkMap storage =
-                ((ServerLevel) player.level).getChunkSource().chunkMap;
+                ((ServerLevel) player.level()).getChunkSource().chunkMap;
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
             

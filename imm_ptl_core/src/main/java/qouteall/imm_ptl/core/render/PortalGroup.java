@@ -52,7 +52,7 @@ public class PortalGroup implements PortalLike {
     }
     
     public void addPortal(Portal portal) {
-        Validate.isTrue(portal.level.isClientSide());
+        Validate.isTrue(portal.level().isClientSide());
         Validate.isTrue(!portal.getIsGlobal());
         
         if (portals.contains(portal)) {
@@ -157,7 +157,7 @@ public class PortalGroup implements PortalLike {
     
     @Override
     public Level getOriginWorld() {
-        return getFirstPortal().level;
+        return getFirstPortal().level();
     }
     
     @Override

@@ -48,7 +48,7 @@ public class LoadingIndicatorEntity extends Entity {
     public void tick() {
         super.tick();
         
-        if (level.isClientSide()) {
+        if (level().isClientSide()) {
             tickClient();
         }
         else {
@@ -67,7 +67,7 @@ public class LoadingIndicatorEntity extends Entity {
             LocalPlayer player = Minecraft.getInstance().player;
             
             if (player != null &&
-                player.level == level &&
+                player.level() == level() &&
                 player.position().distanceToSqr(position()) < 16 * 16
             ) {
                 showMessageClient();
@@ -82,7 +82,7 @@ public class LoadingIndicatorEntity extends Entity {
         if (portalShape != null) {
             IntBox box = portalShape.innerAreaBox;
             BlockPos size = box.getSize();
-            RandomSource random = level.getRandom();
+            RandomSource random = level().getRandom();
             
             for (int i = 0; i < num; i++) {
                 Vec3 p = new Vec3(
@@ -95,7 +95,7 @@ public class LoadingIndicatorEntity extends Entity {
                 double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 
-                level.addParticle(
+                level().addParticle(
                     ParticleTypes.PORTAL,
                     p.x, p.y, p.z,
                     vx, vy, vz

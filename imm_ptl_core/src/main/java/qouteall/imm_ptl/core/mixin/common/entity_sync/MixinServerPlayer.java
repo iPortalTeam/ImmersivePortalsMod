@@ -54,7 +54,7 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
      */
     @Override
     public void portal_worldChanged(ServerLevel fromWorld, Vec3 fromPos) {
-        if (fromWorld.dimension() == Level.OVERWORLD && this.level.dimension() == Level.NETHER) {
+        if (fromWorld.dimension() == Level.OVERWORLD && this.level().dimension() == Level.NETHER) {
             enteredNetherPosition = fromPos;
         }
         triggerDimensionChangeTriggers(fromWorld);

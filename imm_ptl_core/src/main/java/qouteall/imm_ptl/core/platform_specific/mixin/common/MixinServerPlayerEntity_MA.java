@@ -35,7 +35,7 @@ public class MixinServerPlayerEntity_MA {
     ) {
         ServerPlayer this_ = (ServerPlayer) (Object) this;
         
-        if (this_.level != targetWorld) {
+        if (this_.level() != targetWorld) {
             onBeforeDimensionTravel(this_);
         }
     }

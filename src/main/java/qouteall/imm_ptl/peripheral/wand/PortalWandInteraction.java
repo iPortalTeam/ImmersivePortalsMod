@@ -320,7 +320,7 @@ public class PortalWandInteraction {
         ) {
             if (!checkPermission(player)) return;
             
-            Entity entity = ((ServerLevel) player.level).getEntity(portalId);
+            Entity entity = ((ServerLevel) player.level()).getEntity(portalId);
             
             if (!(entity instanceof Portal portal)) {
                 LOGGER.error("Cannot find portal {}", portalId);
@@ -334,7 +334,7 @@ public class PortalWandInteraction {
             }
             else {
                 session = new DraggingSession(
-                    player.level.dimension(),
+                    player.level().dimension(),
                     portalId,
                     portal.getPortalState(),
                     draggingInfo,

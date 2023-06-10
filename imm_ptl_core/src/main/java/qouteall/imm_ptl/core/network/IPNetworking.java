@@ -93,8 +93,8 @@ public class IPNetworking {
         buf.writeUtf(EntityType.getKey(entityType).toString());
         buf.writeInt(entity.getId());
         DimId.writeWorldId(
-            buf, entity.level.dimension(),
-            entity.level.isClientSide
+            buf, entity.level().dimension(),
+            entity.level().isClientSide
         );
         CompoundTag tag = new CompoundTag();
         entity.saveWithoutId(tag);

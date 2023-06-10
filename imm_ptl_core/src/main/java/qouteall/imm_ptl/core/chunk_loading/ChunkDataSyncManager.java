@@ -69,7 +69,7 @@ public class ChunkDataSyncManager {
                 PacketRedirection.sendRedirectedMessage(
                     player,
                     chunkPos.dimension,
-                    new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
+                    new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null)
                 );
                 
                 ieStorage.ip_updateEntityTrackersAfterSendingChunkPacket(chunk, player);
@@ -95,7 +95,7 @@ public class ChunkDataSyncManager {
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> PacketRedirection.createRedirectedMessage(
                 dimension,
-                new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null, true)
+                new ClientboundLevelChunkWithLightPacket(((LevelChunk) chunk), lightingProvider, null, null)
             )
         );
         

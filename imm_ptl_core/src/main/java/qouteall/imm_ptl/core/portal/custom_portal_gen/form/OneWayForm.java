@@ -90,7 +90,7 @@ public class OneWayForm extends PortalGenForm {
         }
         else {
             portal.setDestination(triggeringEntity.getEyePosition(1));
-            portal.setDestinationDimension(triggeringEntity.level.dimension());
+            portal.setDestinationDimension(triggeringEntity.level().dimension());
         }
         
         portal.blockPortalShape = fromShape;

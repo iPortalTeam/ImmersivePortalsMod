@@ -78,13 +78,18 @@ public enum AARotation {
     }
     
     public Direction transformDirection(Direction direction) {
-        return Direction.fromNormal(transform(direction.getNormal()));
+        BlockPos transformedVec = transform(direction.getNormal());
+        return Direction.fromDelta(
+            transformedVec.getX(),
+            transformedVec.getY(),
+            transformedVec.getZ()
+        );
     }
     
     @Nonnull
     public static Direction dirCrossProduct(Direction a, Direction b) {
         Validate.isTrue(a.getAxis() != b.getAxis());
-        Direction result = Direction.fromNormal(
+        Direction result = Direction.fromDelta(
             a.getStepY() * b.getStepZ() - a.getStepZ() * b.getStepY(),
             a.getStepZ() * b.getStepX() - a.getStepX() * b.getStepZ(),
             a.getStepX() * b.getStepY() - a.getStepY() * b.getStepX()

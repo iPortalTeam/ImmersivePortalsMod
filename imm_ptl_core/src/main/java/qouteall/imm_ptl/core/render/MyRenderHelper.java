@@ -395,9 +395,7 @@ public class MyRenderHelper {
         
         ClientWorldLoader.getClientWorlds().forEach(world -> {
             if (!RenderStates.isDimensionRendered(world.dimension())) {
-                int updateNum = world.getChunkSource().getLightEngine().runUpdates(
-                    1000, true, true
-                );
+                world.getChunkSource().getLightEngine().runLightUpdates();
             }
         });
     }

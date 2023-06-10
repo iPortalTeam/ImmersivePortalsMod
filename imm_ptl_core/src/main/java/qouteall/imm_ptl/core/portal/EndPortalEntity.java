@@ -140,7 +140,7 @@ public class EndPortalEntity extends Portal {
     public void tick() {
         super.tick();
         
-        if (level.isClientSide()) {
+        if (level().isClientSide()) {
             tickClient();
         }
     }
@@ -246,7 +246,7 @@ public class EndPortalEntity extends Portal {
     public void onCollidingWithEntity(Entity entity) {
         // fix https://github.com/qouteall/ImmersivePortalsMod/issues/698
         // maybe allows easier farming of obsidian
-        if (!level.isClientSide()) {
+        if (!level().isClientSide()) {
             if (entity instanceof ServerPlayer) {
                 if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
                     ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);

@@ -30,7 +30,7 @@ public abstract class MixinItemEntity_P {
             return;
         }
         
-        if (this_.level.isClientSide()) {
+        if (this_.level().isClientSide()) {
             return;
         }
         
@@ -38,8 +38,8 @@ public abstract class MixinItemEntity_P {
             return;
         }
         
-        this_.level.getProfiler().push("imm_ptl_item_tick");
+        this_.level().getProfiler().push("imm_ptl_item_tick");
         CustomPortalGenManagement.onItemTick(this_);
-        this_.level.getProfiler().pop();
+        this_.level().getProfiler().pop();
     }
 }

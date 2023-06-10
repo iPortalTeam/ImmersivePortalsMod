@@ -121,7 +121,7 @@ public class CommandStickItem extends Item {
     }
     
     private void doUse(Player player, ItemStack stack) {
-        if (player.level.isClientSide()) {
+        if (player.level().isClientSide()) {
             return;
         }
         

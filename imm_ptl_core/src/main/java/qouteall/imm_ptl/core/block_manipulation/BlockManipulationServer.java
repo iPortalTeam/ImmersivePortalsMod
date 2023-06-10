@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -96,7 +98,7 @@ public class BlockManipulationServer {
         Vec3 pos = Vec3.atCenterOf(requestPos);
         Vec3 playerPos = player.position();
         double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
-        if (player.level.dimension() == dimension) {
+        if (player.level().dimension() == dimension) {
             if (playerPos.distanceToSqr(pos) < distanceSquare) {
                 return true;
             }
@@ -119,7 +121,7 @@ public class BlockManipulationServer {
         ServerPlayer player
     ) {
         ServerLevel destWorld = MiscHelper.getServer().getLevel(dimension);
-        ServerLevel oldWorld = player.getLevel();
+        ServerLevel oldWorld = player.serverLevel();
         
         BlockPos blockPos = packet.getPos();
         
@@ -236,9 +238,9 @@ public class BlockManipulationServer {
                 return;
             }
             
-            Level oldWorld = player.level;
-            
-            player.level = targetWorld;
+            Level oldWorld = player.level();
+    
+            ((IEEntity) player).ip_setWorld(targetWorld);
             try {
                 InteractionResult actionResult = player.gameMode.useItemOn(
                     player,
@@ -252,7 +254,7 @@ public class BlockManipulationServer {
                 }
             }
             finally {
-                player.level = oldWorld;
+                ((IEEntity) player).ip_setWorld(oldWorld);
             }
         }
         

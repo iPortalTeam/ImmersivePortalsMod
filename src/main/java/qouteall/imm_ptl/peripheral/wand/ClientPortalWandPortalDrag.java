@@ -220,7 +220,7 @@ public class ClientPortalWandPortalDrag {
         Vec3 viewVec = player.getLookAngle();
         
         Pair<Portal, Vec3> rayTraceResult = PortalUtils.lenientRayTracePortals(
-            player.level,
+            player.level(),
             eyePos,
             eyePos.add(viewVec.scale(64)),
             false,
@@ -331,7 +331,7 @@ public class ClientPortalWandPortalDrag {
         Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
         Vec3 viewVec = player.getLookAngle();
         
-        ResourceKey<Level> currDim = player.level.dimension();
+        ResourceKey<Level> currDim = player.level().dimension();
         
         if (draggingContext.dimension != currDim) {
             stopDragging();
@@ -492,7 +492,7 @@ public class ClientPortalWandPortalDrag {
         
         int lockCornerNum = lockedCornersList.size();
         
-        ResourceKey<Level> currDim = player.level.dimension();
+        ResourceKey<Level> currDim = player.level().dimension();
         if (lockCornerNum == 0 || lockCornerNum == 1) {
             Pair<Plane, MutableComponent> info = getPlayerFacingPlaneAligned(player, cursorPos, portal);
             Plane plane = info.getFirst();
@@ -636,7 +636,7 @@ public class ClientPortalWandPortalDrag {
             return null;
         }
         
-        Entity entity = ((IEWorld) player.level).portal_getEntityLookup().get(portalId);
+        Entity entity = ((IEWorld) player.level()).portal_getEntityLookup().get(portalId);
         
         if (entity instanceof Portal portal) {
             return portal;
@@ -724,7 +724,7 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        ResourceKey<Level> currDim = player.level.dimension();
+        ResourceKey<Level> currDim = player.level().dimension();
         
         Vec3 cameraPos = new Vec3(camX, camY, camZ);
         

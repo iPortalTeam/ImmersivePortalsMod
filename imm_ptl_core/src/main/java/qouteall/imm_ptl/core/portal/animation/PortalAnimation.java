@@ -198,14 +198,14 @@ public class PortalAnimation {
         }
         
         if (paused) {
-            pauseTime = portal.level.getGameTime();
+            pauseTime = portal.level().getGameTime();
             PortalState portalState = portal.getPortalState();
             assert portalState != null;
             pausedThisSideState = portalState.getThisSideState();
             pausedOtherSideState = portalState.getOtherSideState();
         }
         else {
-            timeOffset -= portal.level.getGameTime() - pauseTime;
+            timeOffset -= portal.level().getGameTime() - pauseTime;
             pauseTime = 0;
             
             if (pausedThisSideState != null && pausedOtherSideState != null) {
@@ -245,7 +245,7 @@ public class PortalAnimation {
     public void tick(Portal portal) {
         swapTickRelativeStateIfNeeded(portal);
         
-        if (!portal.level.isClientSide()) {
+        if (!portal.level().isClientSide()) {
             /*
               The server ticking process {@link ServerLevel#tick(BooleanSupplier)}:
               1. increase game time
@@ -253,7 +253,7 @@ public class PortalAnimation {
               So use 1 as partial tick
              */
             updateAnimationDriver(
-                portal, portal.animation, portal.level.getGameTime(), 1, true, true
+                portal, portal.animation, portal.level().getGameTime(), 1, true, true
             );
             
             if (thisSideAnimations.isEmpty()) {
@@ -296,7 +296,7 @@ public class PortalAnimation {
     private void provideThisTickState(Portal portal, PortalState portalState) {
         swapTickRelativeStateIfNeeded(portal);
         if (thisTickAnimatedState != null) {
-            if (!portal.level.isClientSide()) {
+            if (!portal.level().isClientSide()) {
                 Helper.log("Conflicting animation in " + portal);
                 portal.clearAnimationDrivers(true, true);
                 thisTickAnimatedState = null;
@@ -345,7 +345,7 @@ public class PortalAnimation {
         int originalThisSideAnimationCount = thisSideAnimations.size();
         int originalOtherSideAnimationCount = otherSideAnimations.size();
         
-        AnimationContext context = new AnimationContext(portal.level.isClientSide(), isTicking);
+        AnimationContext context = new AnimationContext(portal.level().isClientSide(), isTicking);
         
         thisSideAnimations.removeIf(animationDriver -> {
             AnimationResult animationResult = animationDriver.getAnimationResult(effectiveGameTime, effectivePartialTicks, context);
@@ -415,7 +415,7 @@ public class PortalAnimation {
             );
         }
         
-        if (!portal.level.isClientSide()) {
+        if (!portal.level().isClientSide()) {
             if ((thisSideAnimations.size() != originalThisSideAnimationCount ||
                 otherSideAnimations.size() != originalOtherSideAnimationCount)
             ) {
@@ -435,7 +435,7 @@ public class PortalAnimation {
     }
     
     public void clearAnimationDrivers(Portal portal, boolean clearThisSide, boolean clearOtherSide) {
-        Validate.isTrue(!portal.level.isClientSide());
+        Validate.isTrue(!portal.level().isClientSide());
         
         setPaused(portal, false);
         
@@ -443,7 +443,7 @@ public class PortalAnimation {
             return;
         }
         
-        AnimationContext context = new AnimationContext(portal.level.isClientSide(), true);
+        AnimationContext context = new AnimationContext(portal.level().isClientSide(), true);
         
         PortalState portalState = portal.getPortalState();
         assert portalState != null;
@@ -475,7 +475,7 @@ public class PortalAnimation {
         AnimationContext context,
         UnilateralPortalState.Builder from, UnilateralPortalState.Builder to
     ) {
-        long effectiveGameTime = portal.level.getGameTime() + timeOffset;
+        long effectiveGameTime = portal.level().getGameTime() + timeOffset;
         if (includeThisSide) {
             for (PortalAnimationDriver animationDriver : thisSideAnimations) {
                 DeltaUnilateralPortalState endingResult = animationDriver.getEndingResult(effectiveGameTime, context);
@@ -510,7 +510,7 @@ public class PortalAnimation {
         
         applyEndingState(
             portal, true, true,
-            new AnimationContext(portal.level.isClientSide(), true),
+            new AnimationContext(portal.level().isClientSide(), true),
             from, to
         );
         

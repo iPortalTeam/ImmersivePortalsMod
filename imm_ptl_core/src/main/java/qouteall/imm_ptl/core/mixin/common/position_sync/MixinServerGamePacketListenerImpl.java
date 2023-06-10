@@ -63,9 +63,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     protected abstract boolean isSingleplayerOwner();
     
     @Shadow
-    protected abstract boolean isPlayerCollidingWithAnythingNew(LevelReader worldView, AABB box);
-    
-    @Shadow
     public abstract void disconnect(Component reason);
     
     @Shadow
@@ -129,7 +126,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             cancelTeleportRequest();
         }
         
-        if (player.level.dimension() != packetDimension) {
+        if (player.level().dimension() != packetDimension) {
             ip_limitedLogger.lInfo(LOGGER, "[ImmPtl] Ignoring player move packet %s %s".formatted(player, packetDimension.location()));
             
             ip_dubiousMoveCount += 1;
@@ -137,10 +134,10 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             if (ip_dubiousMoveCount > 200) {
                 LOGGER.info(
                     "[ImmPtl] Force move player {} {} {}",
-                    player, player.level.dimension().location(), player.position()
+                    player, player.level().dimension().location(), player.position()
                 );
                 IPGlobal.serverTeleportationManager.forceTeleportPlayer(
-                    player, player.level.dimension(), player.position()
+                    player, player.level().dimension(), player.position()
                 );
                 ip_dubiousMoveCount = 0;
             }
@@ -213,40 +210,9 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             x - xDiff, y - yDiff, z - zDiff, yaw - yawDiff, pitch - pitchDiff, nonRelative, this.awaitingTeleport
         );
         
-        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.level.dimension());
+        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.level().dimension());
         
         this.player.connection.send(lookPacket);
-    }
-    
-    //server will check the collision when receiving position packet from client
-    //we treat collision specially when player is halfway through a portal
-    //"isPlayerNotCollidingWithBlocks" is wrong now
-    @Redirect(
-        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isPlayerCollidingWithAnythingNew(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/phys/AABB;)Z"
-        )
-    )
-    private boolean onCheckPlayerCollision(
-        ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        LevelReader worldView,
-        AABB box
-    ) {
-        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-            return false;
-        }
-        if (((IEEntity) player).getCollidingPortal() != null) {
-            return false;
-        }
-        boolean portalsNearby = IPMcHelper.getNearbyPortals(
-            player,
-            16
-        ).findAny().isPresent();
-        if (portalsNearby) {
-            return false;
-        }
-        return isPlayerCollidingWithAnythingNew(worldView, box);
     }
     
     @Inject(
@@ -291,7 +257,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
                     
                     entity.absMoveTo(newX, newY, newZ, yaw, pitch);
                     
-                    this.player.getLevel().getChunkSource().move(this.player);
+                    this.player.serverLevel().getChunkSource().move(this.player);
                     
                     clientVehicleIsFloating = false;
                     vehicleLastGoodX = entity.getX();

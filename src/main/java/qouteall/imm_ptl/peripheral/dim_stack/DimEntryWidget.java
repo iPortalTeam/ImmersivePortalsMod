@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -86,7 +86,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     
     @Override
     public void render(
-        @NotNull PoseStack matrixStack,
+        @NotNull GuiGraphics guiGraphics,
         int index,
         int y,
         int x,
@@ -99,78 +99,74 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     ) {
         Minecraft client = Minecraft.getInstance();
         
-        client.font.draw(
-            matrixStack, dimensionName.getString(),
-            x + widgetHeight + 3, (float) (y),
+        guiGraphics.drawString(
+            client.font, dimensionName.getString(),
+            x + widgetHeight + 3, (int) (y),
             0xFFFFFFFF
         );
         
-        client.font.draw(
-            matrixStack, dimension.location().toString(),
-            x + widgetHeight + 3, (float) (y + 10),
+        guiGraphics.drawString(
+            client.font, dimension.location().toString(),
+            x + widgetHeight + 3, (int) (y + 10),
             0xFF999999
         );
         
         if (dimIconPath != null) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, dimIconPath);
-            RenderSystem.enableBlend();
-            matrixStack.pushPose();
-            matrixStack.translate(x, y, 0);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(x, y, 0);
             
             int iconLen = widgetHeight - 4;
             
             if (entry != null && entry.flipped) {
-                matrixStack.rotateAround(
+                guiGraphics.pose().rotateAround(
                     DQuaternion.rotationByDegrees(new Vec3(0, 0, 1), 180).toMcQuaternion(),
                     iconLen / 2.0f, iconLen / 2.0f, 0
                 );
             }
             
-            GuiComponent.blit(
-                matrixStack, 0, 0, 0.0F, 0.0F,
+            guiGraphics.blit(
+                dimIconPath, 0, 0, 0.0F, 0.0F,
                 iconLen, iconLen,
                 iconLen, iconLen
             );
-            matrixStack.popPose();
-            RenderSystem.disableBlend();
+            
+            guiGraphics.pose().popPose();
         }
         
         if (entry != null) {
-            client.font.draw(
-                matrixStack, getText1(),
-                x + widgetHeight + 3, (float) (y + 20),
+            guiGraphics.drawString(
+                client.font, getText1(),
+                x + widgetHeight + 3, (int) (y + 20),
                 0xFF999999
             );
-            client.font.draw(
-                matrixStack, getText2(),
-                x + widgetHeight + 3, (float) (y + 30),
+            guiGraphics.drawString(
+                client.font, getText2(),
+                x + widgetHeight + 3, (int) (y + 30),
                 0xFF999999
             );
             
             if (arrowToPrevious != ArrowType.none) {
-                matrixStack.pushPose();
-                matrixStack.translate(x + rowWidth - 13, y, 0);
-                matrixStack.scale(1.5f, 1.5f, 1.5f);
-                client.font.draw(
-                    matrixStack, Component.literal("↑"),
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(x + rowWidth - 13, y, 0);
+                guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+                guiGraphics.drawString(
+                    client.font, Component.literal("↑"),
                     0, 0,
                     arrowToPrevious == ArrowType.enabled ? 0xFF999999 : 0xFFFF0000
                 );
-                matrixStack.popPose();
+                guiGraphics.pose().popPose();
             }
             
             if (arrowToNext != ArrowType.none) {
-                matrixStack.pushPose();
-                matrixStack.translate(x + rowWidth - 13, y + widgetHeight - 14.5f, 0);
-                matrixStack.scale(1.5f, 1.5f, 1.5f);
-                client.font.draw(
-                    matrixStack, Component.literal("↓"),
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(x + rowWidth - 13, y + widgetHeight - 14.5f, 0);
+                guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+                guiGraphics.drawString(
+                    client.font, Component.literal("↓"),
                     0, 0,
                     arrowToNext == ArrowType.enabled ? 0xFF999999 : 0xFFFF0000
                 );
-                matrixStack.popPose();
+                guiGraphics.pose().popPose();
             }
         }
     }

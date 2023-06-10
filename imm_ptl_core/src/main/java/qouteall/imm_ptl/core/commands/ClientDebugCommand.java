@@ -301,7 +301,7 @@ public class ClientDebugCommand {
                         player.blockPosition().offset(-2, -2, -2),
                         player.blockPosition().offset(2, 2, 2)
                     ).forEach(blockPos -> {
-                        player.level.getLightEngine().checkBlock(blockPos);
+                        player.level().getLightEngine().checkBlock(blockPos);
                     });
                 });
                 return 0;
@@ -313,9 +313,9 @@ public class ClientDebugCommand {
                     MiscHelper.getServer().execute(() -> {
                         ServerPlayer player = McHelper.getRawPlayerList().get(0);
                         
-                        ThreadedLevelLightEngine lightingProvider = (ThreadedLevelLightEngine) player.level.getLightEngine();
+                        ThreadedLevelLightEngine lightingProvider = (ThreadedLevelLightEngine) player.level().getLightEngine();
                         lightingProvider.lightChunk(
-                            player.level.getChunk(player.blockPosition()),
+                            player.level().getChunk(player.blockPosition()),
                             false
                         );
 //                    lightingProvider.light(
@@ -375,7 +375,7 @@ public class ClientDebugCommand {
             .executes(context -> {
                 Minecraft.getInstance().execute(() -> {
                     LocalPlayer player = Minecraft.getInstance().player;
-                    DataLayer lightSection = player.level.getLightEngine().getLayerListener(LightLayer.BLOCK).getDataLayerData(
+                    DataLayer lightSection = player.level().getLightEngine().getLayerListener(LightLayer.BLOCK).getDataLayerData(
                         SectionPos.of(player.blockPosition())
                     );
                     if (lightSection != null) {
@@ -639,20 +639,6 @@ public class ClientDebugCommand {
         LiteralArgumentBuilder<FabricClientCommandSource> builder
     ) {
         builder.then(ClientCommandManager
-            .literal("show_instruction")
-            .executes(context -> {
-                LocalPlayer player = context.getSource().getPlayer();
-                
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_1"));
-                player.sendSystemMessage(Component.literal(""));
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_2"));
-                player.sendSystemMessage(Component.literal(""));
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.use_instruction_4"));
-                return 0;
-            })
-        );
-        
-        builder.then(ClientCommandManager
             .literal("set_cursor_alignment")
             .then(ClientCommandManager.argument("alignment", IntegerArgumentType.integer(0))
                 .executes(context -> {
@@ -725,10 +711,10 @@ public class ClientDebugCommand {
             CHelper.printChat(
                 String.format(
                     "On Client %s %s removal:%s added:%s age:%s",
-                    playerSP.level.dimension().location(),
+                    playerSP.level().dimension().location(),
                     playerSP.blockPosition(),
                     playerSP.getRemovalReason(),
-                    playerSP.level.getEntity(playerSP.getId()) != null,
+                    playerSP.level().getEntity(playerSP.getId()) != null,
                     playerSP.tickCount
                 )
             );

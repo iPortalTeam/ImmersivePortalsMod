@@ -13,7 +13,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
@@ -35,7 +34,7 @@ public class IPRegistry {
     
     public static void registerBlocksFabric() {
         PortalPlaceholderBlock.instance = new PortalPlaceholderBlock(
-            FabricBlockSettings.of(Material.PORTAL)
+            FabricBlockSettings.of()
                 .noCollission()
                 .sound(SoundType.GLASS)
                 .strength(1.0f, 0)

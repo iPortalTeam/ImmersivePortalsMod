@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -41,10 +42,10 @@ public class ImmPtlCustomOverlay {
     }
     
     /**
-     * {@link Gui#render(PoseStack, float)}
+     * {@link Gui#render(GuiGraphics, float)}
      * {@link net.minecraft.client.gui.screens.AlertScreen}
      */
-    public static void render(PoseStack poseStack, float partialTick) {
+    public static void render(GuiGraphics guiGraphics, float partialTick) {
         if (multiLineLabel == null) {
             return;
         }
@@ -56,7 +57,7 @@ public class ImmPtlCustomOverlay {
         
         Minecraft minecraft = Minecraft.getInstance();
         
-        poseStack.pushPose();
+        guiGraphics.pose().pushPose();
         
         int guiScaledWidth = minecraft.getWindow().getGuiScaledWidth();
         int guiScaledHeight = minecraft.getWindow().getGuiScaledHeight();
@@ -66,10 +67,10 @@ public class ImmPtlCustomOverlay {
         minecraft.getProfiler().push("imm_ptl_custom_overlay");
         // Note: the parchment names are incorrect
         multiLineLabel.renderCentered(
-            poseStack,
+            guiGraphics,
             guiScaledWidth / 2, (int) (guiScaledHeight * 0.75)
         );
-        poseStack.popPose();
+        guiGraphics.pose().popPose();
         
         minecraft.getProfiler().pop();
     }

@@ -26,7 +26,7 @@ public class BorderBarrierFiller {
     public static void onCommandExecuted(
         ServerPlayer player
     ) {
-        ServerLevel world = (ServerLevel) player.level;
+        ServerLevel world = (ServerLevel) player.level();
         Vec3 playerPos = player.position();
         
         List<WorldWrappingPortal.WrappingZone> wrappingZones =
@@ -48,7 +48,7 @@ public class BorderBarrierFiller {
         ServerPlayer player,
         int zoneId
     ) {
-        ServerLevel world = (ServerLevel) player.level;
+        ServerLevel world = (ServerLevel) player.level();
         
         List<WorldWrappingPortal.WrappingZone> wrappingZones =
             WorldWrappingPortal.getWrappingZones(world);

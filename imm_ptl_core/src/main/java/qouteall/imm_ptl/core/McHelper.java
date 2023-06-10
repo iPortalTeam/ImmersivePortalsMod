@@ -208,7 +208,7 @@ public class McHelper {
         double range
     ) {
         return getEntitiesNearby(
-            center.level,
+            center.level(),
             center.position(),
             entityClass,
             range
@@ -371,7 +371,7 @@ public class McHelper {
     
     
     public static Portal copyEntity(Portal portal) {
-        Portal newPortal = ((Portal) portal.getType().create(portal.level));
+        Portal newPortal = ((Portal) portal.getType().create(portal.level()));
         
         Validate.notNull(newPortal);
         
@@ -419,12 +419,12 @@ public class McHelper {
     }
     
     public static void resendSpawnPacketToTrackers(Entity entity) {
-        getIEStorage(entity.level.dimension()).ip_resendSpawnPacketToTrackers(entity);
+        getIEStorage(entity.level().dimension()).ip_resendSpawnPacketToTrackers(entity);
     }
     
     public static void sendToTrackers(Entity entity, Packet<?> packet) {
         ChunkMap.TrackedEntity entityTracker =
-            getIEStorage(entity.level.dimension()).ip_getEntityTrackerMap().get(entity.getId());
+            getIEStorage(entity.level().dimension()).ip_getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
 //            Helper.err("missing entity tracker object");
             return;
@@ -816,12 +816,12 @@ public class McHelper {
      * It will spawn even if the chunk is not loaded
      */
     public static void spawnServerEntity(Entity entity) {
-        Validate.isTrue(!entity.level.isClientSide());
+        Validate.isTrue(!entity.level().isClientSide());
         
-        boolean spawned = entity.level.addFreshEntity(entity);
+        boolean spawned = entity.level().addFreshEntity(entity);
         
         if (!spawned) {
-            Helper.err("Failed to spawn " + entity + entity.level);
+            Helper.err("Failed to spawn " + entity + entity.level());
         }
     }
     

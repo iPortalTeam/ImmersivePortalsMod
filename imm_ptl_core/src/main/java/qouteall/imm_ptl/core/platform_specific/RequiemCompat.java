@@ -68,11 +68,11 @@ public class RequiemCompat {
         LocalPlayer player = Minecraft.getInstance().player;
         Mob possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.level != player.level) {
+            if (possessedEntity.level() != player.level()) {
                 Helper.log("Move Requiem Possessed Entity at Client");
                 ClientTeleportationManager.moveClientEntityAcrossDimension(
                     possessedEntity,
-                    ((ClientLevel) player.level),
+                    ((ClientLevel) player.level()),
                     player.position()
                 );
             }
@@ -86,11 +86,11 @@ public class RequiemCompat {
         
         Mob possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.level != player.level) {
+            if (possessedEntity.level() != player.level()) {
                 Helper.log("Move Requiem Posessed Entity at Server");
                 IPGlobal.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
-                    player.level.dimension(),
+                    player.level().dimension(),
                     McHelper.getEyePos(player),
                     false
                 );

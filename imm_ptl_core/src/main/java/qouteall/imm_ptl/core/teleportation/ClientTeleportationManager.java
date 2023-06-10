@@ -96,7 +96,7 @@ public class ClientTeleportationManager {
                 return;
             }
         }
-        if (client.player.level.dimension() != dimension) {
+        if (client.player.level().dimension() != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
     }
@@ -193,7 +193,7 @@ public class ClientTeleportationManager {
         
         ArrayList<TeleportationUtil.Teleportation> teleportationCandidates = new ArrayList<>();
         IPMcHelper.traverseNearbyPortals(
-            player.level,
+            player.level(),
             thisFrameEyePos,
             IPGlobal.maxNormalPortalRadius,
             portal -> {
@@ -414,8 +414,8 @@ public class ClientTeleportationManager {
         ((IEClientPlayNetworkHandler) client.getConnection()).ip_setWorld(toWorld);
         
         fromWorld.removeEntity(player.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
-        
-        player.level = toWorld;
+    
+        ((IEEntity) player).ip_setWorld(toWorld);
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
@@ -497,9 +497,9 @@ public class ClientTeleportationManager {
         ClientLevel newWorld,
         Vec3 newPos
     ) {
-        ClientLevel oldWorld = (ClientLevel) entity.level;
+        ClientLevel oldWorld = (ClientLevel) entity.level();
         oldWorld.removeEntity(entity.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
-        entity.level = newWorld;
+        ((IEEntity) entity).ip_setWorld(newWorld);
         entity.setPos(newPos.x, newPos.y, newPos.z);
         newWorld.putNonPlayerEntity(entity.getId(), entity);
     }

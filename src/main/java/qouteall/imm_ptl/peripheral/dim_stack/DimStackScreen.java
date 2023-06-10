@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -258,19 +259,18 @@ public class DimStackScreen extends Screen {
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseY, int i, float f) {
-        this.renderBackground(matrixStack);
-        
+    public void render(GuiGraphics guiGraphics, int mouseY, int i, float f) {
+        this.renderBackground(guiGraphics);
         
         if (isEnabled) {
-            dimListWidget.render(matrixStack, mouseY, i, f);
+            dimListWidget.render(guiGraphics, mouseY, i, f);
         }
         
-        super.render(matrixStack, mouseY, i, f);
+        super.render(guiGraphics, mouseY, i, f);
         
-        Font textRenderer = Minecraft.getInstance().font;
-        textRenderer.drawShadow(
-            matrixStack, this.title,
+        Font font = Minecraft.getInstance().font;
+        guiGraphics.drawString(
+            font, this.title,
             20, 10, -1
         );
     }

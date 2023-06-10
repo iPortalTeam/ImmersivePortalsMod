@@ -58,7 +58,7 @@ public class NetherPortalMatcher {
             return null;
         }
         
-        if (world.getBlockState(airCube.l.below()).getMaterial().isSolid()) {
+        if (world.getBlockState(airCube.l.below()).isSolid()) {
             Helper.log("Generated Portal On Ground");
             
             return pushDownBox(world, airCube.getSubBoxInCenter(areaSize));
@@ -168,7 +168,7 @@ public class NetherPortalMatcher {
     
     // does not contain lava water
     public static boolean isSolidGroundBlock(BlockState blockState) {
-        return blockState.getMaterial().isSolid();
+        return blockState.isSolid();
     }
     
     // includes lava water

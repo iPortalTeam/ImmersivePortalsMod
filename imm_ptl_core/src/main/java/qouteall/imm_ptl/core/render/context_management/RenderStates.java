@@ -87,7 +87,7 @@ public class RenderStates {
             return;
         }
         
-        originalPlayerDimension = cameraEntity.level.dimension();
+        originalPlayerDimension = cameraEntity.level().dimension();
         originalPlayerPos = cameraEntity.position();
         originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerInfo entry = CHelper.getClientPlayerListEntry();

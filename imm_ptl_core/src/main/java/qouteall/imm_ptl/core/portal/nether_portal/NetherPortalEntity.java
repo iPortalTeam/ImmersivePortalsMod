@@ -75,11 +75,11 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         
         return blockPortalShape.area.stream()
             .allMatch(blockPos ->
-                level.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
+                level().getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
             ) &&
             blockPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
-                    O_O.isObsidian(level.getBlockState(blockPos))
+                    O_O.isObsidian(level().getBlockState(blockPos))
                 );
     }
     
@@ -90,7 +90,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             return;
         }
         
-        RandomSource random = level.getRandom();
+        RandomSource random = level().getRandom();
         
         for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
             if (random.nextInt(10) == 0) {
@@ -105,7 +105,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
                 double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
                 
-                level.addParticle(
+                level().addParticle(
                     ParticleTypes.PORTAL,
                     pos.x, pos.y, pos.z,
                     vx, vy, vz
@@ -114,7 +114,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         }
         
         if (random.nextInt(800) == 0) {
-            level.playLocalSound(
+            level().playLocalSound(
                 getX(),
                 getY(),
                 getZ(),

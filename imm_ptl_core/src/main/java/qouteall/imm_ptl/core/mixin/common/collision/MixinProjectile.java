@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
@@ -19,8 +20,9 @@ public abstract class MixinProjectile extends MixinEntity {
     
     @Inject(method = "Lnet/minecraft/world/entity/projectile/Projectile;onHit(Lnet/minecraft/world/phys/HitResult;)V", at = @At(value = "HEAD"), cancellable = true)
     protected void onHit(HitResult hitResult, CallbackInfo ci) {
+        Entity this_ = (Entity) (Object) this;
         if (hitResult instanceof BlockHitResult) {
-            Block hittingBlock = this.level.getBlockState(((BlockHitResult) hitResult).getBlockPos()).getBlock();
+            Block hittingBlock = this_.level().getBlockState(((BlockHitResult) hitResult).getBlockPos()).getBlock();
             if (hitResult.getType() == HitResult.Type.BLOCK &&
                 hittingBlock == PortalPlaceholderBlock.instance
             ) {

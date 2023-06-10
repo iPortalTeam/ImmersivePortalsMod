@@ -62,7 +62,7 @@ public class MixinPlayerList {
     )
     public void sendToDimension(Packet<?> packet, ResourceKey<Level> dimension, CallbackInfo ci) {
         for (ServerPlayer player : players) {
-            if (player.level.dimension() == dimension) {
+            if (player.level().dimension() == dimension) {
                 PacketRedirection.sendRedirectedMessage(
                     player,
                     dimension,

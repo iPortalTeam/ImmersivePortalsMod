@@ -26,7 +26,7 @@ public abstract class MixinMob {
         Mob this_ = (Mob) (Object) this;
         
         if (leashHolder != null) {
-            if (leashHolder.level != this_.level) {
+            if (leashHolder.level() != this_.level()) {
                 dropLeash(true, true);
             }
         }

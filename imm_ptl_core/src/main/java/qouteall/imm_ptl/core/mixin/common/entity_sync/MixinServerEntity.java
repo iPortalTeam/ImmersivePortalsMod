@@ -29,9 +29,6 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     @Final
     private Entity entity;
     
-    @Shadow
-    public abstract void sendPairingData(Consumer<Packet<?>> consumer_1);
-    
     @Shadow @Final private VecDeltaCodec positionCodec;
     
     // make sure that the packet is being redirected
@@ -54,7 +51,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl networkHandler,
         Packet packet
     ) {
-        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level().dimension());
     }
     
     @Redirect(
@@ -68,7 +65,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl networkHandler,
         Packet packet
     ) {
-        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level().dimension());
     }
     
     @Redirect(
@@ -82,7 +79,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
         Packet packet
     ) {
-        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet, entity.level.dimension());
+        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet, entity.level().dimension());
     }
     
     /**

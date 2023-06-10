@@ -28,7 +28,7 @@ public class ChunkVisibility {
     public static ChunkLoader playerDirectLoader(ServerPlayer player) {
         return new ChunkLoader(
             new DimensionalChunkPos(
-                player.level.dimension(),
+                player.level().dimension(),
                 player.chunkPosition()
             ),
             McHelper.getRenderDistanceOnServer(),
@@ -194,7 +194,7 @@ public class ChunkVisibility {
             Stream.of(playerDirectLoader),
             
             getNearbyPortals(
-                ((ServerLevel) player.level),
+                ((ServerLevel) player.level()),
                 player.position(),
                 portal -> portal.broadcastToPlayer(player),
                 visiblePortalRangeChunks, 256

@@ -20,7 +20,7 @@ public class MixinServerBoundMovePlayerPacket {
         double x, double y, double z, float yaw, float pitch, boolean onGround,
         boolean changePosition, boolean changeLook, CallbackInfo ci
     ) {
-        ResourceKey<Level> dimension = Minecraft.getInstance().player.level.dimension();
+        ResourceKey<Level> dimension = Minecraft.getInstance().player.level().dimension();
         ((IEPlayerMoveC2SPacket) this).setPlayerDimension(dimension);
     }
 }

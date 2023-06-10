@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -36,4 +37,6 @@ public interface IEEntity {
     // don't trigger entity section update or other update
     // as we are temporarily switching the position
     void ip_setPositionWithoutTriggeringCallback(Vec3 newPos);
+    
+    void ip_setWorld(Level world);
 }

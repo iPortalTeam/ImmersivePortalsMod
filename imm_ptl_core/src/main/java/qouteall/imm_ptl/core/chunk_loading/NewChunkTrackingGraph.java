@@ -507,7 +507,7 @@ public class NewChunkTrackingGraph {
         return getPlayersViewingChunk(dimension, x, z)
             .filter(player -> {
                 ChunkPos chunkPos = player.chunkPosition();
-                return player.level.dimension() != dimension ||
+                return player.level().dimension() != dimension ||
                     Helper.getChebyshevDistance(x, z, chunkPos.x, chunkPos.z) > 4;
             });
     }
@@ -593,7 +593,7 @@ public class NewChunkTrackingGraph {
         ChunkVisibility.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
             if (isPlayerWatchingChunk(player, dim, x, z)) {
                 
-                MyLoadingTicket.addTicketIfNotLoaded(((ServerLevel) player.level), new ChunkPos(x, z));
+                MyLoadingTicket.addTicketIfNotLoaded(((ServerLevel) player.level()), new ChunkPos(x, z));
             }
         });
     }

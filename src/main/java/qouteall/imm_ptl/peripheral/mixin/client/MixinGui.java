@@ -3,6 +3,7 @@ package qouteall.imm_ptl.peripheral.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,9 +21,9 @@ public class MixinGui {
     @Inject(
         method = "render", at = @At("RETURN")
     )
-    private void onRender(PoseStack poseStack, float partialTick, CallbackInfo ci) {
+    private void onRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (!this.minecraft.options.hideGui) {
-            ImmPtlCustomOverlay.render(poseStack, partialTick);
+            ImmPtlCustomOverlay.render(guiGraphics, partialTick);
         }
     }
 }

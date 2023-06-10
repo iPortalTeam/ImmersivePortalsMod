@@ -86,7 +86,7 @@ public class MixinClientLevel_Sound {
             return false;
         }
         
-        if (this_ != player.level) {
+        if (this_ != player.level()) {
             return false;
         }
         

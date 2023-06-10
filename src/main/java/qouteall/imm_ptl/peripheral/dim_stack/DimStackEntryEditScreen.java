@@ -2,6 +2,7 @@ package qouteall.imm_ptl.peripheral.dim_stack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -293,26 +294,26 @@ public class DimStackEntryEditScreen extends Screen {
     }
     
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        this.renderBackground(guiGraphics);
         
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(guiGraphics, mouseX, mouseY, delta);
         
-        scaleField.render(matrices, mouseX, mouseY, delta);
-        horizontalRotationField.render(matrices, mouseX, mouseY, delta);
-        topYField.render(matrices, mouseX, mouseY, delta);
-        bottomYField.render(matrices, mouseX, mouseY, delta);
-        bedrockBlockField.render(matrices, mouseX, mouseY, delta);
-        connectsPreviousButton.render(matrices, mouseX, mouseY, delta);
-        connectsNextButton.render(matrices, mouseX, mouseY, delta);
+        scaleField.render(guiGraphics, mouseX, mouseY, delta);
+        horizontalRotationField.render(guiGraphics, mouseX, mouseY, delta);
+        topYField.render(guiGraphics, mouseX, mouseY, delta);
+        bottomYField.render(guiGraphics, mouseX, mouseY, delta);
+        bedrockBlockField.render(guiGraphics, mouseX, mouseY, delta);
+        connectsPreviousButton.render(guiGraphics, mouseX, mouseY, delta);
+        connectsNextButton.render(guiGraphics, mouseX, mouseY, delta);
         
-        scaleLabelRect.renderTextLeft(Component.translatable("imm_ptl.scale"), matrices);
-        flipLabelRect.renderTextLeft(Component.translatable("imm_ptl.flipped"), matrices);
-        horizontalRotationLabelRect.renderTextLeft(Component.translatable("imm_ptl.horizontal_rotation"), matrices);
-        topYLabelRect.renderTextLeft(Component.translatable("imm_ptl.top_y"), matrices);
-        bottomYLabelRect.renderTextLeft(Component.translatable("imm_ptl.bottom_y"), matrices);
-        bedrockLabelRect.renderTextLeft(Component.translatable("imm_ptl.bedrock_replacement"), matrices);
-        connectsPreviousRect.renderTextLeft(Component.translatable("imm_ptl.connects_previous"), matrices);
-        connectsNextRect.renderTextLeft(Component.translatable("imm_ptl.connects_next"), matrices);
+        scaleLabelRect.renderTextLeft(Component.translatable("imm_ptl.scale"), guiGraphics);
+        flipLabelRect.renderTextLeft(Component.translatable("imm_ptl.flipped"), guiGraphics);
+        horizontalRotationLabelRect.renderTextLeft(Component.translatable("imm_ptl.horizontal_rotation"), guiGraphics);
+        topYLabelRect.renderTextLeft(Component.translatable("imm_ptl.top_y"), guiGraphics);
+        bottomYLabelRect.renderTextLeft(Component.translatable("imm_ptl.bottom_y"), guiGraphics);
+        bedrockLabelRect.renderTextLeft(Component.translatable("imm_ptl.bedrock_replacement"), guiGraphics);
+        connectsPreviousRect.renderTextLeft(Component.translatable("imm_ptl.connects_previous"), guiGraphics);
+        connectsNextRect.renderTextLeft(Component.translatable("imm_ptl.connects_next"), guiGraphics);
     }
 }

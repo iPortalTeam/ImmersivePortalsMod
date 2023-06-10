@@ -15,12 +15,12 @@ public class MixinLivingEntity {
     private void onTickEnded(CallbackInfo ci) {
         LivingEntity this_ = (LivingEntity) (Object) this;
         if (this_.getLastHurtByMob() != null) {
-            if (this_.getLastHurtByMob().level != this_.level) {
+            if (this_.getLastHurtByMob().level() != this_.level()) {
             	this_.setLastHurtByMob(null);
             }
         }
         if (this_.getLastHurtMob() != null) {
-            if (this_.getLastHurtMob().level != this_.level) {
+            if (this_.getLastHurtMob().level() != this_.level()) {
             	this_.setLastHurtByPlayer(null);
             }
         }

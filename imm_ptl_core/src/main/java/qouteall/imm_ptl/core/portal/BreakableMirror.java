@@ -92,9 +92,9 @@ public class BreakableMirror extends Mirror {
     @Override
     public void tick() {
         super.tick();
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             if (!unbreakable) {
-                if (level.getGameTime() % 10 == getId() % 10) {
+                if (level().getGameTime() % 10 == getId() % 10) {
                     checkWallIntegrity();
                 }
             }
@@ -110,12 +110,12 @@ public class BreakableMirror extends Mirror {
         boolean wallValid;
         if (wallArea != null) {
             wallValid = wallArea.fastStream().allMatch(
-                blockPos -> isGlass(level, blockPos)
+                blockPos -> isGlass(level(), blockPos)
             );
         }
         else if (blockPortalShape != null) {
             wallValid = blockPortalShape.area.stream().allMatch(
-                blockPos -> isGlass(level, blockPos)
+                blockPos -> isGlass(level(), blockPos)
             );
         }
         else {
@@ -223,7 +223,7 @@ public class BreakableMirror extends Mirror {
         }
         
         Vec3 center = breakableMirror.getOriginPos();
-        Level world = breakableMirror.level;
+        Level world = breakableMirror.level();
         Vec3 axisW = breakableMirror.axisW;
         Vec3 axisH = breakableMirror.axisH;
         

@@ -70,9 +70,9 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         ServerPlayer player = (ServerPlayer) triggeringEntity;
         
         
-        if (player.level != toWorld) {
+        if (player.level() != toWorld) {
             Helper.err("The player is not in the correct world " +
-                player.level.dimension().location());
+                player.level().dimension().location());
             return false;
         }
         

@@ -180,7 +180,7 @@ public class CustomPortalGenManagement {
     
     // only called when the item has a thrower
     public static void onItemTick(ItemEntity entity) {
-        Validate.isTrue(!entity.level.isClientSide());
+        Validate.isTrue(!entity.level().isClientSide());
         
         if (entity.hasPickUpDelay()) {
             Item item = entity.getItem().getItem();
@@ -188,7 +188,7 @@ public class CustomPortalGenManagement {
                 IPGlobal.serverTaskList.addTask(() -> {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
-                            ((ServerLevel) entity.level),
+                            ((ServerLevel) entity.level()),
                             entity.blockPosition(),
                             entity
                         );
@@ -207,7 +207,7 @@ public class CustomPortalGenManagement {
         ServerPlayer player
     ) {
         playerPosBeforeTravel.put(
-            player.getUUID(), new WithDim<>(player.level.dimension(), player.position())
+            player.getUUID(), new WithDim<>(player.level().dimension(), player.position())
         );
     }
     

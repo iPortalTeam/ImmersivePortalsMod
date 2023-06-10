@@ -250,7 +250,7 @@ public class GlobalPortalStorage extends SavedData {
         Validate.notNull(currWorld);
         
         for (Portal portal : data) {
-            Validate.isTrue(portal.level == currWorld);
+            Validate.isTrue(portal.level() == currWorld);
             CompoundTag portalTag = new CompoundTag();
             portal.saveWithoutId(portalTag);
             portalTag.putString(
@@ -327,7 +327,7 @@ public class GlobalPortalStorage extends SavedData {
     
     public static void convertNormalPortalIntoGlobalPortal(Portal portal) {
         Validate.isTrue(!portal.getIsGlobal());
-        Validate.isTrue(!portal.level.isClientSide());
+        Validate.isTrue(!portal.level().isClientSide());
         
         //global portal can only be square
         portal.specialShape = null;
@@ -336,14 +336,14 @@ public class GlobalPortalStorage extends SavedData {
         
         Portal newPortal = McHelper.copyEntity(portal);
         
-        get(((ServerLevel) portal.level)).addPortal(newPortal);
+        get(((ServerLevel) portal.level())).addPortal(newPortal);
     }
     
     public static void convertGlobalPortalIntoNormalPortal(Portal portal) {
         Validate.isTrue(portal.getIsGlobal());
-        Validate.isTrue(!portal.level.isClientSide());
+        Validate.isTrue(!portal.level().isClientSide());
         
-        get(((ServerLevel) portal.level)).removePortal(portal);
+        get(((ServerLevel) portal.level())).removePortal(portal);
         
         Portal newPortal = McHelper.copyEntity(portal);
         

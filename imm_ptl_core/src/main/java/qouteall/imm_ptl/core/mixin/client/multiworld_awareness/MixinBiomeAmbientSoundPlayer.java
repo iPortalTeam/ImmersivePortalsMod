@@ -25,6 +25,6 @@ public class MixinBiomeAmbientSoundPlayer {
     // change the biomeAccess field when player dimension changes
     @Inject(method = "Lnet/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler;tick()V", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
-        biomeManager = player.level.getBiomeManager();
+        biomeManager = player.level().getBiomeManager();
     }
 }

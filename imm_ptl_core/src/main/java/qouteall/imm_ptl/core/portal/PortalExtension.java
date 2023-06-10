@@ -138,7 +138,7 @@ public class PortalExtension {
     }
     
     private void tick(Portal portal) {
-        if (portal.level.isClientSide()) {
+        if (portal.level().isClientSide()) {
             updateClusterStatusClient(portal);
         }
         else {
@@ -173,7 +173,7 @@ public class PortalExtension {
             if (flippedPortalId != null) {
                 // if the id is not null, find the portal entity
                 if (flippedPortal == null) {
-                    Entity e = ((IEWorld) portal.level).portal_getEntityLookup().get(flippedPortalId);
+                    Entity e = ((IEWorld) portal.level()).portal_getEntityLookup().get(flippedPortalId);
                     if (e instanceof Portal p) {
                         flippedPortal = p;
                     }
@@ -285,7 +285,7 @@ public class PortalExtension {
         if (bindCluster) {
             if (flippedPortalId != null) {
                 // if the id is not null, find the portal
-                Entity e = ((IEWorld) portal.level).portal_getEntityLookup().get(flippedPortalId);
+                Entity e = ((IEWorld) portal.level()).portal_getEntityLookup().get(flippedPortalId);
                 if (e instanceof Portal p) {
                     flippedPortal = p;
                 }
@@ -329,7 +329,7 @@ public class PortalExtension {
         if (flippedPortal != null) {
             flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 flippedPortal,
-                portal.level.dimension(),
+                portal.level().dimension(),
                 portal.getOriginPos()
             );
             

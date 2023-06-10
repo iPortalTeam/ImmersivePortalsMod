@@ -110,7 +110,7 @@ public class ClientPortalWandPortalCreation {
         
         ResourceKey<Level> cursorLimitingDim = protoPortal.getCursorConstraintDim();
         
-        if (cursorLimitingDim != null && player.level.dimension() != cursorLimitingDim) {
+        if (cursorLimitingDim != null && player.level().dimension() != cursorLimitingDim) {
             cursor.clearTarget();
             renderedPlane.clearTarget();
             return;
@@ -131,7 +131,7 @@ public class ClientPortalWandPortalCreation {
             if (cursorPointing != null) {
                 // align it and then project onto plane
                 // aligning may cause it to be out of the plane
-                cursorPointing = align(player.level, cursorPointing, alignment);
+                cursorPointing = align(player.level(), cursorPointing, alignment);
                 cursorPointing = limitingPlane.value().getProjection(cursorPointing);
                 
                 if (limitingCircle != null) {
@@ -145,7 +145,7 @@ public class ClientPortalWandPortalCreation {
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
-                cursorPointing = align(player.level, blockHitResult.getLocation(), alignment);
+                cursorPointing = align(player.level(), blockHitResult.getLocation(), alignment);
             }
         }
         
@@ -165,7 +165,7 @@ public class ClientPortalWandPortalCreation {
         
         if (cursorPointing != null) {
             ProtoPortal pendingState = protoPortal.copy();
-            boolean canPlace = pendingState.tryPlaceCursor(player.level.dimension(), cursorPointing);
+            boolean canPlace = pendingState.tryPlaceCursor(player.level().dimension(), cursorPointing);
             if (!canPlace || !pendingState.isValidPlacement()) {
                 cursorPointing = null;
                 pendingState = null;
@@ -266,7 +266,7 @@ public class ClientPortalWandPortalCreation {
             return;
         }
         
-        ResourceKey<Level> currDim = player.level.dimension();
+        ResourceKey<Level> currDim = player.level().dimension();
         
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
         Vec3 cameraPos = new Vec3(camX, camY, camZ);

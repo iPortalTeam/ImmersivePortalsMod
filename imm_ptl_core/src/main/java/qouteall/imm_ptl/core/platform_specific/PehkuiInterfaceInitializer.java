@@ -154,7 +154,7 @@ public class PehkuiInterfaceInitializer {
         float oldScale = PehkuiInterface.invoker.getBaseScale(entity);
         float newScale = transformScale(portal, oldScale);
         
-        if (!entity.level.isClientSide && isScaleIllegal(newScale)) {
+        if (!entity.level().isClientSide && isScaleIllegal(newScale)) {
             newScale = 1;
             entity.sendSystemMessage(
                 Component.literal("Scale out of range")
@@ -163,7 +163,7 @@ public class PehkuiInterfaceInitializer {
         
         PehkuiInterface.invoker.setBaseScale(entity, newScale);
         
-        if (!entity.level.isClientSide) {
+        if (!entity.level().isClientSide) {
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
             McHelper.updateBoundingBox(entity);
             

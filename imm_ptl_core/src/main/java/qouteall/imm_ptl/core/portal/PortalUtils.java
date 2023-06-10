@@ -73,7 +73,7 @@ public class PortalUtils {
     ) {
         Vec3 from = player.getEyePosition(tickDelta);
         Vec3 to = from.add(player.getViewVector(tickDelta).scale(maxDistance));
-        Level world = player.level;
+        Level world = player.level();
         return raytracePortals(world, from, to, includeGlobalPortal, predicate);
     }
     
@@ -88,7 +88,7 @@ public class PortalUtils {
         Entity entity, double maxDistance
     ) {
         return portalAwareRayTrace(
-            entity.level,
+            entity.level(),
             entity.getEyePosition(),
             entity.getViewVector(1),
             maxDistance,

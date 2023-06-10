@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.imm_ptl.core.portal.PortalUtils;
@@ -74,7 +75,7 @@ public class BlockManipulationClient {
                 updateTargetedBlockThroughPortal(
                     cameraPos,
                     client.player.getViewVector(tickDelta),
-                    client.player.level.dimension(),
+                    client.player.level().dimension(),
                     distanceToPortalPointing,
                     reachDistance,
                     portal
@@ -327,16 +328,16 @@ public class BlockManipulationClient {
         return IPMcHelper.withSwitchedContext(
             targetWorld,
             () -> {
-                Level oldWorld = client.player.level;
+                Level oldWorld = client.player.level();
                 
                 isContextSwitched = true;
-                client.player.level = targetWorld;
+                ((IEEntity) client.player).ip_setWorld(targetWorld);
                 try {
                     return supplier.get();
                 }
                 finally {
                     isContextSwitched = false;
-                    client.player.level = oldWorld;
+                    ((IEEntity) client.player).ip_setWorld(oldWorld);
                 }
             }
         );

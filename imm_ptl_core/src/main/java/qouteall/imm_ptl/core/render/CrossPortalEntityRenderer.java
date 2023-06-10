@@ -213,7 +213,7 @@ public class CrossPortalEntityRenderer {
         
         Vec3 oldEyePos = McHelper.getEyePos(entity);
         Vec3 oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
-        Level oldWorld = entity.level;
+        Level oldWorld = entity.level();
         
         Vec3 newEyePos = transformingPortal.transformPoint(oldEyePos);
         
@@ -264,31 +264,34 @@ public class CrossPortalEntityRenderer {
             transformingPortal.transformPoint(oldLastTickEyePos)
         );
         
-        entity.level = newWorld;
+        ((IEEntity) entity).ip_setWorld(newWorld);
         
         isRenderingEntityProjection = true;
         matrixStack.pushPose();
-        setupEntityProjectionRenderingTransformation(
-            transformingPortal, entity, matrixStack
-        );
-        
-        MultiBufferSource.BufferSource consumers = client.renderBuffers().bufferSource();
-        ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
-            entity,
-            cameraPos.x, cameraPos.y, cameraPos.z,
-            RenderStates.getPartialTick(), matrixStack,
-            consumers
-        );
-        //immediately invoke draw call
-        consumers.endBatch();
-        
-        matrixStack.popPose();
-        isRenderingEntityProjection = false;
-        
-        McHelper.setEyePos(
-            entity, oldEyePos, oldLastTickEyePos
-        );
-        entity.level = oldWorld;
+        try {
+            setupEntityProjectionRenderingTransformation(
+                transformingPortal, entity, matrixStack
+            );
+            
+            MultiBufferSource.BufferSource consumers = client.renderBuffers().bufferSource();
+            ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
+                entity,
+                cameraPos.x, cameraPos.y, cameraPos.z,
+                RenderStates.getPartialTick(), matrixStack,
+                consumers
+            );
+            //immediately invoke draw call
+            consumers.endBatch();
+        }
+        finally {
+            matrixStack.popPose();
+            isRenderingEntityProjection = false;
+            
+            McHelper.setEyePos(
+                entity, oldEyePos, oldLastTickEyePos
+            );
+            ((IEEntity) entity).ip_setWorld(oldWorld);
+        }
     }
     
     private static void setupEntityProjectionRenderingTransformation(
@@ -337,7 +340,7 @@ public class CrossPortalEntityRenderer {
             }
         }
         
-        if (client.level == player.level) {
+        if (client.level == player.level()) {
             return true;
         }
         

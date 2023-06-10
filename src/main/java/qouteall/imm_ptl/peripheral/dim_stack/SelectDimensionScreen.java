@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -74,16 +75,15 @@ public class SelectDimensionScreen extends Screen {
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrixStack);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        this.renderBackground(guiGraphics);
         
-        dimListWidget.render(matrixStack, mouseX, mouseY, delta);
+        dimListWidget.render(guiGraphics, mouseX, mouseY, delta);
         
-        super.render(matrixStack, mouseX, mouseY, delta);
+        super.render(guiGraphics, mouseX, mouseY, delta);
         
-        
-        this.drawCenteredString(
-            matrixStack, this.font, this.title.getString(), this.width / 2, 10, -1
+        guiGraphics.drawCenteredString(
+            this.font, this.title.getString(), this.width / 2, 10, -1
         );
     }
 }

@@ -90,7 +90,7 @@ public class NetherPortalGeneration {
     
     private static boolean isFloating(ServerLevel toWorld, IntBox foundAirCube) {
         return foundAirCube.getSurfaceLayer(Direction.DOWN).stream().noneMatch(
-            blockPos -> toWorld.getBlockState(blockPos.below()).getMaterial().isSolid()
+            blockPos -> toWorld.getBlockState(blockPos.below()).isSolid()
         );
     }
     
