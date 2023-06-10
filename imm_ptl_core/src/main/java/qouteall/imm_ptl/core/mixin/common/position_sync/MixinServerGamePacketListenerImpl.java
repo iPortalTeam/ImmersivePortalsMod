@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
@@ -13,7 +14,12 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -212,6 +219,58 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         
         this.player.connection.send(lookPacket);
     }
+    
+    // make the server to consider player movement valid when touching portal,
+    // so it will not send teleport packet to client
+    @Inject(
+        method = "isPlayerCollidingWithAnythingNew",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onIsPlayerCollidingWithAnythingNew(
+        LevelReader levelReader, AABB aABB, double d, double e, double f,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (((IEEntity) player).isRecentlyCollidingWithPortal()) {
+            cir.setReturnValue(false);
+        }
+    }
+    
+//    @Overwrite
+//    @IPVanillaCopy
+//    private boolean isPlayerCollidingWithAnythingNew(
+//        LevelReader levelReader, AABB originalBB,
+//        double newX, double newY, double newZ
+//    ) {
+//        AABB originalBBClipped = ((IEEntity) player).ip_getActiveCollisionBox(originalBB);
+//
+//        if (originalBBClipped == null) {
+//            return false;
+//        }
+//
+//        AABB newBB = this.player.getBoundingBox()
+//            .move(newX - this.player.getX(), newY - this.player.getY(), newZ - this.player.getZ());
+//
+//        AABB newBBClipped = ((IEEntity) player).ip_getActiveCollisionBox(newBB);
+//
+//        if (newBBClipped == null) {
+//            return false;
+//        }
+//
+//        Iterable<VoxelShape> newCollisions =
+//            levelReader.getCollisions(this.player, newBBClipped.deflate(1.0E-5f));
+//
+//        VoxelShape originalBBCollision = Shapes.create(originalBBClipped.deflate(1.0E-5f));
+//
+//        for (VoxelShape shape : newCollisions) {
+//            // if there are new collisions that does not intersect with the original bounding box
+//            // then it's colliding with something new
+//            if (!Shapes.joinIsNotEmpty(shape, originalBBCollision, BooleanOp.AND)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
     
     @Inject(
         method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleAcceptTeleportPacket(Lnet/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket;)V",

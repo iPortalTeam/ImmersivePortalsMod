@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -67,6 +68,8 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Shadow public abstract RegistryAccess registryAccess();
     
     @Shadow private LayeredRegistryAccess<ClientRegistryLayer> registryAccess;
+    
+    @Shadow @Final private static Logger LOGGER;
     
     @Override
     public void ip_setWorld(ClientLevel world) {
@@ -136,6 +139,10 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         
         IPCGlobal.clientTeleportationManager.disableTeleportFor(5);
         
+        LOGGER.info(
+            "[ImmPtl] Client accepted position packet {} {} {} {}",
+            playerDimension.location(), packet.getX(), packet.getY(), packet.getZ()
+        );
     }
     
     private boolean isReProcessingPassengerPacket;
