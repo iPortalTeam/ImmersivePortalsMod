@@ -1,13 +1,5 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
-import net.coderbot.iris.rendertarget.DepthTexture;
-import net.coderbot.iris.shadows.ShadowRenderTargets;
-import org.apache.commons.lang3.Validate;
-import org.lwjgl.opengl.GL43C;
-
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-
 public class ShadowMapSwapper {
     // only compilable with the next version of Iris
     

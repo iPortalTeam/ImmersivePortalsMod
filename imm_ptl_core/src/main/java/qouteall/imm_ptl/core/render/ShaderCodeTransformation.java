@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.render;
 
 import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.shaders.Program;
+import net.minecraft.resources.ResourceLocation;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
-import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;

@@ -10,7 +10,6 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.HashSet;
 
 @Config(name = "immersive_portals")

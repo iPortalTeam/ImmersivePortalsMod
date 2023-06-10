@@ -1,12 +1,7 @@
 package qouteall.q_misc_util.mixin;
 
-import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.MappedRegistry;
-import net.minecraft.resources.ResourceKey;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import qouteall.q_misc_util.MiscGlobals;
 
 @Mixin(MappedRegistry.class)
 public class MixinMappedRegistry<T> {

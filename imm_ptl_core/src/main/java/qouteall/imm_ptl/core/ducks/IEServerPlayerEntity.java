@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.phys.Vec3;
 
 public interface IEServerPlayerEntity {

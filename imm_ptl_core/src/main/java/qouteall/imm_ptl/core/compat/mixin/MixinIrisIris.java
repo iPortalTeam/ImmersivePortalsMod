@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.compat.mixin;
 
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.shaderpack.DimensionId;
-import net.fabricmc.loader.api.FabricLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

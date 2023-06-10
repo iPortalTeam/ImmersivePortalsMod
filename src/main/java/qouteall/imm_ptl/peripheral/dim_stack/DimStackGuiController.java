@@ -11,7 +11,6 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
-import qouteall.imm_ptl.peripheral.guide.IPOuterClientMisc;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;

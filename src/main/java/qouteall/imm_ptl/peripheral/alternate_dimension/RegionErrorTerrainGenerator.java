@@ -1,9 +1,10 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import java.util.Arrays;
-import java.util.Random;
 import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Arrays;
+import java.util.Random;
 
 public class RegionErrorTerrainGenerator {
     public static interface Composition {

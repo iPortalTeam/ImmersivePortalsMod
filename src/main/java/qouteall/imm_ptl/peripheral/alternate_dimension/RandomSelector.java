@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
+import net.minecraft.util.Tuple;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import net.minecraft.util.Tuple;
 
 public class RandomSelector<T> {
     private Object[] entries;

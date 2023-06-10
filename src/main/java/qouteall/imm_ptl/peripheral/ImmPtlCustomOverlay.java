@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.peripheral;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -8,14 +7,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Make this because {@link Gui#setOverlayMessage(Component, boolean)} does not support multi-line

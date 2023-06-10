@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
+import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ClientboundPlayerPositionPacket.class)
 public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2CPacket {

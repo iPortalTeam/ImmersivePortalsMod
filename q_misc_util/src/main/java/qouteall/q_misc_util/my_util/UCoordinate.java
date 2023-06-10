@@ -1,12 +1,12 @@
 package qouteall.q_misc_util.my_util;
 
-import org.apache.commons.lang3.Validate;
-
-import java.util.Objects;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
+
+import java.util.Objects;
 
 // TODO remove in 1.20
 @Deprecated

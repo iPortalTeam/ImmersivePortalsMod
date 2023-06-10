@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nonnull;

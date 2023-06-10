@@ -3,7 +3,6 @@ package qouteall.imm_ptl.peripheral.dim_stack;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.dimension.DimId;
 
 import javax.annotation.Nullable;

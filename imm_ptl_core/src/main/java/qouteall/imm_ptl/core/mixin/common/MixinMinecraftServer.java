@@ -1,14 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.datafixers.DataFixer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.Services;
-import net.minecraft.server.WorldStem;
-import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -19,11 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.dimension.DimensionIdManagement;
 import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
-import qouteall.imm_ptl.core.platform_specific.O_O;
 
-import java.net.Proxy;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)

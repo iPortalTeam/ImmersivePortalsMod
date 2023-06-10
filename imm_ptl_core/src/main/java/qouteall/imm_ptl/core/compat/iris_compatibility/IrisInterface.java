@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
-import net.coderbot.iris.shaderpack.ShaderPack;
 import net.minecraft.client.renderer.LevelRenderer;
 import qouteall.q_misc_util.Helper;
 

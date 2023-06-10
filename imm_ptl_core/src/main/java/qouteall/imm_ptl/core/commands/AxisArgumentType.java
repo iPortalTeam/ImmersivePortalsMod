@@ -14,7 +14,6 @@ import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 
 import java.util.Arrays;
 import java.util.Collection;

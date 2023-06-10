@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Mixin(EntitySectionStorage.class)

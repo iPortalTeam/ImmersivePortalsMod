@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.q_misc_util.Helper;
 
 @Mixin(ContainerOpenersCounter.class)
 public abstract class MixinContainerOpenersCounter {

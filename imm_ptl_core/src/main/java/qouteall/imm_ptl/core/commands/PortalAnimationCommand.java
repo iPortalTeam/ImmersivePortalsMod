@@ -16,7 +16,14 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
-import qouteall.imm_ptl.core.portal.animation.*;
+import qouteall.imm_ptl.core.portal.animation.AnimationView;
+import qouteall.imm_ptl.core.portal.animation.DeltaUnilateralPortalState;
+import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
+import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
+import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
+import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
+import qouteall.imm_ptl.core.portal.animation.TimingFunction;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.my_util.Access;
 import qouteall.q_misc_util.my_util.Vec2d;
 

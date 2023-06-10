@@ -9,7 +9,6 @@ import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.q_misc_util.Helper;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class IPPortingLibCompat {
     

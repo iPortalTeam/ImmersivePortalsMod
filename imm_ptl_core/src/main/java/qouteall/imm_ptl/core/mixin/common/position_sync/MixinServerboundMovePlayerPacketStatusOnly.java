@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
+import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ServerboundMovePlayerPacket.StatusOnly.class)
 public class MixinServerboundMovePlayerPacketStatusOnly {

@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.RegistryAccess;
 
 import java.util.Map;
 

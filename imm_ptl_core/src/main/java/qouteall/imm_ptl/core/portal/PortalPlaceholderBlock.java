@@ -19,8 +19,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 
-import java.util.Random;
-
 public class PortalPlaceholderBlock extends Block {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final VoxelShape X_AABB = Block.box(
