@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral.mixin.common.end_portal;
+package qouteall.imm_ptl.core.mixin.common.miscellaneous;
 
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import org.spongepowered.asm.mixin.Mixin;

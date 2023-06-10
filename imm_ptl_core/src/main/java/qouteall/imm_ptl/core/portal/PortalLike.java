@@ -107,7 +107,7 @@ public interface PortalLike {
             return true;
         }
         
-        double v = entityPos.subtract(innerClipping.pos).dot(innerClipping.normal);
+        double v = entityPos.subtract(innerClipping.pos()).dot(innerClipping.normal());
         return v > valve;
     }
     

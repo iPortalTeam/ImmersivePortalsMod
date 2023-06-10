@@ -217,8 +217,8 @@ public class Animated<T> {
                 return false;
             }
             
-            return a.plane().value().pos.distanceToSqr(b.plane().value().pos) < 0.01
-                && a.plane().value().normal.distanceToSqr(b.plane().value().normal) < 0.01
+            return a.plane().value().pos().distanceToSqr(b.plane().value().pos()) < 0.01
+                && a.plane().value().normal().distanceToSqr(b.plane().value().normal()) < 0.01
                 && Math.abs(a.scale() - b.scale()) < 0.01;
         }
         

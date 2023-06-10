@@ -67,18 +67,7 @@ public class DimStackManagement {
             dimStackToApply = null;
         }
         else {
-            
             updateBedrockReplacementFromStorage(server);
-            
-            GameRules gameRules = server.getGameRules();
-            GameRules.BooleanValue o = gameRules.getRule(DimStackGameRule.dimensionStackKey);
-            if (o.get()) {
-                // legacy dimension stack
-                
-                o.set(false, server);
-                
-                upgradeLegacyDimensionStack(server);
-            }
         }
     }
     

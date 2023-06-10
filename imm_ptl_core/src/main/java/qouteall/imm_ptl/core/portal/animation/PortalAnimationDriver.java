@@ -60,7 +60,6 @@ public interface PortalAnimationDriver {
         AnimationContext context
     );
     
-    // TODO remove the default implementation in 1.20
     /**
      * Get the ending state of the animation.
      * This is used when creating a new animation when existing animation is running.
@@ -70,9 +69,7 @@ public interface PortalAnimationDriver {
      * @return The ending state. Null if the animation is infinite.
      */
     @Nullable
-    default DeltaUnilateralPortalState getEndingResult(long tickTime, AnimationContext context) {
-        return null;
-    }
+    DeltaUnilateralPortalState getEndingResult(long tickTime, AnimationContext context);
     
     /**
      * @return A flipped version of this animation for the flipped portal.

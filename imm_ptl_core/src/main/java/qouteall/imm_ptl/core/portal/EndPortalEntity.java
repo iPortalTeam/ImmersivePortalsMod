@@ -18,6 +18,7 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.mixin.common.miscellaneous.IEEndDragonFight;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -32,10 +34,6 @@ import java.util.Objects;
 
 public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
-    
-    // call code in the outer mod
-    // TODO move end portal to the outer mod in 1.20
-    public static Runnable updateDragonFightStatusFunc;
     
     public static EntityType<EndPortalEntity> entityType;
     
@@ -53,7 +51,8 @@ public class EndPortalEntity extends Portal {
     }
     
     public static void onEndPortalComplete(ServerLevel world, Vec3 portalCenter) {
-        if (MiscHelper.getServer().getLevel(Level.END) == null) {
+        ServerLevel endDim = MiscHelper.getServer().getLevel(Level.END);
+        if (endDim == null) {
             // there is no end dimension (custom preset can remove the end dimension)
             return;
         }
@@ -78,8 +77,13 @@ public class EndPortalEntity extends Portal {
         // going through portal, the player may fall into void
         ServerLevel.makeObsidianPlatform(world);
         
-        if (updateDragonFightStatusFunc != null) {
-            updateDragonFightStatusFunc.run();
+        // update dragon fight info
+        EndDragonFight dragonFight = world.getDragonFight();
+        if (dragonFight == null) {
+            return;
+        }
+        if (((IEEndDragonFight) dragonFight).ip_getNeedsStateScanning()) {
+            ((IEEndDragonFight) dragonFight).ip_scanState();
         }
     }
     

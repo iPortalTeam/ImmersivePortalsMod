@@ -698,7 +698,7 @@ public class ClientPortalWandPortalDrag {
             candidates.stream(),
             candidates.stream().map(p -> Pair.of(p.getFirst().getOpposite(), p.getSecond()))
         ).min(
-            Comparator.comparingDouble(p -> p.getFirst().normal.dot(viewVec))
+            Comparator.comparingDouble(p -> p.getFirst().normal().dot(viewVec))
         ).orElseThrow();
     }
     

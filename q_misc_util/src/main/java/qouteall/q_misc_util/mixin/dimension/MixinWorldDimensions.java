@@ -31,7 +31,8 @@ public class MixinWorldDimensions {
         method = "bake",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/serialization/Lifecycle;experimental()Lcom/mojang/serialization/Lifecycle;"
+            target = "Lcom/mojang/serialization/Lifecycle;experimental()Lcom/mojang/serialization/Lifecycle;",
+            remap = false
         )
     )
     private Lifecycle redirectLifecycle() {

@@ -61,7 +61,7 @@ public class FrontClipping {
         final Plane clipping = portalLike.getInnerClipping();
         
         if (clipping != null) {
-            activeClipPlaneEquation = getClipEquationInner(doCompensate, clipping.pos, clipping.normal);
+            activeClipPlaneEquation = getClipEquationInner(doCompensate, clipping.pos(), clipping.normal());
             activeClipPlaneForEntities = transformClipEquation(activeClipPlaneEquation, matrixStack);
             
             enableClipping();

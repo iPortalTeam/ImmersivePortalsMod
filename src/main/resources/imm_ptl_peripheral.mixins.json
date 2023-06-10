@@ -12,7 +12,6 @@
     "common.dim_stack.MixinLevelInfo",
     "common.dim_stack.MixinLevelProperties",
     "common.dim_stack.MixinMinecraftServer_DimStack",
-    "common.end_portal.IEEndDragonFight",
     "common.end_portal.MixinEnderEyeItem",
     "common.fix_concurrency.MixinWeightedList",
     "common.nether_portal.MixinAbstractFireBlock",

@@ -110,8 +110,8 @@ public class WireRenderingHelper {
             return;
         }
         
-        Vec3 planeCenter = plane.pos;
-        Vec3 normal = plane.normal;
+        Vec3 planeCenter = plane.pos();
+        Vec3 normal = plane.normal();
         
         Vec3 anyVecNonNormal = new Vec3(13, 29, 71).normalize();
         if (Math.abs(normal.dot(anyVecNonNormal)) > 0.99) {
@@ -174,8 +174,8 @@ public class WireRenderingHelper {
             return;
         }
         
-        Vec3 planeCenter = circle.plane().pos;
-        Vec3 normal = circle.plane().normal;
+        Vec3 planeCenter = circle.plane().pos();
+        Vec3 normal = circle.plane().normal();
         
         Vec3 anyVecNonNormal = new Vec3(0, 1, 0);
         if (Math.abs(normal.dot(anyVecNonNormal)) > 0.9) {
