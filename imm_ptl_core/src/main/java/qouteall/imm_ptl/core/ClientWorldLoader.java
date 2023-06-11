@@ -68,6 +68,8 @@ public class ClientWorldLoader {
     
     public static boolean isClientRemoteTicking = false;
     
+    private static boolean isWorldSwitched = false;
+    
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
         
@@ -465,6 +467,7 @@ public class ClientWorldLoader {
         ClientLevel originalWorld = client.level;
         LevelRenderer originalWorldRenderer = client.levelRenderer;
         ClientLevel originalNetHandlerWorld = networkHandler.getLevel();
+        boolean originalIsWorldSwitched = isWorldSwitched;
         
         LevelRenderer newWorldRenderer = getWorldRenderer(newWorld.dimension());
         
@@ -474,8 +477,10 @@ public class ClientWorldLoader {
         ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
+        isWorldSwitched = true;
         
         try {
+            
             return supplier.get();
         }
         finally {
@@ -489,6 +494,7 @@ public class ClientWorldLoader {
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleEngine).ip_setWorld(originalWorld);
             ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
+            isWorldSwitched = originalIsWorldSwitched;
         }
     }
     
@@ -511,6 +517,10 @@ public class ClientWorldLoader {
         }
         
         withSwitchedWorld(world, runnable);
+    }
+    
+    public static boolean getIsWorldSwitched() {
+        return isWorldSwitched;
     }
     
     public static class RemoteCallables {

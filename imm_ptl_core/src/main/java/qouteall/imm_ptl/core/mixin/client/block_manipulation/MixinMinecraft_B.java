@@ -1,5 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.InteractionHand;
@@ -28,59 +31,86 @@ public abstract class MixinMinecraft_B {
     @Shadow
     protected int missTime;
     
-    @Inject(
-        method = "Lnet/minecraft/client/Minecraft;continueAttack(Z)V",
+    @Shadow
+    protected abstract boolean startAttack();
+    
+    @Shadow
+    protected abstract void continueAttack(boolean leftClick);
+    
+    @Shadow
+    protected abstract void startUseItem();
+    
+    @WrapOperation(
+        method = "handleKeybinds",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z"
-        ),
-        cancellable = true
+            target = "Lnet/minecraft/client/Minecraft;startAttack()Z"
+        )
     )
-    private void onHandleBlockBreaking(boolean isKeyPressed, CallbackInfo ci) {
+    private boolean wrapStartAttack(Minecraft instance, Operation<Boolean> original) {
+        ClientLevel remoteWorld = BlockManipulationClient.getRemotePointedWorld();
         if (BlockManipulationClient.isPointingToPortal()) {
-            BlockManipulationClient.myHandleBlockBreaking(isKeyPressed);
-            ci.cancel();
+            BlockManipulationClient.withSwitched(
+                () -> original.call(instance)
+            );
+            return false;
+        }
+        else {
+            return original.call(instance);
         }
     }
     
-    @Inject(
-        method = "startAttack",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onDoAttack(CallbackInfoReturnable<Boolean> cir) {
-        if (missTime <= 0) {
-            if (BlockManipulationClient.isPointingToPortal()) {
-                boolean result = BlockManipulationClient.myAttackBlock();
-                cir.setReturnValue(result);
-            }
-        }
-    }
-    
-    @Inject(
-        method = "Lnet/minecraft/client/Minecraft;startUseItem()V",
+    @WrapOperation(
+        method = "handleKeybinds",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"
-        ),
-        cancellable = true
+            target = "Lnet/minecraft/client/Minecraft;continueAttack(Z)V"
+        )
     )
-    private void onDoItemUse(CallbackInfo ci) {
+    private void wrapContinueAttack(Minecraft instance, boolean leftClick, Operation<Void> original) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            // supporting offhand is unnecessary
-            BlockManipulationClient.myItemUse(InteractionHand.MAIN_HAND);
-            ci.cancel();
+            BlockManipulationClient.withSwitched(
+                () -> {
+                    original.call(instance, leftClick);
+                    return null;
+                }
+            );
+        }
+        else {
+            original.call(instance, leftClick);
         }
     }
     
-    @Redirect(
-        method = "Lnet/minecraft/client/Minecraft;handleKeybinds()V",
+    @WrapOperation(
+        method = "handleKeybinds",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/Minecraft;startUseItem()V"
+        )
+    )
+    private void wrapStartUseItem(Minecraft instance, Operation<Void> original) {
+        if (BlockManipulationClient.isPointingToPortal()) {
+            BlockManipulationClient.withSwitched(
+                () -> {
+                    original.call(instance);
+                    return null;
+                }
+            );
+            
+        }
+        else {
+            original.call(instance);
+        }
+    }
+    
+    @WrapOperation(
+        method = "handleKeybinds",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/Minecraft;pickBlock()V"
         )
     )
-    private void redirectDoItemPick(Minecraft minecraftClient) {
+    private void wrapPickBlock(Minecraft instance, Operation<Void> original) {
         if (BlockManipulationClient.isPointingToPortal()) {
             ClientLevel remoteWorld = ClientWorldLoader.getWorld(BlockManipulationClient.remotePointedDim);
             ClientLevel oldWorld = this.level;
@@ -89,13 +119,16 @@ public abstract class MixinMinecraft_B {
             level = remoteWorld;
             hitResult = BlockManipulationClient.remoteHitResult;
             
-            pickBlock();
-            
-            level = oldWorld;
-            hitResult = oldTarget;
+            try {
+                original.call(instance);
+            }
+            finally {
+                level = oldWorld;
+                hitResult = oldTarget;
+            }
         }
         else {
-            pickBlock();
+            original.call(instance);
         }
     }
 }

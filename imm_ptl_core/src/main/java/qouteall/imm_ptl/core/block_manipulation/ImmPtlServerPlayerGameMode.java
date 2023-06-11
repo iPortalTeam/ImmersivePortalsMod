@@ -37,12 +37,14 @@ import java.util.Objects;
  * The copy of {@link net.minecraft.server.level.ServerPlayerGameMode} that handles not only one dimension.
  * Use copying instead of Mixin to avoid complexity (using Mixins require tons of injections and is error-prone)
  *  and mod compatibility (switching level field make it not thread-safe with dimensional threading).
+ * Even it's written using Mixin, it still requires inspection when upgrading MC version.
  * Changes:
  * - remove level field and pass level by argument.
  * - change player.level() to the argument level
  * - record the level for destroyPos and delayedDestroyPos.
  * - use withForceRedirect
  * - removed the distance check and height check
+ * - use another constructor of UseOnContext to specify level
  * Note: Needs to fire Fabric and Forge events.
  */
 @IPVanillaCopy
@@ -335,7 +337,7 @@ public class ImmPtlServerPlayerGameMode {
                 if (stack.isEmpty() || player.getCooldowns().isOnCooldown(stack.getItem())) {
                     return InteractionResult.PASS;
                 }
-                UseOnContext useOnContext = new UseOnContext(player, hand, hitResult);
+                UseOnContext useOnContext = new UseOnContext(level, player, hand, player.getItemInHand(hand), hitResult);
                 if (player.isCreative()) {
                     int i = stack.getCount();
                     interactionResult2 = stack.useOn(useOnContext);
