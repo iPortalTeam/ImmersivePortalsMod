@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
@@ -24,8 +25,10 @@ import qouteall.q_misc_util.my_util.SignalBiArged;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -47,11 +50,15 @@ public class NewChunkTrackingGraph {
         public boolean isDirectLoading;
         public boolean isLoadedToPlayer;
         public boolean isValid = true;
+        public boolean isBoundary = false;
+        // the light data is only sent on visibility boundary
+        // as the client can calculate light from block data
         
         public PlayerWatchRecord(
             ServerPlayer player, ResourceKey<Level> dimension,
             long chunkPos, long lastWatchTime,
-            int distanceToSource, boolean isDirectLoading, boolean isLoadedToPlayer
+            int distanceToSource, boolean isDirectLoading, boolean isLoadedToPlayer,
+            boolean isBoundary
         ) {
             this.player = player;
             this.dimension = dimension;
@@ -60,6 +67,7 @@ public class NewChunkTrackingGraph {
             this.distanceToSource = distanceToSource;
             this.isDirectLoading = isDirectLoading;
             this.isLoadedToPlayer = isLoadedToPlayer;
+            this.isBoundary = isBoundary;
         }
         
         @Override
@@ -247,12 +255,14 @@ public class NewChunkTrackingGraph {
                     chunkPos,
                     k -> new ArrayList<>()
                 );
+    
+                boolean isBoundary = distanceToSource == chunkLoader.radius;
                 
                 int index = Helper.indexOf(records, r -> r.player == player);
                 if (index == -1) {
                     PlayerWatchRecord newRecord = new PlayerWatchRecord(
                         player, dimension, chunkPos, gameTime, distanceToSource, chunkLoader.isDirectLoader,
-                        false
+                        false, isBoundary
                     );
                     records.add(newRecord);
                     playerInfo.markPendingLoading(newRecord);
@@ -268,7 +278,8 @@ public class NewChunkTrackingGraph {
                             playerInfo.markPendingLoading(record);
                         }
                         
-                        record.isDirectLoading = (record.isDirectLoading | chunkLoader.isDirectLoader);
+                        record.isDirectLoading = (record.isDirectLoading || chunkLoader.isDirectLoader);
+                        record.isBoundary = (record.isBoundary && isBoundary);
                     }
                     else {
                         //being updated at the first time in this turn
@@ -280,6 +291,7 @@ public class NewChunkTrackingGraph {
                         record.distanceToSource = distanceToSource;
                         record.lastWatchTime = gameTime;
                         record.isDirectLoading = chunkLoader.isDirectLoader;
+                        record.isBoundary = isBoundary;
                     }
                 }
             }
@@ -468,9 +480,32 @@ public class NewChunkTrackingGraph {
         return records.stream().filter(r -> r.isLoadedToPlayer).map(r -> r.player);
     }
     
-    /**
-     *
-     */
+    public static List<ServerPlayer> getPlayersViewingChunk(
+        ResourceKey<Level> dimension,
+        int x, int z,
+        boolean boundaryOnly
+    ) {
+        ArrayList<NewChunkTrackingGraph.PlayerWatchRecord> recs =
+            NewChunkTrackingGraph.getPlayerWatchListRecord(dimension, x, z);
+        
+        if (recs == null) {
+            return Collections.emptyList();
+        }
+        
+        // the boundaryOnly parameter is only true when sending light update packets
+        // the client can calculate the light by the block data, but not accurate on loading boundary
+        
+        ArrayList<ServerPlayer> result = new ArrayList<>();
+        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs) {
+            if (rec.isLoadedToPlayer && (!boundaryOnly || rec.isBoundary)) {
+                result.add(rec.player);
+            }
+        }
+        
+        return result;
+    }
+    
+    @Nullable
     public static ArrayList<PlayerWatchRecord> getPlayerWatchListRecord(
         ResourceKey<Level> dimension, int x, int z
     ) {
@@ -492,24 +527,6 @@ public class NewChunkTrackingGraph {
         
         return records.stream().filter(r -> r.isLoadedToPlayer)
             .mapToInt(r -> r.distanceToSource).min().orElse(-1);
-    }
-    
-    /**
-     * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
-     * The "onlyOnWatchDistanceEdge" is so weird!!!!!!
-     * If it does not send only to edge players, placing a block will
-     * send light updates and cause client to rebuild the chunk multiple times
-     */
-    public static Stream<ServerPlayer> getFarWatchers(
-        ResourceKey<Level> dimension,
-        int x, int z
-    ) {
-        return getPlayersViewingChunk(dimension, x, z)
-            .filter(player -> {
-                ChunkPos chunkPos = player.chunkPosition();
-                return player.level().dimension() != dimension ||
-                    Helper.getChebyshevDistance(x, z, chunkPos.x, chunkPos.z) > 4;
-            });
     }
     
     public static void forceRemovePlayer(ServerPlayer player) {
