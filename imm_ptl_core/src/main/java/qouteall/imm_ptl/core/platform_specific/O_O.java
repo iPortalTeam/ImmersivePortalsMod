@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.platform_specific;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
@@ -10,13 +11,24 @@ import net.fabricmc.loader.api.VersionParsingException;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
@@ -218,5 +230,43 @@ public class O_O {
         return FabricLoader.getInstance().getModContainer(modid)
             .map(c -> c.getMetadata().getName())
             .orElse(null);
+    }
+    
+    /**
+     * {@link net.fabricmc.fabric.mixin.event.interaction.ServerPlayerInteractionManagerMixin#startBlockBreak(BlockPos, ServerboundPlayerActionPacket.Action, Direction, int, int, CallbackInfo)}
+     * @return true to cancel
+     */
+    public static boolean onHandleBlockBreakAction(
+        ServerPlayer player,
+        ServerLevel level,
+        BlockPos pos, ServerboundPlayerActionPacket.Action action,
+        Direction face, int maxBuildHeight, int sequence
+    ) {
+        ServerboundPlayerActionPacket.Action playerAction = action;
+        ServerLevel world = level;
+        Direction direction = face;
+    
+        if (playerAction != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return false;
+        InteractionResult result = AttackBlockCallback.EVENT.invoker().interact(player, world, InteractionHand.MAIN_HAND, pos, direction);
+    
+        if (result != InteractionResult.PASS) {
+            // The client might have broken the block on its side, so make sure to let it know.
+            player.connection.send(new ClientboundBlockUpdatePacket(world, pos));
+        
+            if (world.getBlockState(pos).hasBlockEntity()) {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+            
+                if (blockEntity != null) {
+                    Packet<ClientGamePacketListener> updatePacket = blockEntity.getUpdatePacket();
+                
+                    if (updatePacket != null) {
+                        player.connection.send(updatePacket);
+                    }
+                }
+            }
+        
+            return true;
+        }
+        return false;
     }
 }

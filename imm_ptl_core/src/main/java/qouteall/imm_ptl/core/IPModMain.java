@@ -4,6 +4,8 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.world.InteractionResult;
+import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
+import qouteall.imm_ptl.core.block_manipulation.ImmPtlServerPlayerGameMode;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
@@ -72,6 +74,8 @@ public class IPModMain {
         MyLoadingTicket.init();
         
         IPPortingLibCompat.init();
+        
+        BlockManipulationServer.init();
         
         CommandRegistrationCallback.EVENT.register(
             (dispatcher, registryAccess, environment) -> PortalCommand.register(dispatcher)

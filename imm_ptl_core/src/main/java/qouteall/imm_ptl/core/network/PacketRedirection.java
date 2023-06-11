@@ -25,6 +25,7 @@ import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListe
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PacketRedirection {
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketRedirection.class);
@@ -44,6 +45,13 @@ public class PacketRedirection {
     private static final FriendlyByteBuf dummyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
     
     public static void withForceRedirect(ServerLevel world, Runnable func) {
+        withForceRedirectAndGet(world, () -> {
+            func.run();
+            return null;
+        });
+    }
+    
+    public static <T> T withForceRedirectAndGet(ServerLevel world, Supplier<T> func) {
         if (((IEWorld) world).portal_getThread() != Thread.currentThread()) {
             LOGGER.error(
                 "It's possible that a mod is trying to handle packet in networking thread instead of server thread. This is not thread safe and can cause rare bugs! (ImmPtl is just doing checking, it's not an issue of ImmPtl)",
@@ -54,7 +62,7 @@ public class PacketRedirection {
         ResourceKey<Level> oldRedirection = serverPacketRedirection.get();
         serverPacketRedirection.set(world.dimension());
         try {
-            func.run();
+            return func.get();
         }
         finally {
             serverPacketRedirection.set(oldRedirection);

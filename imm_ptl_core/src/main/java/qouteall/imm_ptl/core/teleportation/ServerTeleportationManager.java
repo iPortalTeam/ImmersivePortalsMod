@@ -360,7 +360,7 @@ public class ServerTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
     
-        ((IEEntity) player).ip_setWorld(toWorld);
+        player.setServerLevel(toWorld);
         
         // adds the player
         toWorld.addDuringPortalTeleport(player);
