@@ -43,6 +43,9 @@ import java.util.function.Predicate;
 public class BlockManipulationServer {
     private static final Logger LOGGER = LogUtils.getLogger();
     
+    public static final ThreadLocal<ServerLevel> SERVER_PLAYER_INTERACTION_REDIRECT =
+        ThreadLocal.withInitial(() -> null);
+    
     /**
      * Use this event to conditionally disable cross portal block interaction.
      * The result will be ANDed.
@@ -57,41 +60,6 @@ public class BlockManipulationServer {
                 }
                 return true;
             });
-    
-    @Deprecated
-    public static void processBreakBlock(
-        ResourceKey<Level> dimension,
-        ServerboundPlayerActionPacket packet,
-        ServerPlayer player
-    ) {
-        if (shouldFinishMining(dimension, packet, player)) {
-            if (canPlayerReach(dimension, player, packet.getPos())) {
-                doDestroyBlock(dimension, packet, player);
-            }
-            else {
-                Helper.log("Rejected cross portal block breaking packet " + player);
-            }
-        }
-    }
-    
-    @Deprecated
-    private static boolean shouldFinishMining(
-        ResourceKey<Level> dimension,
-        ServerboundPlayerActionPacket packet,
-        ServerPlayer player
-    
-    ) {
-        if (packet.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
-            return canInstantMine(
-                MiscHelper.getServer().getLevel(dimension),
-                player,
-                packet.getPos()
-            );
-        }
-        else {
-            return packet.getAction() == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK;
-        }
-    }
     
     private static boolean canPlayerReach(
         ResourceKey<Level> dimension,
@@ -121,53 +89,6 @@ public class BlockManipulationServer {
                 portal.transformPoint(playerPos).distanceToSqr(pos) <
                     distanceSquare * portal.getScale() * portal.getScale()
         );
-    }
-    
-    @Deprecated
-    @IPVanillaCopy
-    private static void doDestroyBlock(
-        ResourceKey<Level> dimension,
-        ServerboundPlayerActionPacket packet,
-        ServerPlayer player
-    ) {
-        ServerLevel destWorld = MiscHelper.getServer().getLevel(dimension);
-        ServerLevel oldWorld = player.serverLevel();
-        
-        BlockPos blockPos = packet.getPos();
-        
-        if (destWorld.mayInteract(player, blockPos)) {
-            player.gameMode.setLevel(destWorld);
-            player.gameMode.destroyBlock(
-                blockPos
-            );
-            player.gameMode.setLevel(oldWorld);
-        }
-        else {
-            ClientboundBlockUpdatePacket ackPacket = new ClientboundBlockUpdatePacket(
-                blockPos, destWorld.getBlockState(blockPos)
-            );
-            player.connection.send(PacketRedirection.createRedirectedMessage(dimension, ackPacket));
-        }
-    }
-    
-    @Deprecated
-    @IPVanillaCopy
-    private static boolean canInstantMine(
-        ServerLevel world,
-        ServerPlayer player,
-        BlockPos pos
-    ) {
-        if (player.isCreative()) {
-            return true;
-        }
-        
-        float progress = 1.0F;
-        BlockState blockState = world.getBlockState(pos);
-        if (!blockState.isAir()) {
-            blockState.attack(world, pos, player);
-            progress = blockState.getDestroyProgress(player, world, pos);
-        }
-        return !blockState.isAir() && progress >= 1.0F;
     }
     
     public static Tuple<BlockHitResult, ResourceKey<Level>> getHitResultForPlacing(
@@ -205,7 +126,7 @@ public class BlockManipulationServer {
     
     public static class RemoteCallables {
         /**
-         * {@link qouteall.imm_ptl.core.mixin.client.block_manipulation.MixinMultiPlayerGameMode}
+         * {@link qouteall.imm_ptl.core.mixin.client.interaction.MixinMultiPlayerGameMode}
          */
         public static void processPlayerActionPacket(
             ServerPlayer player,
@@ -218,7 +139,12 @@ public class BlockManipulationServer {
             ServerLevel world = MiscHelper.getServer().getLevel(dimension);
             Validate.notNull(world);
             
-            doProcessPlayerAction(world, player, packet);
+            withRedirect(
+                world,
+                () -> {
+                    doProcessPlayerAction(world, player, packet);
+                }
+            );
         }
         
         public static void processUseItemOnPacket(
@@ -232,37 +158,33 @@ public class BlockManipulationServer {
             ServerLevel world = MiscHelper.getServer().getLevel(dimension);
             Validate.notNull(world);
             
-            doProcessUseItemOn(world, player, packet);
+            withRedirect(
+                world,
+                () -> {
+                    doProcessUseItemOn(world, player, packet);
+                }
+            );
         }
     }
     
-    // the key is player UUID
-    private static final Map<UUID, ImmPtlServerPlayerGameMode> GAME_MODE_MAP =
-        new WeakHashMap<>();
+    public static void init() {
     
-    private static ImmPtlServerPlayerGameMode getGameMode(ServerPlayer player) {
-        return GAME_MODE_MAP.computeIfAbsent(player.getUUID(), k -> new ImmPtlServerPlayerGameMode(player));
     }
     
-    public static void init() {
-        IPGlobal.serverCleanupSignal.connect(GAME_MODE_MAP::clear);
-        
-        IPGlobal.postServerTickSignal.connect(() -> {
-            GAME_MODE_MAP.entrySet().removeIf(e -> {
-                ImmPtlServerPlayerGameMode mode = e.getValue();
-                if (mode == null) {
-                    return true;
-                }
-                if (mode.player.isRemoved()) {
-                    return true;
-                }
-                
-                // tick it here
-                mode.tick();
-                
-                return false;
-            });
-        });
+    private static void withRedirect(
+        ServerLevel world,
+        Runnable runnable
+    ) {
+        ServerLevel original = SERVER_PLAYER_INTERACTION_REDIRECT.get();
+        SERVER_PLAYER_INTERACTION_REDIRECT.set(world);
+        try {
+            PacketRedirection.withForceRedirect(
+                world, runnable
+            );
+        }
+        finally {
+            SERVER_PLAYER_INTERACTION_REDIRECT.set(original);
+        }
     }
     
     /**
@@ -274,11 +196,13 @@ public class BlockManipulationServer {
         BlockPos blockPos = packet.getPos();
         ServerboundPlayerActionPacket.Action action = packet.getAction();
         
+        if (!canPlayerReach(world.dimension(), player, blockPos)) {
+            LOGGER.error("Reject cross-portal action {} {} {}", player, world, blockPos);
+            return;
+        }
+        
         if (isAttackingAction(action)) {
-            ImmPtlServerPlayerGameMode gameMode = getGameMode(player);
-            
-            gameMode.handleBlockBreakAction(
-                world,
+            player.gameMode.handleBlockBreakAction(
                 blockPos, action, packet.getDirection(),
                 player.level().getMaxBuildHeight(), packet.getSequence()
             );
@@ -315,13 +239,11 @@ public class BlockManipulationServer {
         player.resetLastActionTime();
         if (world.mayInteract(player, blockPos)) {
             if (!canPlayerReach(dimension, player, blockPos)) {
-                Helper.log("Reject cross portal block placing packet " + player);
+                LOGGER.error("Reject cross-portal action {} {} {}", player, world, blockPos);
                 return;
             }
             
-            ImmPtlServerPlayerGameMode gameMode = getGameMode(player);
-            
-            InteractionResult actionResult = gameMode.useItemOn(
+            InteractionResult actionResult = player.gameMode.useItemOn(
                 player,
                 world,
                 itemStack,

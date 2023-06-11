@@ -18,6 +18,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -262,6 +263,7 @@ public class ClientWorldLoader {
      * Get the client world and create if missing.
      * If the dimension id is invalid, it will throw an error
      */
+    @NotNull
     public static ClientLevel getWorld(ResourceKey<Level> dimension) {
         Validate.notNull(dimension);
         Validate.isTrue(client.isSameThread());
@@ -271,8 +273,10 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createSecondaryClientWorld(dimension);
         }
-        
-        return clientWorldMap.get(dimension);
+    
+        ClientLevel result = clientWorldMap.get(dimension);
+        Validate.notNull(result);
+        return result;
     }
     
     /**

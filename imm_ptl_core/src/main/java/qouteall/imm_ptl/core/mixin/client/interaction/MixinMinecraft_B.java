@@ -1,19 +1,13 @@
-package qouteall.imm_ptl.core.mixin.client.block_manipulation;
+package qouteall.imm_ptl.core.mixin.client.interaction;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 
@@ -50,8 +44,9 @@ public abstract class MixinMinecraft_B {
     private boolean wrapStartAttack(Minecraft instance, Operation<Boolean> original) {
         ClientLevel remoteWorld = BlockManipulationClient.getRemotePointedWorld();
         if (BlockManipulationClient.isPointingToPortal()) {
-            BlockManipulationClient.withSwitched(
-                () -> original.call(instance)
+            BlockManipulationClient.withSwitchedContext(
+                () -> original.call(instance),
+                false
             );
             return false;
         }
@@ -69,11 +64,12 @@ public abstract class MixinMinecraft_B {
     )
     private void wrapContinueAttack(Minecraft instance, boolean leftClick, Operation<Void> original) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            BlockManipulationClient.withSwitched(
+            BlockManipulationClient.withSwitchedContext(
                 () -> {
                     original.call(instance, leftClick);
                     return null;
-                }
+                },
+                false
             );
         }
         else {
@@ -90,11 +86,12 @@ public abstract class MixinMinecraft_B {
     )
     private void wrapStartUseItem(Minecraft instance, Operation<Void> original) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            BlockManipulationClient.withSwitched(
+            BlockManipulationClient.withSwitchedContext(
                 () -> {
                     original.call(instance);
                     return null;
-                }
+                },
+                true
             );
             
         }

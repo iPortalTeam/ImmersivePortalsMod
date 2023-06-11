@@ -5,7 +5,6 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.world.InteractionResult;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
-import qouteall.imm_ptl.core.block_manipulation.ImmPtlServerPlayerGameMode;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;

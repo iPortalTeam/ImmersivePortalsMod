@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.client.block_manipulation;
+package qouteall.imm_ptl.core.mixin.client.interaction;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
