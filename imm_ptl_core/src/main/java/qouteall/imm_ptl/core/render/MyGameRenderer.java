@@ -263,11 +263,11 @@ public class MyGameRenderer {
         float g = client.gameRenderer.getRenderDistance();
         
         Vec3 cameraPos = camera.getPosition();
-        double d = cameraPos.x();
-        double e = cameraPos.y();
-        double f = cameraPos.z();
+        double x = cameraPos.x();
+        double y = cameraPos.y();
+        double z = cameraPos.z();
         
-        boolean isFoggy = client.level.effects().isFoggyAt(Mth.floor(d), Mth.floor(e)) ||
+        boolean isFoggy = client.level.effects().isFoggyAt(Mth.floor(x), Mth.floor(y)) ||
             client.gui.getBossOverlay().shouldCreateWorldFog();
         
         FogRenderer.setupFog(

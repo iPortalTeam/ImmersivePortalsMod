@@ -106,7 +106,7 @@ public class MixinServerPlayerGameMode {
             target = "Lnet/minecraft/world/phys/Vec3;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D"
         )
     )
-    private double redirectDistanceInHandleBlockBreakAction(Vec3 instance, Vec3 vec, Operation<Double> original) {
+    private double wrapDistanceInHandleBlockBreakAction(Vec3 instance, Vec3 vec, Operation<Double> original) {
         ServerLevel redirect = BlockManipulationServer.SERVER_PLAYER_INTERACTION_REDIRECT.get();
         if (redirect != null) {
             return 0;
@@ -156,9 +156,7 @@ public class MixinServerPlayerGameMode {
         return level;
     }
     
-    @Inject(
-        method = "tick", at = @At("RETURN")
-    )
+    @Inject(method = "tick", at = @At("RETURN"))
     private void onTickingEnd(CallbackInfo ci) {
         if (!hasDelayedDestroy && !isDestroyingBlock) {
             ip_destroyPosLevel = null;
