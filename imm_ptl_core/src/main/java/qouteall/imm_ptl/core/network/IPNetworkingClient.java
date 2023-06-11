@@ -97,25 +97,25 @@ public class IPNetworkingClient {
         });
     }
     
-    public static Packet createCtsPlayerAction(
-        ResourceKey<Level> dimension,
-        ServerboundPlayerActionPacket packet
-    ) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimension, true);
-        packet.write(buf);
-        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsPlayerAction, buf);
-    }
-    
-    public static Packet createCtsRightClick(
-        ResourceKey<Level> dimension,
-        ServerboundUseItemOnPacket packet
-    ) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimension, true);
-        packet.write(buf);
-        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsRightClick, buf);
-    }
+//    public static Packet createCtsPlayerAction(
+//        ResourceKey<Level> dimension,
+//        ServerboundPlayerActionPacket packet
+//    ) {
+//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+//        DimId.writeWorldId(buf, dimension, true);
+//        packet.write(buf);
+//        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsPlayerAction, buf);
+//    }
+//
+//    public static Packet createCtsRightClick(
+//        ResourceKey<Level> dimension,
+//        ServerboundUseItemOnPacket packet
+//    ) {
+//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+//        DimId.writeWorldId(buf, dimension, true);
+//        packet.write(buf);
+//        return new ServerboundCustomPayloadPacket(IPNetworking.id_ctsRightClick, buf);
+//    }
     
     public static Packet createCtsTeleport(
         ResourceKey<Level> dimensionBefore,

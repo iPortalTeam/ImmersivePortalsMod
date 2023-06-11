@@ -33,10 +33,10 @@ public class IPNetworking {
         new ResourceLocation("imm_ptl", "dim_confirm");
     public static final ResourceLocation id_stcUpdateGlobalPortal =
         new ResourceLocation("imm_ptl", "upd_glb_ptl");
-    public static final ResourceLocation id_ctsPlayerAction =
-        new ResourceLocation("imm_ptl", "player_action");
-    public static final ResourceLocation id_ctsRightClick =
-        new ResourceLocation("imm_ptl", "right_click");
+//    public static final ResourceLocation id_ctsPlayerAction =
+//        new ResourceLocation("imm_ptl", "player_action");
+//    public static final ResourceLocation id_ctsRightClick =
+//        new ResourceLocation("imm_ptl", "right_click");
     
     public static void init() {
         
@@ -49,14 +49,6 @@ public class IPNetworking {
     ) {
         if (id_ctsTeleport.equals(packedId)) {
             processCtsTeleport(player, buf);
-            return true;
-        }
-        else if (id_ctsPlayerAction.equals(packedId)) {
-            processCtsPlayerAction(player, buf);
-            return true;
-        }
-        else if (id_ctsRightClick.equals(packedId)) {
-            processCtsRightClick(player, buf);
             return true;
         }
         else {
@@ -129,29 +121,6 @@ public class IPNetworking {
                 posBefore,
                 portalEntityId
             );
-        });
-    }
-    
-    private static void processCtsPlayerAction(ServerPlayer player, FriendlyByteBuf buf) {
-        ResourceKey<Level> dim = DimId.readWorldId(buf, false);
-        ServerboundPlayerActionPacket packet = new ServerboundPlayerActionPacket(buf);
-        IPGlobal.serverTaskList.addTask(() -> {
-            BlockManipulationServer.processBreakBlock(
-                dim, packet,
-                player
-            );
-            return true;
-        });
-    }
-    
-    private static void processCtsRightClick(ServerPlayer player, FriendlyByteBuf buf) {
-        ResourceKey<Level> dim = DimId.readWorldId(buf, false);
-        ServerboundUseItemOnPacket packet = new ServerboundUseItemOnPacket(buf);
-        IPGlobal.serverTaskList.addTask(() -> {
-            BlockManipulationServer.processRightClickBlock(
-                dim, packet, player, packet.getSequence()
-            );
-            return true;
         });
     }
     

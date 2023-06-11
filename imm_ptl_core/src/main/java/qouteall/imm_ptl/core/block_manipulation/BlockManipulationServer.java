@@ -1,8 +1,6 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
 import com.mojang.logging.LogUtils;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
@@ -12,10 +10,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +27,6 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
-import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -39,10 +34,8 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
@@ -210,108 +203,46 @@ public class BlockManipulationServer {
         return new Tuple<>(newHitResult, portal.dimensionTo);
     }
     
-    @Deprecated
-    public static void processRightClickBlock(
-        ResourceKey<Level> dimension,
-        ServerboundUseItemOnPacket packet,
-        ServerPlayer player,
-        int sequenceNumber
-    ) {
-        InteractionHand hand = packet.getHand();
-        BlockHitResult blockHitResult = packet.getHitResult();
-        
-        ServerLevel world = MiscHelper.getServer().getLevel(dimension);
-        
-        doProcessRightClick(dimension, player, hand, blockHitResult, sequenceNumber);
-    }
-    
-    /**
-     * {@link net.minecraft.server.network.ServerGamePacketListenerImpl#handleUseItemOn(ServerboundUseItemOnPacket)}
-     */
-    @Deprecated
-    @IPVanillaCopy
-    public static void doProcessRightClick(
-        ResourceKey<Level> dimension,
-        ServerPlayer player,
-        InteractionHand hand,
-        BlockHitResult blockHitResult,
-        int sequenceNumber
-    ) {
-        player.connection.ackBlockChangesUpTo(sequenceNumber);
-        
-        ItemStack itemStack = player.getItemInHand(hand);
-        
-        MinecraftServer server = MiscHelper.getServer();
-        ServerLevel targetWorld = server.getLevel(dimension);
-        Validate.notNull(targetWorld);
-        
-        if (!itemStack.isItemEnabled(targetWorld.enabledFeatures())) {
-            return;
-        }
-        
-        BlockPos blockPos = blockHitResult.getBlockPos();
-        Direction direction = blockHitResult.getDirection();
-        player.resetLastActionTime();
-        if (targetWorld.mayInteract(player, blockPos)) {
-            if (!canPlayerReach(dimension, player, blockPos)) {
-                Helper.log("Reject cross portal block placing packet " + player);
-                return;
-            }
-            
-            Level oldWorld = player.level();
-            
-            ((IEEntity) player).ip_setWorld(targetWorld);
-            try {
-                InteractionResult actionResult = player.gameMode.useItemOn(
-                    player,
-                    targetWorld,
-                    itemStack,
-                    hand,
-                    blockHitResult
-                );
-                if (actionResult.shouldSwing()) {
-                    player.swing(hand, true);
-                }
-            }
-            finally {
-                ((IEEntity) player).ip_setWorld(oldWorld);
-            }
-        }
-        
-        PacketRedirection.sendRedirectedMessage(
-            player,
-            dimension,
-            new ClientboundBlockUpdatePacket(targetWorld, blockPos)
-        );
-        
-        BlockPos offseted = blockPos.relative(direction);
-        if (offseted.getY() >= targetWorld.getMinBuildHeight() && offseted.getY() < targetWorld.getMaxBuildHeight()) {
-            PacketRedirection.sendRedirectedMessage(
-                player,
-                dimension,
-                new ClientboundBlockUpdatePacket(targetWorld, offseted)
-            );
-        }
-    }
-    
     public static class RemoteCallables {
+        /**
+         * {@link qouteall.imm_ptl.core.mixin.client.block_manipulation.MixinMultiPlayerGameMode}
+         */
         public static void processPlayerActionPacket(
             ServerPlayer player,
             ResourceKey<Level> dimension,
             byte[] packetBytes
         ) {
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(packetBytes));
+            FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
             ServerboundPlayerActionPacket packet = new ServerboundPlayerActionPacket(buf);
             
             ServerLevel world = MiscHelper.getServer().getLevel(dimension);
+            Validate.notNull(world);
             
             doProcessPlayerAction(world, player, packet);
+        }
+        
+        public static void processUseItemOnPacket(
+            ServerPlayer player,
+            ResourceKey<Level> dimension,
+            byte[] packetBytes
+        ) {
+            FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
+            ServerboundUseItemOnPacket packet = new ServerboundUseItemOnPacket(buf);
+            
+            ServerLevel world = MiscHelper.getServer().getLevel(dimension);
+            Validate.notNull(world);
+            
+            doProcessUseItemOn(world, player, packet);
         }
     }
     
     // the key is player UUID
     private static final Map<UUID, ImmPtlServerPlayerGameMode> GAME_MODE_MAP =
         new WeakHashMap<>();
+    
+    private static ImmPtlServerPlayerGameMode getGameMode(ServerPlayer player) {
+        return GAME_MODE_MAP.computeIfAbsent(player.getUUID(), k -> new ImmPtlServerPlayerGameMode(player));
+    }
     
     public static void init() {
         IPGlobal.serverCleanupSignal.connect(GAME_MODE_MAP::clear);
@@ -335,7 +266,7 @@ public class BlockManipulationServer {
     }
     
     /**
-     * {@link net.minecraft.server.network.ServerGamePacketListenerImpl#handlePlayerAction(ServerboundPlayerActionPacket)}
+     * {@link ServerGamePacketListenerImpl#handlePlayerAction(ServerboundPlayerActionPacket)}
      */
     @IPVanillaCopy
     private static void doProcessPlayerAction(ServerLevel world, ServerPlayer player, ServerboundPlayerActionPacket packet) {
@@ -343,11 +274,8 @@ public class BlockManipulationServer {
         BlockPos blockPos = packet.getPos();
         ServerboundPlayerActionPacket.Action action = packet.getAction();
         
-        if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK ||
-            action == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK ||
-            action == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK
-        ) {
-            ImmPtlServerPlayerGameMode gameMode = GAME_MODE_MAP.computeIfAbsent(player.getUUID(), k -> new ImmPtlServerPlayerGameMode(player));
+        if (isAttackingAction(action)) {
+            ImmPtlServerPlayerGameMode gameMode = getGameMode(player);
             
             gameMode.handleBlockBreakAction(
                 world,
@@ -355,6 +283,69 @@ public class BlockManipulationServer {
                 player.level().getMaxBuildHeight(), packet.getSequence()
             );
             player.connection.ackBlockChangesUpTo(packet.getSequence());
+        }
+    }
+    
+    public static boolean isAttackingAction(ServerboundPlayerActionPacket.Action action) {
+        return action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK ||
+            action == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK ||
+            action == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK;
+    }
+    
+    /**
+     * {@link ServerGamePacketListenerImpl#handleUseItemOn(ServerboundUseItemOnPacket)}
+     */
+    @IPVanillaCopy
+    private static void doProcessUseItemOn(
+        ServerLevel world, ServerPlayer player, ServerboundUseItemOnPacket packet
+    ) {
+        player.connection.ackBlockChangesUpTo(packet.getSequence());
+        InteractionHand hand = packet.getHand();
+        BlockHitResult blockHitResult = packet.getHitResult();
+        ResourceKey<Level> dimension = world.dimension();
+        
+        ItemStack itemStack = player.getItemInHand(hand);
+        
+        if (!itemStack.isItemEnabled(world.enabledFeatures())) {
+            return;
+        }
+        
+        BlockPos blockPos = blockHitResult.getBlockPos();
+        Direction direction = blockHitResult.getDirection();
+        player.resetLastActionTime();
+        if (world.mayInteract(player, blockPos)) {
+            if (!canPlayerReach(dimension, player, blockPos)) {
+                Helper.log("Reject cross portal block placing packet " + player);
+                return;
+            }
+            
+            ImmPtlServerPlayerGameMode gameMode = getGameMode(player);
+            
+            InteractionResult actionResult = gameMode.useItemOn(
+                player,
+                world,
+                itemStack,
+                hand,
+                blockHitResult
+            );
+            if (actionResult.shouldSwing()) {
+                player.swing(hand, true);
+            }
+        }
+        
+        PacketRedirection.sendRedirectedMessage(
+            player,
+            dimension,
+            new ClientboundBlockUpdatePacket(world, blockPos)
+        );
+        
+        BlockPos offseted = blockPos.relative(direction);
+        if (offseted.getY() >= world.getMinBuildHeight() && offseted.getY() < world.getMaxBuildHeight()) {
+            PacketRedirection.sendRedirectedMessage(
+                player,
+                dimension,
+                new ClientboundBlockUpdatePacket(world, offseted)
+            );
         }
     }
     

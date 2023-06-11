@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.ImplRemoteProcedureCall;
 
 /**
@@ -117,9 +118,7 @@ public class McRemoteProcedureCall {
     public static ClientboundCustomPayloadPacket createPacketToSendToClient(
         String methodPath, Object... arguments
     ) {
-        ClientboundCustomPayloadPacket packet =
-            ImplRemoteProcedureCall.createS2CPacket(methodPath, arguments);
-        return packet;
+        return ImplRemoteProcedureCall.createS2CPacket(methodPath, arguments);
     }
     
     /**
@@ -151,8 +150,11 @@ public class McRemoteProcedureCall {
         String methodPath,
         Object... arguments
     ) {
-        ServerboundCustomPayloadPacket packet =
-            ImplRemoteProcedureCall.createC2SPacket(methodPath, arguments);
+        ServerboundCustomPayloadPacket packet = createPacketToSendToServer(methodPath, arguments);
         Minecraft.getInstance().getConnection().send(packet);
+    }
+    
+    public static ServerboundCustomPayloadPacket createPacketToSendToServer(String methodPath, Object... arguments) {
+        return ImplRemoteProcedureCall.createC2SPacket(methodPath, arguments);
     }
 }
