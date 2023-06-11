@@ -61,7 +61,7 @@ public class FrontClipping {
         final Plane clipping = portalLike.getInnerClipping();
         
         if (clipping != null) {
-            activeClipPlaneEquation = getClipEquationInner(doCompensate, clipping.pos(), clipping.normal());
+            activeClipPlaneEquation = getClipEquationInner(true, clipping.pos(), clipping.normal());
             activeClipPlaneForEntities = transformClipEquation(activeClipPlaneEquation, matrixStack);
             
             enableClipping();
@@ -96,8 +96,7 @@ public class FrontClipping {
         double correction;
         
         if (doCompensate) {
-            correction = clippingPoint.subtract(cameraPos)
-                .dot(clippingDirection) / 150.0;
+            correction = 0.01;
         }
         else {
             correction = 0;
