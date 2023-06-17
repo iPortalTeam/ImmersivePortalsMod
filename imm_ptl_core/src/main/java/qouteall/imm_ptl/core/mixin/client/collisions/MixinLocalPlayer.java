@@ -10,13 +10,14 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 
 @Mixin(LocalPlayer.class)
 public class MixinLocalPlayer {
+    // avoid beingpushed out of blocks by the blocks on the other facing of the portal
     @Inject(
         method = "Lnet/minecraft/client/player/LocalPlayer;suffocatesAt(Lnet/minecraft/core/BlockPos;)Z",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onCannotFitAt(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (((IEEntity) this).ip_getCollidingPortal() != null) {
+        if (((IEEntity) this).ip_isRecentlyCollidingWithPortal()) {
             cir.setReturnValue(false);
             cir.cancel();
         }
