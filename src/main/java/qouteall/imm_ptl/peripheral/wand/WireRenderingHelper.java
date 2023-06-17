@@ -294,26 +294,6 @@ public class WireRenderingHelper {
         Vec3 center,
         int color, PoseStack matrixStack
     ) {
-        matrixStack.pushPose();
-        
-        matrixStack.translate(
-            center.x - cameraPos.x,
-            center.y - cameraPos.y,
-            center.z - cameraPos.z
-        );
-        
-        matrixStack.mulPose(
-            DQuaternion.rotationByDegrees(
-                new Vec3(0, 1, 0),
-                CHelper.getSmoothCycles(60) * 360
-            ).toMcQuaternion()
-        );
-        
-        float scale = (float) ((1.0 / 4000) * cameraPos.distanceTo(center));
-        matrixStack.scale(scale, scale, scale);
-        
-        Matrix4f matrix = matrixStack.last().pose();
-        
         double w = 380;
         double h = 270;
         double ringWidth = 60;
@@ -347,6 +327,37 @@ public class WireRenderingHelper {
             new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2 + rightAreaHeight + ringWidth, 0),
             new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2, 0),
         };
+        
+        float scale = (float) ((1.0 / 4000) * cameraPos.distanceTo(center));
+        
+        DQuaternion rotation = DQuaternion.rotationByDegrees(
+            new Vec3(0, 1, 0),
+            CHelper.getSmoothCycles(60) * 360
+        );
+        
+        renderLines(vertexConsumer, cameraPos, center, lineVertices, scale, rotation, color, matrixStack);
+    }
+    
+    public static void renderLines(
+        VertexConsumer vertexConsumer,
+        Vec3 cameraPos, Vec3 center,
+        Vec3[] lineVertices,
+        double scale, DQuaternion rotation,
+        int color, PoseStack matrixStack
+    ) {
+        matrixStack.pushPose();
+        
+        matrixStack.translate(
+            center.x - cameraPos.x,
+            center.y - cameraPos.y,
+            center.z - cameraPos.z
+        );
+        
+        matrixStack.mulPose(rotation.toMcQuaternion());
+        
+        matrixStack.scale((float) scale, (float) scale, (float) scale);
+        
+        Matrix4f matrix = matrixStack.last().pose();
         
         for (int i = 0; i < lineVertices.length / 2; i++) {
             putLine(vertexConsumer, color, matrix, lineVertices[i * 2], lineVertices[i * 2 + 1]);

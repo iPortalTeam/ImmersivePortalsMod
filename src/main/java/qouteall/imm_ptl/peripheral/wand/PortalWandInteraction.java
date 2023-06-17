@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -21,12 +20,12 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.imm_ptl.core.portal.util.PortalLocalXYNormalized;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
 
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -41,19 +40,15 @@ public class PortalWandInteraction {
         private final UUID portalId;
         private final PortalState originalState;
         private final DraggingInfo lastDraggingInfo;
-        @NotNull
-        private Vec3 lastCursorPos;
         
         public DraggingSession(
             ResourceKey<Level> dimension, UUID portalId,
-            PortalState originalState, DraggingInfo lastDraggingInfo,
-            @NotNull Vec3 lastCursorPos
+            PortalState originalState, DraggingInfo lastDraggingInfo
         ) {
             this.dimension = dimension;
             this.portalId = portalId;
             this.originalState = originalState;
             this.lastDraggingInfo = lastDraggingInfo;
-            this.lastCursorPos = lastCursorPos;
         }
         
         @Nullable
@@ -92,50 +87,53 @@ public class PortalWandInteraction {
         IPGlobal.serverCleanupSignal.connect(draggingSessionMap::clear);
     }
     
-    public static record DraggingInfo(
-        Set<PortalCorner> lockedCorners,
-        PortalCorner selectedCorner
-    ) {
+    public static final class DraggingInfo {
+        public final @Nullable PortalLocalXYNormalized lockedAnchor;
+        public final PortalLocalXYNormalized draggingAnchor;
+        public @Nullable Vec3 previousRotationAxis;
+        public final boolean lockWidth;
+        public final boolean lockHeight;
+        
+        public DraggingInfo(
+            @Nullable PortalLocalXYNormalized lockedAnchor,
+            PortalLocalXYNormalized draggingAnchor,
+            @Nullable Vec3 previousRotationAxis,
+            boolean lockWidth,
+            boolean lockHeight
+        ) {
+            this.lockedAnchor = lockedAnchor;
+            this.draggingAnchor = draggingAnchor;
+            this.previousRotationAxis = previousRotationAxis;
+            this.lockWidth = lockWidth;
+            this.lockHeight = lockHeight;
+        }
     }
     
     @Nullable
     public static UnilateralPortalState applyDrag(
-        UnilateralPortalState originalThisSideState, Vec3 cursorPos, DraggingInfo info
+        UnilateralPortalState originalState, Vec3 cursorPos, DraggingInfo info
     ) {
-        PortalCorner selectedCorner = info.selectedCorner;
-        if (info.lockedCorners.contains(selectedCorner)) {
-            LOGGER.error("Cannot drag locked corner");
+        if (info.lockedAnchor == null) {
+            Vec3 offset = info.draggingAnchor.getOffset(originalState);
+            Vec3 newPos = cursorPos.subtract(offset);
+            
+            return new UnilateralPortalState.Builder()
+                .from(originalState)
+                .position(newPos)
+                .build();
+        }
+        
+        OneLockDraggingResult r = performDragWithOneLockedAnchor(
+            originalState, info.lockedAnchor, info.draggingAnchor, cursorPos, info.previousRotationAxis,
+            info.lockWidth, info.lockHeight
+        );
+        
+        if (r == null) {
             return null;
         }
         
-        List<PortalCorner> lockedCorners = info.lockedCorners().stream().toList();
-        
-        int lockedCornerNum = lockedCorners.size();
-        
-        if (lockedCornerNum == 0) {
-            return PortalCorner.performDragWithNoLockedCorner(
-                originalThisSideState, selectedCorner, cursorPos
-            );
-        }
-        else if (lockedCornerNum == 1) {
-            return PortalCorner.performDragWith1LockedCorner(
-                originalThisSideState,
-                lockedCorners.get(0), lockedCorners.get(0).getPos(originalThisSideState),
-                selectedCorner, cursorPos
-            );
-        }
-        else if (lockedCornerNum == 2) {
-            return PortalCorner.performDragWith2LockedCorners(
-                originalThisSideState,
-                lockedCorners.get(0), lockedCorners.get(0).getPos(originalThisSideState),
-                lockedCorners.get(1), lockedCorners.get(1).getPos(originalThisSideState),
-                selectedCorner, cursorPos
-            );
-        }
-        else {
-            LOGGER.error("Locked too many corners");
-            return null;
-        }
+        info.previousRotationAxis = r.rotationAxis();
+        return r.newState();
     }
     
     public static class RemoteCallables {
@@ -336,8 +334,7 @@ public class PortalWandInteraction {
                     player.level().dimension(),
                     portalId,
                     portal.getPortalState(),
-                    draggingInfo,
-                    draggingInfo.selectedCorner.getPos(portal)
+                    draggingInfo
                 );
                 draggingSessionMap.put(player, session);
 //                LOGGER.info("Portal dragging session created");
@@ -350,8 +347,6 @@ public class PortalWandInteraction {
                 portal.setThisSideState(newThisSideState);
                 portal.reloadAndSyncToClient();
                 portal.rectifyClusterPortals(true);
-                
-                session.lastCursorPos = cursorPos;
             }
             else {
                 player.sendSystemMessage(Component.literal("Invalid dragging"));
@@ -382,6 +377,11 @@ public class PortalWandInteraction {
         
         public static void finishDragging(ServerPlayer player) {
             DraggingSession session = draggingSessionMap.remove(player);
+            
+            if (session == null) {
+                return;
+            }
+            
             Portal portal = session.getPortal();
             
             if (portal != null) {
@@ -426,7 +426,7 @@ public class PortalWandInteraction {
         if (originalState.fromPos.distanceTo(newThisSideState.position()) > 128) {
             return false;
         }
-    
+        
         if (newThisSideState.position().distanceTo(player.position()) > 64) {
             return false;
         }
@@ -457,5 +457,184 @@ public class PortalWandInteraction {
     
     public static boolean isDragging(ServerPlayer player) {
         return draggingSessionMap.containsKey(player);
+    }
+    
+    @Nullable
+    public static PortalWandInteraction.OneLockDraggingResult performDragWithOneLockedAnchor(
+        UnilateralPortalState originalState,
+        PortalLocalXYNormalized lockedLocalPos,
+        PortalLocalXYNormalized draggingLocalPos, Vec3 draggedPos,
+        @Nullable Vec3 previousRotationAxis,
+        boolean lockWidth, boolean lockHeight
+    ) {
+        Vec3 draggedPosOriginalPos = draggingLocalPos.getPos(originalState);
+        Vec3 lockedPos = lockedLocalPos.getPos(originalState);
+        Vec3 originalOffset = draggedPosOriginalPos.subtract(lockedPos);
+        Vec3 newOffset = draggedPos.subtract(lockedPos);
+        
+        double newOffsetLen = newOffset.length();
+        double originalOffsetLen = originalOffset.length();
+        
+        if (newOffsetLen < 0.00001 || originalOffsetLen < 0.00001) {
+            return null;
+        }
+        
+        Vec3 originalOffsetN = originalOffset.normalize();
+        Vec3 newOffsetN = newOffset.normalize();
+        
+        double dot = originalOffsetN.dot(newOffsetN);
+        
+        DQuaternion rotation;
+        if (Math.abs(dot) < 0.99999) {
+            rotation = DQuaternion.getRotationBetween(originalOffset, newOffset)
+                .fixFloatingPointErrorAccumulation();
+        }
+        else {
+            // the originalOffset and newOffset are colinear
+            
+            if (dot > 0) {
+                // the two offsets are roughly equal. no dragging
+                rotation = DQuaternion.identity;
+            }
+            else {
+                // the two offsets are opposite.
+                // we cannot determine the rotation axis. the possible axises are on a plane
+                
+                Plane planeOfPossibleAxis = new Plane(Vec3.ZERO, originalOffsetN);
+                
+                // to improve user-friendliness, use the axis from the previous rotation
+                if (previousRotationAxis != null) {
+                    // project the previous axis onto the plane of possible axis
+                    Vec3 projected = planeOfPossibleAxis.getProjection(previousRotationAxis);
+                    if (projected.lengthSqr() < 0.00001) {
+                        // the previous axis is perpendicular to the plane
+                        // cannot determine axis
+                        return null;
+                    }
+                    Vec3 axis = projected.normalize();
+                    rotation = DQuaternion.rotationByDegrees(axis, 180)
+                        .fixFloatingPointErrorAccumulation();
+                }
+                else {
+                    rotation = DQuaternion.identity;
+                }
+            }
+        }
+        
+        DQuaternion newOrientation = rotation.hamiltonProduct(originalState.orientation())
+            .fixFloatingPointErrorAccumulation();
+        
+        PortalLocalXYNormalized deltaLocalXY = draggingLocalPos.subtract(lockedLocalPos);
+        
+        double newWidth;
+        double newHeight;
+        if (lockWidth && lockHeight) {
+            newWidth = originalState.width();
+            newHeight = originalState.height();
+        }
+        else if (lockWidth) {
+            assert !lockHeight;
+            newWidth = originalState.width();
+            if (Math.abs(deltaLocalXY.ny()) < 0.001) {
+                newHeight = originalState.height();
+            }
+            else {
+                double subWidth = Math.abs(deltaLocalXY.nx()) * newWidth;
+                double diff = newOffsetLen * newOffsetLen - subWidth * subWidth;
+                if (diff < 0.000001) {
+                    return null;
+                }
+                double subHeight = Math.sqrt(diff);
+                newHeight = subHeight / Math.abs(deltaLocalXY.ny());
+                if (Math.abs(subWidth) > 0.001) {
+                    // to make the dragged pos to be in the cursor
+                    // change the portal orientation
+                    // this operation does not change the portal
+                    newOrientation = rearrangeOrientation(
+                        originalState, newOffsetLen, newOffsetN,
+                        rotation, deltaLocalXY,
+                        newWidth, newHeight, subWidth, subHeight
+                    );
+                }
+            }
+        }
+        else if (lockHeight) {
+            assert !lockWidth;
+            newHeight = originalState.height();
+            if (Math.abs(deltaLocalXY.nx()) < 0.001) {
+                newWidth = originalState.width();
+            }
+            else {
+                double subHeight = Math.abs(deltaLocalXY.ny()) * newHeight;
+                double diff = newOffsetLen * newOffsetLen - subHeight * subHeight;
+                if (diff < 0.000001) {
+                    return null;
+                }
+                double subWidth = Math.sqrt(diff);
+                newWidth = subWidth / Math.abs(deltaLocalXY.nx());
+                if (Math.abs(subHeight) > 0.001) {
+                    // to make the dragged pos to be in the cursor
+                    // change the portal orientation
+                    // this operation does not change the portal
+                    newOrientation = rearrangeOrientation(
+                        originalState, newOffsetLen, newOffsetN,
+                        rotation, deltaLocalXY,
+                        newWidth, newHeight, subWidth, subHeight
+                    );
+                }
+            }
+        }
+        else {
+            double scaling = newOffsetLen / originalOffsetLen;
+            newWidth = originalState.width() * scaling;
+            newHeight = originalState.height() * scaling;
+        }
+        
+        // get the new unilateral portal state by scaling and rotation
+        Vec3 newLockedPosOffset = newOrientation.rotate(new Vec3(
+            (lockedLocalPos.nx() - 0.5) * newWidth,
+            (lockedLocalPos.ny() - 0.5) * newHeight,
+            0
+        ));
+        Vec3 newOrigin = lockedPos.subtract(newLockedPosOffset);
+        
+        UnilateralPortalState newPortalState = new UnilateralPortalState(
+            originalState.dimension(), newOrigin, newOrientation, newWidth, newHeight
+        );
+        return new OneLockDraggingResult(
+            newPortalState, rotation.getRotatingAxis()
+        );
+    }
+    
+    private static DQuaternion rearrangeOrientation(
+        UnilateralPortalState originalState,
+        double newOffsetLen, Vec3 newOffsetN,
+        DQuaternion rotation, PortalLocalXYNormalized deltaLocalXY,
+        double newWidth, double newHeight,
+        double subWidth, double subHeight
+    ) {
+        DQuaternion newOrientation;
+        Vec3 newNormal = rotation.rotate(originalState.getNormal());
+        Vec3 sideVecN = newNormal.cross(newOffsetN).normalize();
+        double sideVecLen = (newWidth * newHeight) / newOffsetLen;
+        double wFront = sideVecLen * subWidth / subHeight;
+        double hFront = sideVecLen * subHeight / subWidth;
+        double signum = Math.signum(deltaLocalXY.nx() * deltaLocalXY.ny());
+        Vec3 newAxisW = newOffsetN.scale(wFront)
+            .add(sideVecN.scale(-sideVecLen * signum)).normalize()
+            .scale(Math.signum(deltaLocalXY.nx()));
+        Vec3 newAxisH = newOffsetN.scale(hFront)
+            .add(sideVecN.scale(sideVecLen * signum)).normalize()
+            .scale(Math.signum(deltaLocalXY.ny()));
+        newOrientation = DQuaternion.fromFacingVecs(newAxisW, newAxisH)
+            .fixFloatingPointErrorAccumulation();
+        return newOrientation;
+    }
+    
+    public static record OneLockDraggingResult(
+        UnilateralPortalState newState,
+        Vec3 rotationAxis
+    ) {
+    
     }
 }

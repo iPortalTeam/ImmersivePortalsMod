@@ -402,6 +402,17 @@ public class DQuaternion {
         return new DQuaternion(qx, qy, qz, qw);
     }
     
+    public static DQuaternion fromFacingVecs(
+        Vec3 axisW, Vec3 axisH
+    ) {
+        return matrixToQuaternion(
+            axisW, axisH, axisW.cross(axisH)
+        );
+    }
+    
+    /**
+     * Note: doesn't work when from and to are collinear
+     */
     public static DQuaternion getRotationBetween(Vec3 from, Vec3 to) {
         from = from.normalize();
         to = to.normalize();
