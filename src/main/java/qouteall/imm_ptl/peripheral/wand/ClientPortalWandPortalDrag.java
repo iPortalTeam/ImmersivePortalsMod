@@ -669,7 +669,7 @@ public class ClientPortalWandPortalDrag {
         ));
         
         Predicate<Vec3> isOrthodox = p ->
-            Math.abs(p.dot(X)) > 0.99 || Math.abs(p.dot(Y)) > 0.99 || Math.abs(p.dot(Z)) > 0.99;
+            Math.abs(p.dot(X)) > 0.9999 || Math.abs(p.dot(Y)) > 0.9999 || Math.abs(p.dot(Z)) > 0.9999;
         
         if (!isOrthodox.test(portal.axisW)) {
             candidates.add(Pair.of(

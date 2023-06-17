@@ -15,6 +15,7 @@ import java.util.function.Function;
 @Mixin(BlockGetter.class)
 public interface MixinBlockGetter {
 	
+	// avoid lagging due to long block traversal
 	@ModifyVariable(
 		method = "traverseBlocks",
 		at = @At("HEAD"),
@@ -28,8 +29,7 @@ public interface MixinBlockGetter {
 	) {
 		if (from.distanceToSqr(_to) > (512 * 512)) {
 			IPMcHelper.limitedLogger.invoke(() -> {
-				Helper.err("raycast too far");
-				new Throwable().printStackTrace();
+				Helper.logger.error("Raycast too far", new Throwable());
 			});
 			return _to.subtract(from).normalize().scale(30).add(from);
 		}

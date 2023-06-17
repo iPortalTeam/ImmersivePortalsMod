@@ -37,8 +37,10 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
@@ -724,7 +726,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             }
         }
         
-        return entity.canChangeDimensions();
+        // cannot use entity.canChangeDimensions() because that disables riding entity to go through portal
+        return ((ImmPtlEntityExtension) entity).imm_ptl_canTeleportThroughPortal(this);
     }
     
     /**

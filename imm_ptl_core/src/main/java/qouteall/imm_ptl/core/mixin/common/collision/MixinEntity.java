@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
@@ -34,7 +36,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity implements IEEntity {
+public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     
     @Nullable
     private PortalCollisionHandler ip_portalCollisionHandler;
@@ -196,7 +198,9 @@ public abstract class MixinEntity implements IEEntity {
         at = @At("HEAD")
     )
     private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
-        if (((Object) this) instanceof ServerPlayer) {
+        Entity this_ = (Entity) (Object) this;
+        
+        if (this_ instanceof ServerPlayer) {
             if (IPGlobal.teleportationDebugEnabled) {
                 if (Math.abs(getX() - nx) > 10 ||
                     Math.abs(getY() - ny) > 10 ||

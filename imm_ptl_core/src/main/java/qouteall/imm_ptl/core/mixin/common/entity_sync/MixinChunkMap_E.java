@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
@@ -39,21 +40,25 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     @Final
     private ServerLevel level;
     
+    @IPVanillaCopy
     @Inject(
         method = "Lnet/minecraft/server/level/ChunkMap;removeEntity(Lnet/minecraft/world/entity/Entity;)V",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onUnloadEntity(Entity entity, CallbackInfo ci) {
-        //when the player leave this dimension, do not stop tracking entities
-        if (entity instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) entity;
-            if (IPGlobal.serverTeleportationManager.isTeleporting(player)) {
+        // when the player leave this dimension, do not stop tracking entities
+        if (IPGlobal.serverTeleportationManager.isTeleporting(entity)) {
+            if (entity instanceof ServerPlayer player) {
                 Object tracker = entityMap.remove(entity.getId());
                 ((IEEntityTracker) tracker).stopTrackingToAllPlayers_();
                 updatePlayerStatus(player, false);
-                ci.cancel();
             }
+            else {
+                entityMap.remove(entity.getId());
+            }
+            
+            ci.cancel();
         }
     }
     

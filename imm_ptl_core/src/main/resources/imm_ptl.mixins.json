@@ -5,7 +5,6 @@
   "plugin": "qouteall.imm_ptl.core.IPMixinPlugin",
   "mixins": [
     "common.MixinClipContext",
-    "common.MixinCommands",
     "common.MixinConnection_Debug",
     "common.MixinDedicatedServer",
     "common.MixinLevel",
@@ -40,6 +39,8 @@
     "common.mc_util.MixinEntitySectionStorage",
     "common.miscellaneous.IEEndDragonFight",
     "common.miscellaneous.MixinBlockGetter",
+    "common.miscellaneous.MixinEnderDragon",
+    "common.miscellaneous.MixinFishingHook",
     "common.miscellaneous.MixinMob",
     "common.networking.MixinClientboundCustomPayloadPacket",
     "common.networking.MixinServerGamePacketListenerImpl_N",

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -49,7 +51,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
-    private Set<ServerPlayer> teleportingEntities = new HashSet<>();
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
+    private Set<Entity> teleportingEntities = new HashSet<>();
     private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
     public boolean isFiringMyChangeDimensionEvent = false;
     public final WeakHashMap<ServerPlayer, Tuple<ResourceKey<Level>, Vec3>> lastPosition =
@@ -73,7 +77,7 @@ public class ServerTeleportationManager {
     }
     
     private void tick() {
-        teleportingEntities = new HashSet<>();
+        teleportingEntities.clear();
         long tickTimeNow = McHelper.getServerGameTime();
         if (tickTimeNow % 30 == 7) {
             for (ServerPlayer player : McHelper.getRawPlayerList()) {
@@ -118,6 +122,11 @@ public class ServerTeleportationManager {
             return;
         }
         //a new born entity may have last tick pos 0 0 0
+        if (entity.xo == 0 && entity.yo == 0 && entity.zo == 0) {
+            LOGGER.warn("Trying to teleport a fresh new entity {}", entity);
+            return;
+        }
+        
         double motion = McHelper.lastTickPosOf(entity).distanceToSqr(entity.position());
         if (motion > 20) {
             return;
@@ -301,7 +310,7 @@ public class ServerTeleportationManager {
         
         McHelper.adjustVehicle(player);
         player.connection.resetPosition();
-        
+
 //        CollisionHelper.updateCollidingPortalAfterTeleportation(
 //            player, newEyePos, newEyePos, 0
 //        );
@@ -359,23 +368,24 @@ public class ServerTeleportationManager {
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
-    
+        
         player.setServerLevel(toWorld);
         
         // adds the player
         toWorld.addDuringPortalTeleport(player);
         
         if (vehicle != null) {
-            Vec3 vehiclePos = new Vec3(
-                newEyePos.x,
-                McHelper.getVehicleY(vehicle, player),
-                newEyePos.z
-            );
-            changeEntityDimension(
+            Vec3 offset = McHelper.getVehicleOffsetFromPassenger(vehicle, player);
+            Vec3 vehiclePos = player.position().add(offset);
+            vehicle = teleportVehicleAcrossDimensions(
                 vehicle,
                 toWorld.dimension(),
-                vehiclePos.add(McHelper.getEyeOffset(vehicle)),
-                false
+                vehiclePos.add(McHelper.getEyeOffset(vehicle))
+            );
+            McHelper.setPosAndLastTickPos(
+                vehicle,
+                player.position().add(offset),
+                McHelper.lastTickPosOf(player).add(offset)
             );
             ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
             McHelper.adjustVehicle(player);
@@ -445,7 +455,7 @@ public class ServerTeleportationManager {
         }
     }
     
-    public boolean isTeleporting(ServerPlayer entity) {
+    public boolean isTeleporting(Entity entity) {
         return teleportingEntities.contains(entity);
     }
     
@@ -485,7 +495,7 @@ public class ServerTeleportationManager {
         List<Entity> passengerList = entity.getPassengers();
         
         Vec3 newEyePos = getRegularEntityTeleportedEyePos(entity, portal);
-    
+        
         TeleportationUtil.transformEntityVelocity(portal, entity, TeleportationUtil.PortalPointVelocity.zero);
         
         if (portal.dimensionTo != entity.level().dimension()) {
@@ -577,6 +587,7 @@ public class ServerTeleportationManager {
             }
             
             newEntity.restoreFrom(oldEntity);
+            newEntity.setId(oldEntity.getId());
             McHelper.setEyePos(newEntity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(newEntity);
             newEntity.setYHeadRot(oldEntity.getYHeadRot());
@@ -595,15 +606,44 @@ public class ServerTeleportationManager {
             
             McHelper.setEyePos(entity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(entity);
-    
+            
             ((IEEntity) entity).ip_setWorld(toWorld);
             
             toWorld.addDuringTeleport(entity);
             
+            Validate.isTrue(!entity.isRemoved());
+            
             return entity;
         }
+    }
+    
+    public Entity teleportVehicleAcrossDimensions(
+        Entity entity,
+        ResourceKey<Level> toDimension,
+        Vec3 newEyePos
+    ) {
+        teleportingEntities.add(entity);
         
+        ServerLevel fromWorld = (ServerLevel) entity.level();
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(toDimension);
         
+        Entity oldEntity = entity;
+        Entity newEntity;
+        newEntity = entity.getType().create(toWorld);
+        Validate.isTrue(newEntity != null);
+        
+        newEntity.restoreFrom(oldEntity);
+        newEntity.setId(oldEntity.getId());
+        McHelper.setEyePos(newEntity, newEyePos, newEyePos);
+        McHelper.updateBoundingBox(newEntity);
+        newEntity.setYHeadRot(oldEntity.getYHeadRot());
+        
+        oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
+        ((IEEntity) oldEntity).portal_unsetRemoved();
+        
+        toWorld.addDuringTeleport(newEntity);
+        
+        return newEntity;
     }
     
     private boolean doesEntityClusterContainPlayer(Entity entity) {

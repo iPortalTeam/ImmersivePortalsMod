@@ -13,6 +13,7 @@ import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
@@ -228,6 +229,26 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     private void redirectHandleBlockChangedAck(ClientLevel instance, int seqNumber) {
         for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
             clientWorld.handleBlockChangedAck(seqNumber);
+        }
+    }
+    
+    @Inject(
+        method = "handleAddEntity",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V",
+            shift = At.Shift.AFTER
+        ),
+        cancellable = true
+    )
+    private void onHandleAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci) {
+        int entityId = packet.getId();
+
+        Entity existingEntity = level.getEntity(entityId);
+
+        if (existingEntity != null && !existingEntity.getPassengers().isEmpty()) {
+            LOGGER.warn("[ImmPtl] Entity already exists and has passengers when accepting add-entity packet. Ignoring. {} {}", existingEntity, packet);
+            ci.cancel();
         }
     }
 }

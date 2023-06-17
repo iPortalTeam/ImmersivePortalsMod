@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -13,6 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -50,6 +52,8 @@ import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static final Minecraft client = Minecraft.getInstance();
     public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
@@ -135,7 +139,7 @@ public class ClientTeleportationManager {
                 );
             }
         );
-        
+
 //        ClientPortalAnimationManagement.debugCheck();
         
         // the real partial ticks (not from stable timer)
@@ -327,7 +331,7 @@ public class ClientTeleportationManager {
         
         TeleportationUtil.PortalPointVelocity portalPointVelocity = teleportation.portalPointVelocity();
         TeleportationUtil.transformEntityVelocity(portal, player, portalPointVelocity);
-    
+        
         if (player.getVehicle() != null) {
             TeleportationUtil.transformEntityVelocity(portal, player.getVehicle(), portalPointVelocity);
         }
@@ -417,7 +421,7 @@ public class ClientTeleportationManager {
         ((IEClientPlayNetworkHandler) client.getConnection()).ip_setWorld(toWorld);
         
         fromWorld.removeEntity(player.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
-    
+        
         ((IEEntity) player).ip_setWorld(toWorld);
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
@@ -447,14 +451,16 @@ public class ClientTeleportationManager {
         client.getBlockEntityRenderDispatcher().setLevel(toWorld);
         
         if (vehicle != null) {
-            Vec3 vehiclePos = new Vec3(
-                newEyePos.x,
-                McHelper.getVehicleY(vehicle, player),
-                newEyePos.z
-            );
+            Vec3 offset = McHelper.getVehicleOffsetFromPassenger(vehicle, player);
+            Vec3 vehiclePos = player.position().add(offset);
             moveClientEntityAcrossDimension(
                 vehicle, toWorld,
                 vehiclePos
+            );
+            McHelper.setPosAndLastTickPos(
+                vehicle,
+                player.position().add(offset),
+                McHelper.lastTickPosOf(player).add(offset)
             );
             player.startRiding(vehicle, true);
         }
@@ -504,7 +510,9 @@ public class ClientTeleportationManager {
         oldWorld.removeEntity(entity.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
         ((IEEntity) entity).ip_setWorld(newWorld);
         entity.setPos(newPos.x, newPos.y, newPos.z);
+        ((IEEntity) entity).portal_unsetRemoved();
         newWorld.putNonPlayerEntity(entity.getId(), entity);
+        Validate.isTrue(!entity.isRemoved());
     }
     
     public void disableTeleportFor(int ticks) {
@@ -513,6 +521,10 @@ public class ClientTeleportationManager {
     
     private static void adjustPlayerPosition(LocalPlayer player) {
         if (player.isSpectator()) {
+            return;
+        }
+        
+        if (player.getVehicle() != null) {
             return;
         }
         

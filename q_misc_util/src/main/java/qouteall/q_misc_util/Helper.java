@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 // helper methods
 public class Helper {
     
-    private static final Logger logger = LogManager.getLogger("Portal");
+    public static final Logger logger = LogManager.getLogger("Portal");
     
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
     

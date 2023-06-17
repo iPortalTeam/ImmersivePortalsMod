@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
@@ -264,15 +265,24 @@ public class McHelper {
             eyePos.subtract(eyeOffset),
             lastTickEyePos.subtract(eyeOffset)
         );
-
-//        float eyeHeight = entity.getStandingEyeHeight();
-//        setPosAndLastTickPos(
-//            entity,
-//            eyePos.add(0, -eyeHeight, 0),
-//            lastTickEyePos.add(0, -eyeHeight, 0)
-//        );
     }
     
+    /**
+     * {@link Entity#positionRider(Entity)}
+     */
+    public static double getRidingOffset(Entity vehicle, Entity passenger) {
+        return passenger.getMyRidingOffset() + vehicle.getPassengersRidingOffset();
+    }
+    
+    public static Vec3 getVehicleOffsetFromPassenger(Entity vehicle, Entity passenger) {
+        double ridingOffset = McHelper.getRidingOffset(vehicle, passenger);
+        Direction gravity = GravityChangerInterface.invoker.getGravityDirection(passenger);
+        Vec3 gravityVec = Vec3.atLowerCornerOf(gravity.getNormal());
+        Vec3 vehicleOffset = gravityVec.scale(ridingOffset);
+        return vehicleOffset;
+    }
+    
+    @Deprecated
     public static double getVehicleY(Entity vehicle, Entity passenger) {
         return passenger.getY() - vehicle.getPassengersRidingOffset() - passenger.getMyRidingOffset();
     }
@@ -283,22 +293,23 @@ public class McHelper {
             return;
         }
         
+        Vec3 vehicleOffset = getVehicleOffsetFromPassenger(vehicle, entity);
+        
         Vec3 currVelocity = vehicle.getDeltaMovement();
         
-        double newX = entity.getX();
-        double newY = getVehicleY(vehicle, entity);
-        double newZ = entity.getZ();
-        vehicle.setPos(newX, newY, newZ);
-        Vec3 newPos = new Vec3(newX, newY, newZ);
-        McHelper.setPosAndLastTickPos(
-            vehicle, newPos, newPos
+        Vec3 newVehiclePos = entity.position().add(vehicleOffset);
+        Vec3 newVehicleLastTickPos = McHelper.lastTickPosOf(entity).add(vehicleOffset);
+        
+        // MinecartEntity and LivingEntity use position interpolation
+        // disable the interpolation, or it may interpolate into unloaded chunks
+        vehicle.lerpTo(
+            newVehiclePos.x(), newVehiclePos.y(), newVehiclePos.z(),
+            vehicle.getYRot(), vehicle.getXRot(),
+            0, false
         );
         
-        // MinecartEntity or LivingEntity use position interpolation
-        // disable the interpolation or it may interpolate into unloaded chunks
-        vehicle.lerpTo(
-            newX, newY, newZ, vehicle.getYRot(), vehicle.getXRot(),
-            0, false
+        McHelper.setPosAndLastTickPos(
+            vehicle, newVehiclePos, newVehicleLastTickPos
         );
         
         vehicle.setDeltaMovement(currVelocity);
