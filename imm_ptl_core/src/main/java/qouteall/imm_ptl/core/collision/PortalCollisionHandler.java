@@ -142,82 +142,60 @@ public class PortalCollisionHandler {
             );
         }
         
-        //switch world and check collision
-        Level oldWorld = entity.level();
-        Vec3 oldPos = entity.position();
-        Vec3 oldLastTickPos = McHelper.lastTickPosOf(entity);
-        float oldStepHeight = entity.maxUpStep();
-    
-        ((IEEntity) entity).ip_setWorld(destinationWorld);
-        McHelper.setPosAndLastTickPosWithoutTriggeringCallback(
-            entity,
-            collidingPortal.transformPoint(oldPos),
-            collidingPortal.transformPoint(oldLastTickPos)
+        List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
+            Portal.class,
+            collidingPortal.getDestinationWorld(),
+            boxOtherSide.expandTowards(transformedAttemptedMove),
+            IPGlobal.maxNormalPortalRadius,
+            p -> CollisionHelper.canCollideWithPortal(entity, p, 0)
+                && collidingPortal.isOnDestinationSide(p.getOriginPos(), 0.1)
         );
-        entity.setBoundingBox(boxOtherSide);
         
-        try {
-            List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
-                Portal.class,
-                collidingPortal.getDestinationWorld(),
-                boxOtherSide.expandTowards(transformedAttemptedMove),
-                IPGlobal.maxNormalPortalRadius,
-                p -> CollisionHelper.canCollideWithPortal(entity, p, 0)
-                    && collidingPortal.isOnDestinationSide(p.getOriginPos(), 0.1)
-            );
-            
-            PortalLike collisionHandlingUnit = CollisionHelper.getCollisionHandlingUnit(collidingPortal);
-            Direction transformedGravityDirection = collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity));
-            
-            Vec3 collided = transformedAttemptedMove;
-            collided = CollisionHelper.handleCollisionWithShapeProcessor(
-                entity, collided,
-                shape -> {
-                    VoxelShape current = CollisionHelper.clipVoxelShape(
-                        shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()
-                    );
-                    
-                    if (current == null) {
-                        return null;
-                    }
-                    
-                    if (!indirectCollidingPortals.isEmpty()) {
-                        current = processThisSideCollisionShape(
-                            current, indirectCollidingPortals
-                        );
-                    }
-                    
-                    return current;
-                },
-                transformedGravityDirection,
-                collidingPortal.getScale()
-            );
-            
-            if (!indirectCollidingPortals.isEmpty()) {
-                for (Portal indirectCollidingPortal : indirectCollidingPortals) {
-                    collided = handleOtherSideMove(
-                        entity, collided,
-                        indirectCollidingPortal, boxOtherSide,
-                        portalLayer + 1
+        PortalLike collisionHandlingUnit = CollisionHelper.getCollisionHandlingUnit(collidingPortal);
+        Direction transformedGravityDirection = collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity));
+        
+        Vec3 collided = transformedAttemptedMove;
+        collided = CollisionHelper.handleCollisionWithShapeProcessor(
+            entity, boxOtherSide, destinationWorld,
+            collided,
+            shape -> {
+                VoxelShape current = CollisionHelper.clipVoxelShape(
+                    shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()
+                );
+                
+                if (current == null) {
+                    return null;
+                }
+                
+                if (!indirectCollidingPortals.isEmpty()) {
+                    current = processThisSideCollisionShape(
+                        current, indirectCollidingPortals
                     );
                 }
+                
+                return current;
+            },
+            transformedGravityDirection, collidingPortal.getScale());
+        
+        if (!indirectCollidingPortals.isEmpty()) {
+            for (Portal indirectCollidingPortal : indirectCollidingPortals) {
+                collided = handleOtherSideMove(
+                    entity, collided,
+                    indirectCollidingPortal, boxOtherSide,
+                    portalLayer + 1
+                );
             }
-            
-            collided = new Vec3(
-                CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.x, collided.x),
-                CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.y, collided.y),
-                CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.z, collided.z)
-            );
-            
-            Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
-            
-            return result;
         }
-        finally {
-            ((IEEntity) entity).ip_setWorld(oldWorld);
-            McHelper.setPosAndLastTickPosWithoutTriggeringCallback(entity, oldPos, oldLastTickPos);
-            entity.setBoundingBox(originalBoundingBox);
-        }
+        
+        collided = new Vec3(
+            CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.x, collided.x),
+            CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.y, collided.y),
+            CollisionHelper.fixCoordinateFloatingPointError(transformedAttemptedMove.z, collided.z)
+        );
+        
+        Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
+        
+        return result;
     }
     
     private static Vec3 handleOtherSideChunkNotLoaded(Entity entity, Vec3 attemptedMove, Portal collidingPortal, AABB originalBoundingBox) {
@@ -263,13 +241,12 @@ public class PortalCollisionHandler {
         Direction gravity = GravityChangerInterface.invoker.getGravityDirection(entity);
         
         return CollisionHelper.handleCollisionWithShapeProcessor(
-            entity, attemptedMove,
+            entity, entity.getBoundingBox(), entity.level(),
+            attemptedMove,
             shape -> processThisSideCollisionShape(
                 shape, Helper.mappedListView(portalCollisions, e -> e.portal)
             ),
-            gravity,
-            1
-        );
+            gravity, 1);
     }
     
     @Nullable
@@ -277,7 +254,7 @@ public class PortalCollisionHandler {
         VoxelShape originalShape, List<Portal> portalCollisions
     ) {
         VoxelShape shape = originalShape;
-    
+        
         if (shape.isEmpty()) {
             return shape;
         }
@@ -310,7 +287,7 @@ public class PortalCollisionHandler {
                 exclusion,
                 BooleanOp.ONLY_FIRST
             );
-    
+            
             if (shape.isEmpty()) {
                 return shape;
             }

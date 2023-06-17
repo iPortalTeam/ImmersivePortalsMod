@@ -231,18 +231,19 @@ public class CollisionHelper {
      */
     @IPVanillaCopy
     public static Vec3 handleCollisionWithShapeProcessor(
-        Entity entity, Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter,
+        Entity entity,
+        AABB boundingBox, Level world,
+        Vec3 attemptedMove, Function<VoxelShape, VoxelShape> filter,
         Direction gravity, double steppingScale
     ) {
         Direction jumpDirection = gravity.getOpposite();
         Direction.Axis gravityAxis = gravity.getAxis();
         
-        AABB boundingBox = entity.getBoundingBox();
-        List<VoxelShape> entityCollisions = entity.level().getEntityCollisions(entity, boundingBox.expandTowards(attemptedMove));
+        List<VoxelShape> entityCollisions = world.getEntityCollisions(entity, boundingBox.expandTowards(attemptedMove));
         
         // introduce a helper func to reduce argument count
         BiFunction<Vec3, AABB, Vec3> collisionFunc = (attempt, bb) ->
-            collideBoundingBox(entity, attempt, bb, entity.level(), entityCollisions, filter);
+            collideBoundingBox(entity, attempt, bb, world, entityCollisions, filter);
         
         // firstly do a normal collision regardless of stepping
         Vec3 collidedMovement = attemptedMove.lengthSqr() == 0.0D ? attemptedMove :
@@ -337,11 +338,17 @@ public class CollisionHelper {
         }
         
         WorldBorder worldBorder = level.getWorldBorder();
-        boolean isCloseToWorldBorder = worldBorder.isInsideCloseToBorder(entity, collisionBox.expandTowards(vec));
-        if (isCloseToWorldBorder) {
+    
+        Vec3 boundingBoxCenter = collisionBox.getCenter();
+    
+        boolean addWorldBorderCollision =
+            worldBorder.isWithinBounds(boundingBoxCenter.x, boundingBoxCenter.z)
+                && worldBorder.getDistanceToBorder(boundingBoxCenter.x, boundingBoxCenter.z) < 32;
+        if (addWorldBorderCollision) {
             builder.add(worldBorder.getCollisionShape());
         }
         
+        // the entity is only used for collision context. the context does not use entity position
         Iterable<VoxelShape> blockCollisions = level.getBlockCollisions(entity, collisionBox.expandTowards(vec));
         
         for (VoxelShape blockCollision : blockCollisions) {
