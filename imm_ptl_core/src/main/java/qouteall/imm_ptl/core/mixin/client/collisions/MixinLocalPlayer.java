@@ -16,7 +16,7 @@ public class MixinLocalPlayer {
         cancellable = true
     )
     private void onCannotFitAt(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (((IEEntity) this).getCollidingPortal() != null) {
+        if (((IEEntity) this).ip_getCollidingPortal() != null) {
             cir.setReturnValue(false);
             cir.cancel();
         }

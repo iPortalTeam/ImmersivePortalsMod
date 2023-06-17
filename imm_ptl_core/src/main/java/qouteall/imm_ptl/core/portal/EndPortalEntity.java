@@ -155,7 +155,7 @@ public class EndPortalEntity extends Portal {
                 return;
             }
             if (getNormal().y > 0.5) {
-                if (((IEEntity) player).getCollidingPortal() == this) {
+                if (((IEEntity) player).ip_getCollidingPortal() == this) {
                     Vec3 cameraPosVec = player.getEyePosition(1);
                     double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
                     if (dist < 1) {

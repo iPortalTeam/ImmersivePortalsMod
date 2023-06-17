@@ -353,10 +353,6 @@ public class ClientTeleportationManager {
         
         McHelper.adjustVehicle(player);
         
-        if (player.getVehicle() != null) {
-            disableTeleportFor(10);
-        }
-        
         //because the teleportation may happen before rendering
         //but after pre render info being updated
         RenderStates.updatePreRenderInfo(tickDelta);
@@ -427,7 +423,7 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
-        ((IEEntity) player).portal_unsetRemoved();
+        ((IEEntity) player).ip_unsetRemoved();
         
         toWorld.addPlayer(player.getId(), player);
         ((IEAbstractClientPlayer) player).ip_setClientLevel(toWorld);
@@ -481,7 +477,7 @@ public class ClientTeleportationManager {
     private void changePlayerMotionIfCollidingWithPortal() {
         LocalPlayer player = client.player;
         
-        Portal portal = ((IEEntity) player).getCollidingPortal();
+        Portal portal = ((IEEntity) player).ip_getCollidingPortal();
         
         if (portal != null) {
             if (PortalExtension.get(portal).motionAffinity > 0) {
@@ -510,7 +506,7 @@ public class ClientTeleportationManager {
         oldWorld.removeEntity(entity.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
         ((IEEntity) entity).ip_setWorld(newWorld);
         entity.setPos(newPos.x, newPos.y, newPos.z);
-        ((IEEntity) entity).portal_unsetRemoved();
+        ((IEEntity) entity).ip_unsetRemoved();
         newWorld.putNonPlayerEntity(entity.getId(), entity);
         Validate.isTrue(!entity.isRemoved());
     }
@@ -529,7 +525,7 @@ public class ClientTeleportationManager {
         }
         
         AABB playerBoundingBox = player.getBoundingBox();
-        Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
+        Portal collidingPortal = ((IEEntity) player).ip_getCollidingPortal();
         
         Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
         Direction levitationDir = gravityDir.getOpposite();
@@ -615,7 +611,7 @@ public class ClientTeleportationManager {
                 Helper.getCoordinate(expectedPos, levitationDir.getAxis())
             );
             
-            Portal currentCollidingPortal = ((IEEntity) player).getCollidingPortal();
+            Portal currentCollidingPortal = ((IEEntity) player).ip_getCollidingPortal();
             if (currentCollidingPortal != null) {
                 Vec3 eyePos = McHelper.getEyePos(player);
                 Vec3 newEyePos = newPos.add(McHelper.getEyeOffset(player));

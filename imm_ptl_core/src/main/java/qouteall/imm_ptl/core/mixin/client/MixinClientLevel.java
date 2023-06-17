@@ -160,7 +160,7 @@ public abstract class MixinClientLevel implements IEClientWorld {
     )
     private void onTickNonPassenger(Entity entity, CallbackInfo ci) {
         // this should be done right before setting last tick pos to this tick pos
-        ((IEEntity) entity).tickCollidingPortal();
+        ((IEEntity) entity).ip_tickCollidingPortal();
     }
     
     @Override

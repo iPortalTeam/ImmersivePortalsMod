@@ -190,6 +190,9 @@ public class BlockManipulationClient {
         
     }
     
+    /**
+     * It will not switch the dimension of client player
+     */
     public static <T> T withSwitchedContext(
         Supplier<T> func, boolean transformHitResult
     ) {

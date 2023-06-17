@@ -380,7 +380,7 @@ public class CollisionHelper {
     }
     
     public static boolean isCollidingWithAnyPortal(Entity entity) {
-        return ((IEEntity) entity).getCollidingPortal() != null;
+        return ((IEEntity) entity).ip_getCollidingPortal() != null;
     }
     
     public static void updateCollidingPortalForWorld(Level world, float tickDelta) {

@@ -18,6 +18,8 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.collision.PortalCollisionEntry;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -56,10 +58,10 @@ public class CrossPortalEntityRenderer {
     }
     
     private static void onClientTick() {
-        collidedEntities.entrySet().removeIf(entry ->
-            entry.getKey().isRemoved() ||
-                ((IEEntity) entry.getKey()).getCollidingPortal() == null
-        );
+        collidedEntities.entrySet().removeIf(entry -> {
+            Entity entity = entry.getKey();
+            return entity.isRemoved() || !((IEEntity) entity).ip_isCollidingWithPortal();
+        });
     }
     
     public static void onEntityTickClient(Entity entity) {
@@ -67,8 +69,7 @@ public class CrossPortalEntityRenderer {
             return;
         }
         
-        Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-        if (collidingPortal != null) {
+        if (((IEEntity) entity).ip_isCollidingWithPortal()) {
             collidedEntities.put(entity, null);
         }
     }
@@ -109,16 +110,18 @@ public class CrossPortalEntityRenderer {
         }
         if (!PortalRendering.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
-                Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-                if (collidingPortal == null) {
-                    //Helper.err("Colliding Portal Record Invalid " + entity);
-                    return;
+                PortalCollisionHandler collisionHandler = ((IEEntity) entity).ip_getPortalCollisionHandler();
+                
+                if (collisionHandler != null) {
+                    for (PortalCollisionEntry e : collisionHandler.portalCollisions) {
+                        Portal collidingPortal = e.portal;
+                        
+                        //draw already built triangles
+                        client.renderBuffers().bufferSource().endBatch();
+                        
+                        FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
+                    }
                 }
-                
-                //draw already built triangles
-                client.renderBuffers().bufferSource().endBatch();
-                
-                FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
             }
         }
     }
@@ -142,21 +145,24 @@ public class CrossPortalEntityRenderer {
         if (!isCrossPortalRenderingEnabled()) {
             return;
         }
-        collidedEntities.keySet().forEach(entity -> {
-            Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-            if (collidingPortal == null) {
-                //Helper.err("Colliding Portal Record Invalid " + entity);
-                return;
+        
+        ResourceKey<Level> clientDim = client.level.dimension();
+        
+        for (Entity entity : collidedEntities.keySet()) {
+            PortalCollisionHandler collisionHandler = ((IEEntity) entity).ip_getPortalCollisionHandler();
+            
+            if (collisionHandler != null) {
+                for (PortalCollisionEntry e : collisionHandler.portalCollisions) {
+                    Portal collidingPortal = e.portal;
+                    if (!(collidingPortal instanceof Mirror)) {
+                        ResourceKey<Level> projectionDimension = collidingPortal.dimensionTo;
+                        if (clientDim == projectionDimension) {
+                            renderProjectedEntity(entity, collidingPortal, matrixStack);
+                        }
+                    }
+                }
             }
-            if (collidingPortal instanceof Mirror) {
-                //no need to render entity projection for mirrors
-                return;
-            }
-            ResourceKey<Level> projectionDimension = collidingPortal.dimensionTo;
-            if (client.level.dimension() == projectionDimension) {
-                renderProjectedEntity(entity, collidingPortal, matrixStack);
-            }
-        });
+        }
     }
     
     public static boolean hasIntersection(
@@ -210,12 +216,14 @@ public class CrossPortalEntityRenderer {
         Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
         
         ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
-        
-        Vec3 oldEyePos = McHelper.getEyePos(entity);
-        Vec3 oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
+    
+        Vec3 entityPos = entity.position();
+        Vec3 entityEyePos = McHelper.getEyePos(entity);
+        Vec3 entityLastTickPos = McHelper.lastTickPosOf(entity);
+        Vec3 entityLastTickEyePos = McHelper.getLastTickEyePos(entity);
         Level oldWorld = entity.level();
         
-        Vec3 newEyePos = transformingPortal.transformPoint(oldEyePos);
+        Vec3 newEyePos = transformingPortal.transformPoint(entityEyePos);
         
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
@@ -242,7 +250,7 @@ public class CrossPortalEntityRenderer {
             if (client.options.getCameraType().isFirstPerson()) {
                 //avoid rendering player too near and block view
                 double dis = newEyePos.distanceTo(cameraPos);
-                double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.position());
+                double valve = 0.5 + entityLastTickPos.distanceTo(entityPos);
                 if (transformingPortal.scaling > 1) {
                     valve *= transformingPortal.scaling;
                 }
@@ -258,25 +266,33 @@ public class CrossPortalEntityRenderer {
             }
         }
         
-        McHelper.setEyePos(
-            entity,
-            newEyePos,
-            transformingPortal.transformPoint(oldLastTickEyePos)
-        );
-        
-        ((IEEntity) entity).ip_setWorld(newWorld);
-        
         isRenderingEntityProjection = true;
         matrixStack.pushPose();
         try {
             setupEntityProjectionRenderingTransformation(
-                transformingPortal, entity, matrixStack
+                transformingPortal, matrixStack,
+                entityPos, entityLastTickPos
             );
+            
+            // we don't switch the entity position now
+            // to make the entity to render in the new position,
+            // we change the camera pos passed in
+            
+            // renderedPos = entityPos - cameraPos
+            // cameraPos = entityPos - renderedPos
+            
+            // expectedRenderedPos = newEntityPos - cameraPos
+            // newCameraPos = entityPos - expectedRenderedPos
+            //              = entityPos - newEntityPos + cameraPos
+            
+            Vec3 entityInstantPos = entityLastTickPos.lerp(entityPos, RenderStates.getPartialTick());
+            Vec3 newEntityInstantPos = transformingPortal.transformPoint(entityInstantPos);
+            Vec3 newCameraPos = entityInstantPos.subtract(newEntityInstantPos).add(cameraPos);
             
             MultiBufferSource.BufferSource consumers = client.renderBuffers().bufferSource();
             ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
                 entity,
-                cameraPos.x, cameraPos.y, cameraPos.z,
+                newCameraPos.x, newCameraPos.y, newCameraPos.z,
                 RenderStates.getPartialTick(), matrixStack,
                 consumers
             );
@@ -286,24 +302,21 @@ public class CrossPortalEntityRenderer {
         finally {
             matrixStack.popPose();
             isRenderingEntityProjection = false;
-            
-            McHelper.setEyePos(
-                entity, oldEyePos, oldLastTickEyePos
-            );
-            ((IEEntity) entity).ip_setWorld(oldWorld);
         }
     }
     
     private static void setupEntityProjectionRenderingTransformation(
-        Portal portal, Entity entity, PoseStack matrixStack
+        Portal portal, PoseStack matrixStack,
+        Vec3 entityPos, Vec3 entityLastTickPos
     ) {
         if (portal.scaling == 1.0 && portal.getRotation() == null) {
             return;
         }
         
         Vec3 cameraPos = CHelper.getCurrentCameraPos();
-        
-        Vec3 anchor = entity.getEyePosition(RenderStates.getPartialTick()).subtract(cameraPos);
+    
+        Vec3 anchor = entityLastTickPos.lerp(entityPos, RenderStates.getPartialTick())
+            .subtract(cameraPos);
         
         matrixStack.translate(anchor.x, anchor.y, anchor.z);
         
@@ -354,7 +367,7 @@ public class CrossPortalEntityRenderer {
         }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+            Portal collidingPortal = ((IEEntity) entity).ip_getCollidingPortal();
             
             if (entity instanceof Player && !renderingPortal.getDoRenderPlayer()) {
                 return false;

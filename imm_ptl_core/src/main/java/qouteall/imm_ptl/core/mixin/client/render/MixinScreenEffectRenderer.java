@@ -31,7 +31,7 @@ public class MixinScreenEffectRenderer {
         }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            if (((IEEntity) player).getCollidingPortal() != null) {
+            if (((IEEntity) player).ip_getCollidingPortal() != null) {
                 ci.cancel();
             }
         }

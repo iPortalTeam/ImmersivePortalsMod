@@ -364,7 +364,7 @@ public class ServerTeleportationManager {
         Vec3 oldPos = player.position();
         
         fromWorld.removePlayerImmediately(player, Entity.RemovalReason.CHANGED_DIMENSION);
-        ((IEEntity) player).portal_unsetRemoved();
+        ((IEEntity) player).ip_unsetRemoved();
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
@@ -423,7 +423,7 @@ public class ServerTeleportationManager {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             for (Entity entity : world.getAllEntities()) {
                 if (!(entity instanceof ServerPlayer)) {
-                    Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+                    Portal collidingPortal = ((IEEntity) entity).ip_getCollidingPortal();
                     
                     if (collidingPortal != null && collidingPortal.getIsGlobal()) {
                         if (shouldEntityTeleport(collidingPortal, entity)) {
@@ -594,7 +594,7 @@ public class ServerTeleportationManager {
             
             // TODO check minecart item duplication
             oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-            ((IEEntity) oldEntity).portal_unsetRemoved();
+            ((IEEntity) oldEntity).ip_unsetRemoved();
             
             toWorld.addDuringTeleport(newEntity);
             
@@ -602,7 +602,7 @@ public class ServerTeleportationManager {
         }
         else {
             entity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-            ((IEEntity) entity).portal_unsetRemoved();
+            ((IEEntity) entity).ip_unsetRemoved();
             
             McHelper.setEyePos(entity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(entity);
@@ -622,6 +622,7 @@ public class ServerTeleportationManager {
         ResourceKey<Level> toDimension,
         Vec3 newEyePos
     ) {
+        // avoid sending the remove entity packet
         teleportingEntities.add(entity);
         
         ServerLevel fromWorld = (ServerLevel) entity.level();
@@ -639,7 +640,7 @@ public class ServerTeleportationManager {
         newEntity.setYHeadRot(oldEntity.getYHeadRot());
         
         oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-        ((IEEntity) oldEntity).portal_unsetRemoved();
+        ((IEEntity) oldEntity).ip_unsetRemoved();
         
         toWorld.addDuringTeleport(newEntity);
         

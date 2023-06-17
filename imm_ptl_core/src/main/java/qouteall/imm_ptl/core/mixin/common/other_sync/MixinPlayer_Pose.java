@@ -19,7 +19,7 @@ public class MixinPlayer_Pose {
     private void onUpdatePlayerPose(CallbackInfo ci) {
         Player this_ = (Player) (Object) this;
         if (!this_.level().isClientSide()) {
-            if (((IEEntity) this_).isRecentlyCollidingWithPortal()) {
+            if (((IEEntity) this_).ip_isRecentlyCollidingWithPortal()) {
                 ci.cancel();
             }
         }

@@ -21,15 +21,17 @@ public interface IEEntity {
     
     @Nullable
     @Deprecated
-    Portal getCollidingPortal();
+    Portal ip_getCollidingPortal();
     
-    void tickCollidingPortal();
+    void ip_tickCollidingPortal();
     
-    boolean isRecentlyCollidingWithPortal();
+    boolean ip_isCollidingWithPortal();
+    
+    boolean ip_isRecentlyCollidingWithPortal();
     
     void ip_clearCollidingPortal();
     
-    void portal_unsetRemoved();
+    void ip_unsetRemoved();
     
     @Nullable
     AABB ip_getActiveCollisionBox(AABB originalBox);

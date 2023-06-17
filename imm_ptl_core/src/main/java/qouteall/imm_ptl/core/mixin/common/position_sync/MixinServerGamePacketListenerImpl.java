@@ -1,12 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
-import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,9 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -231,7 +226,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         LevelReader levelReader, AABB aABB, double d, double e, double f,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (((IEEntity) player).isRecentlyCollidingWithPortal()) {
+        if (((IEEntity) player).ip_isRecentlyCollidingWithPortal()) {
             cir.setReturnValue(false);
         }
     }
@@ -343,7 +338,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (IPGlobal.looseMovementCheck) {
             return true;
         }
-        if (((IEEntity) player).getCollidingPortal() != null) {
+        if (((IEEntity) player).ip_getCollidingPortal() != null) {
             return true;
         }
         boolean portalsNearby = IPMcHelper.getNearbyPortals(player, 16).findFirst().isPresent();

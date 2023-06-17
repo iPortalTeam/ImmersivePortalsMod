@@ -8,7 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -151,7 +150,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
         cancellable = true
     )
     private void onIsFireImmune(CallbackInfoReturnable<Boolean> cir) {
-        if (getCollidingPortal() instanceof EndPortalEntity) {
+        if (ip_getCollidingPortal() instanceof EndPortalEntity) {
             cir.setReturnValue(true);
             cir.cancel();
         }
@@ -187,7 +186,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     // avoid suffocation when colliding with a portal on wall
     @Inject(method = "Lnet/minecraft/world/entity/Entity;isInWall()Z", at = @At("HEAD"), cancellable = true)
     private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
-        if (isRecentlyCollidingWithPortal()) {
+        if (ip_isRecentlyCollidingWithPortal()) {
             cir.setReturnValue(false);
         }
     }
@@ -255,7 +254,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     // fix climbing onto ladder cross portal
     @Inject(method = "Lnet/minecraft/world/entity/Entity;getFeetBlockState()Lnet/minecraft/world/level/block/state/BlockState;", at = @At("HEAD"), cancellable = true)
     private void onGetBlockState(CallbackInfoReturnable<BlockState> cir) {
-        Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
+        Portal collidingPortal = ((IEEntity) this).ip_getCollidingPortal();
         Entity this_ = (Entity) (Object) this;
         if (collidingPortal != null) {
             if (collidingPortal.getNormal().y > 0) {
@@ -310,7 +309,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
 //    }
     
     @Override
-    public Portal getCollidingPortal() {
+    public Portal ip_getCollidingPortal() {
         if (ip_portalCollisionHandler == null) {
             return null;
         }
@@ -324,7 +323,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     // because between these two operations, this tick pos is the same as last tick pos
     // CollisionHelper.getStretchedBoundingBox uses the difference between this tick pos and last tick pos
     @Override
-    public void tickCollidingPortal() {
+    public void ip_tickCollidingPortal() {
         Entity this_ = (Entity) (Object) this;
         
         if (ip_portalCollisionHandler != null) {
@@ -348,7 +347,15 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     }
     
     @Override
-    public boolean isRecentlyCollidingWithPortal() {
+    public boolean ip_isCollidingWithPortal() {
+        if (ip_portalCollisionHandler == null) {
+            return false;
+        }
+        return ip_portalCollisionHandler.hasCollisionEntry();
+    }
+    
+    @Override
+    public boolean ip_isRecentlyCollidingWithPortal() {
         if (ip_portalCollisionHandler == null) {
             return false;
         }
@@ -356,7 +363,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     }
     
     @Override
-    public void portal_unsetRemoved() {
+    public void ip_unsetRemoved() {
         unsetRemoved();
     }
     

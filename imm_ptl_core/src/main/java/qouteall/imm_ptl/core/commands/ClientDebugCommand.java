@@ -187,7 +187,7 @@ public class ClientDebugCommand {
             .literal("get_player_colliding_portal_client")
             .executes(context -> {
                 Portal collidingPortal =
-                    ((IEEntity) Minecraft.getInstance().player).getCollidingPortal();
+                    ((IEEntity) Minecraft.getInstance().player).ip_getCollidingPortal();
                 CHelper.printChat(
                     collidingPortal != null ? collidingPortal.toString() : "null"
                 );

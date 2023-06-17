@@ -462,6 +462,9 @@ public class ClientWorldLoader {
         isReloadingOtherWorldRenderers = false;
     }
     
+    /**
+     * It will not switch the dimension of client player
+     */
     public static <T> T withSwitchedWorld(ClientLevel newWorld, Supplier<T> supplier) {
         Validate.isTrue(client.isSameThread());
         Validate.isTrue(client.player != null);

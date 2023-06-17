@@ -28,7 +28,7 @@ public class MixinDebugScreenOverlay {
         
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
+            Portal collidingPortal = ((IEEntity) player).ip_getCollidingPortal();
             if (collidingPortal != null) {
                 String text = "Colliding " + collidingPortal.toString();
                 returnValue.addAll(Helper.splitStringByLen(text, 50));

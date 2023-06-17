@@ -47,7 +47,7 @@ public class MixinLivingEntity_C {
             return;
         }
         
-        Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
+        Portal collidingPortal = ((IEEntity) this).ip_getCollidingPortal();
         if (collidingPortal != null) {
             
             double dx = this_.getX() - lerpX;
