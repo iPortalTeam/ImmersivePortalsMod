@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal.animation;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
@@ -12,6 +13,10 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
+import qouteall.q_misc_util.my_util.animation.Animated;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * {@link PortalState} but one-sided.
@@ -250,4 +255,115 @@ public record UnilateralPortalState(
             return this;
         }
     }
+    
+    // treating UnilateralPortalState as a rectangle,
+    // then it has these invariants
+    public static enum RectInvariant {
+        IDENTITY, ROTATE_90, ROTATE_180, ROTATE_270,
+        FLIP_X, FLIP_X_ROTATE_90, FLIP_X_ROTATE_180, FLIP_X_ROTATE_270;
+        
+        public UnilateralPortalState getVariantOf(UnilateralPortalState state) {
+            return switch (this) {
+                case IDENTITY -> state;
+                case ROTATE_90 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 90
+                    )), state.height, state.width
+                );
+                case ROTATE_180 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 180
+                    )), state.width, state.height
+                );
+                case ROTATE_270 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 270
+                    )), state.height, state.width
+                );
+                case FLIP_X -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(1, 0, 0), 180
+                    )), state.width, state.height
+                );
+                case FLIP_X_ROTATE_90 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 90
+                    )).hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(1, 0, 0), 180
+                    )), state.height, state.width
+                );
+                case FLIP_X_ROTATE_180 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 180
+                    )).hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(1, 0, 0), 180
+                    )), state.width, state.height
+                );
+                case FLIP_X_ROTATE_270 -> new UnilateralPortalState(
+                    state.dimension, state.position,
+                    state.orientation.hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(0, 0, 1), 270
+                    )).hamiltonProduct(DQuaternion.rotationByDegrees(
+                        new Vec3(1, 0, 0), 180
+                    )), state.height, state.width
+                );
+            };
+        }
+        
+        public boolean switchesWidthAndHeight() {
+            return switch (this) {
+                case IDENTITY, ROTATE_180, FLIP_X, FLIP_X_ROTATE_180 -> false;
+                case ROTATE_90, ROTATE_270, FLIP_X_ROTATE_90, FLIP_X_ROTATE_270 -> true;
+            };
+        }
+    }
+    
+    /**
+     * Get the invariant whiches orientation is the closet to the target orientation.
+     */
+    public Pair<RectInvariant, UnilateralPortalState> turnToClosestTo(
+        DQuaternion targetOrientation
+    ) {
+        return Arrays.stream(RectInvariant.values())
+            .map(inv -> Pair.of(inv, inv.getVariantOf(this)))
+            .min(Comparator.comparingDouble(
+                p -> DQuaternion.distance(p.getSecond().orientation(), targetOrientation)
+            ))
+            .orElseThrow();
+    }
+    
+    public static final Animated.TypeInfo<UnilateralPortalState> ANIMATION_TYPE_INFO = new Animated.TypeInfo<UnilateralPortalState>() {
+        @Override
+        public UnilateralPortalState interpolate(UnilateralPortalState start, UnilateralPortalState end, double progress) {
+            if (start.dimension() != end.dimension()) {
+                return end;
+            }
+            
+            Pair<RectInvariant, UnilateralPortalState> p = start.turnToClosestTo(end.orientation());
+            start = p.getSecond();
+            
+            return new UnilateralPortalState(
+                start.dimension(),
+                start.position().lerp(end.position(), progress),
+                DQuaternion.interpolate(start.orientation(), end.orientation(), progress),
+                Mth.lerp(progress, start.width(), end.width()),
+                Mth.lerp(progress, start.height(), end.height())
+            );
+        }
+        
+        @Override
+        public boolean isClose(UnilateralPortalState a, UnilateralPortalState b) {
+            return a.dimension() == b.dimension() &&
+                a.position().distanceToSqr(b.position()) < 0.01 &&
+                DQuaternion.isClose(a.orientation(), b.orientation(), 0.01) &&
+                Math.abs(a.width() - b.width()) < 0.01 &&
+                Math.abs(a.height() - b.height()) < 0.01;
+        }
+    };
 }

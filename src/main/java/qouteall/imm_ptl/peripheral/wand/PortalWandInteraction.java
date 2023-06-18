@@ -35,6 +35,214 @@ public class PortalWandInteraction {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
+    public static class RemoteCallables {
+        public static void finishPortalCreation(
+            ServerPlayer player,
+            ProtoPortal protoPortal
+        ) {
+            if (!checkPermission(player)) return;
+            
+            handleFinishPortalCreation(player, protoPortal);
+        }
+        
+        public static void requestApplyDrag(
+            ServerPlayer player,
+            UUID portalId,
+            Vec3 cursorPos,
+            DraggingInfo draggingInfo
+        ) {
+            if (!checkPermission(player)) return;
+            
+            Entity entity = ((ServerLevel) player.level()).getEntity(portalId);
+            
+            if (!(entity instanceof Portal portal)) {
+                LOGGER.error("Cannot find portal {}", portalId);
+                return;
+            }
+            
+            handleDraggingRequest(player, portalId, cursorPos, draggingInfo, portal);
+        }
+        
+        public static void undoDrag(ServerPlayer player) {
+            if (!checkPermission(player)) return;
+            
+            handleUndoDrag(player);
+        }
+        
+        public static void finishDragging(ServerPlayer player) {
+            if (!checkPermission(player)) return;
+            
+            handleFinishDrag(player);
+        }
+    }
+    
+    private static void handleFinishPortalCreation(ServerPlayer player, ProtoPortal protoPortal) {
+        Validate.isTrue(protoPortal.firstSide != null);
+        Validate.isTrue(protoPortal.secondSide != null);
+        
+        Vec3 firstSideLeftBottom = protoPortal.firstSide.leftBottom;
+        Vec3 firstSideRightBottom = protoPortal.firstSide.rightBottom;
+        Vec3 firstSideLeftUp = protoPortal.firstSide.leftTop;
+        Vec3 secondSideLeftBottom = protoPortal.secondSide.leftBottom;
+        Vec3 secondSideRightBottom = protoPortal.secondSide.rightBottom;
+        Vec3 secondSideLeftUp = protoPortal.secondSide.leftTop;
+        
+        Validate.notNull(firstSideLeftBottom);
+        Validate.notNull(firstSideRightBottom);
+        Validate.notNull(firstSideLeftUp);
+        Validate.notNull(secondSideLeftBottom);
+        Validate.notNull(secondSideRightBottom);
+        Validate.notNull(secondSideLeftUp);
+        
+        ResourceKey<Level> firstSideDimension = protoPortal.firstSide.dimension;
+        ResourceKey<Level> secondSideDimension = protoPortal.secondSide.dimension;
+        
+        Vec3 firstSideHorizontalAxis = firstSideRightBottom.subtract(firstSideLeftBottom);
+        Vec3 firstSideVerticalAxis = firstSideLeftUp.subtract(firstSideLeftBottom);
+        double firstSideWidth = firstSideHorizontalAxis.length();
+        double firstSideHeight = firstSideVerticalAxis.length();
+        Vec3 firstSideHorizontalUnitAxis = firstSideHorizontalAxis.normalize();
+        Vec3 firstSideVerticalUnitAxis = firstSideVerticalAxis.normalize();
+        
+        if (Math.abs(firstSideWidth) < 0.001 || Math.abs(firstSideHeight) < 0.001) {
+            player.sendSystemMessage(Component.literal("The first side is too small"));
+            LOGGER.error("The first side is too small");
+            return;
+        }
+        
+        if (firstSideHorizontalUnitAxis.dot(firstSideVerticalUnitAxis) > 0.001) {
+            player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in first side"));
+            LOGGER.error("The horizontal and vertical axis are not perpendicular in first side");
+            return;
+        }
+        
+        if (firstSideWidth > SIZE_LIMIT || firstSideHeight > SIZE_LIMIT) {
+            player.sendSystemMessage(Component.literal("The first side is too large"));
+            LOGGER.error("The first side is too large");
+            return;
+        }
+        
+        Vec3 secondSideHorizontalAxis = secondSideRightBottom.subtract(secondSideLeftBottom);
+        Vec3 secondSideVerticalAxis = secondSideLeftUp.subtract(secondSideLeftBottom);
+        double secondSideWidth = secondSideHorizontalAxis.length();
+        double secondSideHeight = secondSideVerticalAxis.length();
+        Vec3 secondSideHorizontalUnitAxis = secondSideHorizontalAxis.normalize();
+        Vec3 secondSideVerticalUnitAxis = secondSideVerticalAxis.normalize();
+        
+        if (Math.abs(secondSideWidth) < 0.001 || Math.abs(secondSideHeight) < 0.001) {
+            player.sendSystemMessage(Component.literal("The second side is too small"));
+            LOGGER.error("The second side is too small");
+            return;
+        }
+        
+        if (secondSideHorizontalUnitAxis.dot(secondSideVerticalUnitAxis) > 0.001) {
+            player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in second side"));
+            LOGGER.error("The horizontal and vertical axis are not perpendicular in second side");
+            return;
+        }
+        
+        if (secondSideWidth > SIZE_LIMIT || secondSideHeight > SIZE_LIMIT) {
+            player.sendSystemMessage(Component.literal("The second side is too large"));
+            LOGGER.error("The second side is too large");
+            return;
+        }
+        
+        if (Math.abs((firstSideHeight / firstSideWidth) - (secondSideHeight / secondSideWidth)) > 0.001) {
+            player.sendSystemMessage(Component.literal("The two sides have different aspect ratio"));
+            LOGGER.error("The two sides have different aspect ratio");
+            return;
+        }
+        
+        boolean overlaps = false;
+        if (firstSideDimension == secondSideDimension) {
+            Vec3 firstSideNormal = firstSideHorizontalUnitAxis.cross(firstSideVerticalUnitAxis);
+            Vec3 secondSideNormal = secondSideHorizontalUnitAxis.cross(secondSideVerticalUnitAxis);
+            
+            // check orientation overlap
+            if (Math.abs(firstSideNormal.dot(secondSideNormal)) > 0.99) {
+                // check plane overlap
+                if (Math.abs(firstSideLeftBottom.subtract(secondSideLeftBottom).dot(firstSideNormal)) < 0.001) {
+                    // check portal area overlap
+                    
+                    Vec3 coordCenter = firstSideLeftBottom;
+                    Vec3 coordX = firstSideHorizontalAxis;
+                    Vec3 coordY = firstSideVerticalAxis;
+                    
+                    Range firstSideXRange = Range.createUnordered(
+                        firstSideLeftBottom.subtract(coordCenter).dot(coordX),
+                        firstSideRightBottom.subtract(coordCenter).dot(coordX)
+                    );
+                    Range firstSideYRange = Range.createUnordered(
+                        firstSideLeftBottom.subtract(coordCenter).dot(coordY),
+                        firstSideLeftUp.subtract(coordCenter).dot(coordY)
+                    );
+                    
+                    Range secondSideXRange = Range.createUnordered(
+                        secondSideLeftBottom.subtract(coordCenter).dot(coordX),
+                        secondSideRightBottom.subtract(coordCenter).dot(coordX)
+                    );
+                    Range secondSideYRange = Range.createUnordered(
+                        secondSideLeftBottom.subtract(coordCenter).dot(coordY),
+                        secondSideLeftUp.subtract(coordCenter).dot(coordY)
+                    );
+                    
+                    if (firstSideXRange.intersect(secondSideXRange) != null &&
+                        firstSideYRange.intersect(secondSideYRange) != null
+                    ) {
+                        overlaps = true;
+                    }
+                }
+            }
+        }
+        
+        Portal portal = Portal.entityType.create(McHelper.getServerWorld(firstSideDimension));
+        Validate.notNull(portal);
+        portal.setOriginPos(
+            firstSideLeftBottom
+                .add(firstSideHorizontalAxis.scale(0.5))
+                .add(firstSideVerticalAxis.scale(0.5))
+        );
+        portal.width = firstSideWidth;
+        portal.height = firstSideHeight;
+        portal.axisW = firstSideHorizontalUnitAxis;
+        portal.axisH = firstSideVerticalUnitAxis;
+        
+        portal.dimensionTo = secondSideDimension;
+        portal.setDestination(
+            secondSideLeftBottom
+                .add(secondSideHorizontalAxis.scale(0.5))
+                .add(secondSideVerticalAxis.scale(0.5))
+        );
+        
+        portal.scaling = secondSideWidth / firstSideWidth;
+        
+        DQuaternion secondSideOrientation = DQuaternion.matrixToQuaternion(
+            secondSideHorizontalUnitAxis,
+            secondSideVerticalUnitAxis,
+            secondSideHorizontalUnitAxis.cross(secondSideVerticalUnitAxis)
+        );
+        portal.setOtherSideOrientation(secondSideOrientation);
+        
+        Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+        Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
+        Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
+        
+        McHelper.spawnServerEntity(portal);
+        
+        if (overlaps) {
+            player.sendSystemMessage(Component.translatable("imm_ptl.wand.overlap"));
+        }
+        else {
+            McHelper.spawnServerEntity(flippedPortal);
+            McHelper.spawnServerEntity(reversePortal);
+            McHelper.spawnServerEntity(parallelPortal);
+        }
+        
+        player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
+        
+        giveDeletingPortalCommandStickIfNotPresent(player);
+    }
+    
     private static class DraggingSession {
         private final ResourceKey<Level> dimension;
         private final UUID portalId;
@@ -136,257 +344,68 @@ public class PortalWandInteraction {
         return r.newState();
     }
     
-    public static class RemoteCallables {
-        public static void finish(
-            ServerPlayer player,
-            ProtoPortal protoPortal
-        ) {
-            if (!checkPermission(player)) return;
-            
-            Validate.isTrue(protoPortal.firstSide != null);
-            Validate.isTrue(protoPortal.secondSide != null);
-            
-            Vec3 firstSideLeftBottom = protoPortal.firstSide.leftBottom;
-            Vec3 firstSideRightBottom = protoPortal.firstSide.rightBottom;
-            Vec3 firstSideLeftUp = protoPortal.firstSide.leftTop;
-            Vec3 secondSideLeftBottom = protoPortal.secondSide.leftBottom;
-            Vec3 secondSideRightBottom = protoPortal.secondSide.rightBottom;
-            Vec3 secondSideLeftUp = protoPortal.secondSide.leftTop;
-            
-            Validate.notNull(firstSideLeftBottom);
-            Validate.notNull(firstSideRightBottom);
-            Validate.notNull(firstSideLeftUp);
-            Validate.notNull(secondSideLeftBottom);
-            Validate.notNull(secondSideRightBottom);
-            Validate.notNull(secondSideLeftUp);
-            
-            ResourceKey<Level> firstSideDimension = protoPortal.firstSide.dimension;
-            ResourceKey<Level> secondSideDimension = protoPortal.secondSide.dimension;
-            
-            Vec3 firstSideHorizontalAxis = firstSideRightBottom.subtract(firstSideLeftBottom);
-            Vec3 firstSideVerticalAxis = firstSideLeftUp.subtract(firstSideLeftBottom);
-            double firstSideWidth = firstSideHorizontalAxis.length();
-            double firstSideHeight = firstSideVerticalAxis.length();
-            Vec3 firstSideHorizontalUnitAxis = firstSideHorizontalAxis.normalize();
-            Vec3 firstSideVerticalUnitAxis = firstSideVerticalAxis.normalize();
-            
-            if (Math.abs(firstSideWidth) < 0.001 || Math.abs(firstSideHeight) < 0.001) {
-                player.sendSystemMessage(Component.literal("The first side is too small"));
-                LOGGER.error("The first side is too small");
-                return;
-            }
-            
-            if (firstSideHorizontalUnitAxis.dot(firstSideVerticalUnitAxis) > 0.001) {
-                player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in first side"));
-                LOGGER.error("The horizontal and vertical axis are not perpendicular in first side");
-                return;
-            }
-            
-            if (firstSideWidth > SIZE_LIMIT || firstSideHeight > SIZE_LIMIT) {
-                player.sendSystemMessage(Component.literal("The first side is too large"));
-                LOGGER.error("The first side is too large");
-                return;
-            }
-            
-            Vec3 secondSideHorizontalAxis = secondSideRightBottom.subtract(secondSideLeftBottom);
-            Vec3 secondSideVerticalAxis = secondSideLeftUp.subtract(secondSideLeftBottom);
-            double secondSideWidth = secondSideHorizontalAxis.length();
-            double secondSideHeight = secondSideVerticalAxis.length();
-            Vec3 secondSideHorizontalUnitAxis = secondSideHorizontalAxis.normalize();
-            Vec3 secondSideVerticalUnitAxis = secondSideVerticalAxis.normalize();
-            
-            if (Math.abs(secondSideWidth) < 0.001 || Math.abs(secondSideHeight) < 0.001) {
-                player.sendSystemMessage(Component.literal("The second side is too small"));
-                LOGGER.error("The second side is too small");
-                return;
-            }
-            
-            if (secondSideHorizontalUnitAxis.dot(secondSideVerticalUnitAxis) > 0.001) {
-                player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in second side"));
-                LOGGER.error("The horizontal and vertical axis are not perpendicular in second side");
-                return;
-            }
-            
-            if (secondSideWidth > SIZE_LIMIT || secondSideHeight > SIZE_LIMIT) {
-                player.sendSystemMessage(Component.literal("The second side is too large"));
-                LOGGER.error("The second side is too large");
-                return;
-            }
-            
-            if (Math.abs((firstSideHeight / firstSideWidth) - (secondSideHeight / secondSideWidth)) > 0.001) {
-                player.sendSystemMessage(Component.literal("The two sides have different aspect ratio"));
-                LOGGER.error("The two sides have different aspect ratio");
-                return;
-            }
-            
-            boolean overlaps = false;
-            if (firstSideDimension == secondSideDimension) {
-                Vec3 firstSideNormal = firstSideHorizontalUnitAxis.cross(firstSideVerticalUnitAxis);
-                Vec3 secondSideNormal = secondSideHorizontalUnitAxis.cross(secondSideVerticalUnitAxis);
-                
-                // check orientation overlap
-                if (Math.abs(firstSideNormal.dot(secondSideNormal)) > 0.99) {
-                    // check plane overlap
-                    if (Math.abs(firstSideLeftBottom.subtract(secondSideLeftBottom).dot(firstSideNormal)) < 0.001) {
-                        // check portal area overlap
-                        
-                        Vec3 coordCenter = firstSideLeftBottom;
-                        Vec3 coordX = firstSideHorizontalAxis;
-                        Vec3 coordY = firstSideVerticalAxis;
-                        
-                        Range firstSideXRange = Range.createUnordered(
-                            firstSideLeftBottom.subtract(coordCenter).dot(coordX),
-                            firstSideRightBottom.subtract(coordCenter).dot(coordX)
-                        );
-                        Range firstSideYRange = Range.createUnordered(
-                            firstSideLeftBottom.subtract(coordCenter).dot(coordY),
-                            firstSideLeftUp.subtract(coordCenter).dot(coordY)
-                        );
-                        
-                        Range secondSideXRange = Range.createUnordered(
-                            secondSideLeftBottom.subtract(coordCenter).dot(coordX),
-                            secondSideRightBottom.subtract(coordCenter).dot(coordX)
-                        );
-                        Range secondSideYRange = Range.createUnordered(
-                            secondSideLeftBottom.subtract(coordCenter).dot(coordY),
-                            secondSideLeftUp.subtract(coordCenter).dot(coordY)
-                        );
-                        
-                        if (firstSideXRange.intersect(secondSideXRange) != null &&
-                            firstSideYRange.intersect(secondSideYRange) != null
-                        ) {
-                            overlaps = true;
-                        }
-                    }
-                }
-            }
-            
-            Portal portal = Portal.entityType.create(McHelper.getServerWorld(firstSideDimension));
-            Validate.notNull(portal);
-            portal.setOriginPos(
-                firstSideLeftBottom
-                    .add(firstSideHorizontalAxis.scale(0.5))
-                    .add(firstSideVerticalAxis.scale(0.5))
-            );
-            portal.width = firstSideWidth;
-            portal.height = firstSideHeight;
-            portal.axisW = firstSideHorizontalUnitAxis;
-            portal.axisH = firstSideVerticalUnitAxis;
-            
-            portal.dimensionTo = secondSideDimension;
-            portal.setDestination(
-                secondSideLeftBottom
-                    .add(secondSideHorizontalAxis.scale(0.5))
-                    .add(secondSideVerticalAxis.scale(0.5))
-            );
-            
-            portal.scaling = secondSideWidth / firstSideWidth;
-            
-            DQuaternion secondSideOrientation = DQuaternion.matrixToQuaternion(
-                secondSideHorizontalUnitAxis,
-                secondSideVerticalUnitAxis,
-                secondSideHorizontalUnitAxis.cross(secondSideVerticalUnitAxis)
-            );
-            portal.setOtherSideOrientation(secondSideOrientation);
-            
-            Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
-            Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
-            Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
-            
-            McHelper.spawnServerEntity(portal);
-            
-            if (overlaps) {
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.overlap"));
-            }
-            else {
-                McHelper.spawnServerEntity(flippedPortal);
-                McHelper.spawnServerEntity(reversePortal);
-                McHelper.spawnServerEntity(parallelPortal);
-            }
-            
-            player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
-            
-            giveDeletingPortalCommandStickIfNotPresent(player);
+    private static void handleFinishDrag(ServerPlayer player) {
+        DraggingSession session = draggingSessionMap.remove(player);
+        
+        if (session == null) {
+            return;
         }
         
-        public static void requestApplyDrag(
-            ServerPlayer player,
-            UUID portalId,
-            Vec3 cursorPos,
-            DraggingInfo draggingInfo
-        ) {
-            if (!checkPermission(player)) return;
-            
-            Entity entity = ((ServerLevel) player.level()).getEntity(portalId);
-            
-            if (!(entity instanceof Portal portal)) {
-                LOGGER.error("Cannot find portal {}", portalId);
-                return;
-            }
-            
-            DraggingSession session = draggingSessionMap.get(player);
-            
-            if (session != null && session.portalId.equals(portalId)) {
-                // reuse session
-            }
-            else {
-                session = new DraggingSession(
-                    player.level().dimension(),
-                    portalId,
-                    portal.getPortalState(),
-                    draggingInfo
-                );
-                draggingSessionMap.put(player, session);
-//                LOGGER.info("Portal dragging session created");
-            }
-            
-            UnilateralPortalState newThisSideState = applyDrag(
-                session.originalState.getThisSideState(), cursorPos, draggingInfo
-            );
-            if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
-                portal.setThisSideState(newThisSideState);
-                portal.reloadAndSyncToClient();
-                portal.rectifyClusterPortals(true);
-            }
-            else {
-                player.sendSystemMessage(Component.literal("Invalid dragging"));
-            }
+        Portal portal = session.getPortal();
+        
+        if (portal != null) {
+            portal.reloadAndSyncToClient();
+        }
+    }
+    
+    private static void handleUndoDrag(ServerPlayer player) {
+        DraggingSession session = draggingSessionMap.get(player);
+        
+        if (session == null) {
+            player.sendSystemMessage(Component.literal("Cannot undo"));
+            return;
         }
         
-        public static void undoDrag(ServerPlayer player) {
-            DraggingSession session = draggingSessionMap.get(player);
-            
-            if (session == null) {
-                player.sendSystemMessage(Component.literal("Cannot undo"));
-                return;
-            }
-            
-            Portal portal = session.getPortal();
-            
-            if (portal == null) {
-                LOGGER.error("Cannot find portal {}", session.portalId);
-                return;
-            }
-            
-            portal.setPortalState(session.originalState);
+        Portal portal = session.getPortal();
+        
+        if (portal == null) {
+            LOGGER.error("Cannot find portal {}", session.portalId);
+            return;
+        }
+        
+        portal.setPortalState(session.originalState);
+        portal.reloadAndSyncToClient();
+        portal.rectifyClusterPortals(true);
+        
+        draggingSessionMap.remove(player);
+    }
+    
+    private static void handleDraggingRequest(ServerPlayer player, UUID portalId, Vec3 cursorPos, DraggingInfo draggingInfo, Portal portal) {
+        DraggingSession session = draggingSessionMap.get(player);
+        
+        if (session != null && session.portalId.equals(portalId)) {
+            // reuse session
+        }
+        else {
+            session = new DraggingSession(
+                player.level().dimension(),
+                portalId,
+                portal.getPortalState(),
+                draggingInfo
+            );
+            draggingSessionMap.put(player, session);
+        }
+        
+        UnilateralPortalState newThisSideState = applyDrag(
+            session.originalState.getThisSideState(), cursorPos, draggingInfo
+        );
+        if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
+            portal.setThisSideState(newThisSideState);
             portal.reloadAndSyncToClient();
             portal.rectifyClusterPortals(true);
-            
-            draggingSessionMap.remove(player);
         }
-        
-        public static void finishDragging(ServerPlayer player) {
-            DraggingSession session = draggingSessionMap.remove(player);
-            
-            if (session == null) {
-                return;
-            }
-            
-            Portal portal = session.getPortal();
-            
-            if (portal != null) {
-                portal.reloadAndSyncToClient();
-            }
+        else {
+            player.sendSystemMessage(Component.literal("Invalid dragging"));
         }
     }
     
@@ -420,10 +439,6 @@ public class PortalWandInteraction {
         }
         
         if (originalState.fromWorld != newThisSideState.dimension()) {
-            return false;
-        }
-        
-        if (originalState.fromPos.distanceTo(newThisSideState.position()) > 128) {
             return false;
         }
         
@@ -532,62 +547,63 @@ public class PortalWandInteraction {
             newWidth = originalState.width();
             newHeight = originalState.height();
         }
-        else if (lockWidth) {
-            assert !lockHeight;
-            newWidth = originalState.width();
-            if (Math.abs(deltaLocalXY.ny()) < 0.001) {
-                newHeight = originalState.height();
-            }
-            else {
-                double subWidth = Math.abs(deltaLocalXY.nx()) * newWidth;
-                double diff = newOffsetLen * newOffsetLen - subWidth * subWidth;
-                if (diff < 0.000001) {
-                    return null;
-                }
-                double subHeight = Math.sqrt(diff);
-                newHeight = subHeight / Math.abs(deltaLocalXY.ny());
-                if (Math.abs(subWidth) > 0.001) {
-                    // to make the dragged pos to be in the cursor
-                    // change the portal orientation
-                    // this operation does not change the portal
-                    newOrientation = rearrangeOrientation(
-                        originalState, newOffsetLen, newOffsetN,
-                        rotation, deltaLocalXY,
-                        newWidth, newHeight, subWidth, subHeight
-                    );
-                }
-            }
-        }
-        else if (lockHeight) {
-            assert !lockWidth;
-            newHeight = originalState.height();
-            if (Math.abs(deltaLocalXY.nx()) < 0.001) {
-                newWidth = originalState.width();
-            }
-            else {
-                double subHeight = Math.abs(deltaLocalXY.ny()) * newHeight;
-                double diff = newOffsetLen * newOffsetLen - subHeight * subHeight;
-                if (diff < 0.000001) {
-                    return null;
-                }
-                double subWidth = Math.sqrt(diff);
-                newWidth = subWidth / Math.abs(deltaLocalXY.nx());
-                if (Math.abs(subHeight) > 0.001) {
-                    // to make the dragged pos to be in the cursor
-                    // change the portal orientation
-                    // this operation does not change the portal
-                    newOrientation = rearrangeOrientation(
-                        originalState, newOffsetLen, newOffsetN,
-                        rotation, deltaLocalXY,
-                        newWidth, newHeight, subWidth, subHeight
-                    );
-                }
-            }
-        }
         else {
-            double scaling = newOffsetLen / originalOffsetLen;
-            newWidth = originalState.width() * scaling;
-            newHeight = originalState.height() * scaling;
+            Vec3 newNormal = rotation.rotate(originalState.getNormal());
+            if (lockWidth) {
+                assert !lockHeight;
+                newWidth = originalState.width();
+                if (Math.abs(deltaLocalXY.ny()) < 0.001) {
+                    newHeight = originalState.height();
+                }
+                else {
+                    double subWidth = Math.abs(deltaLocalXY.nx()) * newWidth;
+                    double diff = newOffsetLen * newOffsetLen - subWidth * subWidth;
+                    if (diff < 0.000001) {
+                        return null;
+                    }
+                    double subHeight = Math.sqrt(diff);
+                    newHeight = subHeight / Math.abs(deltaLocalXY.ny());
+                    if (Math.abs(subWidth) > 0.001) {
+                        // if dragging on non-axis-aligned direction and aspect ratio changes,
+                        // the simple rotation will not match the dragging cursor.
+                        // recalculate the orientation
+                        newOrientation = getOrientationByNormalDiagonalWidthHeight(
+                            newNormal, newOffset, subWidth, subHeight,
+                            Math.signum(deltaLocalXY.nx()), Math.signum(deltaLocalXY.ny())
+                        );
+                    }
+                }
+            }
+            else if (lockHeight) {
+                assert !lockWidth;
+                newHeight = originalState.height();
+                if (Math.abs(deltaLocalXY.nx()) < 0.001) {
+                    newWidth = originalState.width();
+                }
+                else {
+                    double subHeight = Math.abs(deltaLocalXY.ny()) * newHeight;
+                    double diff = newOffsetLen * newOffsetLen - subHeight * subHeight;
+                    if (diff < 0.000001) {
+                        return null;
+                    }
+                    double subWidth = Math.sqrt(diff);
+                    newWidth = subWidth / Math.abs(deltaLocalXY.nx());
+                    if (Math.abs(subHeight) > 0.001) {
+                        // if dragging on non-axis-aligned direction and aspect ratio changes,
+                        // the simple rotation will not match the dragging cursor.
+                        // recalculate the orientation
+                        newOrientation = getOrientationByNormalDiagonalWidthHeight(
+                            newNormal, newOffset, subWidth, subHeight,
+                            Math.signum(deltaLocalXY.nx()), Math.signum(deltaLocalXY.ny())
+                        );
+                    }
+                }
+            }
+            else {
+                double scaling = newOffsetLen / originalOffsetLen;
+                newWidth = originalState.width() * scaling;
+                newHeight = originalState.height() * scaling;
+            }
         }
         
         // get the new unilateral portal state by scaling and rotation
@@ -606,27 +622,47 @@ public class PortalWandInteraction {
         );
     }
     
-    private static DQuaternion rearrangeOrientation(
-        UnilateralPortalState originalState,
-        double newOffsetLen, Vec3 newOffsetN,
-        DQuaternion rotation, PortalLocalXYNormalized deltaLocalXY,
-        double newWidth, double newHeight,
-        double subWidth, double subHeight
+    /**
+     * The sub-portal defined by the locked pos and the cursor pos
+     * has the same orientation of the outer portal.
+     * Get the sub-portal's orientation by normal, diagonal, width and height.
+     */
+    private static DQuaternion getOrientationByNormalDiagonalWidthHeight(
+        Vec3 normal, Vec3 diagonal,
+        double width, double height,
+        double sigX, double sigY
     ) {
-        DQuaternion newOrientation;
-        Vec3 newNormal = rotation.rotate(originalState.getNormal());
-        Vec3 sideVecN = newNormal.cross(newOffsetN).normalize();
-        double sideVecLen = (newWidth * newHeight) / newOffsetLen;
-        double wFront = sideVecLen * subWidth / subHeight;
-        double hFront = sideVecLen * subHeight / subWidth;
-        double signum = Math.signum(deltaLocalXY.nx() * deltaLocalXY.ny());
+        Vec3 newOffsetN = diagonal.normalize();
+        double newOffsetLen = diagonal.length();
+        
+        // the side vec is on the left side of the diagonal (right-hand rule)
+        Vec3 sideVecN = normal.cross(newOffsetN).normalize();
+        
+        // the triangle area can be represented by two ways:
+        // diagonalLen * sideVecLen / 2, or width * height / 2
+        double sideVecLen = (width * height) / newOffsetLen;
+        
+        // the tangent can be represented by two ways:
+        // width / height, or sideVecLen / wFront
+        double wFront = sideVecLen * width / height;
+        double hFront = sideVecLen * height / width;
+        
+        // if sigX and sigY are both 1,
+        // then the axisW is on the right side of the diagonal (right-hand rule),
+        // and axisH is on the left side of the diagonal.
+        // if either sigX or sigY flips, this flips, so multiply the signum.
+        Vec3 sideVecW = sideVecN.scale(-sideVecLen * sigX * sigY);
+        Vec3 sideVecH = sideVecW.scale(-1);
+        
         Vec3 newAxisW = newOffsetN.scale(wFront)
-            .add(sideVecN.scale(-sideVecLen * signum)).normalize()
-            .scale(Math.signum(deltaLocalXY.nx()));
+            .add(sideVecW).normalize()
+            .scale(sigX); // make it the same direction of the outer portal
+        
         Vec3 newAxisH = newOffsetN.scale(hFront)
-            .add(sideVecN.scale(sideVecLen * signum)).normalize()
-            .scale(Math.signum(deltaLocalXY.ny()));
-        newOrientation = DQuaternion.fromFacingVecs(newAxisW, newAxisH)
+            .add(sideVecH).normalize()
+            .scale(sigY);
+        
+        DQuaternion newOrientation = DQuaternion.fromFacingVecs(newAxisW, newAxisH)
             .fixFloatingPointErrorAccumulation();
         return newOrientation;
     }

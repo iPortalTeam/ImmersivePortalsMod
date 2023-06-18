@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,8 +21,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -42,14 +41,11 @@ import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.WithDim;
 import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.animation.RenderedPlane;
-import qouteall.q_misc_util.my_util.animation.RenderedRect;
-import qouteall.q_misc_util.my_util.animation.RenderedSphere;
+import qouteall.q_misc_util.my_util.animation.RenderedPoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -79,15 +75,15 @@ public class ClientPortalWandPortalDrag {
     @Nullable
     private static SelectionStatus selectionStatus;
     
-    public static Animated<Vec3> cursor = new Animated<>(
-        Animated.VEC_3_TYPE_INFO,
+    public static Animated<RenderedPoint> cursor = new Animated<>(
+        Animated.RENDERED_POINT_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         null
     );
     
-    public static Animated<RenderedRect> renderedRect = new Animated<>(
-        Animated.RENDERED_RECT_TYPE_INFO,
+    public static Animated<UnilateralPortalState> renderedRect = new Animated<>(
+        UnilateralPortalState.ANIMATION_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         null
@@ -98,6 +94,41 @@ public class ClientPortalWandPortalDrag {
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         RenderedPlane.NONE
+    );
+    
+    private static Animated<RenderedPoint> renderedLockedAnchor = new Animated<>(
+        Animated.RENDERED_POINT_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.circle::mapProgress,
+        RenderedPoint.EMPTY
+    );
+    
+    private static Animated<Double> renderedWidthLineSegment = new Animated<>(
+        Animated.DOUBLE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        0.0
+    );
+    
+    private static Animated<Double> renderedHeightLineSegment = new Animated<>(
+        Animated.DOUBLE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        0.0
+    );
+    
+    private static Animated<Double> renderedWidthLock = new Animated<>(
+        Animated.DOUBLE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        0.0
+    );
+    
+    private static Animated<Double> renderedHeightLock = new Animated<>(
+        Animated.DOUBLE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        0.0
     );
 
 //    public static Animated<RenderedSphere> renderedSphere = new Animated<>(
@@ -139,9 +170,7 @@ public class ClientPortalWandPortalDrag {
     
     public static void reset() {
         selectedPortalId = null;
-        lockedAnchor = null;
-        lockWidth = false;
-        lockHeight = false;
+        clearLock();
         selectionStatus = null;
         cursor.clearTarget();
         renderedPlane.clearTarget();
@@ -164,16 +193,43 @@ public class ClientPortalWandPortalDrag {
             if (selectionStatus != null) {
                 if (selectionStatus.selectsHorizontalEdge) {
                     lockWidth = !lockWidth;
+                    ImmPtlCustomOverlay.putText(
+                        Component.translatable(lockWidth ?
+                            "imm_ptl.wand.width_locked" : "imm_ptl.wand.width_unlocked"
+                        ).withStyle(ChatFormatting.GOLD),
+                        3.0,
+                        "0_alert"
+                    );
                 }
                 else if (selectionStatus.selectsVerticalEdge) {
                     lockHeight = !lockHeight;
+                    ImmPtlCustomOverlay.putText(
+                        Component.translatable(lockHeight ?
+                            "imm_ptl.wand.height_locked" : "imm_ptl.wand.height_unlocked"
+                        ).withStyle(ChatFormatting.GOLD),
+                        3.0,
+                        "0_alert"
+                    );
                 }
                 else {
                     PortalLocalXYNormalized selectedAnchor = selectionStatus.selectedAnchor;
                     if (lockedAnchor != null && lockedAnchor.isCloseTo(selectedAnchor, 0.01)) {
                         lockedAnchor = null;
+                        ImmPtlCustomOverlay.putText(
+                            Component.translatable("imm_ptl.wand.anchor_unlocked")
+                                .withStyle(ChatFormatting.GOLD),
+                            3.0,
+                            "0_alert"
+                        );
                     }
                     else {
+                        ImmPtlCustomOverlay.putText(
+                            Component.translatable(lockedAnchor != null ?
+                                "imm_ptl.wand.anchor_lock_moved" : "imm_ptl.wand.anchor_locked"
+                            ).withStyle(ChatFormatting.GOLD),
+                            3.0,
+                            "0_alert"
+                        );
                         lockedAnchor = selectedAnchor;
                     }
                 }
@@ -250,8 +306,7 @@ public class ClientPortalWandPortalDrag {
             cursor.clearTarget();
             renderedPlane.clearTarget();
             ImmPtlCustomOverlay.putText(
-                Component.translatable("imm_ptl.wand.select_portal"),
-                0.2
+                Component.translatable("imm_ptl.wand.select_portal")
             );
             
             if (originalSelectedPortal == null) {
@@ -259,7 +314,7 @@ public class ClientPortalWandPortalDrag {
             }
             else {
                 renderedRect.setTarget(
-                    portalToRenderedRect(originalSelectedPortal),
+                    (originalSelectedPortal).getThisSideState(),
                     Helper.secondToNano(1.0)
                 );
             }
@@ -276,7 +331,8 @@ public class ClientPortalWandPortalDrag {
         else {
             if (!Objects.equals(selectedPortalId, portal.getUUID())) {
                 if (originalSelectedPortal != null && Portal.isFlippedPortal(originalSelectedPortal, portal)) {
-                    // going to select its flipped portal. transfer the locks and selection
+                    // going to select its flipped portal. transfer the anchor lock
+                    // for normal flipped portals, the size lock can stay the same
                     if (lockedAnchor != null) {
                         Vec3 lockedAnchorPos = lockedAnchor.getPos(originalSelectedPortal);
                         lockedAnchor = PortalLocalXYNormalized.fromPos(
@@ -290,11 +346,14 @@ public class ClientPortalWandPortalDrag {
                 else {
                     // change portal selection, clear the locks and selection
                     selectionStatus = null;
-                    if (lockedAnchor != null) {
-                        player.sendSystemMessage(Component.translatable("imm_ptl.wand.lock_cleared"));
-                        lockedAnchor = null;
-                        lockWidth = false;
-                        lockHeight = false;
+                    if (hasLock()) {
+                        ImmPtlCustomOverlay.putText(
+                            Component.translatable("imm_ptl.wand.lock_cleared")
+                                .withStyle(ChatFormatting.GOLD),
+                            5.0,
+                            "1_alert"
+                        );
+                        clearLock();
                     }
                 }
                 selectedPortalId = portal.getUUID();
@@ -317,23 +376,40 @@ public class ClientPortalWandPortalDrag {
         );
         Vec3 cursorPos = selection.getPos(portal);
         cursor.setTarget(
-            cursorPos, Helper.secondToNano(0.5)
+            new RenderedPoint(
+                new WithDim<>(player.level().dimension(), cursorPos), 1.0
+            ), Helper.secondToNano(0.5)
         );
+        
+        UnilateralPortalState lastRenderedRect = renderedRect.getCurrent();
+        UnilateralPortalState newRenderedRect = portal.getThisSideState();
+        
+        if (lastRenderedRect != null) {
+            Pair<UnilateralPortalState.RectInvariant, UnilateralPortalState> rectTurning =
+                lastRenderedRect.turnToClosestTo(newRenderedRect.orientation());
+            if (rectTurning.getFirst().switchesWidthAndHeight()) {
+                // switch the width and height line segment animation
+                // to make the animation smooth
+                Animated<Double> temp = renderedWidthLineSegment;
+                renderedWidthLineSegment = renderedHeightLineSegment;
+                renderedHeightLineSegment = temp;
+            }
+        }
+        
         renderedRect.setTarget(
-            portalToRenderedRect(portal),
-            Helper.secondToNano(1.0)
+            newRenderedRect, Helper.secondToNano(1.0)
         );
         
         Pair<Plane, MutableComponent> planeInfo = getPlayerFacingPlaneAligned(
             player, cursorPos, portal
         );
-    
+        
         if (selectsHorizontalEdge) {
             ImmPtlCustomOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.lock_width",
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
-                ), 0.2
+                )
             );
         }
         else if (selectsVerticalEdge) {
@@ -341,32 +417,37 @@ public class ClientPortalWandPortalDrag {
                 Component.translatable(
                     "imm_ptl.wand.lock_height",
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
-                ), 0.2
+                )
             );
         }
         else {
             Component planeText = Component.translatable("imm_ptl.wand.on_plane", planeInfo.getSecond());
-    
+            
             ImmPtlCustomOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.pre_drag",
                     minecraft.options.keyAttack.getTranslatedKeyMessage(),
                     minecraft.options.keyUse.getTranslatedKeyMessage(),
                     planeText
-                ),
-                0.2
+                )
             );
         }
     }
     
-    @NotNull
-    private static RenderedRect portalToRenderedRect(Portal portal) {
-        return new RenderedRect(
-            portal.getOriginDim(),
-            portal.getOriginPos(),
-            portal.getOrientationRotation(),
-            portal.width, portal.height
-        );
+    private static boolean hasLock() {
+        return lockedAnchor != null || lockWidth || lockHeight;
+    }
+    
+    private static void clearLock() {
+        lockedAnchor = null;
+        lockWidth = false;
+        lockHeight = false;
+        
+        renderedLockedAnchor.clearTarget();
+        renderedWidthLineSegment.clearTarget();
+        renderedHeightLineSegment.clearTarget();
+        renderedWidthLock.clearTarget();
+        renderedHeightLock.clearTarget();
     }
     
     private static void handleDragging(LocalPlayer player, DraggingContext draggingContext) {
@@ -413,14 +494,17 @@ public class ClientPortalWandPortalDrag {
         }
         
         if (cursorPos != null) {
-            Vec3 originalCursorTarget = cursor.getTarget();
+            Vec3 originalCursorTarget = cursor.getTarget().pos().value();
             
             if (originalCursorTarget == null) {
                 return;
             }
             
             if (originalCursorTarget.distanceTo(cursorPos) > 0.000001) {
-                cursor.setTarget(cursorPos, Helper.secondToNano(0.2));
+                cursor.setTarget(
+                    new RenderedPoint(
+                        new WithDim<>(currDim, cursorPos), 1.0
+                    ), Helper.secondToNano(0.2));
                 onDrag(cursorPos, draggingContext);
             }
         }
@@ -450,12 +534,12 @@ public class ClientPortalWandPortalDrag {
         
         Portal portal = getPortalByUUID(draggingContext.portalId());
         
-        boolean draggingChangesPortalSize = lockedAnchor != null;
+        boolean shouldDisplaySize = lockedAnchor != null;
         
         UnilateralPortalState animationEndingState = getAnimationEndingState();
         
         Component portalSizeText;
-        if (portal != null && draggingChangesPortalSize && animationEndingState != null) {
+        if (portal != null && shouldDisplaySize && animationEndingState != null) {
             portalSizeText = Component.literal(" ").append(
                 Component.translatable("imm_ptl.wand.portal_size",
                     "%.3f".formatted(animationEndingState.width()),
@@ -471,8 +555,7 @@ public class ClientPortalWandPortalDrag {
             draggingText
                 .append(planeText)
                 .append(undoPrompt)
-                .append(cursorPosText).append(portalSizeText),
-            0.2
+                .append(cursorPosText).append(portalSizeText)
         );
     }
     
@@ -511,7 +594,7 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Vec3 cursorPos = cursor.getTarget();
+        Vec3 cursorPos = cursor.getTarget().pos().value();
         
         if (cursorPos == null) {
             return;
@@ -611,6 +694,14 @@ public class ClientPortalWandPortalDrag {
                 selectedPortalId, cursorPos, draggingInfo
             );
         }
+        else {
+            ImmPtlCustomOverlay.putText(
+                Component.translatable("imm_ptl.wand.invalid_dragging")
+                    .withStyle(ChatFormatting.RED),
+                1.0,
+                "0_altert"
+            );
+        }
     }
     
     @Nullable
@@ -701,7 +792,9 @@ public class ClientPortalWandPortalDrag {
     private static final int colorOfRect2 = 0xfffca903;
     private static final int colorOfPlane = 0xffffffff;
     private static final int colorOfLock = 0xffffffff;
-    private static final int colorOfCursorInLock = 0xff03fcfc;
+    private static final int colorOfWidthLine = 0xff03fc4e;
+    private static final int colorOfHeightLine = 0xfffcf803;
+    private static final int colorOfCursorInLock = 0xfffa2360;
     private static final int colorOfSphere = 0xffffffff;
     
     public static void render(
@@ -719,6 +812,28 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
+        renderedWidthLock.setTarget(lockWidth ? 1.0 : 0.0, Helper.secondToNano(0.5));
+        renderedHeightLock.setTarget(lockHeight ? 1.0 : 0.0, Helper.secondToNano(0.5));
+        
+        renderedWidthLineSegment.setTarget(
+            (lockWidth ||
+                (selectionStatus != null &&
+                    selectionStatus.selectsHorizontalEdge &&
+                    draggingContext == null
+                )
+            ) ? 1.0 : 0.0,
+            Helper.secondToNano(0.5)
+        );
+        renderedHeightLineSegment.setTarget(
+            (lockHeight ||
+                (selectionStatus != null &&
+                    selectionStatus.selectsVerticalEdge &&
+                    draggingContext == null
+                )
+            ) ? 1.0 : 0.0,
+            Helper.secondToNano(0.5)
+        );
+        
         ResourceKey<Level> currDim = player.level().dimension();
         
         Vec3 cameraPos = new Vec3(camX, camY, camZ);
@@ -729,7 +844,7 @@ public class ClientPortalWandPortalDrag {
         if (renderedCursor != null) {
             WireRenderingHelper.renderSmallCubeFrame(
                 vertexConsumer, cameraPos, renderedCursor,
-                colorOfCursor, matrixStack
+                colorOfCursor, cursor.getCurrent().scale(), matrixStack
             );
         }
         
@@ -743,9 +858,10 @@ public class ClientPortalWandPortalDrag {
             portal = getSelectedPortal();
         }
         
+        UnilateralPortalState rect = null;
         if (draggingContext != null) {
             if (portal != null) {
-                RenderedRect rect = portalToRenderedRect(portal);
+                rect = portal.getThisSideState();
                 renderRect(
                     matrixStack, cameraPos, vertexConsumer, rect
                 );
@@ -753,81 +869,53 @@ public class ClientPortalWandPortalDrag {
             }
         }
         else {
-            RenderedRect rect = renderedRect.getCurrent();
+            rect = renderedRect.getCurrent();
             if (rect != null && rect.dimension() == currDim) {
                 renderRect(matrixStack, cameraPos, vertexConsumer, rect);
             }
         }
         
+        if (lockedAnchor != null && portal != null) {
+            renderedLockedAnchor.setTarget(
+                new RenderedPoint(
+                    new WithDim<>(portal.getOriginDim(), lockedAnchor.getPos(portal)), 1.0
+                ),
+                Helper.secondToNano(0.5)
+            );
+        }
+        else {
+            renderedLockedAnchor.clearTarget();
+        }
+        
         if (portal != null) {
-            if (lockedAnchor != null) {
-                Vec3 lockPos = lockedAnchor.getPos(portal);
+            RenderedPoint current = renderedLockedAnchor.getCurrent();
+            if (current != null && current.pos() != null && current.pos().dimension() == currDim) {
+                Vec3 lockPos = current.pos().value();
+                
+                if (draggingContext != null && lockedAnchor != null) {
+                    // make the lock pos follow portal when dragging
+                    lockPos = lockedAnchor.getPos(portal);
+                }
+                
+                double lockExtraScale = getLockExtraScale(portal.getThisSideState());
                 
                 WireRenderingHelper.renderLockShape(
                     vertexConsumer, cameraPos,
-                    lockPos, colorOfLock, matrixStack
+                    lockPos, current.scale() * lockExtraScale, colorOfLock,
+                    matrixStack
                 );
                 
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, lockPos,
-                    colorOfCursorInLock, matrixStack
+                    colorOfCursorInLock, current.scale() * lockExtraScale, matrixStack
                 );
             }
             
-            double padding = 0.02;
-            double lockPadding = 0.04;
-            if (lockWidth) {
-                WireRenderingHelper.renderLines(
-                    vertexConsumer, cameraPos,
-                    portal.getOriginPos(),
-                    new Vec3[]{
-                        new PortalLocalXYNormalized(0, -padding).getOffset(portal),
-                        new PortalLocalXYNormalized(1, -padding).getOffset(portal),
-                        
-                        new PortalLocalXYNormalized(0, 1 + padding).getOffset(portal),
-                        new PortalLocalXYNormalized(1, 1 + padding).getOffset(portal),
-                    },
-                    1, DQuaternion.identity,
-                    colorOfLock, matrixStack
-                );
-                
-                WireRenderingHelper.renderLockShape(
-                    vertexConsumer, cameraPos,
-                    new PortalLocalXYNormalized(0.5, -lockPadding).getPos(portal),
-                    colorOfLock, matrixStack
-                );
-                WireRenderingHelper.renderLockShape(
-                    vertexConsumer, cameraPos,
-                    new PortalLocalXYNormalized(0.5, 1 + lockPadding).getPos(portal),
-                    colorOfLock, matrixStack
-                );
-            }
-            if (lockHeight) {
-                WireRenderingHelper.renderLines(
-                    vertexConsumer, cameraPos,
-                    portal.getOriginPos(),
-                    new Vec3[]{
-                        new PortalLocalXYNormalized(-padding, 0).getOffset(portal),
-                        new PortalLocalXYNormalized(-padding, 1).getOffset(portal),
-                        
-                        new PortalLocalXYNormalized(1 + padding, 0).getOffset(portal),
-                        new PortalLocalXYNormalized(1 + padding, 1).getOffset(portal),
-                    },
-                    1, DQuaternion.identity,
-                    colorOfLock, matrixStack
-                );
-                
-                WireRenderingHelper.renderLockShape(
-                    vertexConsumer, cameraPos,
-                    new PortalLocalXYNormalized(-lockPadding, 0.5).getPos(portal),
-                    colorOfLock, matrixStack
-                );
-                WireRenderingHelper.renderLockShape(
-                    vertexConsumer, cameraPos,
-                    new PortalLocalXYNormalized(1 + lockPadding, 0.5).getPos(portal),
-                    colorOfLock, matrixStack
-                );
-            }
+            renderWidthHeightLock(matrixStack, cameraPos, vertexConsumer, portal.getThisSideState());
+        }
+        
+        if (rect != null) {
+            renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
         }
         
         VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
@@ -860,13 +948,24 @@ public class ClientPortalWandPortalDrag {
             return null;
         }
         
-        return cursor.getCurrent();
+        RenderedPoint renderedPoint = cursor.getCurrent();
+        assert renderedPoint != null;
+        
+        WithDim<Vec3> pos = renderedPoint.pos();
+        if (pos == null) {
+            return null;
+        }
+        
+        return pos.value();
     }
     
     private static void renderRect(
         PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer,
-        RenderedRect rect
+        UnilateralPortalState rect
     ) {
+        matrixStack.pushPose();
+        matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
+        
         WireRenderingHelper.renderRectLine(
             vertexConsumer, cameraPos, rect,
             10, colorOfRect1, 0.99, 1,
@@ -877,6 +976,158 @@ public class ClientPortalWandPortalDrag {
             10, colorOfRect2, 1.01, -1,
             matrixStack
         );
+        
+        matrixStack.popPose();
+    }
+    
+    private static double getLockExtraScale(UnilateralPortalState rect) {
+        return Math.sqrt(rect.width() * rect.height()) * 0.1;
+    }
+    
+    private static void renderWidthHeightLock(
+        PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer, UnilateralPortalState rect
+    ) {
+        matrixStack.pushPose();
+        matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
+        
+        double lockPadding = 0.1;
+        
+        double lockExtraScale = getLockExtraScale(rect);
+        
+        Double widthLockAnim = renderedWidthLock.getCurrent();
+        if (widthLockAnim != null && widthLockAnim > 0.001) {
+            WireRenderingHelper.renderLockShape(
+                vertexConsumer, cameraPos,
+                new PortalLocalXYNormalized(0.5, -lockPadding).getPos(rect),
+                widthLockAnim * lockExtraScale,
+                colorOfWidthLine,
+                matrixStack
+            );
+            WireRenderingHelper.renderLockShape(
+                vertexConsumer, cameraPos,
+                new PortalLocalXYNormalized(0.5, 1 + lockPadding).getPos(rect),
+                widthLockAnim * lockExtraScale,
+                colorOfWidthLine,
+                matrixStack
+            );
+        }
+        
+        Double heightLockAnim = renderedHeightLock.getCurrent();
+        if (heightLockAnim != null && heightLockAnim > 0.001) {
+            WireRenderingHelper.renderLockShape(
+                vertexConsumer, cameraPos,
+                new PortalLocalXYNormalized(-lockPadding, 0.5).getPos(rect),
+                heightLockAnim * lockExtraScale,
+                colorOfHeightLine,
+                matrixStack
+            );
+            WireRenderingHelper.renderLockShape(
+                vertexConsumer, cameraPos,
+                new PortalLocalXYNormalized(1 + lockPadding, 0.5).getPos(rect),
+                heightLockAnim * lockExtraScale,
+                colorOfHeightLine,
+                matrixStack
+            );
+        }
+        
+        matrixStack.popPose();
+    }
+    
+    private static void renderWidthHeightLineSegment(
+        PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer, UnilateralPortalState rect
+    ) {
+        matrixStack.pushPose();
+        matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
+        
+        double padding1 = 0.04;
+        double padding2 = padding1 + 0.02;
+        double padding3 = padding2 + 0.03;
+        
+        Double widthLineAnim = renderedWidthLineSegment.getCurrent();
+        
+        if (widthLineAnim != null && widthLineAnim > 0.001) {
+            double rangeStart = 0.5 - widthLineAnim / 2;
+            double rangeEnd = 0.5 + widthLineAnim / 2;
+            
+            WireRenderingHelper.renderLines(
+                vertexConsumer, cameraPos,
+                rect.position(),
+                new Vec3[]{
+                    // the main lines
+                    new PortalLocalXYNormalized(rangeStart, -padding2).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeEnd, -padding2).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(rangeStart, 1 + padding2).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeEnd, 1 + padding2).getOffset(rect),
+                    
+                    // the endpoint lines
+                    new PortalLocalXYNormalized(rangeStart, -padding1).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeStart, -padding2).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(rangeEnd, -padding1).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeEnd, -padding2).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(rangeStart, 1 + padding1).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeStart, 1 + padding2).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(rangeEnd, 1 + padding1).getOffset(rect),
+                    new PortalLocalXYNormalized(rangeEnd, 1 + padding2).getOffset(rect),
+                    
+                    // the lock connecting lines
+                    new PortalLocalXYNormalized(0.5, -padding2).getOffset(rect),
+                    new PortalLocalXYNormalized(0.5, -padding3).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(0.5, 1 + padding2).getOffset(rect),
+                    new PortalLocalXYNormalized(0.5, 1 + padding3).getOffset(rect),
+                },
+                1, DQuaternion.identity,
+                colorOfWidthLine, matrixStack
+            );
+        }
+        
+        Double heightLineAnim = renderedHeightLineSegment.getCurrent();
+        
+        if (heightLineAnim != null && heightLineAnim > 0.001) {
+            double rangeStart = 0.5 - heightLineAnim / 2;
+            double rangeEnd = 0.5 + heightLineAnim / 2;
+            
+            WireRenderingHelper.renderLines(
+                vertexConsumer, cameraPos,
+                rect.position(),
+                new Vec3[]{
+                    // the main lines
+                    new PortalLocalXYNormalized(-padding2, rangeStart).getOffset(rect),
+                    new PortalLocalXYNormalized(-padding2, rangeEnd).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(1 + padding2, rangeStart).getOffset(rect),
+                    new PortalLocalXYNormalized(1 + padding2, rangeEnd).getOffset(rect),
+                    
+                    // the endpoint lines
+                    new PortalLocalXYNormalized(-padding1, rangeStart).getOffset(rect),
+                    new PortalLocalXYNormalized(-padding2, rangeStart).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(-padding1, rangeEnd).getOffset(rect),
+                    new PortalLocalXYNormalized(-padding2, rangeEnd).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(1 + padding1, rangeStart).getOffset(rect),
+                    new PortalLocalXYNormalized(1 + padding2, rangeStart).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(1 + padding1, rangeEnd).getOffset(rect),
+                    new PortalLocalXYNormalized(1 + padding2, rangeEnd).getOffset(rect),
+                    
+                    // the lock connecting lines
+                    new PortalLocalXYNormalized(-padding2, 0.5).getOffset(rect),
+                    new PortalLocalXYNormalized(-padding3, 0.5).getOffset(rect),
+                    
+                    new PortalLocalXYNormalized(1 + padding2, 0.5).getOffset(rect),
+                    new PortalLocalXYNormalized(1 + padding3, 0.5).getOffset(rect),
+                },
+                1, DQuaternion.identity,
+                colorOfHeightLine, matrixStack
+            );
+        }
+        
+        matrixStack.popPose();
     }
     
     private static PortalCorner getClosestCorner(Portal portal, Vec3 hitPos) {
@@ -898,7 +1149,9 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Vec3 currentCursor = cursor.getCurrent();
+        RenderedPoint renderedCursor = cursor.getCurrent();
+        assert renderedCursor != null;
+        Vec3 currentCursor = renderedCursor.pos() == null ? null : renderedCursor.pos().value();
         
         if (currentCursor == null) {
             return;
@@ -936,7 +1189,9 @@ public class ClientPortalWandPortalDrag {
             return null;
         }
         
-        Vec3 cursorTarget = cursor.getTarget();
+        RenderedPoint renderedCursorTarget = cursor.getTarget();
+        assert renderedCursorTarget != null;
+        Vec3 cursorTarget = renderedCursorTarget.pos() == null ? null : renderedCursorTarget.pos().value();
         
         if (cursorTarget == null) {
             return null;

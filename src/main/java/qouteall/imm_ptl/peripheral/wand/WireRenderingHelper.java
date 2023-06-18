@@ -11,12 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Sphere;
-import qouteall.q_misc_util.my_util.animation.RenderedRect;
 
 import java.util.Random;
 
@@ -24,7 +24,7 @@ public class WireRenderingHelper {
     
     public static void renderSmallCubeFrame(
         VertexConsumer vertexConsumer, Vec3 cameraPos, Vec3 boxCenter,
-        int color,
+        int color, double scale,
         PoseStack matrixStack
     ) {
         Random random = new Random(color);
@@ -37,6 +37,8 @@ public class WireRenderingHelper {
             boxCenter.y - cameraPos.y,
             boxCenter.z - cameraPos.z
         );
+        
+        matrixStack.scale((float) scale, (float) scale, (float) scale);
         
         DQuaternion rotation = getRandomSmoothRotation(random);
         
@@ -291,7 +293,7 @@ public class WireRenderingHelper {
     
     public static void renderLockShape(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
-        Vec3 center,
+        Vec3 center, double scale,
         int color, PoseStack matrixStack
     ) {
         double w = 380;
@@ -328,14 +330,14 @@ public class WireRenderingHelper {
             new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2, 0),
         };
         
-        float scale = (float) ((1.0 / 4000) * cameraPos.distanceTo(center));
+        float renderScale = (float) (scale * (1.0 / 1500.0));
         
         DQuaternion rotation = DQuaternion.rotationByDegrees(
             new Vec3(0, 1, 0),
             CHelper.getSmoothCycles(60) * 360
         );
         
-        renderLines(vertexConsumer, cameraPos, center, lineVertices, scale, rotation, color, matrixStack);
+        renderLines(vertexConsumer, cameraPos, center, lineVertices, renderScale, rotation, color, matrixStack);
     }
     
     public static void renderLines(
@@ -416,7 +418,7 @@ public class WireRenderingHelper {
     
     public static void renderRectLine(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
-        RenderedRect rect,
+        UnilateralPortalState rect,
         int partCount, int color, double shrinkFactor,
         int flowDirection,
         PoseStack matrixStack
@@ -424,9 +426,9 @@ public class WireRenderingHelper {
         matrixStack.pushPose();
         
         matrixStack.translate(
-            rect.center().x - cameraPos.x,
-            rect.center().y - cameraPos.y,
-            rect.center().z - cameraPos.z
+            rect.position().x - cameraPos.x,
+            rect.position().y - cameraPos.y,
+            rect.position().z - cameraPos.z
         );
         
         Matrix4f matrix = matrixStack.last().pose();

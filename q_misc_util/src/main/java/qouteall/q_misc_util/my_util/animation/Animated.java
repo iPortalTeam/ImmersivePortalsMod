@@ -20,7 +20,7 @@ public class Animated<T> {
     public long startTime = 0;
     
     public long duration = 0;
-    public final TimingFunction timingFunction;
+    private TimingFunction timingFunction;
     
     public static interface TypeInfo<T> {
         T interpolate(T start, T end, double progress);
@@ -52,6 +52,11 @@ public class Animated<T> {
         this.endValue = initialValue;
     }
     
+    /**
+     * It can be only called during rendering.
+     * No need to call this every time the "underlying value" changes.
+     * Calling this method with the same value multiple times will not affect the animation progress.
+     */
     public void setTarget(@Nullable T value, long newDuration) {
         if (endValue != null && value != null) {
             // don't reset animation when the target does not change
@@ -118,6 +123,11 @@ public class Animated<T> {
         );
     }
     
+    public void setTimingFunction(TimingFunction timingFunction) {
+        setTarget(getTarget(), duration);
+        this.timingFunction = timingFunction;
+    }
+    
     public static final TypeInfo<Vec3> VEC_3_TYPE_INFO = new TypeInfo<Vec3>() {
         @Override
         public Vec3 interpolate(Vec3 start, Vec3 end, double progress) {
@@ -133,12 +143,32 @@ public class Animated<T> {
     public static final TypeInfo<Double> DOUBLE_TYPE_INFO = new TypeInfo<Double>() {
         @Override
         public Double interpolate(Double start, Double end, double progress) {
+            if (start == null) {
+                start = 0.0;
+            }
+            
+            if (end == null) {
+                end = 0.0;
+            }
+            
             return start + (end - start) * progress;
         }
         
         @Override
         public boolean isClose(Double a, Double b) {
-            return Math.abs(a - b) < 0.01;
+            if (a == null) {
+                a = 0.0;
+            }
+            if (b == null) {
+                b = 0.0;
+            }
+            
+            return Math.abs(a - b) < 0.001;
+        }
+        
+        @Override
+        public Double getEmpty() {
+            return 0.0;
         }
     };
     
@@ -292,38 +322,139 @@ public class Animated<T> {
                 && Math.abs(a.sphere().value().radius() - b.sphere().value().radius()) < 0.01
                 && Math.abs(a.scale() - b.scale()) < 0.01;
         }
-    
+        
         @Override
         public RenderedSphere getEmpty() {
             return RenderedSphere.NONE;
         }
     };
     
-    public static final TypeInfo<RenderedRect> RENDERED_RECT_TYPE_INFO = new TypeInfo<RenderedRect>() {
+    public static final TypeInfo<RenderedPoint> RENDERED_POINT_TYPE_INFO = new TypeInfo<RenderedPoint>() {
         @Override
-        public RenderedRect interpolate(RenderedRect start, RenderedRect end, double progress) {
-            if (start.dimension() != end.dimension()) {
+        public RenderedPoint interpolate(RenderedPoint start, RenderedPoint end, double progress) {
+            if (start.pos() == null && end.pos() == null) {
+                return start;
+            }
+            
+            double destScale = start.scale() + (end.scale() - start.scale()) * progress;
+            
+            if (destScale < 0.01) {
+                return RenderedPoint.EMPTY;
+            }
+            
+            if (start.pos() == null) {
+                return new RenderedPoint(
+                    end.pos(),
+                    destScale
+                );
+            }
+            
+            if (end.pos() == null) {
+                return new RenderedPoint(
+                    start.pos(),
+                    destScale
+                );
+            }
+            
+            if (start.pos().dimension() != end.pos().dimension()) {
                 return end;
             }
             
-            start = start.turnToClosestTo(end.orientation());
-            
-            return new RenderedRect(
-                start.dimension(),
-                start.center().lerp(end.center(), progress),
-                DQuaternion.interpolate(start.orientation(), end.orientation(), progress),
-                Mth.lerp(progress, start.width(), end.width()),
-                Mth.lerp(progress, start.height(), end.height())
+            return new RenderedPoint(
+                new WithDim<>(
+                    start.pos().dimension(),
+                    start.pos().value().lerp(end.pos().value(), progress)
+                ),
+                destScale
             );
         }
         
         @Override
-        public boolean isClose(RenderedRect a, RenderedRect b) {
-            return a.dimension() == b.dimension() &&
-                a.center().distanceToSqr(b.center()) < 0.01 &&
-                DQuaternion.isClose(a.orientation(), b.orientation(), 0.01) &&
-                Math.abs(a.width() - b.width()) < 0.01 &&
-                Math.abs(a.height() - b.height()) < 0.01;
+        public boolean isClose(RenderedPoint a, RenderedPoint b) {
+            if (a.pos() == null && b.pos() == null) {
+                return true;
+            }
+            
+            if (a.pos() == null || b.pos() == null) {
+                return false;
+            }
+            
+            if (a.pos().dimension() != b.pos().dimension()) {
+                return false;
+            }
+            
+            return a.pos().value().distanceToSqr(b.pos().value()) < 0.01
+                && Math.abs(a.scale() - b.scale()) < 0.01;
+        }
+        
+        @Override
+        public RenderedPoint getEmpty() {
+            return RenderedPoint.EMPTY;
+        }
+    };
+    
+    public static final TypeInfo<RenderedLineSegment> RENDERED_LINE_SEGMENT_TYPE_INFO = new TypeInfo<RenderedLineSegment>() {
+        @Override
+        public RenderedLineSegment interpolate(RenderedLineSegment start, RenderedLineSegment end, double progress) {
+            if (start.lineSegment() == null && end.lineSegment() == null) {
+                return start;
+            }
+            
+            double destScale = start.scale() + (end.scale() - start.scale()) * progress;
+            
+            if (destScale < 0.01) {
+                return RenderedLineSegment.EMPTY;
+            }
+            
+            if (start.lineSegment() == null) {
+                return new RenderedLineSegment(
+                    end.lineSegment(),
+                    destScale
+                );
+            }
+            
+            if (end.lineSegment() == null) {
+                return new RenderedLineSegment(
+                    start.lineSegment(),
+                    destScale
+                );
+            }
+            
+            if (start.lineSegment().dimension() != end.lineSegment().dimension()) {
+                return end;
+            }
+            
+            return new RenderedLineSegment(
+                new WithDim<>(
+                    start.lineSegment().dimension(),
+                    start.lineSegment().value().interpolate(start.lineSegment().value(), end.lineSegment().value(), progress)
+                ),
+                destScale
+            );
+            
+        }
+        
+        @Override
+        public boolean isClose(RenderedLineSegment a, RenderedLineSegment b) {
+            if (a.lineSegment() == null && b.lineSegment() == null) {
+                return true;
+            }
+            
+            if (a.lineSegment() == null || b.lineSegment() == null) {
+                return false;
+            }
+            
+            if (a.lineSegment().dimension() != b.lineSegment().dimension()) {
+                return false;
+            }
+            
+            return a.lineSegment().value().isClose(b.lineSegment().value(), 0.01)
+                && Math.abs(a.scale() - b.scale()) < 0.01;
+        }
+        
+        @Override
+        public RenderedLineSegment getEmpty() {
+            return RenderedLineSegment.EMPTY;
         }
     };
 }

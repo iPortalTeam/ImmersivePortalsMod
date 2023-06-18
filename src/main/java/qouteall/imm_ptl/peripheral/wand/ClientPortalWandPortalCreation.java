@@ -174,12 +174,8 @@ public class ClientPortalWandPortalCreation {
             MutableComponent promptMessage = protoPortal.getPromptMessage(pendingState);
             if (promptMessage != null) {
                 ImmPtlCustomOverlay.putText(
-                    promptMessage, 0.2
+                    promptMessage
                 );
-
-//                Minecraft.getInstance().gui.setOverlayMessage(
-//                    promptMessage, false
-//                );
             }
         }
         
@@ -225,7 +221,7 @@ public class ClientPortalWandPortalCreation {
     }
     
     /**
-     * {@link PortalWandInteraction.RemoteCallables#finish(ServerPlayer, ProtoPortal)}
+     * {@link PortalWandInteraction.RemoteCallables#finishPortalCreation(ServerPlayer, ProtoPortal)}
      */
     public static void finish() {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -234,7 +230,7 @@ public class ClientPortalWandPortalCreation {
         }
         
         McRemoteProcedureCall.tellServerToInvoke(
-            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.finish",
+            "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.finishPortalCreation",
             protoPortal
         );
         
@@ -300,19 +296,19 @@ public class ClientPortalWandPortalCreation {
         if (renderedProtoPortal.firstSide != null && currDim == renderedProtoPortal.firstSide.dimension) {
             WireRenderingHelper.renderSmallCubeFrame(
                 vertexConsumer, cameraPos, renderedProtoPortal.firstSide.leftBottom,
-                colorOfFirstSideLeftBottom, matrixStack
+                colorOfFirstSideLeftBottom, 1.0, matrixStack
             );
             
             if (renderedProtoPortal.firstSide.rightBottom != null) {
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, renderedProtoPortal.firstSide.rightBottom,
-                    colorOfFirstSideRightBottom, matrixStack
+                    colorOfFirstSideRightBottom, 1.0, matrixStack
                 );
             }
             if (renderedProtoPortal.firstSide.leftTop != null) {
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, renderedProtoPortal.firstSide.leftTop,
-                    colorOfFirstSideLeftUp, matrixStack
+                    colorOfFirstSideLeftUp, 1.0, matrixStack
                 );
                 
                 WireRenderingHelper.renderPortalAreaGrid(
@@ -328,19 +324,19 @@ public class ClientPortalWandPortalCreation {
         if (renderedProtoPortal.secondSide != null && currDim == renderedProtoPortal.secondSide.dimension) {
             WireRenderingHelper.renderSmallCubeFrame(
                 vertexConsumer, cameraPos, renderedProtoPortal.secondSide.leftBottom,
-                colorOfSecondSideLeftBottom, matrixStack
+                colorOfSecondSideLeftBottom, 1.0, matrixStack
             );
             
             if (renderedProtoPortal.secondSide.rightBottom != null) {
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, renderedProtoPortal.secondSide.rightBottom,
-                    colorOfSecondSideRightBottom, matrixStack
+                    colorOfSecondSideRightBottom, 1.0, matrixStack
                 );
             }
             if (renderedProtoPortal.secondSide.leftTop != null) {
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, renderedProtoPortal.secondSide.leftTop,
-                    colorOfSecondSideLeftUp, matrixStack
+                    colorOfSecondSideLeftUp, 1.0, matrixStack
                 );
                 
                 WireRenderingHelper.renderPortalAreaGrid(

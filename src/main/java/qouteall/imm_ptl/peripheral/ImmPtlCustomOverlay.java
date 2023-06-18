@@ -8,31 +8,51 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * Make this because {@link Gui#setOverlayMessage(Component, boolean)} does not support multi-line
  */
 @Environment(EnvType.CLIENT)
 public class ImmPtlCustomOverlay {
-    @Nullable
-    private static MultiLineLabel multiLineLabel;
-    private static long clearingTime = 0;
     
-    public static void putText(MultiLineLabel label, double durationSeconds) {
-        multiLineLabel = label;
-        clearingTime = System.nanoTime() + Helper.secondToNano(durationSeconds);
+    public static record Entry(
+        Component component,
+        long clearingTime
+    ) {}
+    
+    private static final TreeMap<String, Entry> ENTRIES = new TreeMap<>();
+    
+    @Nullable
+    private static MultiLineLabel multiLineLabelCache;
+    
+    public static void putText(Component component, double durationSeconds, String key) {
+        ENTRIES.put(
+            key,
+            new Entry(
+                component,
+                System.nanoTime() + Helper.secondToNano(durationSeconds)
+            )
+        );
+        multiLineLabelCache = null;
     }
     
     public static void putText(Component component, double durationSeconds) {
-        putText(
-            MultiLineLabel.create(
-                Minecraft.getInstance().font,
-                component,
-                (Minecraft.getInstance().getWindow().getGuiScaledWidth() - 20)
-            ), 0.2
-        );
+        putText(component, durationSeconds, "5_defaultKey");
+    }
+    
+    public static void putText(Component component, String key) {
+        putText(component, 0.2, key);
+    }
+    
+    public static void putText(Component component) {
+        putText(component, 0.2, "5_defaultKey");
     }
     
     /**
@@ -40,13 +60,38 @@ public class ImmPtlCustomOverlay {
      * {@link net.minecraft.client.gui.screens.AlertScreen}
      */
     public static void render(GuiGraphics guiGraphics, float partialTick) {
-        if (multiLineLabel == null) {
+        long currTime = System.nanoTime();
+        
+        boolean removes = ENTRIES.entrySet().removeIf(e -> e.getValue().clearingTime < currTime);
+        if (removes) {
+            multiLineLabelCache = null;
+        }
+        
+        if (ENTRIES.isEmpty()) {
             return;
         }
         
-        if (System.nanoTime() > clearingTime) {
-            multiLineLabel = null;
-            return;
+        if (multiLineLabelCache == null) {
+            // don't make the first component the base component
+            // to avoid style override
+            MutableComponent component = Component.empty();
+            boolean isBeginning = true;
+            for (Entry entry : ENTRIES.values()) {
+                if (isBeginning) {
+                    isBeginning = false;
+                }
+                else {
+                    component.append("\n");
+                }
+                component.append(entry.component());
+            }
+            
+            multiLineLabelCache = MultiLineLabel.create(
+                Minecraft.getInstance().font,
+                component,
+                (Minecraft.getInstance().getWindow().getGuiScaledWidth() - 20)
+            );
+            assert multiLineLabelCache != null;
         }
         
         Minecraft minecraft = Minecraft.getInstance();
@@ -60,7 +105,7 @@ public class ImmPtlCustomOverlay {
         
         minecraft.getProfiler().push("imm_ptl_custom_overlay");
         // Note: the parchment names are incorrect
-        multiLineLabel.renderCentered(
+        multiLineLabelCache.renderCentered(
             guiGraphics,
             guiScaledWidth / 2, (int) (guiScaledHeight * 0.75)
         );
