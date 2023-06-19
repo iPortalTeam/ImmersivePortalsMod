@@ -40,7 +40,6 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
-import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
@@ -1700,12 +1699,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setThisSideState(UnilateralPortalState ups) {
+        setThisSideState(ups, false);
+    }
+    
+    public void setThisSideState(UnilateralPortalState ups, boolean lockScale) {
         Validate.notNull(ups);
         PortalState portalState = getPortalState();
         assert portalState != null;
-        UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(portalState);
         
-        PortalState newPortalState = UnilateralPortalState.combine(ups, otherSide);
+        PortalState newPortalState = portalState.withThisSideUpdated(ups, lockScale);
         setPortalState(newPortalState);
     }
     

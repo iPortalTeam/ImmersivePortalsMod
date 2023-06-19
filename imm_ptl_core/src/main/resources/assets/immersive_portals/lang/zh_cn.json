@@ -223,7 +223,7 @@
   "imm_ptl.wand.dragging": "拖动 ",
   "imm_ptl.wand.on_plane": "(沿%s)",
   "imm_ptl.wand.cursor_pos": "光标: (%s, %s, %s)",
-  "imm_ptl.wand.portal_size": "宽度: %s, 高度: %s",
+  "imm_ptl.wand.portal_size": "宽度: %s, 高度: %s, 缩放: %s",
   "imm_ptl.wand.lock_width": "使用%s以锁定/解锁宽度",
   "imm_ptl.wand.lock_height": "使用%s以锁定/解锁高度",
   "imm_ptl.wand.width_locked": "宽度已锁定",

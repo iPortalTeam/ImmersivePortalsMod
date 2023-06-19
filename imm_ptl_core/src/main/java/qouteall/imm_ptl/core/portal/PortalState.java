@@ -38,6 +38,23 @@ public class PortalState {
         this.height = height;
     }
     
+    public PortalState withThisSideUpdated(
+        UnilateralPortalState thisSide, boolean lockScale
+    ) {
+        UnilateralPortalState otherSide = UnilateralPortalState.extractOtherSide(this);
+        
+        if (lockScale) {
+            otherSide = new UnilateralPortalState.Builder()
+                .from(otherSide)
+                .width(thisSide.width() * scaling)
+                .height(thisSide.height() * scaling)
+                .build();
+        }
+        
+        PortalState newPortalState = UnilateralPortalState.combine(thisSide, otherSide);
+        return newPortalState;
+    }
+    
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("fromWorld", fromWorld.location().toString());

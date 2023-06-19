@@ -330,7 +330,7 @@ public class WireRenderingHelper {
             new Vec3(-ringAreaWidth / 2 - ringWidth, h / 2, 0),
         };
         
-        float renderScale = (float) (scale * (1.0 / 1500.0));
+        float renderScale = (float) (scale * (1.0 / 1000.0));
         
         DQuaternion rotation = DQuaternion.rotationByDegrees(
             new Vec3(0, 1, 0),

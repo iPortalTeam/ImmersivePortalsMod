@@ -315,11 +315,16 @@ public class PortalWandInteraction {
             this.lockWidth = lockWidth;
             this.lockHeight = lockHeight;
         }
+        
+        public boolean shouldLockScale() {
+            return lockWidth || lockHeight;
+        }
     }
     
     @Nullable
     public static UnilateralPortalState applyDrag(
-        UnilateralPortalState originalState, Vec3 cursorPos, DraggingInfo info
+        UnilateralPortalState originalState, Vec3 cursorPos, DraggingInfo info,
+        boolean updateInternalState
     ) {
         if (info.lockedAnchor == null) {
             Vec3 offset = info.draggingAnchor.getOffset(originalState);
@@ -339,8 +344,10 @@ public class PortalWandInteraction {
         if (r == null) {
             return null;
         }
-        
-        info.previousRotationAxis = r.rotationAxis();
+    
+        if (updateInternalState) {
+            info.previousRotationAxis = r.rotationAxis();
+        }
         return r.newState();
     }
     
@@ -397,10 +404,11 @@ public class PortalWandInteraction {
         }
         
         UnilateralPortalState newThisSideState = applyDrag(
-            session.originalState.getThisSideState(), cursorPos, draggingInfo
+            session.originalState.getThisSideState(), cursorPos, draggingInfo,
+            true
         );
         if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
-            portal.setThisSideState(newThisSideState);
+            portal.setThisSideState(newThisSideState, draggingInfo.shouldLockScale());
             portal.reloadAndSyncToClient();
             portal.rectifyClusterPortals(true);
         }

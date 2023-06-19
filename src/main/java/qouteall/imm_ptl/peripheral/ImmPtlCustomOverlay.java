@@ -55,6 +55,10 @@ public class ImmPtlCustomOverlay {
         putText(component, 0.2, "5_defaultKey");
     }
     
+    public static boolean remove(String key) {
+        return ENTRIES.remove(key) != null;
+    }
+    
     /**
      * {@link Gui#render(GuiGraphics, float)}
      * {@link net.minecraft.client.gui.screens.AlertScreen}

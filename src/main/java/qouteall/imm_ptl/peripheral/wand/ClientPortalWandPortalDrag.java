@@ -536,14 +536,15 @@ public class ClientPortalWandPortalDrag {
         
         boolean shouldDisplaySize = lockedAnchor != null;
         
-        UnilateralPortalState animationEndingState = getAnimationEndingState();
+        PortalState animationEndingState = getAnimationEndingState();
         
         Component portalSizeText;
         if (portal != null && shouldDisplaySize && animationEndingState != null) {
             portalSizeText = Component.literal(" ").append(
                 Component.translatable("imm_ptl.wand.portal_size",
-                    "%.3f".formatted(animationEndingState.width()),
-                    "%.3f".formatted(animationEndingState.height())
+                    "%.3f".formatted(animationEndingState.width),
+                    "%.3f".formatted(animationEndingState.height),
+                    "%.3f".formatted(animationEndingState.scaling)
                 )
             );
         }
@@ -680,8 +681,8 @@ public class ClientPortalWandPortalDrag {
         UnilateralPortalState newThisSideState = PortalWandInteraction.applyDrag(
             draggingContext.originalPortalState().getThisSideState(),
             cursorPos,
-            draggingInfo
-        );
+            draggingInfo,
+            true);
         
         boolean isValid = PortalWandInteraction.validateDraggedPortalState(
             draggingContext.originalPortalState(), newThisSideState, player
@@ -693,13 +694,14 @@ public class ClientPortalWandPortalDrag {
                 "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
                 selectedPortalId, cursorPos, draggingInfo
             );
+            ImmPtlCustomOverlay.remove("1_invalid_dragging");
         }
         else {
             ImmPtlCustomOverlay.putText(
                 Component.translatable("imm_ptl.wand.invalid_dragging")
                     .withStyle(ChatFormatting.RED),
-                1.0,
-                "0_altert"
+                3.0,
+                "1_invalid_dragging"
             );
         }
     }
@@ -1166,19 +1168,20 @@ public class ClientPortalWandPortalDrag {
         UnilateralPortalState newState = PortalWandInteraction.applyDrag(
             draggingContext.originalPortalState().getThisSideState(),
             currentCursor,
-            draggingContext.draggingInfo
+            draggingContext.draggingInfo,
+            false
         );
         
         if (PortalWandInteraction.validateDraggedPortalState(
             draggingContext.originalPortalState(), newState, player
         )) {
-            selectedPortal.setThisSideState(newState);
+            selectedPortal.setThisSideState(newState, draggingContext.draggingInfo.shouldLockScale());
             selectedPortal.rectifyClusterPortals(false);
         }
     }
     
     @Nullable
-    private static UnilateralPortalState getAnimationEndingState() {
+    private static PortalState getAnimationEndingState() {
         if (draggingContext == null) {
             return null;
         }
@@ -1197,10 +1200,19 @@ public class ClientPortalWandPortalDrag {
             return null;
         }
         
-        return PortalWandInteraction.applyDrag(
+        UnilateralPortalState newThisSide = PortalWandInteraction.applyDrag(
             draggingContext.originalPortalState().getThisSideState(),
             cursorTarget,
-            draggingContext.draggingInfo()
+            draggingContext.draggingInfo(),
+            false
+        );
+        
+        if (newThisSide == null) {
+            return null;
+        }
+        
+        return draggingContext.originalPortalState().withThisSideUpdated(
+            newThisSide, draggingContext.draggingInfo().shouldLockScale()
         );
     }
     
