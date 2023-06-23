@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -256,7 +257,21 @@ public class ClientPortalWandPortalDrag {
     }
     
     public static void tick() {
-    
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        
+        if (player == null) {
+            return;
+        }
+        
+        if (isDragging()) {
+            if (player.getItemInHand(InteractionHand.MAIN_HAND).getItem() != PortalWandItem.instance &&
+                player.getItemInHand(InteractionHand.OFF_HAND).getItem() != PortalWandItem.instance
+            ) {
+                LOGGER.info("Undo dragging because the player is not holding the wand");
+                undoDragging();
+            }
+        }
     }
     
     public static boolean isDragging() {
@@ -595,7 +610,19 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Vec3 cursorPos = cursor.getTarget().pos().value();
+        RenderedPoint cursorTarget = cursor.getTarget();
+        
+        if (cursorTarget == null) {
+            return;
+        }
+        
+        WithDim<Vec3> cursorTargetPos = cursorTarget.pos();
+        
+        if (cursorTargetPos == null) {
+            return;
+        }
+        
+        Vec3 cursorPos = cursorTargetPos.value();
         
         if (cursorPos == null) {
             return;
@@ -1175,7 +1202,10 @@ public class ClientPortalWandPortalDrag {
         if (PortalWandInteraction.validateDraggedPortalState(
             draggingContext.originalPortalState(), newState, player
         )) {
-            selectedPortal.setThisSideState(newState, draggingContext.draggingInfo.shouldLockScale());
+            PortalState newFullState = draggingContext.originalPortalState().withThisSideUpdated(
+                newState, draggingContext.draggingInfo.shouldLockScale()
+            );
+            selectedPortal.setPortalState(newFullState);
             selectedPortal.rectifyClusterPortals(false);
         }
     }

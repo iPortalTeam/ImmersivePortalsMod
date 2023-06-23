@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
@@ -269,6 +270,7 @@ public class WireRenderingHelper {
         );
         
         Matrix4f matrix = matrixStack.last().pose();
+        Matrix3f normalMatrix = matrixStack.last().normal();
         
         for (int i = 0; i <= separation; i++) {
             double ratio = (double) i / separation;
@@ -276,7 +278,7 @@ public class WireRenderingHelper {
             Vec3 lineStart = xAxis.scale(ratio);
             Vec3 lineEnd = xAxis.scale(ratio).add(yAxis);
             
-            putLine(vertexConsumer, color, yAxis.normalize(), matrix, lineStart, lineEnd);
+            putLine(vertexConsumer, color, yAxis.normalize(), matrix, normalMatrix, lineStart, lineEnd);
         }
         
         for (int i = 0; i <= separation; i++) {
@@ -285,7 +287,7 @@ public class WireRenderingHelper {
             Vec3 lineStart = yAxis.scale(ratio);
             Vec3 lineEnd = yAxis.scale(ratio).add(xAxis);
             
-            putLine(vertexConsumer, color, xAxis.normalize(), matrix, lineStart, lineEnd);
+            putLine(vertexConsumer, color, xAxis.normalize(), matrix, normalMatrix, lineStart, lineEnd);
         }
         
         matrixStack.popPose();
@@ -360,29 +362,34 @@ public class WireRenderingHelper {
         matrixStack.scale((float) scale, (float) scale, (float) scale);
         
         Matrix4f matrix = matrixStack.last().pose();
-        
+        Matrix3f normalMatrix = matrixStack.last().normal();
+    
         for (int i = 0; i < lineVertices.length / 2; i++) {
-            putLine(vertexConsumer, color, matrix, lineVertices[i * 2], lineVertices[i * 2 + 1]);
+            putLine(vertexConsumer, color, matrix, normalMatrix, lineVertices[i * 2], lineVertices[i * 2 + 1]);
         }
         
         matrixStack.popPose();
     }
     
-    private static void putLine(VertexConsumer vertexConsumer, int color, Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd) {
-        putLine(vertexConsumer, color, lineEnd.subtract(lineStart).normalize(), matrix, lineStart, lineEnd);
+    private static void putLine(VertexConsumer vertexConsumer, int color, Matrix4f matrix, Matrix3f normalMatrix, Vec3 lineStart, Vec3 lineEnd) {
+        putLine(vertexConsumer, color, lineEnd.subtract(lineStart), matrix, normalMatrix, lineStart, lineEnd);
     }
     
-    private static void putLine(VertexConsumer vertexConsumer, int color, Vec3 normal, Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd) {
+    private static void putLine(
+        VertexConsumer vertexConsumer,
+        int color, Vec3 normal, Matrix4f matrix, Matrix3f normalMatrix,
+        Vec3 lineStart, Vec3 lineEnd
+    ) {
         vertexConsumer
             .vertex(matrix, (float) (lineStart.x), (float) (lineStart.y), (float) (lineStart.z))
             .color(color)
-            .normal((float) normal.x, (float) normal.y, (float) normal.z)
+            .normal(normalMatrix, (float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
-        
+    
         vertexConsumer
             .vertex(matrix, (float) (lineEnd.x), (float) (lineEnd.y), (float) (lineEnd.z))
             .color(color)
-            .normal((float) normal.x, (float) normal.y, (float) normal.z)
+            .normal(normalMatrix, (float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
     }
     
@@ -432,6 +439,7 @@ public class WireRenderingHelper {
         );
         
         Matrix4f matrix = matrixStack.last().pose();
+        Matrix3f normalMatrix = matrixStack.last().normal();
         
         Vec3 normal = rect.orientation().getNormal();
         Vec3 axisW = rect.orientation().getAxisW();
@@ -467,7 +475,7 @@ public class WireRenderingHelper {
             double totalEndRatio = ((double) i * 2 + 1) / (partCount * 2) + offset;
             
             renderSubLineInLineLoop(
-                vertexConsumer, matrix,
+                vertexConsumer, matrix, normalMatrix,
                 vertices, color, totalStartRatio, totalEndRatio
             );
         }
@@ -476,7 +484,7 @@ public class WireRenderingHelper {
     }
     
     public static void renderSubLineInLineLoop(
-        VertexConsumer vertexConsumer, Matrix4f matrix,
+        VertexConsumer vertexConsumer, Matrix4f matrix, Matrix3f normalMatrix,
         Vec3[] lineVertices, int color,
         double totalStartRatio, double totalEndRatio
     ) {
@@ -496,18 +504,17 @@ public class WireRenderingHelper {
             double endRatio = Math.min(endLimit, endRatioByLine);
             
             putLinePart(
-                vertexConsumer, color, matrix,
+                vertexConsumer, color, matrix, normalMatrix,
                 lineVertices[Math.floorMod(lineIndex, lineNum)],
                 lineVertices[Math.floorMod(lineIndex + 1, lineNum)],
                 startRatio - lineIndex,
-                endRatio - lineIndex
-            );
+                endRatio - lineIndex);
         }
     }
     
     private static void putLinePart(
         VertexConsumer vertexConsumer, int color,
-        Matrix4f matrix, Vec3 lineStart, Vec3 lineEnd,
+        Matrix4f matrix, Matrix3f normalMatrix, Vec3 lineStart, Vec3 lineEnd,
         double startRatio, double endRatio
     ) {
         Vec3 vec = lineEnd.subtract(lineStart);
@@ -516,7 +523,7 @@ public class WireRenderingHelper {
         Vec3 partEndPos = lineStart.add(vec.scale(endRatio));
         
         putLine(
-            vertexConsumer, color, matrix, partStartPos, partEndPos
+            vertexConsumer, color, matrix, normalMatrix, partStartPos, partEndPos
         );
     }
     
