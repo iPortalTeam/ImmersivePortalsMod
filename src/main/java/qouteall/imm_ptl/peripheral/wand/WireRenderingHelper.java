@@ -20,6 +20,7 @@ import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Sphere;
 
 import java.util.Random;
+import java.util.function.IntSupplier;
 
 public class WireRenderingHelper {
     
@@ -246,7 +247,108 @@ public class WireRenderingHelper {
         matrixStack.popPose();
     }
     
-    static void renderPortalAreaGrid(
+    public static void renderPortalAreaGridNew(
+        VertexConsumer vertexConsumer, Vec3 cameraPos,
+        ProtoPortalSide protoPortalSide,
+        int color1, int color2, PoseStack matrixStack
+    ) {
+        int separation = 8;
+        
+        Vec3 leftBottom = protoPortalSide.leftBottom;
+        Vec3 rightBottom = protoPortalSide.rightBottom;
+        Vec3 leftTop = protoPortalSide.leftTop;
+        
+        Vec3 xAxis = rightBottom.subtract(leftBottom);
+        Vec3 yAxis = leftTop.subtract(leftBottom);
+        
+        Vec3 normal = xAxis.cross(yAxis).normalize();
+        
+        matrixStack.pushPose();
+        matrixStack.translate(
+            leftBottom.x - cameraPos.x,
+            leftBottom.y - cameraPos.y,
+            leftBottom.z - cameraPos.z
+        );
+        
+        Matrix4f matrix = matrixStack.last().pose();
+        Matrix3f normalMatrix = matrixStack.last().normal();
+        
+        // render the outer frame
+        putLine(
+            vertexConsumer, color1, matrix, normalMatrix,
+            Vec3.ZERO, xAxis
+        );
+        putLine(
+            vertexConsumer, color1, matrix, normalMatrix,
+            yAxis, yAxis.add(xAxis)
+        );
+        putLine(
+            vertexConsumer, color1, matrix, normalMatrix,
+            Vec3.ZERO, yAxis
+        );
+        putLine(
+            vertexConsumer, color1, matrix, normalMatrix,
+            xAxis, yAxis.add(xAxis)
+        );
+        
+        // render the inner grid flow lines
+        int flowCount = 3;
+        Random random = new Random(color1);
+        
+        double scaling = 0.994;
+        double offset1 = (1 - scaling) / 2;
+        double offset2 = -offset1;
+        
+        for (int cx = 1; cx < separation; cx++) {
+            double lx = ((double) cx) / separation;
+            renderFlowLines(
+                vertexConsumer,
+                new Vec3[]{
+                    xAxis.scale(lx * scaling + offset1),
+                    xAxis.scale(lx * scaling + offset1).add(yAxis),
+                },
+                flowCount, color1, 1, matrixStack,
+                () -> random.nextInt(10, 100)
+            );
+            
+            renderFlowLines(
+                vertexConsumer,
+                new Vec3[]{
+                    xAxis.scale(lx * scaling + offset2),
+                    xAxis.scale(lx * scaling + offset2).add(yAxis),
+                },
+                flowCount, color2, -1, matrixStack,
+                () -> random.nextInt(10, 100)
+            );
+        }
+        
+        for (int cy = 1; cy < separation; cy++) {
+            double ly = ((double) cy) / separation;
+            renderFlowLines(
+                vertexConsumer,
+                new Vec3[]{
+                    yAxis.scale(ly * scaling + offset1),
+                    yAxis.scale(ly * scaling + offset1).add(xAxis),
+                },
+                flowCount, color1, 1, matrixStack,
+                () -> random.nextInt(10, 100)
+            );
+            
+            renderFlowLines(
+                vertexConsumer,
+                new Vec3[]{
+                    yAxis.scale(ly * scaling + offset2),
+                    yAxis.scale(ly * scaling + offset2).add(xAxis),
+                },
+                flowCount, color2, -1, matrixStack,
+                () -> random.nextInt(10, 100)
+            );
+        }
+        
+        matrixStack.popPose();
+    }
+    
+    public static void renderPortalAreaGrid(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         ProtoPortalSide protoPortalSide,
         int color, PoseStack matrixStack
@@ -363,7 +465,7 @@ public class WireRenderingHelper {
         
         Matrix4f matrix = matrixStack.last().pose();
         Matrix3f normalMatrix = matrixStack.last().normal();
-    
+        
         for (int i = 0; i < lineVertices.length / 2; i++) {
             putLine(vertexConsumer, color, matrix, normalMatrix, lineVertices[i * 2], lineVertices[i * 2 + 1]);
         }
@@ -385,7 +487,7 @@ public class WireRenderingHelper {
             .color(color)
             .normal(normalMatrix, (float) normal.x, (float) normal.y, (float) normal.z)
             .endVertex();
-    
+        
         vertexConsumer
             .vertex(matrix, (float) (lineEnd.x), (float) (lineEnd.y), (float) (lineEnd.z))
             .color(color)
@@ -426,7 +528,7 @@ public class WireRenderingHelper {
     public static void renderRectLine(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         UnilateralPortalState rect,
-        int partCount, int color, double shrinkFactor,
+        int flowCount, int color, double shrinkFactor,
         int flowDirection,
         PoseStack matrixStack
     ) {
@@ -438,16 +540,45 @@ public class WireRenderingHelper {
             rect.position().z - cameraPos.z
         );
         
+        Vec3[] vertices = getRectVertices(rect, shrinkFactor);
+        
+        Random random = new Random(color);
+        renderFlowLines(
+            vertexConsumer, vertices, flowCount, color, flowDirection, matrixStack,
+            () -> random.nextInt(30, 300)
+        );
+        
+        matrixStack.popPose();
+    }
+    
+    private static void renderFlowLines(
+        VertexConsumer vertexConsumer,
+        Vec3[] vertices,
+        int flowCount, int color, int flowDirection,
+        PoseStack matrixStack, IntSupplier randCycleSupplier
+    ) {
         Matrix4f matrix = matrixStack.last().pose();
         Matrix3f normalMatrix = matrixStack.last().normal();
         
+        for (int i = 0; i < flowCount; i++) {
+            double offset = flowDirection * CHelper.getSmoothCycles(randCycleSupplier.getAsInt());
+            
+            double totalStartRatio = ((double) i * 2) / (flowCount * 2) + offset;
+            double totalEndRatio = ((double) i * 2 + 1) / (flowCount * 2) + offset;
+            
+            renderSubLineInLineLoop(
+                vertexConsumer, matrix, normalMatrix,
+                vertices, color, totalStartRatio, totalEndRatio
+            );
+        }
+    }
+    
+    private static Vec3[] getRectVertices(UnilateralPortalState rect, double shrinkFactor) {
         Vec3 normal = rect.orientation().getNormal();
         Vec3 axisW = rect.orientation().getAxisW();
         Vec3 axisH = rect.orientation().getAxisH();
         
         Vec3 facingOffset = normal.scale(0.01);
-        
-        Random random = new Random(color);
         
         Vec3[] vertices = new Vec3[]{
             axisW.scale(shrinkFactor * rect.width() / 2)
@@ -462,25 +593,13 @@ public class WireRenderingHelper {
             axisW.scale(-1 * shrinkFactor * rect.width() / 2)
                 .add(axisH.scale(shrinkFactor * rect.height() / 2))
                 .add(facingOffset),
+            
+            // repeat the first because it's in a loop
+            axisW.scale(shrinkFactor * rect.width() / 2)
+                .add(axisH.scale(shrinkFactor * rect.height() / 2))
+                .add(facingOffset),
         };
-        
-        int lineNum = vertices.length;
-        
-        
-        for (int i = 0; i < partCount; i++) {
-            double offset = flowDirection * CHelper.getSmoothCycles(random.nextInt(30, 300));
-//            double offset = getRandomSmoothCycle(random);
-            
-            double totalStartRatio = ((double) i * 2) / (partCount * 2) + offset;
-            double totalEndRatio = ((double) i * 2 + 1) / (partCount * 2) + offset;
-            
-            renderSubLineInLineLoop(
-                vertexConsumer, matrix, normalMatrix,
-                vertices, color, totalStartRatio, totalEndRatio
-            );
-        }
-        
-        matrixStack.popPose();
+        return vertices;
     }
     
     public static void renderSubLineInLineLoop(
@@ -488,7 +607,7 @@ public class WireRenderingHelper {
         Vec3[] lineVertices, int color,
         double totalStartRatio, double totalEndRatio
     ) {
-        int lineNum = lineVertices.length;
+        int lineNum = lineVertices.length - 1;
         
         double startRatioByLine = totalStartRatio * lineNum;
         double endRatioByLine = totalEndRatio * lineNum;
@@ -506,9 +625,10 @@ public class WireRenderingHelper {
             putLinePart(
                 vertexConsumer, color, matrix, normalMatrix,
                 lineVertices[Math.floorMod(lineIndex, lineNum)],
-                lineVertices[Math.floorMod(lineIndex + 1, lineNum)],
+                lineVertices[Math.floorMod(lineIndex, lineNum) + 1],
                 startRatio - lineIndex,
-                endRatio - lineIndex);
+                endRatio - lineIndex
+            );
         }
     }
     

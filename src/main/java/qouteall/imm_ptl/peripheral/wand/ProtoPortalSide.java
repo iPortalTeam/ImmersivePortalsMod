@@ -6,7 +6,9 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.my_util.Circle;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.WithDim;
 
@@ -124,7 +126,7 @@ public class ProtoPortalSide {
     public boolean isValidPlacement(@Nullable Double heightDivWidth) {
         if (rightBottom != null) {
             double width = getHorizontalAxis().length();
-    
+            
             if (width < 0.001 || width > 64.001) {
                 return false;
             }
@@ -158,5 +160,23 @@ public class ProtoPortalSide {
         else {
             throw new IllegalStateException();
         }
+    }
+    
+    public UnilateralPortalState toUnilateralPortalState() {
+        Validate.isTrue(isComplete());
+        
+        Vec3 horizontalAxis = getHorizontalAxis();
+        Vec3 verticalAxis = getVerticalAxis();
+        
+        return new UnilateralPortalState(
+            dimension,
+            leftBottom.add(horizontalAxis.scale(0.5)).add(verticalAxis.scale(0.5)),
+            DQuaternion.fromFacingVecs(
+                horizontalAxis.normalize(),
+                verticalAxis.normalize()
+            ),
+            horizontalAxis.length(),
+            verticalAxis.length()
+        );
     }
 }

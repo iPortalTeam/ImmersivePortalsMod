@@ -212,7 +212,9 @@ public class ClientPortalWandPortalCreation {
     private static final int colorOfPlane = 0xffafd3fa;
     private static final int colorOfCircle = 0xff03fce3;
     private static final int colorOfFirstPortalArea = 0xfffc9003;
+    private static final int colorOfFirstPortalArea2 = 0xffFF7D98;
     private static final int colorOfSecondPortalArea = 0xff60f2fc;
+    private static final int colorOfSecondPortalArea2 = 0xff60f2fc;
     
     public static void render(
         PoseStack matrixStack,
@@ -274,13 +276,12 @@ public class ClientPortalWandPortalCreation {
                     colorOfFirstSideLeftUp, 1.0, matrixStack
                 );
                 
-                WireRenderingHelper.renderPortalAreaGrid(
+                WireRenderingHelper.renderPortalAreaGridNew(
                     vertexConsumer,
                     cameraPos,
                     renderedProtoPortal.firstSide,
-                    colorOfFirstPortalArea,
-                    matrixStack
-                );
+                    colorOfFirstPortalArea, colorOfFirstPortalArea2,
+                    matrixStack);
             }
         }
         
