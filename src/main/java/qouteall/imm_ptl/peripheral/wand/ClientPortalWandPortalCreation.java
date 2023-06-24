@@ -10,17 +10,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
@@ -30,14 +26,10 @@ import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Circle;
-import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.WithDim;
 import qouteall.q_misc_util.my_util.animation.Animated;
 import qouteall.q_misc_util.my_util.animation.RenderedPlane;
-
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * The process and relevant marking rendering is handled purely on client side.
@@ -71,7 +63,11 @@ public class ClientPortalWandPortalCreation {
         renderedPlane.clearTarget();
     }
     
-    public static void undo() {
+    public static void onLeftClick() {
+        undo();
+    }
+    
+    private static void undo() {
         protoPortal.undo();
     }
     
@@ -131,7 +127,7 @@ public class ClientPortalWandPortalCreation {
             if (cursorPointing != null) {
                 // align it and then project onto plane
                 // aligning may cause it to be out of the plane
-                cursorPointing = align(player.level(), cursorPointing, alignment);
+                cursorPointing = WandUtil.alignOnBlocks(player.level(), cursorPointing, alignment);
                 cursorPointing = limitingPlane.value().getProjection(cursorPointing);
                 
                 if (limitingCircle != null) {
@@ -145,7 +141,7 @@ public class ClientPortalWandPortalCreation {
             
             if (hitResult.getType() == HitResult.Type.BLOCK && (hitResult instanceof BlockHitResult blockHitResult)) {
                 // if pointing at a block, use the aligned position on block
-                cursorPointing = align(player.level(), blockHitResult.getLocation(), alignment);
+                cursorPointing = WandUtil.alignOnBlocks(player.level(), blockHitResult.getLocation(), alignment);
             }
         }
         
@@ -185,39 +181,6 @@ public class ClientPortalWandPortalCreation {
         else {
             cursor.clearTarget();
         }
-    }
-    
-    private static Vec3 align(
-        Level world, Vec3 vec3, int gridCount
-    ) {
-        if (gridCount == 0) {
-            return vec3;
-        }
-        
-        BlockPos blockPos = BlockPos.containing(vec3);
-        return new IntBox(blockPos.offset(-1, -1, -1), blockPos.offset(1, 1, 1))
-            .stream()
-            .flatMap(
-                pos -> {
-                    BlockState blockState = world.getBlockState(pos);
-                    VoxelShape collisionShape = blockState.getCollisionShape(world, pos)
-                        .move(pos.getX(), pos.getY(), pos.getZ());
-                    List<AABB> aabbs = collisionShape.toAabbs();
-                    if (aabbs.size() != 1) {
-                        // in the case of hopper, not all of its collision boxes are symmetric
-                        // without this, the north and south side of top edge mid-point of hopper cannot be selected
-                        // also make air blocks alignable
-                        aabbs.add(new AABB(pos));
-                    }
-                    return aabbs.stream();
-                }
-            )
-            .map(box -> Helper.alignToBoxSurface(box, vec3, gridCount))
-            .min(
-                Comparator.comparingDouble(
-                    p -> p.distanceToSqr(vec3)
-                )
-            ).orElse(null);
     }
     
     /**

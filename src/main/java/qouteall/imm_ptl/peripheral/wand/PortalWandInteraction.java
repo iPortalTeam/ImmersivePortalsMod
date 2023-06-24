@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.peripheral.wand;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -60,6 +62,12 @@ public class PortalWandInteraction {
                 return;
             }
             
+            if (!draggingInfo.isValid()) {
+                player.sendSystemMessage(Component.literal("Invalid dragging info"));
+                LOGGER.error("Invalid dragging info {}", draggingInfo);
+                return;
+            }
+            
             handleDraggingRequest(player, portalId, cursorPos, draggingInfo, portal);
         }
         
@@ -73,6 +81,24 @@ public class PortalWandInteraction {
             if (!checkPermission(player)) return;
             
             handleFinishDrag(player);
+        }
+        
+        public static void copyCutPortal(ServerPlayer player, UUID portalId, boolean isCut) {
+            if (!checkPermission(player)) return;
+            
+            handleCopyCutPortal(player, portalId, isCut);
+        }
+        
+        public static void confirmCopyCut(ServerPlayer player, Vec3 origin, DQuaternion orientation) {
+            if (!checkPermission(player)) return;
+            
+            handleConfirmCopyCut(player, origin, orientation);
+        }
+        
+        public static void clearPortalClipboard(ServerPlayer player) {
+            if (!checkPermission(player)) return;
+            
+            handleClearPortalClipboard(player);
         }
     }
     
@@ -239,8 +265,8 @@ public class PortalWandInteraction {
         }
         
         player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
-        
-        giveDeletingPortalCommandStickIfNotPresent(player);
+    
+        giveCommandStick(player, new ResourceLocation("imm_ptl:eradicate_portal_cluster"));
     }
     
     private static class DraggingSession {
@@ -290,9 +316,17 @@ public class PortalWandInteraction {
                     return false;
                 }
             );
+            
+            copyingSessionMap.entrySet().removeIf(
+                e -> {
+                    ServerPlayer player = e.getKey();
+                    return player.isRemoved();
+                }
+            );
         });
         
         IPGlobal.serverCleanupSignal.connect(draggingSessionMap::clear);
+        IPGlobal.serverCleanupSignal.connect(copyingSessionMap::clear);
     }
     
     public static final class DraggingInfo {
@@ -319,6 +353,18 @@ public class PortalWandInteraction {
         public boolean shouldLockScale() {
             return lockWidth || lockHeight;
         }
+        
+        public boolean isValid() {
+            if (lockedAnchor != null) {
+                if (!lockedAnchor.isValid()) {
+                    return false;
+                }
+            }
+            if (!draggingAnchor.isValid()) {
+                return false;
+            }
+            return true;
+        }
     }
     
     @Nullable
@@ -344,7 +390,7 @@ public class PortalWandInteraction {
         if (r == null) {
             return null;
         }
-    
+        
         if (updateInternalState) {
             info.previousRotationAxis = r.rotationAxis();
         }
@@ -461,9 +507,9 @@ public class PortalWandInteraction {
         return player.hasPermissions(2) || (IPGlobal.easeCreativePermission && player.isCreative());
     }
     
-    private static void giveDeletingPortalCommandStickIfNotPresent(ServerPlayer player) {
+    private static void giveCommandStick(ServerPlayer player, ResourceLocation stickId) {
         CommandStickItem.Data stickData = CommandStickItem.commandStickTypeRegistry.get(
-            new ResourceLocation("imm_ptl:eradicate_portal_cluster")
+            stickId
         );
         
         if (stickData == null) {
@@ -679,6 +725,130 @@ public class PortalWandInteraction {
         UnilateralPortalState newState,
         Vec3 rotationAxis
     ) {
-    
     }
+    
+    private record CopyingSession(
+        PortalState portalState, CompoundTag portalData, boolean isCut,
+        boolean hasFlipped, boolean hasReverse, boolean hasParallel
+    ) {
+    }
+    
+    private static final WeakHashMap<ServerPlayer, CopyingSession> copyingSessionMap = new WeakHashMap<>();
+    
+    public static void handleCopyCutPortal(ServerPlayer player, UUID portalId, boolean isCut) {
+        Portal portal = WandUtil.getPortalByUUID(player.level(), portalId);
+        
+        if (portal == null) {
+            player.sendSystemMessage(Component.literal("Cannot find portal " + portalId));
+            return;
+        }
+        
+        PortalState portalState = portal.getPortalState();
+        CompoundTag portalData = portal.writePortalDataToNbt();
+        
+        Portal flipped = null;
+        Portal reverse = null;
+        Portal parallel = null;
+        
+        PortalExtension ext = PortalExtension.get(portal);
+        if (ext.flippedPortal != null) {
+            flipped = ext.flippedPortal;
+        }
+        if (ext.reversePortal != null) {
+            reverse = ext.reversePortal;
+        }
+        if (ext.parallelPortal != null) {
+            parallel = ext.parallelPortal;
+        }
+        
+        CopyingSession copyingSession = new CopyingSession(
+            portalState, portalData, isCut,
+            flipped != null, reverse != null, parallel != null
+        );
+        copyingSessionMap.put(player, copyingSession);
+        
+        if (isCut) {
+            portal.remove(Entity.RemovalReason.KILLED);
+            if (flipped != null) {
+                flipped.remove(Entity.RemovalReason.KILLED);
+            }
+            if (reverse != null) {
+                reverse.remove(Entity.RemovalReason.KILLED);
+            }
+            if (parallel != null) {
+                parallel.remove(Entity.RemovalReason.KILLED);
+            }
+        }
+    }
+    
+    private static void handleConfirmCopyCut(ServerPlayer player, Vec3 origin, DQuaternion rawOrientation) {
+        CopyingSession copyingSession = copyingSessionMap.remove(player);
+        
+        if (copyingSession == null) {
+            player.sendSystemMessage(Component.literal("Missing copying session"));
+            return;
+        }
+        
+        DQuaternion orientation = rawOrientation.fixFloatingPointErrorAccumulation();
+        
+        if (player.position().distanceToSqr(origin) > 64 * 64) {
+            player.sendSystemMessage(Component.literal("Too far away from the portal"));
+            return;
+        }
+        
+        Portal portal = Portal.entityType.create(player.level());
+        assert portal != null;
+        
+        portal.readPortalDataFromNbt(copyingSession.portalData);
+        
+        PortalState originalPortalState = copyingSession.portalState;
+        
+        UnilateralPortalState originalThisSide = originalPortalState.getThisSideState();
+        UnilateralPortalState originalOtherSide = originalPortalState.getOtherSideState();
+        
+        UnilateralPortalState newThisSide = new UnilateralPortalState(
+            player.level().dimension(),
+            origin,
+            orientation,
+            originalThisSide.width(), originalThisSide.height()
+        );
+        
+        portal.setPortalState(UnilateralPortalState.combine(
+            newThisSide, originalOtherSide
+        ));
+        
+        if (copyingSession.isCut()) {
+            McHelper.spawnServerEntity(portal);
+            
+            if (copyingSession.hasFlipped) {
+                Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+                McHelper.spawnServerEntity(flippedPortal);
+            }
+            
+            if (copyingSession.hasReverse) {
+                Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
+                McHelper.spawnServerEntity(reversePortal);
+                
+                if (copyingSession.hasParallel) {
+                    Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
+                    McHelper.spawnServerEntity(parallelPortal);
+                }
+            }
+        }
+        else {
+            PortalExtension.get(portal).bindCluster = false;
+            McHelper.spawnServerEntity(portal);
+            
+            if (copyingSession.hasFlipped || copyingSession.hasReverse || copyingSession.hasParallel) {
+                player.sendSystemMessage(Component.translatable("imm_ptl.wand.copy.not_copying_cluster"));
+                giveCommandStick(player, new ResourceLocation("imm_ptl:complete_bi_way_bi_faced_portal"));
+            }
+        }
+    }
+    
+    private static void handleClearPortalClipboard(ServerPlayer player) {
+        copyingSessionMap.remove(player);
+    }
+    
+    
 }

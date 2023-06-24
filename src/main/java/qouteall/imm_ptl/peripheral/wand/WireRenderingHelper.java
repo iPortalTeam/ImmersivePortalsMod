@@ -643,4 +643,26 @@ public class WireRenderingHelper {
         
         matrixStack.popPose();
     }
+    
+    public static void renderRectFrameFlow(
+        PoseStack matrixStack, Vec3 cameraPos,
+        VertexConsumer vertexConsumer, UnilateralPortalState rect,
+        int innerColor, int outerColor
+    ) {
+        matrixStack.pushPose();
+        matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
+        
+        renderRectLine(
+            vertexConsumer, cameraPos, rect,
+            10, innerColor, 0.99, 1,
+            matrixStack
+        );
+        renderRectLine(
+            vertexConsumer, cameraPos, rect,
+            10, outerColor, 1.01, -1,
+            matrixStack
+        );
+        
+        matrixStack.popPose();
+    }
 }

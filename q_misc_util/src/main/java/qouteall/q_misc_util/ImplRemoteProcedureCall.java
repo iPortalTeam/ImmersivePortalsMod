@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -68,6 +69,13 @@ public class ImplRemoteProcedureCall {
             .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
             .put(CompoundTag.class, (buf, o) -> buf.writeNbt(((CompoundTag) o)))
             .put(Component.class, (buf, o) -> buf.writeComponent(((Component) o)))
+            .put(DQuaternion.class, (buf, o) -> {
+                DQuaternion dQuaternion = (DQuaternion) o;
+                buf.writeDouble(dQuaternion.x);
+                buf.writeDouble(dQuaternion.y);
+                buf.writeDouble(dQuaternion.z);
+                buf.writeDouble(dQuaternion.w);
+            })
             .put(byte[].class, (buf, o) -> buf.writeByteArray(((byte[]) o)))
             .build();
         
@@ -96,6 +104,11 @@ public class ImplRemoteProcedureCall {
             .put(ItemStack.class, buf -> deserializeByCodec(buf, ItemStack.CODEC))
             .put(CompoundTag.class, buf -> buf.readNbt())
             .put(Component.class, buf -> buf.readComponent())
+            .put(DQuaternion.class, buf ->
+                new DQuaternion(
+                    buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble()
+                )
+            )
             .put(byte[].class, buf -> buf.readByteArray())
             .build();
     }

@@ -23,11 +23,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,11 +71,13 @@ public class PortalWandItem extends Item {
         
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCreation::reset);
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalDrag::reset);
+        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCopy::reset);
     }
     
     public static enum Mode {
         CREATE_PORTAL,
-        DRAG_PORTAL;
+        DRAG_PORTAL,
+        COPY_PORTAL;
         
         public static Mode fromTag(CompoundTag tag) {
             String mode = tag.getString("mode");
@@ -83,6 +85,7 @@ public class PortalWandItem extends Item {
             return switch (mode) {
                 case "create_portal" -> CREATE_PORTAL;
                 case "drag_portal" -> DRAG_PORTAL;
+                case "copy_portal" -> COPY_PORTAL;
                 default -> CREATE_PORTAL;
             };
         }
@@ -90,7 +93,8 @@ public class PortalWandItem extends Item {
         public Mode next() {
             return switch (this) {
                 case CREATE_PORTAL -> DRAG_PORTAL;
-                case DRAG_PORTAL -> CREATE_PORTAL;
+                case DRAG_PORTAL -> COPY_PORTAL;
+                case COPY_PORTAL -> CREATE_PORTAL;
             };
         }
         
@@ -99,6 +103,7 @@ public class PortalWandItem extends Item {
             String modeString = switch (this) {
                 case CREATE_PORTAL -> "create_portal";
                 case DRAG_PORTAL -> "drag_portal";
+                case COPY_PORTAL -> "copy_portal";
             };
             tag.putString("mode", modeString);
             return tag;
@@ -108,6 +113,7 @@ public class PortalWandItem extends Item {
             return switch (this) {
                 case CREATE_PORTAL -> Component.translatable("imm_ptl.wand.mode.create_portal");
                 case DRAG_PORTAL -> Component.translatable("imm_ptl.wand.mode.drag_portal");
+                case COPY_PORTAL -> Component.translatable("imm_ptl.wand.mode.copy_portal");
             };
         }
         
@@ -127,10 +133,13 @@ public class PortalWandItem extends Item {
             
             switch (mode) {
                 case CREATE_PORTAL -> {
-                    ClientPortalWandPortalCreation.undo();
+                    ClientPortalWandPortalCreation.onLeftClick();
                 }
                 case DRAG_PORTAL -> {
                     ClientPortalWandPortalDrag.onLeftClick();
+                }
+                case COPY_PORTAL -> {
+                    ClientPortalWandPortalCopy.onLeftClick();
                 }
             }
         }
@@ -168,6 +177,9 @@ public class PortalWandItem extends Item {
             }
             case DRAG_PORTAL -> {
                 ClientPortalWandPortalDrag.onRightClick();
+            }
+            case COPY_PORTAL -> {
+                ClientPortalWandPortalCopy.onRightClick();
             }
         }
     }
@@ -234,12 +246,8 @@ public class PortalWandItem extends Item {
         switch (mode) {
             case CREATE_PORTAL -> ClientPortalWandPortalCreation.updateDisplay();
             case DRAG_PORTAL -> ClientPortalWandPortalDrag.updateDisplay();
+            case COPY_PORTAL -> ClientPortalWandPortalCopy.updateDisplay();
         }
-    }
-    
-    @Environment(EnvType.CLIENT)
-    private static void clearCursorPointing() {
-        ClientPortalWandPortalCreation.clearCursorPointing();
     }
     
     @Environment(EnvType.CLIENT)
@@ -265,6 +273,9 @@ public class PortalWandItem extends Item {
                 poseStack, bufferSource, camX, camY, camZ
             );
             case DRAG_PORTAL -> ClientPortalWandPortalDrag.render(
+                poseStack, bufferSource, camX, camY, camZ
+            );
+            case COPY_PORTAL -> ClientPortalWandPortalCopy.render(
                 poseStack, bufferSource, camX, camY, camZ
             );
         }

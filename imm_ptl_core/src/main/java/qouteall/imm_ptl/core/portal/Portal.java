@@ -1729,7 +1729,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return nbtCompound;
     }
     
-    private void readPortalDataFromNbt(CompoundTag compound) {
+    public void readPortalDataFromNbt(CompoundTag compound) {
         readAdditionalSaveData(compound);
     }
     

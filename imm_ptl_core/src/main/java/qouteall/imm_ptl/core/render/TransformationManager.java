@@ -44,6 +44,19 @@ public class TransformationManager {
     public static boolean isIsometricView = false;
     public static float isometricViewLength = 50;
     
+    public static DQuaternion getPlayerCameraRotation() {
+        LocalPlayer player = client.player;
+        if (player == null) {
+            return DQuaternion.identity;
+        }
+    
+        Direction gravity = GravityChangerInterface.invoker.getGravityDirection(player);
+    
+        return getCameraRotationWithGravity(
+            gravity, player.getXRot(), player.getYRot()
+        );
+    }
+    
     // gets rawCameraRotation * gravity
     private static DQuaternion getCameraRotationWithGravity(
         Direction gravityDirection,

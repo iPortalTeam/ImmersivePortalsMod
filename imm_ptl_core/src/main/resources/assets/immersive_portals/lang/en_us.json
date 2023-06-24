@@ -247,9 +247,15 @@
 
   "imm_ptl.wand.mode.create_portal": "Create Portal",
   "imm_ptl.wand.mode.drag_portal": "Drag Portal",
+  "imm_ptl.wand.mode.copy_portal": "Copy Portal",
 
   "imm_ptl.wand.finished": "Portal Generated",
   "imm_ptl.wand.overlap": "The two side overlaps. Only generates one-way one-faced portal.",
+
+  "imm_ptl.wand.copy.not_copying_cluster": "Only copied one-face one-way portal to avoid interference. Use command '/portal complete_bi_way_bi_faced_portal' to make it bi-faced and bi-way.",
+  "imm_ptl.wand.copy.prompt.copy_or_cut": "Use %s to copy portal. Use %s to cut portal",
+  "imm_ptl.wand.copy.prompt.select_portal": "Select a portal to copy/cut",
+  "imm_ptl.wand.copy.prompt.place_portal": "Use %s to place portal\nUse %s to discard the portal",
 
   "imm_ptl.wand.settings_1": "Portal Wand Settings:",
   "imm_ptl.wand.settings_alignment": "Cursor Alignment: ",

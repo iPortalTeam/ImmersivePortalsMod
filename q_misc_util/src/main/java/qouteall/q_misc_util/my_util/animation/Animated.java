@@ -138,6 +138,11 @@ public class Animated<T> {
         public boolean isClose(Vec3 a, Vec3 b) {
             return a.distanceToSqr(b) < 0.01;
         }
+        
+        @Override
+        public Vec3 getEmpty() {
+            return Vec3.ZERO;
+        }
     };
     
     public static final TypeInfo<Double> DOUBLE_TYPE_INFO = new TypeInfo<Double>() {

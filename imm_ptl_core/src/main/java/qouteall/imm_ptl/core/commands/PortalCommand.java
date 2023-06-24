@@ -333,24 +333,24 @@ public class PortalCommand {
                 final Portal portal = getPlayerPointingPortal(player, true);
                 
                 if (portal == null) {
-                    context.getSource().sendSuccess(() -> 
-                        Component.literal("You are not pointing to any portal"),
+                    context.getSource().sendSuccess(() ->
+                            Component.literal("You are not pointing to any portal"),
                         false
                     );
                     return 0;
                 }
                 
                 if (!portal.getIsGlobal()) {
-                    context.getSource().sendSuccess(() -> 
-                        Component.literal("You are not pointing to a global portal"),
+                    context.getSource().sendSuccess(() ->
+                            Component.literal("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
                 }
                 
                 if (player.position().distanceTo(portal.getOriginPos()) > 64) {
-                    context.getSource().sendSuccess(() -> 
-                        Component.literal("You are too far away from the portal's center " + portal),
+                    context.getSource().sendSuccess(() ->
+                            Component.literal("You are too far away from the portal's center " + portal),
                         false
                     );
                     return 0;
@@ -368,16 +368,16 @@ public class PortalCommand {
                 Portal portal = getPlayerPointingPortal(player, true);
                 
                 if (portal == null) {
-                    context.getSource().sendSuccess(() -> 
-                        Component.literal("You are not pointing to any portal"),
+                    context.getSource().sendSuccess(() ->
+                            Component.literal("You are not pointing to any portal"),
                         false
                     );
                     return 0;
                 }
                 
                 if (!portal.getIsGlobal()) {
-                    context.getSource().sendSuccess(() -> 
-                        Component.literal("You are not pointing to a global portal"),
+                    context.getSource().sendSuccess(() ->
+                            Component.literal("You are not pointing to a global portal"),
                         false
                     );
                     return 0;
@@ -536,6 +536,8 @@ public class PortalCommand {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
+                    PortalExtension.get(portal).bindCluster = false;
+                    reloadPortal(portal);
                     PortalManipulation.removeConnectedPortals(
                         portal,
                         p -> sendMessage(context, "Removed " + p)
@@ -1177,11 +1179,11 @@ public class PortalCommand {
                         entity.position()
                     );
                     
-                    context.getSource().sendSuccess(() -> 
-                        Component.translatable(
-                            "imm_ptl.command.tpme.success",
-                            entity.getDisplayName()
-                        ),
+                    context.getSource().sendSuccess(() ->
+                            Component.translatable(
+                                "imm_ptl.command.tpme.success",
+                                entity.getDisplayName()
+                            ),
                         true
                     );
                     
@@ -1199,11 +1201,11 @@ public class PortalCommand {
                         dest
                     );
                     
-                    context.getSource().sendSuccess(() -> 
-                        Component.translatable(
-                            "imm_ptl.command.tpme.success",
-                            dest.toString()
-                        ),
+                    context.getSource().sendSuccess(() ->
+                            Component.translatable(
+                                "imm_ptl.command.tpme.success",
+                                dest.toString()
+                            ),
                         true
                     );
                     
@@ -1225,11 +1227,11 @@ public class PortalCommand {
                             dest
                         );
                         
-                        context.getSource().sendSuccess(() -> 
-                            Component.translatable(
-                                "imm_ptl.command.tpme.success",
-                                McHelper.dimensionTypeId(dim).toString() + dest.toString()
-                            ),
+                        context.getSource().sendSuccess(() ->
+                                Component.translatable(
+                                    "imm_ptl.command.tpme.success",
+                                    McHelper.dimensionTypeId(dim).toString() + dest.toString()
+                                ),
                             true
                         );
                         
@@ -1254,12 +1256,12 @@ public class PortalCommand {
                             target.position()
                         );
                         
-                        context.getSource().sendSuccess(() -> 
-                            Component.translatable(
-                                "imm_ptl.command.tp.success",
-                                numTeleported,
-                                target.getDisplayName()
-                            ),
+                        context.getSource().sendSuccess(() ->
+                                Component.translatable(
+                                    "imm_ptl.command.tp.success",
+                                    numTeleported,
+                                    target.getDisplayName()
+                                ),
                             true
                         );
                         
@@ -1278,12 +1280,12 @@ public class PortalCommand {
                             dest
                         );
                         
-                        context.getSource().sendSuccess(() -> 
-                            Component.translatable(
-                                "imm_ptl.command.tp.success",
-                                numTeleported,
-                                dest.toString()
-                            ),
+                        context.getSource().sendSuccess(() ->
+                                Component.translatable(
+                                    "imm_ptl.command.tp.success",
+                                    numTeleported,
+                                    dest.toString()
+                                ),
                             true
                         );
                         
@@ -1307,12 +1309,12 @@ public class PortalCommand {
                                 dest
                             );
                             
-                            context.getSource().sendSuccess(() -> 
-                                Component.translatable(
-                                    "imm_ptl.command.tp.success",
-                                    numTeleported,
-                                    McHelper.dimensionTypeId(dim).toString() + dest.toString()
-                                ),
+                            context.getSource().sendSuccess(() ->
+                                    Component.translatable(
+                                        "imm_ptl.command.tp.success",
+                                        numTeleported,
+                                        McHelper.dimensionTypeId(dim).toString() + dest.toString()
+                                    ),
                                 true
                             );
                             
@@ -1954,6 +1956,9 @@ public class PortalCommand {
         CommandContext<CommandSourceStack> context,
         Portal portal
     ) {
+        PortalExtension.get(portal).bindCluster = true;
+        reloadPortal(portal);
+        
         PortalManipulation.completeBiWayBiFacedPortal(
             portal,
             p -> sendMessage(context, "Removed " + p),
@@ -1973,6 +1978,9 @@ public class PortalCommand {
             p -> sendMessage(context, "Removed " + p)
         );
         
+        PortalExtension.get(portal).bindCluster = true;
+        reloadPortal(portal);
+        
         Portal result = PortalManipulation.completeBiFacedPortal(
             portal,
             Portal.entityType
@@ -1991,6 +1999,9 @@ public class PortalCommand {
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
         );
+        
+        PortalExtension.get(portal).bindCluster = true;
+        reloadPortal(portal);
         
         Portal result = PortalManipulation.completeBiWayPortal(
             portal,
@@ -2244,9 +2255,9 @@ public class PortalCommand {
             Portal portal = getPlayerPointingPortal(player, false);
             
             if (portal == null) {
-                source.sendSuccess(() -> 
-                    Component.literal("You are not pointing to any non-global portal." +
-                        " (This command cannot process global portals)"),
+                source.sendSuccess(() ->
+                        Component.literal("You are not pointing to any non-global portal." +
+                            " (This command cannot process global portals)"),
                     false
                 );
                 return 0;
@@ -2259,10 +2270,10 @@ public class PortalCommand {
             processCommand.accept(((Portal) entity));
         }
         else {
-            source.sendSuccess(() -> 
-                Component.literal(
-                    "The command executor should be either a player or a portal entity"
-                ),
+            source.sendSuccess(() ->
+                    Component.literal(
+                        "The command executor should be either a player or a portal entity"
+                    ),
                 false
             );
         }
@@ -2288,7 +2299,7 @@ public class PortalCommand {
     public static Optional<Pair<Portal, Vec3>> raytracePortals(
         Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
     ) {
-        return PortalUtils.raytracePortals(world, from, to, includeGlobalPortal, p->true);
+        return PortalUtils.raytracePortals(world, from, to, includeGlobalPortal, p -> true);
     }
     
     /**

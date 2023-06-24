@@ -15,14 +15,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
@@ -80,7 +78,7 @@ public class ClientPortalWandPortalDrag {
         Animated.RENDERED_POINT_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
-        null
+        RenderedPoint.EMPTY
     );
     
     public static Animated<UnilateralPortalState> renderedRect = new Animated<>(
@@ -547,7 +545,7 @@ public class ClientPortalWandPortalDrag {
                     "%.3f".formatted(cursorPos.z)
                 ));
         
-        Portal portal = getPortalByUUID(draggingContext.portalId());
+        Portal portal = WandUtil.getClientPortalByUUID(draggingContext.portalId());
         
         boolean shouldDisplaySize = lockedAnchor != null;
         
@@ -695,7 +693,7 @@ public class ClientPortalWandPortalDrag {
             return;
         }
         
-        Portal portal = getPortalByUUID(draggingContext.portalId());
+        Portal portal = WandUtil.getClientPortalByUUID(draggingContext.portalId());
         
         if (portal == null) {
             LOGGER.error("cannot find portal to drag {}", selectedPortalId);
@@ -735,29 +733,7 @@ public class ClientPortalWandPortalDrag {
     
     @Nullable
     private static Portal getSelectedPortal() {
-        return getPortalByUUID(selectedPortalId);
-    }
-    
-    @Nullable
-    private static Portal getPortalByUUID(UUID portalId) {
-        if (portalId == null) {
-            return null;
-        }
-        
-        LocalPlayer player = Minecraft.getInstance().player;
-        
-        if (player == null) {
-            return null;
-        }
-        
-        Entity entity = ((IEWorld) player.level()).portal_getEntityLookup().get(portalId);
-        
-        if (entity instanceof Portal portal) {
-            return portal;
-        }
-        else {
-            return null;
-        }
+        return WandUtil.getClientPortalByUUID(selectedPortalId);
     }
     
     private static Pair<Plane, MutableComponent> getPlayerFacingPlaneAligned(
@@ -880,7 +856,7 @@ public class ClientPortalWandPortalDrag {
         Portal portal = null;
         
         if (draggingContext != null) {
-            portal = getPortalByUUID(draggingContext.portalId);
+            portal = WandUtil.getClientPortalByUUID(draggingContext.portalId);
         }
         
         if (portal == null && selectedPortalId != null) {
@@ -970,7 +946,7 @@ public class ClientPortalWandPortalDrag {
     @Nullable
     private static Vec3 getCursorToRender() {
         if (draggingContext != null) {
-            Portal portal = getPortalByUUID(draggingContext.portalId);
+            Portal portal = WandUtil.getClientPortalByUUID(draggingContext.portalId);
             if (portal != null) {
                 return draggingContext.draggingInfo().draggingAnchor.getPos(portal);
             }
@@ -988,25 +964,11 @@ public class ClientPortalWandPortalDrag {
         return pos.value();
     }
     
-    private static void renderRect(
+    public static void renderRect(
         PoseStack matrixStack, Vec3 cameraPos, VertexConsumer vertexConsumer,
         UnilateralPortalState rect
     ) {
-        matrixStack.pushPose();
-        matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
-        
-        WireRenderingHelper.renderRectLine(
-            vertexConsumer, cameraPos, rect,
-            10, colorOfRect1, 0.99, 1,
-            matrixStack
-        );
-        WireRenderingHelper.renderRectLine(
-            vertexConsumer, cameraPos, rect,
-            10, colorOfRect2, 1.01, -1,
-            matrixStack
-        );
-        
-        matrixStack.popPose();
+        WireRenderingHelper.renderRectFrameFlow(matrixStack, cameraPos, vertexConsumer, rect, colorOfRect1, colorOfRect2);
     }
     
     private static double getLockExtraScale(UnilateralPortalState rect) {
@@ -1216,7 +1178,7 @@ public class ClientPortalWandPortalDrag {
             return null;
         }
         
-        Portal portal = getPortalByUUID(draggingContext.portalId());
+        Portal portal = WandUtil.getClientPortalByUUID(draggingContext.portalId());
         
         if (portal == null) {
             return null;
