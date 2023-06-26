@@ -276,11 +276,11 @@ public class ClientPortalWandPortalCreation {
                     colorOfFirstSideLeftUp, 1.0, matrixStack
                 );
                 
-                WireRenderingHelper.renderPortalAreaGridNew(
+                WireRenderingHelper.renderPortalAreaGrid(
                     vertexConsumer,
                     cameraPos,
                     renderedProtoPortal.firstSide,
-                    colorOfFirstPortalArea, colorOfFirstPortalArea2,
+                    colorOfFirstPortalArea,
                     matrixStack);
             }
         }
