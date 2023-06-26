@@ -86,7 +86,7 @@ public class IPConfig implements ConfigData {
     public int indirectLoadingRadiusCap = 8;
     @ConfigEntry.BoundedDiscrete(min = 3, max = 64)
     public int regularPortalLengthLimit = 64;
-    @ConfigEntry.BoundedDiscrete(min = 8, max = 128)
+    @ConfigEntry.BoundedDiscrete(min = 4, max = 128)
     public int scaleLimit = 30;
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
