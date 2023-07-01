@@ -37,6 +37,7 @@
   },
   "suggests": {
 
-  }
+  },
+  "accessWidener": "imm_ptl.accesswidener"
 
 }

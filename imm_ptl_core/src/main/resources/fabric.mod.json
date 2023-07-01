@@ -68,6 +68,5 @@
     "polymer:disable_mixin": {
       "compat.immersive_portals.ip_IPNetworkingMixin": "Implemented"
     }
-  },
-  "accessWidener": "imm_ptl.accesswidener"
+  }
 }

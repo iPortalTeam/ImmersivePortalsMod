@@ -1,10 +1,6 @@
 archivesBaseName = "imm_ptl_core"
 group = "qouteall"
 
-loom {
-    accessWidenerPath = file("src/main/resources/imm_ptl.accesswidener")
-}
-
 dependencies {
     implementation project(path: ":q_misc_util", configuration: "namedElements")
 }

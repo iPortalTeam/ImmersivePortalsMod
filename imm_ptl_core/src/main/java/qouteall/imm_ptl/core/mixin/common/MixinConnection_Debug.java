@@ -23,6 +23,7 @@ public class MixinConnection_Debug {
     private static final LimitedLogger immptl_limitedLogger = new LimitedLogger(100);
     
     // avoid swallowing the exception stacktrace
+    // the exception is logged in debug level, but debug level is not enabled by default
     @Inject(method = "exceptionCaught", at = @At("HEAD"))
     private void onExceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
         immptl_limitedLogger.invoke(() -> {
