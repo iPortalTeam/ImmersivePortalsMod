@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.compat;
 
-import com.fusionflux.gravity_api.api.GravityChangerAPI;
-import com.fusionflux.gravity_api.api.RotationParameters;
-import com.fusionflux.gravity_api.util.GravityComponent;
-import com.fusionflux.gravity_api.util.RotationUtil;
+import gravity_changer.GravityComponent;
+import gravity_changer.api.GravityChangerAPI;
+import gravity_changer.api.RotationParameters;
+import gravity_changer.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -113,10 +113,10 @@ public class GravityChangerInterface {
         
         @Override
         public void setGravityDirectionServer(Entity entity, Direction direction) {
-            GravityChangerAPI.setDefaultGravityDirection(
+            GravityChangerAPI.setBaseGravityDirection(
                 entity,
                 direction,
-                (new RotationParameters()).rotationTime(0)
+                RotationParameters.getDefault()
             );
         }
         
@@ -130,17 +130,12 @@ public class GravityChangerInterface {
             Player player, Direction direction
         ) {
             Validate.isTrue(Minecraft.getInstance().isSameThread());
-            
-            GravityComponent gravityComponent = GravityChangerAPI.getGravityComponent(player);
-            gravityComponent.setDefaultGravityDirection(
+    
+            GravityChangerAPI.setBaseGravityDirection(
+                player,
                 direction,
-                (new RotationParameters()).rotationTime(0),
-                false // not initial gravity
+                RotationParameters.getDefault()
             );
-            
-            // it does not use GravityChangerAPI.setDefaultGravityDirectionClient
-            // because immptl has its own verification logic
-            // see ServerTeleportationManager
         }
         
         @Nullable

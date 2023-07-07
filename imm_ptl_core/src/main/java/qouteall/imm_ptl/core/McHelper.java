@@ -406,8 +406,6 @@ public class McHelper {
         return regionFilePath.toFile().exists();
     }
     
-    // because withUnderline is client only
-    @Environment(EnvType.CLIENT)
     public static MutableComponent getLinkText(String link) {
         return Component.literal(link).withStyle(
             style -> style.withClickEvent(new ClickEvent(

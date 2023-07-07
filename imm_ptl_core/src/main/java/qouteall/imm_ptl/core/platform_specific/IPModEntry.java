@@ -37,7 +37,7 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("gravity_api")) {
+        if (FabricLoader.getInstance().isModLoaded("gravity_changer_q")) {
             GravityChangerInterface.invoker = new GravityChangerInterface.OnGravityChangerPresent();
             Helper.log("Gravity API is present");
         }
