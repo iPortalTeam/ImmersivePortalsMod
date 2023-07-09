@@ -216,7 +216,7 @@ public class CrossPortalEntityRenderer {
         Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
         
         ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
-    
+        
         Vec3 entityPos = entity.position();
         Vec3 entityEyePos = McHelper.getEyePos(entity);
         Vec3 entityLastTickPos = McHelper.lastTickPosOf(entity);
@@ -269,11 +269,6 @@ public class CrossPortalEntityRenderer {
         isRenderingEntityProjection = true;
         matrixStack.pushPose();
         try {
-            setupEntityProjectionRenderingTransformation(
-                transformingPortal, matrixStack,
-                entityPos, entityLastTickPos
-            );
-            
             // we don't switch the entity position now
             // to make the entity to render in the new position,
             // we change the camera pos passed in
@@ -288,6 +283,12 @@ public class CrossPortalEntityRenderer {
             Vec3 entityInstantPos = entityLastTickPos.lerp(entityPos, RenderStates.getPartialTick());
             Vec3 newEntityInstantPos = transformingPortal.transformPoint(entityInstantPos);
             Vec3 newCameraPos = entityInstantPos.subtract(newEntityInstantPos).add(cameraPos);
+            
+            setupEntityProjectionRenderingTransformation(
+                transformingPortal, matrixStack,
+                entityPos, entityLastTickPos,
+                newCameraPos
+            );
             
             MultiBufferSource.BufferSource consumers = client.renderBuffers().bufferSource();
             ((IEWorldRenderer) client.levelRenderer).ip_myRenderEntity(
@@ -307,14 +308,12 @@ public class CrossPortalEntityRenderer {
     
     private static void setupEntityProjectionRenderingTransformation(
         Portal portal, PoseStack matrixStack,
-        Vec3 entityPos, Vec3 entityLastTickPos
+        Vec3 entityPos, Vec3 entityLastTickPos, Vec3 cameraPos
     ) {
         if (portal.scaling == 1.0 && portal.getRotation() == null) {
             return;
         }
         
-        Vec3 cameraPos = CHelper.getCurrentCameraPos();
-    
         Vec3 anchor = entityLastTickPos.lerp(entityPos, RenderStates.getPartialTick())
             .subtract(cameraPos);
         
