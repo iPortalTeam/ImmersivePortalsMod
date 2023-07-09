@@ -155,7 +155,7 @@ public class ClientPortalWandPortalDrag {
         Sphere limitingSphere,
         PortalWandInteraction.DraggingInfo draggingInfo,
         @Nullable
-        Component planeText,
+        MutableComponent planeText,
         PortalState originalPortalState
     ) {
     
@@ -528,7 +528,10 @@ public class ClientPortalWandPortalDrag {
         
         Component planeText = draggingContext.planeText() == null ?
             Component.literal("") :
-            Component.translatable("imm_ptl.wand.on_plane", draggingContext.planeText());
+            Component.translatable(
+                "imm_ptl.wand.on_plane",
+                draggingContext.planeText().withStyle(ChatFormatting.GOLD)
+            );
         
         MutableComponent undoPrompt = Component.literal("\n").append(Component.translatable(
             "imm_ptl.wand.left_click_to_undo",

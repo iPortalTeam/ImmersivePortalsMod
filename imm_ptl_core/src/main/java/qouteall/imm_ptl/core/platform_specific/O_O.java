@@ -244,4 +244,9 @@ public class O_O {
         }
         return false;
     }
+    
+    // most quilt installations use quilted fabric api
+    public static boolean isQuilt() {
+        return FabricLoader.getInstance().isModLoaded("quilted_fabric_api");
+    }
 }

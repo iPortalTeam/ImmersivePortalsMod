@@ -164,7 +164,10 @@ public class ProtoPortal {
         @Nullable ProtoPortal pendingState
     ) {
         if (firstSide == null) {
-            return Component.translatable("imm_ptl.wand.first_side_left_bottom");
+            return Component.translatable(
+                "imm_ptl.wand.first_side_left_bottom",
+                Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage()
+            );
         }
         
         MutableComponent undoPrompt = Component.literal("\n").append(

@@ -208,7 +208,7 @@
   "imm_ptl.message_from_server": "[Immersive Portals] Message from server: ",
   "imm_ptl.incompatible_shaderpack": "[Immersive Portals] The current shaderpack is incompatible with Immersive Portals. Portal rendering may be very broken. If you want better portal rendering, it's recommended to try another shaderpack.",
 
-  "imm_ptl.wand.first_side_left_bottom": "Use right-click to select the left bottom point of the portal",
+  "imm_ptl.wand.first_side_left_bottom": "Use %s to select the left bottom point of the portal",
   "imm_ptl.wand.first_side_right_bottom": "Select the right bottom point\n(width: %1$s)",
   "imm_ptl.wand.first_side_left_up": "Select the left top point\n(width: %1$s, height: %2$s)",
   "imm_ptl.wand.second_side_left_bottom": "Select the left bottom point of the second side of the portal",
@@ -261,6 +261,8 @@
   "imm_ptl.wand.settings_alignment": "Cursor Alignment: ",
   "imm_ptl.wand.no_alignment": "No alignment",
   "imm_ptl.wand.alignment_updated": "Alignment updated",
+
+  "imm_ptl.quilt_warning": "You are using Immersive Portals mod on Quilt. Immersive Portals mod is designed for Fabric and may malfunction on Quilt. ",
 
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": ""
 }

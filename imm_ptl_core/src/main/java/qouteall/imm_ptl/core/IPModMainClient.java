@@ -48,7 +48,7 @@ public class IPModMainClient {
             })
         ));
     }
-
+    
     private static void showNvidiaVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
@@ -59,6 +59,22 @@ public class IPModMainClient {
                             Component.translatable("imm_ptl.nvidia_warning")
                                 .withStyle(ChatFormatting.RED)
                                 .append(McHelper.getLinkText("https://github.com/CaffeineMC/sodium-fabric/issues/1486"))
+                        );
+                    }
+                }
+            })
+        ));
+    }
+    
+    private static void showQuiltWarning() {
+        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> Minecraft.getInstance().level == null,
+            MyTaskList.oneShotTask(() -> {
+                if (O_O.isQuilt()) {
+                    if (IPConfig.getConfig().shouldDisplayWarning("quilt")) {
+                        CHelper.printChat(
+                            Component.translatable("imm_ptl.quilt_warning")
+                                .append(IPMcHelper.getDisableWarningText("quilt"))
                         );
                     }
                 }
@@ -110,6 +126,8 @@ public class IPModMainClient {
 //        showIntelVideoCardWarning();
         
         showNvidiaVideoCardWarning();
+        
+        showQuiltWarning();
         
         StableClientTimer.init();
         
