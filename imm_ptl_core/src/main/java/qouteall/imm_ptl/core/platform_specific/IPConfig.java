@@ -90,6 +90,7 @@ public class IPConfig implements ConfigData {
     public int scaleLimit = 30;
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
+    public boolean portalsChangeGravityByDefault = false;
     
     // common invisible configs
     

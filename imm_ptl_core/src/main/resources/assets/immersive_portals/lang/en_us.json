@@ -202,6 +202,7 @@
   "text.autoconfig.immersive_portals.option.easeCreativePermission": "Ease Creative Permission",
   "text.autoconfig.immersive_portals.option.easeCommandStickPermission": "Ease Command Stick Permission",
   "text.autoconfig.immersive_portals.option.regularPortalLengthLimit": "Regular Portal Length Limit",
+  "text.autoconfig.immersive_portals.option.portalsChangeGravityByDefault": "Portals Change Gravity by Default",
   "imm_ptl.conflicting_dim_stack": "Cannot set dimension stack because of portal conflicts",
   "imm_ptl.conflicting_dim_stack_detail": "The red arrows indicate conflicting portals. There cannot be two portals in the floor or ceiling of a dimension.\nTo fix that, you can remove entries or disable a specific connection.",
   "imm_ptl.a_dimension_of": "A dimension of %1$s",

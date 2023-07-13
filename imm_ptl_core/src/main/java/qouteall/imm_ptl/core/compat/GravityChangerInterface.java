@@ -35,11 +35,15 @@ public class GravityChangerInterface {
             return Direction.DOWN;
         }
         
+        public Direction getBaseGravityDirection(Entity entity) {
+            return Direction.DOWN;
+        }
+        
         public void setClientPlayerGravityDirection(Player player, Direction direction) {
             warnGravityChangerNotPresent();
         }
         
-        public void setGravityDirectionServer(Entity entity, Direction direction) {
+        public void setBaseGravityDirectionServer(Entity entity, Direction direction) {
             // nothing
         }
         
@@ -112,11 +116,15 @@ public class GravityChangerInterface {
         }
         
         @Override
-        public void setGravityDirectionServer(Entity entity, Direction direction) {
+        public Direction getBaseGravityDirection(Entity entity) {
+            return GravityChangerAPI.getBaseGravityDirection(entity);
+        }
+        
+        @Override
+        public void setBaseGravityDirectionServer(Entity entity, Direction direction) {
             GravityChangerAPI.setBaseGravityDirection(
                 entity,
-                direction,
-                RotationParameters.getDefault()
+                direction
             );
         }
         
@@ -130,12 +138,8 @@ public class GravityChangerInterface {
             Player player, Direction direction
         ) {
             Validate.isTrue(Minecraft.getInstance().isSameThread());
-    
-            GravityChangerAPI.setBaseGravityDirection(
-                player,
-                direction,
-                RotationParameters.getDefault()
-            );
+            
+            GravityChangerAPI.instantlySetClientBaseGravityDirection(player, direction);
         }
         
         @Nullable

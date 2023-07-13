@@ -49,9 +49,9 @@ public class TransformationManager {
         if (player == null) {
             return DQuaternion.identity;
         }
-    
+        
         Direction gravity = GravityChangerInterface.invoker.getGravityDirection(player);
-    
+        
         return getCameraRotationWithGravity(
             gravity, player.getXRot(), player.getYRot()
         );
@@ -151,20 +151,25 @@ public class TransformationManager {
                     portal.getRotation().getConjugated()
                 );
             
-            Direction newGravityDir = portal.getTeleportedGravityDirection(oldGravityDir);
+            Direction oldBaseGravityDir = GravityChangerInterface.invoker.getBaseGravityDirection(player);
+            Direction newBaseGravityDir = portal.getTeleportedGravityDirection(oldBaseGravityDir);
             
-            if (newGravityDir != oldGravityDir) {
+            if (newBaseGravityDir != oldBaseGravityDir) {
                 GravityChangerInterface.invoker.setClientPlayerGravityDirection(
-                    player, newGravityDir
+                    player, newBaseGravityDir
                 );
             }
+            
+            // if there is some gravity effect
+            // the immediate gravity direction may be different to base gravity direction
+            Direction immediateNewGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
             
             // rawCameraRotation = finalRot * portalRot^-1 * animationDelta^-1 * gravity^-1
             // when getting the new pitch yaw, no need to consider portalRot and animation
             // rawCameraRotation = finalRot * gravity^-1
             
             DQuaternion newGravityRot = DQuaternion.fromNullable(
-                GravityChangerInterface.invoker.getExtraCameraRotation(newGravityDir)
+                GravityChangerInterface.invoker.getExtraCameraRotation(immediateNewGravityDir)
             );
             
             DQuaternion newRawCameraRotation = immediateFinalRot.hamiltonProduct(newGravityRot.getConjugated());
@@ -198,10 +203,10 @@ public class TransformationManager {
             // animationDelta = gravity^-1 * rawCameraRotation^-1 * finalRot
             // animationDelta = (rawCameraRotation * gravity)^-1 * finalRot
             
-            DQuaternion newCameraRotationWithGravity = getCameraRotationWithGravity(newGravityDir, finalPitch, finalYaw);
-    
+            DQuaternion newCameraRotationWithGravity = getCameraRotationWithGravity(immediateNewGravityDir, finalPitch, finalYaw);
+            
             DQuaternion newAnimationDelta = newCameraRotationWithGravity.getConjugated().hamiltonProduct(immediateFinalRot);
-    
+            
             if (newAnimationDelta.getRotatingAngleDegrees() > 0.1) {
                 animationDeltaStart = newAnimationDelta;
                 interpolationStartTime = RenderStates.renderStartNanoTime;

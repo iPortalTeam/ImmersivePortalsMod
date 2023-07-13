@@ -150,10 +150,16 @@ allprojects {
 //        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
 //        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
-        modImplementation("com.github.qouteall:GravityChanger:1.20.1-Fabric-SNAPSHOT") {
+        modImplementation("com.github.qouteall:GravityChanger:74c7676f") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
+
+//        modImplementation("qouteall:Gravity-Api:1.0.2-mc1.20.1") {
+//            transitive = false
+//            exclude(group: "net.fabricmc.fabric-api")
+//        }
+
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.2.1"
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.2.1"
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-world:5.2.1"

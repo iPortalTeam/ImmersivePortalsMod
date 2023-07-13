@@ -5,7 +5,7 @@ body:
     attributes:
       value: "To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation. \nIf Immersive Portals mod makes other mod's functionality break, you don't need to test it, simply select Yes below."
   - type: dropdown
-    id: only_immptl
+    id: is_compat
     attributes:
       label: Is it a mod compatibility issue?
       options:

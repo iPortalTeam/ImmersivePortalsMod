@@ -193,7 +193,7 @@ public class ServerTeleportationManager {
             
             if (portal.getTeleportChangesGravity()) {
                 Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
-                GravityChangerInterface.invoker.setGravityDirectionServer(
+                GravityChangerInterface.invoker.setBaseGravityDirectionServer(
                     player, portal.getTransformedGravityDirection(oldGravityDir)
                 );
             }
@@ -209,7 +209,7 @@ public class ServerTeleportationManager {
             ));
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level()));
             PehkuiInterface.invoker.setBaseScale(player, PehkuiInterface.invoker.getBaseScale(player));
-            GravityChangerInterface.invoker.setGravityDirectionServer(
+            GravityChangerInterface.invoker.setBaseGravityDirectionServer(
                 player, GravityChangerInterface.invoker.getGravityDirection(player)
             );
         }

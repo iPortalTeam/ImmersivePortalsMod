@@ -42,6 +42,7 @@ import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.network.IPNetworking;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
@@ -160,7 +161,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * Whether the entity gravity direction changes after crossing the portal
      */
-    protected boolean teleportChangesGravity = false;
+    protected boolean teleportChangesGravity = IPConfig.getConfig().portalsChangeGravityByDefault;
     
     /**
      * Whether the player can place and break blocks across the portal
@@ -315,6 +316,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         if (compoundTag.contains("teleportChangesGravity")) {
             teleportChangesGravity = compoundTag.getBoolean("teleportChangesGravity");
+        }
+        else {
+            teleportChangesGravity = IPConfig.getConfig().portalsChangeGravityByDefault;
         }
         
         if (compoundTag.contains("portalTag")) {
