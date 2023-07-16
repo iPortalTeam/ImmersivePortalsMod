@@ -434,7 +434,9 @@ public class ClientPortalWandPortalDrag {
             );
         }
         else {
-            Component planeText = Component.translatable("imm_ptl.wand.on_plane", planeInfo.getSecond());
+            Component planeText = Component.translatable(
+                "imm_ptl.wand.on_plane", planeInfo.getSecond().withStyle(ChatFormatting.GOLD)
+            );
             
             ImmPtlCustomOverlay.putText(
                 Component.translatable(
@@ -530,7 +532,7 @@ public class ClientPortalWandPortalDrag {
             Component.literal("") :
             Component.translatable(
                 "imm_ptl.wand.on_plane",
-                draggingContext.planeText().withStyle(ChatFormatting.GOLD)
+                draggingContext.planeText()
             );
         
         MutableComponent undoPrompt = Component.literal("\n").append(Component.translatable(
@@ -662,7 +664,7 @@ public class ClientPortalWandPortalDrag {
             plane,
             null,
             draggingInfo,
-            info.getSecond(),
+            info.getSecond().withStyle(ChatFormatting.GOLD),
             portal.getPortalState()
         );
     }
@@ -975,7 +977,7 @@ public class ClientPortalWandPortalDrag {
     }
     
     private static double getLockExtraScale(UnilateralPortalState rect) {
-        return Math.sqrt(rect.width() * rect.height()) * 0.1;
+        return Math.sqrt(rect.width() * rect.height()) * 0.2;
     }
     
     private static void renderWidthHeightLock(

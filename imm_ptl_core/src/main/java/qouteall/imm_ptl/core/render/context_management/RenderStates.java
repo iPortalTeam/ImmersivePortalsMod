@@ -64,8 +64,6 @@ public class RenderStates {
     
     public static Camera originalCamera;
     
-    public static int originalCameraLightPacked;
-    
     public static String debugText;
     
     public static boolean isLaggy = false;
@@ -107,9 +105,6 @@ public class RenderStates {
         
         basicProjectionMatrix = null;
         originalCamera = MyRenderHelper.client.gameRenderer.getMainCamera();
-        
-        originalCameraLightPacked = MyRenderHelper.client.getEntityRenderDispatcher()
-            .getPackedLightCoords(MyRenderHelper.client.cameraEntity, getPartialTick());
         
         updateIsLaggy();
         

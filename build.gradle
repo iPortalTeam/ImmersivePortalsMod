@@ -58,10 +58,10 @@ allprojects {
             url = "https://maven.parchmentmc.org"
         }
 
-        // for cardinal components that fusions gravity api uses
+        // for cardinal components that gravity api uses
         maven {
-            name = 'Ladysnake Mods'
-            url = 'https://ladysnake.jfrog.io/artifactory/mods'
+            name = 'Ladysnake'
+            url = 'https://maven.ladysnake.org/releases'
         }
 
         // geckolib, for testing with portal gun
@@ -150,15 +150,10 @@ allprojects {
 //        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
 //        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
-        modImplementation("com.github.qouteall:GravityChanger:74c7676f") {
+        modImplementation("com.github.qouteall:GravityChanger:v1.0.2-mc1.20.1") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-
-//        modImplementation("qouteall:Gravity-Api:1.0.2-mc1.20.1") {
-//            transitive = false
-//            exclude(group: "net.fabricmc.fabric-api")
-//        }
 
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.2.1"
         modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.2.1"
@@ -309,62 +304,5 @@ task printClasspath {
         configurations.compileClasspath.each { println "\"" + (it.toString().replace("\\", "/")) + "\"," }
     }
 }
-
-//task additionalCopy(type: Copy) {
-//    dependsOn(remapJar)
-//    from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
-//    into file("${project.buildDir}/to_upload")
-//    rename { n -> "$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar" }
-//}
-
-
-// modrinth
-
-//modrinth {
-//    token = System.getenv("MODRINTH")
-//    // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
-//    projectId = "zJpHMkdD"
-//    versionNumber = "${project.version}-${project.minecraft_version}"
-//    // You don't need to set this manually. Will fail if Modrinth has this version already
-//    versionType = "alpha" // This is the default -- can also be `beta` or `alpha`
-//    uploadFile = remapJar
-//    gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
-//    loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
-//    dependencies { // A special DSL for creating dependencies
-//        // scope.type
-//        // The scope can be `required`, `optional`, or `incompatible`
-//        // The type can either be `project` or `version`
-//        required.project "P7dR8mSH" // Creates a new required dependency on Fabric API
-//    }
-//}
-
-//curseforge {
-//    if (System.getenv().CURSEFORGE_API_KEY) {
-//        apiKey = System.getenv().CURSEFORGE_API_KEY
-////        System.out.println("Curseforge api key found")
-//    } else {
-////        System.out.println("Curseforge api key not found")
-//    }
-//
-//    project {
-//        id = "332273"
-//        changelog = "No changelog provided"
-//        releaseType = "beta"
-//        addGameVersion "1.19.4"
-//        addGameVersion "Fabric"
-//
-//        mainArtifact(remapJar) {
-//            displayName = "${project.version}-mc${project.minecraft_version}"
-//        }
-//
-//        afterEvaluate {
-//            uploadTask.dependsOn("remapJar")
-//        }
-//    }
-//
-//    options {
-//        forgeGradleIntegration = false
-//    }
-//}
 
 // Enable ZGC: -XX:+UseZGC
