@@ -187,7 +187,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     private Entity redirectGetEntityById(ClientLevel clientWorld, int id) {
         Entity entity = clientWorld.getEntity(id);
         if (entity == null) {
-            immptl_limitedLogger.err("missing entity for data tracking " + clientWorld + id);
+            immptl_limitedLogger.err("missing entity for data tracking " + clientWorld + " " + id);
         }
         return entity;
     }

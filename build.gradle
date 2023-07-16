@@ -6,10 +6,7 @@ plugins {
 
     id 'maven-publish'
 
-//    id "com.modrinth.minotaur" version "2.+"
-//    id "com.matthewprenger.cursegradle" version "1.4.0"
-
-//    id 'io.github.juuxel.loom-quiltflower' version '1.6.0'  // https://github.com/Juuxel/LoomQuiltflower
+    id 'io.github.juuxel.loom-vineflower' version '1.11.0' // https://github.com/Juuxel/loom-vineflower
 }
 
 allprojects {

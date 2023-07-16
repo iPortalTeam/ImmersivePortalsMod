@@ -20,6 +20,7 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -38,9 +39,9 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
- * It extends NoiseBasedChunkGenerator because in
+ * It extends NoiseBasedChunkGenerator, because in
  * {@link ChunkMap#ChunkMap(ServerLevel, LevelStorageSource.LevelStorageAccess, DataFixer, StructureTemplateManager, Executor, BlockableEventLoop, LightChunkGetter, ChunkGenerator, ChunkProgressListener, ChunkStatusUpdateListener, Supplier, int, boolean)}
- * It uses instanceof to initialize random source.
+ * it uses instanceof to initialize random source.
  */
 public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     
@@ -124,21 +125,21 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
             ),
             intrinsicSkylandNGS.surfaceRule(),
             intrinsicSkylandNGS.spawnTarget(),
-            intrinsicSkylandNGS.seaLevel(),
+            0, // overwrite seaLevel
             intrinsicSkylandNGS.disableMobGeneration(),
             intrinsicSkylandNGS.aquifersEnabled(),
             intrinsicSkylandNGS.oreVeinsEnabled(),
             intrinsicSkylandNGS.useLegacyRandomSource()
         );
         
-        NoiseBasedChunkGenerator overworldGenerator = new NoiseBasedChunkGenerator(
-            overworldBiomeSource, Holder.direct(overworldNGS)
+        NoiseBasedChunkGenerator skylandGenerator = new NoiseBasedChunkGenerator(
+            overworldBiomeSource, Holder.direct(usedSkylandNGS)
         );
         
         return new NormalSkylandGenerator(
             overworldBiomeSource,
-            Holder.direct(usedSkylandNGS),
-            overworldGenerator,
+            Holder.direct(overworldNGS),
+            skylandGenerator,
             biomeHolderGetter,
             densityFunctionHolderGetter,
             noiseParametersHolderGetter,
@@ -155,10 +156,13 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
     
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
-        CompletableFuture<ChunkAccess> original = super.fillFromNoise(executor, blender, randomState, structureManager, chunkAccess);
-        return original.thenComposeAsync(chunkAccess1 -> {
-            ((IEChunkAccess_AlternateDim) chunkAccess1).ip_setNoiseChunk(null);
-            return delegate.createBiomes(executor, delegatedRandomState, blender, structureManager, chunkAccess1);
+        ((IEChunkAccess_AlternateDim) chunkAccess).ip_setNoiseChunk(null);
+        
+        return delegate.fillFromNoise(
+            executor, blender, delegatedRandomState, structureManager, chunkAccess
+        ).thenApply(c -> {
+            ((IEChunkAccess_AlternateDim) c).ip_setNoiseChunk(null);
+            return c;
         });
     }
 }
