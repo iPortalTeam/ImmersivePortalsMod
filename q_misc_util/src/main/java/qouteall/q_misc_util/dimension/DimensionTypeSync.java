@@ -99,22 +99,10 @@ public class DimensionTypeSync {
     
     @Environment(EnvType.CLIENT)
     public static ResourceKey<DimensionType> getDimensionTypeKey(ResourceKey<Level> worldKey) {
-        if (worldKey == Level.OVERWORLD) {
-            return BuiltinDimensionTypes.OVERWORLD;
-        }
-        
-        if (worldKey == Level.NETHER) {
-            return BuiltinDimensionTypes.NETHER;
-        }
-        
-        if (worldKey == Level.END) {
-            return BuiltinDimensionTypes.END;
-        }
-        
         ResourceKey<DimensionType> obj = clientTypeMap.get(worldKey);
         
         if (obj == null) {
-            Helper.err("Missing Dimension Type For " + worldKey);
+            Helper.err("Missing Dimension Type For " + worldKey.location());
             return BuiltinDimensionTypes.OVERWORLD;
         }
         
