@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "IELevelStorageAccess_Misc",
+    "MixinLevelStorageSource_Fix",
     "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
     "MixinServerGamePacketListenerImpl_Misc",

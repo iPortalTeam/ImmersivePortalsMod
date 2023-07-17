@@ -158,6 +158,8 @@ allprojects {
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
         annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
+
+        modImplementation "com.github.qouteall:DimensionDataFix:${dim_data_fix_version}"
     }
 
     processResources {
@@ -240,6 +242,8 @@ dependencies {
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
     include("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
+
+    include "com.github.qouteall:DimensionDataFix:${dim_data_fix_version}"
 
     // for testing portal gun
 //    modImplementation ('software.bernie.geckolib:geckolib-fabric-1.19.4:4.1.3') {
