@@ -1705,9 +1705,8 @@ public class PortalCommand {
         builder.then(Commands
             .literal("wiki")
             .executes(context -> {
-                McRemoteProcedureCall.tellClientToInvoke(
-                    context.getSource().getPlayerOrException(),
-                    "qouteall.imm_ptl.peripheral.guide.IPGuide.RemoteCallables.showWiki"
+                context.getSource().getPlayerOrException().sendSystemMessage(
+                    McHelper.getLinkText("https://qouteall.fun/immptl/wiki/Commands-Reference")
                 );
                 return 0;
             })
