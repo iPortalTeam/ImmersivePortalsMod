@@ -43,6 +43,7 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.q_misc_util.ImplRemoteProcedureCall;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -505,6 +506,17 @@ public class PortalDebugCommands {
                 context.getSource().sendSuccess(
                     () -> blockState.getBlock().getName(),
                     false
+                );
+                return 0;
+            })
+        );
+    
+        builder.then(Commands
+            .literal("test_invalid_rpc")
+            .executes(context -> {
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayerOrException(),
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.testInvalidRPC"
                 );
                 return 0;
             })

@@ -5,11 +5,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -29,7 +32,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,6 +48,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ImplRemoteProcedureCall {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final LimitedLogger LIMITED_LOGGER = new LimitedLogger(100);
+    
     public static final Gson gson = MiscHelper.gson;
     
     private static final ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
@@ -193,7 +202,20 @@ public class ImplRemoteProcedureCall {
     public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
-        Method method = getMethodByPath(methodPath);
+        Method method;
+        try {
+            method = getMethodByPath(methodPath);
+        }
+        catch (Exception e) {
+            LIMITED_LOGGER.invoke(() -> {
+                LOGGER.error("Failed to find method by path {}", methodPath, e);
+                Minecraft.getInstance().gui.getChat().addMessage(Component.literal(
+                    "The client failed to process a packet from server. See the log for details."
+                ).withStyle(ChatFormatting.RED));
+            });
+            
+            return () -> {};
+        }
         
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         
@@ -209,8 +231,13 @@ public class ImplRemoteProcedureCall {
             try {
                 method.invoke(null, arguments);
             }
-            catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            catch (Exception e) {
+                LIMITED_LOGGER.invoke(() -> {
+                    LOGGER.error("Processing remote procedure call", e);
+                    Minecraft.getInstance().gui.getChat().addMessage(Component.literal(
+                        "The client failed to process a packet from server. See the log for details."
+                    ).withStyle(ChatFormatting.RED));
+                });
             }
         };
     }
@@ -218,7 +245,19 @@ public class ImplRemoteProcedureCall {
     public static Runnable serverReadPacketAndGetHandler(ServerPlayer player, FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         
-        Method method = getMethodByPath(methodPath);
+        Method method;
+        try {
+            method = getMethodByPath(methodPath);
+        }
+        catch (Exception e) {
+            LIMITED_LOGGER.invoke(() -> {
+                LOGGER.error("Failed to find method by path {}", methodPath, e);
+                player.sendSystemMessage(Component.literal(
+                    "The server failed to process a packet sent from client."
+                ).withStyle(ChatFormatting.RED));
+            });
+            return () -> {};
+        }
         
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         
@@ -236,8 +275,13 @@ public class ImplRemoteProcedureCall {
             try {
                 method.invoke(null, arguments);
             }
-            catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            catch (Exception e) {
+                LIMITED_LOGGER.invoke(() -> {
+                    LOGGER.error("Processing remote procedure call {}", player, e);
+                    player.sendSystemMessage(Component.literal(
+                        "The server failed to process a packet sent from client."
+                    ).withStyle(ChatFormatting.RED));
+                });
             }
         };
     }
