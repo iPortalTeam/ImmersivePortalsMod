@@ -909,11 +909,14 @@ public class ClientPortalWandPortalDrag {
                 
                 double lockExtraScale = getLockExtraScale(portal.getThisSideState());
                 
+                matrixStack.pushPose();
+                matrixStack.scale(0.5f, 0.5f, 0.5f); // make it closer to camera to see it through block
                 WireRenderingHelper.renderLockShape(
                     vertexConsumer, cameraPos,
                     lockPos, current.scale() * lockExtraScale, colorOfLock,
                     matrixStack
                 );
+                matrixStack.popPose();
                 
                 WireRenderingHelper.renderSmallCubeFrame(
                     vertexConsumer, cameraPos, lockPos,
