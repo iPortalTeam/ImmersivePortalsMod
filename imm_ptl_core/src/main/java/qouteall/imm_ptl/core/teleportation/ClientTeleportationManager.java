@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -47,7 +48,9 @@ import qouteall.q_misc_util.my_util.Vec2d;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
@@ -525,7 +528,9 @@ public class ClientTeleportationManager {
         }
         
         AABB playerBoundingBox = player.getBoundingBox();
-        Portal collidingPortal = ((IEEntity) player).ip_getCollidingPortal();
+        PortalCollisionHandler portalCollisionHandler = ((IEEntity) player).ip_getPortalCollisionHandler();
+        List<Portal> collidingPortals = portalCollisionHandler == null ?
+            Collections.emptyList() : portalCollisionHandler.getCollidingPortals();
         
         Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
         Direction levitationDir = gravityDir.getOpposite();
@@ -533,14 +538,17 @@ public class ClientTeleportationManager {
         
         AABB bottomHalfBox = playerBoundingBox.contract(eyeOffset.x / 2, eyeOffset.y / 2, eyeOffset.z / 2);
         Function<VoxelShape, VoxelShape> shapeFilter = c -> {
-            if (collidingPortal != null) {
-                return CollisionHelper.clipVoxelShape(
-                    c, collidingPortal.getOriginPos(), collidingPortal.getNormal()
+            VoxelShape curr = c;
+            for (Portal collidingPortal : collidingPortals) {
+                curr = CollisionHelper.clipVoxelShape(
+                    curr, collidingPortal.getOriginPos(), collidingPortal.getNormal()
                 );
+                if (curr == null) {
+                    return null;
+                }
             }
-            else {
-                return c;
-            }
+            
+            return curr;
         };
         
         AABB collisionUnion = CollisionHelper.getTotalBlockCollisionBox(

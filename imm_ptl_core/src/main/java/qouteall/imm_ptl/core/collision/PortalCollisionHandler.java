@@ -362,4 +362,7 @@ public class PortalCollisionHandler {
         lastActiveTime = timing;
     }
     
+    public List<Portal> getCollidingPortals() {
+        return Helper.mappedListView(portalCollisions, p -> p.portal);
+    }
 }

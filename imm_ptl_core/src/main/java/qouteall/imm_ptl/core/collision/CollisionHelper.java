@@ -128,6 +128,10 @@ public class CollisionHelper {
         return result;
     }
     
+    /**
+     * Clips a VoxelShape with a plane.
+     * The things behind the plane (the opposite side of normal) will be clipped.
+     */
     @Nullable
     public static VoxelShape clipVoxelShape(VoxelShape shape, Vec3 clippingPlanePos, Vec3 clippingPlaneNormal) {
         if (shape.isEmpty()) {
