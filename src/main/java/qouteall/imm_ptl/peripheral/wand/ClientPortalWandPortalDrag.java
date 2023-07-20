@@ -310,7 +310,7 @@ public class ClientPortalWandPortalDrag {
             eyePos,
             eyePos.add(viewVec.scale(64)),
             false,
-            Portal::isVisible,
+            p -> true, // even invisible portal should be draggable
             1.0
         ).orElse(null);
         

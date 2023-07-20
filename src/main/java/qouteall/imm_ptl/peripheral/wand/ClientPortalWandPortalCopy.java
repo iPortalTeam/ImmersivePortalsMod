@@ -121,7 +121,7 @@ public class ClientPortalWandPortalCopy {
                 eyePos,
                 eyePos.add(viewVec.scale(64)),
                 false,
-                Portal::isVisible,
+                p -> true,
                 1.0
             ).orElse(null);
             
