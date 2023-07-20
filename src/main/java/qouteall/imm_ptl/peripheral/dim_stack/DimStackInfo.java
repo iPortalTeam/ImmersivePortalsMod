@@ -19,7 +19,7 @@ import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

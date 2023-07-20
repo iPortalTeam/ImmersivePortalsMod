@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +27,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DimId;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

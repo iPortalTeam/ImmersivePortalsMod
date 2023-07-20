@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.function.Function;
 

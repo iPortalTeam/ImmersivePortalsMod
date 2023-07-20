@@ -1,6 +1,6 @@
 package qouteall.q_misc_util.my_util;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record Range(double start, double end) {
     

@@ -9,8 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;

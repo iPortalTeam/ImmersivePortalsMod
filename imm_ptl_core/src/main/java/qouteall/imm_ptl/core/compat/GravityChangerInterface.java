@@ -1,8 +1,6 @@
 package qouteall.imm_ptl.core.compat;
 
-import gravity_changer.GravityComponent;
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.api.RotationParameters;
 import gravity_changer.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,7 +15,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class GravityChangerInterface {
     public static Invoker invoker = new Invoker();

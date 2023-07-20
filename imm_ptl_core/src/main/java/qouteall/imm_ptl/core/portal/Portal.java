@@ -31,6 +31,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
@@ -63,8 +65,6 @@ import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -768,7 +768,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     /**
      * @return the portal's rotation transformation. will not be null.
      */
-    @Nonnull
+    @NotNull
     public DQuaternion getRotationD() {
         return DQuaternion.fromNullable(getRotation());
     }

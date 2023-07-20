@@ -64,43 +64,6 @@ allprojects {
         // geckolib, for testing with portal gun
         maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
-        // for test with create
-//        maven { url = "https://cursemaven.com" }
-//        maven { url = "https://maven.parchmentmc.org" }
-//        maven { url = "https://maven.tterrag.com/" }
-//        maven { url = "https://storage.googleapis.com/devan-maven/" }
-//        maven { url = "https://maven.shedaniel.me/" }
-//        maven { url = "https://aperlambda.github.io/maven" }
-//        maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
-//        maven { url = "https://maven.kotlindiscord.com/repository/terraformers/" }
-//        maven { url = "https://mvn.devos.one/releases/" }
-//        maven { url = "https://mvn.devos.one/snapshots/" }
-//        maven { url = "https://maven.terraformersmc.com/" }
-//        maven { url = "https://maven.cafeteria.dev" }
-//        maven { url = "https://jitpack.io/" }
-//        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }
-//        maven { url = "https://maven.gegy.dev" }
-
-        // for test with twilight forest
-//        maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
-//        maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Suggestion Tweaker
-//        maven { url = "https://maven.shedaniel.me/" } // Cloth Config
-//        maven { url = "https://maven.wispforest.io" } // TOP
-//        maven { url = "https://storage.googleapis.com/devan-maven/" }
-//        maven { url = "https://maven.terraformersmc.com/releases/" } // Mod Menu, Trinkets, EMI
-//        maven { url = "https://mvn.devos.one/snapshots/" } // Porting Lib, Forge Tags, Tinkers, Mantle
-//        maven { url = "https://ladysnake.jfrog.io/artifactory/mods" } // Cardinal Components API
-//        maven { url = "https://maven.parchmentmc.net/" } // Parchment
-//        maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
-//        maven { url = "https://jitpack.io" } // Fabric ASM, Mixin Extras
-//        maven { url = "https://dvs1.progwml6.com/files/maven/" } // JEI
-//        maven { url 'https://maven.blamejared.com' } // Botany Pots, Bookself
-//        maven { // Jade
-//            url "https://www.cursemaven.com"
-//            content {
-//                includeGroup "curse.maven"
-//            }
-//        }
 
     }
 
@@ -119,17 +82,12 @@ allprojects {
             parchment("org.parchmentmc.data:parchment-1.19.3:2022.12.18")
         }
 
-//        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
         modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}") {
             exclude module: "fabric-gametest-api-v1"
             // for now, the gametest module makes client unable to login dev env server
         }
-
-        //For Nullable
-        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
         modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
             exclude(group: "net.fabricmc.fabric-api")

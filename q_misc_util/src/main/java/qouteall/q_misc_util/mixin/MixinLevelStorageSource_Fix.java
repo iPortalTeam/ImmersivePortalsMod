@@ -1,19 +1,7 @@
 package qouteall.q_misc_util.mixin;
 
-import com.mojang.datafixers.DataFixer;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(LevelStorageSource.class)
 public class MixinLevelStorageSource_Fix {

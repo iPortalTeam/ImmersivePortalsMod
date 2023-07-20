@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.ducks;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityTypeTest;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public interface IEEntityTrackingSection<T extends EntityAccess> {

@@ -37,7 +37,7 @@ import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;

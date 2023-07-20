@@ -19,7 +19,7 @@ import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 
 public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {

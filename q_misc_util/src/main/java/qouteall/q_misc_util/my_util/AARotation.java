@@ -7,8 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -82,7 +82,7 @@ public enum AARotation {
         );
     }
     
-    @Nonnull
+    @NotNull
     public static Direction dirCrossProduct(Direction a, Direction b) {
         Validate.isTrue(a.getAxis() != b.getAxis());
         Direction result = Direction.fromDelta(

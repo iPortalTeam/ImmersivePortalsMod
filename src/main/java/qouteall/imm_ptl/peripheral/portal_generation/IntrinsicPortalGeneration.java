@@ -13,7 +13,7 @@ import net.minecraft.world.level.portal.PortalShape;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Optional;
 

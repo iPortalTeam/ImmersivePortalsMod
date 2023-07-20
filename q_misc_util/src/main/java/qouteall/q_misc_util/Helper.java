@@ -16,11 +16,11 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.LongBlockPos;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;

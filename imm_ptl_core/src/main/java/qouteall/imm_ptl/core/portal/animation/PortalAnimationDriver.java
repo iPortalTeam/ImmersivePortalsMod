@@ -3,10 +3,10 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.Helper;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -53,7 +53,7 @@ public interface PortalAnimationDriver {
      * @param context      The context of the animation.
      * @return The animation result
      */
-    @Nonnull
+    @NotNull
     AnimationResult getAnimationResult(
         long tickTime,
         float partialTicks,

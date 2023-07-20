@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.portal.util;
 
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 

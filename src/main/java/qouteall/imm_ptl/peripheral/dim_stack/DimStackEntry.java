@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.dimension.DimId;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 // will be serialized by GSON
 public class DimStackEntry {

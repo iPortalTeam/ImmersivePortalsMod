@@ -21,7 +21,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

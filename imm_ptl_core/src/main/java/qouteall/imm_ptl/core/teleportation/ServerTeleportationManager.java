@@ -41,7 +41,7 @@ import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

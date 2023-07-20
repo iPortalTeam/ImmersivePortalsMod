@@ -18,7 +18,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.q_misc_util.Helper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;

@@ -7,8 +7,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;

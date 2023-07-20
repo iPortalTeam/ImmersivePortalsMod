@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)

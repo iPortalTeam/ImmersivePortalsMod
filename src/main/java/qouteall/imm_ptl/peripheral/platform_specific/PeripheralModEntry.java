@@ -17,11 +17,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.peripheral.CommandStickItem;
-import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.IPOuterClientMisc;
+import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class PeripheralModEntry implements ModInitializer {

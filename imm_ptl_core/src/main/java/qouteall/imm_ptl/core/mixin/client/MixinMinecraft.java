@@ -27,7 +27,7 @@ import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IEMinecraftClient {

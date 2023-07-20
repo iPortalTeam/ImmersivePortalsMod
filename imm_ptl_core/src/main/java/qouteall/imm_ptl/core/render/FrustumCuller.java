@@ -12,7 +12,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)

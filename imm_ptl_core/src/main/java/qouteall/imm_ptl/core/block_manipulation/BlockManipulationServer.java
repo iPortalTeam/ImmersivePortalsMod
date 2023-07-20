@@ -19,7 +19,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -31,13 +30,9 @@ import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.function.Predicate;
 
 public class BlockManipulationServer {

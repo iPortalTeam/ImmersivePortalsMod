@@ -17,7 +17,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.SignalArged;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class PortalGenInfo {
     public static final SignalArged<PortalGenInfo> generatedSignal = new SignalArged<>();

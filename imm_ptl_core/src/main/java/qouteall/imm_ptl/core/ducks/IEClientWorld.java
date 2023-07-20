@@ -6,7 +6,7 @@ import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import qouteall.imm_ptl.core.portal.Portal;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 

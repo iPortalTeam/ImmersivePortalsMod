@@ -15,7 +15,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)

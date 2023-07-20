@@ -17,7 +17,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 // Optimize cloud rendering by storing the context and
 // avoiding rebuild the cloud mesh every time

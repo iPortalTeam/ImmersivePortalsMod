@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class RotationAnimation implements PortalAnimationDriver {
     

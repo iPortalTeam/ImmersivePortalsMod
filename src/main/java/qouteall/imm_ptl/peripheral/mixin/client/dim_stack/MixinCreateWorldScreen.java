@@ -27,7 +27,7 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimId;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

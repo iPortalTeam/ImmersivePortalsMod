@@ -12,8 +12,6 @@ import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 /**

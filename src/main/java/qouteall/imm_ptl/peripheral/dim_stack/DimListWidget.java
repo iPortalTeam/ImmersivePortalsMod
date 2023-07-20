@@ -6,7 +6,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import qouteall.q_misc_util.Helper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
     

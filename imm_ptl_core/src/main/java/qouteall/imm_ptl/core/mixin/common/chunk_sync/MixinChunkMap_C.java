@@ -22,12 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 

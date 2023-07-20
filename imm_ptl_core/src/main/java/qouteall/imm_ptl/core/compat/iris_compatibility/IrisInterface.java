@@ -6,7 +6,7 @@ import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.renderer.LevelRenderer;
 import qouteall.q_misc_util.Helper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 
 public class IrisInterface {

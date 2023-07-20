@@ -27,7 +27,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.q_misc_util.MiscHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

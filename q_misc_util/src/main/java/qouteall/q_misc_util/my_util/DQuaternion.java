@@ -7,13 +7,13 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaterniond;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -508,7 +508,7 @@ public class DQuaternion {
         return new Vec3(Math.toDegrees(result.x), Math.toDegrees(-result.y), Math.toDegrees(result.z));
     }
     
-    @Nonnull
+    @NotNull
     public static DQuaternion fromNullable(@Nullable DQuaternion q) {
         if (q == null) {
             return DQuaternion.identity;

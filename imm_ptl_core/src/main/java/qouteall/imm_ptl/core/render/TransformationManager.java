@@ -19,7 +19,7 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The camera rotations are applied in this order:

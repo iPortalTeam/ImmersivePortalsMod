@@ -68,7 +68,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

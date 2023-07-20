@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEShader;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Mixin(ShaderInstance.class)

@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.Optional;
 

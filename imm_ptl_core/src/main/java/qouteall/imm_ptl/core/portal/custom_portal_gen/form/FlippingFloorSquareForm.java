@@ -23,7 +23,7 @@ import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 

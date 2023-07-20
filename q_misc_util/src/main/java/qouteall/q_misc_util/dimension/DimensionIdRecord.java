@@ -6,8 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;

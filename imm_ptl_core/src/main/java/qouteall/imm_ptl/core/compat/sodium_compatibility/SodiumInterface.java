@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import qouteall.imm_ptl.core.compat.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class SodiumInterface {

@@ -22,7 +22,7 @@ import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;

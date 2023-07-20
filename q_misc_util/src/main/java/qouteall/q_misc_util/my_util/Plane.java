@@ -2,8 +2,7 @@ package qouteall.q_misc_util.my_util;
 
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record Plane(Vec3 pos, Vec3 normal) {
     public Plane(Vec3 pos, Vec3 normal) {

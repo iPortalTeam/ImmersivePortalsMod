@@ -1,9 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Connection;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;

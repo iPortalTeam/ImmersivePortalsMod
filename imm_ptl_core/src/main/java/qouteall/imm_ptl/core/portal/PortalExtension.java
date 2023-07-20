@@ -6,7 +6,7 @@ import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 

@@ -26,7 +26,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

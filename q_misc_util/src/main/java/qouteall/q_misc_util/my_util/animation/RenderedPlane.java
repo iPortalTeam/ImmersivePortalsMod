@@ -1,9 +1,8 @@
 package qouteall.q_misc_util.my_util.animation;
 
+import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.WithDim;
-
-import javax.annotation.Nullable;
 
 public record RenderedPlane(
     @Nullable WithDim<Plane> plane,

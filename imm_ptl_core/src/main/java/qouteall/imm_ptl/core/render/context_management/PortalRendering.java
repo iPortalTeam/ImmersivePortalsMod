@@ -17,7 +17,7 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.q_misc_util.my_util.Plane;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Stack;

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class DimStackGuiModel {
     public boolean isEnabled = false;

@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface IEEntity {
     void ip_notifyCollidingWithPortal(Entity portal);

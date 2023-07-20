@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public abstract class PortalGenForm {
