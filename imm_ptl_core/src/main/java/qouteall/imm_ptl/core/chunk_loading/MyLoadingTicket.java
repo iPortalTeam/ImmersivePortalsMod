@@ -26,13 +26,6 @@ public class MyLoadingTicket {
     public static final TicketType<ChunkPos> portalLoadingTicketType =
         TicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
     
-    public static final TicketType<ChunkPos> temporalLoadingTicketType =
-        TicketType.create(
-            "imm_ptl_temportal",
-            Comparator.comparingLong(ChunkPos::toLong),
-            300//15 seconds
-        );
-    
     public static DistanceManager getTicketManager(ServerLevel world) {
         return ((IEServerChunkManager) world.getChunkSource()).getTicketManager();
     }
@@ -80,23 +73,6 @@ public class MyLoadingTicket {
         return loadedChunkRecord.computeIfAbsent(
             world, k -> new LongLinkedOpenHashSet()
         );
-    }
-    
-    public static void loadTemporally(ServerLevel world, ChunkPos chunkPos) {
-        getTicketManager(world).removeRegionTicket(
-            temporalLoadingTicketType, chunkPos, 2, chunkPos
-        );
-    }
-    
-    public static void loadTemporally(ServerLevel world, ChunkPos centerChunkPos, int radius) {
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
-                loadTemporally(
-                    world,
-                    new ChunkPos(centerChunkPos.x + dx, centerChunkPos.z + dz)
-                );
-            }
-        }
     }
     
     public static void onDimensionRemove(ResourceKey<Level> dimension) {

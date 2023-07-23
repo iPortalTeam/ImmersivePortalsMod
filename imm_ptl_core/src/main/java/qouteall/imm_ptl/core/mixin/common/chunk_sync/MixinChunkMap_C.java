@@ -104,11 +104,10 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
         // Note C2ME redirects getTickingChunk (1.18.2)
     }
     
-    //do my packet sending
+    // do my packet sending
     @Inject(
         method = "Lnet/minecraft/server/level/ChunkMap;prepareTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;",
-        at = @At("RETURN"),
-        cancellable = true
+        at = @At("RETURN")
     )
     private void onCreateTickingFuture(
         ChunkHolder chunkHolder,

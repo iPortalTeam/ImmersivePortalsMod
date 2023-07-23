@@ -101,18 +101,6 @@ public class NewChunkTrackingGraph {
         });
     }
     
-    private static boolean shouldAddCustomTicket(
-        ServerLevel world,
-        long chunkPos,
-        ArrayList<PlayerWatchRecord> records
-    ) {
-        boolean isIndirectLoading = Helper.indexOf(records, r ->
-            (r.isLoadedToPlayer) && (!r.isDirectLoading)
-        ) != -1;
-        
-        return isIndirectLoading;
-    }
-    
     // Every chunk has a list of watching records
     private static final Map<ResourceKey<Level>, Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>>>
         data = new HashMap<>();
