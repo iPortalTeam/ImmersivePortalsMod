@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
@@ -22,6 +23,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -66,11 +68,15 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Shadow
     protected abstract void applyLightData(int x, int z, ClientboundLightUpdatePacketData data);
     
-    @Shadow public abstract RegistryAccess registryAccess();
+    @Shadow
+    public abstract RegistryAccess registryAccess();
     
-    @Shadow private LayeredRegistryAccess<ClientRegistryLayer> registryAccess;
+    @Shadow
+    private LayeredRegistryAccess<ClientRegistryLayer> registryAccess;
     
-    @Shadow @Final private static Logger LOGGER;
+    @Shadow
+    @Final
+    private static Logger LOGGER;
     
     @Override
     public void ip_setWorld(ClientLevel world) {
@@ -121,28 +127,30 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             return;
         }
         
-        ResourceKey<Level> playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
+        ResourceKey<Level> packetDim = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         
-        ClientLevel world = minecraft.level;
+        LocalPlayer player = minecraft.player;
+        assert player != null;
+        Level playerWorld = player.level();
         
-        if (world != null) {
-            if (world.dimension() != playerDimension) {
-                if (!Minecraft.getInstance().player.isRemoved()) {
-                    immptl_limitedLogger.log(String.format(
-                        "denied position packet %s %s %s %s",
-                        ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension(),
-                        packet.getX(), packet.getY(), packet.getZ()
-                    ));
-                    ci.cancel();
-                }
-            }
+        if (packetDim != playerWorld.dimension()) {
+            LOGGER.info(
+                "[ImmPtl] Client accepted position packet in another dimension. Packet: {} {} {} {}. Player: {} {} {} {}",
+                packetDim.location(), packet.getX(), packet.getY(), packet.getZ(),
+                playerWorld.dimension().location(), player.getX(), player.getY(), player.getZ()
+            );
+            
+            IPCGlobal.clientTeleportationManager.forceTeleportPlayer(
+                packetDim,
+                new Vec3(packet.getX(), packet.getY(), packet.getZ())
+            );
+            
+            IPCGlobal.clientTeleportationManager.disableTeleportFor(5);
         }
-        
-        IPCGlobal.clientTeleportationManager.disableTeleportFor(5);
         
         LOGGER.info(
             "[ImmPtl] Client accepted position packet {} {} {} {}",
-            playerDimension.location(), packet.getX(), packet.getY(), packet.getZ()
+            packetDim.location(), packet.getX(), packet.getY(), packet.getZ()
         );
     }
     
@@ -243,9 +251,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     )
     private void onHandleAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci) {
         int entityId = packet.getId();
-
+        
         Entity existingEntity = level.getEntity(entityId);
-
+        
         if (existingEntity != null && !existingEntity.getPassengers().isEmpty()) {
             LOGGER.warn("[ImmPtl] Entity already exists and has passengers when accepting add-entity packet. Ignoring. {} {}", existingEntity, packet);
             ci.cancel();

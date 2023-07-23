@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,6 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -46,7 +46,6 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Vec2d;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +57,7 @@ public class ClientTeleportationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     
     public static final Minecraft client = Minecraft.getInstance();
+    
     public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private long teleportTickTimeLimit = 0;
@@ -377,25 +377,21 @@ public class ClientTeleportationManager {
             (tickTimeForTeleportation <= teleportTickTimeLimit);
     }
     
-    private void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
-        Helper.log("force teleported " + toDimension + destination);
+    public void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
+        LOGGER.info("client player force teleported {} {}", toDimension, destination);
         
         ClientLevel fromWorld = client.level;
         ResourceKey<Level> fromDimension = fromWorld.dimension();
         LocalPlayer player = client.player;
-        if (fromDimension == toDimension) {
-            player.setPos(
-                destination.x,
-                destination.y,
-                destination.z
-            );
-            McHelper.adjustVehicle(player);
-        }
-        else {
+        assert player != null;
+        if (fromDimension != toDimension) {
             ClientLevel toWorld = ClientWorldLoader.getWorld(toDimension);
-            
-            changePlayerDimension(player, fromWorld, toWorld, destination);
+            Vec3 eyeOffset = McHelper.getEyeOffset(player);
+            changePlayerDimension(player, fromWorld, toWorld, destination.add(eyeOffset));
         }
+        
+        player.setPos(destination.x, destination.y, destination.z);
+        McHelper.adjustVehicle(player);
         
         lastPlayerEyePos = null;
         disableTeleportFor(20);

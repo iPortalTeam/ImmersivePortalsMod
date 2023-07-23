@@ -81,7 +81,7 @@ public class ClientPerformanceMonitor {
         if (player == null) {
             return;
         }
-    
+        
         if (!IPGlobal.enableClientPerformanceAdjustment) {
             level = PerformanceLevel.good;
         }

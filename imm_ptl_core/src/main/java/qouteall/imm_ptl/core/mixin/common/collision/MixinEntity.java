@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -38,16 +39,11 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     
     @Nullable
+    @Unique
     private PortalCollisionHandler ip_portalCollisionHandler;
     
     @Shadow
-    public abstract AABB getBoundingBox();
-    
-    @Shadow
     private Level level;
-    
-    @Shadow
-    public abstract void setBoundingBox(AABB box_1);
     
     @Shadow
     protected abstract Vec3 collide(Vec3 vec3d_1);
@@ -64,17 +60,9 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     @Shadow
     public abstract double getZ();
     
-    @Shadow
-    public abstract BlockPos getOnPos();
-    
-    @Shadow
-    public boolean blocksBuilding;
     
     @Shadow
     public int tickCount;
-    
-    @Shadow
-    public abstract Vec3 getDeltaMovement();
     
     @Shadow
     protected abstract void unsetRemoved();
@@ -84,9 +72,6 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     
     @Shadow
     private BlockPos blockPosition;
-    
-    @Shadow
-    private Vec3 deltaMovement;
     
     @Shadow
     protected abstract AABB getBoundingBoxForPose(Pose pose);

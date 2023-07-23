@@ -22,6 +22,8 @@
     "common.collision.MixinHangingEntity",
     "common.collision.MixinProjectile",
     "common.collision.MixinSnowball",
+    "common.collision.MixinThrowableProjectile",
+    "common.collision.MixinThrownEnderPearl",
     "common.container_gui.MixinContainer",
     "common.container_gui.MixinContainerOpenersCounter",
     "common.debug.MixinHashMapPalette",
