@@ -135,6 +135,8 @@ public class IPGlobal {
     
     public static boolean logClientPlayerCollidingPortalUpdate = false;
     
+    public static boolean chunkPacketDebug = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

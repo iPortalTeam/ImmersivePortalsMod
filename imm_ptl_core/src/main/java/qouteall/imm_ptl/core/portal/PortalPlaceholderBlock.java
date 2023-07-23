@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -121,6 +123,16 @@ public class PortalPlaceholderBlock extends Block {
         );
     }
     
+    public static boolean isHitOnPlaceholder(HitResult hitResult, Level world) {
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            if (hitResult instanceof BlockHitResult blockHitResult) {
+                Block hittingBlock = world.getBlockState(blockHitResult.getBlockPos()).getBlock();
+                return hittingBlock == PortalPlaceholderBlock.instance;
+            }
+        }
+        return false;
+    }
+    
     //---------These are copied from BlockBarrier
     @Override
     public boolean propagatesSkylightDown(
@@ -145,5 +157,4 @@ public class PortalPlaceholderBlock extends Block {
     ) {
         return 1.0F;
     }
-    
 }

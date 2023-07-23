@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -41,7 +42,6 @@ import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -297,8 +297,6 @@ public class ServerTeleportationManager {
         ServerLevel fromWorld = (ServerLevel) player.level();
         ServerLevel toWorld = MiscHelper.getServer().getLevel(dimensionTo);
         
-        NewChunkTrackingGraph.addAdditionalDirectLoadingTickets(player);
-        
         if (player.level().dimension() == dimensionTo) {
             McHelper.setEyePos(player, newEyePos, newEyePos);
             McHelper.updateBoundingBox(player);
@@ -352,6 +350,8 @@ public class ServerTeleportationManager {
         ServerLevel toWorld,
         Vec3 newEyePos
     ) {
+        NewChunkTrackingGraph.addAdditionalDirectLoadingTickets(player);
+        
         // avoid the player from untracking all entities when removing from the old world
         // see MixinChunkMap_E
         teleportingEntities.add(player);

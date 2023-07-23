@@ -323,7 +323,7 @@ public class PortalDebugCommands {
                             McRemoteProcedureCall.tellClientToInvoke(
                                 player,
                                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
-                                chunkX, chunkZ
+                                dim.dimension(), chunkX, chunkZ
                             );
                             
                             return 0;

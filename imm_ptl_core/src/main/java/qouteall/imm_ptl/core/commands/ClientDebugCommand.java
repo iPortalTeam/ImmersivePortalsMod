@@ -687,15 +687,14 @@ public class ClientDebugCommand {
     private static int isClientChunkLoaded(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
         int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-        RemoteCallables.reportClientChunkLoadStatus(chunkX, chunkZ);
+        RemoteCallables.reportClientChunkLoadStatus(Minecraft.getInstance().level.dimension(), chunkX, chunkZ);
         return 0;
     }
     
     public static class RemoteCallables {
-        public static void reportClientChunkLoadStatus(int chunkX, int chunkZ) {
-            ChunkAccess chunk = Minecraft.getInstance().level.getChunk(
-                chunkX, chunkZ
-            );
+        public static void reportClientChunkLoadStatus(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
+            ClientLevel world = ClientWorldLoader.getWorld(dimension);
+            ChunkAccess chunk = world.getChunk(chunkX, chunkZ);
             CHelper.printChat(
                 chunk != null && !(chunk instanceof EmptyLevelChunk) ?
                     "client loaded" : "client not loaded"

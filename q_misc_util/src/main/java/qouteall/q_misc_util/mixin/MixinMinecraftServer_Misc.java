@@ -70,6 +70,7 @@ public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventL
     
     @Override
     public void ip_addDimensionToWorldMap(ResourceKey<Level> dim, ServerLevel world) {
+        // use read-copy-update to avoid concurrency issues
         LinkedHashMap<ResourceKey<Level>, ServerLevel> newMap =
             Maps.<ResourceKey<Level>, ServerLevel>newLinkedHashMap();
         
@@ -78,12 +79,12 @@ public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventL
         newMap.putAll(oldMap);
         newMap.put(dim, world);
         
-        // do not directly mutate the map to avoid concurrency issues
         this.levels = newMap;
     }
     
     @Override
     public void ip_removeDimensionFromWorldMap(ResourceKey<Level> dimension) {
+        // use read-copy-update to avoid concurrency issues
         LinkedHashMap<ResourceKey<Level>, ServerLevel> newMap =
             Maps.<ResourceKey<Level>, ServerLevel>newLinkedHashMap();
         
@@ -95,7 +96,6 @@ public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventL
             }
         }
         
-        // do not directly mutate the map to avoid concurrency issues
         this.levels = newMap;
     }
     

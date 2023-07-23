@@ -43,10 +43,6 @@ public class DimensionalChunkPos {
     
     @Override
     public String toString() {
-        return "DimensionalChunkPos{" +
-            dimension +
-            "," + x +
-            "," + z +
-            '}';
+        return "(%s %d %d)".formatted(dimension, x, z);
     }
 }

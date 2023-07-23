@@ -15,6 +15,8 @@ import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
@@ -256,6 +258,40 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         if (existingEntity != null && !existingEntity.getPassengers().isEmpty()) {
             LOGGER.warn("[ImmPtl] Entity already exists and has passengers when accepting add-entity packet. Ignoring. {} {}", existingEntity, packet);
             ci.cancel();
+        }
+    }
+    
+    // for debugging
+    @Inject(
+        method = "handleLevelChunkWithLight",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onHandleLevelChunkWithLight(
+        ClientboundLevelChunkWithLightPacket packet, CallbackInfo ci
+    ) {
+        if (IPGlobal.chunkPacketDebug) {
+            LOGGER.info("Chunk Load Packet {} {} {}", level.dimension().location(), packet.getX(), packet.getZ());
+        }
+    }
+    
+    // for debugging
+    @Inject(
+        method = "handleForgetLevelChunk",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onHandleForgetLevelChunk(
+        ClientboundForgetLevelChunkPacket packet, CallbackInfo ci
+    ) {
+        if (IPGlobal.chunkPacketDebug) {
+            LOGGER.info("Chunk Unload Packet {} {} {}", level.dimension().location(), packet.getX(), packet.getZ());
         }
     }
 }

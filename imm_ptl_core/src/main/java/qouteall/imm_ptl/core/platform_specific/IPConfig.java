@@ -5,11 +5,11 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 
 @Config(name = "immersive_portals")
@@ -103,6 +103,8 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.Excluded
     public boolean looseMovementCheck = false;
     @ConfigEntry.Gui.Excluded
+    public boolean chunkPacketDebug = false;
+    @ConfigEntry.Gui.Excluded
     public HashSet<String> disabledWarnings = new HashSet<>();
     
     @ConfigEntry.Gui.Excluded
@@ -166,6 +168,7 @@ public class IPConfig implements ConfigData {
         IPGlobal.enableDepthClampForPortalRendering = useDepthClampForPortalRendering;
         BlockPortalShape.defaultLengthLimit = regularPortalLengthLimit;
         IPGlobal.maxNormalPortalRadius = Math.max(regularPortalLengthLimit / 2, 16);
+        IPGlobal.chunkPacketDebug = chunkPacketDebug;
         
         Helper.log("IP Config Applied");
         
