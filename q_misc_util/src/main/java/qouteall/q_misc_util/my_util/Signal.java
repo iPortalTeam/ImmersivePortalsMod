@@ -12,7 +12,7 @@ public class Signal {
     private List<Runnable> funcList = new ArrayList<>();
     private boolean isEmitting = false;
     
-    public void emit() {
+    public synchronized void emit() {
         isEmitting = true;
         try {
             funcList.forEach(runnable -> runnable.run());
@@ -23,7 +23,7 @@ public class Signal {
     }
     
     //NOTE the func should not capture owner
-    public <T> void connectWithWeakRef(T owner, Consumer<T> func) {
+    public synchronized  <T> void connectWithWeakRef(T owner, Consumer<T> func) {
         //NOTE using weak hash map was a mistake
         //https://stackoverflow.com/questions/8051912/will-a-weakhashmaps-entry-be-collected-if-the-value-contains-the-only-strong-re
         
@@ -41,12 +41,12 @@ public class Signal {
         connect(boxOfRunnable.obj);
     }
     
-    public void connect(Runnable func) {
+    public synchronized void connect(Runnable func) {
         copyDataWhenEmitting();
         funcList.add(func);
     }
     
-    public void disconnect(Runnable func) {
+    public synchronized void disconnect(Runnable func) {
         copyDataWhenEmitting();
         boolean removed = funcList.remove(func);
         assert removed;

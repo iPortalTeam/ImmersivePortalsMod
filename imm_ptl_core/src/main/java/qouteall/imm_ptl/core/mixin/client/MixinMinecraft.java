@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
@@ -28,6 +27,7 @@ import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IEMinecraftClient {
@@ -128,7 +128,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         StableClientTimer.tick();
         StableClientTimer.update(level.getGameTime(), RenderStates.getPartialTick());
         ClientPortalAnimationManagement.tick(); // must be after remote world ticking
-        IPCGlobal.clientTeleportationManager.manageTeleportation(true);
+        ClientTeleportationManager.manageTeleportation(true);
         
         IPGlobal.postClientTickSignal.emit();
         

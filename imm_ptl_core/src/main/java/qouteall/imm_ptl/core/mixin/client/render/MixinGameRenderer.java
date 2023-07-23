@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
 @Mixin(GameRenderer.class)
@@ -79,7 +80,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         RenderStates.updatePreRenderInfo(tickDelta);
         StableClientTimer.update(minecraft.level.getGameTime(), tickDelta);
         ClientPortalAnimationManagement.update(); // must update before teleportation
-        IPCGlobal.clientTeleportationManager.manageTeleportation(false);
+        ClientTeleportationManager.manageTeleportation(false);
         IPGlobal.preGameRenderSignal.emit();
         if (IPCGlobal.earlyRemoteUpload) {
             MyRenderHelper.earlyRemoteUpload();

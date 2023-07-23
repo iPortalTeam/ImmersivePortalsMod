@@ -58,13 +58,13 @@ public class ClientTeleportationManager {
     
     public static final Minecraft client = Minecraft.getInstance();
     
-    public long tickTimeForTeleportation = 0;
-    private long lastTeleportGameTime = 0;
-    private long teleportTickTimeLimit = 0;
+    public static long tickTimeForTeleportation = 0;
+    private static long lastTeleportGameTime = 0;
+    private static long teleportTickTimeLimit = 0;
     
-    private Vec3 lastPlayerEyePos = null;
-    private long lastRecordStableTickTime = 0;
-    private float lastRecordStablePartialTicks = 0;
+    private static Vec3 lastPlayerEyePos = null;
+    private static long lastRecordStableTickTime = 0;
+    private static float lastRecordStablePartialTicks = 0;
     
     // for debug
     public static boolean isTeleportingTick = false;
@@ -75,24 +75,24 @@ public class ClientTeleportationManager {
     
     private static long teleportationCounter = 0;
     
-    public ClientTeleportationManager() {
-        IPGlobal.postClientTickSignal.connectWithWeakRef(
-            this, ClientTeleportationManager::tick
+    public static void init() {
+        IPGlobal.postClientTickSignal.connect(
+             ClientTeleportationManager::tick
         );
-        
-        IPGlobal.clientCleanupSignal.connectWithWeakRef(this, (this_) -> {
-            this_.disableTeleportFor(40);
+    
+        IPGlobal.clientCleanupSignal.connect( () -> {
+            disableTeleportFor(40);
         });
     }
     
-    private void tick() {
+    private static void tick() {
         tickTimeForTeleportation++;
         changePlayerMotionIfCollidingWithPortal();
         
         isTeleportingTick = false;
     }
     
-    public void acceptSynchronizationDataFromServer(
+    public static void acceptSynchronizationDataFromServer(
         ResourceKey<Level> dimension,
         Vec3 pos,
         boolean forceAccept
@@ -111,7 +111,7 @@ public class ClientTeleportationManager {
         }
     }
     
-    public void manageTeleportation(boolean isTicking_) {
+    public static void manageTeleportation(boolean isTicking_) {
         if (IPGlobal.disableTeleportation) {
             return;
         }
@@ -184,7 +184,7 @@ public class ClientTeleportationManager {
     
     // return null if failed
     @Nullable
-    private TeleportationUtil.Teleportation tryTeleport(float partialTicks) {
+    private static TeleportationUtil.Teleportation tryTeleport(float partialTicks) {
         LocalPlayer player = client.player;
         assert player != null;
         
@@ -295,7 +295,7 @@ public class ClientTeleportationManager {
         return client.player.getEyePosition(tickDelta);
     }
     
-    private void teleportPlayer(
+    private static void teleportPlayer(
         TeleportationUtil.Teleportation teleportation
     ) {
         Portal portal = teleportation.portal();
@@ -372,12 +372,12 @@ public class ClientTeleportationManager {
     }
     
     
-    public boolean isTeleportingFrequently() {
+    public static boolean isTeleportingFrequently() {
         return (tickTimeForTeleportation - lastTeleportGameTime <= 100) ||
             (tickTimeForTeleportation <= teleportTickTimeLimit);
     }
     
-    public void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
+    public static void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
         LOGGER.info("client player force teleported {} {}", toDimension, destination);
         
         ClientLevel fromWorld = client.level;
@@ -400,7 +400,7 @@ public class ClientTeleportationManager {
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }
     
-    public void changePlayerDimension(
+    public static void changePlayerDimension(
         LocalPlayer player, ClientLevel fromWorld, ClientLevel toWorld, Vec3 newEyePos
     ) {
         Validate.isTrue(!WorldRenderInfo.isRendering());
@@ -473,7 +473,7 @@ public class ClientTeleportationManager {
         O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
     
-    private void changePlayerMotionIfCollidingWithPortal() {
+    private static void changePlayerMotionIfCollidingWithPortal() {
         LocalPlayer player = client.player;
         
         Portal portal = ((IEEntity) player).ip_getCollidingPortal();
@@ -490,7 +490,7 @@ public class ClientTeleportationManager {
         }
     }
     
-    private void changeMotion(Entity player, Portal portal) {
+    private static void changeMotion(Entity player, Portal portal) {
         Vec3 velocity = player.getDeltaMovement();
         player.setDeltaMovement(velocity.scale(1 + PortalExtension.get(portal).motionAffinity));
     }
@@ -510,7 +510,7 @@ public class ClientTeleportationManager {
         Validate.isTrue(!entity.isRemoved());
     }
     
-    public void disableTeleportFor(int ticks) {
+    public static void disableTeleportFor(int ticks) {
         teleportTickTimeLimit = tickTimeForTeleportation + ticks;
     }
     

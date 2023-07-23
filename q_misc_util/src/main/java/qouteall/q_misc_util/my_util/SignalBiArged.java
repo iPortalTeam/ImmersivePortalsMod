@@ -12,7 +12,7 @@ public class SignalBiArged<A, B> {
     private List<BiConsumer<A, B>> funcList = new ArrayList<>();
     private boolean isEmitting = false;
     
-    public void emit(A a, B b) {
+    public synchronized void emit(A a, B b) {
         isEmitting = true;
         try {
             funcList.forEach(runnable -> runnable.accept(a, b));
@@ -23,7 +23,7 @@ public class SignalBiArged<A, B> {
     }
     
     //NOTE the func should not capture owner
-    public <T> void connectWithWeakRef(T owner, TriConsumer<T, A, B> func) {
+    public synchronized  <T> void connectWithWeakRef(T owner, TriConsumer<T, A, B> func) {
         //NOTE using weak hash map was a mistake
         //https://stackoverflow.com/questions/8051912/will-a-weakhashmaps-entry-be-collected-if-the-value-contains-the-only-strong-re
         
@@ -41,12 +41,12 @@ public class SignalBiArged<A, B> {
         connect(boxOfRunnable.obj);
     }
     
-    public void connect(BiConsumer<A, B> func) {
+    public synchronized void connect(BiConsumer<A, B> func) {
         copyDataWhenEmitting();
         funcList.add(func);
     }
     
-    public void disconnect(BiConsumer<A, B> func) {
+    public synchronized void disconnect(BiConsumer<A, B> func) {
         copyDataWhenEmitting();
         boolean removed = funcList.remove(func);
         assert removed;

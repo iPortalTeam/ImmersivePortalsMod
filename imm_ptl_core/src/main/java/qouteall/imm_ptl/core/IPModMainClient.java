@@ -87,6 +87,8 @@ public class IPModMainClient {
         
         ClientWorldLoader.init();
         
+        ClientTeleportationManager.init();
+        
         Minecraft.getInstance().execute(() -> {
             ShaderCodeTransformation.init();
             
@@ -96,7 +98,6 @@ public class IPModMainClient {
             IPCGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
             
             IPCGlobal.renderer = IPCGlobal.rendererUsingStencil;
-            IPCGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
         
         DubiousThings.init();

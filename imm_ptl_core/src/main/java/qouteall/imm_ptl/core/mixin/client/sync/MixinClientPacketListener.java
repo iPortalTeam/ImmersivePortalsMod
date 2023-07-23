@@ -34,11 +34,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.my_util.LimitedLogger;
@@ -116,8 +116,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             value = "INVOKE",
             target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V",
             shift = At.Shift.AFTER
-        ),
-        cancellable = true
+        )
     )
     private void onProcessingPositionPacket(
         ClientboundPlayerPositionPacket packet,
@@ -140,12 +139,12 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
                 playerWorld.dimension().location(), player.getX(), player.getY(), player.getZ()
             );
             
-            IPCGlobal.clientTeleportationManager.forceTeleportPlayer(
+            ClientTeleportationManager.forceTeleportPlayer(
                 packetDim,
                 new Vec3(packet.getX(), packet.getY(), packet.getZ())
             );
-            
-            IPCGlobal.clientTeleportationManager.disableTeleportFor(5);
+    
+            ClientTeleportationManager.disableTeleportFor(5);
         }
         
         LOGGER.info(

@@ -16,9 +16,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DimId;
@@ -80,7 +80,7 @@ public class IPNetworkingClient {
         );
         
         MiscHelper.executeOnRenderThread(() -> {
-            IPCGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
+            ClientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
             );
