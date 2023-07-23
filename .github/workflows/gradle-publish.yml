@@ -12,6 +12,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - uses: actions/checkout@v2
 
@@ -27,14 +30,14 @@ jobs:
         gradle-version: 8.1.1
         arguments: build
 
-    - uses: Kir-Antipov/mc-publish@v3.2
+    - uses: Kir-Antipov/mc-publish@v3.3
       with:
         version-type: alpha
         dependencies: ""
         changelog: ""
 
-        files-primary: build/libs/!(*-@(dev|sources|javadoc)).jar
-        files-secondary: ""
+        files: |
+          build/libs/!(*-@(dev|sources|javadoc)).jar
 
         modrinth-id: zJpHMkdD
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}

@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -8,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,8 +28,6 @@ import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
-
-import org.jetbrains.annotations.Nullable;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IEMinecraftClient {
@@ -65,16 +65,16 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     
     @Shadow private Thread gameThread;
     
-    @ModifyExpressionValue(
+    @WrapOperation(
         method = "Lnet/minecraft/client/Minecraft;run()V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/lang/Thread;currentThread()Ljava/lang/Thread;"
         )
     )
-    private Thread testMixinExtra(Thread original) {
+    private Thread testMixinExtra(Operation<Thread> original) {
         LOGGER.info("[ImmPtl] MixinExtra is working!");
-        return original;
+        return original.call();
     }
     
     /**
