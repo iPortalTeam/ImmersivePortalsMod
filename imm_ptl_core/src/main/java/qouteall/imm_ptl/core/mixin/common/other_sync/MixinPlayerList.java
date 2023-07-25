@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -26,8 +27,6 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
-import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -75,7 +74,7 @@ public class MixinPlayerList {
     
     /**
      * correct the player reference, so that in
-     * {@link qouteall.imm_ptl.core.mixin.common.position_sync.MixinServerGamePacketListenerImpl#teleport(double, double, double, float, float, Set, boolean)}
+     * {@link qouteall.imm_ptl.core.mixin.common.position_sync.MixinServerGamePacketListenerImpl#teleport(double, double, double, float, float, Set)}
      * the player's dimension will be correct
      */
     @Redirect(
@@ -104,15 +103,14 @@ public class MixinPlayerList {
     ) {
         ChunkPos chunkPos = new ChunkPos(BlockPos.containing(new Vec3(x, y, z)));
         
-        ArrayList<NewChunkTrackingGraph.PlayerWatchRecord> recs = NewChunkTrackingGraph.getPlayerWatchListRecord(
-            dimension, chunkPos.x, chunkPos.z
-        );
+        var recs =
+            NewChunkTrackingGraph.getPlayerWatchListRecord(dimension, chunkPos.x, chunkPos.z);
         
         if (recs == null) {
             return;
         }
         
-        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs) {
+        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs.values()) {
             if (rec.isLoadedToPlayer && rec.player != excludingPlayer) {
                 if (NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
                     rec.player, dimension, chunkPos.x, chunkPos.z, (int) distance + 16

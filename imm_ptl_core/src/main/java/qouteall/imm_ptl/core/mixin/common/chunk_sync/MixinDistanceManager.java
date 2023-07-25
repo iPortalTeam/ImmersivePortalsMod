@@ -23,26 +23,18 @@ public abstract class MixinDistanceManager implements IEChunkTicketManager {
     @Final
     private Long2ObjectMap<ObjectSet<ServerPlayer>> playersPerChunk;
     
-    
     @Shadow
-    protected abstract void updatePlayerTickets(int viewDistance);
+    protected abstract SortedArraySet<Ticket<?>> getTickets(long position);
     
-    @Shadow protected abstract SortedArraySet<Ticket<?>> getTickets(long position);
-    
-    //avoid NPE
+    // avoid NPE
     @Inject(method = "Lnet/minecraft/server/level/DistanceManager;removePlayer(Lnet/minecraft/core/SectionPos;Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("HEAD"))
     private void onHandleChunkLeave(
-        SectionPos chunkSectionPos_1,
-        ServerPlayer serverPlayerEntity_1,
+        SectionPos sectionPos,
+        ServerPlayer serverPlayer,
         CallbackInfo ci
     ) {
-        long long_1 = chunkSectionPos_1.chunk().toLong();
-        playersPerChunk.putIfAbsent(long_1, new ObjectOpenHashSet<>());
-    }
-    
-    @Override
-    public void mySetWatchDistance(int newWatchDistance) {
-        updatePlayerTickets(newWatchDistance);
+        long chunkPos = sectionPos.chunk().toLong();
+        playersPerChunk.computeIfAbsent(chunkPos, k -> new ObjectOpenHashSet<>());
     }
     
     @Override

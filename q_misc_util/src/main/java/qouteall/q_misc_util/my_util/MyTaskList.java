@@ -2,8 +2,10 @@ package qouteall.q_misc_util.my_util;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import org.slf4j.Logger;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Iterator;
@@ -14,8 +16,12 @@ import java.util.stream.Stream;
 //NOTE if the task returns true, it will be deleted
 //if the task returns false, it will be invoked again at next time
 public class MyTaskList {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public interface MyTask {
         public boolean runAndGetIsFinished();
+        
+        public default void onCancelled() {}
     }
     
     private final ObjectList<MyTask> tasks = new ObjectArrayList<>();
@@ -42,14 +48,21 @@ public class MyTaskList {
                 return task.runAndGetIsFinished();
             }
             catch (Throwable e) {
-                Helper.err("Failed to process task " + task);
-                e.printStackTrace();
+                LOGGER.error("Failed to process task {}", task, e);
                 return true;
             }
         });
     }
     
     public synchronized void forceClearTasks() {
+        for (MyTask task : tasks) {
+            task.onCancelled();
+        }
+        
+        for (MyTask task : tasksToAdd) {
+            task.onCancelled();
+        }
+        
         tasks.clear();
         tasksToAdd.clear();
     }
@@ -82,6 +95,14 @@ public class MyTaskList {
                 }
                 return b.runAndGetIsFinished();
             }
+            
+            @Override
+            public void onCancelled() {
+                if (!aFinished) {
+                    a.onCancelled();
+                }
+                b.onCancelled();
+            }
         };
     }
     
@@ -99,26 +120,47 @@ public class MyTaskList {
                     return task.runAndGetIsFinished();
                 }
             }
+            
+            @Override
+            public void onCancelled() {
+                task.onCancelled();
+            }
         };
     }
     
     public static MyTask withCancelCondition(BooleanSupplier shouldCancel, MyTask task) {
-        return () -> {
-            if (shouldCancel.getAsBoolean()) {
-                return true;
+        return new MyTask() {
+            @Override
+            public boolean runAndGetIsFinished() {
+                if (shouldCancel.getAsBoolean()) {
+                    return true;
+                }
+                
+                return task.runAndGetIsFinished();
             }
             
-            return task.runAndGetIsFinished();
+            @Override
+            public void onCancelled() {
+                task.onCancelled();
+            }
         };
     }
     
     public static MyTask withDelayCondition(BooleanSupplier shouldDelay, MyTask task) {
-        return () -> {
-            if (shouldDelay.getAsBoolean()) {
-                return false;
+        return new MyTask() {
+            @Override
+            public boolean runAndGetIsFinished() {
+                if (shouldDelay.getAsBoolean()) {
+                    return false;
+                }
+                
+                return task.runAndGetIsFinished();
             }
             
-            return task.runAndGetIsFinished();
+            @Override
+            public void onCancelled() {
+                task.onCancelled();
+            }
         };
     }
     
@@ -149,6 +191,11 @@ public class MyTaskList {
                     return false;
                 }
             }
+            
+            @Override
+            public void onCancelled() {
+                task.onCancelled();
+            }
         };
     }
     
@@ -164,6 +211,11 @@ public class MyTaskList {
                 }
                 i = 0;
                 return task.runAndGetIsFinished();
+            }
+            
+            @Override
+            public void onCancelled() {
+                task.onCancelled();
             }
         };
     }
@@ -186,32 +238,61 @@ public class MyTaskList {
                 }
                 return finished;
             }
+            
+            @Override
+            public void onCancelled() {
+                if (began) {
+                    endAction.run();
+                }
+                task.onCancelled();
+            }
         };
     }
     
     public static MyTask withMicroLifecycle(
         Runnable beginAction, Runnable endAction, MyTask task
     ) {
-        return () -> {
-            beginAction.run();
-            boolean finished = task.runAndGetIsFinished();
-            endAction.run();
-            return finished;
+        return new MyTask() {
+            @Override
+            public boolean runAndGetIsFinished() {
+                beginAction.run();
+                boolean finished = task.runAndGetIsFinished();
+                endAction.run();
+                return finished;
+            }
+            
+            @Override
+            public void onCancelled() {
+                endAction.run();
+                task.onCancelled();
+            }
         };
     }
     
+    // NOTE tasks should be finite, unless it will deadloop during cancellation
     public static MyTask chainTasks(Iterator<MyTask> tasks) {
         PeekingIterator<MyTask> peekingIterator = Iterators.peekingIterator(tasks);
-        return () -> {
-            if (peekingIterator.hasNext()) {
-                MyTask curr = peekingIterator.peek();
-                boolean finished = curr.runAndGetIsFinished();
-                if (finished) {
-                    peekingIterator.next();
+        return new MyTask() {
+            @Override
+            public boolean runAndGetIsFinished() {
+                if (peekingIterator.hasNext()) {
+                    MyTask curr = peekingIterator.peek();
+                    boolean finished = curr.runAndGetIsFinished();
+                    if (finished) {
+                        peekingIterator.next();
+                    }
                 }
+                
+                return !peekingIterator.hasNext();
             }
             
-            return !peekingIterator.hasNext();
+            @Override
+            public void onCancelled() {
+                while (peekingIterator.hasNext()) {
+                    MyTask curr = peekingIterator.next();
+                    curr.onCancelled();
+                }
+            }
         };
     }
     

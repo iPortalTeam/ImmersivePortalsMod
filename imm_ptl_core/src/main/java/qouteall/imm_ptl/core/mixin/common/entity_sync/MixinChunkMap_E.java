@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkMap.TrackedEntity;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,6 +41,8 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     @Shadow
     @Final
     private ServerLevel level;
+    
+    @Shadow protected abstract @Nullable ChunkHolder getUpdatingChunkIfPresent(long l);
     
     @IPVanillaCopy
     @Inject(
@@ -139,5 +143,10 @@ public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
     @Override
     public Int2ObjectMap<TrackedEntity> ip_getEntityTrackerMap() {
         return entityMap;
+    }
+    
+    @Override
+    public @Nullable ChunkHolder ip_getUpdatingChunkIfPresent(long chunkPos) {
+        return getUpdatingChunkIfPresent(chunkPos);
     }
 }

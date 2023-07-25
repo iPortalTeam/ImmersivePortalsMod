@@ -22,6 +22,7 @@ import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
 import java.util.function.Supplier;
 
+// TODO change singleton to static in 1.20.2 or 1.21
 public class ChunkDataSyncManager {
     
     private static final Logger LOGGER = LogUtils.getLogger();

@@ -14,7 +14,7 @@ public abstract class MixinServerChunkCache implements IEServerChunkManager {
     private DistanceManager distanceManager;
     
     @Override
-    public DistanceManager getTicketManager() {
+    public DistanceManager ip_getDistanceManager() {
         return distanceManager;
     }
 }

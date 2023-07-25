@@ -5,10 +5,14 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -17,8 +21,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.Ticket;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.util.SortedArraySet;
 import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -39,8 +47,11 @@ import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
+import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEChunkMap_Accessor;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.MiscHelper;
@@ -54,6 +65,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket.getDistanceManager;
 
 public class PortalDebugCommands {
     static void registerDebugCommands(
@@ -150,7 +163,7 @@ public class PortalDebugCommands {
                     long m = Runtime.getRuntime().totalMemory();
                     long n = Runtime.getRuntime().freeMemory();
                     long o = m - n;
-    
+                    
                     context.getSource().sendSuccess(
                         () -> Component.literal(
                             String.format("Memory: % 2d%% %03d/%03dMB", o * 100L / l, toMiB(o), toMiB(l))
@@ -184,10 +197,29 @@ public class PortalDebugCommands {
                 .argument("v", DoubleArgumentType.doubleArg())
                 .executes(context -> {
                     double v = DoubleArgumentType.getDouble(context, "v");
+                    ServerPlayer player = context.getSource().getPlayer();
+                    Vec3 vec = player.getViewVector(1).scale(v / 20.0d);
                     McRemoteProcedureCall.tellClientToInvoke(
                         context.getSource().getPlayerOrException(),
                         "qouteall.imm_ptl.core.commands.PortalCommand.RemoteCallables.clientAccelerate",
-                        v
+                        vec
+                    );
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(Commands
+            .literal("accelerate_along")
+            .requires(PortalCommand::canUsePortalCommand)
+            .then(Commands
+                .argument("vec", Vec3Argument.vec3(false))
+                .executes(context -> {
+                    Vec3 vec = Vec3Argument.getVec3(context, "vec");
+                    McRemoteProcedureCall.tellClientToInvoke(
+                        context.getSource().getPlayerOrException(),
+                        "qouteall.imm_ptl.core.commands.PortalCommand.RemoteCallables.clientAccelerate",
+                        vec.scale(1.0 / 20)
                     );
                     return 0;
                 })
@@ -243,12 +275,13 @@ public class PortalDebugCommands {
             .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
-                ChunkVisibility.getBaseChunkLoaders(
-                    player
-                ).forEach(
-                    loader -> McHelper.serverLog(
-                        player, loader.toString()
-                    )
+                ChunkVisibility.foreachBaseChunkLoaders(
+                    player,
+                    loader -> {
+                        McHelper.serverLog(
+                            player, loader.toString()
+                        );
+                    }
                 );
                 return 0;
             })
@@ -277,58 +310,31 @@ public class PortalDebugCommands {
                         .executes(context -> {
                             int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
                             int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-                            ServerLevel dim = DimensionArgument.getDimension(context, "dim");
+                            ServerLevel world = DimensionArgument.getDimension(context, "dim");
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             
-                            LevelChunk chunk = McHelper.getServerChunkIfPresent(
-                                dim,
-                                chunkX, chunkZ
-                            );
-                            
-                            boolean loaded = chunk != null && !(chunk instanceof EmptyLevelChunk);
-                            
-                            if (loaded) {
-                                long longPos = ChunkPos.asLong(chunkX, chunkZ);
-                                boolean shouldTickEntities =
-                                    MyLoadingTicket.getTicketManager(dim).inEntityTickingRange(longPos);
-                                if (shouldTickEntities) {
-                                    McHelper.serverLog(player, "server chunk loaded and entity tickable");
-                                }
-                                else {
-                                    McHelper.serverLog(player, "server chunk loaded but entity not tickable");
-                                }
-                            }
-                            else {
-                                McHelper.serverLog(player, "server chunk not loaded");
-                            }
-                            
-                            ChunkHolder chunkHolder = McHelper.getIEStorage(dim.dimension()).ip_getChunkHolder(
-                                ChunkPos.asLong(chunkX, chunkZ)
-                            );
-                            
-                            if (chunkHolder == null) {
-                                McHelper.serverLog(player, "no chunk holder");
-                            }
-                            else {
-                                McHelper.serverLog(
-                                    player,
-                                    String.format(
-                                        "chunk holder level:%s %s",
-                                        chunkHolder.getTicketLevel(),
-                                        chunk.getFullStatus()
-                                    )
-                                );
-                            }
-                            
-                            McRemoteProcedureCall.tellClientToInvoke(
-                                player,
-                                "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
-                                dim.dimension(), chunkX, chunkZ
-                            );
+                            doReportChunkStatus(chunkX, chunkZ, world, player);
                             
                             return 0;
                         })
                     )
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("report_chunk_at")
+            .then(Commands.argument("dim", DimensionArgument.dimension())
+                .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                    .executes(context -> {
+                        ServerLevel world = DimensionArgument.getDimension(context, "dim");
+                        ServerPlayer player = context.getSource().getPlayerOrException();
+                        BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
+                        ChunkPos chunkPos = new ChunkPos(pos);
+                        
+                        doReportChunkStatus(chunkPos.x, chunkPos.z, world, player);
+                        
+                        return 0;
+                    })
                 )
             )
         );
@@ -405,6 +411,77 @@ public class PortalDebugCommands {
                     context.getSource().getPlayerOrException(),
                     "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportResourceConsumption"
                 );
+                
+                return 0;
+            })
+        );
+        
+        builder.then(Commands.literal("report_chunk_ticket_stat")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .executes(context -> {
+                ServerLevel world = context.getSource().getLevel();
+                Iterable<ChunkHolder> chunkHolders = ((IEChunkMap_Accessor) world.getChunkSource().chunkMap).ip_getChunks();
+                
+                Object2IntOpenHashMap<TicketType<?>> stat = new Object2IntOpenHashMap<>();
+                for (ChunkHolder chunkHolder : chunkHolders) {
+                    long chunkPos = chunkHolder.getPos().toLong();
+                    SortedArraySet<Ticket<?>> chunkTickets =
+                        ((IEChunkTicketManager) getDistanceManager(world))
+                            .portal_getTicketSet(chunkPos);
+                    
+                    for (Ticket<?> ticket : chunkTickets) {
+                        stat.addTo(ticket.getType(), 1);
+                    }
+                }
+                
+                context.getSource().sendSuccess(() -> Component.literal(""), false);
+                for (Object2IntMap.Entry<TicketType<?>> entry : stat.object2IntEntrySet()) {
+                    TicketType<?> ticketType = entry.getKey();
+                    context.getSource().sendSuccess(
+                        () -> Component.literal(ticketType.toString() + " " + entry.getIntValue()),
+                        false
+                    );
+                }
+                
+                return 0;
+            })
+        );
+        
+        builder.then(Commands.literal("report_chunk_level_stat")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .executes(context -> {
+                ServerLevel world = context.getSource().getLevel();
+                Iterable<ChunkHolder> chunkHolders = ((IEChunkMap_Accessor) world.getChunkSource().chunkMap).ip_getChunks();
+                
+                Int2IntAVLTreeMap ticketLevelStat = new Int2IntAVLTreeMap();
+                Int2IntAVLTreeMap queueLevelStat = new Int2IntAVLTreeMap();
+                for (ChunkHolder chunkHolder : chunkHolders) {
+                    int ticketLevel = chunkHolder.getTicketLevel();
+                    ticketLevelStat.addTo(ticketLevel, 1);
+                    
+                    int queueLevel = chunkHolder.getQueueLevel();
+                    queueLevelStat.addTo(queueLevel, 1);
+                }
+                
+                context.getSource().sendSuccess(() -> Component.literal("Ticket Level Stat:"), true);
+                for (Int2IntMap.Entry entry : ticketLevelStat.int2IntEntrySet()) {
+                    int level = entry.getIntKey();
+                    int count = entry.getIntValue();
+                    context.getSource().sendSuccess(
+                        () -> Component.literal(level + ": " + count),
+                        true
+                    );
+                }
+                
+                context.getSource().sendSuccess(() -> Component.literal("Queue Level Stat:"), true);
+                for (Int2IntMap.Entry entry : queueLevelStat.int2IntEntrySet()) {
+                    int level = entry.getIntKey();
+                    int count = entry.getIntValue();
+                    context.getSource().sendSuccess(
+                        () -> Component.literal(level + ": " + count),
+                        true
+                    );
+                }
                 
                 return 0;
             })
@@ -501,7 +578,7 @@ public class PortalDebugCommands {
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
                 BlockState blockState = player.level().getBlockState(player.blockPosition());
-    
+                
                 context.getSource().sendSuccess(
                     () -> blockState.getBlock().getName(),
                     false
@@ -509,7 +586,7 @@ public class PortalDebugCommands {
                 return 0;
             })
         );
-    
+        
         builder.then(Commands
             .literal("test_invalid_rpc")
             .executes(context -> {
@@ -522,17 +599,75 @@ public class PortalDebugCommands {
         );
     }
     
+    private static void doReportChunkStatus(int chunkX, int chunkZ, ServerLevel world, ServerPlayer player) {
+        LevelChunk chunk = McHelper.getServerChunkIfPresent(
+            world,
+            chunkX, chunkZ
+        );
+        
+        boolean loaded = chunk != null && !(chunk instanceof EmptyLevelChunk);
+        
+        long longChunkPos = ChunkPos.asLong(chunkX, chunkZ);
+        if (loaded) {
+            boolean shouldTickEntities =
+                getDistanceManager(world).inEntityTickingRange(longChunkPos);
+            if (shouldTickEntities) {
+                McHelper.serverLog(player, "Server chunk loaded and entity tickable");
+            }
+            else {
+                McHelper.serverLog(player, "Server chunk loaded but entity not tickable");
+            }
+        }
+        else {
+            McHelper.serverLog(player, "Server chunk not loaded");
+        }
+        
+        ChunkHolder chunkHolder = McHelper.getIEStorage(world.dimension()).ip_getChunkHolder(
+            longChunkPos
+        );
+        
+        if (chunkHolder == null) {
+            McHelper.serverLog(player, "no chunk holder");
+        }
+        else {
+            McHelper.serverLog(
+                player,
+                String.format(
+                    "chunk holder level:%s %s",
+                    chunkHolder.getTicketLevel(),
+                    chunk == null ? "" : chunk.getFullStatus()
+                )
+            );
+            
+            DistanceManager distanceManager =
+                ((IEServerChunkManager) world.getChunkSource()).ip_getDistanceManager();
+            SortedArraySet<Ticket<?>> tickets = ((IEChunkTicketManager) distanceManager).portal_getTicketSet(longChunkPos);
+            for (Ticket<?> ticket : tickets) {
+                McHelper.serverLog(
+                    player,
+                    ticket.toString()
+                );
+            }
+        }
+        
+        McRemoteProcedureCall.tellClientToInvoke(
+            player,
+            "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
+            world.dimension(), chunkX, chunkZ
+        );
+    }
+    
     public static String getServerWorldResourceConsumption(ServerLevel world) {
         StringBuilder subStr = new StringBuilder();
         
-        LongSortedSet rec = MyLoadingTicket.loadedChunkRecord.get(world);
+        MyLoadingTicket.DimTicketManager dimTicketManager = MyLoadingTicket.getDimTicketManager(world);
         LevelEntityGetter<Entity> entityLookup = ((IEWorld) world).portal_getEntityLookup();
         
         subStr.append(String.format(
-            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
+            "%s:\nImmPtl Tracked Chunks: %s\nImmPtl Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
             world.dimension().location(),
             NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
-            rec == null ? "null" : rec.size(),
+            dimTicketManager.chunkPosToTicketInfo.size(),
             world.getChunkSource().chunkMap.size(),
             ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),
             ((IELevelEntityGetterAdapter) entityLookup).getCache().count()

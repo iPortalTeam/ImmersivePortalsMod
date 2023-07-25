@@ -17,6 +17,7 @@ import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
+import qouteall.imm_ptl.core.debug.DebugUtil;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
@@ -82,6 +83,8 @@ public class IPModMain {
         SubCommandArgumentType.init();
         TimingFunctionArgumentType.init();
         AxisArgumentType.init();
+    
+        DebugUtil.init();
         
         // intrinsic animation driver types
         RotationAnimation.init();

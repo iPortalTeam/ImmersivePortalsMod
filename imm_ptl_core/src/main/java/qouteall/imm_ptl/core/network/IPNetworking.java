@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -122,14 +121,7 @@ public class IPNetworking {
     }
     
     public static class RemoteCallables {
-        // TODO remove in 1.20
-        // this kept because older versions of ImmPtl client sends that packet
-        // failing to handle a packet cause kicking the player
-        public static void onClientPlayerUpdatePose(
-            ServerPlayer player, Pose pose
-        ) {
-        
-        }
+    
     }
     
 }

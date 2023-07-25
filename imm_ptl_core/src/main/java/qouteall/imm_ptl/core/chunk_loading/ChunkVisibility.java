@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import com.google.common.collect.Streams;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,8 +15,8 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class ChunkVisibility {
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
@@ -181,51 +180,50 @@ public class ChunkVisibility {
     //1.player direct loader
     //2.loaders from the portals that are directly visible
     //3.loaders from the portals that are indirectly visible through portals
-    public static Stream<ChunkLoader> getBaseChunkLoaders(
-        ServerPlayer player
+    public static void foreachBaseChunkLoaders(
+        ServerPlayer player, Consumer<ChunkLoader> func
     ) {
         PerformanceLevel perfLevel = NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
         int visiblePortalRangeChunks = PerformanceLevel.getVisiblePortalRangeChunks(perfLevel);
         int indirectVisiblePortalRangeChunks = PerformanceLevel.getIndirectVisiblePortalRangeChunks(perfLevel);
         
         ChunkLoader playerDirectLoader = playerDirectLoader(player);
+    
+        func.accept(playerDirectLoader);
+    
+        List<Portal> nearbyPortals = getNearbyPortals(
+            ((ServerLevel) player.level()),
+            player.position(),
+            portal -> portal.broadcastToPlayer(player),
+            visiblePortalRangeChunks, 256
+        );
         
-        return Streams.concat(
-            Stream.of(playerDirectLoader),
+        for (Portal portal : nearbyPortals) {
+            Level destinationWorld = portal.getDestinationWorld();
+    
+            if (destinationWorld == null) {
+                continue;
+            }
+    
+            Vec3 transformedPlayerPos = portal.transformPoint(player.position());
             
-            getNearbyPortals(
-                ((ServerLevel) player.level()),
-                player.position(),
-                portal -> portal.broadcastToPlayer(player),
-                visiblePortalRangeChunks, 256
-            ).stream().flatMap(
-                portal -> {
-                    Vec3 transformedPlayerPos = portal.transformPoint(player.position());
-                    
-                    Level destinationWorld = portal.getDestinationWorld();
-                    
-                    if (destinationWorld == null) {
-                        return Stream.empty();
-                    }
-                    
-                    return Stream.concat(
-                        Stream.of(getGeneralDirectPortalLoader(player, portal)),
-                        isShrinkLoading() ?
-                            Stream.empty() :
-                            getNearbyPortals(
-                                ((ServerLevel) destinationWorld),
-                                transformedPlayerPos,
-                                p -> p.broadcastToPlayer(player),
-                                indirectVisiblePortalRangeChunks, 32
-                            ).stream().map(
-                                innerPortal -> getGeneralPortalIndirectLoader(
-                                    player, transformedPlayerPos, innerPortal
-                                )
-                            )
-                    );
+            func.accept(getGeneralDirectPortalLoader(player, portal));
+    
+            if (!isShrinkLoading()) {
+                List<Portal> indirectNearbyPortals = getNearbyPortals(
+                    ((ServerLevel) destinationWorld),
+                    transformedPlayerPos,
+                    p -> p.broadcastToPlayer(player),
+                    indirectVisiblePortalRangeChunks, 32
+                );
+    
+                for (Portal innerPortal : indirectNearbyPortals) {
+                    func.accept(getGeneralPortalIndirectLoader(
+                        player, transformedPlayerPos, innerPortal
+                    ));
                 }
-            )
-        ).distinct();
+            }
+        }
     }
     
     public static boolean isShrinkLoading() {

@@ -79,7 +79,7 @@ allprojects {
             officialMojangMappings() {
                 setNameSyntheticMembers(false)
             }
-            parchment("org.parchmentmc.data:parchment-1.19.3:2022.12.18")
+            parchment("org.parchmentmc.data:parchment-1.20.1:2023.06.26")
         }
 
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -96,6 +96,7 @@ allprojects {
 
         modCompileOnly("com.github.Virtuoel:Pehkui:${pehkui_version}", {
             exclude group: "net.fabricmc.fabric-api"
+            transitive(false)
         })
 
         modCompileOnly "${project.sodium_path}"

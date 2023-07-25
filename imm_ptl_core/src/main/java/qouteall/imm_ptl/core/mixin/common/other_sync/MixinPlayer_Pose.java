@@ -25,21 +25,4 @@ public class MixinPlayer_Pose {
         }
     }
     
-//    // as the pose is not being updated on server side, send packets to sync to server
-//    @Redirect(
-//        method = "updatePlayerPose",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/world/entity/player/Player;setPose(Lnet/minecraft/world/entity/Pose;)V"
-//        )
-//    )
-//    private void redirectSetPose(Player instance, Pose pose) {
-//        if (instance.getPose() != pose) {
-//            instance.setPose(pose);
-//            McRemoteProcedureCall.tellServerToInvoke(
-//                "qouteall.imm_ptl.core.network.IPNetworking.RemoteCallables.onClientPlayerUpdatePose",
-//                pose
-//            );
-//        }
-//    }
 }

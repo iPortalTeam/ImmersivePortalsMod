@@ -47,9 +47,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     @Override
     public boolean replaceFrameBufferClearing() {
         boolean skipClearing = PortalRendering.isRendering();
-        if (skipClearing) {
-            // TODO check whether clearing is necessary as sky may override it
-        }
+        // no need to clear the portal area. normally the sky will override it
         return skipClearing;
     }
     

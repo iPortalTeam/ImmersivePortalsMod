@@ -42,6 +42,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -68,7 +69,6 @@ import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -2538,14 +2538,14 @@ public class PortalCommand {
     
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
-        public static void clientAccelerate(double v) {
+        public static void clientAccelerate(Vec3 vec) {
             Minecraft client = Minecraft.getInstance();
             
             LocalPlayer player = client.player;
             
             McHelper.setWorldVelocity(
                 player,
-                player.getViewVector(1).scale(v / 20)
+                vec
             );
         }
     }

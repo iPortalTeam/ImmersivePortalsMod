@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.MiscHelper;
@@ -15,6 +16,7 @@ import java.util.Objects;
 public class ChunkLoader {
     public DimensionalChunkPos center;
     public int radius;
+    @Deprecated
     public boolean isDirectLoader = false;
     
     public ChunkLoader(DimensionalChunkPos center, int radius) {
@@ -25,6 +27,7 @@ public class ChunkLoader {
         this.center = center;
         this.radius = radius;
         this.isDirectLoader = isDirectLoader;
+        Validate.isTrue(radius <= 32, "chunk loader radius cannot be larger than 32");
     }
     
     public int getLoadedChunkNum() {
