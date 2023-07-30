@@ -112,7 +112,7 @@ public class MixinPlayerList {
         
         for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs.values()) {
             if (rec.isLoadedToPlayer && rec.player != excludingPlayer) {
-                if (NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
+                if (NewChunkTrackingGraph.isPlayerWatchingChunkWithinRadius(
                     rec.player, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
                 )) {
                     rec.player.connection.send(

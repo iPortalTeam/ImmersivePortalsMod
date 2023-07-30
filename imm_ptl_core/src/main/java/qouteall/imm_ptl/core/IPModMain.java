@@ -7,7 +7,7 @@ import net.minecraft.world.InteractionResult;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
-import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
@@ -71,7 +71,7 @@ public class IPModMain {
         
         ServerPerformanceMonitor.init();
         
-        MyLoadingTicket.init();
+        ImmPtlChunkTickets.init();
         
         IPPortingLibCompat.init();
         

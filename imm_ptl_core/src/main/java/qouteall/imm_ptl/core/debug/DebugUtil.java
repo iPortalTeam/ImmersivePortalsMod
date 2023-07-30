@@ -3,15 +3,13 @@ package qouteall.imm_ptl.core.debug;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class DebugUtil {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    public static int acquireCounter = 0;
-    public static int releaseCounter = 0;
-    
-    public static final AtomicInteger actualAcquire = new AtomicInteger();
+//    public static int acquireCounter = 0;
+//    public static int releaseCounter = 0;
+//
+//    public static final AtomicInteger actualAcquire = new AtomicInteger();
     
     public static void init() {
 //        IPGlobal.postServerTickSignal.connect(() -> {

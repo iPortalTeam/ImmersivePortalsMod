@@ -5,8 +5,6 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
@@ -45,7 +43,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
-import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
@@ -66,7 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket.getDistanceManager;
+import static qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets.getDistanceManager;
 
 public class PortalDebugCommands {
     static void registerDebugCommands(
@@ -447,45 +445,58 @@ public class PortalDebugCommands {
             })
         );
         
-        builder.then(Commands.literal("report_chunk_level_stat")
+        builder.then(Commands.literal("report_per_player_chunk_loading")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .executes(context -> {
-                ServerLevel world = context.getSource().getLevel();
-                Iterable<ChunkHolder> chunkHolders = ((IEChunkMap_Accessor) world.getChunkSource().chunkMap).ip_getChunks();
-                
-                Int2IntAVLTreeMap ticketLevelStat = new Int2IntAVLTreeMap();
-                Int2IntAVLTreeMap queueLevelStat = new Int2IntAVLTreeMap();
-                for (ChunkHolder chunkHolder : chunkHolders) {
-                    int ticketLevel = chunkHolder.getTicketLevel();
-                    ticketLevelStat.addTo(ticketLevel, 1);
-                    
-                    int queueLevel = chunkHolder.getQueueLevel();
-                    queueLevelStat.addTo(queueLevel, 1);
+                List<ServerPlayer> players = MiscHelper.getServer().getPlayerList().getPlayers();
+                for (ServerPlayer player : players) {
+                    NewChunkTrackingGraph.PlayerInfo playerInfo = NewChunkTrackingGraph.getPlayerInfo(player);
+                    String text = "%s %d".formatted(player.getName().getString(), playerInfo.loadedChunks);
+                    context.getSource().sendSuccess(() -> Component.literal(text), true);
                 }
-                
-                context.getSource().sendSuccess(() -> Component.literal("Ticket Level Stat:"), true);
-                for (Int2IntMap.Entry entry : ticketLevelStat.int2IntEntrySet()) {
-                    int level = entry.getIntKey();
-                    int count = entry.getIntValue();
-                    context.getSource().sendSuccess(
-                        () -> Component.literal(level + ": " + count),
-                        true
-                    );
-                }
-                
-                context.getSource().sendSuccess(() -> Component.literal("Queue Level Stat:"), true);
-                for (Int2IntMap.Entry entry : queueLevelStat.int2IntEntrySet()) {
-                    int level = entry.getIntKey();
-                    int count = entry.getIntValue();
-                    context.getSource().sendSuccess(
-                        () -> Component.literal(level + ": " + count),
-                        true
-                    );
-                }
-                
                 return 0;
             })
         );
+
+//        builder.then(Commands.literal("report_chunk_level_stat")
+//            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+//            .executes(context -> {
+//                ServerLevel world = context.getSource().getLevel();
+//                Iterable<ChunkHolder> chunkHolders = ((IEChunkMap_Accessor) world.getChunkSource().chunkMap).ip_getChunks();
+//
+//                Int2IntAVLTreeMap ticketLevelStat = new Int2IntAVLTreeMap();
+//                Int2IntAVLTreeMap queueLevelStat = new Int2IntAVLTreeMap();
+//                for (ChunkHolder chunkHolder : chunkHolders) {
+//                    int ticketLevel = chunkHolder.getTicketLevel();
+//                    ticketLevelStat.addTo(ticketLevel, 1);
+//
+//                    int queueLevel = chunkHolder.getQueueLevel();
+//                    queueLevelStat.addTo(queueLevel, 1);
+//                }
+//
+//                context.getSource().sendSuccess(() -> Component.literal("Ticket Level Stat:"), true);
+//                for (Int2IntMap.Entry entry : ticketLevelStat.int2IntEntrySet()) {
+//                    int level = entry.getIntKey();
+//                    int count = entry.getIntValue();
+//                    context.getSource().sendSuccess(
+//                        () -> Component.literal(level + ": " + count),
+//                        true
+//                    );
+//                }
+//
+//                context.getSource().sendSuccess(() -> Component.literal("Queue Level Stat:"), true);
+//                for (Int2IntMap.Entry entry : queueLevelStat.int2IntEntrySet()) {
+//                    int level = entry.getIntKey();
+//                    int count = entry.getIntValue();
+//                    context.getSource().sendSuccess(
+//                        () -> Component.literal(level + ": " + count),
+//                        true
+//                    );
+//                }
+//
+//                return 0;
+//            })
+//        );
         
         builder.then(Commands
             .literal("check_biome_registry")
@@ -660,14 +671,14 @@ public class PortalDebugCommands {
     public static String getServerWorldResourceConsumption(ServerLevel world) {
         StringBuilder subStr = new StringBuilder();
         
-        MyLoadingTicket.DimTicketManager dimTicketManager = MyLoadingTicket.getDimTicketManager(world);
+        ImmPtlChunkTickets dimTicketManager = ImmPtlChunkTickets.get(world);
         LevelEntityGetter<Entity> entityLookup = ((IEWorld) world).portal_getEntityLookup();
         
         subStr.append(String.format(
             "%s:\nImmPtl Tracked Chunks: %s\nImmPtl Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
             world.dimension().location(),
             NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
-            dimTicketManager.chunkPosToTicketInfo.size(),
+            dimTicketManager.getLoadedChunkNum(),
             world.getChunkSource().chunkMap.size(),
             ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),
             ((IELevelEntityGetterAdapter) entityLookup).getCache().count()

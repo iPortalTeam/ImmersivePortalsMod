@@ -1,11 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common.debug;
 
 import org.spongepowered.asm.mixin.Mixin;
-import qouteall.q_misc_util.my_util.RateStat;
 
 @Mixin(targets = "net.minecraft.server.level.DistanceManager$PlayerTicketTracker")
 public class MixinPlayerTicketTracker_Debug {
-    private static final RateStat debugRateStat = new RateStat("addPlayerTicket");
+//    private static final RateStat debugRateStat = new RateStat("addPlayerTicket");
     
 //    @Inject(
 //        method = "method_17667",

@@ -104,8 +104,7 @@ public class IPConfig implements ConfigData {
     public boolean looseMovementCheck = false;
     @ConfigEntry.Gui.Excluded
     public boolean chunkPacketDebug = false;
-    // TODO exclude it after debugging
-//    @ConfigEntry.Gui.Excluded
+    @ConfigEntry.Gui.Excluded
     public boolean enableImmPtlChunkLoading = true;
     @ConfigEntry.Gui.Excluded
     public HashSet<String> disabledWarnings = new HashSet<>();

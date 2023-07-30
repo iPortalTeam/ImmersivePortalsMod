@@ -134,7 +134,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         );
         ChunkPos chunkPos = entity.chunkPosition();
         boolean isWatchedNow =
-            NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
+            NewChunkTrackingGraph.isPlayerWatchingChunkWithinRadius(
                 player,
                 this.entity.level().dimension(),
                 chunkPos.x,
