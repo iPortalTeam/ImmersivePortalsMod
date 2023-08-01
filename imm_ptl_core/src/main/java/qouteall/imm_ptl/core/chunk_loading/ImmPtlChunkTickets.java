@@ -249,6 +249,8 @@ public class ImmPtlChunkTickets {
             boolean keepLoading = shouldKeepLoadingFunc.test(chunkPos);
             
             if (!keepLoading) {
+                waitingForLoading.remove(chunkPos);
+                
                 boolean pendingTicketAdding = getQueueByDistance(ticketInfo.distanceToSource)
                     .remove(chunkPos);
                 
