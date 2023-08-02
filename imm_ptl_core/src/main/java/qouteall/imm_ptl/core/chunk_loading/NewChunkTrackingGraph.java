@@ -251,21 +251,23 @@ public class NewChunkTrackingGraph {
     }
     
     private static int getChunkDeliveringLimitPerTick(ServerPlayer player) {
-        if (player.tickCount < 100) {
-            return 200;
-        }
+        return 200; // no need to throttle chunk packet sending as there is already chunk loading throttling
         
-        PlayerInfo playerInfo = getPlayerInfo(player);
-        
-        if (playerInfo.performanceLevel == PerformanceLevel.good) {
-            return 5;
-        }
-        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
-            return 1;
-        }
-        else {
-            return player.tickCount % 4 == 0 ? 1 : 0;
-        }
+//        if (player.tickCount < 100) {
+//            return 200;
+//        }
+//
+//        PlayerInfo playerInfo = getPlayerInfo(player);
+//
+//        if (playerInfo.performanceLevel == PerformanceLevel.good) {
+//            return 5;
+//        }
+//        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
+//            return 1;
+//        }
+//        else {
+//            return player.tickCount % 4 == 0 ? 1 : 0;
+//        }
     }
     
     private static void purge(
@@ -412,7 +414,7 @@ public class NewChunkTrackingGraph {
             ImmPtlChunkTickets dimTicketManager = ImmPtlChunkTickets.get(world);
             IEThreadedAnvilChunkStorage chunkMap = (IEThreadedAnvilChunkStorage) world.getChunkSource().chunkMap;
             
-            dimTicketManager.flushThrottling(world);
+            dimTicketManager.tick(world);
         }
         
         server.getProfiler().pop();

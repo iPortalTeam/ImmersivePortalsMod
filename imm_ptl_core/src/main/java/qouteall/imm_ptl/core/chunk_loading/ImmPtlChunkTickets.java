@@ -30,6 +30,7 @@ import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
+import qouteall.q_misc_util.my_util.RateStat;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,8 +51,7 @@ import java.util.concurrent.Executor;
  * If the acquired chunk slots are full, it will stop processing task, until a slot releases.
  * The {@link ChunkTaskPriorityQueueSorter} uses a {@link ProcessorMailbox}
  * (the mailbox is similar to a one-thread thread pool but uses threads from the worker thread pool)
- * to do a lot of unnecessary message-passing (it enqueues at least 5 messages just to add one ticket).
- * (It is very over-engineered and contains a lot of unnecessary complexity.)
+ * to do a lot of message-passing (it enqueues at least 5 messages just to add one ticket).
  * In {@link DistanceManager.PlayerTicketTracker} it sends message for acquiring and releasing.
  * The chunk positions to release are passed into {@link DistanceManager#ticketsToRelease}.
  * A callback for sending message for releasing will be added to these chunk's future.
@@ -61,6 +61,11 @@ public class ImmPtlChunkTickets {
     
     public static final TicketType<ChunkPos> TICKET_TYPE =
         TicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
+    
+    // for debugging
+    private static boolean enableDebugRateStat = true;
+    private static boolean test = false;
+    private static final RateStat debugRateStat = new RateStat("imm_ptl_chunk_ticket");
     
     // the fields of ImmPtlChunkTickets should avoid referencing ServerLevel
     public static final WeakHashMap<ServerLevel, ImmPtlChunkTickets> BY_DIMENSION = new WeakHashMap<>();
@@ -90,6 +95,8 @@ public class ImmPtlChunkTickets {
     private boolean isValid = true;
     
     public final int throttlingLimit = 4;
+    
+    public int immediateTaskQuota = 0;
     
     private ImmPtlChunkTickets() {
     
@@ -139,14 +146,17 @@ public class ImmPtlChunkTickets {
         );
     }
     
-    /**
-     * this is run in two cases:
-     * 1. ticking
-     * 2. triggered from callback of a chunk loading future, but still in main thread
-     * (only flush during ticking will make chunk loading throttled too slow)
-     */
+    public void tick(ServerLevel world) {
+        immediateTaskQuota = 0;
+        flushThrottling(world);
+    }
+    
     public void flushThrottling(ServerLevel world) {
         Validate.isTrue(world.getServer().isSameThread(), "should run on server main thread");
+        
+        if (enableDebugRateStat) {
+            debugRateStat.update();
+        }
         
         if (!isValid) {
             LOGGER.error("flushing when invalid {}", world);
@@ -223,17 +233,27 @@ public class ImmPtlChunkTickets {
         distanceManager.addRegionTicket(
             TICKET_TYPE, chunkPosObj, getLoadingRadius(), chunkPosObj
         );
+        
+        if (enableDebugRateStat) {
+            debugRateStat.hit();
+        }
     }
     
     private void addCallbackToFuture(
         ServerLevel world, Executor mainThreadExecutor, ChunkHolder chunkHolder
     ) {
-        chunkHolder.getEntityTickingChunkFuture()
-            .thenAccept(e -> {
-                mainThreadExecutor.execute(() -> {
-                    flushThrottling(world);
-                });
-            });
+//        chunkHolder.getEntityTickingChunkFuture()
+//            .thenAccept(e -> {
+//                if (immediateTaskQuota > 0 && world.getServer().isSameThread()) {
+//                    immediateTaskQuota--;
+//                    flushThrottling(world);
+//                }
+//                else {
+//                    mainThreadExecutor.execute(() -> {
+//                        flushThrottling(world);
+//                    });
+//                }
+//            });
     }
     
     public void purge(

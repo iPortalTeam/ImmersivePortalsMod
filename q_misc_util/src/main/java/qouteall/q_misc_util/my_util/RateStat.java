@@ -22,27 +22,30 @@ public class RateStat {
         });
     }
     
-    public void hit() {
+    public void update() {
         long currTime = System.nanoTime();
-        
+    
         long currUpdateSecond = currTime / 1000000000;
-        
+    
         if (lastUpdateSecond == 0) {
             lastUpdateSecond = currUpdateSecond;
-            hitCount++;
             return;
         }
-        
+    
         if (lastUpdateSecond != currUpdateSecond) {
             long passedSeconds = currUpdateSecond - lastUpdateSecond;
             int accumulatedHitCount = hitCount;
-            hitCount = 1;
+            hitCount = 0;
             lastUpdateSecond = currUpdateSecond;
             double rate = (double) accumulatedHitCount / passedSeconds;
-            rateConsumer.accept(rate);
+            if (rate != 0.0) {
+                rateConsumer.accept(rate);
+            }
         }
-        else {
-            hitCount++;
-        }
+    }
+    
+    public void hit() {
+        update();
+        hitCount++;
     }
 }
