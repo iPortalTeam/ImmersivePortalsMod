@@ -182,7 +182,7 @@ public class ImmPtlChunkTickets {
         waitingForLoading.removeIf((long chunkPos) -> {
             ChunkHolder chunkHolder = getChunkHolder(world, chunkPos);
             if (chunkHolder == null) {
-                LOGGER.error("Missing chunk holder {} {}", world, new ChunkPos(chunkPos));
+//                LOGGER.error("Missing chunk holder {} {}", world, new ChunkPos(chunkPos));
                 return true;
             }
             

@@ -79,6 +79,7 @@
     "client.MixinGlDebug",
     "client.MixinLivingEntity_C",
     "client.MixinMinecraft",
+    "client.accessor.IEClientLevel_Accessor",
     "client.collisions.MixinLocalPlayer",
     "client.interaction.MixinGameRenderer_B",
     "client.interaction.MixinMinecraft_B",

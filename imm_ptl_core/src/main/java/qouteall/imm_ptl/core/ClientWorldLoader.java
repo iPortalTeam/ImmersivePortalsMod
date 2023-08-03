@@ -16,9 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -28,6 +30,7 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.mixin.client.accessor.IEClientLevel_Accessor;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -37,7 +40,6 @@ import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -273,7 +275,7 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createSecondaryClientWorld(dimension);
         }
-    
+        
         ClientLevel result = clientWorldMap.get(dimension);
         Validate.notNull(result);
         return result;
@@ -357,6 +359,7 @@ public class ClientWorldLoader {
         ClientLevel newWorld;
         try {
             ClientPacketListener mainNetHandler = client.player.connection;
+            Map<String, MapItemSavedData> mapData = ((IEClientLevel_Accessor) client.level).ip_getMapData();
             
             ResourceKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
@@ -386,6 +389,9 @@ public class ClientWorldLoader {
                 client.level.isDebug(),
                 client.level.getBiomeManager().biomeZoomSeed
             );
+            
+            // all worlds share the same map data map
+            ((IEClientLevel_Accessor) newWorld).ip_setMapData(mapData);
         }
         catch (Exception e) {
             throw new IllegalStateException(
