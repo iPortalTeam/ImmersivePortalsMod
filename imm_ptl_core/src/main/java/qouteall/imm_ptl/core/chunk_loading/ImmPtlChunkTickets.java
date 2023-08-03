@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongPredicate;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
@@ -63,8 +64,7 @@ public class ImmPtlChunkTickets {
         TicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
     
     // for debugging
-    private static boolean enableDebugRateStat = true;
-    private static boolean test = false;
+    private static boolean enableDebugRateStat = false;
     private static final RateStat debugRateStat = new RateStat("imm_ptl_chunk_ticket");
     
     // the fields of ImmPtlChunkTickets should avoid referencing ServerLevel
@@ -151,6 +151,18 @@ public class ImmPtlChunkTickets {
         flushThrottling(world);
     }
     
+    /**
+     * This method is called during ticking and {@link DistanceManager#runAllUpdates(ChunkMap)} .
+     * <p>
+     * Only calling this method during ticking will make it throttled too slow.
+     * <p>
+     * This method uses the chunk holder's future, so it should be called after
+     * {@link DistanceManager#runAllUpdates(ChunkMap)}
+     * (as it calls {@link ChunkHolder#updateFutures(ChunkMap, Executor)}).
+     * Before updating the future, the chunk's entity ticking future may be a future that immediately returns {@link ChunkHolder.ChunkLoadingFailure} result.
+     * Each task to {@link net.minecraft.server.level.ServerChunkCache.MainThreadExecutor} will trigger
+     * {@link DistanceManager#runAllUpdates(ChunkMap)}.
+     */
     public void flushThrottling(ServerLevel world) {
         Validate.isTrue(world.getServer().isSameThread(), "should run on server main thread");
         
@@ -177,7 +189,7 @@ public class ImmPtlChunkTickets {
             Either<LevelChunk, ChunkHolder.ChunkLoadingFailure> resultNow =
                 chunkHolder.getEntityTickingChunkFuture().getNow(null);
             
-            return resultNow != null;
+            return resultNow != null && resultNow.left().isPresent();
         });
         
         // flush the pending-add-ticket queues
@@ -193,28 +205,6 @@ public class ImmPtlChunkTickets {
                         addTicket(distanceManager, chunkPos);
                         
                         waitingForLoading.add(chunkPos);
-                        
-                        // add callback to the chunk loading future
-                        ChunkHolder chunkHolder = getChunkHolder(world, chunkPos);
-                        if (chunkHolder != null) {
-                            addCallbackToFuture(world, mainThreadExecutor, chunkHolder);
-                        }
-                        else {
-                            // sometimes the chunk holder are only present after adding ticket
-                            // so add callback to the future later
-                            mainThreadExecutor.execute(() -> {
-                                ChunkHolder chunkHolder2 = getChunkHolder(world, chunkPos);
-                                if (chunkHolder2 != null) {
-                                    addCallbackToFuture(world, mainThreadExecutor, chunkHolder2);
-                                }
-                                else {
-                                    LOGGER.error(
-                                        "Missing chunk holder after adding ticket {} {}",
-                                        world, new ChunkPos(chunkPos)
-                                    );
-                                }
-                            });
-                        }
                     }
                     else {
                         LOGGER.warn("Chunk {} is not in the queue", new ChunkPos(chunkPos));
@@ -237,23 +227,6 @@ public class ImmPtlChunkTickets {
         if (enableDebugRateStat) {
             debugRateStat.hit();
         }
-    }
-    
-    private void addCallbackToFuture(
-        ServerLevel world, Executor mainThreadExecutor, ChunkHolder chunkHolder
-    ) {
-//        chunkHolder.getEntityTickingChunkFuture()
-//            .thenAccept(e -> {
-//                if (immediateTaskQuota > 0 && world.getServer().isSameThread()) {
-//                    immediateTaskQuota--;
-//                    flushThrottling(world);
-//                }
-//                else {
-//                    mainThreadExecutor.execute(() -> {
-//                        flushThrottling(world);
-//                    });
-//                }
-//            });
     }
     
     public void purge(
