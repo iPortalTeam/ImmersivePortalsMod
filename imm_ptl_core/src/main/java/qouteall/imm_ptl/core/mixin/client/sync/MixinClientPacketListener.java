@@ -145,8 +145,8 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
                 packetDim,
                 new Vec3(packet.getX(), packet.getY(), packet.getZ())
             );
-    
-            ClientTeleportationManager.disableTeleportFor(5);
+            
+//            ClientTeleportationManager.disableTeleportFor(2);
         }
         
         LOGGER.info(

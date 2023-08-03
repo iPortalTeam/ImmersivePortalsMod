@@ -77,11 +77,12 @@ public class ClientTeleportationManager {
     
     public static void init() {
         IPGlobal.postClientTickSignal.connect(
-             ClientTeleportationManager::tick
+            ClientTeleportationManager::tick
         );
-    
-        IPGlobal.clientCleanupSignal.connect( () -> {
-            disableTeleportFor(40);
+        
+        IPGlobal.clientCleanupSignal.connect(() -> {
+            lastPlayerEyePos = null;
+//            disableTeleportFor(2);
         });
     }
     
@@ -394,7 +395,7 @@ public class ClientTeleportationManager {
         McHelper.adjustVehicle(player);
         
         lastPlayerEyePos = null;
-        disableTeleportFor(20);
+//        disableTeleportFor(2);
         
         RenderStates.updatePreRenderInfo(RenderStates.getPartialTick());
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
