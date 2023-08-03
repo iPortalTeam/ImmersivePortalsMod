@@ -25,6 +25,8 @@ public class FrontClipping {
     
     public static boolean isClippingEnabled = false;
     
+    public static final double ADJUSTMENT = 0.01;
+    
     public static void disableClipping() {
         if (IPGlobal.enableClippingMechanism) {
             GL11.glDisable(GL11.GL_CLIP_PLANE0);
@@ -50,12 +52,13 @@ public class FrontClipping {
     
     // NOTE the actual clipping plane is related to current model view matrix
     public static void setupInnerClipping(
-        PortalLike portalLike, Matrix4f modelView,double adjustment
+        PortalLike portalLike, Matrix4f modelView, double adjustment
     ) {
         if (!IPCGlobal.useFrontClipping) {
             return;
         }
         
+        // Note: the normal of plane points to the non-clipped side
         final Plane clipping = portalLike.getInnerClipping();
         
         if (clipping != null) {
@@ -92,7 +95,7 @@ public class FrontClipping {
         Vec3 planeNormal = clippingDirection;
         
         Vec3 portalPos = clippingPoint
-            .subtract(planeNormal.scale(correction)) //avoid z fighting
+            .add(planeNormal.scale(correction))
             .subtract(cameraPos);
         
         //equation: planeNormal * p + c > 0

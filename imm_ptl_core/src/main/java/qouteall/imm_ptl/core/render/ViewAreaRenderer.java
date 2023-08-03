@@ -68,7 +68,7 @@ public class ViewAreaRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
                 PortalRendering.getRenderingPortal(),
-                modelViewMatrix, 0 // don't do correction
+                modelViewMatrix, 0 // don't do adjustment
             );
         }
         

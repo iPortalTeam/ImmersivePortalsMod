@@ -227,7 +227,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
             FrontClipping.setupInnerClipping(
                 PortalRendering.getRenderingPortal(),
                 matrices.last().pose(),
-                -0.001
+                -FrontClipping.ADJUSTMENT
                 // move the clipping plane a little back, to make world wrapping portal not z-fight
             );
             
