@@ -79,7 +79,7 @@ public class CrossPortalEntityRenderer {
         
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(), false, matrixStack
+                PortalRendering.getRenderingPortal(), matrixStack.last().pose(), 0
             );
         }
     }
@@ -202,7 +202,7 @@ public class CrossPortalEntityRenderer {
             // don't draw the existing triangles with culling enabled
             client.renderBuffers().bufferSource().endBatch();
             
-            FrontClipping.setupInnerClipping(collidingPortal, false, matrixStack);
+            FrontClipping.setupInnerClipping(collidingPortal, matrixStack.last().pose(), 0);
             renderEntity(entity, collidingPortal, matrixStack);
             FrontClipping.disableClipping();
         }

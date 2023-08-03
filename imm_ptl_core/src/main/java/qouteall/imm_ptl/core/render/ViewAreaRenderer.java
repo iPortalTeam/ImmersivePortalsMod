@@ -65,6 +65,13 @@ public class ViewAreaRenderer {
             MyRenderHelper.applyMirrorFaceCulling();
         }
         
+        if (PortalRendering.isRendering()) {
+            FrontClipping.setupInnerClipping(
+                PortalRendering.getRenderingPortal(),
+                modelViewMatrix, 0 // don't do correction
+            );
+        }
+        
         GlStateManager._enableDepthTest();
         
         CHelper.enableDepthClamp();
