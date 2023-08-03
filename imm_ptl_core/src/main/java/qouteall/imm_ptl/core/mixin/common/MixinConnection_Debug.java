@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.my_util.LimitedLogger;
 
 @Mixin(Connection.class)
 public class MixinConnection_Debug {
@@ -17,15 +17,22 @@ public class MixinConnection_Debug {
     @Final
     private static Logger LOGGER;
     
-    private static final LimitedLogger immptl_limitedLogger = new LimitedLogger(100);
+    @Unique
+    private static int immPtlExceptionLogNum = 0;
+    @Unique
+    private static int immPtlExceptionLogLimit = 5;
     
     // avoid swallowing the exception stacktrace
     // the exception is logged in debug level, but debug level is not enabled by default
     @Inject(method = "exceptionCaught", at = @At("HEAD"))
     private void onExceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
-        immptl_limitedLogger.invoke(() -> {
-            LOGGER.error("[ImmPtl] Exception from connection ", throwable);
-        });
+        if (immPtlExceptionLogNum < immPtlExceptionLogLimit) {
+            immPtlExceptionLogNum++;
+            LOGGER.info(
+                "(This is for debugging only. You can ignore that. Logging limit {}/{}) Exception from connection: ",
+                immPtlExceptionLogNum, immPtlExceptionLogLimit, throwable
+            );
+        }
     }
     
     // This will even trigger without ImmPtl
