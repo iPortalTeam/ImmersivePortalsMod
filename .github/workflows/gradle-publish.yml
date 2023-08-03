@@ -34,7 +34,6 @@ jobs:
       with:
         version-type: alpha
         dependencies: ""
-        changelog: ""
 
         files: |
           build/libs/!(*-@(dev|sources|javadoc)).jar

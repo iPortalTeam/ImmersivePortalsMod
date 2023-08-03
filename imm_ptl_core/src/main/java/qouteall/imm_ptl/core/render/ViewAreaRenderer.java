@@ -105,6 +105,10 @@ public class ViewAreaRenderer {
             MyRenderHelper.recoverFaceCulling();
         }
         
+        if (PortalRendering.isRendering()) {
+            FrontClipping.disableClipping();
+        }
+        
         CHelper.checkGlError();
     }
     
