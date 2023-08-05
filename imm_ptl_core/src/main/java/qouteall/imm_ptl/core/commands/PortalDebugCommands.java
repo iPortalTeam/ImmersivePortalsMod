@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
@@ -18,6 +19,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerLevel;
@@ -38,6 +40,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -67,6 +70,8 @@ import java.util.stream.Collectors;
 import static qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets.getDistanceManager;
 
 public class PortalDebugCommands {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     static void registerDebugCommands(
         LiteralArgumentBuilder<CommandSourceStack> builder
     ) {
@@ -302,6 +307,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(Commands.literal("is_chunk_loaded")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("dim", DimensionArgument.dimension())
                 .then(Commands.argument("chunkX", IntegerArgumentType.integer())
                     .then(Commands.argument("chunkZ", IntegerArgumentType.integer())
@@ -321,6 +327,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(Commands.literal("report_chunk_at")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("dim", DimensionArgument.dimension())
                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
                     .executes(context -> {
@@ -457,6 +464,30 @@ public class PortalDebugCommands {
                 return 0;
             })
         );
+        
+        builder.then(Commands.literal("save_all_chunks")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .executes(context -> {
+                MinecraftServer server = context.getSource().getServer();
+                server.saveAllChunks(true, true, false);
+                return 0;
+            })
+        );
+        
+        
+//        builder.then(Commands.literal("save_all_chunks_offthread")
+//            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+//            .executes(context -> {
+//                MinecraftServer server = context.getSource().getServer();
+//
+//                new Thread(() -> {
+//                    server.saveAllChunks(true, true, false);
+//                    LOGGER.info("Saving finished off-thread");
+//                }).start();
+//
+//                return 0;
+//            })
+//        );
 
 //        builder.then(Commands.literal("report_chunk_level_stat")
 //            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))

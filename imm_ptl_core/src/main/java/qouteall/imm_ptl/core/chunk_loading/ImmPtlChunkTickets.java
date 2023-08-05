@@ -164,7 +164,11 @@ public class ImmPtlChunkTickets {
      * {@link DistanceManager#runAllUpdates(ChunkMap)}.
      */
     public void flushThrottling(ServerLevel world) {
-        Validate.isTrue(world.getServer().isSameThread(), "should run on server main thread");
+        if (!world.getServer().isSameThread()) {
+            // https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1402
+            LOGGER.error("Called in a non-server-main thread.", new Throwable());
+            return;
+        }
         
         if (enableDebugRateStat) {
             debugRateStat.update();
