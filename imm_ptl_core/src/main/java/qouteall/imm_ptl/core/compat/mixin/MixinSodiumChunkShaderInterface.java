@@ -18,7 +18,7 @@ import qouteall.q_misc_util.Helper;
 @Mixin(value = ChunkShaderInterface.class, remap = false)
 public class MixinSodiumChunkShaderInterface {
     @Unique
-    private int uIPClippingEquation;
+    private int uIPClippingEquation = -1;
     
     @Unique
     private void ip_init(int shaderId) {
@@ -40,7 +40,12 @@ public class MixinSodiumChunkShaderInterface {
         ChunkShaderOptions options,
         CallbackInfo ci
     ) {
-        ip_init(((GlObject) context).handle());
+        if (context instanceof GlObject glObject) {
+            ip_init(glObject.handle());
+        }
+        else {
+            Helper.log("Skipping sodium shader init injection");
+        }
     }
     
     @Inject(

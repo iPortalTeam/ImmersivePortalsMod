@@ -1,8 +1,10 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
+import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import net.coderbot.iris.compat.sodium.impl.shader_overrides.IrisChunkShaderInterface;
 import net.coderbot.iris.compat.sodium.impl.shader_overrides.ShaderBindingContextExt;
 import net.coderbot.iris.gl.blending.BlendModeOverride;
+import net.coderbot.iris.gl.blending.BufferBlendOverride;
 import net.coderbot.iris.pipeline.SodiumTerrainPipeline;
 import net.coderbot.iris.uniforms.custom.CustomUniforms;
 import org.lwjgl.opengl.GL20C;
@@ -34,15 +36,16 @@ public class MixinIrisSodiumChunkShaderInterface {
         require = 0
     )
     private void onInit(
-        int handle,
-        ShaderBindingContextExt par2, SodiumTerrainPipeline par3, boolean par4,
-        BlendModeOverride par5, List par6, float par7, CustomUniforms par8, CallbackInfo ci
+        int handle, ShaderBindingContextExt contextExt, SodiumTerrainPipeline pipeline,
+        ChunkShaderOptions options, boolean isShadowPass, BlendModeOverride blendModeOverride,
+        List<BufferBlendOverride> bufferOverrides, float alpha, CustomUniforms customUniforms,
+        CallbackInfo ci
     ) {
         ip_init(handle);
     }
     
     @Inject(
-        method = "setup",
+        method = "setupState",
         at = @At("RETURN")
     )
     private void onSetup(CallbackInfo ci) {
