@@ -15,7 +15,6 @@
     "MixinIrisShadowRenderTargets",
     "MixinIrisSodiumChunkShaderInterface",
     "MixinIrisSodiumSodiumTerrainPipeline",
-    "MixinSodiumChunkGraphInfo",
     "MixinSodiumChunkShaderInterface",
     "MixinSodiumRenderSectionManager",
     "MixinSodiumShaderLoader",

@@ -143,7 +143,7 @@ public class FrontClipping {
         return activeClipPlaneEquationBeforeModelView;
     }
     
-    public static double[] getActiveClipPlaneEquationForEntities() {
+    public static double[] getActiveClipPlaneEquationAfterModelView() {
         return activeClipPlaneAfterModelView;
     }
     

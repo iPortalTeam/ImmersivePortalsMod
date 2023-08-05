@@ -48,7 +48,7 @@ public class MixinIrisSodiumChunkShaderInterface {
     private void onSetup(CallbackInfo ci) {
         if (uIPClippingEquation != -1) {
             if (FrontClipping.isClippingEnabled) {
-                double[] equation = FrontClipping.getActiveClipPlaneEquationForEntities();
+                double[] equation = FrontClipping.getActiveClipPlaneEquationAfterModelView();
                 GL21.glUniform4f(
                     uIPClippingEquation,
                     (float) equation[0],

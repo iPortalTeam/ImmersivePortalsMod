@@ -1,12 +1,13 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
+import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexType;
 import org.lwjgl.opengl.GL20C;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,10 +15,12 @@ import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.q_misc_util.Helper;
 
 @Pseudo
-@Mixin(targets = "me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface", remap = false)
+@Mixin(value = ChunkShaderInterface.class, remap = false)
 public class MixinSodiumChunkShaderInterface {
+    @Unique
     private int uIPClippingEquation;
     
+    @Unique
     private void ip_init(int shaderId) {
         uIPClippingEquation = GL20C.glGetUniformLocation(shaderId, "imm_ptl_ClippingEquation");
         if (uIPClippingEquation < 0) {
@@ -41,26 +44,22 @@ public class MixinSodiumChunkShaderInterface {
     }
     
     @Inject(
-        method = "setup",
+        method = "setupState",
         at = @At("RETURN"),
         remap = false
     )
-    private void onSetup(ChunkVertexType vertexType, CallbackInfo ci) {
+    private void onSetup(CallbackInfo ci) {
         if (uIPClippingEquation != -1) {
             if (FrontClipping.isClippingEnabled) {
-                double[] equation = FrontClipping.getActiveClipPlaneEquationForEntities();
+                double[] equation = FrontClipping.getActiveClipPlaneEquationAfterModelView();
                 GL20C.glUniform4f(
                     uIPClippingEquation,
-                    (float) equation[0],
-                    (float) equation[1],
-                    (float) equation[2],
-                    (float) equation[3]
+                    (float) equation[0], (float) equation[1], (float) equation[2], (float) equation[3]
                 );
             }
             else {
                 GL20C.glUniform4f(
-                    uIPClippingEquation,
-                    0, 0, 0, 1
+                    uIPClippingEquation, 0, 0, 0, 1
                 );
             }
         }

@@ -1,19 +1,21 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderList;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderListBuilder;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderLists;
+import me.jellysquid.mods.sodium.client.render.viewport.Viewport;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.IESodiumRenderSectionManager;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumRenderingContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
@@ -22,42 +24,64 @@ public class MixinSodiumRenderSectionManager implements IESodiumRenderSectionMan
     @Shadow
     @Final
     @Mutable
-    private ChunkRenderList chunkRenderList;
-    
-    @Shadow
-    @Final
-    @Mutable
-    private ObjectList<RenderSection> tickableChunks;
-    
-    @Shadow
-    @Final
-    @Mutable
-    private ObjectList<BlockEntity> visibleBlockEntities;
-    
-    @Shadow
-    @Final
-    @Mutable
     private int renderDistance;
+    
+    @Shadow
+    @Final
+    @Mutable
+    private @NotNull SortedRenderListBuilder renderListBuilder;
+    
+    @Shadow
+    private @NotNull SortedRenderLists renderLists;
     
     @Override
     public void ip_swapContext(SodiumRenderingContext context) {
         Validate.isTrue(context.renderDistance != 0, "Render distance cannot be 0");
+        Validate.isTrue(context.renderListBuilder != null);
+        Validate.isTrue(context.renderLists != null);
         
-        ChunkRenderList chunkRenderListTmp = chunkRenderList;
-        chunkRenderList = context.chunkRenderList;
-        context.chunkRenderList = chunkRenderListTmp;
+        SortedRenderListBuilder renderListBuilderTmp = renderListBuilder;
+        renderListBuilder = context.renderListBuilder;
+        context.renderListBuilder = renderListBuilderTmp;
         
-        ObjectList<RenderSection> tickableChunksTmp = tickableChunks;
-        tickableChunks = context.tickableChunks;
-        context.tickableChunks = tickableChunksTmp;
-        
-        ObjectList<BlockEntity> visibleBlockEntitiesTmp = visibleBlockEntities;
-        visibleBlockEntities = context.visibleBlockEntities;
-        context.visibleBlockEntities = visibleBlockEntitiesTmp;
+        SortedRenderLists renderListsTmp = renderLists;
+        renderLists = context.renderLists;
+        context.renderLists = renderListsTmp;
         
         int renderDistanceTmp = renderDistance;
         renderDistance = context.renderDistance;
         context.renderDistance = renderDistanceTmp;
+    }
+    
+    @Redirect(
+        method = "isOutsideViewport",
+        at = @At(
+            value = "INVOKE",
+            target = "Lme/jellysquid/mods/sodium/client/render/viewport/Viewport;isBoxVisible(DDDDDD)Z"
+        )
+    )
+    private boolean onIsOutsideViewport(
+        Viewport viewport,
+        double minX, double minY, double minZ,
+        double maxX, double maxY, double maxZ
+    ) {
+        boolean originalResult = viewport.isBoxVisible(
+            minX, minY, minZ, maxX, maxY, maxZ
+        );
+
+        if (originalResult) {
+            if (SodiumInterface.frustumCuller != null) {
+                boolean canDetermineInvisible =
+                    SodiumInterface.frustumCuller.canDetermineInvisibleWithWorldCoord(
+                        minX, minY, minZ, maxX, maxY, maxZ
+                    );
+                return !canDetermineInvisible;
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     
     /**

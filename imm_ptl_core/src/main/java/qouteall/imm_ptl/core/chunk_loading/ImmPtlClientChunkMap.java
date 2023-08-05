@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -76,6 +77,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             
             O_O.postClientChunkUnloadEvent(chunk);
             this.level.unload(chunk);
+            SodiumInterface.invoker.onClientChunkUnloaded(level, x, z);
             clientChunkUnloadSignal.emit(chunk);
         }
     }
@@ -140,12 +142,11 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         Validate.isTrue(Thread.currentThread() == mainThread);
-        long chunkPosLong = ChunkPos.asLong(x, z);
         
+        long chunkPosLong = ChunkPos.asLong(x, z);
         LevelChunk worldChunk = chunkMapForMainThread.get(chunkPosLong);
-        ChunkPos chunkPos = new ChunkPos(x, z);
         if (worldChunk == null) {
-            worldChunk = new LevelChunk(this.level, chunkPos);
+            worldChunk = new LevelChunk(this.level, new ChunkPos(x, z));
             loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
             
             LevelChunk worldChunkToPut = worldChunk; // lambda can only capture effectively final variables
@@ -158,8 +159,8 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         }
         
         this.level.onChunkLoaded(new ChunkPos(x, z));
-        
         O_O.postClientChunkLoadEvent(worldChunk);
+        SodiumInterface.invoker.onClientChunkLoaded(level, x, z);
         clientChunkLoadSignal.emit(worldChunk);
         
         return worldChunk;

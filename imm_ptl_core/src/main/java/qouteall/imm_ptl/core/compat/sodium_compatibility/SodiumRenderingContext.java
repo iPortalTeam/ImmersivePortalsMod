@@ -1,19 +1,17 @@
 package qouteall.imm_ptl.core.compat.sodium_compatibility;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderList;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderListBuilder;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderLists;
 
 public class SodiumRenderingContext {
-    public ChunkRenderList chunkRenderList = new ChunkRenderList();
-    public ObjectList<RenderSection> tickableChunks = new ObjectArrayList<>();
-    public ObjectList<BlockEntity> visibleBlockEntities = new ObjectArrayList<>();
+    public SortedRenderListBuilder renderListBuilder;
+    public SortedRenderLists renderLists;
     
     public int renderDistance;
     
     public SodiumRenderingContext(int renderDistance) {
         this.renderDistance = renderDistance;
+        this.renderListBuilder = new SortedRenderListBuilder();
+        this.renderLists = SortedRenderLists.empty();
     }
 }
