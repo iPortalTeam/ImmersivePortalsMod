@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.iris;
 
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import net.coderbot.iris.compat.sodium.impl.shader_overrides.IrisChunkShaderInterface;

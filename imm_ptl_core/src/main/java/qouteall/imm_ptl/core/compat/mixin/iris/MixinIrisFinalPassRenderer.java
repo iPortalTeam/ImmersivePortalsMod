@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.iris;
 
 import net.coderbot.iris.postprocess.FinalPassRenderer;
 import org.lwjgl.opengl.GL11;

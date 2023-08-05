@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.iris;
 
 import net.coderbot.iris.pipeline.ClearPass;
 import org.joml.Vector4f;

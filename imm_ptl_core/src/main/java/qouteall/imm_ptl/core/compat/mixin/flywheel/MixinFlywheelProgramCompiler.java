@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.flywheel;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

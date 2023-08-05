@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.iris;
 
 import com.mojang.blaze3d.shaders.Program;
 import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;

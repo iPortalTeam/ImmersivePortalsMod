@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.compat.mixin;
+package qouteall.imm_ptl.core.compat.mixin.iris;
 
 import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
 import org.spongepowered.asm.mixin.Mixin;
