@@ -27,7 +27,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: >
+      value: "
         ### Please find exactly which mod is incompatible. Simply providing a mod list with 100 mods won't be helpful, because the maintainer will not know which mod is incompatible.\n
         Binary search is a way of finding the incompatible mod without removing the mods one-by-one.\n
         The procedure is simple:\n
@@ -37,7 +37,7 @@ body:
         4. Does the issue still exist?\n
         If YES: Repeat from step 2 with the current mods.\n
         If NO: Swap out the current mods with the ones set aside, and repeat from step 1.\n
-        5. Repeat this process until the problematic mod/s have been found.\n
+        5. Repeat this process until the problematic mod/s have been found.\n"
   - type: textarea
     id: what-happened
     attributes:
