@@ -11,15 +11,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
-@Mixin(value = ShaderLoader.class, remap = false)
+@Mixin(value = ShaderLoader.class)
 public abstract class MixinSodiumShaderLoader {
     
     @WrapOperation(
         method = "loadShader",
         at = @At(
             value = "INVOKE",
-            target = "Lme/jellysquid/mods/sodium/client/gl/shader/ShaderLoader;getShaderSource(Lnet/minecraft/resources/ResourceLocation;)Ljava/lang/String;"
-        )
+            target = "Lme/jellysquid/mods/sodium/client/gl/shader/ShaderLoader;getShaderSource(Lnet/minecraft/resources/ResourceLocation;)Ljava/lang/String;",
+            remap = true
+        ),
+        remap = false
     )
     private static String wrapGetShaderSource(
         ResourceLocation name,
