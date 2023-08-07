@@ -23,7 +23,6 @@ body:
     attributes:
       label: Link to the incompatible mod
       description: "Provide the link to the related mods (can be Modrinth link, CurseForge link, GitHub link, etc.)" 
-      value: ""
     validations:
       required: true
   - type: markdown
