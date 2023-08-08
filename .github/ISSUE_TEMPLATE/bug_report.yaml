@@ -32,7 +32,6 @@ body:
     attributes:
       label: "If it's a mod compatibility issue, please provide the link(s) to the incompatible mod(s)"
       description: "The link to the incompatible mods (can be Modrinth link, CurseForge link, GitHub link, etc.)"
-      value: ""
     validations:
       required: false
   - type: dropdown
@@ -57,7 +56,6 @@ body:
     attributes:
       label: Describe the issue
       description: Describe the issue. Tell how to reproduce the issue. Drag the log and crash report to here. The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
-      value: ""
     validations:
       required: true
   - type: markdown
