@@ -1,9 +1,6 @@
 name: Issue Report
 description: File an issue report
 body:
-  - type: markdown
-    attributes:
-      value: "To know whether it's a mod compatibility issue, please remove all other mods and keep only Immersive Portals and Fabric API, backup your world, and then test again whether the issue occurs. Thanks for cooperation. \nIf Immersive Portals mod makes other mod's functionality break, you don't need to test it, simply select Yes below."
   - type: dropdown
     id: is_compat
     attributes:
@@ -14,6 +11,31 @@ body:
         - "No"
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: "
+      If you don't know whether it is a mod compatibility issue, 
+      backup your world and test it with only Fabric API and Immersive Portals mod.\n
+      
+      If it's a compatibility issue, please find exactly which mod is incompatible.
+      Simply providing a mod list with 100 mods won't be helpful. 
+      The maintainer will not know which mod is incompatible.\n
+      
+      Binary search is a way of finding the incompatible mod without removing the mods one-by-one. The procedure is simple:\n
+        1. Backup the world because removing mod cause its content to be removed.\n
+        2. Remove half of the existing mods, and put them aside.\n
+        3. Run the game.\n
+        4. Does the issue still exist?\n
+        If YES: Repeat from step 2 with the current mods.\n
+        If NO: Swap out the current mods with the ones set aside, and repeat from step 1.\n
+        5. Repeat this process until the problematic mod(s) have been found.\n"
+  - type: textarea
+    id: link-to-incompat-mods
+    attributes:
+      label: If it's a mod compatibility issue, please provide the link(s) to the incompatible mod(s)
+      description: "The link to the incompatible mods (can be Modrinth link, CurseForge link, GitHub link, etc.)"
+    validations:
+      required: false
   - type: dropdown
     id: mc_version
     attributes:
@@ -28,15 +50,15 @@ body:
         - "1.19"
         - "1.18.x"
         - "1.17.x"
-        - "Other"
+        - "Other (specify below)"
     validations:
       required: true
   - type: textarea
     id: what-happened
     attributes:
       label: Describe the issue
-      description: Describe the issue. Drag the log and crash report to here. The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
-      value: "Describe the issue."
+      description: Describe the issue. Tell how to reproduce the issue. Drag the log and crash report to here. The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
+      value: ""
     validations:
       required: true
   - type: markdown
@@ -44,4 +66,4 @@ body:
       value: "### The maintainer may ask questions for clarifying this issue. Simply submitting a vague issue without replying will get ignored."
   - type: markdown
     attributes:
-      value: "### Be polite to the maintainer. Impolite issues will be directly closed."
+      value: "### Be polite to the developer. Respect the developer's hard work. Impolite contents will be deleted."

@@ -1,0 +1,11 @@
+name: Suggestion
+description: Provide a suggestion
+body:
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      description: ""
+      value: ""
+    validations:
+      required: true
