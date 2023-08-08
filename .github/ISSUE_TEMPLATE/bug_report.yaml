@@ -55,7 +55,7 @@ body:
     id: what-happened
     attributes:
       label: Describe the issue
-      description: Describe the issue. Tell how to reproduce the issue. Drag the log and crash report to here. The log is `latest.log` in `logs` folder in the game directory. The log provides useful information (including the mod list) for debugging the issue.
+      description: Describe the issue. Tell how to reproduce the issue. If it crashes, drag the log and crash report to here. It's recommended to also provide the log here. The log may provide important information that does not exist in crash report. The log is `latest.log` in `logs` folder in the game directory.
     validations:
       required: true
   - type: markdown
@@ -63,4 +63,4 @@ body:
       value: "### The maintainer may ask questions for clarifying this issue. Simply submitting a vague issue without replying will get ignored."
   - type: markdown
     attributes:
-      value: "### Be polite to the developer. Respect the developer's hard work. Impolite contents will be deleted."
+      value: "### Be polite to the developer. Respect the developer's hard work."
