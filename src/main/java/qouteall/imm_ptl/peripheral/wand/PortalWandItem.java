@@ -37,7 +37,17 @@ public class PortalWandItem extends Item {
     public static void init() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(
             groupEntries -> {
-                groupEntries.accept(new ItemStack(instance));
+                ItemStack s1 = new ItemStack(instance);
+                s1.setTag(Mode.CREATE_PORTAL.toTag());
+                groupEntries.accept(s1);
+                
+                ItemStack s2 = new ItemStack(instance);
+                s2.setTag(Mode.DRAG_PORTAL.toTag());
+                groupEntries.accept(s2);
+                
+                ItemStack s3 = new ItemStack(instance);
+                s3.setTag(Mode.COPY_PORTAL.toTag());
+                groupEntries.accept(s3);
             }
         );
         
