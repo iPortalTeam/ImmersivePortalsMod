@@ -15,10 +15,9 @@ body:
     attributes:
       value: "
       If you don't know whether it is a mod compatibility issue, 
-      backup your world and test it with only Fabric API and Immersive Portals mod.\n
+      backup your world and test it with only Fabric API and Immersive Portals mod.\n\n
       If it's a compatibility issue, please find exactly which mod is incompatible.
-      Simply providing a mod list with 100 mods won't be helpful. 
-      The maintainer will not know which mod is incompatible.\n
+      Simply providing a mod list with 100 mods won't be helpful as the maintainer will not know which mod is incompatible.\n\n
       Binary search is a way of finding the incompatible mod without removing the mods one-by-one. The procedure is simple:\n
         1. Backup the world because removing mod cause its content to be removed.\n
         2. Remove half of the existing mods, and put them aside.\n
