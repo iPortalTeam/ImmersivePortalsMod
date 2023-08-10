@@ -245,6 +245,10 @@ public class PortalWandItem extends Item {
         player.sendSystemMessage(
             alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b))
         );
+        
+        player.sendSystemMessage(Component.translatable(
+            "imm_ptl.wand.settings_2", Minecraft.getInstance().options.keyChat.getTranslatedKeyMessage()
+        ));
     }
     
     private static boolean instructionInformed = false;

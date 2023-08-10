@@ -259,11 +259,12 @@
   "imm_ptl.wand.copy.prompt.place_portal": "Use %s to place portal\nUse %s to discard the portal",
 
   "imm_ptl.wand.settings_1": "Portal Wand Settings:",
+  "imm_ptl.wand.settings_2": "Press %s to free the mouse to click them.",
   "imm_ptl.wand.settings_alignment": "Cursor Alignment: ",
   "imm_ptl.wand.no_alignment": "No alignment",
   "imm_ptl.wand.alignment_updated": "Alignment updated",
 
-  "imm_ptl.quilt_warning": "You are using Immersive Portals mod on Quilt. Immersive Portals mod is designed for Fabric and may malfunction on Quilt. ",
+  "imm_ptl.quilt_warning": "You are using Immersive Portals mod on Quilt. The Fabric version of Immersive Portals mod is designed for Fabric and may malfunction on Quilt. ",
 
   "imm_ptl.put_this_to_the_end_to_avoid_editing_trailing_comma": ""
 }

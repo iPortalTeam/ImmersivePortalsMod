@@ -253,5 +253,8 @@
   "imm_ptl.wand.copy.not_copying_cluster": "为避免干扰，只复制出单面单向传送门。使用命令'/portal complete_bi_way_bi_faced_portal'使其变为双面双向。",
   "imm_ptl.wand.copy.prompt.copy_or_cut": "使用%s复制传送门。使用%s剪切传送门",
   "imm_ptl.wand.copy.prompt.select_portal": "选择一个传送门以复制/剪切",
-  "imm_ptl.wand.copy.prompt.place_portal": "使用%s放置传送门\n使用%s丢弃传送门"
+  "imm_ptl.wand.copy.prompt.place_portal": "使用%s放置传送门\n使用%s丢弃传送门",
+  "text.autoconfig.immersive_portals.option.portalsChangeGravityByDefault": "传送门默认转换引力",
+  "imm_ptl.wand.settings_2": "按 %s 以移动鼠标点击选项",
+  "imm_ptl.quilt_warning": "你正在Quilt上使用沉浸传送门模组。沉浸传送门模组Fabric版是为Fabric设计的，在Quilt上可能出现问题。"
 }
