@@ -9,12 +9,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -322,7 +322,7 @@ public class PortalAnimation {
         if (!hasAnimationDriver()) {
             return;
         }
-    
+        
         if (isPaused()) {
             return;
         }
@@ -393,7 +393,9 @@ public class PortalAnimation {
         
         if (thisSideState.dimension != portalState.fromWorld || otherSideState.dimension != portalState.toWorld) {
             Helper.err("Portal animation driver cannot change dimension");
-            portal.clearAnimationDrivers(true, true);
+            if (!portal.level().isClientSide()) {
+                portal.clearAnimationDrivers(true, true);
+            }
             return;
         }
         
@@ -430,6 +432,17 @@ public class PortalAnimation {
             thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
         }
         if (otherSideReferenceState == null) {
+            otherSideReferenceState = UnilateralPortalState.extractOtherSide(portalState);
+        }
+    }
+    
+    public void resetReferenceState(Portal portal, boolean thisSide, boolean otherSide) {
+        PortalState portalState = portal.getPortalState();
+        assert portalState != null;
+        if (thisSide && thisSideReferenceState != null) {
+            thisSideReferenceState = UnilateralPortalState.extractThisSide(portalState);
+        }
+        if (otherSide && otherSideReferenceState != null) {
             otherSideReferenceState = UnilateralPortalState.extractOtherSide(portalState);
         }
     }

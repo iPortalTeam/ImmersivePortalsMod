@@ -269,7 +269,7 @@ public class ClientTeleportationManager {
             Vec3 collidingPos = teleportation.collidingPos();
             
             client.getProfiler().push("portal_teleport");
-            teleportPlayer(teleportation);
+            teleportPlayer(teleportation, partialTicks);
             client.getProfiler().pop();
             
             boolean allowOverlappedTeleport = portal.allowOverlappedTeleport();
@@ -297,7 +297,7 @@ public class ClientTeleportationManager {
     }
     
     private static void teleportPlayer(
-        TeleportationUtil.Teleportation teleportation
+        TeleportationUtil.Teleportation teleportation, float partialTicks
     ) {
         Portal portal = teleportation.portal();
         
@@ -362,8 +362,9 @@ public class ClientTeleportationManager {
         RenderStates.updatePreRenderInfo(tickDelta);
         
         Helper.log(String.format(
-            "Client Teleported\nportal: %s\ntickTime: %s\nduring ticking: %s\ncounter: %s\ndynamic: %s",
-            portal, tickTimeForTeleportation, isTicking, teleportationCounter, teleportation.isDynamic()
+            "Client Teleported\nportal: %s\ntickTime: %s\nduring ticking: %s\ncounter: %s\ndynamic: %s\neye pos:%s -> %s\npartial ticks:%s",
+            portal, tickTimeForTeleportation, isTicking, teleportationCounter, teleportation.isDynamic(),
+            teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos(), partialTicks
         ));
         
         isTeleportingTick = true;

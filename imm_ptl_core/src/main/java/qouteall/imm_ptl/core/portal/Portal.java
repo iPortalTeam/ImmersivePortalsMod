@@ -1782,6 +1782,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         animation.setPaused(this, false);
     }
     
+    public void resetAnimationReferenceState(boolean resetThisSide, boolean resetOtherSide) {
+        this.animation.resetReferenceState(this, resetThisSide, resetOtherSide);
+    }
+    
     public AnimationView getAnimationView() {
         PortalExtension extension = PortalExtension.get(this);
         if (extension.flippedPortal != null) {

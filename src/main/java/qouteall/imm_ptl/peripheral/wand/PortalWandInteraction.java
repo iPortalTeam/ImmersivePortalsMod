@@ -816,21 +816,25 @@ public class PortalWandInteraction {
         portal.setPortalState(UnilateralPortalState.combine(
             newThisSide, originalOtherSide
         ));
+        portal.resetAnimationReferenceState(true, false);
         
         if (copyingSession.isCut()) {
             McHelper.spawnServerEntity(portal);
             
             if (copyingSession.hasFlipped) {
                 Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+                flippedPortal.resetAnimationReferenceState(true, false);
                 McHelper.spawnServerEntity(flippedPortal);
             }
             
             if (copyingSession.hasReverse) {
                 Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
+                reversePortal.resetAnimationReferenceState(false, true);
                 McHelper.spawnServerEntity(reversePortal);
                 
                 if (copyingSession.hasParallel) {
                     Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
+                    parallelPortal.resetAnimationReferenceState(false, true);
                     McHelper.spawnServerEntity(parallelPortal);
                 }
             }
