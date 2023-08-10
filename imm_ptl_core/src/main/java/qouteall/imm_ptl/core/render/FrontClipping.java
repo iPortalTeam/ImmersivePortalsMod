@@ -29,15 +29,19 @@ public class FrontClipping {
     
     public static void disableClipping() {
         if (IPGlobal.enableClippingMechanism) {
-            GL11.glDisable(GL11.GL_CLIP_PLANE0);
-            isClippingEnabled = false;
+            if (isClippingEnabled) {
+                GL11.glDisable(GL11.GL_CLIP_PLANE0);
+                isClippingEnabled = false;
+            }
         }
     }
     
     private static void enableClipping() {
         if (IPGlobal.enableClippingMechanism) {
-            GL11.glEnable(GL11.GL_CLIP_PLANE0);
-            isClippingEnabled = true;
+            if (!isClippingEnabled) {
+                GL11.glEnable(GL11.GL_CLIP_PLANE0);
+                isClippingEnabled = true;
+            }
         }
     }
     

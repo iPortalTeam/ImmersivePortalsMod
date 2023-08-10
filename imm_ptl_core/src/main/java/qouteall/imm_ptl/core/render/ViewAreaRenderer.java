@@ -27,7 +27,7 @@ public class ViewAreaRenderer {
         PortalLike portal, Vec3 fogColor,
         Matrix4f modelViewMatrix, Matrix4f projectionMatrix,
         boolean doFaceCulling, boolean doModifyColor,
-        boolean doModifyDepth
+        boolean doModifyDepth, boolean doClip
     ) {
         if (doFaceCulling) {
             GlStateManager._enableCull();
@@ -65,11 +65,16 @@ public class ViewAreaRenderer {
             MyRenderHelper.applyMirrorFaceCulling();
         }
         
-        if (PortalRendering.isRendering()) {
-            FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(),
-                modelViewMatrix, 0 // don't do adjustment
-            );
+        if (doClip) {
+            if (PortalRendering.isRendering()) {
+                FrontClipping.setupInnerClipping(
+                    PortalRendering.getRenderingPortal(),
+                    modelViewMatrix, 0 // don't do adjustment
+                );
+            }
+        }
+        else {
+            FrontClipping.disableClipping();
         }
         
         GlStateManager._enableDepthTest();

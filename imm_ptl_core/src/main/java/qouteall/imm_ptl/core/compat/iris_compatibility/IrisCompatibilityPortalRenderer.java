@@ -157,7 +157,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
                 portal, Vec3.ZERO,
                 matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
-                true, false, false
+                true, false, false, true
             );
         });
     }

@@ -192,7 +192,8 @@ public class RendererUsingStencil extends PortalRenderer {
             matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix(),
             true, true,
-            true);
+            true, true
+        );
     }
     
     private void clearDepthOfThePortalViewArea(
@@ -238,9 +239,8 @@ public class RendererUsingStencil extends PortalRenderer {
             portal, Vec3.ZERO,
             matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix(),
-            false,
-            false,
-            true
+            false, false,
+            true, false
         );
         
         GL11.glDepthFunc(originalDepthFunc);

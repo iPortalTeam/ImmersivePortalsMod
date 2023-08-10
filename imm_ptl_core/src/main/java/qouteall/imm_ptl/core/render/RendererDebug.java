@@ -83,7 +83,7 @@ public class RendererDebug extends PortalRenderer {
                 matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, true,
-                true);
+                true, true);
         });
     }
     

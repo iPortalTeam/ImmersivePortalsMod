@@ -300,7 +300,7 @@ public class IrisPortalRenderer extends PortalRenderer {
                 portal, Vec3.ZERO,
                 matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
-                true, true, true
+                true, true, true, true
             );
         });
         

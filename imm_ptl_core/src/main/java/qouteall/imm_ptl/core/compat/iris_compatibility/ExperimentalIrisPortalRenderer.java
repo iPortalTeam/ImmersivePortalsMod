@@ -117,7 +117,8 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
             RenderSystem.getProjectionMatrix(),
             false,
             false,
-            true
+            true,
+            false
         );
         
         GL11.glDepthFunc(originalDepthFunc);
@@ -294,6 +295,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
             RenderSystem.getProjectionMatrix(),
             true,
             false, // don't modify color
+            true,
             true
         );
     }

@@ -114,7 +114,8 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
                 matrixStack.last().pose(),
                 RenderSystem.getProjectionMatrix(),
                 true, true,
-                true);
+                true, true
+            );
         });
     }
     
