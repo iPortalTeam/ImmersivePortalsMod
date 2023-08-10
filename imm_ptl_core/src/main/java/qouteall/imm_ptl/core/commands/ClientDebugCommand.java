@@ -610,6 +610,11 @@ public class ClientDebugCommand {
             "log_client_player_colliding_portal_update",
             cond -> IPGlobal.logClientPlayerCollidingPortalUpdate = cond
         );
+        registerSwitchCommand(
+            builder,
+            "entity_unload_debug",
+            cond -> IPGlobal.entityUnloadDebug = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
