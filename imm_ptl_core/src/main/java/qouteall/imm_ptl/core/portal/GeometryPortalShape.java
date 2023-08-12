@@ -3,8 +3,10 @@ package qouteall.imm_ptl.core.portal;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Mesh2D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,6 +204,46 @@ public class GeometryPortalShape {
             )).toList();
         GeometryPortalShape result = new GeometryPortalShape(newTriangleList);
         result.normalized = normalized;
+        return result;
+    }
+    
+    public Mesh2D toMesh() {
+        Validate.isTrue(normalized);
+        
+        Mesh2D result = new Mesh2D();
+        for (TriangleInPlane triangle : triangles) {
+            result.addTriangle(
+                triangle.x1, triangle.y1,
+                triangle.x2, triangle.y2,
+                triangle.x3, triangle.y3
+            );
+        }
+        
+        return result;
+    }
+    
+    public static GeometryPortalShape fromMesh(Mesh2D mesh2D) {
+        GeometryPortalShape result = new GeometryPortalShape();
+        result.normalized = true;
+        for (int i = 0; i < mesh2D.trianglePointIndexes.size(); i += 3) {
+            if (mesh2D.isTriangleValid(i)) {
+                int pointIndex1 = mesh2D.trianglePointIndexes.getInt(i);
+                int pointIndex2 = mesh2D.trianglePointIndexes.getInt(i + 1);
+                int pointIndex3 = mesh2D.trianglePointIndexes.getInt(i + 2);
+                
+                double x1 = mesh2D.pointCoords.getDouble(pointIndex1 * 2);
+                double y1 = mesh2D.pointCoords.getDouble(pointIndex1 * 2 + 1);
+                double x2 = mesh2D.pointCoords.getDouble(pointIndex2 * 2);
+                double y2 = mesh2D.pointCoords.getDouble(pointIndex2 * 2 + 1);
+                double x3 = mesh2D.pointCoords.getDouble(pointIndex3 * 2);
+                double y3 = mesh2D.pointCoords.getDouble(pointIndex3 * 2 + 1);
+                
+                result.triangles.add(new TriangleInPlane(
+                    x1, y1, x2, y2, x3, y3
+                ));
+            }
+        }
+        
         return result;
     }
 }

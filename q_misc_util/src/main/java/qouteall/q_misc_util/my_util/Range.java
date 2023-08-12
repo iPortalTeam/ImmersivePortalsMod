@@ -24,4 +24,11 @@ public record Range(double start, double end) {
     public Range intersect(Range another) {
         return intersection(this, another);
     }
+    
+    public static boolean rangeIntersects(
+        double r1Start, double r1End,
+        double r2Start, double r2End
+    ) {
+        return Math.max(r1Start, r2Start) < Math.min(r1End, r2End);
+    }
 }

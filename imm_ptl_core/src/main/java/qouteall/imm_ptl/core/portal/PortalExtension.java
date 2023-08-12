@@ -1,17 +1,19 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
-import qouteall.q_misc_util.Helper;
 
 import java.util.UUID;
 import java.util.function.Consumer;
 
 // the additional features of a portal
 public class PortalExtension {
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     /**
      * @param portal
@@ -200,7 +202,7 @@ public class PortalExtension {
                     }
                     else {
                         if (portal.isOtherSideChunkLoaded()) {
-                            Helper.log("portal linking break");
+                            LOGGER.info("portal linking break {}", portal);
                             reversePortalId = null;
                             needsUpdate = true;
                         }
@@ -223,7 +225,7 @@ public class PortalExtension {
                     }
                     else {
                         if (portal.isOtherSideChunkLoaded()) {
-                            Helper.log("portal linking break");
+                            LOGGER.info("portal linking break {}", portal);
                             parallelPortalId = null;
                             needsUpdate = true;
                         }
