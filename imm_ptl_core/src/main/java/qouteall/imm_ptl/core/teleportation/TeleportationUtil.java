@@ -3,12 +3,12 @@ package qouteall.imm_ptl.core.teleportation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
@@ -181,9 +181,9 @@ public class TeleportationUtil {
                 .dot(thisTickState.getContentDirection());
             if (dot < 0) {
                 Helper.log("Teleported to behind the end-tick portal destination. Corrected.");
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(
-                    thisTickState.getContentDirection().scale(-dot + 0.001)
-                );
+                Vec3 offset1 = thisTickState.getContentDirection().scale(-dot + 0.001);
+                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
             }
         }
         
