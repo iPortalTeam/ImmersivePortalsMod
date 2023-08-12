@@ -361,11 +361,35 @@ public class ClientTeleportationManager {
         //but after pre render info being updated
         RenderStates.updatePreRenderInfo(tickDelta);
         
-        Helper.log(String.format(
-            "Client Teleported\nportal: %s\ntickTime: %s\nduring ticking: %s\ncounter: %s\ndynamic: %s\neye pos:%s -> %s\npartial ticks:%s",
-            portal, tickTimeForTeleportation, isTicking, teleportationCounter, teleportation.isDynamic(),
-            teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos(), partialTicks
-        ));
+        if (teleportation.isDynamic()) {
+            LOGGER.info(
+                """
+                    Client Teleported Dynamically
+                    portal: {}
+                    tickTime: {}
+                    during ticking: {}
+                    counter: {}
+                    eye pos (by frame): {} -> {}
+                    partial ticks: {}
+                    new immediate eye pos: {}
+                    portal origin/normal: {} {}
+                    portal dest/content dir: {} {}""",
+                portal, tickTimeForTeleportation, isTicking, teleportationCounter,
+                teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos(), partialTicks,
+                teleportation.newLastTickEyePos().lerp(teleportation.newThisTickEyePos(), tickDelta),
+                portal.getOriginPos(), portal.getNormal(),
+                portal.getDestPos(), portal.getContentDirection()
+            );
+        }
+        else {
+            LOGGER.info(
+                """
+                    Client Teleported Statically
+                    portal: {}
+                    eye pos: {} -> {}""",
+                portal, teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos()
+            );
+        }
         
         isTeleportingTick = true;
         isTeleportingFrame = true;

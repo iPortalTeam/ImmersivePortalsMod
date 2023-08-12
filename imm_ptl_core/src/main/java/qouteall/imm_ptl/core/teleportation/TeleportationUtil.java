@@ -179,9 +179,9 @@ public class TeleportationUtil {
             double dot = newOtherSideThisTickPos
                 .subtract(thisTickState.toPos)
                 .dot(thisTickState.getContentDirection());
-            if (dot < 0) {
+            if (dot < 0.00001) {
                 Helper.log("Teleported to behind the end-tick portal destination. Corrected.");
-                Vec3 offset1 = thisTickState.getContentDirection().scale(-dot + 0.001);
+                Vec3 offset1 = thisTickState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
                 newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
                 newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
             }
@@ -194,9 +194,9 @@ public class TeleportationUtil {
             double dot = newImmediateCameraPos
                 .subtract(currentFrameState.toPos)
                 .dot(currentFrameState.getContentDirection());
-            if (dot < 0) {
+            if (dot < 0.00001) {
                 Helper.log("Teleported to behind the end-frame portal destination. Corrected.");
-                Vec3 offset1 = currentFrameState.getContentDirection().scale(-dot + 0.001);
+                Vec3 offset1 = currentFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
                 newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
                 newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
             }
@@ -210,9 +210,9 @@ public class TeleportationUtil {
             double dot = newImmediateCameraPos
                 .subtract(lastFrameState.toPos)
                 .dot(lastFrameState.getContentDirection());
-            if (dot < 0) {
+            if (dot < 0.00001) {
                 Helper.log("Teleported to behind the last-frame portal destination. Corrected.");
-                Vec3 offset1 = lastFrameState.getContentDirection().scale(-dot + 0.001);
+                Vec3 offset1 = lastFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.001);
                 newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
                 newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
             }
