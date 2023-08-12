@@ -1,13 +1,18 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import org.slf4j.Logger;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO refactor in 1.20.2
 public class GeometryPortalShape {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static class TriangleInPlane {
         public double x1;
         public double y1;
@@ -92,6 +97,8 @@ public class GeometryPortalShape {
     
     public List<TriangleInPlane> triangles;
     
+    public boolean normalized = false;
+    
     public GeometryPortalShape() {
         triangles = new ArrayList<>();
     }
@@ -151,13 +158,35 @@ public class GeometryPortalShape {
         ));
     }
     
+    public void normalize(double width, double height) {
+        if (width == 0 || height == 0) {
+            LOGGER.error("Trying to normalize with width {} and height {}", width, height);
+            return;
+        }
+        
+        if (!normalized) {
+            double halfWidth = width / 2;
+            double halfHeight = height / 2;
+            for (TriangleInPlane triangle : triangles) {
+                triangle.x1 /= halfWidth;
+                triangle.y1 /= halfHeight;
+                triangle.x2 /= halfWidth;
+                triangle.y2 /= halfHeight;
+                triangle.x3 /= halfWidth;
+                triangle.y3 /= halfHeight;
+            }
+            
+            this.normalized = true;
+        }
+    }
+    
     public boolean isValid() {
         if (triangles.isEmpty()) {
             return false;
         }
         
         return triangles.stream().allMatch(
-            triangleInPlane -> triangleInPlane.getArea() > 0.001
+            triangleInPlane -> triangleInPlane.getArea() > 0.00001
         );
     }
     
@@ -171,6 +200,8 @@ public class GeometryPortalShape {
                 -triangle.x3 * scale,
                 triangle.y3 * scale
             )).toList();
-        return new GeometryPortalShape(newTriangleList);
+        GeometryPortalShape result = new GeometryPortalShape(newTriangleList);
+        result.normalized = normalized;
+        return result;
     }
 }

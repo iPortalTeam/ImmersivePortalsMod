@@ -179,19 +179,24 @@ public class ViewAreaRenderer {
         Vec3 posInPlayerCoordinate
     ) {
         GeometryPortalShape specialShape = portal.specialShape;
+        assert specialShape != null;
+        
+        specialShape.normalize(portal.width, portal.height);
+        double halfWidth = portal.width / 2;
+        double halfHeight = portal.height / 2;
         
         for (GeometryPortalShape.TriangleInPlane triangle : specialShape.triangles) {
             Vec3 a = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x1))
-                .add(portal.axisH.scale(triangle.y1));
+                .add(portal.axisW.scale(triangle.x1 * halfWidth))
+                .add(portal.axisH.scale(triangle.y1 * halfHeight));
             
             Vec3 b = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x3))
-                .add(portal.axisH.scale(triangle.y3));
+                .add(portal.axisW.scale(triangle.x3 * halfWidth))
+                .add(portal.axisH.scale(triangle.y3 * halfHeight));
             
             Vec3 c = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x2))
-                .add(portal.axisH.scale(triangle.y2));
+                .add(portal.axisW.scale(triangle.x2 * halfWidth))
+                .add(portal.axisH.scale(triangle.y2 * halfHeight));
             
             vertexOutput.accept(a);
             vertexOutput.accept(b);

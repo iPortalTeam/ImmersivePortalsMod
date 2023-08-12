@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -21,7 +22,6 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -100,7 +100,8 @@ public class PortalManipulation {
         newPortal.axisH = portal.axisH;
         
         if (portal.specialShape != null) {
-            newPortal.specialShape = portal.specialShape.getFlippedWithScaling(portal.scaling);
+            portal.specialShape.normalize(newPortal.width, newPortal.height);
+            newPortal.specialShape = portal.specialShape.getFlippedWithScaling(1);
         }
         
         newPortal.initCullableRange(

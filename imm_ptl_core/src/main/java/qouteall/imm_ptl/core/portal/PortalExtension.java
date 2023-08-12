@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.portal;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -343,10 +343,8 @@ public class PortalExtension {
             flippedPortal.scaling = portal.scaling;
             flippedPortal.rotation = portal.rotation;
             
-            if (flippedPortal.specialShape == null) {
-                flippedPortal.width = portal.width;
-                flippedPortal.height = portal.height;
-            }
+            flippedPortal.width = portal.width;
+            flippedPortal.height = portal.height;
             
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
@@ -379,10 +377,8 @@ public class PortalExtension {
                 reversePortal.rotation = null;
             }
             
-            if (reversePortal.specialShape == null) {
-                reversePortal.width = portal.width * portal.getScale();
-                reversePortal.height = portal.height * portal.getScale();
-            }
+            reversePortal.width = portal.width * portal.getScale();
+            reversePortal.height = portal.height * portal.getScale();
             
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
@@ -415,10 +411,8 @@ public class PortalExtension {
                 parallelPortal.rotation = null;
             }
             
-            if (parallelPortal.specialShape == null) {
-                parallelPortal.width = portal.width * portal.getScale();
-                parallelPortal.height = portal.height * portal.getScale();
-            }
+            parallelPortal.width = portal.width * portal.getScale();
+            parallelPortal.height = portal.height * portal.getScale();
             
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             

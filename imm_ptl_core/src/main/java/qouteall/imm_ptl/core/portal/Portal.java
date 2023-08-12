@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -74,6 +76,8 @@ import java.util.stream.Collectors;
  * Portal entity. Global portals are also entities but not added into world.
  */
 public class Portal extends Entity implements PortalLike, IPEntityEventListenableEntity {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static EntityType<Portal> entityType;
     
     public static final UUID nullUUID = Util.NIL_UUID;
@@ -254,6 +258,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 compoundTag.getList("specialShape", 6)
             );
             
+            // upgrade from old portal data where shape coord is not normalized
+            if (!specialShape.normalized) {
+                boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
+                specialShape.normalized = shapeNormalized;
+            }
+            specialShape.normalize(width, height);
+            
             if (specialShape.triangles.isEmpty()) {
                 specialShape = null;
             }
@@ -378,7 +389,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         
         if (specialShape != null) {
+            specialShape.normalize(width, height);
             compoundTag.put("specialShape", specialShape.writeToTag());
+            compoundTag.putBoolean("shapeNormalized", true);
         }
         
         compoundTag.putBoolean("teleportable", teleportable);
@@ -622,6 +635,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      *                                  Every 3 vertices correspond to a triangle.
      *                                  In camera-centered coordinate.
      */
+    // TODO refactor to turn it into tri-double consumer
     @Environment(EnvType.CLIENT)
     @Override
     public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
@@ -894,6 +908,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void tick() {
         if (getBoundingBox().equals(nullBox)) {
             Helper.err("Abnormal bounding box " + this);
+        }
+        
+        // TODO refactor and avoid this in 1.20.2
+        if (specialShape != null) {
+            specialShape.normalize(width, height);
         }
         
         if (thisTickPortalState == null) {
@@ -1252,13 +1271,19 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public boolean lenientIsLocalXYOnPortal(double xInPlane, double yInPlane, double leniency) {
-        boolean roughResult = Math.abs(xInPlane) < (width / 2 + leniency) &&
-            Math.abs(yInPlane) < (height / 2 + leniency);
+        double halfWidth = width / 2;
+        double halfHeight = height / 2;
+        boolean roughResult = Math.abs(xInPlane) < (halfWidth + leniency) &&
+            Math.abs(yInPlane) < (halfHeight + leniency);
+        
+        if (halfWidth == 0 || halfHeight == 0) {
+            return false;
+        }
         
         if (roughResult && specialShape != null) {
             return specialShape.triangles.stream()
                 .anyMatch(triangle ->
-                    triangle.lenientIsPointInTriangle(xInPlane, yInPlane, leniency)
+                    triangle.lenientIsPointInTriangle(xInPlane / halfWidth, yInPlane / halfHeight, leniency)
                 );
         }
         
