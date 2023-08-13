@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.Helper;
 
 public class Mesh2D {
     
@@ -21,7 +22,7 @@ public class Mesh2D {
         int gridXClamped = Mth.clamp(gridX, -gridCountForOneSide, gridCountForOneSide);
         int gridYClamped = Mth.clamp(gridY, -gridCountForOneSide, gridCountForOneSide);
         
-        return (((long) gridXClamped) << 32) | (gridYClamped & 0xffffffffL);
+        return (((long) gridXClamped) << 32) | ((long) gridYClamped);
     }
     
     // encoded grid coord to index in point list
@@ -34,12 +35,10 @@ public class Mesh2D {
     public final IntArrayList trianglePointIndexes = new IntArrayList();
     
     // the index represents points, the value is a list of triangle ids
-    // if its content is null, the point is deleted
+    // the point is considered unused when the list is empty
     public final ObjectArrayList<IntArrayList> pointToTriangles = new ObjectArrayList<>();
     
-    public Mesh2D() {
-    
-    }
+    public Mesh2D() {}
     
     public int addTriangle(
         double x1, double y1,
@@ -58,12 +57,14 @@ public class Mesh2D {
             return -1;
         }
         
-        int triangleIndex = getTriangleIndexLimit();
+        int triangleIndex = getStoredTriangleNum();
         trianglePointIndexes.add(pointIndex1);
         trianglePointIndexes.add(pointIndex2);
         trianglePointIndexes.add(pointIndex3);
         
         pointToTriangles.get(pointIndex1).add(triangleIndex);
+        pointToTriangles.get(pointIndex2).add(triangleIndex);
+        pointToTriangles.get(pointIndex3).add(triangleIndex);
         
         return triangleIndex;
     }
@@ -139,10 +140,10 @@ public class Mesh2D {
         return getAngle(dx1, dy1, dx2, dy2);
     }
     
-    public boolean isPointInsideMesh(int pointIndex) {
+    public double getExposingAngle(int pointIndex) {
         IntArrayList triangles = pointToTriangles.get(pointIndex);
         if (triangles.size() == 0) {
-            return false;
+            return 0;
         }
         
         double sumAngle = 0;
@@ -152,7 +153,11 @@ public class Mesh2D {
             sumAngle += getAngleFromOneCorner(pointIndex, triangleIndex);
         }
         
-        return Math.abs(sumAngle - Math.PI * 2) < 0.0001;
+        return sumAngle;
+    }
+    
+    public boolean isPointInsideMesh(int pointIndex) {
+        return Math.abs(getExposingAngle(pointIndex) - Math.PI * 2) < 0.00001;
     }
     
     public void removeTriangle(int triangleIndex) {
@@ -160,9 +165,9 @@ public class Mesh2D {
         int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
         int p3Index = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
         
-        pointToTriangles.get(p1Index).removeInt(triangleIndex);
-        pointToTriangles.get(p2Index).removeInt(triangleIndex);
-        pointToTriangles.get(p3Index).removeInt(triangleIndex);
+        pointToTriangles.get(p1Index).rem(triangleIndex); // removeInt takes index
+        pointToTriangles.get(p2Index).rem(triangleIndex);
+        pointToTriangles.get(p3Index).rem(triangleIndex);
         
         trianglePointIndexes.set(triangleIndex * 3, -1);
         trianglePointIndexes.set(triangleIndex * 3 + 1, -1);
@@ -177,31 +182,24 @@ public class Mesh2D {
         return trianglePointIndexes.getInt(triangleIndex * 3) != -1;
     }
     
-    public void removePoint(int pointIndex) {
-        IntArrayList triangleIndexes = pointToTriangles.get(pointIndex);
+    public boolean isPointUsed(int pointIndex) {
+        Validate.isTrue(pointIndex != -1);
         
-        Validate.isTrue(triangleIndexes.isEmpty());
-        
-        pointToTriangles.set(pointIndex, null);
-        
-        long grid = encodeToGrid(
-            pointCoords.getDouble(pointIndex * 2),
-            pointCoords.getDouble(pointIndex * 2 + 1)
-        );
-        int removedPoint = gridToPointIndex.remove(grid);
-        Validate.isTrue(removedPoint == pointIndex);
+        return !pointToTriangles.get(pointIndex).isEmpty();
     }
     
-    public boolean isPointValid(int pointIndex) {
-        if (pointIndex == -1) {
-            return false;
-        }
-        
-        return pointToTriangles.get(pointIndex) != null;
-    }
-    
-    private int getPointIndexLimit() {
+    /**
+     * @return number of points stored, including the unused ones
+     */
+    public int getStoredPointNum() {
         return pointCoords.size() / 2;
+    }
+    
+    /**
+     * @return number of triangles stored, including the invalid ones
+     */
+    public int getStoredTriangleNum() {
+        return trianglePointIndexes.size() / 3;
     }
     
     public void updateTrianglePoint(
@@ -210,7 +208,7 @@ public class Mesh2D {
         int newPointIndex
     ) {
         int oldPointIndex = trianglePointIndexes.getInt(triangleIndex * 3 + pointIndexInTriangle);
-        pointToTriangles.get(oldPointIndex).removeInt(triangleIndex);
+        pointToTriangles.get(oldPointIndex).rem(triangleIndex);
         pointToTriangles.get(newPointIndex).add(triangleIndex);
         trianglePointIndexes.set(triangleIndex * 3 + pointIndexInTriangle, newPointIndex);
     }
@@ -260,7 +258,7 @@ public class Mesh2D {
      */
     private int tryToCollapseInnerEdge(int startPointIndex) {
         for (int i = startPointIndex; i < pointCoords.size() / 2; i++) {
-            if (!isPointValid(i)) {
+            if (!isPointUsed(i)) {
                 continue;
             }
             
@@ -292,103 +290,42 @@ public class Mesh2D {
         return -1;
     }
     
-    private boolean isCollinearOnLineSegment(int p1Index, int p2Index, int p3Index) {
-        if (p1Index == p2Index || p1Index == p3Index || p2Index == p3Index) {
-            return false;
-        }
-        
-        double p1x = pointCoords.getDouble(p1Index * 2);
-        double p1y = pointCoords.getDouble(p1Index * 2 + 1);
-        double p2x = pointCoords.getDouble(p2Index * 2);
-        double p2y = pointCoords.getDouble(p2Index * 2 + 1);
-        double p3x = pointCoords.getDouble(p3Index * 2);
-        double p3y = pointCoords.getDouble(p3Index * 2 + 1);
-        
-        double d1x = p1x - p2x;
-        double d1y = p1y - p2y;
-        double d2x = p3x - p2x;
-        double d2y = p3y - p2y;
-        
-        double d1l = Math.sqrt(d1x * d1x + d1y * d1y);
-        double d2l = Math.sqrt(d2x * d2x + d2y * d2y);
-        
-        if (d1l == 0 || d2l == 0) {
-            return false;
-        }
-        
-        double dot = (d1x / d1l) * (d2x / d2l) + (d1y / d1l) * (d2y / d2l);
-        
-        return Math.abs(dot - (-1)) < 0.0001;
-    }
-    
-    private boolean canCollapseOuterEdge(int p1Index, int p2Index) {
-        IntArrayList triangleIndexes = pointToTriangles.get(p2Index);
-        IntIterator iter = triangleIndexes.intIterator();
-        while (iter.hasNext()) {
-            int triangleIndex = iter.nextInt();
-            int p1IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3);
-            int p2IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
-            int p3IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
-            
-            if (!isPointInsideMesh(p1IndexInTriangle) &&
-                isCollinearOnLineSegment(p1Index, p2Index, p1IndexInTriangle)
-            ) {
-                return true;
-            }
-            
-            if (!isPointInsideMesh(p2IndexInTriangle) &&
-                isCollinearOnLineSegment(p1Index, p2Index, p2IndexInTriangle)
-            ) {
-                return true;
-            }
-            
-            if (!isPointInsideMesh(p3IndexInTriangle) &&
-                isCollinearOnLineSegment(p1Index, p2Index, p3IndexInTriangle)
-            ) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
     /**
      * @param startPointIndex The point index to start with.
      * @return If succeeded, return the point index that gets collapsed. -1 for failed.
      */
     private int tryToCollapseOuterEdge(int startPointIndex) {
         for (int i = 0; i < pointCoords.size() / 2; i++) {
-            if (!isPointValid(i)) {
+            if (!isPointUsed(i)) {
                 continue;
             }
             
-            if (!isPointInsideMesh(i)) {
-                IntArrayList triangles = pointToTriangles.get(i);
-                IntIterator iter = triangles.intIterator();
-                while (iter.hasNext()) {
-                    int triangleIndex = iter.nextInt();
-                    int p0Index = trianglePointIndexes.getInt(triangleIndex * 3);
-                    int p1Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
-                    int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            double exposingAngle = getExposingAngle(i);
+            
+            if (Math.abs(exposingAngle - Math.PI) < 0.0001) {
+                IntOpenHashSet adjacentVertices = adjacentVerticesFrom(i);
+                
+                IntIterator iter1 = adjacentVertices.intIterator();
+                while (iter1.hasNext()) {
+                    int p1 = iter1.nextInt();
                     
-                    if (!isPointInsideMesh(p0Index)) {
-                        if (canCollapseOuterEdge(p0Index, p1Index)) {
-                            collapseEdge(p0Index, p1Index);
-                            return i;
-                        }
-                    }
-                    
-                    if (!isPointInsideMesh(p1Index)) {
-                        if (canCollapseOuterEdge(p1Index, p2Index)) {
-                            collapseEdge(p1Index, p2Index);
-                            return i;
-                        }
-                    }
-                    
-                    if (!isPointInsideMesh(p2Index)) {
-                        if (canCollapseOuterEdge(p2Index, p0Index)) {
-                            collapseEdge(p2Index, p0Index);
-                            return i;
+                    IntIterator iter2 = adjacentVertices.intIterator();
+                    while (iter2.hasNext()) {
+                        int p2 = iter2.nextInt();
+                        
+                        if (p1 < p2) {
+                            double p1x = pointCoords.getDouble(p1 * 2);
+                            double p1y = pointCoords.getDouble(p1 * 2 + 1);
+                            double p2x = pointCoords.getDouble(p2 * 2);
+                            double p2y = pointCoords.getDouble(p2 * 2 + 1);
+                            
+                            if (isCollinear(p1x, p1y, x, y, p2x, p2y)) {
+                                collapseEdge(p1, i);
+                                return i;
+                            }
                         }
                     }
                 }
@@ -396,6 +333,24 @@ public class Mesh2D {
         }
         
         return -1;
+    }
+    
+    private static boolean isCollinear(double p1x, double p1y, double x, double y, double p2x, double p2y) {
+        double d1x = p1x - x;
+        double d1y = p1y - y;
+        double d2x = p2x - x;
+        double d2y = p2y - y;
+        
+        double d1l = Math.sqrt(d1x * d1x + d1y * d1y);
+        double d2l = Math.sqrt(d2x * d2x + d2y * d2y);
+        
+        if (d1l == 0 || d2l == 0) {
+            return true;
+        }
+        
+        double dot = (d1x / d1l) * (d2x / d2l) + (d1y / d1l) * (d2y / d2l);
+        
+        return Math.abs(dot - (-1)) < 0.0001;
     }
     
     /**
@@ -528,7 +483,7 @@ public class Mesh2D {
         double cuttingBbMaxX = Math.max(Math.max(tp0x, tp1x), tp2x);
         double cuttingBbMaxY = Math.max(Math.max(tp0y, tp1y), tp2y);
         
-        for (int i = 0; i < getTriangleIndexLimit(); i++) {
+        for (int i = 0; i < getStoredTriangleNum(); i++) {
             if (!isTriangleValid(i)) {
                 continue;
             }
@@ -559,16 +514,12 @@ public class Mesh2D {
         }
     }
     
-    private int getTriangleIndexLimit() {
-        return trianglePointIndexes.size() / 3;
-    }
-    
     /**
      * @param targetTriangleIndex The index of the triangle to subtract from.
      * @param tp0x,               tp0y, tp1x, tp1y, tp2x, tp2y The points of the triangle to subtract.
      * @return null if not subtracted, otherwise the indexes of the subtracted triangles.
      */
-    public @Nullable IntArrayList subtractTriangle(
+    private @Nullable IntArrayList subtractTriangle(
         int targetTriangleIndex,
         double tp0x, double tp0y,
         double tp1x, double tp1y,
@@ -579,14 +530,10 @@ public class Mesh2D {
         
         IntArrayList tempTriangles = new IntArrayList();
         
-        Line2D line01 = new Line2D(tp0x, tp0y, tp1x, tp1y);
-        Line2D line12 = new Line2D(tp1x, tp1y, tp2x, tp2y);
-        Line2D line20 = new Line2D(tp2x, tp2y, tp0x, tp0y);
-        Line2D[] lines = new Line2D[]{
-            line01,
-            line12,
-            line20
-        };
+        Line2D line01 = Line2D.fromTwoPoints(tp0x, tp0y, tp1x, tp1y);
+        Line2D line12 = Line2D.fromTwoPoints(tp1x, tp1y, tp2x, tp2y);
+        Line2D line20 = Line2D.fromTwoPoints(tp2x, tp2y, tp0x, tp0y);
+        Line2D[] lines = new Line2D[]{line01, line12, line20};
         
         for (Line2D line : lines) {
             IntIterator iter = relevantTriangles.intIterator();
@@ -823,6 +770,36 @@ public class Mesh2D {
         throw new IllegalStateException();
     }
     
+    public IntOpenHashSet adjacentVerticesFrom(int pointIndex) {
+        IntOpenHashSet result = new IntOpenHashSet();
+        
+        int triangleCount = getStoredTriangleNum();
+        for (int i = 0; i < triangleCount; i++) {
+            if (!isTriangleValid(i)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(i * 3);
+            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            
+            if (p0Index == pointIndex) {
+                result.add(p1Index);
+                result.add(p2Index);
+            }
+            else if (p1Index == pointIndex) {
+                result.add(p0Index);
+                result.add(p2Index);
+            }
+            else if (p2Index == pointIndex) {
+                result.add(p0Index);
+                result.add(p1Index);
+            }
+        }
+        
+        return result;
+    }
+    
     private double getDistance(int p1Index, int p2Index) {
         return Math.sqrt(getDistanceSq(p1Index, p2Index));
     }
@@ -843,36 +820,13 @@ public class Mesh2D {
      * @return the number of triangles moved
      */
     public void compactTriangleStorage() {
-        int forwardIndex = 0;
-        int backwardIndex = getTriangleIndexLimit() - 1;
-        for (; ; ) {
-            if (forwardIndex >= backwardIndex) {
-                break;
-            }
-            
-            while (isTriangleValid(forwardIndex) && forwardIndex < backwardIndex) {
-                forwardIndex++;
-            }
-            
-            while (!isTriangleValid(backwardIndex) && forwardIndex < backwardIndex) {
-                backwardIndex--;
-            }
-            
-            if (forwardIndex >= backwardIndex) {
-                break;
-            }
-            
-            Validate.isTrue(!isTriangleValid(forwardIndex));
-            Validate.isTrue(isTriangleValid(backwardIndex));
-            
-            moveTriangle(backwardIndex, forwardIndex);
-        }
+        int newSize = Helper.compactArrayStorage(
+            getStoredTriangleNum(),
+            i -> isTriangleValid(i),
+            (valid, invalid) -> moveTriangle(valid, invalid)
+        );
         
-        if (backwardIndex + 1 < getTriangleIndexLimit()) {
-            trianglePointIndexes.removeElements(
-                (backwardIndex + 1) * 3, trianglePointIndexes.size()
-            );
-        }
+        trianglePointIndexes.removeElements(newSize * 3, trianglePointIndexes.size());
     }
     
     /**
@@ -881,39 +835,25 @@ public class Mesh2D {
      * @return the number of points moved
      */
     public void compactPointStorage() {
-        int forwardIndex = 0;
-        int backwardIndex = getPointIndexLimit() - 1;
-        for (; ; ) {
-            if (forwardIndex >= backwardIndex) {
-                break;
+        // remove all unused points from the grid map
+        for (int i = 0; i < getStoredPointNum(); i++) {
+            if (!isPointUsed(i)) {
+                double x = pointCoords.getDouble(i * 2);
+                double y = pointCoords.getDouble(i * 2 + 1);
+                long encodedGridIndex = encodeToGrid(x, y);
+                gridToPointIndex.remove(encodedGridIndex);
             }
-            
-            while (isPointValid(forwardIndex) && forwardIndex < backwardIndex) {
-                forwardIndex++;
-            }
-            
-            while (!isPointValid(backwardIndex) && forwardIndex < backwardIndex) {
-                backwardIndex--;
-            }
-            
-            if (forwardIndex >= backwardIndex) {
-                break;
-            }
-            
-            Validate.isTrue(!isPointValid(forwardIndex));
-            Validate.isTrue(isPointValid(backwardIndex));
-            
-            movePoint(backwardIndex, forwardIndex);
         }
         
-        if (backwardIndex + 1 < getPointIndexLimit()) {
-            pointCoords.removeElements(
-                (backwardIndex + 1) * 2, pointCoords.size()
-            );
-            pointToTriangles.removeElements(
-                (backwardIndex + 1), pointToTriangles.size()
-            );
-        }
+        int newSize = Helper.compactArrayStorage(
+            getStoredPointNum(),
+            i -> isPointUsed(i),
+            (valid, invalid) -> movePoint(valid, invalid)
+        );
+        
+        pointCoords.removeElements(newSize * 2, pointCoords.size());
+        pointToTriangles.removeElements(newSize, pointToTriangles.size());
+        Validate.isTrue(pointToTriangles.size() * 2 == pointCoords.size());
     }
     
     public void compact() {
@@ -928,9 +868,9 @@ public class Mesh2D {
         int p1Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
         int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
         
-        pointToTriangles.get(p0Index).removeInt(triangleIndex);
-        pointToTriangles.get(p1Index).removeInt(triangleIndex);
-        pointToTriangles.get(p2Index).removeInt(triangleIndex);
+        pointToTriangles.get(p0Index).rem(triangleIndex);
+        pointToTriangles.get(p1Index).rem(triangleIndex);
+        pointToTriangles.get(p2Index).rem(triangleIndex);
         
         pointToTriangles.get(p0Index).add(destTriangleIndex);
         pointToTriangles.get(p1Index).add(destTriangleIndex);
@@ -946,7 +886,7 @@ public class Mesh2D {
     }
     
     public void movePoint(int pointIndex, int destPointIndex) {
-        Validate.isTrue(!isPointValid(destPointIndex));
+        Validate.isTrue(!isPointUsed(destPointIndex));
         
         double x = pointCoords.getDouble(pointIndex * 2);
         double y = pointCoords.getDouble(pointIndex * 2 + 1);

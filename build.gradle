@@ -232,6 +232,9 @@ dependencies {
             modImplementation name
         }
     }
+
+    testImplementation(platform('org.junit:junit-bom:5.10.0'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
 }
 
 dependencies {
@@ -251,3 +254,12 @@ task printClasspath {
 }
 
 // Enable ZGC: -XX:+UseZGC
+
+// run test when building will slow down the build process
+// manually run when needed
+//test {
+//    useJUnitPlatform()
+//    testLogging {
+//        events "passed", "skipped", "failed"
+//    }
+//}

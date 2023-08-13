@@ -38,6 +38,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -1142,5 +1143,56 @@ public class Helper {
         return new Vec3(
             box.minX + xOffset, box.minY + yOffset, box.minZ + zOffset
         );
+    }
+    
+    @FunctionalInterface
+    public static interface SwappingFunc {
+        void swap(int validElementIndex, int invalidElementIndex);
+    }
+    
+    /**
+     * Compacts an array in-place, by moving valid elements at the end to
+     * fill in the places of invalid elements in the beginning.
+     * After using this, all valid elements will be at the beginning of the array without gaps.
+     * @param arraySize size of the array
+     * @param isElementValid predicate that returns true if the element at the
+     * @param swap function that swaps a valid element with an invalid element.
+     *             Its first argument is the index of a valid element on the right side,
+     *             and its second argument is the index of an invalid element on the left side.
+     * @return number of valid elements in the beginning of the array
+     */
+    public static int compactArrayStorage(
+        int arraySize,
+        IntPredicate isElementValid,
+        SwappingFunc swap
+    ) {
+        int validElementCount = 0;
+        int invalidElementCount = 0;
+        
+        while (validElementCount + invalidElementCount < arraySize) {
+            if (isElementValid.test(validElementCount)) {
+                validElementCount++;
+            }
+            else {
+                // the element at `validElementCount` is invalid
+                invalidElementCount++;
+                int invalidElementIndex = arraySize - invalidElementCount;
+                
+                while (invalidElementIndex > validElementCount) {
+                    if (isElementValid.test(invalidElementIndex)) {
+                        // the element at `invalidElementIndex` is valid
+                        swap.swap(invalidElementIndex, validElementCount);
+                        validElementCount++;
+                        break;
+                    }
+                    else {
+                        invalidElementCount++;
+                        invalidElementIndex = arraySize - invalidElementCount;
+                    }
+                }
+            }
+        }
+        
+        return validElementCount;
     }
 }
