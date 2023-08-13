@@ -167,7 +167,7 @@
   "imm_ptl.update_check_disabled": "Update check disabled",
   "imm_ptl.severely_incompatible": "WARNING: Immersive Portals mod is incompatible with mod %1$s(%2$s). Major issues will occur. You should uninstall one of the two mods. (If the two mods become compatible now, report it to qouteall.)",
   "imm_ptl.severely_incompatible_within_version": "WARNING: Immersive Portals mod is incompatible with mod %1$s(%2$s) version %3$s. Major issues will occur. You should install another version of %1$s",
-  "imm_ptl.incompatible": "WARNING: Immersive Portals mod has mild compatibility issues with mod %1$s(%2$s).",
+  "imm_ptl.incompatible": "WARNING: Immersive Portals mod maybe has compatibility issues with mod %1$s(%2$s).",
   "imm_ptl.no_place_to_generate_portal": "Cannot find space to place the other-side portal. Try lighting a smaller portal.",
   "entity.immersive_portals.portal": "Portal",
   "entity.immersive_portals.nether_portal_new": "Nether Portal",

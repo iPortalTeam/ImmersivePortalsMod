@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -22,7 +23,6 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import org.jetbrains.annotations.Nullable;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -156,47 +156,47 @@ public class IPModInfoChecking {
                         }
                     }
                     
-                    for (ModIncompatInfo mod : immPtlInfo.severelyIncompatible) {
-                        if (mod != null && mod.isModLoadedWithinVersion()) {
+                    for (ModIncompatInfo info : immPtlInfo.severelyIncompatible) {
+                        if (info != null && info.isModLoadedWithinVersion()) {
                             MutableComponent text1;
-                            if (mod.startVersion != null || mod.endVersion != null) {
+                            if (info.startVersion != null || info.endVersion != null) {
                                 text1 = Component.translatable(
                                     "imm_ptl.severely_incompatible_within_version",
-                                    mod.modName, mod.modId,
-                                    mod.getVersionRangeStr()
+                                    info.modName, info.modId,
+                                    info.getVersionRangeStr()
                                 ).withStyle(ChatFormatting.RED);
                             }
                             else {
-                                text1 = Component.translatable("imm_ptl.severely_incompatible", mod.modName, mod.modId)
+                                text1 = Component.translatable("imm_ptl.severely_incompatible", info.modName, info.modId)
                                     .withStyle(ChatFormatting.RED);
                             }
                             
-                            if (mod.desc != null) {
-                                text1.append(Component.literal(" " + mod.desc + " "));
+                            if (info.desc != null) {
+                                text1.append(Component.literal(" " + info.desc + " "));
                             }
                             
-                            if (mod.link != null) {
+                            if (info.link != null) {
                                 text1.append(Component.literal(" "));
-                                text1.append(McHelper.getLinkText(mod.link));
+                                text1.append(McHelper.getLinkText(info.link));
                             }
                             
                             texts.add(text1);
                         }
                     }
                     
-                    for (ModIncompatInfo mod : immPtlInfo.incompatible) {
-                        if (mod != null && mod.isModLoadedWithinVersion()) {
-                            if (IPConfig.getConfig().shouldDisplayWarning(mod.modId)) {
-                                MutableComponent text1 = Component.translatable("imm_ptl.incompatible", mod.modName, mod.modId)
+                    for (ModIncompatInfo info : immPtlInfo.incompatible) {
+                        if (info != null && info.isModLoadedWithinVersion()) {
+                            if (IPConfig.getConfig().shouldDisplayWarning(info.modId)) {
+                                MutableComponent text1 = Component.translatable("imm_ptl.incompatible", info.modName, info.modId)
                                     .withStyle(ChatFormatting.RED)
-                                    .append(IPMcHelper.getDisableWarningText(mod.modId));
+                                    .append(IPMcHelper.getDisableWarningText(info.modId));
                                 
-                                if (mod.desc != null) {
-                                    text1.append(Component.literal(" " + mod.desc + " "));
+                                if (info.desc != null) {
+                                    text1.append(Component.literal(" " + info.desc + " "));
                                 }
                                 
-                                if (mod.link != null) {
-                                    text1.append(McHelper.getLinkText(" " + mod.link));
+                                if (info.link != null) {
+                                    text1.append(McHelper.getLinkText(" " + info.link));
                                 }
                                 
                                 texts.add(text1);
