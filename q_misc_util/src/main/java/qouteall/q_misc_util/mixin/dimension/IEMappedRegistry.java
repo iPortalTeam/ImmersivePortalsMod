@@ -9,6 +9,9 @@ public interface IEMappedRegistry {
     @Accessor("frozen")
     boolean ip_getIsFrozen();
     
+    /**
+     * Note: un-freeze is only safe when no place use its holder.
+     */
     @Accessor("frozen")
     void ip_setIsFrozen(boolean cond);
 }

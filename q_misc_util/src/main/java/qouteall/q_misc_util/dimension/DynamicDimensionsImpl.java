@@ -1,7 +1,13 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +23,8 @@ import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
@@ -27,7 +35,9 @@ import qouteall.q_misc_util.MiscGlobals;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.ducks.IEMappedRegistry2;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
+import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 import qouteall.q_misc_util.mixin.dimension.IEWorldBorder;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -93,6 +103,19 @@ public class DynamicDimensionsImpl {
         );
         
         ((IEMinecraftServer_Misc) server).ip_addDimensionToWorldMap(dimensionResourceKey, newWorld);
+        
+        /**
+         * register it into registry, so it will be saved in
+         * {@link WorldGenSettings#encode(DynamicOps, WorldOptions, RegistryAccess)} ,
+         * so it will be saved into level.dat
+         * */
+        Registry<LevelStem> levelStemRegistry = server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
+        ((IEMappedRegistry) levelStemRegistry).ip_setIsFrozen(false);
+        ((MappedRegistry<LevelStem>) levelStemRegistry).register(
+            ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
+            levelStem, Lifecycle.stable()
+        );
+        ((IEMappedRegistry) levelStemRegistry).ip_setIsFrozen(true);
         
         worldBorder.applySettings(serverLevelData.getWorldBorder());
         
@@ -180,6 +203,11 @@ public class DynamicDimensionsImpl {
             }
             
             resetWorldBorderListener(server);
+            
+            // force remove it from registry, so it will not be saved into level.dat
+            Registry<LevelStem> levelStemRegistry = server.registryAccess()
+                .registryOrThrow(Registries.LEVEL_STEM);
+            ((IEMappedRegistry2) levelStemRegistry).ip_forceRemove(dimension.location());
             
             Helper.log("Successfully Removed Dimension " + dimension.location());
             

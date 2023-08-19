@@ -39,14 +39,15 @@ public class DimsCommand {
                             templateDimension, newDimId
                         );
                         
-//                        context.getSource().sendSuccess(
-//                            Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
-//                            false
-//                        );
-    
                         context.getSource().sendSuccess(() -> Component.literal(
                             "Dynamically added dimension %s".formatted(newDimensionId)
                         ), true);
+                        
+                        context.getSource().sendSuccess(
+                            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental and not yet stable."),
+                            false
+                        );
+                        
                         return 0;
                     })
                 )
@@ -64,15 +65,15 @@ public class DimsCommand {
                     
                     DimensionAPI.deleteDimensionConfiguration(dimension.dimension());
                     
-//                    context.getSource().sendSuccess(
-//                        Component.literal("Warning: the dynamic dimension feature is not yet stable now"),
-//                        false
-//                    );
-    
                     context.getSource().sendSuccess(() -> Component.literal(
                         "Dynamically removed dimension %s . Its world file is not yet deleted."
                             .formatted(dimension.dimension().location())
                     ), true);
+                    
+                    context.getSource().sendSuccess(
+                        () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental and not yet stable."),
+                        false
+                    );
                     
                     return 0;
                 })

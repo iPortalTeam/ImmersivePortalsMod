@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 
-@Mixin(Viewport.class)
+@Mixin(value = Viewport.class, remap = false)
 public class MixinSodiumViewport {
     @Redirect(
         method = "isBoxVisible",

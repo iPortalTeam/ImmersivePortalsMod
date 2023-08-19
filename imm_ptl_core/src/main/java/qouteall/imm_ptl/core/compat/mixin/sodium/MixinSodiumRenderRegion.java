@@ -15,7 +15,7 @@ import qouteall.q_misc_util.Helper;
 
 import static me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderLists.Builder;
 
-@Mixin(RenderRegion.class)
+@Mixin(value = RenderRegion.class, remap = false)
 public class MixinSodiumRenderRegion {
     @Shadow
     @Final
