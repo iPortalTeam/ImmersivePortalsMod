@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -41,6 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -65,9 +67,13 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.GeometryUtil;
 import qouteall.q_misc_util.my_util.IntBox;
+import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.MyTaskList;
+import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.SignalBiArged;
+import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -953,6 +959,20 @@ public class PortalCommand {
         builder.then(Commands.literal("turn_info_fake_enterable_mirror")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 invokeTurnIntoFakeEnterableMirror(context, portal);
+            }))
+        );
+        
+        builder.then(Commands.literal("sculpt")
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                invokeSculpt(context, portal);
+                reloadPortal(portal);
+            }))
+        );
+        
+        builder.then(Commands.literal("reset_shape")
+            .executes(context -> processPortalTargetedCommand(context, portal -> {
+                portal.specialShape = null;
+                reloadPortal(portal);
             }))
         );
     }
@@ -2532,6 +2552,85 @@ public class PortalCommand {
             "The portal has been turned into a fake enterable mirror. You need to manually make the two sides symmetric. " +
                 "Two invisible portal entities are generated. If you want to remove that, don't forget to remove the invisible portals."
         ), false);
+    }
+    
+    private static void invokeSculpt(CommandContext<CommandSourceStack> context, Portal portal) {
+        AABB areaBox = portal.getThinAreaBox();
+        
+        ObjectArrayList<AABB> boxes = new ObjectArrayList<>();
+        for (VoxelShape blockCollision : portal.level().getBlockCollisions(portal, areaBox)) {
+            if (!blockCollision.isEmpty()) {
+                AABB bounds = blockCollision.bounds();
+                boxes.add(bounds);
+            }
+        }
+        
+        if (portal.specialShape == null) {
+            portal.specialShape = GeometryPortalShape.createDefault();
+        }
+        
+        double halfWidth = portal.width / 2;
+        double halfHeight = portal.height / 2;
+        Vec3 normal = portal.axisW.cross(portal.axisH).normalize();
+        Plane plane = new Plane(portal.getOriginPos(), normal);
+        
+        Mesh2D mesh2D = portal.specialShape.toMesh();
+        
+        double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
+        
+        int count = 0;
+        
+        for (AABB box : boxes) {
+            ObjectArrayList<Vec2d> polygonVertexes =
+                GeometryUtil.getSlicePolygonOfCube(
+                    box, plane, portal.axisW, portal.axisH, halfWidth, halfHeight
+                );
+            
+            mesh2D.subtractPolygon(polygonVertexes);
+            
+            count++;
+            
+            if (count % 10 == 0) {
+                mesh2D.simplify();
+                mesh2D.compact();
+            }
+        }
+        
+        mesh2D.simplify();
+        
+        double meshArea = mesh2D.getArea();
+        double areaAfter = meshArea * halfWidth * halfHeight;
+        
+        if (Math.abs(4.0 - meshArea) < 0.00001) {
+            portal.specialShape = null;
+            context.getSource().sendSuccess(
+                () -> Component.literal("Portal shape is still rectangular now."),
+                false
+            );
+            return;
+        }
+        
+        if (Math.abs(meshArea) < 0.00001) {
+            portal.specialShape = null;
+            context.getSource().sendSuccess(
+                () -> Component.literal("Portal sculpted to nothing. Reset."),
+                false
+            );
+            return;
+        }
+        
+        portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
+        portal.initCullableRange(0, 0, 0, 0);
+        
+        context.getSource().sendSuccess(
+            () -> Component.translatable(
+                "imm_ptl.sculpted",
+                String.format("%.4f", areaBefore - areaAfter),
+                String.format("%.4f", areaBefore),
+                String.format("%.4f", areaAfter)
+            ),
+            false
+        );
     }
     
     public static class RemoteCallables {

@@ -9,12 +9,12 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -364,11 +364,11 @@ public class BlockPortalShape {
     
     public void initPortalAxisShape(Portal portal, Vec3 center, Direction facing) {
         Validate.isTrue(facing.getAxis() == axis);
-    
+        
         Tuple<Direction, Direction> perpendicularDirections = Helper.getPerpendicularDirections(facing);
         Direction wDirection = perpendicularDirections.getA();
         Direction hDirection = perpendicularDirections.getB();
-    
+        
         portal.axisW = Vec3.atLowerCornerOf(wDirection.getNormal());
         portal.axisH = Vec3.atLowerCornerOf(hDirection.getNormal());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
@@ -385,20 +385,9 @@ public class BlockPortalShape {
         else {
             GeometryPortalShape shape = new GeometryPortalShape();
             
-            IntBox rectanglePart = Helper.expandRectangle(
-                anchor,
-                blockPos -> area.contains(blockPos),
-                axis
-            );
-            
-            Stream.concat(
-                area.stream()
-                    .filter(blockPos -> !rectanglePart.contains(blockPos))
-                    .map(blockPos -> new IntBox(blockPos, blockPos)),
-                Stream.of(rectanglePart)
-            ).forEach(part -> {
-                Vec3 p1 = Vec3.atLowerCornerOf(part.l).add(offset);
-                Vec3 p2 = Vec3.atLowerCornerOf(part.h).add(1, 1, 1).add(offset);
+            area.forEach(part -> {
+                Vec3 p1 = Vec3.atLowerCornerOf(part).add(offset);
+                Vec3 p2 = Vec3.atLowerCornerOf(part).add(1, 1, 1).add(offset);
                 double p1LocalX = p1.subtract(center).dot(portal.axisW);
                 double p1LocalY = p1.subtract(center).dot(portal.axisH);
                 double p2LocalX = p2.subtract(center).dot(portal.axisW);
@@ -409,18 +398,15 @@ public class BlockPortalShape {
                 );
             });
             
-            portal.specialShape = shape;
+            shape.normalize(portal.width, portal.height);
+            portal.cullableXStart = 0;
+            portal.cullableXEnd = 0;
+            portal.cullableYStart = 0;
+            portal.cullableYEnd = 0;
             
-            Vec3 p1 = Vec3.atLowerCornerOf(rectanglePart.l).add(offset);
-            Vec3 p2 = Vec3.atLowerCornerOf(rectanglePart.h).add(1, 1, 1).add(offset);
-            double p1LocalX = p1.subtract(center).dot(portal.axisW);
-            double p1LocalY = p1.subtract(center).dot(portal.axisH);
-            double p2LocalX = p2.subtract(center).dot(portal.axisW);
-            double p2LocalY = p2.subtract(center).dot(portal.axisH);
-            portal.initCullableRange(
-                p1LocalX, p2LocalX,
-                p1LocalY, p2LocalY
-            );
+            GeometryPortalShape simplified = shape.simplified();
+            
+            portal.specialShape = simplified;
         }
     }
     

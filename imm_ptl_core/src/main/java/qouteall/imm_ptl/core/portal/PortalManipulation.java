@@ -105,10 +105,10 @@ public class PortalManipulation {
         }
         
         newPortal.initCullableRange(
-            portal.cullableXStart * portal.scaling,
-            portal.cullableXEnd * portal.scaling,
-            -portal.cullableYStart * portal.scaling,
-            -portal.cullableYEnd * portal.scaling
+            -portal.cullableXStart * portal.scaling,
+            -portal.cullableXEnd * portal.scaling,
+            portal.cullableYStart * portal.scaling,
+            portal.cullableYEnd * portal.scaling
         );
         
         if (portal.rotation != null) {
@@ -155,10 +155,10 @@ public class PortalManipulation {
         }
         
         newPortal.initCullableRange(
-            portal.cullableXStart,
-            portal.cullableXEnd,
-            -portal.cullableYStart,
-            -portal.cullableYEnd
+            -portal.cullableXStart,
+            -portal.cullableXEnd,
+            portal.cullableYStart,
+            portal.cullableYEnd
         );
         
         newPortal.rotation = portal.rotation;
@@ -475,7 +475,7 @@ public class PortalManipulation {
             portal.getDestinationWorld(),
             portal.getDestPos(),
             0,
-            p1 -> Portal.isReversePortal(portal,p1)
+            p1 -> Portal.isReversePortal(portal, p1)
         ));
     }
     

@@ -1,5 +1,8 @@
 package qouteall.q_misc_util.my_util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -9,7 +12,6 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
@@ -60,6 +62,9 @@ public class Mesh2D {
         return addTriangle(pointIndex1, pointIndex2, pointIndex3);
     }
     
+    /**
+     * @return the index of the triangle. -1 if the triangle is invalid.
+     */
     public int addTriangle(int pointIndex1, int pointIndex2, int pointIndex3) {
         if (pointIndex1 == pointIndex2 || pointIndex2 == pointIndex3 || pointIndex3 == pointIndex1) {
             return -1;
@@ -73,6 +78,8 @@ public class Mesh2D {
         pointToTriangles.get(pointIndex1).add(triangleIndex);
         pointToTriangles.get(pointIndex2).add(triangleIndex);
         pointToTriangles.get(pointIndex3).add(triangleIndex);
+        
+        turnTriangleToCounterClockwise(triangleIndex);
         
         notifyTriangleAddedForQuadTree(triangleIndex);
         
@@ -92,21 +99,6 @@ public class Mesh2D {
             pointToTriangles.add(new IntArrayList());
         }
         return pointIndex;
-    }
-    
-    public static double getAngle(
-        double dx1, double dy1, double dx2, double dy2
-    ) {
-        double l1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
-        double l2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-        
-        if (l1 == 0 || l2 == 0) {
-            return 0;
-        }
-        
-        double dot = (dx1 / l1) * (dx2 / l2) + (dy1 / l1) * (dy2 / l2);
-        
-        return Math.acos(dot);
     }
     
     public double getAngleFromOneCorner(
@@ -147,7 +139,7 @@ public class Mesh2D {
         double dx2 = x3 - x1;
         double dy2 = y3 - y1;
         
-        return getAngle(dx1, dy1, dx2, dy2);
+        return GeometryUtil.getAngle(dx1, dy1, dx2, dy2);
     }
     
     public double getExposingAngle(int pointIndex) {
@@ -214,6 +206,10 @@ public class Mesh2D {
         return trianglePointIndexes.size() / 3;
     }
     
+    public int getTrianglePointIndex(int triangleIndex, int indexInTriangle) {
+        return trianglePointIndexes.getInt(triangleIndex * 3 + indexInTriangle);
+    }
+    
     public void updateTrianglePoint(
         int triangleIndex,
         int pointIndexInTriangle,
@@ -224,18 +220,97 @@ public class Mesh2D {
         pointToTriangles.get(oldPointIndex).rem(triangleIndex);
         pointToTriangles.get(newPointIndex).add(triangleIndex);
         trianglePointIndexes.set(triangleIndex * 3 + pointIndexInTriangle, newPointIndex);
+        turnTriangleToCounterClockwise(triangleIndex);
         notifyTriangleAddedForQuadTree(triangleIndex);
     }
     
+    /**
+     * @return whether the triangle changes
+     */
+    public boolean turnTriangleToCounterClockwise(int triangleIndex) {
+        Validate.isTrue(isTriangleValid(triangleIndex));
+        
+        int p0Index = getTrianglePointIndex(triangleIndex, 0);
+        int p1Index = getTrianglePointIndex(triangleIndex, 1);
+        int p2Index = getTrianglePointIndex(triangleIndex, 2);
+        
+        double p0x = pointCoords.getDouble(p0Index * 2);
+        double p0y = pointCoords.getDouble(p0Index * 2 + 1);
+        double p1x = pointCoords.getDouble(p1Index * 2);
+        double p1y = pointCoords.getDouble(p1Index * 2 + 1);
+        double p2x = pointCoords.getDouble(p2Index * 2);
+        double p2y = pointCoords.getDouble(p2Index * 2 + 1);
+        
+        double cross = Helper.crossProduct2D(
+            p1x - p0x, p1y - p0y, p2x - p0x, p2y - p0y
+        );
+        
+        if (cross < 0) {
+            // not counter-clockwise
+            // swap the p1 and p2
+            trianglePointIndexes.set(triangleIndex * 3 + 1, p2Index);
+            trianglePointIndexes.set(triangleIndex * 3 + 2, p1Index);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
+     * If any triangle flips after collapsing, it cannot collapse
+     */
+    public boolean canCollapseEdge(int destPointIndex, int movingPointIndex) {
+        IntArrayList trianglesMoving = pointToTriangles.get(movingPointIndex);
+        
+        IntIterator iter = trianglesMoving.intIterator();
+        while (iter.hasNext()) {
+            int triangleIndex = iter.nextInt();
+            int p0IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3);
+            int p1IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
+            int p2IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
+            
+            if (p0IndexInTriangle == movingPointIndex) {
+                p0IndexInTriangle = destPointIndex;
+            }
+            if (p1IndexInTriangle == movingPointIndex) {
+                p1IndexInTriangle = destPointIndex;
+            }
+            if (p2IndexInTriangle == movingPointIndex) {
+                p2IndexInTriangle = destPointIndex;
+            }
+            
+            if (p0IndexInTriangle == p1IndexInTriangle ||
+                p0IndexInTriangle == p2IndexInTriangle ||
+                p1IndexInTriangle == p2IndexInTriangle
+            ) {
+                continue;
+            }
+            
+            double np0x = pointCoords.getDouble(p0IndexInTriangle * 2);
+            double np0y = pointCoords.getDouble(p0IndexInTriangle * 2 + 1);
+            double np1x = pointCoords.getDouble(p1IndexInTriangle * 2);
+            double np1y = pointCoords.getDouble(p1IndexInTriangle * 2 + 1);
+            double np2x = pointCoords.getDouble(p2IndexInTriangle * 2);
+            double np2y = pointCoords.getDouble(p2IndexInTriangle * 2 + 1);
+            
+            double cross = Helper.crossProduct2D(
+                np1x - np0x, np1y - np0y, np2x - np0x, np2y - np0y
+            );
+            if (cross < 0) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     public void collapseEdge(int destPointIndex, int movingPointIndex) {
-        IntArrayList triangles1 = pointToTriangles.get(destPointIndex);
-        IntArrayList triangles2 = pointToTriangles.get(movingPointIndex);
+        // copy to avoid modifying while traversal
+        IntArrayList relevantTriangles = new IntArrayList(pointToTriangles.get(movingPointIndex));
         
-        IntOpenHashSet triangles = new IntOpenHashSet();
-        triangles.addAll(triangles1);
-        triangles.addAll(triangles2);
+        IntIterator iter = relevantTriangles.intIterator();
         
-        IntIterator iter = triangles.intIterator();
         while (iter.hasNext()) {
             int triangleIndex = iter.nextInt();
             int p0IndexInTriangle = trianglePointIndexes.getInt(triangleIndex * 3);
@@ -285,17 +360,23 @@ public class Mesh2D {
                     int p1Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
                     int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
                     
-                    if (isPointInsideMesh(p0Index) && isPointInsideMesh(p1Index)) {
-                        collapseEdge(p0Index, p1Index);
-                        return i;
+                    if (p1Index == i) {
+                        if (canCollapseEdge(p0Index, p1Index)) {
+                            collapseEdge(p0Index, p1Index);
+                            return i;
+                        }
                     }
-                    else if (isPointInsideMesh(p1Index) && isPointInsideMesh(p2Index)) {
-                        collapseEdge(p1Index, p2Index);
-                        return i;
+                    if (p2Index == i) {
+                        if (canCollapseEdge(p1Index, p2Index)) {
+                            collapseEdge(p1Index, p2Index);
+                            return i;
+                        }
                     }
-                    else if (isPointInsideMesh(p2Index) && isPointInsideMesh(p0Index)) {
-                        collapseEdge(p2Index, p0Index);
-                        return i;
+                    if (p0Index == i) {
+                        if (canCollapseEdge(p2Index, p0Index)) {
+                            collapseEdge(p2Index, p0Index);
+                            return i;
+                        }
                     }
                 }
             }
@@ -336,9 +417,11 @@ public class Mesh2D {
                             double p2x = pointCoords.getDouble(p2 * 2);
                             double p2y = pointCoords.getDouble(p2 * 2 + 1);
                             
-                            if (isCollinear(p1x - x, p1y - y, p2x - x, p2y - y)) {
-                                collapseEdge(p1, i);
-                                return i;
+                            if (GeometryUtil.isOppositeVec(p1x - x, p1y - y, p2x - x, p2y - y)) {
+                                if (canCollapseEdge(p1, i)) {
+                                    collapseEdge(p1, i);
+                                    return i;
+                                }
                             }
                         }
                     }
@@ -349,24 +432,17 @@ public class Mesh2D {
         return -1;
     }
     
-    public static boolean isCollinear(double v1x, double v1y, double v2x, double v2y) {
-        double d1l = Math.sqrt(v1x * v1x + v1y * v1y);
-        double d2l = Math.sqrt(v2x * v2x + v2y * v2y);
-        
-        if (d1l == 0 || d2l == 0) {
-            return true;
-        }
-        
-        double dot = (v1x / d1l) * (v2x / d2l) + (v1y / d1l) * (v2y / d2l);
-        
-        return Math.abs(dot - (-1)) < 0.0001;
+    public void simplify() {
+        simplifySteps(getStoredPointNum());
     }
     
     /**
      * @param countLimit The maximum number of points to collapse.
      * @return The number of edges collapsed.
      */
-    public int simplify(int countLimit) {
+    public int simplifySteps(int countLimit) {
+        fixEdgeCrossingPoint();
+        
         int count = 0;
         
         int innerEdgeCollapsePointIndex = 0;
@@ -397,82 +473,6 @@ public class Mesh2D {
         return count;
     }
     
-    public static record Line2D(double linePX, double linePY, double dirX, double dirY) {
-        
-        public static Line2D fromTwoPoints(
-            double x1, double y1,
-            double x2, double y2
-        ) {
-            double dx = x2 - x1;
-            double dy = y2 - y1;
-            return new Line2D(x1, y1, dx, dy);
-        }
-        
-        // the side vec is the direction vec rotated by 90 degrees counter-clockwise
-        // for a counter-clockwise triangle, the side vec is pointing inwards
-        public double getSideVecX() {
-            return -dirY;
-        }
-        
-        public double getSideVecY() {
-            return dirX;
-        }
-        
-        public int testSide(double x, double y) {
-            double dx = x - linePX;
-            double dy = y - linePY;
-            double dot = dx * getSideVecX() + dy * getSideVecY();
-            if (dot > 0.00001) {
-                return 1;
-            }
-            else if (dot < -0.00001) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        }
-        
-        public boolean testSideBool(double x, double y) {
-            double dx = x - linePX;
-            double dy = y - linePY;
-            double dot = dx * getSideVecX() + dy * getSideVecY();
-            return dot > 0;
-        }
-        
-        /**
-         * 1) px = p10x + t1 * v1x
-         * py = p10y + t1 * v1y
-         * 2) px = p20x + t2 * v2x
-         * py = p20y + t2 * v2y
-         * p1x + t1 * v1x = p2x + t2 * v2x
-         * p1y + t1 * v1y = p2y + t2 * v2y
-         * <p>
-         * t1 * v1x - t2 * v2x = p2x - p1x
-         * t1 * v1y - t2 * v2y = p2y - p1y
-         * <p>
-         * t1 * v1x * v2y - t2 * v2x * v2y = (p2x - p1x) * v2y
-         * t1 * v1y * v2x - t2 * v2y * v2x = (p2y - p1y) * v2x
-         * <p>
-         * t1 = ( (p2x - p1x) * v2y - (p2y - p1y) * v2x ) / ( v1x * v2y - v1y * v2x )
-         *
-         * @return the t value of this line. If the line is parallel to the other line, return NaN.
-         */
-        public double getIntersectionWithLine(Line2D other) {
-            double det = dirX * other.dirY - dirY * other.dirX;
-            
-            if (Math.abs(det) < 1e-8) {
-                return Double.NaN;
-            }
-            
-            double t = ((other.linePX - linePX) * other.dirY -
-                (other.linePY - linePY) * other.dirX) / det;
-            
-            return t;
-        }
-        
-    }
-    
     public static double select(int index, double n1, double n2, double n3) {
         return switch (index) {
             case 0 -> n1;
@@ -482,6 +482,7 @@ public class Mesh2D {
         };
     }
     
+    // Note: must supply a counter-clockwise triangle
     public void subtractTriangleFromMesh(
         double tp0x, double tp0y,
         double tp1x, double tp1y,
@@ -527,12 +528,12 @@ public class Mesh2D {
         
         IntArrayList tempTriangles = new IntArrayList();
         
-        Line2D line01 = Line2D.fromTwoPoints(tp0x, tp0y, tp1x, tp1y);
-        Line2D line12 = Line2D.fromTwoPoints(tp1x, tp1y, tp2x, tp2y);
-        Line2D line20 = Line2D.fromTwoPoints(tp2x, tp2y, tp0x, tp0y);
-        Line2D[] lines = new Line2D[]{line01, line12, line20};
+        GeometryUtil.Line2D line01 = GeometryUtil.Line2D.fromTwoPoints(tp0x, tp0y, tp1x, tp1y);
+        GeometryUtil.Line2D line12 = GeometryUtil.Line2D.fromTwoPoints(tp1x, tp1y, tp2x, tp2y);
+        GeometryUtil.Line2D line20 = GeometryUtil.Line2D.fromTwoPoints(tp2x, tp2y, tp0x, tp0y);
+        GeometryUtil.Line2D[] lines = new GeometryUtil.Line2D[]{line01, line12, line20};
         
-        for (Line2D line : lines) {
+        for (GeometryUtil.Line2D line : lines) {
             IntIterator iter = relevantTriangles.intIterator();
             while (iter.hasNext()) {
                 int triangleIndex = iter.nextInt();
@@ -552,6 +553,8 @@ public class Mesh2D {
         }
         
         relevantTriangles.removeIf((int triangleIndex) -> {
+            Validate.isTrue(triangleIndex != -1);
+            
             int p1Index = trianglePointIndexes.getInt(triangleIndex * 3);
             int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
             int p3Index = trianglePointIndexes.getInt(triangleIndex * 3 + 2);
@@ -585,7 +588,7 @@ public class Mesh2D {
      */
     public @Nullable IntArrayList dissectTriangleByLine(
         int triangleIndex,
-        Line2D line
+        GeometryUtil.Line2D line
     ) {
         int p1Index = trianglePointIndexes.getInt(triangleIndex * 3);
         int p2Index = trianglePointIndexes.getInt(triangleIndex * 3 + 1);
@@ -635,7 +638,7 @@ public class Mesh2D {
      */
     private @Nullable IntArrayList dissectTriangleByEdgesFromVertex(
         int triangleIndex,
-        Line2D line,
+        GeometryUtil.Line2D line,
         int v0
     ) {
         int v1 = (v0 + 1) % 3;
@@ -652,8 +655,8 @@ public class Mesh2D {
         double p2x = pointCoords.getDouble(p2Index * 2);
         double p2y = pointCoords.getDouble(p2Index * 2 + 1);
         
-        Line2D line01 = Line2D.fromTwoPoints(p0x, p0y, p1x, p1y);
-        Line2D line02 = Line2D.fromTwoPoints(p0x, p0y, p2x, p2y);
+        GeometryUtil.Line2D line01 = GeometryUtil.Line2D.fromTwoPoints(p0x, p0y, p1x, p1y);
+        GeometryUtil.Line2D line02 = GeometryUtil.Line2D.fromTwoPoints(p0x, p0y, p2x, p2y);
         
         double t01 = line01.getIntersectionWithLine(line);
         double t02 = line02.getIntersectionWithLine(line);
@@ -661,8 +664,8 @@ public class Mesh2D {
         int intersectionPoint01 = -1;
         if (!Double.isNaN(t01) && t01 >= 0 && t01 <= 1) {
             // p0-p1 intersects with the line
-            double ix = line01.linePX + t01 * line01.dirX;
-            double iy = line01.linePY + t01 * line01.dirY;
+            double ix = line01.linePX() + t01 * line01.dirX();
+            double iy = line01.linePY() + t01 * line01.dirY();
             intersectionPoint01 = indexPoint(ix, iy);
             
             if (intersectionPoint01 == p0Index || intersectionPoint01 == p1Index) {
@@ -673,8 +676,8 @@ public class Mesh2D {
         int intersectionPoint02 = -1;
         if (!Double.isNaN(t02) && t02 >= 0 && t02 <= 1) {
             // p0-p2 intersects with the line
-            double ix = line02.linePX + t02 * line02.dirX;
-            double iy = line02.linePY + t02 * line02.dirY;
+            double ix = line02.linePX() + t02 * line02.dirX();
+            double iy = line02.linePY() + t02 * line02.dirY();
             intersectionPoint02 = indexPoint(ix, iy);
             
             if (intersectionPoint02 == p0Index || intersectionPoint02 == p2Index) {
@@ -729,7 +732,17 @@ public class Mesh2D {
                 t3 = addTriangle(quadP1Index, quadP2Index, quadP3Index);
             }
             
-            return IntArrayList.of(t1, t2, t3);
+            IntArrayList result = new IntArrayList();
+            if (t1 != -1) {
+                result.add(t1);
+            }
+            if (t2 != -1) {
+                result.add(t2);
+            }
+            if (t3 != -1) {
+                result.add(t3);
+            }
+            return result;
         }
         
         if (intersectionPoint01 != -1) {
@@ -745,7 +758,15 @@ public class Mesh2D {
             
             int t1 = addTriangle(p1Index, p2Index, intersectionPoint01);
             int t2 = addTriangle(p2Index, p0Index, intersectionPoint01);
-            return IntArrayList.of(t1, t2);
+            
+            IntArrayList result = new IntArrayList();
+            if (t1 != -1) {
+                result.add(t1);
+            }
+            if (t2 != -1) {
+                result.add(t2);
+            }
+            return result;
         }
         
         if (intersectionPoint02 != -1) {
@@ -761,7 +782,15 @@ public class Mesh2D {
             
             int t1 = addTriangle(p0Index, p1Index, intersectionPoint02);
             int t2 = addTriangle(p1Index, p2Index, intersectionPoint02);
-            return IntArrayList.of(t1, t2);
+            
+            IntArrayList result = new IntArrayList();
+            if (t1 != -1) {
+                result.add(t1);
+            }
+            if (t2 != -1) {
+                result.add(t2);
+            }
+            return result;
         }
         
         throw new IllegalStateException();
@@ -1086,6 +1115,19 @@ public class Mesh2D {
             if (triangleLookup != null) {
                 Validate.isTrue(getTriangleIdListInTriangleLookup(triangleIndex).contains(triangleIndex));
             }
+            
+            double p0x = pointCoords.getDouble(p0Index * 2);
+            double p0y = pointCoords.getDouble(p0Index * 2 + 1);
+            double p1x = pointCoords.getDouble(p1Index * 2);
+            double p1y = pointCoords.getDouble(p1Index * 2 + 1);
+            double p2x = pointCoords.getDouble(p2Index * 2);
+            double p2y = pointCoords.getDouble(p2Index * 2 + 1);
+            
+            // ensure that it's counter-clockwise
+            Validate.isTrue(Helper.crossProduct2D(
+                p1x - p0x, p1y - p0y,
+                p2x - p0x, p2y - p0y
+            ) > 0);
         }
         
         for (IntArrayList triangleIds : pointToTriangles) {
@@ -1105,6 +1147,165 @@ public class Mesh2D {
                 }
             );
         }
+    }
+    
+    public boolean triangleIntersects(int ti1, int ti2) {
+        int t1p0Index = trianglePointIndexes.getInt(ti1 * 3);
+        int t1p1Index = trianglePointIndexes.getInt(ti1 * 3 + 1);
+        int t1p2Index = trianglePointIndexes.getInt(ti1 * 3 + 2);
+        
+        int t2p0Index = trianglePointIndexes.getInt(ti2 * 3);
+        int t2p1Index = trianglePointIndexes.getInt(ti2 * 3 + 1);
+        int t2p2Index = trianglePointIndexes.getInt(ti2 * 3 + 2);
+        
+        double t1p0x = pointCoords.getDouble(t1p0Index * 2);
+        double t1p0y = pointCoords.getDouble(t1p0Index * 2 + 1);
+        double t1p1x = pointCoords.getDouble(t1p1Index * 2);
+        double t1p1y = pointCoords.getDouble(t1p1Index * 2 + 1);
+        double t1p2x = pointCoords.getDouble(t1p2Index * 2);
+        double t1p2y = pointCoords.getDouble(t1p2Index * 2 + 1);
+        
+        double t2p0x = pointCoords.getDouble(t2p0Index * 2);
+        double t2p0y = pointCoords.getDouble(t2p0Index * 2 + 1);
+        double t2p1x = pointCoords.getDouble(t2p1Index * 2);
+        double t2p1y = pointCoords.getDouble(t2p1Index * 2 + 1);
+        double t2p2x = pointCoords.getDouble(t2p2Index * 2);
+        double t2p2y = pointCoords.getDouble(t2p2Index * 2 + 1);
+        
+        return GeometryUtil.triangleIntersects(
+            t1p0x, t1p0y, t1p1x, t1p1y, t1p2x, t1p2y,
+            t2p0x, t2p0y, t2p1x, t2p1y, t2p2x, t2p2y
+        );
+    }
+    
+    public void fixIntersectedTriangle() {
+        int maxOperationNum = getStoredTriangleNum();
+        
+        int operationNum = 0;
+        int startTriangleIndex = 0;
+        while (operationNum < maxOperationNum && startTriangleIndex < getStoredTriangleNum()) {
+            startTriangleIndex = tryFixIntersectedTriangle(startTriangleIndex);
+            operationNum++;
+        }
+    }
+    
+    private int tryFixIntersectedTriangle(int startTriangleIndex) {
+        enableTriangleLookup();
+        assert triangleLookup != null;
+        int storedTriangleNum = getStoredTriangleNum();
+        for (int ti = startTriangleIndex; ti < storedTriangleNum; ti++) {
+            if (!isTriangleValid(ti)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(ti * 3);
+            int p1Index = trianglePointIndexes.getInt(ti * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(ti * 3 + 2);
+            double p0x = pointCoords.getDouble(p0Index * 2);
+            double p0y = pointCoords.getDouble(p0Index * 2 + 1);
+            double p1x = pointCoords.getDouble(p1Index * 2);
+            double p1y = pointCoords.getDouble(p1Index * 2 + 1);
+            double p2x = pointCoords.getDouble(p2Index * 2);
+            double p2y = pointCoords.getDouble(p2Index * 2 + 1);
+            
+            int ti_ = ti;
+            @Nullable Unit unit = traverseNearbyTriangles(
+                ti,
+                anotherTi -> {
+                    if (ti_ < anotherTi) {
+                        if (triangleIntersects(ti_, anotherTi)) {
+                            subtractTriangleForOneTriangle(
+                                anotherTi, p0x, p0y, p1x, p1y, p2x, p2y
+                            );
+                            return Unit.INSTANCE;
+                        }
+                    }
+                    
+                    return null;
+                }
+            );
+            
+            if (unit != null) {
+                return ti;
+            }
+        }
+        
+        return storedTriangleNum;
+    }
+    
+    /**
+     * For the cases that an edge goes through a point, but the point is not the endpoint of the edge,
+     * it will cause simplification to be wrong.
+     * This should be fixed by detecting point on edge and split relevant triangles.
+     *
+     * @return count of operations
+     */
+    public int fixEdgeCrossingPoint() {
+        enableTriangleLookup();
+        
+        int operationCount = 0;
+        
+        int i = 0;
+        while (i < getStoredPointNum()) {
+            if (!isPointUsed(i)) {
+                i++;
+                continue;
+            }
+            
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            int i_ = i;
+            for (; ; ) {
+                double tiny = 0.00001;
+                Unit result = traverseTrianglesByBB(
+                    x - tiny, y - tiny, x + tiny, y + tiny,
+                    triangleIndex -> {
+                        for (int v = 0; v < 3; v++) {
+                            if (getTrianglePointIndex(triangleIndex, v) == i_) {
+                                return null;
+                            }
+                        }
+                        
+                        for (int edgeIndex = 0; edgeIndex < 3; edgeIndex++) {
+                            int p0Index = getTrianglePointIndex(triangleIndex, edgeIndex);
+                            int p1Index = getTrianglePointIndex(triangleIndex, (edgeIndex + 1) % 3);
+                            int p2Index = getTrianglePointIndex(triangleIndex, (edgeIndex + 2) % 3);
+                            
+                            if (isOnLineSegment(p0Index, i_, p1Index)) {
+                                removeTriangle(triangleIndex);
+                                addTriangle(p0Index, i_, p2Index);
+                                addTriangle(i_, p1Index, p2Index);
+                                return Unit.INSTANCE;
+                            }
+                        }
+                        
+                        return null;
+                    }
+                );
+                
+                if (result == null) {
+                    break;
+                }
+                else {
+                    operationCount++;
+                }
+            }
+            i++;
+        }
+        
+        return operationCount;
+    }
+    
+    public boolean isOnLineSegment(int p1Index, int p2Index, int p3Index) {
+        double p1x = pointCoords.getDouble(p1Index * 2);
+        double p1y = pointCoords.getDouble(p1Index * 2 + 1);
+        double p2x = pointCoords.getDouble(p2Index * 2);
+        double p2y = pointCoords.getDouble(p2Index * 2 + 1);
+        double p3x = pointCoords.getDouble(p3Index * 2);
+        double p3y = pointCoords.getDouble(p3Index * 2 + 1);
+        
+        return GeometryUtil.isOppositeVec(p1x - p2x, p1y - p2y, p3x - p2x, p3y - p2y);
     }
     
     @Override
@@ -1136,132 +1337,61 @@ public class Mesh2D {
         return sb.toString();
     }
     
-    @FunctionalInterface
-    public static interface BiDoublePredicate {
-        boolean test(double x, double y);
-    }
-    
-    public boolean triangleIntersects(int ti1, int ti2) {
-        int t1p0Index = trianglePointIndexes.getInt(ti1 * 3);
-        int t1p1Index = trianglePointIndexes.getInt(ti1 * 3 + 1);
-        int t1p2Index = trianglePointIndexes.getInt(ti1 * 3 + 2);
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        JsonArray points = new JsonArray();
+        JsonArray triangles = new JsonArray();
         
-        int t2p0Index = trianglePointIndexes.getInt(ti2 * 3);
-        int t2p1Index = trianglePointIndexes.getInt(ti2 * 3 + 1);
-        int t2p2Index = trianglePointIndexes.getInt(ti2 * 3 + 2);
-        
-        double t1p0x = pointCoords.getDouble(t1p0Index * 2);
-        double t1p0y = pointCoords.getDouble(t1p0Index * 2 + 1);
-        double t1p1x = pointCoords.getDouble(t1p1Index * 2);
-        double t1p1y = pointCoords.getDouble(t1p1Index * 2 + 1);
-        double t1p2x = pointCoords.getDouble(t1p2Index * 2);
-        double t1p2y = pointCoords.getDouble(t1p2Index * 2 + 1);
-        
-        double t2p0x = pointCoords.getDouble(t2p0Index * 2);
-        double t2p0y = pointCoords.getDouble(t2p0Index * 2 + 1);
-        double t2p1x = pointCoords.getDouble(t2p1Index * 2);
-        double t2p1y = pointCoords.getDouble(t2p1Index * 2 + 1);
-        double t2p2x = pointCoords.getDouble(t2p2Index * 2);
-        double t2p2y = pointCoords.getDouble(t2p2Index * 2 + 1);
-        
-        return triangleIntersects(
-            t1p0x, t1p0y, t1p1x, t1p1y, t1p2x, t1p2y,
-            t2p0x, t2p0y, t2p1x, t2p1y, t2p2x, t2p2y
-        );
-    }
-    
-    public static boolean triangleIntersects(
-        double t0x0, double t0y0, double t0x1, double t0y1, double t0x2, double t0y2,
-        double t1x0, double t1y0, double t1x1, double t1y1, double t1x2, double t1y2
-    ) {
-        BiDoublePredicate separatesByAxis = (axisX, axisY) ->
-            triangleAxisSeparatesAlongAxis(
-                t0x0, t0y0, t0x1, t0y1, t0x2, t0y2,
-                t1x0, t1y0, t1x1, t1y1, t1x2, t1y2,
-                axisX, axisY
-            );
-        
-        double vec00x = t0x1 - t0x0;
-        double vec00y = t0y1 - t0y0;
-        double vec01x = t0x2 - t0x1;
-        double vec01y = t0y2 - t0y1;
-        double vec02x = t0x0 - t0x2;
-        double vec02y = t0y0 - t0y2;
-        
-        double vec10x = t1x1 - t1x0;
-        double vec10y = t1y1 - t1y0;
-        double vec11x = t1x2 - t1x1;
-        double vec11y = t1y2 - t1y1;
-        double vec12x = t1x0 - t1x2;
-        double vec12y = t1y0 - t1y2;
-        
-        double axis00x = -vec00y;
-        double axis00y = vec00x;
-        double axis01x = -vec01y;
-        double axis01y = vec01x;
-        double axis02x = -vec02y;
-        double axis02y = vec02x;
-        
-        double axis10x = -vec10y;
-        double axis10y = vec10x;
-        double axis11x = -vec11y;
-        double axis11y = vec11x;
-        double axis12x = -vec12y;
-        double axis12y = vec12x;
-        
-        boolean canSeparate = separatesByAxis.test(axis00x, axis00y) ||
-            separatesByAxis.test(axis01x, axis01y) ||
-            separatesByAxis.test(axis02x, axis02y) ||
-            separatesByAxis.test(axis10x, axis10y) ||
-            separatesByAxis.test(axis11x, axis11y) ||
-            separatesByAxis.test(axis12x, axis12y);
-        
-        return !canSeparate;
-    }
-    
-    private static boolean triangleAxisSeparatesAlongAxis(
-        double t0x0, double t0y0, double t0x1, double t0y1, double t0x2, double t0y2,
-        double t1x0, double t1y0, double t1x1, double t1y1, double t1x2, double t1y2,
-        double axisX, double axisY
-    ) {
-        double t0p0 = t0x0 * axisX + t0y0 * axisY;
-        double t0p1 = t0x1 * axisX + t0y1 * axisY;
-        double t0p2 = t0x2 * axisX + t0y2 * axisY;
-        
-        double t1p0 = t1x0 * axisX + t1y0 * axisY;
-        double t1p1 = t1x1 * axisX + t1y1 * axisY;
-        double t1p2 = t1x2 * axisX + t1y2 * axisY;
-        
-        double t0min = Math.min(Math.min(t0p0, t0p1), t0p2);
-        double t0max = Math.max(Math.max(t0p0, t0p1), t0p2);
-        
-        double t1min = Math.min(Math.min(t1p0, t1p1), t1p2);
-        double t1max = Math.max(Math.max(t1p0, t1p1), t1p2);
-        
-        return t0max - t1min < 0.00001 || t1max - t0min < 0.00001;
-    }
-    
-    public void fixIntersectedTriangle(int maxOperationNum) {
-        int operationNum = 0;
-        int startTriangleIndex = 0;
-        while (operationNum < maxOperationNum && startTriangleIndex < getStoredTriangleNum()) {
-            startTriangleIndex = tryFixIntersectedTriangle(startTriangleIndex);
-            operationNum++;
-        }
-    }
-    
-    private int tryFixIntersectedTriangle(int startTriangleIndex) {
-        enableTriangleLookup();
-        assert triangleLookup != null;
-        int storedTriangleNum = getStoredTriangleNum();
-        for (int ti = startTriangleIndex; ti < storedTriangleNum; ti++) {
-            if (!isTriangleValid(ti)) {
+        for (int i = 0; i < getStoredPointNum(); i++) {
+            if (!isPointUsed(i)) {
+                points.add((JsonElement) null);
                 continue;
             }
             
-            int p0Index = trianglePointIndexes.getInt(ti * 3);
-            int p1Index = trianglePointIndexes.getInt(ti * 3 + 1);
-            int p2Index = trianglePointIndexes.getInt(ti * 3 + 2);
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            JsonArray point = new JsonArray();
+            point.add(x);
+            point.add(y);
+            points.add(point);
+        }
+        
+        for (int i = 0; i < getStoredTriangleNum(); i++) {
+            if (!isTriangleValid(i)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(i * 3);
+            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            
+            JsonArray triangle = new JsonArray();
+            triangle.add(p0Index);
+            triangle.add(p1Index);
+            triangle.add(p2Index);
+            triangles.add(triangle);
+        }
+        
+        json.add("points", points);
+        json.add("triangles", triangles);
+        
+        return json;
+    }
+    
+    public Vec2d getBarycenter() {
+        double sumX = 0;
+        double sumY = 0;
+        double sumWeight = 0;
+        for (int i = 0; i < getStoredTriangleNum(); i++) {
+            if (!isTriangleValid(i)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(i * 3);
+            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            
             double p0x = pointCoords.getDouble(p0Index * 2);
             double p0y = pointCoords.getDouble(p0Index * 2 + 1);
             double p1x = pointCoords.getDouble(p1Index * 2);
@@ -1269,32 +1399,98 @@ public class Mesh2D {
             double p2x = pointCoords.getDouble(p2Index * 2);
             double p2y = pointCoords.getDouble(p2Index * 2 + 1);
             
-            int tiFinal = ti;
-            @Nullable Unit unit = traverseNearbyTriangles(
-                ti,
-                anotherTi -> {
-                    if (tiFinal < anotherTi) {
-                        if (triangleIntersects(tiFinal, anotherTi)) {
-                            subtractTriangleForOneTriangle(
-                                tiFinal, p0x, p0y, p1x, p1y, p2x, p2y
-                            );
-                            return Unit.INSTANCE;
-                        }
-                    }
-                    
-                    return null;
-                }
+            double weight = Helper.crossProduct2D(
+                p1x - p0x, p1y - p0y,
+                p2x - p0x, p2y - p0y
             );
             
-            if (unit != null) {
-                return ti;
+            sumX += (p0x + p1x + p2x) * weight;
+            sumY += (p0y + p1y + p2y) * weight;
+            sumWeight += weight;
+        }
+        
+        if (sumWeight == 0) {
+            return new Vec2d(0, 0);
+        }
+        
+        return new Vec2d((sumX / sumWeight) / 3, (sumY / sumWeight) / 3);
+    }
+    
+    public static record Rect(double minX, double minY, double maxX, double maxY) {
+    }
+    
+    public Rect getBoundingBox() {
+        double minX = 0;
+        double minY = 0;
+        double maxX = 0;
+        double maxY = 0;
+        
+        boolean firstPoint = true;
+        for (int i = 0; i < getStoredPointNum(); i++) {
+            if (!isPointUsed(i)) {
+                continue;
+            }
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            if (firstPoint) {
+                minX = x;
+                minY = y;
+                maxX = x;
+                maxY = y;
+                firstPoint = false;
+            }
+            else {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
             }
         }
         
-        return storedTriangleNum;
+        return new Rect(minX, minY, maxX, maxY);
     }
     
-    public void fixDisconnectedEdges() {
-        throw new NotImplementedException();
+    public double getArea() {
+        double sumAreaDoubled = 0;
+        for (int i = 0; i < getStoredTriangleNum(); i++) {
+            if (!isTriangleValid(i)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(i * 3);
+            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            
+            double p0x = pointCoords.getDouble(p0Index * 2);
+            double p0y = pointCoords.getDouble(p0Index * 2 + 1);
+            double p1x = pointCoords.getDouble(p1Index * 2);
+            double p1y = pointCoords.getDouble(p1Index * 2 + 1);
+            double p2x = pointCoords.getDouble(p2Index * 2);
+            double p2y = pointCoords.getDouble(p2Index * 2 + 1);
+            
+            double triangleAreaDoubled = Helper.crossProduct2D(
+                p1x - p0x, p1y - p0y,
+                p2x - p0x, p2y - p0y
+            );
+            sumAreaDoubled += triangleAreaDoubled;
+        }
+        
+        return sumAreaDoubled / 2;
+    }
+    
+    public void subtractPolygon(ObjectArrayList<Vec2d> polygonVertexes) {
+        // dissect the polygon into triangles using fan triangulation
+        for (int i = 1; i < polygonVertexes.size() - 1; i++) {
+            int p0Index = 0;
+            int p1Index = i;
+            int p2Index = i + 1;
+            
+            subtractTriangleFromMesh(
+                polygonVertexes.get(p0Index).x(), polygonVertexes.get(p0Index).y(),
+                polygonVertexes.get(p1Index).x(), polygonVertexes.get(p1Index).y(),
+                polygonVertexes.get(p2Index).x(), polygonVertexes.get(p2Index).y()
+            );
+        }
     }
 }

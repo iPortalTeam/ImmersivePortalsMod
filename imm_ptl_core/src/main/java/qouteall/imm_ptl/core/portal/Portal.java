@@ -1781,6 +1781,14 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         PortalExtension.get(this).rectifyClusterPortals(this, sync);
     }
     
+    /**
+     * Use this after modifying the portal on server side.
+     * This will:
+     * 1. invalidate caches
+     * 2. rectify cluster portals
+     *    (make flipped portal, reverse portal and parallel portal to update accordingly)
+     * 3. send update packet(s) to client
+     */
     public void reloadPortal() {
         Validate.isTrue(!level().isClientSide());
         updateCache();

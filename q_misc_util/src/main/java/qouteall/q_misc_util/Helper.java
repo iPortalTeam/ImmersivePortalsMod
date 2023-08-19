@@ -366,6 +366,14 @@ public class Helper {
         entries.set(i2, temp);
     }
     
+    // positive if it's rotating counter clock wise
+    public static double crossProduct2D(
+        double x1, double y1,
+        double x2, double y2
+    ) {
+        return x1 * y2 - x2 * y1;
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         

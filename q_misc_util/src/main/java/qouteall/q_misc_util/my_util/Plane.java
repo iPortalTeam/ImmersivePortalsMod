@@ -14,6 +14,10 @@ public record Plane(Vec3 pos, Vec3 normal) {
         return normal.dot(point.subtract(pos));
     }
     
+    public double getDistanceTo(double x, double y, double z) {
+        return normal.x() * (x - pos.x()) + normal.y() * (y - pos.y()) + normal.z() * (z - pos.z());
+    }
+    
     @NotNull
     public Vec3 getProjection(Vec3 point) {
         return point.subtract(normal.scale(getDistanceTo(point)));
@@ -35,17 +39,62 @@ public record Plane(Vec3 pos, Vec3 normal) {
         return new Plane(pos, normal.scale(-1));
     }
     
-    @Nullable
-    public Vec3 rayTrace(Vec3 origin, Vec3 vec) {
-        double denominator = normal.dot(vec);
-        if (Math.abs(denominator) < 0.0001) {
+    public @Nullable Vec3 rayTrace(Vec3 origin, Vec3 vec) {
+        double t = rayTraceGetT(origin, vec);
+        
+        if (Double.isNaN(t)) {
             return null;
         }
-        double t = -getDistanceTo(origin) / denominator;
-        if (t <= 0) {
+        
+        if (t < 0) {
             return null;
         }
+        
         return origin.add(vec.scale(t));
+    }
+    
+    /**
+     * @param lineOrigin the origin of the line
+     * @param lineVec    the direction of the line (not necessarily normalized)
+     * @return the t value of the line equation (lineOrigin + lineVec * t) that intersects with the plane
+     * or NaN if the line is parallel to the plane
+     */
+    public double rayTraceGetT(Vec3 lineOrigin, Vec3 lineVec) {
+        double lineVecProjectToNormal = normal.dot(lineVec);
+        if (Math.abs(lineVecProjectToNormal) < 0.00001) {
+            return Double.NaN;
+        }
+        return -getDistanceTo(lineOrigin) / lineVecProjectToNormal;
+    }
+    
+    /**
+     * Same as the above but avoids allocation (Waiting for Project Valhalla)
+     */
+    public double rayTraceGetT(
+        double lineOriginX, double lineOriginY, double lineOriginZ,
+        double lineVecX, double lineVecY, double lineVecZ
+    ) {
+        double lineVecProjectToNormal =
+            normal.x() * lineVecX + normal.y() * lineVecY + normal.z() * lineVecZ;
+        if (Math.abs(lineVecProjectToNormal) < 0.00001) {
+            return Double.NaN;
+        }
+        return -getDistanceTo(lineOriginX, lineOriginY, lineOriginZ) / lineVecProjectToNormal;
+    }
+    
+    public @Nullable Vec3 intersectionWithLineSegment(Vec3 lineP1, Vec3 lineP2) {
+        Vec3 lineVec = lineP2.subtract(lineP1);
+        double t = rayTraceGetT(lineP1, lineVec);
+        
+        if (Double.isNaN(t)) {
+            return null;
+        }
+        
+        if (t < 0 || t > 1) {
+            return null;
+        }
+        
+        return lineP1.add(lineVec.scale(t));
     }
     
     @Override

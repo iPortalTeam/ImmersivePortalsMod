@@ -129,27 +129,31 @@ public class QuadTree<T> {
             return r1;
         }
         
-        boolean minXSig = bbMinX > 0;
-        boolean minYSig = bbMinY > 0;
-        boolean maxXSig = bbMaxX > 0;
-        boolean maxYSig = bbMaxY > 0;
+        int bxMin = bbMinX > 0 ? 1 : 0;
+        int byMin = bbMinY > 0 ? 1 : 0;
+        int bxMax = bbMaxX > 0 ? 1 : 0;
+        int byMax = bbMaxY > 0 ? 1 : 0;
         
-        if (minXSig == maxXSig && minYSig == maxYSig) {
-            int childNodeIndex = startingNode * 4 + (minXSig ? 2 : 0) + (minYSig ? 1 : 0);
-            int childNode = children.getInt(childNodeIndex);
-            if (childNode == -1) {
-                return null;
+        for (int bx = bxMin; bx <= bxMax; bx++) {
+            for (int by = byMin; by <= byMax; by++) {
+                int childNodeIndex = startingNode * 4 + bx * 2 + by;
+                int childNode = children.getInt(childNodeIndex);
+                if (childNode != -1) {
+                    double childNodeCenterX = bx == 1 ? 0.5 : -0.5;
+                    double childNodeCenterY = by == 1 ? 0.5 : -0.5;
+                    U r2 = traverseInternal(
+                        level + 1, childNode,
+                        (bbMinX - childNodeCenterX) * 2,
+                        (bbMinY - childNodeCenterY) * 2,
+                        (bbMaxX - childNodeCenterX) * 2,
+                        (bbMaxY - childNodeCenterY) * 2,
+                        func
+                    );
+                    if (r2 != null) {
+                        return r2;
+                    }
+                }
             }
-            double childNodeCenterX = minXSig ? 0.5 : -0.5;
-            double childNodeCenterY = minYSig ? 0.5 : -0.5;
-            return traverseInternal(
-                level + 1, childNode,
-                (bbMinX - childNodeCenterX) * 2,
-                (bbMinY - childNodeCenterY) * 2,
-                (bbMaxX - childNodeCenterX) * 2,
-                (bbMaxY - childNodeCenterY) * 2,
-                func
-            );
         }
         
         return null;

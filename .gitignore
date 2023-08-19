@@ -40,3 +40,5 @@ deps/
 logs/
 /deps_unused/
 /deps/
+
+/misc/mesh_to_visualize.json

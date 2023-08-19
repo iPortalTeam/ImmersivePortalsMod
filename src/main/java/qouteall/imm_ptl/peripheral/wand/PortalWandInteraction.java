@@ -433,7 +433,9 @@ public class PortalWandInteraction {
         draggingSessionMap.remove(player);
     }
     
-    private static void handleDraggingRequest(ServerPlayer player, UUID portalId, Vec3 cursorPos, DraggingInfo draggingInfo, Portal portal) {
+    private static void handleDraggingRequest(
+        ServerPlayer player, UUID portalId, Vec3 cursorPos, DraggingInfo draggingInfo, Portal portal
+    ) {
         DraggingSession session = draggingSessionMap.get(player);
         
         if (session != null && session.portalId.equals(portalId)) {
@@ -730,6 +732,7 @@ public class PortalWandInteraction {
     private record CopyingSession(
         PortalState portalState, CompoundTag portalData, boolean isCut,
         boolean hasFlipped, boolean hasReverse, boolean hasParallel
+        // TODO store animation view
     ) {
     }
     

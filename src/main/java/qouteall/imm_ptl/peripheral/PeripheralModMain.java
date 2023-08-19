@@ -32,7 +32,7 @@ public class PeripheralModMain {
         IPOuterClientMisc.initClient();
         
         PortalWandItem.initClient();
-    
+        
         ClientPortalWandPortalDrag.init();
     }
     
@@ -68,7 +68,7 @@ public class PeripheralModMain {
         PortalWandItem.init();
         
         CommandStickItem.init();
-    
+        
         PortalWandInteraction.init();
     }
     
@@ -165,6 +165,10 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "clear_animation", "animation clear"
         );
+        
+        registerPortalSubCommandStick("sculpt");
+        registerPortalSubCommandStick("reset_shape");
+        
         CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
             "/scale set pehkui:base 1",
             "imm_ptl.command.reset_scale",

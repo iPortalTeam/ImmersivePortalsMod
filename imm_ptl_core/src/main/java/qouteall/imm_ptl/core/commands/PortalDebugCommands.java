@@ -483,7 +483,7 @@ public class PortalDebugCommands {
                 GeometryPortalShape shape = portal.specialShape;
                 if (shape != null) {
                     Mesh2D mesh = shape.toMesh();
-                    mesh.simplify(1);
+                    mesh.simplifySteps(1);
                     portal.specialShape = GeometryPortalShape.fromMesh(mesh);
                     portal.reloadPortal();
                 }

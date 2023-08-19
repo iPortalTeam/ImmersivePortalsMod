@@ -29,6 +29,6 @@ public record Range(double start, double end) {
         double r1Start, double r1End,
         double r2Start, double r2End
     ) {
-        return Math.max(r1Start, r2Start) < Math.min(r1End, r2End);
+        return Math.max(r1Start, r2Start) <= Math.min(r1End, r2End);
     }
 }

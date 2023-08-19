@@ -64,7 +64,7 @@ public class GeometryPortalShape {
         }
         
         public double getArea() {
-            return crossProduct2D(
+            return Helper.crossProduct2D(
                 x2 - x1, y2 - y1,
                 x3 - x1, y3 - y1
             ) / -2.0;
@@ -77,7 +77,7 @@ public class GeometryPortalShape {
         double x2, double y2,
         double leniency
     ) {
-        double cross = crossProduct2D(
+        double cross = Helper.crossProduct2D(
             x - x1, x2 - x1,
             y - y1, y2 - y1
         );
@@ -87,14 +87,6 @@ public class GeometryPortalShape {
         else {
             return cross >= -leniency * Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
         }
-    }
-    
-    //positive if it's rotating counter clock wise
-    private static double crossProduct2D(
-        double x1, double y1,
-        double x2, double y2
-    ) {
-        return x1 * y2 - x2 * y1;
     }
     
     public List<TriangleInPlane> triangles;
@@ -187,9 +179,11 @@ public class GeometryPortalShape {
             return false;
         }
         
-        return triangles.stream().allMatch(
-            triangleInPlane -> triangleInPlane.getArea() > 0.00001
-        );
+        return true;
+
+//        return triangles.stream().allMatch(
+//            triangleInPlane -> triangleInPlane.getArea() > 0.00001
+//        );
     }
     
     public GeometryPortalShape getFlippedWithScaling(double scale) {
@@ -244,6 +238,19 @@ public class GeometryPortalShape {
             }
         }
         
+        return result;
+    }
+    
+    public GeometryPortalShape simplified() {
+        Mesh2D mesh2D = toMesh();
+        mesh2D.simplify();
+        return fromMesh(mesh2D);
+    }
+    
+    public static GeometryPortalShape createDefault() {
+        GeometryPortalShape result = new GeometryPortalShape();
+        result.addTriangleForRectangle(-1, -1, 1, 1);
+        result.normalized = true;
         return result;
     }
 }
