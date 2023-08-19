@@ -28,11 +28,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
-import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -141,6 +141,16 @@ public class O_O {
         else {
             return false;
         }
+    }
+    
+    public static @Nullable String getImmPtlVersion() {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            return null;
+        }
+    
+        return FabricLoader.getInstance()
+            .getModContainer("imm_ptl_core").get()
+            .getMetadata().getVersion().toString();
     }
     
     public static boolean shouldUpdateImmPtl(String latestReleaseVersion) {

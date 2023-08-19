@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import qouteall.imm_ptl.core.collision.CollisionHelper;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.compat.IPFlywheelCompat;
@@ -31,23 +30,6 @@ import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class IPModMainClient {
-    
-    private static final boolean isPreview = false;
-    
-    private static void showPreviewWarning() {
-        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-            () -> Minecraft.getInstance().level == null,
-            MyTaskList.oneShotTask(() -> {
-                if (IPConfig.getConfig().shouldDisplayWarning("preview")) {
-                    MutableComponent text = Component.translatable("imm_ptl.preview_warning").append(
-                        McHelper.getLinkText(O_O.getIssueLink())
-                    );
-                    
-                    CHelper.printChat(text);
-                }
-            })
-        ));
-    }
     
     private static void showNvidiaVideoCardWarning() {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
@@ -120,10 +102,6 @@ public class IPModMainClient {
             ClientDebugCommand.register(dispatcher);
         });
         
-        if (isPreview) {
-            showPreviewWarning();
-        }
-
 //        showIntelVideoCardWarning();
         
         showNvidiaVideoCardWarning();

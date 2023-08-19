@@ -66,6 +66,7 @@ public class IPModInfoChecking {
     
     public static final class ImmPtlInfo {
         public String latestReleaseVersion;
+        public List<String> previewVersions;
         public List<ModIncompatInfo> severelyIncompatible;
         public List<ModIncompatInfo> incompatible;
         public List<String> incompatibleShaderpacks;
@@ -154,6 +155,15 @@ public class IPModInfoChecking {
                             
                             texts.add(text1);
                         }
+                    }
+                    
+                    if (IPConfig.getConfig().shouldDisplayWarning("preview")) {
+                        MutableComponent text1 = Component.translatable("imm_ptl.preview_warning")
+                            .append(McHelper.getLinkText(O_O.getIssueLink()))
+                            .append(" ")
+                            .append(IPMcHelper.getDisableWarningText("preview"));
+                        
+                        texts.add(text1);
                     }
                     
                     for (ModIncompatInfo info : immPtlInfo.severelyIncompatible) {
