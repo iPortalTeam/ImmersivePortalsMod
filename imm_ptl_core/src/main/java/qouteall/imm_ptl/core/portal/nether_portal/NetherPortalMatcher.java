@@ -211,10 +211,10 @@ public class NetherPortalMatcher {
     
     public static boolean isAirCubeMediumPlace(LevelAccessor world, IntBox box) {
         //the box out of height limit is not accepted
-        if (box.h.getY() + 5 >= McHelper.getMaxContentYExclusive(world)) {
+        if (box.h.getY() + 1 >= McHelper.getMaxContentYExclusive(world)) {
             return false;
         }
-        if (box.l.getY() - 5 <= McHelper.getMinY(world)) {
+        if (box.l.getY() - 1 <= McHelper.getMinY(world)) {
             return false;
         }
         
