@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -12,12 +13,11 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)
 public class FrustumCuller {
-    
+    // TODO replace with joml's frustum
     
     private BoxPredicate canDetermineInvisibleFunc;
     private double camX;

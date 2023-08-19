@@ -45,8 +45,8 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "iris": ["<1.6.5", ">1.6.5"],
-    "sodium": ["<0.5.0", ">0.5.0"],
+    "iris": ["<1.6.8", ">1.6.8"],
+    "sodium": ["<0.5.2", ">0.5.2"],
     "gravity_api": "*"
   },
   "custom": {

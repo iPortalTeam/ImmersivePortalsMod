@@ -880,7 +880,7 @@ public class Helper {
     // treat ArrayList as an integer to object map
     // do computeIfAbsent
     public static <T> T arrayListComputeIfAbsent(
-        ArrayList<T> arrayList,
+        List<T> arrayList,
         int index,
         Supplier<T> supplier
     ) {
