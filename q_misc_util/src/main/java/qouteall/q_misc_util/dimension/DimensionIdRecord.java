@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -54,9 +55,10 @@ public class DimensionIdRecord {
     
     @Override
     public String toString() {
-        return idMap.entrySet().stream().map(
-            e -> e.getKey().location().toString() + " -> " + e.getValue()
-        ).collect(Collectors.joining("\n"));
+        return idMap.entrySet().stream()
+            .sorted(Comparator.comparingInt(e -> e.getValue()))
+            .map(e -> e.getKey().location().toString() + " -> " + e.getValue())
+            .collect(Collectors.joining("\n"));
     }
     
     public static DimensionIdRecord tagToRecord(CompoundTag tag) {
