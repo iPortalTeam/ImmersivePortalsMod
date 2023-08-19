@@ -1781,6 +1781,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         PortalExtension.get(this).rectifyClusterPortals(this, sync);
     }
     
+    public void reloadPortal() {
+        Validate.isTrue(!level().isClientSide());
+        updateCache();
+        rectifyClusterPortals(true);
+        reloadAndSyncToClientNextTick();
+    }
+    
     public DefaultPortalAnimation getDefaultAnimation() {
         return animation.defaultAnimation;
     }

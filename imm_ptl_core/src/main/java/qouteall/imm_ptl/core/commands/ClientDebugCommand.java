@@ -615,6 +615,11 @@ public class ClientDebugCommand {
             "entity_unload_debug",
             cond -> IPGlobal.entityUnloadDebug = cond
         );
+        registerSwitchCommand(
+            builder,
+            "mesh_render",
+            cond -> IPGlobal.debugRenderPortalShapeMesh = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")

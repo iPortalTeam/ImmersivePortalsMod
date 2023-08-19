@@ -225,11 +225,11 @@ public class GeometryPortalShape {
     public static GeometryPortalShape fromMesh(Mesh2D mesh2D) {
         GeometryPortalShape result = new GeometryPortalShape();
         result.normalized = true;
-        for (int i = 0; i < mesh2D.trianglePointIndexes.size(); i += 3) {
+        for (int i = 0; i < mesh2D.getStoredTriangleNum(); i++) {
             if (mesh2D.isTriangleValid(i)) {
-                int pointIndex1 = mesh2D.trianglePointIndexes.getInt(i);
-                int pointIndex2 = mesh2D.trianglePointIndexes.getInt(i + 1);
-                int pointIndex3 = mesh2D.trianglePointIndexes.getInt(i + 2);
+                int pointIndex1 = mesh2D.trianglePointIndexes.getInt(i * 3);
+                int pointIndex2 = mesh2D.trianglePointIndexes.getInt(i * 3 + 1);
+                int pointIndex3 = mesh2D.trianglePointIndexes.getInt(i * 3 + 2);
                 
                 double x1 = mesh2D.pointCoords.getDouble(pointIndex1 * 2);
                 double y1 = mesh2D.pointCoords.getDouble(pointIndex1 * 2 + 1);

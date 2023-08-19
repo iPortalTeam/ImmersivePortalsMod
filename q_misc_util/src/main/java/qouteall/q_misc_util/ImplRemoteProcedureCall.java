@@ -148,6 +148,7 @@ public class ImplRemoteProcedureCall {
         BiConsumer<FriendlyByteBuf, Object> serializer = serializerMap.get(object.getClass());
         
         if (serializer == null) {
+            // TODO optimize it
             serializer = serializerMap.entrySet().stream().filter(
                 e -> e.getKey().isAssignableFrom(object.getClass())
             ).findFirst().map(Map.Entry::getValue).orElse(null);

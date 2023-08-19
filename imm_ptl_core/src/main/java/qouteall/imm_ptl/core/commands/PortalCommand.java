@@ -1020,9 +1020,7 @@ public class PortalCommand {
     }
     
     public static void reloadPortal(Portal portal) {
-        portal.updateCache();
-        portal.rectifyClusterPortals(true);
-        portal.reloadAndSyncToClient();
+        portal.reloadPortal();
     }
     
     private static void registerPortalTargetedCommandWithRotationArgument(

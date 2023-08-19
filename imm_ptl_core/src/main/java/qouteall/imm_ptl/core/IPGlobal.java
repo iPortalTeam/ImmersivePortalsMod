@@ -139,6 +139,8 @@ public class IPGlobal {
     
     public static boolean entityUnloadDebug = false;
     
+    public static boolean debugRenderPortalShapeMesh = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

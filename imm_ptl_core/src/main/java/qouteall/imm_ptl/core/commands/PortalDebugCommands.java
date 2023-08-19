@@ -54,9 +54,11 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEChunkMap_Accessor;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
+import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.time.Duration;
@@ -474,7 +476,21 @@ public class PortalDebugCommands {
             })
         );
         
-        
+        builder.then(Commands
+            .literal("simplify_portal_mesh")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+            .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
+                GeometryPortalShape shape = portal.specialShape;
+                if (shape != null) {
+                    Mesh2D mesh = shape.toMesh();
+                    mesh.simplify(1);
+                    portal.specialShape = GeometryPortalShape.fromMesh(mesh);
+                    portal.reloadPortal();
+                }
+            }))
+        );
+
+
 //        builder.then(Commands.literal("save_all_chunks_offthread")
 //            .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
 //            .executes(context -> {
