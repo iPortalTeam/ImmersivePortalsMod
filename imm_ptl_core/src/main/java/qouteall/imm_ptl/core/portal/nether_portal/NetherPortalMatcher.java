@@ -99,7 +99,7 @@ public class NetherPortalMatcher {
             startY, endY,
             mutable -> {
                 if (isAirOnGroundPredicate.test(mutable)) {
-                    IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
+                    IntBox box = IntBox.fromBasePointAndSize(mutable, areaSize);
                     
                     IntBox expanded = expandFromBottomCenter(box, ambientSpaceReserved);
                     if (isAirCubeMediumPlace(world, expanded)) {
@@ -198,7 +198,7 @@ public class NetherPortalMatcher {
             findingRadius,
             1 + McHelper.getMinY(world), McHelper.getMaxYExclusive(world) - 1,
             mutable -> {
-                IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
+                IntBox box = IntBox.fromBasePointAndSize(mutable, areaSize);
                 if (isAirCubeMediumPlace(world, box)) {
                     return box;
                 }

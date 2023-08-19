@@ -45,7 +45,6 @@ public class IntBox {
         );
     }
     
-    
     public IntBox expandOrShrink(Vec3i offset) {
         return new IntBox(
             l.subtract(offset),
@@ -54,8 +53,6 @@ public class IntBox {
     }
     
     public IntBox getExpanded(Direction.Axis axis, int n) {
-        
-        
         return expandOrShrink(
             Helper.scale(
                 Direction.get(
@@ -82,8 +79,6 @@ public class IntBox {
     }
     
     public Stream<BlockPos> stream() {
-        
-        
         return IntStream.range(l.getX(), h.getX() + 1).boxed().flatMap(
             x -> IntStream.range(l.getY(), h.getY() + 1).boxed().flatMap(
                 y -> IntStream.range(l.getZ(), h.getZ() + 1).boxed().map(
@@ -100,8 +95,6 @@ public class IntBox {
     }
     
     public BlockPos getSize() {
-        
-        
         return h.offset(1, 1, 1).subtract(l);
     }
     
@@ -109,8 +102,6 @@ public class IntBox {
         Direction.Axis axis,
         Direction.AxisDirection axisDirection
     ) {
-        
-        
         if (axisDirection == Direction.AxisDirection.NEGATIVE) {
             IntBox result = new IntBox(
                 l,
@@ -202,8 +193,6 @@ public class IntBox {
     public Stream<BlockPos> forSixSurfaces(
         Function<Stream<IntBox>, Stream<IntBox>> mapper
     ) {
-        
-        
         IntBox[] array = {
             getSurfaceLayer(Direction.DOWN),
             getSurfaceLayer(Direction.NORTH).getAdjusted(
@@ -263,10 +252,7 @@ public class IntBox {
         Validate.isTrue(thisSize.getX() >= subBoxSize.getX());
         Validate.isTrue(thisSize.getY() >= subBoxSize.getY());
         Validate.isTrue(thisSize.getZ() >= subBoxSize.getZ());
-        return getBoxByBasePointAndSize(
-            subBoxSize,
-            Helper.divide(thisSize.subtract(subBoxSize), 2).offset(l)
-        );
+        return fromBasePointAndSize(Helper.divide(thisSize.subtract(subBoxSize), 2).offset(l), subBoxSize);
     }
     
     public BlockPos[] getEightVertices() {
