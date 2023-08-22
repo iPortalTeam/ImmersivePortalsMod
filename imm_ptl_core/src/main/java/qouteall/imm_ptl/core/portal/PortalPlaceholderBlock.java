@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -48,7 +50,15 @@ public class PortalPlaceholderBlock extends Block {
         10.0D
     );
     
-    public static PortalPlaceholderBlock instance;
+    public static PortalPlaceholderBlock instance = new PortalPlaceholderBlock(
+        FabricBlockSettings.create()
+            .noCollission()
+            .sound(SoundType.GLASS)
+            .strength(1.0f, 0)
+            .noOcclusion()
+            .noLootTable()
+            .lightLevel((s) -> 15)
+    );
     
     public PortalPlaceholderBlock(Properties properties) {
         super(properties);

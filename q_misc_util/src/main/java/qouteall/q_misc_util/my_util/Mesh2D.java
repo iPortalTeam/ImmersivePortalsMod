@@ -523,6 +523,10 @@ public class Mesh2D {
         double tp1x, double tp1y,
         double tp2x, double tp2y
     ) {
+        if (!triangleIntersects(targetTriangleIndex, tp0x, tp0y, tp1x, tp1y, tp2x, tp2y)) {
+            return null;
+        }
+        
         IntArrayList relevantTriangles = new IntArrayList();
         relevantTriangles.add(targetTriangleIndex);
         
@@ -1154,16 +1158,22 @@ public class Mesh2D {
         int t1p1Index = trianglePointIndexes.getInt(ti1 * 3 + 1);
         int t1p2Index = trianglePointIndexes.getInt(ti1 * 3 + 2);
         
-        int t2p0Index = trianglePointIndexes.getInt(ti2 * 3);
-        int t2p1Index = trianglePointIndexes.getInt(ti2 * 3 + 1);
-        int t2p2Index = trianglePointIndexes.getInt(ti2 * 3 + 2);
-        
         double t1p0x = pointCoords.getDouble(t1p0Index * 2);
         double t1p0y = pointCoords.getDouble(t1p0Index * 2 + 1);
         double t1p1x = pointCoords.getDouble(t1p1Index * 2);
         double t1p1y = pointCoords.getDouble(t1p1Index * 2 + 1);
         double t1p2x = pointCoords.getDouble(t1p2Index * 2);
         double t1p2y = pointCoords.getDouble(t1p2Index * 2 + 1);
+        
+        return triangleIntersects(ti2, t1p0x, t1p0y, t1p1x, t1p1y, t1p2x, t1p2y);
+    }
+    
+    public boolean triangleIntersects(
+        int ti, double t1p0x, double t1p0y, double t1p1x, double t1p1y, double t1p2x, double t1p2y
+    ) {
+        int t2p0Index = trianglePointIndexes.getInt(ti * 3);
+        int t2p1Index = trianglePointIndexes.getInt(ti * 3 + 1);
+        int t2p2Index = trianglePointIndexes.getInt(ti * 3 + 2);
         
         double t2p0x = pointCoords.getDouble(t2p0Index * 2);
         double t2p0y = pointCoords.getDouble(t2p0Index * 2 + 1);

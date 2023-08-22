@@ -10,10 +10,10 @@ import org.joml.Quaterniond;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class Mirror extends Portal {
-    public static EntityType<Mirror> entityType;
+    public static final EntityType<Mirror> entityType = Portal.createPortalEntityType(Mirror::new);
     
-    public Mirror(EntityType<?> entityType_1, Level world_1) {
-        super(entityType_1, world_1);
+    public Mirror(EntityType<?> entityType, Level world) {
+        super(entityType, world);
     }
     
     @Override

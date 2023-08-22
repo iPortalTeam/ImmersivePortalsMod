@@ -15,6 +15,8 @@ import java.util.List;
 public class GeometryPortalShape {
     private static final Logger LOGGER = LogUtils.getLogger();
     
+    public static final int MAX_TRIANGLE_NUM = 10000;
+    
     public static class TriangleInPlane {
         public double x1;
         public double y1;
@@ -235,6 +237,10 @@ public class GeometryPortalShape {
                 result.triangles.add(new TriangleInPlane(
                     x1, y1, x2, y2, x3, y3
                 ));
+                
+                if (result.triangles.size() >= MAX_TRIANGLE_NUM) {
+                    break;
+                }
             }
         }
         

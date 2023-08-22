@@ -35,7 +35,8 @@ import java.util.Objects;
 public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
     
-    public static EntityType<EndPortalEntity> entityType;
+    public static final EntityType<EndPortalEntity> entityType =
+        Portal.createPortalEntityType(EndPortalEntity::new);
     
     // only used by scaled view type end portal
     private EndPortalEntity clientFakedReversePortal;

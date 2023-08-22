@@ -15,18 +15,19 @@ import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 
 public class BreakableMirror extends Mirror {
     
-    public static EntityType<BreakableMirror> entityType;
+    public static final EntityType<BreakableMirror> entityType =
+        Portal.createPortalEntityType(BreakableMirror::new);
     
     @Nullable
     public IntBox wallArea;
@@ -34,8 +35,8 @@ public class BreakableMirror extends Mirror {
     public BlockPortalShape blockPortalShape;
     public boolean unbreakable = false;
     
-    public BreakableMirror(EntityType<?> entityType_1, Level world_1) {
-        super(entityType_1, world_1);
+    public BreakableMirror(EntityType<?> entityType, Level world) {
+        super(entityType, world);
     }
     
     @Override

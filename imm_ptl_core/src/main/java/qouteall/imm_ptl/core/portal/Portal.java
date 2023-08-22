@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -78,7 +80,22 @@ import java.util.stream.Collectors;
 public class Portal extends Entity implements PortalLike, IPEntityEventListenableEntity {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    public static EntityType<Portal> entityType;
+    public static final EntityType<Portal> entityType = createPortalEntityType(Portal::new);
+    
+    public static <T extends Portal> EntityType<T> createPortalEntityType(
+        EntityType.EntityFactory<T> constructor
+    ) {
+        return FabricEntityTypeBuilder.create(
+                MobCategory.MISC,
+                constructor
+            ).dimensions(
+                new EntityDimensions(1, 1, true)
+            ).fireImmune()
+            .trackRangeBlocks(96)
+            .trackedUpdateRate(20)
+            .forceTrackedVelocityUpdates(true)
+            .build();
+    }
     
     public static final UUID nullUUID = Util.NIL_UUID;
     private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
@@ -1786,7 +1803,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * This will:
      * 1. invalidate caches
      * 2. rectify cluster portals
-     *    (make flipped portal, reverse portal and parallel portal to update accordingly)
+     * (make flipped portal, reverse portal and parallel portal to update accordingly)
      * 3. send update packet(s) to client
      */
     public void reloadPortal() {

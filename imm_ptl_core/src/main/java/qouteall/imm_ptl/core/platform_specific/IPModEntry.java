@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import qouteall.imm_ptl.core.IPModMain;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.q_misc_util.Helper;
@@ -13,13 +15,11 @@ public class IPModEntry implements ModInitializer {
         IPModMain.init();
         RequiemCompat.init();
         
-        IPRegistry.registerEntitiesFabric();
+        IPRegistry.registerEntityTypes((id, entityType) -> Registry.register(
+            BuiltInRegistries.ENTITY_TYPE, id, entityType
+        ));
         
-        IPRegistry.registerMyDimensionsFabric();
-        
-        IPRegistry.registerBlocksFabric();
-        
-        IPRegistry.registerChunkGenerators();
+        IPRegistry.registerBlocks((id, obj) -> Registry.register(BuiltInRegistries.BLOCK, id, obj));
         
         if (FabricLoader.getInstance().isModLoaded("dimthread")) {
             O_O.isDimensionalThreadingPresent = true;

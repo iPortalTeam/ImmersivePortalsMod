@@ -2589,11 +2589,6 @@ public class PortalCommand {
             mesh2D.subtractPolygon(polygonVertexes);
             
             count++;
-            
-            if (count % 10 == 0) {
-                mesh2D.simplify();
-                mesh2D.compact();
-            }
         }
         
         mesh2D.simplify();
