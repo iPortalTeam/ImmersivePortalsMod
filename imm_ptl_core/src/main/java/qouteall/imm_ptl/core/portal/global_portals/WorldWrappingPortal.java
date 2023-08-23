@@ -22,16 +22,14 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class WorldWrappingPortal extends GlobalTrackedPortal {
-    public static EntityType<WorldWrappingPortal> entityType;
+    public static final EntityType<WorldWrappingPortal> entityType =
+        Portal.createPortalEntityType(WorldWrappingPortal::new);
     
     public boolean isInward = true;
     public int zoneId = -1;
     
-    public WorldWrappingPortal(
-        EntityType<?> entityType_1,
-        Level world_1
-    ) {
-        super(entityType_1, world_1);
+    public WorldWrappingPortal(EntityType<?> entityType, Level world) {
+        super(entityType, world);
     }
     
     @Override

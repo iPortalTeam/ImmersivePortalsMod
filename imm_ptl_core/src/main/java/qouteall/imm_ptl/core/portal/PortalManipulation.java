@@ -527,9 +527,5 @@ public class PortalManipulation {
                 portal.height * 0.5 * Math.sin(twoPi * ((double) i + 1) / triangleNum)
             )).collect(Collectors.toList());
         portal.specialShape = shape;
-        portal.cullableXStart = 0;
-        portal.cullableXEnd = 0;
-        portal.cullableYStart = 0;
-        portal.cullableYEnd = 0;
     }
 }

@@ -2555,13 +2555,12 @@ public class PortalCommand {
     }
     
     private static void invokeSculpt(CommandContext<CommandSourceStack> context, Portal portal) {
-        AABB areaBox = portal.getThinAreaBox();
+        AABB areaBox = portal.getBoundingBox();
         
         ObjectArrayList<AABB> boxes = new ObjectArrayList<>();
         for (VoxelShape blockCollision : portal.level().getBlockCollisions(portal, areaBox)) {
             if (!blockCollision.isEmpty()) {
-                AABB bounds = blockCollision.bounds();
-                boxes.add(bounds);
+                boxes.addAll(blockCollision.toAabbs());
             }
         }
         

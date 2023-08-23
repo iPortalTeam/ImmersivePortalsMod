@@ -399,10 +399,6 @@ public class BlockPortalShape {
             });
             
             shape.normalize(portal.width, portal.height);
-            portal.cullableXStart = 0;
-            portal.cullableXEnd = 0;
-            portal.cullableYStart = 0;
-            portal.cullableYEnd = 0;
             
             GeometryPortalShape simplified = shape.simplified();
             

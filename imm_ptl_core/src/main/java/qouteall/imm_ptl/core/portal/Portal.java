@@ -156,11 +156,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     private Vec3 contentDirection;
     
     /**
-     * For outer frustum culling
+     * These values are unused
+     * TODO remove in 1.20.2
      */
+    @Deprecated
     public double cullableXStart = 0;
+    @Deprecated
     public double cullableXEnd = 0;
+    @Deprecated
     public double cullableYStart = 0;
+    @Deprecated
     public double cullableYEnd = 0;
     
     /**
@@ -298,28 +303,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (compoundTag.contains("teleportable")) {
             teleportable = compoundTag.getBoolean("teleportable");
         }
-        if (compoundTag.contains("cullableXStart")) {
-            cullableXStart = compoundTag.getDouble("cullableXStart");
-            cullableXEnd = compoundTag.getDouble("cullableXEnd");
-            cullableYStart = compoundTag.getDouble("cullableYStart");
-            cullableYEnd = compoundTag.getDouble("cullableYEnd");
-            
-            cullableXEnd = Math.min(cullableXEnd, width / 2);
-            cullableXStart = Math.max(cullableXStart, -width / 2);
-            cullableYEnd = Math.min(cullableYEnd, height / 2);
-            cullableYStart = Math.max(cullableYStart, -height / 2);
-        }
-        else {
-            if (specialShape != null) {
-                cullableXStart = 0;
-                cullableXEnd = 0;
-                cullableYStart = 0;
-                cullableYEnd = 0;
-            }
-            else {
-                initDefaultCullableRange();
-            }
-        }
+        
         if (compoundTag.contains("rotationA")) {
             setRotationTransformationD(new DQuaternion(
                 compoundTag.getFloat("rotationB"),
@@ -416,10 +400,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (specialShape == null) {
             initDefaultCullableRange();
         }
-        compoundTag.putDouble("cullableXStart", cullableXStart);
-        compoundTag.putDouble("cullableXEnd", cullableXEnd);
-        compoundTag.putDouble("cullableYStart", cullableYStart);
-        compoundTag.putDouble("cullableYEnd", cullableYEnd);
         if (rotation != null) {
             compoundTag.putDouble("rotationA", rotation.w);
             compoundTag.putDouble("rotationB", rotation.x);
@@ -889,23 +869,21 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         scaling = newScale;
     }
     
+    // TODO remove in 1.20.2
+    @Deprecated
     private void initDefaultCullableRange() {
-        cullableXStart = -(width / 2);
-        cullableXEnd = (width / 2);
-        cullableYStart = -(height / 2);
-        cullableYEnd = (height / 2);
+    
     }
     
+    // TODO remove in 1.20.2
+    @Deprecated
     public void initCullableRange(
         double cullableXStart,
         double cullableXEnd,
         double cullableYStart,
         double cullableYEnd
     ) {
-        this.cullableXStart = Math.min(cullableXStart, cullableXEnd);
-        this.cullableXEnd = Math.max(cullableXStart, cullableXEnd);
-        this.cullableYStart = Math.min(cullableYStart, cullableYEnd);
-        this.cullableYEnd = Math.max(cullableYStart, cullableYEnd);
+    
     }
     
     @Override
@@ -1199,23 +1177,28 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     //3  2
     //1  0
-    private Vec3[] getFourVerticesLocalCullable(double shrinkFactor) {
+    private Vec3[] getFourVerticesLocalCullable(double shrink) {
+        double xStart = -width / 2;
+        double xEnd = width / 2;
+        double yStart = -height / 2;
+        double yEnd = height / 2;
+        
         Vec3[] vertices = new Vec3[4];
         vertices[0] = getPointInPlaneLocal(
-            cullableXEnd - shrinkFactor,
-            cullableYStart + shrinkFactor
+            xEnd - shrink,
+            yStart + shrink
         );
         vertices[1] = getPointInPlaneLocal(
-            cullableXStart + shrinkFactor,
-            cullableYStart + shrinkFactor
+            xStart + shrink,
+            yStart + shrink
         );
         vertices[2] = getPointInPlaneLocal(
-            cullableXEnd - shrinkFactor,
-            cullableYEnd - shrinkFactor
+            xEnd - shrink,
+            yEnd - shrink
         );
         vertices[3] = getPointInPlaneLocal(
-            cullableXStart + shrinkFactor,
-            cullableYEnd - shrinkFactor
+            xStart + shrink,
+            yEnd - shrink
         );
         
         return vertices;
@@ -1619,10 +1602,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (!isVisible()) {
             return false;
         }
-        if (specialShape == null) {
-            initDefaultCullableRange();
-        }
-        return cullableXStart != cullableXEnd;
+        return specialShape == null;
     }
     
     // it's recommended to use canTeleportEntity
