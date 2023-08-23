@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.core.compat.IPCompatMixinPlugin",
   "mixins": [
+    "cardinal_comp.MixinCardinalCompComponentKey",
     "flywheel.MixinFlywheelCrumblingRenderer",
     "flywheel.MixinFlywheelProgramCompiler",
     "flywheel.MixinFlywheelQuadConverter",

@@ -23,25 +23,31 @@ public class IPCompatMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         
         
+        FabricLoader fabricLoader = FabricLoader.getInstance();
         if (mixinClassName.contains("IrisSodium")) {
-            boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
-            boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
+            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium");
+            boolean irisLoaded = fabricLoader.isModLoaded("iris");
             return sodiumLoaded && irisLoaded;
         }
         
         if (mixinClassName.contains("Iris")) {
-            boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
+            boolean irisLoaded = fabricLoader.isModLoaded("iris");
             return irisLoaded;
         }
         
         if (mixinClassName.contains("Sodium")) {
-            boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
+            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium");
             return sodiumLoaded;
         }
         
         if (mixinClassName.contains("Flywheel")) {
-            boolean flywheelLoaded = FabricLoader.getInstance().isModLoaded("flywheel");
+            boolean flywheelLoaded = fabricLoader.isModLoaded("flywheel");
             return flywheelLoaded;
+        }
+        
+        if (mixinClassName.contains("CardinalComp")) {
+            boolean cardinalCompLoaded = fabricLoader.isModLoaded("cardinal-components-base");
+            return cardinalCompLoaded;
         }
         
         return false;
