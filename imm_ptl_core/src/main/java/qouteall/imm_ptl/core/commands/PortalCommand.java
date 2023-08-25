@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
@@ -30,6 +31,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,6 +46,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -962,19 +966,23 @@ public class PortalCommand {
             }))
         );
         
-        builder.then(Commands.literal("sculpt")
+        var shapeBuilder = Commands.literal("shape");
+        
+        shapeBuilder.then(Commands.literal("sculpt")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
-                invokeSculpt(context, portal);
+                invokeSculpt(context, portal, true);
                 reloadPortal(portal);
             }))
         );
         
-        builder.then(Commands.literal("reset_shape")
+        shapeBuilder.then(Commands.literal("reset_shape")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 portal.specialShape = null;
                 reloadPortal(portal);
             }))
         );
+    
+        builder.then(shapeBuilder);
     }
     
     private static void invokeSetPortalNbt(
@@ -2554,14 +2562,16 @@ public class PortalCommand {
         ), false);
     }
     
-    private static void invokeSculpt(CommandContext<CommandSourceStack> context, Portal portal) {
-        AABB areaBox = portal.getBoundingBox();
+    private static void invokeSculpt(
+        CommandContext<CommandSourceStack> context, Portal portal, boolean adjustPortalBounds
+    ) {
+        MinecraftServer server = context.getSource().getServer();
+        @Nullable ServerPlayer player = context.getSource().getPlayer();
         
-        ObjectArrayList<AABB> boxes = new ObjectArrayList<>();
-        for (VoxelShape blockCollision : portal.level().getBlockCollisions(portal, areaBox)) {
-            if (!blockCollision.isEmpty()) {
-                boxes.addAll(blockCollision.toAabbs());
-            }
+        ObjectArrayList<AABB> boxes = gatherCollisionBoxesTouching(portal);
+        if (boxes.size() > 10000) {
+            context.getSource().sendFailure(Component.literal("Too many collision boxes to sculpt"));
+            return;
         }
         
         if (portal.specialShape == null) {
@@ -2570,61 +2580,99 @@ public class PortalCommand {
         
         double halfWidth = portal.width / 2;
         double halfHeight = portal.height / 2;
-        Vec3 normal = portal.axisW.cross(portal.axisH).normalize();
-        Plane plane = new Plane(portal.getOriginPos(), normal);
+        Vec3 axisW = portal.axisW;
+        Vec3 axisH = portal.axisH;
+        Plane plane = new Plane(portal.getOriginPos(), portal.getNormal());
         
         Mesh2D mesh2D = portal.specialShape.toMesh();
         
         double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
         
-        int count = 0;
+        MutableBoolean finished = new MutableBoolean(false);
         
-        for (AABB box : boxes) {
-            ObjectArrayList<Vec2d> polygonVertexes =
-                GeometryUtil.getSlicePolygonOfCube(
-                    box, plane, portal.axisW, portal.axisH, halfWidth, halfHeight
-                );
+        // it's computationally heavy, so we run it in another thread
+        Util.backgroundExecutor().submit(() -> {
+            for (AABB box : boxes) {
+                ObjectArrayList<Vec2d> polygonVertexes =
+                    GeometryUtil.getSlicePolygonOfCube(
+                        box, plane, axisW, axisH, halfWidth, halfHeight
+                    );
+                
+                mesh2D.subtractPolygon(polygonVertexes);
+            }
             
-            mesh2D.subtractPolygon(polygonVertexes);
+            mesh2D.simplify();
             
-            count++;
+            finished.setValue(true);
+            
+            server.execute(() -> {
+                if (portal.isRemoved()) {
+                    return;
+                }
+                
+                double meshArea = mesh2D.getArea();
+                double areaAfter = meshArea * halfWidth * halfHeight;
+                
+                if (Math.abs(4.0 - meshArea) < 0.00001) {
+                    portal.specialShape = null;
+                    if (player != null) {
+                        player.sendSystemMessage(
+                            Component.literal("Portal shape is still rectangular now.")
+                        );
+                    }
+                    return;
+                }
+                
+                if (Math.abs(meshArea) < 0.00001) {
+                    portal.specialShape = null;
+                    if (player != null) {
+                        player.sendSystemMessage(
+                            Component.literal("Portal sculpted to nothing. Reset.")
+                        );
+                    }
+                    return;
+                }
+                
+                portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
+                
+                if (player != null) {
+                    player.sendSystemMessage(
+                        Component.translatable(
+                            "imm_ptl.sculpted",
+                            String.format("%.4f", areaBefore - areaAfter),
+                            String.format("%.4f", areaBefore),
+                            String.format("%.4f", areaAfter)
+                        )
+                    );
+                }
+            });
+        });
+        
+        // notify the player if it takes too long
+        IPGlobal.serverTaskList.addTask(MyTaskList.withDelay(
+            5, MyTaskList.oneShotTask(() -> {
+                if (!finished.booleanValue()) {
+                    if (player != null) {
+                        player.sendSystemMessage(
+                            Component.translatable("imm_ptl.sculpting_in_progress")
+                        );
+                    }
+                }
+            })
+        ));
+    }
+    
+    @NotNull
+    private static ObjectArrayList<AABB> gatherCollisionBoxesTouching(Portal portal) {
+        AABB areaBox = portal.getBoundingBox();
+        
+        ObjectArrayList<AABB> boxes = new ObjectArrayList<>();
+        for (VoxelShape blockCollision : portal.level().getBlockCollisions(portal, areaBox)) {
+            if (!blockCollision.isEmpty()) {
+                boxes.addAll(blockCollision.toAabbs());
+            }
         }
-        
-        mesh2D.simplify();
-        
-        double meshArea = mesh2D.getArea();
-        double areaAfter = meshArea * halfWidth * halfHeight;
-        
-        if (Math.abs(4.0 - meshArea) < 0.00001) {
-            portal.specialShape = null;
-            context.getSource().sendSuccess(
-                () -> Component.literal("Portal shape is still rectangular now."),
-                false
-            );
-            return;
-        }
-        
-        if (Math.abs(meshArea) < 0.00001) {
-            portal.specialShape = null;
-            context.getSource().sendSuccess(
-                () -> Component.literal("Portal sculpted to nothing. Reset."),
-                false
-            );
-            return;
-        }
-        
-        portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
-        portal.initCullableRange(0, 0, 0, 0);
-        
-        context.getSource().sendSuccess(
-            () -> Component.translatable(
-                "imm_ptl.sculpted",
-                String.format("%.4f", areaBefore - areaAfter),
-                String.format("%.4f", areaBefore),
-                String.format("%.4f", areaAfter)
-            ),
-            false
-        );
+        return boxes;
     }
     
     public static class RemoteCallables {
