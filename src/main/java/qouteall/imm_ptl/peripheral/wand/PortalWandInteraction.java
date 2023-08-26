@@ -415,7 +415,7 @@ public class PortalWandInteraction {
         DraggingSession session = draggingSessionMap.get(player);
         
         if (session == null) {
-            player.sendSystemMessage(Component.literal("Cannot undo"));
+//            player.sendSystemMessage(Component.literal("Cannot undo"));
             return;
         }
         

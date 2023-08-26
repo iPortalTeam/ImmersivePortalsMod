@@ -818,8 +818,12 @@ public class PortalCommand {
         builder.then(Commands.literal("reset_portal_orientation")
             .executes(context -> processPortalTargetedCommand(
                 context, portal -> {
-                    portal.axisW = new Vec3(1, 0, 0);
-                    portal.axisH = new Vec3(0, 1, 0);
+                    UnilateralPortalState thisSideState = portal.getThisSideState();
+                    portal.setThisSideState(new UnilateralPortalState.Builder()
+                        .from(thisSideState)
+                        .orientation(DQuaternion.identity)
+                        .build()
+                    );
                     reloadPortal(portal);
                 }
             ))
@@ -971,17 +975,23 @@ public class PortalCommand {
         shapeBuilder.then(Commands.literal("sculpt")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 invokeSculpt(context, portal, true);
-                reloadPortal(portal);
             }))
+            .then(Commands.argument("adjustPortalBounds", BoolArgumentType.bool())
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    boolean adjustPortalBounds =
+                        BoolArgumentType.getBool(context, "adjustPortalBounds");
+                    invokeSculpt(context, portal, adjustPortalBounds);
+                }))
+            )
         );
         
-        shapeBuilder.then(Commands.literal("reset_shape")
+        shapeBuilder.then(Commands.literal("reset")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
                 portal.specialShape = null;
                 reloadPortal(portal);
             }))
         );
-    
+        
         builder.then(shapeBuilder);
     }
     
@@ -2633,7 +2643,12 @@ public class PortalCommand {
                     return;
                 }
                 
-                portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
+                setPortalShapeByMesh(portal, mesh2D, adjustPortalBounds);
+                
+                // temporarily disable default animation
+                portal.getDefaultAnimation().setDisableUntil(portal.level().getGameTime() + 5);
+                
+                reloadPortal(portal);
                 
                 if (player != null) {
                     player.sendSystemMessage(
@@ -2661,6 +2676,41 @@ public class PortalCommand {
             })
         ));
     }
+    
+    private static void setPortalShapeByMesh(
+        Portal portal, Mesh2D mesh2D, boolean adjustPortalBounds
+    ) {
+        if (adjustPortalBounds) {
+            Mesh2D.Rect boundingBox = mesh2D.getBoundingBox();
+            double centerLX = (boundingBox.minX() + boundingBox.maxX()) / 2;
+            double centerLY = (boundingBox.minY() + boundingBox.maxY()) / 2;
+            double lWidth = boundingBox.maxX() - boundingBox.minX();
+            double lHeight = boundingBox.maxY() - boundingBox.minY();
+            
+            mesh2D.transformPoints((input) -> new Vec2d(
+                (input.x() - centerLX) / (lWidth / 2),
+                (input.y() - centerLY) / (lHeight / 2)
+            ));
+            
+            double oldHalfWidth = portal.width / 2.0;
+            double oldHalfHeight = portal.height / 2.0;
+            
+            double newPortalWidth = oldHalfWidth * lWidth;
+            double newPortalHeight = oldHalfHeight * lHeight;
+            Vec3 centerOffset = portal.axisW.scale(centerLX * oldHalfWidth)
+                .add(portal.axisH.scale(centerLY * oldHalfHeight));
+            
+            Vec3 otherSideCenterOffset = portal.transformLocalVec(centerOffset);
+            
+            portal.setOriginPos(portal.getOriginPos().add(centerOffset));
+            portal.setDestination(portal.getDestPos().add(otherSideCenterOffset));
+            portal.setWidth(newPortalWidth);
+            portal.setHeight(newPortalHeight);
+        }
+        
+        portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
+    }
+    
     
     @NotNull
     private static ObjectArrayList<AABB> gatherCollisionBoxesTouching(Portal portal) {

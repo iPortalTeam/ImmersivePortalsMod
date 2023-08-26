@@ -360,7 +360,7 @@ public class PortalExtension {
             }
             
             if (sync) {
-                flippedPortal.reloadAndSyncToClient();
+                flippedPortal.reloadAndSyncToClientNextTick();
             }
         }
         
@@ -401,7 +401,7 @@ public class PortalExtension {
             }
             
             if (sync) {
-                reversePortal.reloadAndSyncToClient();
+                reversePortal.reloadAndSyncToClientNextTick();
             }
         }
         
@@ -437,7 +437,7 @@ public class PortalExtension {
             parallelPortal.specialShape = portal.specialShape;
             
             if (sync) {
-                parallelPortal.reloadAndSyncToClient();
+                parallelPortal.reloadAndSyncToClientNextTick();
             }
         }
     }

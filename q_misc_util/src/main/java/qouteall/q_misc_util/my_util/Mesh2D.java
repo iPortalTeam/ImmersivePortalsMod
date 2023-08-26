@@ -1,5 +1,7 @@
 package qouteall.q_misc_util.my_util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,6 +17,12 @@ import net.minecraft.util.Unit;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.function.Function;
 
 public class Mesh2D {
     
@@ -87,8 +95,9 @@ public class Mesh2D {
     }
     
     public int indexPoint(double x, double y) {
-        Validate.isTrue(x >= -1.0001 && x < 1.0001);
-        Validate.isTrue(y >= -1.0001 && y < 1.0001);
+        x = Mth.clamp(x, -1.0, 1.0);
+        y = Mth.clamp(y, -1.0, 1.0);
+        
         long grid = encodeToGrid(x, y);
         int pointIndex = gridToPointIndex.getOrDefault(grid, -1);
         if (pointIndex == -1) {
@@ -389,7 +398,7 @@ public class Mesh2D {
      * @param startPointIndex The point index to start with.
      * @return If succeeded, return the point index that gets collapsed. -1 for failed.
      */
-    private int tryToCollapseOuterEdge(int startPointIndex) {
+    private int tryToCollapseOuterEdgeAndTooShortEdges(int startPointIndex) {
         for (int i = 0; i < pointCoords.size() / 2; i++) {
             if (!isPointUsed(i)) {
                 continue;
@@ -398,30 +407,36 @@ public class Mesh2D {
             double x = pointCoords.getDouble(i * 2);
             double y = pointCoords.getDouble(i * 2 + 1);
             
-            double exposingAngle = getExposingAngle(i);
+            IntOpenHashSet adjacentVertices = adjacentVerticesFrom(i);
             
-            if (Math.abs(exposingAngle - Math.PI) < 0.0001) {
-                IntOpenHashSet adjacentVertices = adjacentVerticesFrom(i);
+            // try to collapse outer edge
+            double exposingAngle = getExposingAngle(i);
+            boolean isOnOuterEdgeStraightLine = Math.abs(exposingAngle - Math.PI) < 0.0001;
+            
+            IntIterator iter1 = adjacentVertices.intIterator();
+            while (iter1.hasNext()) {
+                int p1 = iter1.nextInt();
                 
-                IntIterator iter1 = adjacentVertices.intIterator();
-                while (iter1.hasNext()) {
-                    int p1 = iter1.nextInt();
+                IntIterator iter2 = adjacentVertices.intIterator();
+                while (iter2.hasNext()) {
+                    int p2 = iter2.nextInt();
                     
-                    IntIterator iter2 = adjacentVertices.intIterator();
-                    while (iter2.hasNext()) {
-                        int p2 = iter2.nextInt();
+                    if (p1 < p2) {
+                        double p1x = pointCoords.getDouble(p1 * 2);
+                        double p1y = pointCoords.getDouble(p1 * 2 + 1);
+                        double p2x = pointCoords.getDouble(p2 * 2);
+                        double p2y = pointCoords.getDouble(p2 * 2 + 1);
                         
-                        if (p1 < p2) {
-                            double p1x = pointCoords.getDouble(p1 * 2);
-                            double p1y = pointCoords.getDouble(p1 * 2 + 1);
-                            double p2x = pointCoords.getDouble(p2 * 2);
-                            double p2y = pointCoords.getDouble(p2 * 2 + 1);
-                            
-                            if (GeometryUtil.isOppositeVec(p1x - x, p1y - y, p2x - x, p2y - y)) {
-                                if (canCollapseEdge(p1, i)) {
-                                    collapseEdge(p1, i);
-                                    return i;
-                                }
+                        boolean collinear = GeometryUtil.isOppositeVec(
+                            p1x - x, p1y - y, p2x - x, p2y - y
+                        );
+                        
+                        double lenSq = (p1x - p2x) * (p1x - p2x) + (p1y - p2y) * (p1y - p2y);
+                        
+                        if ((isOnOuterEdgeStraightLine && collinear) || lenSq < 1.0e-8) {
+                            if (canCollapseEdge(p1, i)) {
+                                collapseEdge(p1, i);
+                                return i;
                             }
                         }
                     }
@@ -433,7 +448,7 @@ public class Mesh2D {
     }
     
     public void simplify() {
-        simplifySteps(getStoredPointNum());
+        simplifySteps(getStoredTriangleNum());
     }
     
     /**
@@ -460,7 +475,7 @@ public class Mesh2D {
                 }
             }
             else if (outerEdgeCollapsePointIndex != -1) {
-                outerEdgeCollapsePointIndex = tryToCollapseOuterEdge(outerEdgeCollapsePointIndex);
+                outerEdgeCollapsePointIndex = tryToCollapseOuterEdgeAndTooShortEdges(outerEdgeCollapsePointIndex);
                 if (outerEdgeCollapsePointIndex != -1) {
                     count++;
                 }
@@ -1501,6 +1516,50 @@ public class Mesh2D {
                 polygonVertexes.get(p1Index).x(), polygonVertexes.get(p1Index).y(),
                 polygonVertexes.get(p2Index).x(), polygonVertexes.get(p2Index).y()
             );
+        }
+    }
+    
+    public void transformPoints(Function<Vec2d, Vec2d> transform) {
+        gridToPointIndex.clear();
+        
+        for (int i = 0; i < getStoredPointNum(); i++) {
+            // Note: unused points are also transformed
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            Vec2d transformed = transform.apply(new Vec2d(x, y));
+            double transformedX = transformed.x();
+            double transformedY = transformed.y();
+            
+            pointCoords.set(i * 2, transformedX);
+            pointCoords.set(i * 2 + 1, transformedY);
+            
+            long newGridIndex = encodeToGrid(transformedX, transformedY);
+            gridToPointIndex.put(newGridIndex, i);
+        }
+    }
+    
+    public void debugVisualize() {
+        JsonObject jsonObject = toJson();
+        
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.setPrettyPrinting().create();
+        
+        File file = new File("./misc/mesh_to_visualize.json");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.append(gson.toJson(jsonObject));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        try {
+            // runs a python script that uses matplotlib
+            // must install python and matplotlib
+            Process process = Runtime.getRuntime().exec("python ./misc/visualize_mesh.py");
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

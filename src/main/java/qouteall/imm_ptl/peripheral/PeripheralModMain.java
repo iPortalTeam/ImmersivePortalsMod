@@ -166,8 +166,12 @@ public class PeripheralModMain {
             "clear_animation", "animation clear"
         );
         
-        registerPortalSubCommandStick("sculpt");
-        registerPortalSubCommandStick("reset_shape");
+        registerPortalSubCommandStick(
+            "sculpt", "shape sculpt"
+        );
+        registerPortalSubCommandStick(
+            "reset_shape", "shape reset"
+        );
         
         CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
             "/scale set pehkui:base 1",
