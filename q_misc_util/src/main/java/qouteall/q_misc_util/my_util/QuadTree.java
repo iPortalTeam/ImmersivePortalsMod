@@ -119,10 +119,6 @@ public class QuadTree<T> {
         double bbMinX, double bbMinY, double bbMaxX, double bbMaxY,
         Function<T, U> func
     ) {
-        if (level >= MAX_LEVEL) {
-            return null;
-        }
-        
         U r1 = func.apply(elements.get(startingNode));
         
         if (r1 != null) {

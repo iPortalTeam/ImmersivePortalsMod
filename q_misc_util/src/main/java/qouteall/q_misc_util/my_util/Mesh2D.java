@@ -818,15 +818,16 @@ public class Mesh2D {
     public IntOpenHashSet adjacentVerticesFrom(int pointIndex) {
         IntOpenHashSet result = new IntOpenHashSet();
         
-        int triangleCount = getStoredTriangleNum();
-        for (int i = 0; i < triangleCount; i++) {
-            if (!isTriangleValid(i)) {
-                continue;
-            }
+        IntArrayList triangleIds = pointToTriangles.get(pointIndex);
+        
+        IntIterator iter = triangleIds.intIterator();
+        
+        while (iter.hasNext()) {
+            int ti = iter.nextInt();
             
-            int p0Index = trianglePointIndexes.getInt(i * 3);
-            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
-            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            int p0Index = trianglePointIndexes.getInt(ti * 3);
+            int p1Index = trianglePointIndexes.getInt(ti * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(ti * 3 + 2);
             
             if (p0Index == pointIndex) {
                 result.add(p1Index);

@@ -292,8 +292,8 @@ public class ClientTeleportationManager {
         }
     }
     
-    public static Vec3 getPlayerEyePos(float tickDelta) {
-        return client.player.getEyePosition(tickDelta);
+    public static Vec3 getPlayerEyePos(float partialTick) {
+        return client.player.getEyePosition(partialTick);
     }
     
     private static void teleportPlayer(

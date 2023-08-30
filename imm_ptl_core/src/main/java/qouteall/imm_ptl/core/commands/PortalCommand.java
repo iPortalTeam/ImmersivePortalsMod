@@ -2579,7 +2579,7 @@ public class PortalCommand {
         @Nullable ServerPlayer player = context.getSource().getPlayer();
         
         ObjectArrayList<AABB> boxes = gatherCollisionBoxesTouching(portal);
-        if (boxes.size() > 10000) {
+        if (boxes.size() > 40000) {
             context.getSource().sendFailure(Component.literal("Too many collision boxes to sculpt"));
             return;
         }
@@ -2602,6 +2602,7 @@ public class PortalCommand {
         
         // it's computationally heavy, so we run it in another thread
         Util.backgroundExecutor().submit(() -> {
+            int count = 0;
             for (AABB box : boxes) {
                 ObjectArrayList<Vec2d> polygonVertexes =
                     GeometryUtil.getSlicePolygonOfCube(
@@ -2609,6 +2610,11 @@ public class PortalCommand {
                     );
                 
                 mesh2D.subtractPolygon(polygonVertexes);
+                count++;
+                
+                if (count % 10000 == 0) {
+                    mesh2D.compact();
+                }
             }
             
             mesh2D.simplify();
