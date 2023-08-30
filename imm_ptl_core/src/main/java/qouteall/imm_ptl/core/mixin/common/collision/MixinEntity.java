@@ -81,6 +81,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     private BlockState feetBlockState;
     @Shadow
     private ChunkPos chunkPosition;
+    
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     @Redirect(
@@ -203,25 +204,9 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
         }
     }
     
-    // when going through a portal with scaling, it sometimes wrongly crouch
-    // because of floating-point inaccuracy with bounding box
-    // NOTE even it does not crouch, the player is slightly inside the block, and the collision won't always work
-    // This is a workaround before finding the correct way of fixing floating-point inaccuracy of collision box after teleportation
-//    @ModifyConstant(
-//        method = "canEnterPose",
-//        constant = @Constant(doubleValue = 1.0E-7)
-//    )
-//    double modifyShrinkNum(double originalValue) {
-//        if (isRecentlyCollidingWithPortal()) {
-//            return 0.01;
-//        }
-//
-//        return originalValue;
-//    }
-    
     /**
      * @author qouteall
-     * @reason hard to do without performance loss without overwriting
+     * @reason mixin does not allow cancel in redirect
      */
     @Overwrite
     public boolean canEnterPose(Pose pose) {
@@ -231,8 +216,9 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
             return true;
         }
         return this.level.noCollision(
-            this_,
-            activeCollisionBox.deflate(0.1)
+            this_, activeCollisionBox.deflate(1.0E-7)
+            // TODO check the issue of wrongly crouch after going through a scaling portal
+            //  when head is touching ceiling because of floating point error
         );
     }
     
