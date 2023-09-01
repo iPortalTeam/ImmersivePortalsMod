@@ -19,6 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.mc_utils.WireRenderingHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -276,12 +277,13 @@ public class ClientPortalWandPortalCreation {
                     colorOfFirstSideLeftUp, 1.0, matrixStack
                 );
                 
-                WireRenderingHelper.renderPortalAreaGrid(
+                WandUtil.renderPortalAreaGrid(
                     vertexConsumer,
                     cameraPos,
                     renderedProtoPortal.firstSide,
                     colorOfFirstPortalArea,
-                    matrixStack);
+                    matrixStack
+                );
             }
         }
         
@@ -303,7 +305,7 @@ public class ClientPortalWandPortalCreation {
                     colorOfSecondSideLeftUp, 1.0, matrixStack
                 );
                 
-                WireRenderingHelper.renderPortalAreaGrid(
+                WandUtil.renderPortalAreaGrid(
                     vertexConsumer,
                     cameraPos,
                     renderedProtoPortal.secondSide,

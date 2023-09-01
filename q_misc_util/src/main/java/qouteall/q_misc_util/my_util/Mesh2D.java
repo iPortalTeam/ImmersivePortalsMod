@@ -73,21 +73,42 @@ public class Mesh2D {
     /**
      * @return the index of the triangle. -1 if the triangle is invalid.
      */
-    public int addTriangle(int pointIndex1, int pointIndex2, int pointIndex3) {
-        if (pointIndex1 == pointIndex2 || pointIndex2 == pointIndex3 || pointIndex3 == pointIndex1) {
+    public int addTriangle(int pointIndex0, int pointIndex1, int pointIndex2) {
+        if (pointIndex0 == pointIndex1 || pointIndex1 == pointIndex2 || pointIndex2 == pointIndex0) {
+            return -1;
+        }
+        
+        double p0x = pointCoords.getDouble(pointIndex0 * 2);
+        double p0y = pointCoords.getDouble(pointIndex0 * 2 + 1);
+        double p1x = pointCoords.getDouble(pointIndex1 * 2);
+        double p1y = pointCoords.getDouble(pointIndex1 * 2 + 1);
+        double p2x = pointCoords.getDouble(pointIndex2 * 2);
+        double p2y = pointCoords.getDouble(pointIndex2 * 2 + 1);
+        
+        double cross = Helper.crossProduct2D(
+            p1x - p0x, p1y - p0y, p2x - p0x, p2y - p0y
+        );
+        
+        if (Math.abs(cross) < 0.000000001) {
             return -1;
         }
         
         int triangleIndex = getStoredTriangleNum();
-        trianglePointIndexes.add(pointIndex1);
-        trianglePointIndexes.add(pointIndex2);
-        trianglePointIndexes.add(pointIndex3);
+        trianglePointIndexes.add(pointIndex0);
+        if (cross > 0) {
+            trianglePointIndexes.add(pointIndex1);
+            trianglePointIndexes.add(pointIndex2);
+        }
+        else {
+            trianglePointIndexes.add(pointIndex2);
+            trianglePointIndexes.add(pointIndex1);
+        }
         
+        pointToTriangles.get(pointIndex0).add(triangleIndex);
         pointToTriangles.get(pointIndex1).add(triangleIndex);
         pointToTriangles.get(pointIndex2).add(triangleIndex);
-        pointToTriangles.get(pointIndex3).add(triangleIndex);
         
-        turnTriangleToCounterClockwise(triangleIndex);
+        Validate.isTrue(isTriangleValid(triangleIndex));
         
         notifyTriangleAddedForQuadTree(triangleIndex);
         
@@ -306,7 +327,7 @@ public class Mesh2D {
             double cross = Helper.crossProduct2D(
                 np1x - np0x, np1y - np0y, np2x - np0x, np2y - np0y
             );
-            if (cross < 0) {
+            if (cross <= 0) {
                 return false;
             }
         }
@@ -1112,7 +1133,7 @@ public class Mesh2D {
         Validate.isTrue(removed, "triangle %d not found in quad tree", triangleIndex);
     }
     
-    // for unit testing
+    // for debugging and testing
     public void checkStorageIntegrity() {
         Validate.isTrue(pointCoords.size() % 2 == 0);
         Validate.isTrue(pointCoords.size() / 2 == pointToTriangles.size());
@@ -1144,10 +1165,11 @@ public class Mesh2D {
             double p2y = pointCoords.getDouble(p2Index * 2 + 1);
             
             // ensure that it's counter-clockwise
-            Validate.isTrue(Helper.crossProduct2D(
+            double w = Helper.crossProduct2D(
                 p1x - p0x, p1y - p0y,
                 p2x - p0x, p2y - p0y
-            ) > 0);
+            );
+            Validate.isTrue(w > 0, "%f", w);
         }
         
         for (IntArrayList triangleIds : pointToTriangles) {

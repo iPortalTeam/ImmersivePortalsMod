@@ -1,7 +1,9 @@
-package qouteall.imm_ptl.peripheral.wand;
+package qouteall.imm_ptl.core.mc_utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -11,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.portal.GeometryPortalShape;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -22,6 +26,7 @@ import qouteall.q_misc_util.my_util.Sphere;
 import java.util.Random;
 import java.util.function.IntSupplier;
 
+@Environment(EnvType.CLIENT)
 public class WireRenderingHelper {
     
     public static void renderSmallCubeFrame(
@@ -247,153 +252,6 @@ public class WireRenderingHelper {
         matrixStack.popPose();
     }
     
-    public static void renderPortalAreaGridNew(
-        VertexConsumer vertexConsumer, Vec3 cameraPos,
-        ProtoPortalSide protoPortalSide,
-        int color1, int color2, PoseStack matrixStack
-    ) {
-        int separation = 8;
-        
-        Vec3 leftBottom = protoPortalSide.leftBottom;
-        Vec3 rightBottom = protoPortalSide.rightBottom;
-        Vec3 leftTop = protoPortalSide.leftTop;
-        
-        Vec3 xAxis = rightBottom.subtract(leftBottom);
-        Vec3 yAxis = leftTop.subtract(leftBottom);
-        
-        Vec3 normal = xAxis.cross(yAxis).normalize();
-        
-        matrixStack.pushPose();
-        matrixStack.translate(
-            leftBottom.x - cameraPos.x,
-            leftBottom.y - cameraPos.y,
-            leftBottom.z - cameraPos.z
-        );
-        
-        Matrix4f matrix = matrixStack.last().pose();
-        Matrix3f normalMatrix = matrixStack.last().normal();
-        
-        // render the outer frame
-        putLine(
-            vertexConsumer, color1, matrix, normalMatrix,
-            Vec3.ZERO, xAxis
-        );
-        putLine(
-            vertexConsumer, color1, matrix, normalMatrix,
-            yAxis, yAxis.add(xAxis)
-        );
-        putLine(
-            vertexConsumer, color1, matrix, normalMatrix,
-            Vec3.ZERO, yAxis
-        );
-        putLine(
-            vertexConsumer, color1, matrix, normalMatrix,
-            xAxis, yAxis.add(xAxis)
-        );
-        
-        // render the inner grid flow lines
-        int flowCount = 3;
-        Random random = new Random(color1);
-        
-        double scaling = 0.994;
-        double offset1 = (1 - scaling) / 2;
-        double offset2 = -offset1;
-        
-        for (int cx = 1; cx < separation; cx++) {
-            double lx = ((double) cx) / separation;
-            renderFlowLines(
-                vertexConsumer,
-                new Vec3[]{
-                    xAxis.scale(lx * scaling + offset1),
-                    xAxis.scale(lx * scaling + offset1).add(yAxis),
-                },
-                flowCount, color1, 1, matrixStack,
-                () -> random.nextInt(10, 100)
-            );
-            
-            renderFlowLines(
-                vertexConsumer,
-                new Vec3[]{
-                    xAxis.scale(lx * scaling + offset2),
-                    xAxis.scale(lx * scaling + offset2).add(yAxis),
-                },
-                flowCount, color2, -1, matrixStack,
-                () -> random.nextInt(10, 100)
-            );
-        }
-        
-        for (int cy = 1; cy < separation; cy++) {
-            double ly = ((double) cy) / separation;
-            renderFlowLines(
-                vertexConsumer,
-                new Vec3[]{
-                    yAxis.scale(ly * scaling + offset1),
-                    yAxis.scale(ly * scaling + offset1).add(xAxis),
-                },
-                flowCount, color1, 1, matrixStack,
-                () -> random.nextInt(10, 100)
-            );
-            
-            renderFlowLines(
-                vertexConsumer,
-                new Vec3[]{
-                    yAxis.scale(ly * scaling + offset2),
-                    yAxis.scale(ly * scaling + offset2).add(xAxis),
-                },
-                flowCount, color2, -1, matrixStack,
-                () -> random.nextInt(10, 100)
-            );
-        }
-        
-        matrixStack.popPose();
-    }
-    
-    public static void renderPortalAreaGrid(
-        VertexConsumer vertexConsumer, Vec3 cameraPos,
-        ProtoPortalSide protoPortalSide,
-        int color, PoseStack matrixStack
-    ) {
-        int separation = 8;
-        
-        Vec3 leftBottom = protoPortalSide.leftBottom;
-        Vec3 rightBottom = protoPortalSide.rightBottom;
-        Vec3 leftTop = protoPortalSide.leftTop;
-        
-        Vec3 xAxis = rightBottom.subtract(leftBottom);
-        Vec3 yAxis = leftTop.subtract(leftBottom);
-        
-        Vec3 normal = xAxis.cross(yAxis).normalize();
-        
-        matrixStack.pushPose();
-        matrixStack.translate(
-            leftBottom.x - cameraPos.x,
-            leftBottom.y - cameraPos.y,
-            leftBottom.z - cameraPos.z
-        );
-        
-        Matrix4f matrix = matrixStack.last().pose();
-        Matrix3f normalMatrix = matrixStack.last().normal();
-        
-        for (int i = 0; i <= separation; i++) {
-            double ratio = (double) i / separation;
-            
-            Vec3 lineStart = xAxis.scale(ratio);
-            Vec3 lineEnd = xAxis.scale(ratio).add(yAxis);
-            
-            putLine(vertexConsumer, color, yAxis.normalize(), matrix, normalMatrix, lineStart, lineEnd);
-        }
-        
-        for (int i = 0; i <= separation; i++) {
-            double ratio = (double) i / separation;
-            
-            Vec3 lineStart = yAxis.scale(ratio);
-            Vec3 lineEnd = yAxis.scale(ratio).add(xAxis);
-            
-            putLine(vertexConsumer, color, xAxis.normalize(), matrix, normalMatrix, lineStart, lineEnd);
-        }
-        
-        matrixStack.popPose();
-    }
     
     public static void renderLockShape(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
@@ -477,7 +335,7 @@ public class WireRenderingHelper {
         putLine(vertexConsumer, color, lineEnd.subtract(lineStart), matrix, normalMatrix, lineStart, lineEnd);
     }
     
-    private static void putLine(
+    public static void putLine(
         VertexConsumer vertexConsumer,
         int color, Vec3 normal, Matrix4f matrix, Matrix3f normalMatrix,
         Vec3 lineStart, Vec3 lineEnd
@@ -551,7 +409,7 @@ public class WireRenderingHelper {
         matrixStack.popPose();
     }
     
-    private static void renderFlowLines(
+    public static void renderFlowLines(
         VertexConsumer vertexConsumer,
         Vec3[] vertices,
         int flowCount, int color, int flowDirection,
@@ -784,5 +642,59 @@ public class WireRenderingHelper {
         );
         
         matrixStack.popPose();
+    }
+    
+    public static void renderPortalShapeMeshDebug(
+        PoseStack matrixStack, VertexConsumer vertexConsumer, Portal portal
+    ) {
+        double cycle = (Math.sin(CHelper.getSmoothCycles(50) * 2 * Math.PI) + 1) / 2;
+        double shrink = 0.03 * cycle;
+        
+        GeometryPortalShape shape = portal.specialShape;
+        if (shape != null) {
+            int triangleNum = shape.triangles.size();
+            int vertexNum = triangleNum * 3;
+            Vec3[] vertexes = new Vec3[vertexNum];
+            double halfWidth = portal.width / 2;
+            double halfHeight = portal.height / 2;
+            Vec3 X = portal.axisW.scale(halfWidth);
+            Vec3 Y = portal.axisH.scale(halfHeight);
+            
+            matrixStack.pushPose();
+
+            Matrix4f matrix = matrixStack.last().pose();
+            Matrix3f normalMatrix = matrixStack.last().normal();
+            
+            for (int i = 0; i < shape.triangles.size(); i++) {
+                GeometryPortalShape.TriangleInPlane triangleInPlane = shape.triangles.get(i);
+                
+                double centerX = (triangleInPlane.x1 + triangleInPlane.x2 + triangleInPlane.x3) / 3;
+                double centerY = (triangleInPlane.y1 + triangleInPlane.y2 + triangleInPlane.y3) / 3;
+                
+                double x1 = triangleInPlane.x1 * (1 - shrink) + centerX * shrink;
+                double y1 = triangleInPlane.y1 * (1 - shrink) + centerY * shrink;
+                double x2 = triangleInPlane.x2 * (1 - shrink) + centerX * shrink;
+                double y2 = triangleInPlane.y2 * (1 - shrink) + centerY * shrink;
+                double x3 = triangleInPlane.x3 * (1 - shrink) + centerX * shrink;
+                double y3 = triangleInPlane.y3 * (1 - shrink) + centerY * shrink;
+                
+                WireRenderingHelper.putLine(
+                    vertexConsumer, 0x80ff0000, matrix, normalMatrix,
+                    X.scale(x1).add(Y.scale(y1)), X.scale(x2).add(Y.scale(y2))
+                );
+                
+                WireRenderingHelper.putLine(
+                    vertexConsumer, 0x80ff0000, matrix, normalMatrix,
+                    X.scale(x2).add(Y.scale(y2)), X.scale(x3).add(Y.scale(y3))
+                );
+                
+                WireRenderingHelper.putLine(
+                    vertexConsumer, 0x80ff0000, matrix, normalMatrix,
+                    X.scale(x3).add(Y.scale(y3)), X.scale(x1).add(Y.scale(y1))
+                );
+            }
+            
+            matrixStack.popPose();
+        }
     }
 }

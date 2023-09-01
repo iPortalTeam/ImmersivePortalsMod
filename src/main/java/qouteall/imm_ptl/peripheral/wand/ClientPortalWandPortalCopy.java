@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.mc_utils.WireRenderingHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalUtils;
@@ -357,12 +357,5 @@ public class ClientPortalWandPortalCopy {
             }
         }
         
-        if (status instanceof Status_SelectPortal statusSelectPortal) {
-            Portal portal = WandUtil.getPortalByUUID(player.level(), statusSelectPortal.selectedPortalId);
-            
-            if (IPGlobal.debugRenderPortalShapeMesh && portal != null) {
-                WandUtil.renderPortalShapeMeshDebug(matrixStack, cameraPos, vertexConsumer, portal);
-            }
-        }
     }
 }

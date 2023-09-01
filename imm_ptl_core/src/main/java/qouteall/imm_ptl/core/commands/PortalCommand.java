@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -49,6 +50,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -94,6 +96,8 @@ public class PortalCommand {
     // it needs to invoke the outer mod but the core does not have outer mod dependency
     public static final SignalBiArged<ServerPlayer, String>
         createCommandStickCommandSignal = new SignalBiArged<>();
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     public static void register(
         CommandDispatcher<CommandSourceStack> dispatcher
@@ -2617,7 +2621,14 @@ public class PortalCommand {
                 }
             }
             
-            mesh2D.simplify();
+            try {
+                mesh2D.checkStorageIntegrity(); // debug
+                mesh2D.simplify();
+                mesh2D.checkStorageIntegrity(); // debug
+            }
+            catch (Exception e) {
+                LOGGER.error("", e);
+            }
             
             finished.setValue(true);
             

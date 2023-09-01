@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.mc_utils.WireRenderingHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
@@ -930,10 +930,6 @@ public class ClientPortalWandPortalDrag {
         
         if (rect != null) {
             renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
-        }
-        
-        if (IPGlobal.debugRenderPortalShapeMesh && portal != null) {
-            WandUtil.renderPortalShapeMeshDebug(matrixStack, cameraPos, vertexConsumer, portal);
         }
         
         VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
