@@ -253,11 +253,22 @@ public class ClientWorldLoader {
         clientDimensionDynamicRemoveSignal.emit(dimension);
     }
     
-    //@Nullable
+    @NotNull
     public static LevelRenderer getWorldRenderer(ResourceKey<Level> dimension) {
         initializeIfNeeded();
         
-        return worldRendererMap.get(dimension);
+        LevelRenderer result = worldRendererMap.get(dimension);
+        
+        if (result == null) {
+            ClientLevel world = getOptionalWorld(dimension);
+            LOGGER.error(
+                "Unable to get LevelRenderer of {} . World present: {}",
+                dimension.location(), world != null
+            );
+            throw new RuntimeException("Missing LevelRenderer of " + dimension.location());
+        }
+        
+        return result;
     }
     
     
