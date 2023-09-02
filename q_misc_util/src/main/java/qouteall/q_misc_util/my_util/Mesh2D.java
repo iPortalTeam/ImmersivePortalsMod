@@ -327,7 +327,7 @@ public class Mesh2D {
             double cross = Helper.crossProduct2D(
                 np1x - np0x, np1y - np0y, np2x - np0x, np2y - np0y
             );
-            if (cross <= 0) {
+            if (cross < 0) {
                 return false;
             }
         }

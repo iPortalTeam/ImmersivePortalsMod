@@ -47,7 +47,6 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -88,6 +87,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -2602,10 +2602,7 @@ public class PortalCommand {
         
         double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
         
-        MutableBoolean finished = new MutableBoolean(false);
-        
-        // it's computationally heavy, so we run it in another thread
-        Util.backgroundExecutor().submit(() -> {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             int count = 0;
             for (AABB box : boxes) {
                 ObjectArrayList<Vec2d> polygonVertexes =
@@ -2620,70 +2617,73 @@ public class PortalCommand {
                     mesh2D.compact();
                 }
             }
+
+//            mesh2D.checkStorageIntegrity(); // debug
+            mesh2D.simplify();
+//            mesh2D.checkStorageIntegrity(); // debug
             
-            try {
-                mesh2D.checkStorageIntegrity(); // debug
-                mesh2D.simplify();
-                mesh2D.checkStorageIntegrity(); // debug
+        }, Util.backgroundExecutor());
+        
+        future.thenRun(() -> server.execute(() -> {
+            if (portal.isRemoved()) {
+                return;
             }
-            catch (Exception e) {
-                LOGGER.error("", e);
-            }
             
-            finished.setValue(true);
+            double meshArea = mesh2D.getArea();
+            double areaAfter = meshArea * halfWidth * halfHeight;
             
-            server.execute(() -> {
-                if (portal.isRemoved()) {
-                    return;
-                }
-                
-                double meshArea = mesh2D.getArea();
-                double areaAfter = meshArea * halfWidth * halfHeight;
-                
-                if (Math.abs(4.0 - meshArea) < 0.00001) {
-                    portal.specialShape = null;
-                    if (player != null) {
-                        player.sendSystemMessage(
-                            Component.literal("Portal shape is still rectangular now.")
-                        );
-                    }
-                    return;
-                }
-                
-                if (Math.abs(meshArea) < 0.00001) {
-                    portal.specialShape = null;
-                    if (player != null) {
-                        player.sendSystemMessage(
-                            Component.literal("Portal sculpted to nothing. Reset.")
-                        );
-                    }
-                    return;
-                }
-                
-                setPortalShapeByMesh(portal, mesh2D, adjustPortalBounds);
-                
-                // temporarily disable default animation
-                portal.getDefaultAnimation().setDisableUntil(portal.level().getGameTime() + 5);
-                
-                reloadPortal(portal);
-                
+            if (Math.abs(4.0 - meshArea) < 0.00001) {
+                portal.specialShape = null;
                 if (player != null) {
                     player.sendSystemMessage(
-                        Component.translatable(
-                            "imm_ptl.sculpted",
-                            String.format("%.4f", areaBefore - areaAfter),
-                            String.format("%.4f", areaBefore),
-                            String.format("%.4f", areaAfter)
-                        )
+                        Component.literal("Portal shape is still rectangular now.")
                     );
                 }
-            });
+                return;
+            }
+            
+            if (Math.abs(meshArea) < 0.00001) {
+                if (player != null) {
+                    player.sendSystemMessage(
+                        Component.literal("Sculpt failed because the blocks fully cover the portal.")
+                    );
+                }
+                return;
+            }
+            
+            setPortalShapeByMesh(portal, mesh2D, adjustPortalBounds);
+            
+            // temporarily disable default animation
+            portal.getDefaultAnimation().setDisableUntil(portal.level().getGameTime() + 5);
+            
+            reloadPortal(portal);
+            
+            if (player != null) {
+                player.sendSystemMessage(
+                    Component.translatable(
+                        "imm_ptl.sculpted",
+                        String.format("%.4f", areaBefore - areaAfter),
+                        String.format("%.4f", areaBefore),
+                        String.format("%.4f", areaAfter)
+                    )
+                );
+            }
+        }));
+        
+        future.exceptionally(throwable -> {
+            LOGGER.error("Error when sculpting portal {}", portal, throwable);
+            if (player != null) {
+                player.sendSystemMessage(Component.literal(
+                    "Failed to sculpt the portal. See the server log for detail."
+                ));
+            }
+            return null;
         });
         
         // notify the player if it takes too long
         IPGlobal.serverTaskList.addTask(MyTaskList.withDelay(
             5, MyTaskList.oneShotTask(() -> {
-                if (!finished.booleanValue()) {
+                if (!future.isDone()) {
                     if (player != null) {
                         player.sendSystemMessage(
                             Component.translatable("imm_ptl.sculpting_in_progress")
