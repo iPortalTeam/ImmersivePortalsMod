@@ -107,7 +107,7 @@ public class GeometryUtil {
         double t1min = Math.min(Math.min(t1p0, t1p1), t1p2);
         double t1max = Math.max(Math.max(t1p0, t1p1), t1p2);
         
-        return t0max - t1min < 0.00001 || t1max - t0min < 0.00001;
+        return t0max - t1min < 0 || t1max - t0min < 0;
     }
     
     @FunctionalInterface
