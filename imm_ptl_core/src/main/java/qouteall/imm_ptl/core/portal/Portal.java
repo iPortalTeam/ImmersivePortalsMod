@@ -66,6 +66,7 @@ import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
@@ -1957,6 +1958,51 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             thisSideCollisionExclusion = Shapes.create(ignorance);
         }
         return thisSideCollisionExclusion;
+    }
+    
+    public boolean isBoundingBoxInPortalProjection(AABB boundingBox) {
+        Vec3[] vertexes = Helper.eightVerticesOf(boundingBox);
+        
+        Vec3 originPos = getOriginPos();
+        
+        double minX = vertexes[0].subtract(originPos).dot(axisW);
+        double maxX = minX;
+        double minY = vertexes[0].subtract(originPos).dot(axisH);
+        double maxY = minY;
+        
+        for (int i = 1; i < 8; i++) {
+            Vec3 vertex = vertexes[i];
+            double x = vertex.subtract(originPos).dot(axisW);
+            double y = vertex.subtract(originPos).dot(axisH);
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+        }
+        
+        return isLocalBoxInShape(minX, minY, maxX, maxY);
+    }
+    
+    private boolean isLocalBoxInShape(double minX, double minY, double maxX, double maxY) {
+        double halfWidth = width / 2;
+        double halfHeight = height / 2;
+        
+        if (!Range.rangeIntersects(minX, maxX, -halfWidth, halfWidth)) {
+            return false;
+        }
+        
+        if (!Range.rangeIntersects(minY, maxY, -halfHeight, halfHeight)) {
+            return false;
+        }
+        
+        if (specialShape == null) {
+            return true;
+        }
+        
+        return specialShape.boxIntersects(
+            minX / halfWidth, minY / halfHeight,
+            maxX / halfWidth, maxY / halfHeight
+        );
     }
     
     public static class RemoteCallables {

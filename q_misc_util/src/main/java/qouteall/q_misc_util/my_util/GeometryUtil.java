@@ -110,6 +110,56 @@ public class GeometryUtil {
         return t0max - t1min < 0 || t1max - t0min < 0;
     }
     
+    /**
+     * Uses the Separating Axis Theorem (SAT) to determine whether a triangle intersects with an AABB.
+     * The triangle must be counter-clockwise.
+     */
+    public static boolean triangleIntersectsWithAABB(
+        double t0x0, double t0y0, double t0x1, double t0y1, double t0x2, double t0y2,
+        double minX, double minY, double maxX, double maxY
+    ) {
+        // firstly test the AABB's 4 edges
+        
+        double tMinX = Math.min(Math.min(t0x0, t0x1), t0x2);
+        double tMaxX = Math.max(Math.max(t0x0, t0x1), t0x2);
+        double tMinY = Math.min(Math.min(t0y0, t0y1), t0y2);
+        double tMaxY = Math.max(Math.max(t0y0, t0y1), t0y2);
+        
+        if (tMaxX < minX || tMinX > maxX || tMaxY < minY || tMinY > maxY) {
+            return false;
+        }
+        
+        // then test the triangle's 3 edges
+        
+        return !isAABBOnLeftSideOfLine(
+            minX, minY, maxX, maxY, t0x0, t0y0, t0x1 - t0x0, t0y1 - t0y0
+        ) && !isAABBOnLeftSideOfLine(
+            minX, minY, maxX, maxY, t0x1, t0y1, t0x2 - t0x1, t0y2 - t0y1
+        ) && !isAABBOnLeftSideOfLine(
+            minX, minY, maxX, maxY, t0x2, t0y2, t0x0 - t0x2, t0y0 - t0y2
+        );
+    }
+    
+    private static boolean isAABBOnLeftSideOfLine(
+        double minX, double minY, double maxX, double maxY,
+        double originX, double originY, double lineVecX, double lineVecY
+    ) {
+        // rotate the line vec by 90 degrees counter-clockwise
+        // if the triangle is counter-clockwise, the facing vec is pointing inwards
+        double facingVecX = -lineVecY;
+        double facingVecY = lineVecX;
+        
+        double testingPointX = facingVecX > 0 ? minX : maxX;
+        double testingPointY = facingVecY > 0 ? minY : maxY;
+        
+        double dx = testingPointX - originX;
+        double dy = testingPointY - originY;
+        
+        double dot = dx * facingVecX + dy * facingVecY;
+        
+        return dot > 0;
+    }
+    
     @FunctionalInterface
     public static interface BiDoublePredicate {
         boolean test(double x, double y);

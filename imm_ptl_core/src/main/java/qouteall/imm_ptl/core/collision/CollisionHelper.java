@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -33,7 +34,6 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -100,11 +100,24 @@ public class CollisionHelper {
     }
     
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float partialTick) {
-        if (portal.canCollideWithEntity(entity)) {
-            Vec3 cameraPosVec = entity.getEyePosition(partialTick);
-            return portal.isInFrontOfPortal(cameraPosVec);
+        if (!portal.canCollideWithEntity(entity)) {
+            return false;
         }
-        return false;
+        
+        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
+        boolean inFrontOfPortal = portal.isInFrontOfPortal(cameraPosVec);
+        
+        if (!inFrontOfPortal) {
+            return false;
+        }
+        
+        boolean inProjection = portal.isBoundingBoxInPortalProjection(entity.getBoundingBox());
+        
+        if (!inProjection) {
+            return false;
+        }
+        
+        return true;
     }
     
     public static double absMin(double a, double b) {
@@ -342,9 +355,9 @@ public class CollisionHelper {
         }
         
         WorldBorder worldBorder = level.getWorldBorder();
-    
+        
         Vec3 boundingBoxCenter = collisionBox.getCenter();
-    
+        
         boolean addWorldBorderCollision =
             worldBorder.isWithinBounds(boundingBoxCenter.x, boundingBoxCenter.z)
                 && worldBorder.getDistanceToBorder(boundingBoxCenter.x, boundingBoxCenter.z) < 32;

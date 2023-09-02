@@ -6,6 +6,7 @@ import net.minecraft.nbt.ListTag;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.GeometryUtil;
 import qouteall.q_misc_util.my_util.Mesh2D;
 
 import java.util.ArrayList;
@@ -258,5 +259,12 @@ public class GeometryPortalShape {
         result.addTriangleForRectangle(-1, -1, 1, 1);
         result.normalized = true;
         return result;
+    }
+    
+    public boolean boxIntersects(double minX, double minY, double maxX, double maxY) {
+        return triangles.stream().anyMatch(t -> GeometryUtil.triangleIntersectsWithAABB(
+            t.x1, t.y1, t.x2, t.y2, t.x3, t.y3,
+            minX, minY, maxX, maxY
+        ));
     }
 }
