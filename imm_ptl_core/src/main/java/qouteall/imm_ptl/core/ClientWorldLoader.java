@@ -260,12 +260,20 @@ public class ClientWorldLoader {
         LevelRenderer result = worldRendererMap.get(dimension);
         
         if (result == null) {
-            ClientLevel world = getOptionalWorld(dimension);
-            LOGGER.error(
-                "Unable to get LevelRenderer of {} . World present: {}",
-                dimension.location(), world != null
+            LOGGER.warn(
+                "Acquiring LevelRenderer before acquiring Level. Something is probably wrong. {}",
+                dimension.location(), new Throwable()
             );
-            throw new RuntimeException("Missing LevelRenderer of " + dimension.location());
+            
+            // the world renderer is created along with the world
+            // so create the world now
+            getWorld(dimension);
+            
+            result = worldRendererMap.get(dimension);
+            
+            if (result == null) {
+                throw new RuntimeException("Unable to get LevelRenderer of " + dimension.location());
+            }
         }
         
         return result;

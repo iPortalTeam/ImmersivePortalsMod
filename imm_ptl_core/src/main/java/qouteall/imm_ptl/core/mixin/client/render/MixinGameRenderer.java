@@ -128,7 +128,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         
         RenderStates.onTotalRenderEnd();
         
-        GuiPortalRendering.onGameRenderEnd();
+        GuiPortalRendering._onGameRenderEnd();
         
         if (IPCGlobal.lateClientLightUpdate) {
             minecraft.getProfiler().push("ip_late_update_light");

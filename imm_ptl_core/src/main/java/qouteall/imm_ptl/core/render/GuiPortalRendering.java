@@ -1,25 +1,28 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 
 @Environment(EnvType.CLIENT)
 public class GuiPortalRendering {
-    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     @Nullable
     private static RenderTarget renderingFrameBuffer = null;
@@ -83,6 +86,11 @@ public class GuiPortalRendering {
         WorldRenderInfo worldRenderInfo,
         RenderTarget renderTarget
     ) {
+        if (!ClientWorldLoader.getIsInitialized()) {
+            LOGGER.error("Trying to submit world rendering task before client world is initialized", new Throwable());
+            return;
+        }
+        
         Validate.isTrue(!renderingTasks.containsKey(renderTarget));
         
         RenderTarget mcFB = Minecraft.getInstance().getMainRenderTarget();
@@ -95,12 +103,17 @@ public class GuiPortalRendering {
     }
     
     // Not API
-    public static void onGameRenderEnd() {
+    public static void _onGameRenderEnd() {
         renderingTasks.forEach((frameBuffer, worldRendering) -> {
             renderWorldIntoFrameBuffer(
                 worldRendering, frameBuffer
             );
         });
         renderingTasks.clear();
+    }
+    
+    // not API
+    public static void _init() {
+        IPGlobal.clientCleanupSignal.connect(renderingTasks::clear);
     }
 }
