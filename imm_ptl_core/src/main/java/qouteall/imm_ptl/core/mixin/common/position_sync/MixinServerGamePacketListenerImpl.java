@@ -217,6 +217,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     
     // make the server to consider player movement valid when touching portal,
     // so it will not send teleport packet to client
+    // TODO refactor this
     @Inject(
         method = "isPlayerCollidingWithAnythingNew",
         at = @At("HEAD"),
@@ -226,7 +227,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         LevelReader levelReader, AABB aABB, double d, double e, double f,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (((IEEntity) player).ip_isRecentlyCollidingWithPortal()) {
+        if (shouldAcceptDubiousMovement(player)) {
             cir.setReturnValue(false);
         }
     }
@@ -278,59 +279,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         }
     }
     
-//    //do not reject move when player is riding and entering portal
-//    //the client packet is not validated (validating it needs dimension info in packet)
-//    @Inject(
-//        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMoveVehicle(Lnet/minecraft/network/protocol/game/ServerboundMoveVehiclePacket;)V",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;containsInvalidValues(DDDFF)Z"
-//        ),
-//        cancellable = true
-//    )
-//    private void onOnVehicleMove(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
-//        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
-//            Entity entity = this.player.getRootVehicle();
-//
-//            if (entity != player) {
-//                double currX = entity.getX();
-//                double currY = entity.getY();
-//                double currZ = entity.getZ();
-//
-//                double newX = packet.getX();
-//                double newY = packet.getY();
-//                double newZ = packet.getZ();
-//
-//                if (entity.position().distanceToSqr(
-//                    newX, newY, newZ
-//                ) < 256) {
-//                    float yaw = packet.getYRot();
-//                    float pitch = packet.getXRot();
-//
-//                    entity.absMoveTo(newX, newY, newZ, yaw, pitch);
-//
-//                    this.player.serverLevel().getChunkSource().move(this.player);
-//
-//                    clientVehicleIsFloating = false;
-//                    vehicleLastGoodX = entity.getX();
-//                    vehicleLastGoodY = entity.getY();
-//                    vehicleLastGoodZ = entity.getZ();
-//                }
-//            }
-//
-//            ci.cancel();
-//        }
-//    }
-    
-//    @Inject(
-//        method = "handleMoveVehicle",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void debug(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
-//        ci.cancel();
-//    }
-    
     private static boolean shouldAcceptDubiousMovement(ServerPlayer player) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
@@ -338,7 +286,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (IPGlobal.looseMovementCheck) {
             return true;
         }
-        if (((IEEntity) player).ip_getCollidingPortal() != null) {
+        if (((IEEntity) player).ip_isRecentlyCollidingWithPortal()) {
             return true;
         }
         boolean portalsNearby = IPMcHelper.getNearbyPortals(player, 16).findFirst().isPresent();
