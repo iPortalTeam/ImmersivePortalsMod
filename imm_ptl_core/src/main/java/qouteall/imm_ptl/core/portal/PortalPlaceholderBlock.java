@@ -50,7 +50,7 @@ public class PortalPlaceholderBlock extends Block {
         10.0D
     );
     
-    public static PortalPlaceholderBlock instance = new PortalPlaceholderBlock(
+    public static final PortalPlaceholderBlock instance = new PortalPlaceholderBlock(
         FabricBlockSettings.create()
             .noCollission()
             .sound(SoundType.GLASS)

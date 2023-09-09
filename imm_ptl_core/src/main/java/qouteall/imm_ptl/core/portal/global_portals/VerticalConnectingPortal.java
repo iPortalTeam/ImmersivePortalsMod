@@ -15,7 +15,7 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import java.util.function.Predicate;
 
 public class VerticalConnectingPortal extends GlobalTrackedPortal {
-    public static EntityType<VerticalConnectingPortal> entityType =
+    public static final EntityType<VerticalConnectingPortal> entityType =
         Portal.createPortalEntityType(VerticalConnectingPortal::new);
     
     public static enum ConnectorType {

@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +27,7 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -265,8 +265,8 @@ public class PortalWandInteraction {
         }
         
         player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
-    
-        giveCommandStick(player, new ResourceLocation("imm_ptl:eradicate_portal_cluster"));
+        
+        giveCommandStick(player, "/portal eradicate_portal_cluster");
     }
     
     private static class DraggingSession {
@@ -509,17 +509,15 @@ public class PortalWandInteraction {
         return player.hasPermissions(2) || (IPGlobal.easeCreativePermission && player.isCreative());
     }
     
-    private static void giveCommandStick(ServerPlayer player, ResourceLocation stickId) {
-        CommandStickItem.Data stickData = CommandStickItem.commandStickTypeRegistry.get(
-            stickId
-        );
+    private static void giveCommandStick(ServerPlayer player, String command) {
+        CommandStickItem.Data data = CommandStickItem.BUILT_IN_COMMAND_STICK_TYPES.get(command);
         
-        if (stickData == null) {
-            return;
+        if (data == null) {
+            data = new CommandStickItem.Data(command, command, List.of());
         }
         
         ItemStack stack = new ItemStack(CommandStickItem.instance);
-        stack.setTag(stickData.toTag());
+        stack.setTag(data.toTag());
         
         if (!player.getInventory().contains(stack)) {
             player.getInventory().add(stack);
@@ -848,7 +846,7 @@ public class PortalWandInteraction {
             
             if (copyingSession.hasFlipped || copyingSession.hasReverse || copyingSession.hasParallel) {
                 player.sendSystemMessage(Component.translatable("imm_ptl.wand.copy.not_copying_cluster"));
-                giveCommandStick(player, new ResourceLocation("imm_ptl:complete_bi_way_bi_faced_portal"));
+                giveCommandStick(player, "/portal complete_bi_way_bi_faced_portal");
             }
         }
     }
