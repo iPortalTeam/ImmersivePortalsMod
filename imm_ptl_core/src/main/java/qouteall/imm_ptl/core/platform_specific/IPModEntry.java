@@ -15,11 +15,11 @@ public class IPModEntry implements ModInitializer {
         IPModMain.init();
         RequiemCompat.init();
         
-        IPRegistry.registerEntityTypes((id, entityType) -> Registry.register(
-            BuiltInRegistries.ENTITY_TYPE, id, entityType
-        ));
+        IPModMain.registerEntityTypes(
+            (id, entityType) -> Registry.register(BuiltInRegistries.ENTITY_TYPE, id, entityType)
+        );
         
-        IPRegistry.registerBlocks((id, obj) -> Registry.register(BuiltInRegistries.BLOCK, id, obj));
+        IPModMain.registerBlocks((id, obj) -> Registry.register(BuiltInRegistries.BLOCK, id, obj));
         
         if (FabricLoader.getInstance().isModLoaded("dimthread")) {
             O_O.isDimensionalThreadingPresent = true;

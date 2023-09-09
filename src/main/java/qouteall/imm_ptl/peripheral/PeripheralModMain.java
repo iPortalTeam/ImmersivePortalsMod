@@ -3,10 +3,14 @@ package qouteall.imm_ptl.peripheral;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
@@ -21,11 +25,15 @@ import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 import qouteall.q_misc_util.LifecycleHack;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class PeripheralModMain {
     
-    public static Block portalHelperBlock;
-    public static BlockItem portalHelperBlockItem;
+    public static final Block portalHelperBlock =
+        new Block(FabricBlockSettings.of().noOcclusion().isRedstoneConductor((a, b, c) -> false));
+    
+    public static final BlockItem portalHelperBlockItem =
+        new PortalHelperItem(PeripheralModMain.portalHelperBlock, new Item.Properties());
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
@@ -70,6 +78,12 @@ public class PeripheralModMain {
         CommandStickItem.init();
         
         PortalWandInteraction.init();
+        
+        PeripheralModMain.registerCommandStickTypes();
+        
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+            entries.accept(PeripheralModMain.portalHelperBlockItem);
+        });
     }
     
     public static void registerCommandStickTypes() {
@@ -208,58 +222,28 @@ public class PeripheralModMain {
             Lists.newArrayList("imm_ptl.command_desc." + name)
         ));
     }
-
-//    public static class IndirectMerger {
-//        private static final DoubleList EMPTY = DoubleLists.unmodifiable(DoubleArrayList.wrap(new double[]{0.0}));
-//        private final double[] result;
-//        private final int[] firstIndices;
-//        private final int[] secondIndices;
-//        private final int resultLength;
-//
-//        public IndirectMerger(DoubleList l1, DoubleList l2, boolean override1, boolean override2) {
-//            double limit = Double.NaN;
-//            int size1 = l1.size();
-//            int size2 = l2.size();
-//            int sumSize = size1 + size2;
-//            this.result = new double[sumSize];
-//            this.firstIndices = new int[sumSize];
-//            this.secondIndices = new int[sumSize];
-//            boolean skipEndpointsOf2 = !override1;
-//            boolean skipEndpointsOf1 = !override2;
-//            int resultIndex = 0;
-//            int index1 = 0;
-//            int index2 = 0;
-//            while (true) {
-//                boolean reachLimit1 = index1 >= size1;
-//                boolean reachLimit2 = index2 >= size2;
-//                if (reachLimit1 && reachLimit2) break;
-//                boolean shouldMove1 = !reachLimit1 && (reachLimit2 || l1.getDouble(index1) < l2.getDouble(index2) + 1.0E-7);
-//                if (shouldMove1) {
-//                    ++index1;
-//                    if (skipEndpointsOf2 && (index2 == 0 || reachLimit2)) {
-//                        continue;
-//                    }
-//                } else {
-//                    ++index2;
-//                    if (skipEndpointsOf1 && (index1 == 0 || reachLimit1)) continue;
-//                }
-//                int lastIndex1 = index1 - 1;
-//                int lastIndex2 = index2 - 1;
-//                double number = shouldMove1 ? l1.getDouble(lastIndex1) : l2.getDouble(lastIndex2);
-//                if (!(limit >= number - 1.0E-7)) {
-//                    this.firstIndices[resultIndex] = lastIndex1;
-//                    this.secondIndices[resultIndex] = lastIndex2;
-//                    this.result[resultIndex] = number;
-//                    ++resultIndex;
-//                    limit = number;
-//                    continue;
-//                }
-//                this.firstIndices[resultIndex - 1] = lastIndex1;
-//                this.secondIndices[resultIndex - 1] = lastIndex2;
-//            }
-//            this.resultLength = Math.max(1, resultIndex);
-//        }
-//    }
-
-
+    
+    public static void registerItems(BiConsumer<ResourceLocation, Item> regFunc) {
+        regFunc.accept(
+            new ResourceLocation("immersive_portals", "portal_helper"),
+            portalHelperBlockItem
+        );
+        
+        regFunc.accept(
+            new ResourceLocation("immersive_portals:command_stick"),
+            CommandStickItem.instance
+        );
+        
+        regFunc.accept(
+            new ResourceLocation("immersive_portals:portal_wand"),
+            PortalWandItem.instance
+        );
+    }
+    
+    public static void registerBlocks(BiConsumer<ResourceLocation, Block> regFunc) {
+        regFunc.accept(
+            new ResourceLocation("immersive_portals", "portal_helper"),
+            portalHelperBlock
+        );
+    }
 }
