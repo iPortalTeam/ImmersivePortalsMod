@@ -8,6 +8,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
@@ -17,7 +18,6 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.q_misc_util.my_util.Plane;
 
-import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Stack;
@@ -182,7 +182,7 @@ public class PortalRendering {
             if (renderingPortal instanceof Mirror) {
                 return false;
             }
-    
+            
             if ((hitResult instanceof BlockHitResult blockHitResult) && hitResult.getType() == HitResult.Type.BLOCK) {
                 BlockPos blockPos = blockHitResult.getBlockPos();
                 Plane innerClipping = renderingPortal.getInnerClipping();
@@ -194,5 +194,43 @@ public class PortalRendering {
             }
         }
         return true;
+    }
+    
+    public static @Nullable Plane getActiveClippingPlane() {
+        
+        PortalLike renderingPortal = getRenderingPortal();
+        
+        Plane plane = renderingPortal.getInnerClipping();
+        
+        if (plane == null) {
+            if (portalLayers.size() >= 2) {
+                // It's a workaround for scale box rendering
+                // The portal rendering group has no inner clipping
+                // Then we need to inherit clipping plane from outer layers
+                int i = portalLayers.size() - 2;
+                while (i >= 0) {
+                    PortalLike portal = portalLayers.get(i);
+                    Plane outerPlane = portal.getInnerClipping();
+                    
+                    if (outerPlane != null) {
+                        // transform that plane to the current rendering coordinate
+                        // the inner clipping plane should be in the outermost portal's destination coordinate
+                        for (int j = i + 1; j < portalLayers.size(); j++) {
+                            PortalLike portal1 = portalLayers.get(j);
+                            outerPlane = new Plane(
+                                portal1.transformPoint(outerPlane.pos()),
+                                portal1.transformLocalVecNonScale(outerPlane.normal())
+                            );
+                        }
+                        
+                        return outerPlane;
+                    }
+                    
+                    i--;
+                }
+            }
+        }
+        
+        return plane;
     }
 }

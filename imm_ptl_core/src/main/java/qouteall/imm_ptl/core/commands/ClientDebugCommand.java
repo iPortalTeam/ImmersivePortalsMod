@@ -53,6 +53,7 @@ import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
@@ -63,7 +64,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
@@ -197,16 +198,15 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("report_rendering")
             .executes(context -> {
-                String str = RenderStates.lastPortalRenderInfos
-                    .stream()
-                    .map(
-                        list -> list.stream()
-                            .map(Reference::get)
-                            .collect(Collectors.toList())
-                    )
-                    .collect(Collectors.toList())
-                    .toString();
-                CHelper.printChat(str);
+                StringBuilder sb = new StringBuilder();
+                for (List<WeakReference<PortalLike>> rendering : RenderStates.lastPortalRenderInfos) {
+                    sb.append("----------\n");
+                    for (WeakReference<PortalLike> portalLikeWeakReference : rendering) {
+                        sb.append(portalLikeWeakReference.get().toString());
+                        sb.append("\n");
+                    }
+                }
+                CHelper.printChat(sb.toString());
                 return 0;
             })
         );

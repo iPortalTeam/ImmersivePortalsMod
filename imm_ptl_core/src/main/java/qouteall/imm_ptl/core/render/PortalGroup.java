@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -18,7 +19,6 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.Plane;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -112,6 +112,11 @@ public class PortalGroup implements PortalLike {
     @Override
     public Vec3 transformLocalVec(Vec3 localVec) {
         return getFirstPortal().transformLocalVec(localVec);
+    }
+    
+    @Override
+    public Vec3 transformLocalVecNonScale(Vec3 localVec) {
+        return getFirstPortal().transformLocalVecNonScale(localVec);
     }
     
     @Override
@@ -253,7 +258,7 @@ public class PortalGroup implements PortalLike {
             }
         }
         
-        return portals.stream().filter(p -> p.cannotRenderInMe(portal)).count() >= 2;
+        return portals.stream().anyMatch(p -> p.cannotRenderInMe(portal));
     }
     
     @Environment(EnvType.CLIENT)
@@ -298,7 +303,10 @@ public class PortalGroup implements PortalLike {
     
     @Override
     public String toString() {
-        return String.format("PortalRenderingGroup(%s)%s", portals.size(), getFirstPortal().portalTag);
+        return String.format(
+            "PortalRenderingGroup(%s)(first:%s)",
+            portals.size(), getFirstPortal()
+        );
     }
     
     public boolean isEnclosed() {

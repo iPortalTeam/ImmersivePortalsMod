@@ -225,7 +225,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(),
+                PortalRendering.getActiveClippingPlane(),
                 matrices.last().pose(),
                 -FrontClipping.ADJUSTMENT
                 // move the clipping plane a little back, to make world wrapping portal not z-fight
@@ -427,7 +427,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(), matrices.last().pose(), 0
+                PortalRendering.getActiveClippingPlane(),
+                matrices.last().pose(), 0
             );
             RenderStates.isRenderingPortalWeather = true;
         }

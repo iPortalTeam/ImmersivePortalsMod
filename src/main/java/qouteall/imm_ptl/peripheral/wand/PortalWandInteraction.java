@@ -678,7 +678,7 @@ public class PortalWandInteraction {
     
     /**
      * The sub-portal defined by the locked pos and the cursor pos
-     * has the same orientation of the outer portal.
+     * has the same orientation as the outer portal.
      * Get the sub-portal's orientation by normal, diagonal, width and height.
      */
     private static DQuaternion getOrientationByNormalDiagonalWidthHeight(

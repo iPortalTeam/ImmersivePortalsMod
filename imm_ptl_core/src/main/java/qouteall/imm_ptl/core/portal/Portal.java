@@ -1391,14 +1391,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
     }
     
-    public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
-        if (currPortal == outerPortal) {
+    public static boolean isParallelPortal(Portal a, Portal b) {
+        if (a == b) {
             return false;
         }
-        return currPortal.level().dimension() == outerPortal.dimensionTo &&
-            currPortal.dimensionTo == outerPortal.level().dimension() &&
-            !(currPortal.getNormal().dot(outerPortal.getContentDirection()) > -0.9) &&
-            !outerPortal.isOnDestinationSide(currPortal.getOriginPos(), 0.1);
+        return a.dimensionTo == b.level().dimension() &&
+            a.level().dimension() == b.dimensionTo &&
+            a.getOriginPos().distanceTo(b.getDestPos()) < 0.1 &&
+            a.getDestPos().distanceTo(b.getOriginPos()) < 0.1 &&
+            a.getNormal().dot(b.getContentDirection()) < -0.9;
     }
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
@@ -1547,7 +1548,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public boolean cannotRenderInMe(Portal portal) {
-        return isParallelOrientedPortal(portal, this);
+        return isParallelPortal(portal, this);
     }
     
     public void myUnsetRemoved() {

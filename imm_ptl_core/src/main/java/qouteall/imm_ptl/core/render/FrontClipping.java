@@ -47,7 +47,10 @@ public class FrontClipping {
     
     public static void updateInnerClipping(PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
-            setupInnerClipping(PortalRendering.getRenderingPortal(), matrixStack.last().pose(), 0);
+            setupInnerClipping(
+                PortalRendering.getActiveClippingPlane(),
+                matrixStack.last().pose(), 0
+            );
         }
         else {
             disableClipping();
@@ -56,14 +59,13 @@ public class FrontClipping {
     
     // NOTE the actual clipping plane is related to current model view matrix
     public static void setupInnerClipping(
-        PortalLike portalLike, Matrix4f modelView, double adjustment
+        Plane clipping, Matrix4f modelView, double adjustment
     ) {
         if (!IPCGlobal.useFrontClipping) {
             return;
         }
         
         // Note: the normal of plane points to the non-clipped side
-        final Plane clipping = portalLike.getInnerClipping();
         
         if (clipping != null) {
             activeClipPlaneEquationBeforeModelView =

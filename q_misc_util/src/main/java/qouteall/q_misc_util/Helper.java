@@ -1203,4 +1203,22 @@ public class Helper {
         
         return validElementCount;
     }
+    
+    public static <T> Stream<T> listReverseStream(List<T> list) {
+        return Streams.stream(new Iterator<T>() {
+            int index = list.size() - 1;
+            
+            @Override
+            public boolean hasNext() {
+                return index >= 0;
+            }
+            
+            @Override
+            public T next() {
+                int i = index;
+                index -= 1;
+                return list.get(i);
+            }
+        });
+    }
 }

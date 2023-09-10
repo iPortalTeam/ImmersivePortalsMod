@@ -36,6 +36,8 @@ public interface PortalLike {
     
     Vec3 transformLocalVec(Vec3 localVec);
     
+    Vec3 transformLocalVecNonScale(Vec3 localVec);
+    
     Vec3 inverseTransformLocalVec(Vec3 localVec);
     
     Vec3 inverseTransformPoint(Vec3 point);
