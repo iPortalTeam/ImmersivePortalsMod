@@ -16,6 +16,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
@@ -27,7 +30,6 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DimId;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +149,7 @@ public class DimStackManagement {
     
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public static void clientOpenScreen(List<String> dimensions) {
             List<ResourceKey<Level>> dimensionList =
                 dimensions.stream().map(DimId::idToKey).collect(Collectors.toList());

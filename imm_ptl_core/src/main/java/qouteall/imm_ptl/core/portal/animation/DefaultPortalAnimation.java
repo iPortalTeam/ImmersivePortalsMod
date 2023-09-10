@@ -3,6 +3,8 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
@@ -47,6 +49,7 @@ public class DefaultPortalAnimation {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void startClientDefaultAnimation(Portal portal, PortalState animationStartState) {
         PortalState newState = portal.getPortalState();
         

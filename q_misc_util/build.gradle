@@ -5,6 +5,22 @@ loom {
     accessWidenerPath = file("src/main/resources/imm_ptl.accesswidener")
 }
 
+//sourceSets {
+//    shadow_dependency {
+//        java {
+//            srcDir "src/shadow_dependency/java"
+//        }
+//    }
+//
+//    main {
+//        compileClasspath += project(':q_misc_util').sourceSets.shadow_dependency.output
+//    }
+//}
+
 dependencies {
 
 }
+
+//jar {
+//    exclude 'net/minecraftforge/**'
+//}

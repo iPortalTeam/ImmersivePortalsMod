@@ -7,6 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
@@ -25,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class PortalRendering {
     private static final Stack<PortalLike> portalLayers = new Stack<>();
     private static boolean isRenderingCache = false;

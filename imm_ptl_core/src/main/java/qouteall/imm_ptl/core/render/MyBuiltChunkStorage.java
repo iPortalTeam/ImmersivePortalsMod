@@ -15,6 +15,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -34,6 +36,7 @@ import java.util.Set;
 import java.util.function.LongConsumer;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class MyBuiltChunkStorage extends ViewArea {
     
     public static class Column {

@@ -13,6 +13,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
@@ -20,7 +23,6 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.stream.Stream;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class CHelper {
     
     private static int reportedErrorNum = 0;

@@ -18,6 +18,8 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +91,7 @@ public class MiscHelper {
      * The execution may get deferred on the render thread
      */
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void executeOnRenderThread(Runnable runnable) {
         Minecraft client = Minecraft.getInstance();
         

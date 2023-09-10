@@ -165,6 +165,13 @@ subprojects {
 
 subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 
+//sourceSets {
+//    // add dependency to the shadow_dependency source set
+//    main {
+//        compileClasspath += project(':q_misc_util').sourceSets.shadow_dependency.output
+//    }
+//}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {

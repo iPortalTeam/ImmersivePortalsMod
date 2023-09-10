@@ -21,6 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -149,6 +151,7 @@ public class EndPortalEntity extends Portal {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void tickClient() {
         if (Objects.equals(portalTag, "view_box")) {
             LocalPlayer player = Minecraft.getInstance().player;

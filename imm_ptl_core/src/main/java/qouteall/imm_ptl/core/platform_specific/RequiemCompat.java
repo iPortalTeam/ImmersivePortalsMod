@@ -9,6 +9,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -60,6 +62,7 @@ public class RequiemCompat {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void onPlayerTeleportedClient() {
         if (!isRequiemPresent) {
             return;

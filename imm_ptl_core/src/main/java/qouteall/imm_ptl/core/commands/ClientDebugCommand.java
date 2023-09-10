@@ -42,6 +42,8 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -76,6 +78,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ClientDebugCommand {
     
     public static void register(

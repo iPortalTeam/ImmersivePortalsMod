@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.q_misc_util.ImplRemoteProcedureCall;
 
 /**
@@ -145,6 +147,7 @@ public class McRemoteProcedureCall {
      *                  The remote method's first argument must be the player that's sending the packet.
      */
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void tellServerToInvoke(
         String methodPath,
         Object... arguments

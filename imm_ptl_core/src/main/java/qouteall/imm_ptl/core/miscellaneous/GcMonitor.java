@@ -5,6 +5,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -34,6 +36,7 @@ public class GcMonitor {
     private static long lastLongPauseTime = 0;
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void initClient() {
         IPGlobal.preGameRenderSignal.connect(GcMonitor::update);
     }
@@ -123,6 +126,7 @@ public class GcMonitor {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void informMemoryNotEnoughClient() {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {

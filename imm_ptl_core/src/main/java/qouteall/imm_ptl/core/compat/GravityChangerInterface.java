@@ -10,12 +10,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
-
-import org.jetbrains.annotations.Nullable;
 
 public class GravityChangerInterface {
     public static Invoker invoker = new Invoker();
@@ -78,6 +79,7 @@ public class GravityChangerInterface {
     private static boolean warned = false;
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void warnGravityChangerNotPresent() {
         if (!warned) {
             warned = true;
@@ -132,6 +134,7 @@ public class GravityChangerInterface {
         }
         
         @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         private void setClientPlayerGravityDirectionClientOnly(
             Player player, Direction direction
         ) {

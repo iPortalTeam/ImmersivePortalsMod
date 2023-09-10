@@ -8,15 +8,18 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class DimStackScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger(DimStackScreen.class);
     

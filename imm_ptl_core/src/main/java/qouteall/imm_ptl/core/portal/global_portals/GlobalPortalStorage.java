@@ -18,8 +18,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -32,7 +35,6 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
-import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,11 +99,13 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void initClient() {
         IPGlobal.clientCleanupSignal.connect(GlobalPortalStorage::onClientCleanup);
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void onClientCleanup() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
@@ -300,6 +304,7 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void receiveGlobalPortalSync(ResourceKey<Level> dimension, CompoundTag compoundTag) {
         ClientLevel world = ClientWorldLoader.getWorld(dimension);
         

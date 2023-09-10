@@ -16,6 +16,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +41,7 @@ import java.util.function.Function;
  * (Two maps, one for main thread and one for other threads)
  */
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 @IPVanillaCopy
 public class ImmPtlClientChunkMap extends ClientChunkCache {
     private static final Logger LOGGER = LogManager.getLogger();

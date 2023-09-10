@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -31,6 +33,7 @@ public class WandUtil {
     
     @Nullable
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static Portal getClientPortalByUUID(UUID portalId) {
         LocalPlayer player = Minecraft.getInstance().player;
         
@@ -93,6 +96,7 @@ public class WandUtil {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void renderPortalAreaGridNew(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         ProtoPortalSide protoPortalSide,
@@ -195,6 +199,7 @@ public class WandUtil {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void renderPortalAreaGrid(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         ProtoPortalSide protoPortalSide,

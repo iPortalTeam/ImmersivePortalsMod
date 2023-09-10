@@ -23,6 +23,8 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.network.IPNetworking;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -69,6 +71,7 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void tickClient() {
         addParticles();
         
@@ -85,6 +88,7 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void addParticles() {
         int num = tickCount < 100 ? 50 : 20;
         
@@ -150,6 +154,7 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void showMessageClient() {
         Gui inGameHud = Minecraft.getInstance().gui;
         inGameHud.setOverlayMessage(

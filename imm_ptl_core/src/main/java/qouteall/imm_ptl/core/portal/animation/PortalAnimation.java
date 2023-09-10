@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,14 +59,18 @@ public class PortalAnimation {
     
     // for client player teleportation
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @Nullable
     public PortalState clientLastFramePortalState;
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public long clientLastFramePortalStateCounter = -1;
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @Nullable
     public PortalState clientCurrentFramePortalState;
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public long clientCurrentFramePortalStateCounter = -1;
     
     public void readFromTag(CompoundTag tag) {
@@ -307,6 +313,7 @@ public class PortalAnimation {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void markRequiresClientAnimationUpdate(Portal portal) {
         ClientPortalAnimationManagement.markRequiresCustomAnimationUpdate(portal);
     }
@@ -531,6 +538,7 @@ public class PortalAnimation {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void updateClientState(Portal portal, long currentTeleportationCounter) {
         if (currentTeleportationCounter == clientCurrentFramePortalStateCounter) {
             return;

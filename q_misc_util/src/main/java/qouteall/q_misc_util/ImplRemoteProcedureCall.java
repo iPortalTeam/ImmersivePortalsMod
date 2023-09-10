@@ -31,6 +31,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -175,6 +177,7 @@ public class ImplRemoteProcedureCall {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static ServerboundCustomPayloadPacket createC2SPacket(
         String methodPath,
         Object... arguments
@@ -198,6 +201,7 @@ public class ImplRemoteProcedureCall {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
         String methodPath = readStringNonClientOnly(buf);
         

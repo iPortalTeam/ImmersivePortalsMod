@@ -17,6 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -437,11 +439,13 @@ public class CollisionHelper {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void initClient() {
         IPGlobal.postClientTickSignal.connect(CollisionHelper::tickClient);
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void tickClient() {
         updateClientCollidingStatus();
         
@@ -449,6 +453,7 @@ public class CollisionHelper {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void updateClientCollidingStatus() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
@@ -515,12 +520,14 @@ public class CollisionHelper {
     private static boolean lastTickStagnate = false;
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void informClientStagnant() {
         thisTickStagnate = true;
         limitedLogger.log("client movement stagnated");
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void updateClientStagnateStatus() {
         if (thisTickStagnate && lastTickStagnate) {
             Minecraft.getInstance().gui.setOverlayMessage(
@@ -552,6 +559,7 @@ public class CollisionHelper {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static PortalLike getCollisionHandlingUnitClient(Portal portal) {
         return PortalGroup.getPortalUnit(portal);
     }

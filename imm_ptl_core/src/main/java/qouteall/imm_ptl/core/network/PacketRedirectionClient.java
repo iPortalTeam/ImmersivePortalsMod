@@ -12,11 +12,14 @@ import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.mixin.client.sync.MixinMinecraft_RedirectedPacket;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class PacketRedirectionClient {
     
     public static final Minecraft client = Minecraft.getInstance();

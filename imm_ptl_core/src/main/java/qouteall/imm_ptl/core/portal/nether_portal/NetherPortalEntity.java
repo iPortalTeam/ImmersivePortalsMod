@@ -12,6 +12,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -84,6 +86,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     
     @Override
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     protected void addSoundAndParticle() {
         if (!IPGlobal.enableNetherPortalEffect) {
             return;

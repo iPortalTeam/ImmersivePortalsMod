@@ -28,6 +28,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
@@ -44,6 +46,7 @@ public class O_O {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void onPlayerChangeDimensionClient(
         ResourceKey<Level> from, ResourceKey<Level> to
     ) {
@@ -89,6 +92,7 @@ public class O_O {
     }
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static ClientChunkCache createMyClientChunkManager(ClientLevel world, int loadDistance) {
         return new ImmPtlClientChunkMap(world, loadDistance);
     }

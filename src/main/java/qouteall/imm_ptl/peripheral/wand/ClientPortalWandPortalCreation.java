@@ -17,6 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.mc_utils.WireRenderingHelper;
@@ -37,6 +39,7 @@ import qouteall.q_misc_util.my_util.animation.RenderedPlane;
  * When it finishes, it performs a remote procedure call to create the portal.
  */
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ClientPortalWandPortalCreation {
     
     private static final Logger LOGGER = LogUtils.getLogger();

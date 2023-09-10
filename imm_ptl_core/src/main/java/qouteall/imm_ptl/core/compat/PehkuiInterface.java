@@ -5,6 +5,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 
@@ -61,6 +63,7 @@ public class PehkuiInterface {
     private static boolean messageShown = false;
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void showMissingPehkui(Portal portal) {
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {

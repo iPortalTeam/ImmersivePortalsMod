@@ -1,6 +1,15 @@
 archivesBaseName = "imm_ptl_core"
 group = "qouteall"
 
+//sourceSets {
+//    // add dependency to the shadow_dependency source set
+//    main {
+//        compileClasspath += project(':q_misc_util').sourceSets.shadow_dependency.output
+//    }
+//}
+
 dependencies {
     implementation project(path: ":q_misc_util", configuration: "namedElements")
 }
+
+

@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import qouteall.q_misc_util.Helper;
@@ -23,6 +25,7 @@ import java.util.function.Consumer;
  */
 public interface PortalLike {
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     BoxPredicate getInnerFrustumCullingFunc(
         double cameraX, double cameraY, double cameraZ
     );
@@ -77,6 +80,7 @@ public interface PortalLike {
     Vec3[] getOuterFrustumCullingVertices();
     
     @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput);
     
     // Scaling does not interfere camera transformation

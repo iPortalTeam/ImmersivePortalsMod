@@ -9,6 +9,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 
@@ -18,6 +20,7 @@ import java.util.TreeMap;
  * Make this because {@link Gui#setOverlayMessage(Component, boolean)} does not support multi-line
  */
 @Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ImmPtlCustomOverlay {
     
     public static record Entry(
