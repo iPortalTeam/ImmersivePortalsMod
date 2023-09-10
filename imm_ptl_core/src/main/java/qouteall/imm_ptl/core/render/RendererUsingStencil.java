@@ -154,13 +154,14 @@ public class RendererUsingStencil extends PortalRenderer {
         
         renderPortalContent(portal);
         
+        PortalRendering.popPortalLayer();
+        // pop portal layer before restoring depth, for clipping, see ViewAreaRenderer
+        
         if (!portal.isFuseView()) {
-            restoreDepthOfPortalViewArea(portal, matrixStack);
+            restoreDepthOfPortalViewArea(portal, matrixStack, thisPortalStencilValue);
         }
         
         clampStencilValue(outerPortalStencilValue);
-        
-        PortalRendering.popPortalLayer();
     }
     
     @Override
@@ -225,22 +226,22 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     protected void restoreDepthOfPortalViewArea(
-        PortalLike portal, PoseStack matrixStack
+        PortalLike portal, PoseStack matrixStack,
+        int portalStencilValue
     ) {
-        setStencilStateForWorldRendering();
+        setStencilLimitation(portalStencilValue);
         
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
         
         GL11.glDepthFunc(GL_ALWAYS);
-        
-        FrontClipping.disableClipping();
         
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3.ZERO,
             matrixStack.last().pose(),
             RenderSystem.getProjectionMatrix(),
             false, false,
-            true, false
+            true,
+            true // important: should clip, otherwise depth will be abnormal when viewing scale box from inside in portal
         );
         
         GL11.glDepthFunc(originalDepthFunc);
@@ -280,8 +281,12 @@ public class RendererUsingStencil extends PortalRenderer {
     private void setStencilStateForWorldRendering() {
         int thisPortalStencilValue = PortalRendering.getPortalLayer();
         
+        setStencilLimitation(thisPortalStencilValue);
+    }
+    
+    public static void setStencilLimitation(int stencilValue) {
         //draw content in the mask
-        GL11.glStencilFunc(GL_EQUAL, thisPortalStencilValue, 0xFF);
+        GL11.glStencilFunc(GL_EQUAL, stencilValue, 0xFF);
         
         //do not manipulate stencil buffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);

@@ -109,8 +109,6 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         
         GL11.glDepthFunc(GL_ALWAYS);
         
-        FrontClipping.disableClipping();
-        
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3.ZERO,
             matrixStack.last().pose(),
@@ -118,7 +116,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
             false,
             false,
             true,
-            false
+            true // important: should clip, otherwise depth will be abnormal when viewing scale box from inside in portal
         );
         
         GL11.glDepthFunc(originalDepthFunc);
@@ -248,6 +246,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         renderPortalContent(portal);
         
         if (!portal.isFuseView()) {
+            // TODO sync from RendererUsingStencil
             restoreDepthOfPortalViewArea(portal, matrixStack);
         }
         
