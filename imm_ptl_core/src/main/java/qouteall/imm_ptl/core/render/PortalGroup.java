@@ -222,6 +222,7 @@ public class PortalGroup implements PortalLike {
     
     @Environment(EnvType.CLIENT)
     @Override
+    @Deprecated
     public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
         for (Portal portal : portals) {
             Vec3 relativeToGroup = portal.getOriginPos().subtract(getOriginPos());

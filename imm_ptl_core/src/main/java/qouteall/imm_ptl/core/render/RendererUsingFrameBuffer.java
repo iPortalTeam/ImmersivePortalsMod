@@ -11,7 +11,6 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 import java.util.List;
@@ -52,7 +51,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     protected void doRenderPortal(
-        PortalLike portal,
+        PortalRenderable portal,
         PoseStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
@@ -64,7 +63,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             return;
         }
         
-        PortalRendering.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal.getPortalLike());
         
         RenderTarget oldFrameBuffer = client.getMainRenderTarget();
         
@@ -104,7 +103,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private boolean testShouldRenderPortal(
-        PortalLike portal,
+        PortalRenderable portal,
         PoseStack matrixStack
     ) {
         FrontClipping.updateInnerClipping(matrixStack);
@@ -119,7 +118,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         });
     }
     
-    private void renderSecondBufferIntoMainBuffer(PortalLike portal, PoseStack matrixStack) {
+    private void renderSecondBufferIntoMainBuffer(PortalRenderable portal, PoseStack matrixStack) {
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             secondaryFrameBuffer.fb,
@@ -129,9 +128,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        List<PortalRenderable> portalsToRender = getPortalsToRender(matrixStack);
     
-        for (PortalLike portal : portalsToRender) {
+        for (PortalRenderable portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }

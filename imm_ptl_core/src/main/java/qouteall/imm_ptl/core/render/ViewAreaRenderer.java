@@ -24,11 +24,13 @@ import java.util.function.Consumer;
 public class ViewAreaRenderer {
     
     public static void renderPortalArea(
-        PortalLike portal, Vec3 fogColor,
+        PortalRenderable portalRenderable, Vec3 fogColor,
         Matrix4f modelViewMatrix, Matrix4f projectionMatrix,
         boolean doFaceCulling, boolean doModifyColor,
         boolean doModifyDepth, boolean doClip
     ) {
+        PortalLike portalLike = portalRenderable.getPortalLike();
+        
         if (doFaceCulling) {
             GlStateManager._enableCull();
         }
@@ -36,7 +38,7 @@ public class ViewAreaRenderer {
             GlStateManager._disableCull();
         }
         
-        if (portal.isFuseView() && IPGlobal.maxPortalLayer != 0) {
+        if (portalLike.isFuseView() && IPGlobal.maxPortalLayer != 0) {
             GlStateManager._colorMask(false, false, false, false);
         }
         else {
@@ -49,7 +51,7 @@ public class ViewAreaRenderer {
         }
         
         if (doModifyDepth) {
-            if (portal.isFuseView()) {
+            if (portalLike.isFuseView()) {
                 GlStateManager._depthMask(false);
             }
             else {
@@ -93,7 +95,7 @@ public class ViewAreaRenderer {
         
         ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
             fogColor,
-            portal,
+            portalRenderable,
             CHelper.getCurrentCameraPos(),
             RenderStates.getPartialTick()
         );
@@ -118,7 +120,7 @@ public class ViewAreaRenderer {
     }
     
     public static void buildPortalViewAreaTrianglesBuffer(
-        Vec3 fogColor, PortalLike portal,
+        Vec3 fogColor, PortalRenderable portalRenderable,
         Vec3 cameraPos, float tickDelta
     ) {
         Tesselator tessellator = RenderSystem.renderThreadTesselator();
@@ -126,13 +128,25 @@ public class ViewAreaRenderer {
         
         bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         
-        Vec3 posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
+        Vec3 originRelativeToCamera = portalRenderable.getPortalLike().getOriginPos().subtract(cameraPos);
         
         Consumer<Vec3> vertexOutput = p -> putIntoVertex(
             bufferBuilder, p, fogColor
         );
         
-        portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
+        if (portalRenderable instanceof Portal portal) {
+            portal.renderViewAreaMesh(originRelativeToCamera, vertexOutput);
+        }
+        else if (portalRenderable instanceof PortalRenderer.PortalGroupToRender portalGroupToRender) {
+            PortalLike portalLike = portalGroupToRender.getPortalLike();
+            for (Portal portal : portalGroupToRender.portals()) {
+                Vec3 relativeToGroup = portal.getOriginPos().subtract(portalLike.getOriginPos());
+                portal.renderViewAreaMesh(
+                    originRelativeToCamera.add(relativeToGroup),
+                    vertexOutput
+                );
+            }
+        }
         
         BufferUploader.draw(bufferBuilder.end());
     }

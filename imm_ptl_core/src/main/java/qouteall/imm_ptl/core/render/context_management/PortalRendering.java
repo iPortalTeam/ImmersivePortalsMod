@@ -30,6 +30,7 @@ public class PortalRendering {
     private static boolean isRenderingCache = false;
     private static boolean isRenderingOddNumberOfMirrorsCache = false;
     
+    // TODO replace to PortalRenderable in 1.20.1
     public static void pushPortalLayer(PortalLike portal) {
         portalLayers.push(portal);
         updateCache();

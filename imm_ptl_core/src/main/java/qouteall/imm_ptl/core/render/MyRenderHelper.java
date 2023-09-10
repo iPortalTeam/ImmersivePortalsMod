@@ -142,7 +142,7 @@ public class MyRenderHelper {
     public static ShaderInstance blitScreenNoBlendShader;
     
     public static void drawPortalAreaWithFramebuffer(
-        PortalLike portal,
+        PortalRenderable portal,
         RenderTarget textureProvider,
         Matrix4f modelViewMatrix,
         Matrix4f projectionMatrix

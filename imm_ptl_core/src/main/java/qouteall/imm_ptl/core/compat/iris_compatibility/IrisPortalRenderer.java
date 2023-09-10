@@ -14,10 +14,10 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.SecondaryFrameBuffer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
@@ -230,7 +230,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         CHelper.checkGlError();
     }
     
-    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
+    protected void doRenderPortal(PortalRenderable portal, PoseStack matrixStack) {
         nextFramePortalRenderingNeeded = true;
         
         if (!portalRenderingNeeded) {
@@ -245,7 +245,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             return;
         }
         
-        PortalRendering.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal.getPortalLike());
         
         // this is important
         client.getMainRenderTarget().bindWrite(true);
@@ -280,7 +280,7 @@ public class IrisPortalRenderer extends PortalRenderer {
     }
     
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
-        PortalLike portal, PoseStack matrixStack
+        PortalRenderable portal, PoseStack matrixStack
     ) {
         
         int portalLayer = PortalRendering.getPortalLayer();
@@ -295,7 +295,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         GlStateManager._enableDepthTest();
         
-        boolean result = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
+        boolean result = PortalRenderInfo.renderAndDecideVisibility(portal.getPortalLike(), () -> {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3.ZERO,
                 matrixStack.last().pose(),
@@ -325,9 +325,9 @@ public class IrisPortalRenderer extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        List<PortalRenderable> portalsToRender = getPortalsToRender(matrixStack);
     
-        for (PortalLike portal : portalsToRender) {
+        for (PortalRenderable portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }

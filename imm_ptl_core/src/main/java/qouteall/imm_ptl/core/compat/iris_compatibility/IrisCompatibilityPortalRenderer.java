@@ -9,10 +9,10 @@ import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.SecondaryFrameBuffer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
@@ -84,7 +84,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         client.getMainRenderTarget().bindWrite(false);
     }
     
-    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
+    protected void doRenderPortal(PortalRenderable portal, PoseStack matrixStack) {
         if (PortalRendering.isRendering()) {
             // this renderer only supports one-layer portal
             return;
@@ -96,7 +96,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         client.getMainRenderTarget().bindWrite(true);
         
-        PortalRendering.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal.getPortalLike());
         
         renderPortalContent(portal);
         
@@ -144,14 +144,14 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
     }
     
-    private boolean testShouldRenderPortal(PortalLike portal, PoseStack matrixStack) {
+    private boolean testShouldRenderPortal(PortalRenderable portal, PoseStack matrixStack) {
         
         //reset projection matrix
 //        client.gameRenderer.loadProjectionMatrix(RenderStates.basicProjectionMatrix);
         
         deferredBuffer.fb.bindWrite(true);
         
-        return PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
+        return PortalRenderInfo.renderAndDecideVisibility(portal.getPortalLike(), () -> {
             
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3.ZERO,
@@ -209,9 +209,9 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        List<PortalRenderable> portalsToRender = getPortalsToRender(matrixStack);
         
-        for (PortalLike portal : portalsToRender) {
+        for (PortalRenderable portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }

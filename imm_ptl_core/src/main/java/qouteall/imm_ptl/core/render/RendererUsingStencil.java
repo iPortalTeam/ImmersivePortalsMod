@@ -67,9 +67,9 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        List<PortalRenderable> portalsToRender = getPortalsToRender(matrixStack);
         
-        for (PortalLike portal : portalsToRender) {
+        for (PortalRenderable portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }
@@ -118,9 +118,11 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     protected void doRenderPortal(
-        PortalLike portal,
+        PortalRenderable portal,
         PoseStack matrixStack
     ) {
+        PortalLike portalLike = portal.getPortalLike();
+        
         if (shouldSkipRenderingInsideFuseViewPortal(portal)) {
             return;
         }
@@ -129,7 +131,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         client.getProfiler().push("render_view_area");
         
-        boolean anySamplePassed = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
+        boolean anySamplePassed = PortalRenderInfo.renderAndDecideVisibility(portalLike, () -> {
             renderPortalViewAreaToStencil(portal, matrixStack);
         });
         
@@ -140,11 +142,11 @@ public class RendererUsingStencil extends PortalRenderer {
             return;
         }
         
-        PortalRendering.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portalLike);
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
-        if (!portal.isFuseView()) {
+        if (!portalLike.isFuseView()) {
             client.getProfiler().push("clear_depth_of_view_area");
             clearDepthOfThePortalViewArea(portal);
             client.getProfiler().pop();
@@ -157,7 +159,7 @@ public class RendererUsingStencil extends PortalRenderer {
         PortalRendering.popPortalLayer();
         // pop portal layer before restoring depth, for clipping, see ViewAreaRenderer
         
-        if (!portal.isFuseView()) {
+        if (!portalLike.isFuseView()) {
             restoreDepthOfPortalViewArea(portal, matrixStack, thisPortalStencilValue);
         }
         
@@ -170,7 +172,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void renderPortalViewAreaToStencil(
-        PortalLike portal, PoseStack matrixStack
+        PortalRenderable portal, PoseStack matrixStack
     ) {
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
@@ -198,7 +200,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void clearDepthOfThePortalViewArea(
-        PortalLike portal
+        PortalRenderable portal
     ) {
         GlStateManager._enableDepthTest();
         GlStateManager._depthMask(true);
@@ -226,7 +228,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     protected void restoreDepthOfPortalViewArea(
-        PortalLike portal, PoseStack matrixStack,
+        PortalRenderable portal, PoseStack matrixStack,
         int portalStencilValue
     ) {
         setStencilLimitation(portalStencilValue);
@@ -292,7 +294,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
     
-    public static boolean shouldSkipRenderingInsideFuseViewPortal(PortalLike portal) {
+    public static boolean shouldSkipRenderingInsideFuseViewPortal(PortalRenderable portal) {
         if (!PortalRendering.isRendering()) {
             return false;
         }
@@ -305,7 +307,8 @@ public class RendererUsingStencil extends PortalRenderer {
         
         Vec3 cameraPos = CHelper.getCurrentCameraPos();
         
-        Vec3 transformedCameraPos = portal.transformPoint(renderingPortal.transformPoint(cameraPos));
+        Vec3 transformedCameraPos = portal.getPortalLike()
+            .transformPoint(renderingPortal.transformPoint(cameraPos));
         
         // roughly test whether they are reverse portals
         return cameraPos.distanceToSqr(transformedCameraPos) < 0.1;

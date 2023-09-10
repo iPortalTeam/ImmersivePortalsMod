@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
@@ -49,7 +48,7 @@ public class RendererDebug extends PortalRenderer {
         return false;
     }
     
-    protected void doRenderPortal(PortalLike portal, PoseStack matrixStack) {
+    protected void doRenderPortal(PortalRenderable portal, PoseStack matrixStack) {
         if (RenderStates.getRenderedPortalNum() != 0) {
             return;
         }
@@ -58,7 +57,7 @@ public class RendererDebug extends PortalRenderer {
             return;
         }
     
-        PortalRendering.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal.getPortalLike());
         
         GlStateManager._clearColor(1, 0, 1, 1);
         GlStateManager._clearDepth(1);
@@ -74,7 +73,7 @@ public class RendererDebug extends PortalRenderer {
     }
     
     private boolean testShouldRenderPortal(
-        PortalLike portal,
+        PortalRenderable portal,
         PoseStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
@@ -88,9 +87,9 @@ public class RendererDebug extends PortalRenderer {
     }
     
     protected void renderPortals(PoseStack matrixStack) {
-        List<PortalLike> portalsToRender = getPortalsToRender(matrixStack);
+        List<PortalRenderable> portalsToRender = getPortalsToRender(matrixStack);
     
-        for (PortalLike portal : portalsToRender) {
+        for (PortalRenderable portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }

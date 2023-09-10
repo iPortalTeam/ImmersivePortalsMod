@@ -1,14 +1,18 @@
 package qouteall.imm_ptl.core.render;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import qouteall.imm_ptl.core.CHelper;
@@ -29,13 +33,21 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class PortalRenderer {
+    
+    public static record PortalGroupToRender(
+        PortalGroup group,
+        List<Portal> portals
+    ) implements PortalRenderable {
+        @Override
+        public PortalLike getPortalLike() {
+            return group;
+        }
+    }
     
     public static final Minecraft client = Minecraft.getInstance();
     
@@ -62,7 +74,7 @@ public abstract class PortalRenderer {
     // this will also be called in outer world rendering
     public abstract boolean replaceFrameBufferClearing();
     
-    protected List<PortalLike> getPortalsToRender(PoseStack matrixStack) {
+    protected List<PortalRenderable> getPortalsToRender(PoseStack matrixStack) {
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
             Frustum frustum = new Frustum(
                 matrixStack.last().pose(),
@@ -75,40 +87,51 @@ public abstract class PortalRenderer {
             return frustum;
         });
         
-        List<PortalLike> portalsToRender = new ArrayList<>();
+        ObjectArrayList<PortalRenderable> renderables = new ObjectArrayList<>();
+        
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(client.level);
         for (Portal globalPortal : globalPortals) {
             if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
-                portalsToRender.add(globalPortal);
+                renderables.add(globalPortal);
             }
         }
+        
+        Object2ObjectOpenHashMap<PortalGroup, PortalGroupToRender> groupToRenderable =
+            new Object2ObjectOpenHashMap<>();
         
         client.level.entitiesForRendering().forEach(e -> {
             if (e instanceof Portal) {
                 Portal portal = (Portal) e;
                 if (!shouldSkipRenderingPortal(portal, frustumSupplier)) {
-                    
                     PortalLike renderingDelegate = portal.getRenderingDelegate();
                     
-                    if (renderingDelegate != portal) {
-                        // a portal rendering group
-                        if (!portalsToRender.contains(renderingDelegate)) {
-                            portalsToRender.add(renderingDelegate);
+                    if (renderingDelegate instanceof PortalGroup portalGroup) {
+                        // a portal group
+                        if (groupToRenderable.containsKey(portalGroup)) {
+                            groupToRenderable.get(portalGroup).portals.add(portal);
+                        }
+                        else {
+                            PortalGroupToRender renderable = new PortalGroupToRender(
+                                portalGroup,
+                                Lists.newArrayList(portal)
+                            );
+                            groupToRenderable.put(portalGroup, renderable);
+                            renderables.add(renderable);
                         }
                     }
                     else {
                         // a normal portal
-                        portalsToRender.add(renderingDelegate);
+                        renderables.add(portal);
                     }
                 }
             }
         });
         
         Vec3 cameraPos = CHelper.getCurrentCameraPos();
-        portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
-            portalEntity.getDistanceToNearestPointInPortal(cameraPos)
+        renderables.sort(Comparator.comparingDouble(
+            e -> e.getPortalLike().getDistanceToNearestPointInPortal(cameraPos)
         ));
-        return portalsToRender;
+        return renderables;
     }
     
     private static boolean shouldSkipRenderingPortal(Portal portal, Supplier<Frustum> frustumSupplier) {
@@ -176,23 +199,25 @@ public abstract class PortalRenderer {
     }
     
     protected final void renderPortalContent(
-        PortalLike portal
+        PortalRenderable portalRenderable
     ) {
+        PortalLike portalLike = portalRenderable.getPortalLike();
+        
         if (PortalRendering.getPortalLayer() > PortalRendering.getMaxPortalLayer()) {
             return;
         }
         
-        ClientLevel newWorld = ClientWorldLoader.getWorld(portal.getDestDim());
+        ClientLevel newWorld = ClientWorldLoader.getWorld(portalLike.getDestDim());
         
         PortalRendering.onBeginPortalWorldRendering();
         
-        int renderDistance = getPortalRenderDistance(portal);
+        int renderDistance = getPortalRenderDistance(portalLike);
         
         invokeWorldRendering(new WorldRenderInfo(
             newWorld,
             PortalRendering.getRenderingCameraPos(),
-            portal.getAdditionalCameraTransformation(),
-            false, portal.getDiscriminator(),
+            portalLike.getAdditionalCameraTransformation(),
+            false, portalLike.getDiscriminator(),
             renderDistance,
             false,
             true
@@ -296,7 +321,7 @@ public abstract class PortalRenderer {
                 CHelper.printChat(Component.translatable("imm_ptl.fabulous_warning"));
             }
         }
-    
+        
         IPModInfoChecking.checkShaderpack();
         
         if (IrisInterface.invoker.isIrisPresent()) {

@@ -56,6 +56,7 @@ import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
+import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
@@ -78,7 +79,8 @@ import java.util.stream.Collectors;
 /**
  * Portal entity. Global portals are also entities but not added into world.
  */
-public class Portal extends Entity implements PortalLike, IPEntityEventListenableEntity {
+public class Portal extends Entity implements
+    PortalLike, IPEntityEventListenableEntity, PortalRenderable {
     private static final Logger LOGGER = LogUtils.getLogger();
     
     public static final EntityType<Portal> entityType = createPortalEntityType(Portal::new);
@@ -2024,4 +2026,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
     }
     
+    // for PortalRenderable
+    @Override
+    public PortalLike getPortalLike() {
+        return this;
+    }
 }

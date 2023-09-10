@@ -42,9 +42,7 @@ public interface PortalLike {
     
     Vec3 inverseTransformPoint(Vec3 point);
     
-    double getDistanceToNearestPointInPortal(
-        Vec3 point
-    );
+    double getDistanceToNearestPointInPortal(Vec3 point);
     
     double getDestAreaRadiusEstimation();
     
@@ -76,6 +74,7 @@ public interface PortalLike {
     @Nullable
     Vec3[] getOuterFrustumCullingVertices();
     
+    // TODO remove from interface in 1.20.2
     @Environment(EnvType.CLIENT)
     void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput);
     
