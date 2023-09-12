@@ -55,12 +55,23 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         FriendlyByteBuf _buf, CallbackInfo ci
     ) {
         if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
-            FriendlyByteBuf dataCopied = new FriendlyByteBuf(data.copy());
+            // The slice packet has its own offset,
+            // so that reading the data will not affect the original buffer.
+            // It uses slice() instead of copy() to avoid copying the packet data.
+            // In LAN multiplayer, the server owner will read the packet buffer,
+            // but it will also need to write the packet concurrently for sending.
             
-            ResourceKey<Level> dimension = DimId.readWorldId(dataCopied, true);
+            // Note: in singleplayer and LAN server owner,
+            // the normal packets are not serialized and deserialized. Just packet object passing.
+            // But CustomPayloadPacket is special.
+            // It involves its own buffer reading and writing,
+            // even when the CustomPayloadPacket is not serialized.
+            FriendlyByteBuf buf = new FriendlyByteBuf(data.slice());
             
-            int packetId = dataCopied.readInt();
-            Packet packet = PacketRedirection.createPacketById(packetId, dataCopied);
+            ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
+            
+            int packetId = buf.readInt();
+            Packet packet = PacketRedirection.createPacketById(packetId, buf);
             if (packet == null) {
                 throw new RuntimeException("Unknown packet id %d in %s".formatted(packetId, dimension.location()));
             }
@@ -108,6 +119,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
             ci.cancel();
         }
         else {
+            // NOTE should not change reader index in `data`
             boolean handled = IPNetworking.handleImmPtlCorePacketClientSide(identifier, data);
             if (handled) {
                 ci.cancel();

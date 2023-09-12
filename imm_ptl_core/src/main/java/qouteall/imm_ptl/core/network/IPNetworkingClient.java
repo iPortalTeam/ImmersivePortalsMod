@@ -42,15 +42,15 @@ public class IPNetworkingClient {
         FriendlyByteBuf buf
     ) {
         if (packedId.equals(IPNetworking.id_stcSpawnEntity)) {
-            processStcSpawnEntity(new FriendlyByteBuf(buf.copy()));
+            processStcSpawnEntity(new FriendlyByteBuf(buf.slice()));
             return true;
         }
         else if (packedId.equals(IPNetworking.id_stcDimensionConfirm)) {
-            processStcDimensionConfirm(new FriendlyByteBuf(buf.copy()));
+            processStcDimensionConfirm(new FriendlyByteBuf(buf.slice()));
             return true;
         }
         else if (packedId.equals(IPNetworking.id_stcUpdateGlobalPortal)) {
-            processGlobalPortalUpdate(new FriendlyByteBuf(buf.copy()));
+            processGlobalPortalUpdate(new FriendlyByteBuf(buf.slice()));
             return true;
         }
         else {
