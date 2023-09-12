@@ -55,10 +55,12 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         FriendlyByteBuf _buf, CallbackInfo ci
     ) {
         if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
-            ResourceKey<Level> dimension = DimId.readWorldId(data, true);
+            FriendlyByteBuf dataCopied = new FriendlyByteBuf(data.copy());
             
-            int packetId = data.readInt();
-            Packet packet = PacketRedirection.createPacketById(packetId, data);
+            ResourceKey<Level> dimension = DimId.readWorldId(dataCopied, true);
+            
+            int packetId = dataCopied.readInt();
+            Packet packet = PacketRedirection.createPacketById(packetId, dataCopied);
             if (packet == null) {
                 throw new RuntimeException("Unknown packet id %d in %s".formatted(packetId, dimension.location()));
             }

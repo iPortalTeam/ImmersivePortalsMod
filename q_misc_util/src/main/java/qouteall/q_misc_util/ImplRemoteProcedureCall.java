@@ -121,7 +121,7 @@ public class ImplRemoteProcedureCall {
     }
     
     private static Object deserializeByCodec(FriendlyByteBuf buf, Codec codec) {
-        String jsonString = readStringNonClientOnly(buf);
+        String jsonString = buf.readUtf();
         JsonElement jsonElement = jsonParser.parse(jsonString);
         
         return codec.parse(JsonOps.INSTANCE, jsonElement).getOrThrow(
@@ -129,22 +129,17 @@ public class ImplRemoteProcedureCall {
         );
     }
     
-    // readString() is client only
-    private static String readStringNonClientOnly(FriendlyByteBuf buf) {
-        return buf.readUtf(32767);
-    }
-    
-    private static Object deserialize(FriendlyByteBuf buf, Type type) {
+    private static Object deserializeArgument(FriendlyByteBuf buf, Type type) {
         Function<FriendlyByteBuf, Object> deserializer = deserializerMap.get(type);
         if (deserializer == null) {
-            String json = readStringNonClientOnly(buf);
+            String json = buf.readUtf();
             return gson.fromJson(json, type);
         }
         
         return deserializer.apply(buf);
     }
     
-    private static void serialize(FriendlyByteBuf buf, Object object) {
+    private static void serializeArgument(FriendlyByteBuf buf, Object object) {
         BiConsumer<FriendlyByteBuf, Object> serializer = serializerMap.get(object.getClass());
         
         if (serializer == null) {
@@ -199,7 +194,7 @@ public class ImplRemoteProcedureCall {
     
     @Environment(EnvType.CLIENT)
     public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
-        String methodPath = readStringNonClientOnly(buf);
+        String methodPath = buf.readUtf();
         
         Method method;
         try {
@@ -222,7 +217,7 @@ public class ImplRemoteProcedureCall {
         
         for (int i = 0; i < genericParameterTypes.length; i++) {
             Type parameterType = genericParameterTypes[i];
-            Object obj = deserialize(buf, parameterType);
+            Object obj = deserializeArgument(buf, parameterType);
             arguments[i] = obj;
         }
         
@@ -242,7 +237,7 @@ public class ImplRemoteProcedureCall {
     }
     
     public static Runnable serverReadPacketAndGetHandler(ServerPlayer player, FriendlyByteBuf buf) {
-        String methodPath = readStringNonClientOnly(buf);
+        String methodPath = buf.readUtf();
         
         Method method;
         try {
@@ -266,7 +261,7 @@ public class ImplRemoteProcedureCall {
         //the first argument is the player
         for (int i = 1; i < genericParameterTypes.length; i++) {
             Type parameterType = genericParameterTypes[i];
-            Object obj = deserialize(buf, parameterType);
+            Object obj = deserializeArgument(buf, parameterType);
             arguments[i] = obj;
         }
         
@@ -291,7 +286,7 @@ public class ImplRemoteProcedureCall {
         buf.writeUtf(methodPath);
         
         for (Object argument : arguments) {
-            serialize(buf, argument);
+            serializeArgument(buf, argument);
         }
     }
     

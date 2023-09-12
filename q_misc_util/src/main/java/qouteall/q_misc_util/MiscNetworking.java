@@ -37,12 +37,12 @@ public class MiscNetworking {
     ) {
         if (id.equals(id_stcRemote)) {
             MiscHelper.executeOnRenderThread(
-                ImplRemoteProcedureCall.clientReadPacketAndGetHandler(buf)
+                ImplRemoteProcedureCall.clientReadPacketAndGetHandler(new FriendlyByteBuf(buf.copy()))
             );
             return true;
         }
         else if (id.equals(id_stcDimSync)) {
-            processDimSync(buf, networkHandler);
+            processDimSync(new FriendlyByteBuf(buf.copy()), networkHandler);
             return true;
         }
         return false;
