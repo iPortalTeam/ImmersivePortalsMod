@@ -407,7 +407,7 @@ public class PortalWandInteraction {
         Portal portal = session.getPortal();
         
         if (portal != null) {
-            portal.reloadAndSyncToClient();
+            portal.reloadAndSyncToClientNextTick();
         }
     }
     
@@ -427,7 +427,7 @@ public class PortalWandInteraction {
         }
         
         portal.setPortalState(session.originalState);
-        portal.reloadAndSyncToClient();
+        portal.reloadAndSyncToClientNextTick();
         portal.rectifyClusterPortals(true);
         
         draggingSessionMap.remove(player);
@@ -457,7 +457,7 @@ public class PortalWandInteraction {
         );
         if (validateDraggedPortalState(session.originalState, newThisSideState, player)) {
             portal.setThisSideState(newThisSideState, draggingInfo.shouldLockScale());
-            portal.reloadAndSyncToClient();
+            portal.reloadAndSyncToClientNextTick();
             portal.rectifyClusterPortals(true);
         }
         else {
