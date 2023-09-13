@@ -26,7 +26,9 @@ public class MixinClientboundCustomPayloadPacket_Misc {
     )
     private void onHandle(ClientGamePacketListener handler, CallbackInfo ci) {
         // NOTE should not change reader index in `data`
-        boolean handled = MiscNetworking.handleMiscUtilPacketClientSide(identifier, data, handler);
+        boolean handled = MiscNetworking.handleMiscUtilPacketClientSide(
+            identifier, () -> new FriendlyByteBuf(data.slice()), handler
+        );
         if (handled) {
             ci.cancel();
         }

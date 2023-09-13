@@ -19,6 +19,7 @@ import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.mixin.client.IEClientPacketListener_Misc;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class MiscNetworking {
     public static final ResourceLocation id_stcRemote =
@@ -32,17 +33,17 @@ public class MiscNetworking {
     // no need to make this client only
     public static boolean handleMiscUtilPacketClientSide(
         ResourceLocation id,
-        FriendlyByteBuf buf,
+        Supplier<FriendlyByteBuf> buf,
         ClientGamePacketListener networkHandler
     ) {
         if (id.equals(id_stcRemote)) {
             MiscHelper.executeOnRenderThread(
-                ImplRemoteProcedureCall.clientReadPacketAndGetHandler(new FriendlyByteBuf(buf.slice()))
+                ImplRemoteProcedureCall.clientReadPacketAndGetHandler(buf.get())
             );
             return true;
         }
         else if (id.equals(id_stcDimSync)) {
-            processDimSync(new FriendlyByteBuf(buf.slice()), networkHandler);
+            processDimSync(buf.get(), networkHandler);
             return true;
         }
         return false;

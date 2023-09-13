@@ -26,6 +26,7 @@ import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class IPNetworkingClient {
@@ -39,18 +40,18 @@ public class IPNetworkingClient {
     
     public static boolean handleImmPtlCorePacketClientSide(
         ResourceLocation packedId,
-        FriendlyByteBuf buf
+        Supplier<FriendlyByteBuf> buf
     ) {
         if (packedId.equals(IPNetworking.id_stcSpawnEntity)) {
-            processStcSpawnEntity(new FriendlyByteBuf(buf.slice()));
+            processStcSpawnEntity(buf.get());
             return true;
         }
         else if (packedId.equals(IPNetworking.id_stcDimensionConfirm)) {
-            processStcDimensionConfirm(new FriendlyByteBuf(buf.slice()));
+            processStcDimensionConfirm(buf.get());
             return true;
         }
         else if (packedId.equals(IPNetworking.id_stcUpdateGlobalPortal)) {
-            processGlobalPortalUpdate(new FriendlyByteBuf(buf.slice()));
+            processGlobalPortalUpdate(buf.get());
             return true;
         }
         else {

@@ -194,18 +194,17 @@ public class ImplRemoteProcedureCall {
     
     @Environment(EnvType.CLIENT)
     public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
-        String methodPath = buf.readUtf();
-        
+        String methodPath = null;
         Method method;
         try {
+            methodPath = buf.readUtf();
             method = getMethodByPath(methodPath);
         }
         catch (Exception e) {
+            String methodPath_ = methodPath;
             LIMITED_LOGGER.invoke(() -> {
-                LOGGER.error("Failed to find method by path {}", methodPath, e);
-                Minecraft.getInstance().gui.getChat().addMessage(Component.literal(
-                    "The client failed to process a packet from server. See the log for details."
-                ).withStyle(ChatFormatting.RED));
+                LOGGER.error("Failed to get method {}", methodPath_, e);
+                clientTellFailure();
             });
             
             return () -> {};
@@ -228,27 +227,31 @@ public class ImplRemoteProcedureCall {
             catch (Exception e) {
                 LIMITED_LOGGER.invoke(() -> {
                     LOGGER.error("Processing remote procedure call", e);
-                    Minecraft.getInstance().gui.getChat().addMessage(Component.literal(
-                        "The client failed to process a packet from server. See the log for details."
-                    ).withStyle(ChatFormatting.RED));
+                    clientTellFailure();
                 });
             }
         };
     }
     
+    @Environment(EnvType.CLIENT)
+    private static void clientTellFailure() {
+        Minecraft.getInstance().gui.getChat().addMessage(Component.literal(
+            "The client failed to process a packet from server. See the log for details."
+        ).withStyle(ChatFormatting.RED));
+    }
+    
     public static Runnable serverReadPacketAndGetHandler(ServerPlayer player, FriendlyByteBuf buf) {
-        String methodPath = buf.readUtf();
-        
+        String methodPath = null;
         Method method;
         try {
+            methodPath = buf.readUtf();
             method = getMethodByPath(methodPath);
         }
         catch (Exception e) {
+            String methodPath_ = methodPath;
             LIMITED_LOGGER.invoke(() -> {
-                LOGGER.error("Failed to find method by path {}", methodPath, e);
-                player.sendSystemMessage(Component.literal(
-                    "The server failed to process a packet sent from client."
-                ).withStyle(ChatFormatting.RED));
+                LOGGER.error("Failed to get method {}", methodPath_, e);
+                serverTellFailure(player);
             });
             return () -> {};
         }
@@ -272,12 +275,16 @@ public class ImplRemoteProcedureCall {
             catch (Exception e) {
                 LIMITED_LOGGER.invoke(() -> {
                     LOGGER.error("Processing remote procedure call {}", player, e);
-                    player.sendSystemMessage(Component.literal(
-                        "The server failed to process a packet sent from client."
-                    ).withStyle(ChatFormatting.RED));
+                    serverTellFailure(player);
                 });
             }
         };
+    }
+    
+    private static void serverTellFailure(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal(
+            "The server failed to process a packet sent from client."
+        ).withStyle(ChatFormatting.RED));
     }
     
     private static void serializeStringWithArguments(

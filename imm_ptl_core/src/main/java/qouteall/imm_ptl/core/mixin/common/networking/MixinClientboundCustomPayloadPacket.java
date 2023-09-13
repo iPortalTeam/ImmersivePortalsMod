@@ -55,18 +55,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         FriendlyByteBuf _buf, CallbackInfo ci
     ) {
         if (PacketRedirection.isPacketIdOfRedirection(identifier)) {
-            // The slice packet has its own offset,
-            // so that reading the data will not affect the original buffer.
-            // It uses slice() instead of copy() to avoid copying the packet data.
-            // In LAN multiplayer, the server owner will read the packet buffer,
-            // but it will also need to write the packet concurrently for sending.
-            
-            // Note: in singleplayer and LAN server owner,
-            // the normal packets are not serialized and deserialized. Just packet object passing.
-            // But CustomPayloadPacket is special.
-            // It involves its own buffer reading and writing,
-            // even when the CustomPayloadPacket is not serialized.
-            FriendlyByteBuf buf = new FriendlyByteBuf(data.slice());
+            FriendlyByteBuf buf = data;
             
             ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
             
@@ -120,7 +109,22 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
         }
         else {
             // NOTE should not change reader index in `data`
-            boolean handled = IPNetworking.handleImmPtlCorePacketClientSide(identifier, data);
+            boolean handled = IPNetworking.handleImmPtlCorePacketClientSide(
+                identifier,
+                
+                // The slice packet has its own offset,
+                // so that reading the data will not affect the original buffer.
+                // It uses slice() instead of copy() to avoid copying the packet data.
+                // In LAN multiplayer, the server owner will read the packet buffer,
+                // but it will also need to write the packet concurrently for sending.
+                
+                // Note: in singleplayer and LAN server owner,
+                // the normal packets are not serialized and deserialized. Just packet object passing.
+                // But CustomPayloadPacket is special.
+                // It involves its own buffer reading and writing,
+                // even when the CustomPayloadPacket is not serialized.
+                () -> new FriendlyByteBuf(data.slice())
+            );
             if (handled) {
                 ci.cancel();
             }

@@ -18,6 +18,7 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DimId;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class IPNetworking {
     
@@ -55,7 +56,7 @@ public class IPNetworking {
     // invoking client-only method. avoid dedicated server crash
     public static boolean handleImmPtlCorePacketClientSide(
         ResourceLocation packedId,
-        FriendlyByteBuf buf
+        Supplier<FriendlyByteBuf> buf
     ) {
         return IPNetworkingClient.handleImmPtlCorePacketClientSide(packedId, buf);
     }
