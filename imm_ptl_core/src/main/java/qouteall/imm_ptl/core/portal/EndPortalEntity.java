@@ -37,6 +37,7 @@ public class EndPortalEntity extends Portal {
     
     public static final EntityType<EndPortalEntity> entityType =
         Portal.createPortalEntityType(EndPortalEntity::new);
+    public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
     // only used by scaled view type end portal
     private EndPortalEntity clientFakedReversePortal;
@@ -130,7 +131,7 @@ public class EndPortalEntity extends Portal {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = false;
-            portal.portalTag = "view_box";
+            portal.portalTag = PORTAL_TAG_VIEW_BOX;
             portal.setInteractable(false);
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
@@ -150,7 +151,7 @@ public class EndPortalEntity extends Portal {
     
     @Environment(EnvType.CLIENT)
     private void tickClient() {
-        if (Objects.equals(portalTag, "view_box")) {
+        if (isViewBoxPortal()) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
                 return;
@@ -171,11 +172,6 @@ public class EndPortalEntity extends Portal {
             }
             fuseView = true;
         }
-        else if (Objects.equals(portalTag, "view_box_faked_reverse")) {
-            if (clientFakedReversePortal.isRemoved()) {
-                remove(RemovalReason.KILLED);
-            }
-        }
     }
     
     @Override
@@ -185,7 +181,7 @@ public class EndPortalEntity extends Portal {
         if (shouldAddSlowFalling(entity)) {
             int duration = 200;
             
-            if (Objects.equals(this.portalTag, "view_box")) {
+            if (isViewBoxPortal()) {
                 duration = 300;
             }
             
@@ -204,10 +200,18 @@ public class EndPortalEntity extends Portal {
         ServerLevel.makeObsidianPlatform(endWorld);
     }
     
+    private boolean isViewBoxPortal() {
+        return Objects.equals(this.portalTag, PORTAL_TAG_VIEW_BOX);
+    }
+    
     // avoid scale box portal to transform velocity
     @Override
     public Vec3 transformVelocityRelativeToPortal(Vec3 originalVelocityRelativeToPortal, Entity entity) {
-        return Vec3.ZERO;
+        if (isViewBoxPortal()) {
+            return Vec3.ZERO;
+        }
+        
+        return super.transformVelocityRelativeToPortal(originalVelocityRelativeToPortal, entity);
     }
     
     // arrows cannot go through end portal
