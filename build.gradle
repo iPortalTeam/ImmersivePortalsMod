@@ -7,6 +7,8 @@ plugins {
     id 'maven-publish'
 
     id 'io.github.juuxel.loom-vineflower' version '1.11.0' // https://github.com/Juuxel/loom-vineflower
+
+    id "me.modmuss50.mod-publish-plugin" version "0.3.5"
 }
 
 allprojects {
@@ -260,3 +262,30 @@ task printClasspath {
 //        events "passed", "skipped", "failed"
 //    }
 //}
+
+publishMods {
+    file = remapJar.archiveFile
+    changelog = file("changelog.md").text
+    type = ALPHA
+    modLoaders.add("fabric")
+
+    curseforge {
+        projectId = "332273"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add(minecraft_version)
+
+        requires {
+            slug = "fabric-api"
+        }
+    }
+    modrinth {
+        projectId = "zJpHMkdD"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.add(minecraft_version)
+    }
+    github {
+        repository = "iPortalTeam/ImmersivePortalsMod"
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        commitish = minecraft_version // the branch name is the same as minecraft version
+    }
+}
