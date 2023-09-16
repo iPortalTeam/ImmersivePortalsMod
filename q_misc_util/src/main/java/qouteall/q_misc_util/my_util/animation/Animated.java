@@ -128,6 +128,21 @@ public class Animated<T> {
         this.timingFunction = timingFunction;
     }
     
+    public static final TypeInfo<Vec3> VEC3_NULLABLE_TYPE_INFO = new TypeInfo<Vec3>() {
+        @Override
+        public Vec3 interpolate(Vec3 start, Vec3 end, double progress) {
+            return start.lerp(end, progress);
+        }
+        
+        @Override
+        public boolean isClose(Vec3 a, Vec3 b) {
+            return a.distanceToSqr(b) < 0.01;
+        }
+        
+        // the empty is null
+    };
+    
+    // TODO rename to VEC3_DEFAULT_ZERO_TYPE_INFO
     public static final TypeInfo<Vec3> VEC_3_TYPE_INFO = new TypeInfo<Vec3>() {
         @Override
         public Vec3 interpolate(Vec3 start, Vec3 end, double progress) {
@@ -145,6 +160,7 @@ public class Animated<T> {
         }
     };
     
+    // TODO rename to DOUBLE_DEFAULT_ZERO_TYPE_INFO
     public static final TypeInfo<Double> DOUBLE_TYPE_INFO = new TypeInfo<Double>() {
         @Override
         public Double interpolate(Double start, Double end, double progress) {

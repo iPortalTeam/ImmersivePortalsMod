@@ -42,7 +42,7 @@ public class ClientPortalWandPortalCreation {
     private static final Logger LOGGER = LogUtils.getLogger();
     
     public static final Animated<Vec3> cursor = new Animated<>(
-        Animated.VEC_3_TYPE_INFO,
+        Animated.VEC3_NULLABLE_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.circle::mapProgress,
         null
