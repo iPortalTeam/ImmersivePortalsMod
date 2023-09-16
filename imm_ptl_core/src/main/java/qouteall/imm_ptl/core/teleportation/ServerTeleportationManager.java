@@ -345,8 +345,6 @@ public class ServerTeleportationManager {
         ServerLevel toWorld,
         Vec3 newEyePos
     ) {
-        NewChunkTrackingGraph.addAdditionalDirectLoadingTickets(player);
-        
         // avoid the player from untracking all entities when removing from the old world
         // see MixinChunkMap_E
         teleportingEntities.add(player);

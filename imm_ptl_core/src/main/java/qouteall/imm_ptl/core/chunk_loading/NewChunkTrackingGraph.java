@@ -604,27 +604,11 @@ public class NewChunkTrackingGraph {
         });
     }
     
+    /**
+     * NOTE it removes chunk loader by object reference, not by value equality
+     */
     public static void removeGlobalAdditionalChunkLoader(ChunkLoader chunkLoader) {
-        // there may be multiple equal chunk loaders
-        // only remove one
-        int i = additionalChunkLoaders.indexOf(chunkLoader);
-        if (i != -1) {
-            additionalChunkLoaders.remove(i);
-        }
-    }
-    
-    // When changing a player's dimension on server, it will remove all
-    // loading tickets of this player. Without this, the chunks nearby player
-    // may have no ticket for a short period of time (because the chunk tracking refreshes
-    // every 2 seconds) and the chunk may be unloaded and reloaded.
-    @Deprecated
-    public static void addAdditionalDirectLoadingTickets(ServerPlayer player) {
-//        ChunkVisibility.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
-//            if (isPlayerWatchingChunk(player, dim, x, z)) {
-//
-//                MyLoadingTicket.addTicketIfNotLoaded(((ServerLevel) player.level()), new ChunkPos(x, z));
-//            }
-//        });
+        additionalChunkLoaders.removeIf(c -> c == chunkLoader);
     }
     
     public static int getLoadedChunkNum(ResourceKey<Level> dimension) {
@@ -632,17 +616,19 @@ public class NewChunkTrackingGraph {
     }
     
     public static void addPerPlayerAdditionalChunkLoader(
-        ServerPlayer player,
-        ChunkLoader chunkLoader
+        ServerPlayer player, ChunkLoader chunkLoader
     ) {
         getPlayerInfo(player).additionalChunkLoaders.add(chunkLoader);
     }
     
+    /**
+     * NOTE it removes chunk loader by object reference, not by value equality
+     */
     public static void removePerPlayerAdditionalChunkLoader(
-        ServerPlayer player,
-        ChunkLoader chunkLoader
+        ServerPlayer player, ChunkLoader chunkLoader
     ) {
-        getPlayerInfo(player).additionalChunkLoaders.remove(chunkLoader);
+        ArrayList<ChunkLoader> chunkLoaderList = getPlayerInfo(player).additionalChunkLoaders;
+        chunkLoaderList.removeIf(c -> c == chunkLoader);
     }
     
     public static Set<ResourceKey<Level>> getVisibleDimensions(ServerPlayer player) {
