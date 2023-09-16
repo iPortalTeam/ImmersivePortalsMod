@@ -1405,9 +1405,12 @@ public class Portal extends Entity implements
     }
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
+        double dot = currPortal.getOriginPos().subtract(outerPortal.getDestPos())
+            .dot(outerPortal.getContentDirection());
+        
         return currPortal.level().dimension() == outerPortal.dimensionTo &&
             currPortal.getNormal().dot(outerPortal.getContentDirection()) < -0.9 &&
-            !outerPortal.isOnDestinationSide(currPortal.getOriginPos(), 0.1);
+            Math.abs(dot) < 0.001;
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {
@@ -1550,7 +1553,12 @@ public class Portal extends Entity implements
     
     @Override
     public boolean cannotRenderInMe(Portal portal) {
-        return isParallelPortal(portal, this);
+        if (respectParallelOrientedPortal()) {
+            return isParallelPortal(portal, this);
+        }
+        else {
+            return isParallelOrientedPortal(portal, this);
+        }
     }
     
     public void myUnsetRemoved() {
@@ -1633,7 +1641,25 @@ public class Portal extends Entity implements
         return !viewBlockingPortals.isEmpty();
     }
     
+    /**
+     * If true, the parallel-oriented portal of the current portal will be rendered,
+     * and checked in teleportation.
+     * This is false by default, because that, if the parallel portal is rendered inside current portal,
+     * it will "occlude" the other side view, and if the parallel portal is checked in teleportation,
+     * the entity will teleport back by the parallel portal.
+     * The same issue also exists in "connected room" case.
+     * <p>
+     * This only need to enable for cases like MiniScaled portal.
+     * In MiniScaled, if two scale boxes are places together,
+     * the player in one scale box should be able to see the other scale box and teleport to that.
+     * That requires not ignoring the parallel-oriented portal.
+     */
+    public boolean respectParallelOrientedPortal() {
+        return allowOverlappedTeleport();
+    }
+    
     // It's overridden by MiniScaled
+    @Deprecated // TODO remove in 1.20.2
     public boolean allowOverlappedTeleport() {
         return false;
     }

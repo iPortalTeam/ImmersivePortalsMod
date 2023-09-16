@@ -272,18 +272,13 @@ public class ClientTeleportationManager {
             teleportPlayer(teleportation, partialTicks);
             client.getProfiler().pop();
             
-            boolean allowOverlappedTeleport = portal.allowOverlappedTeleport();
+            boolean allowOverlappedTeleport = portal.respectParallelOrientedPortal();
+            
+            // avoid teleporting through parallel portal due to floating point inaccuracy
             double adjustment = allowOverlappedTeleport ? -0.001 : 0.001;
             
             lastPlayerEyePos = teleportation.teleportationCheckpoint()
                 .add(portal.getContentDirection().scale(adjustment));
-            //avoid teleporting through parallel portal due to floating point inaccuracy
-            
-            // debug
-//            Vec3 debugCurrEyePos = getPlayerEyePos(partialTicks);
-//            if (debugCurrEyePos.distanceToSqr(lastPlayerEyePos) > 0.001) {
-//                Helper.log("ouch");
-//            }
             
             return teleportation;
         }
