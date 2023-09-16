@@ -183,10 +183,10 @@ public class EndPortalEntity extends Portal {
         super.onEntityTeleportedOnServer(entity);
         
         if (shouldAddSlowFalling(entity)) {
-            int duration = 120;
+            int duration = 200;
             
             if (Objects.equals(this.portalTag, "view_box")) {
-                duration = 200;
+                duration = 300;
             }
             
             LivingEntity livingEntity = (LivingEntity) entity;
