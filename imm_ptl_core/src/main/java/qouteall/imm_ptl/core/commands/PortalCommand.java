@@ -79,6 +79,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 import qouteall.q_misc_util.my_util.Vec2d;
+import qouteall.q_misc_util.my_util.WithDim;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1387,14 +1388,14 @@ public class PortalCommand {
         builder.then(Commands.literal("goback")
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
-                net.minecraft.util.Tuple<ResourceKey<Level>, Vec3> lastPos =
+                WithDim<Vec3> lastPos =
                     IPGlobal.serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
                 }
                 else {
                     IPGlobal.serverTeleportationManager.forceTeleportPlayer(
-                        player, lastPos.getA(), lastPos.getB()
+                        player, lastPos.dimension(), lastPos.value()
                     );
                 }
                 return 0;

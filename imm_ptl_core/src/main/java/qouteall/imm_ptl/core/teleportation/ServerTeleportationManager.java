@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +40,7 @@ import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
+import qouteall.q_misc_util.my_util.WithDim;
 
 import java.util.HashSet;
 import java.util.List;
@@ -50,18 +50,14 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO change this to per-server-object to handle multi-server-in-one-JVM case
 public class ServerTeleportationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     
     private Set<Entity> teleportingEntities = new HashSet<>();
     private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
     public boolean isFiringMyChangeDimensionEvent = false;
-    public final WeakHashMap<ServerPlayer, Tuple<ResourceKey<Level>, Vec3>> lastPosition =
-        new WeakHashMap<>();
-    
-    // The old teleport way does not recreate the entity
-    // It's problematic because some AI-related fields contain world reference
-    private static final boolean useOldTeleport = false;
+    public final WeakHashMap<ServerPlayer, WithDim<Vec3>> lastPosition = new WeakHashMap<>();
     
     public ServerTeleportationManager() {
         IPGlobal.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -165,8 +161,6 @@ public class ServerTeleportationManager {
             return;
         }
         
-        recordLastPosition(player);
-        
         Portal portal = findPortal(dimensionBefore, portalId);
         
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
@@ -184,6 +178,8 @@ public class ServerTeleportationManager {
             
             ResourceKey<Level> dimensionTo = portal.dimensionTo;
             Vec3 newEyePos = portal.transformPoint(oldEyePos);
+            
+            recordLastPosition(player, dimensionBefore, oldFeetPos);
             
             teleportPlayer(player, dimensionTo, newEyePos);
             
@@ -233,10 +229,9 @@ public class ServerTeleportationManager {
         return null;
     }
     
-    public void recordLastPosition(ServerPlayer player) {
+    public void recordLastPosition(ServerPlayer player, ResourceKey<Level> dim, Vec3 pos) {
         lastPosition.put(
-            player,
-            new Tuple<>(player.level().dimension(), player.position())
+            player, new WithDim<>(dim, pos)
         );
     }
     
@@ -684,16 +679,15 @@ public class ServerTeleportationManager {
         double z = packet.getZ(player.getZ());
         Vec3 newPos = new Vec3(x, y, z);
         if (canPlayerReachPos(player, dimension, newPos)) {
-            recordLastPosition(player);
             forceTeleportPlayer(player, dimension, newPos);
-            limitedLogger.log(String.format("accepted dubious move packet %s %s %s %s %s %s %s",
+            limitedLogger.lInfo(LOGGER, "accepted dubious move packet {} {} {} {} {} {} {}",
                 player.level().dimension().location(), x, y, z, player.getX(), player.getY(), player.getZ()
-            ));
+            );
         }
         else {
-            limitedLogger.log(String.format("ignored dubious move packet %s %s %s %s %s %s %s",
+            limitedLogger.lInfo(LOGGER, "ignored dubious move packet {} {} {} {} {} {} {}",
                 player.level().dimension().location(), x, y, z, player.getX(), player.getY(), player.getZ()
-            ));
+            );
         }
     }
     
@@ -708,6 +702,7 @@ public class ServerTeleportationManager {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public static <E extends Entity> E teleportRegularEntityTo(
         E entity, ResourceKey<Level> targetDim, Vec3 targetPos
     ) {
