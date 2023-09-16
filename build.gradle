@@ -107,7 +107,6 @@ allprojects {
 
         modCompileOnly("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
             exclude(group: "net.fabricmc.fabric-api")
-            transitive(false)
         }
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
@@ -269,15 +268,17 @@ publishMods {
     type = ALPHA
     modLoaders.add("fabric")
 
-    curseforge {
-        projectId = "332273"
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        minecraftVersions.add(minecraft_version)
+    version = "v${project.mod_version}-mc${project.minecraft_version}"
 
-        requires {
-            slug = "fabric-api"
-        }
-    }
+//    curseforge {
+//        projectId = "332273"
+//        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+//        minecraftVersions.add(minecraft_version)
+//
+//        requires {
+//            slug = "fabric-api"
+//        }
+//    }
     modrinth {
         projectId = "zJpHMkdD"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
