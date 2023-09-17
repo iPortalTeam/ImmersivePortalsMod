@@ -6,6 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -35,9 +37,23 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public abstract class PortalRenderer {
+    
+    public static final Event<Predicate<Portal>> PORTAL_RENDERING_PREDICATE =
+        EventFactory.createArrayBacked(
+            Predicate.class,
+            (listeners) -> (portal) -> {
+                for (Predicate<Portal> listener : listeners) {
+                    if (!listener.test(portal)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        );
     
     public static record PortalGroupToRender(
         PortalGroup group,
@@ -176,6 +192,12 @@ public abstract class PortalRenderer {
                 }
             }
         }
+        
+        boolean predicateTest = PORTAL_RENDERING_PREDICATE.invoker().test(portal);
+        if (!predicateTest) {
+            return true;
+        }
+        
         return false;
     }
     
