@@ -198,5 +198,20 @@ public class ExampleGuiPortalRendering {
         public boolean isPauseScreen() {
             return false;
         }
+        
+        // close when E is pressed
+        @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            if (super.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+            
+            if (minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+                this.onClose();
+                return true;
+            }
+            
+            return false;
+        }
     }
 }
