@@ -6,11 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
@@ -59,6 +59,8 @@ public class WorldRenderInfo {
     public final boolean enableViewBobbing;
     
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
+    
+    private static @Nullable List<UUID> renderingDescCache = null;
     
     // should use the builder or the full constructor
     @Deprecated
@@ -116,10 +118,12 @@ public class WorldRenderInfo {
     
     public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {
         renderInfoStack.push(worldRenderInfo);
+        renderingDescCache = null;
     }
     
     public static void popRenderInfo() {
         renderInfoStack.pop();
+        renderingDescCache = null;
     }
     
     public static void adjustCameraPos(Camera camera) {
@@ -165,8 +169,12 @@ public class WorldRenderInfo {
     
     // for example rendering portal B inside portal A will always have the same rendering description
     public static List<UUID> getRenderingDescription() {
-        return renderInfoStack.stream()
-            .map(renderInfo -> renderInfo.description).collect(Collectors.toList());
+        if (renderingDescCache == null) {
+            renderingDescCache = renderInfoStack.stream()
+                .map(renderInfo -> renderInfo.description).collect(Collectors.toList());
+        }
+        
+        return renderingDescCache;
     }
     
     public static int getRenderDistance() {

@@ -10,18 +10,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 // extending EntryListWidget.Entry is also fine
@@ -66,9 +64,9 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         this.parent = parent;
         this.selectCallback = selectCallback;
         
-        this.dimIconPath = getDimensionIconPath(this.dimension);
+        this.dimIconPath = CHelper.getDimensionIconPath(this.dimension);
         
-        this.dimensionName = getDimensionName(dimension);
+        this.dimensionName = CHelper.getDimensionName(dimension);
         
         this.entry = entry;
     }
@@ -193,71 +191,4 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         return true;//allow outer dragging
     }
     
-    /**
-     * Get `modid/textures/dimension/dimension_id.png` first.
-     * If missing, then try to get the mod icon.
-     * If still missing, return null.
-     */
-    @Nullable
-    public static ResourceLocation getDimensionIconPath(ResourceKey<Level> dimension) {
-        ResourceLocation dimensionId = dimension.location();
-        
-        ResourceLocation dimIconPath = new ResourceLocation(
-            dimensionId.getNamespace(),
-            "textures/dimension/" + dimensionId.getPath() + ".png"
-        );
-        
-        Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(dimIconPath);
-        
-        if (resource.isEmpty()) {
-            LOGGER.info("Cannot load texture {}", dimIconPath);
-            
-            ResourceLocation modIconLocation = O_O.getModIconLocation(dimensionId.getNamespace());
-            
-            if (modIconLocation == null) {
-                return null;
-            }
-            
-            ResourceLocation modIconPath = new ResourceLocation(
-                modIconLocation.getNamespace(),
-                modIconLocation.getPath()
-            );
-            
-            Optional<Resource> modIconResource = Minecraft.getInstance().getResourceManager().getResource(modIconPath);
-            
-            if (modIconResource.isEmpty()) {
-                LOGGER.info("Cannot load texture {}", modIconPath);
-                return null;
-            }
-            
-            return modIconPath;
-        }
-        
-        return dimIconPath;
-    }
-    
-    /**
-     * Firstly try to use translatable `dimension.modid.dimension_id`.
-     * If missing, try to get the mod name and use "a dimension of mod_name" or "a dimension of modid"
-     */
-    private static Component getDimensionName(ResourceKey<Level> dimension) {
-        String namespace = dimension.location().getNamespace();
-        String path = dimension.location().getPath();
-        String translationkey = "dimension." + namespace + "." + path;
-        MutableComponent component = Component.translatable(translationkey);
-        
-        if (component.getString().equals(translationkey)) {
-            // no translation
-            // try to get the mod name
-            String modName = O_O.getModName(namespace);
-            if (modName != null) {
-                return Component.translatable("imm_ptl.a_dimension_of", modName);
-            }
-            else {
-                return Component.translatable("imm_ptl.a_dimension_of", namespace);
-            }
-        }
-        
-        return component;
-    }
 }
