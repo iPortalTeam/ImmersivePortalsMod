@@ -45,7 +45,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     
     // the most chunk accesses are from the main thread,
     // so we use two maps to reduce synchronization.
-    // the main thread reads this map, without synchronization
+    // the main thread accesses this map, without synchronization
     protected final Long2ObjectOpenHashMap<LevelChunk> chunkMapForMainThread =
         new Long2ObjectOpenHashMap<>();
     // other threads read this map, with synchronization

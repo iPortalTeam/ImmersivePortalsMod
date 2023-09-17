@@ -120,6 +120,7 @@ public class ImplRemoteProcedureCall {
             .build();
     }
     
+    @SuppressWarnings("rawtypes")
     private static Object deserializeByCodec(FriendlyByteBuf buf, Codec codec) {
         String jsonString = buf.readUtf();
         JsonElement jsonElement = jsonParser.parse(jsonString);
@@ -158,6 +159,7 @@ public class ImplRemoteProcedureCall {
         serializer.accept(buf, object);
     }
     
+    @SuppressWarnings("rawtypes")
     private static void serializeByCodec(FriendlyByteBuf buf, Codec codec, Object object) {
         JsonElement result = (JsonElement) codec.encodeStart(JsonOps.INSTANCE, object).getOrThrow(
             false, e -> {

@@ -106,7 +106,9 @@ public class ExampleGuiPortalRendering {
             Vec3 position
         ) {
             if (frameBuffer == null) {
-                frameBuffer = new TextureTarget(100, 100, true, true);
+                // the framebuffer size doesn't matter here
+                // because it will be automatically resized when rendering
+                frameBuffer = new TextureTarget(2, 2, true, true);
             }
             
             Minecraft.getInstance().setScreen(new GuiPortalScreen(dimension, position));
@@ -164,14 +166,14 @@ public class ExampleGuiPortalRendering {
             
             // Create the world render info
             WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
-                ClientWorldLoader.getWorld(viewingDimension),// the world that it renders
-                cameraPosition,// the camera position
-                cameraTransformation,// the camera transformation
-                true,// does not apply this transformation to the existing player camera
-                null,
+                ClientWorldLoader.getWorld(viewingDimension), // the world that it renders
+                cameraPosition, // the camera position
+                cameraTransformation, // the camera transformation
+                true, // does not apply this transformation to the existing player camera
+                null, // the ID to identify rendering context (for occlusion querying). can be null.
                 minecraft.options.getEffectiveRenderDistance(),// render distance
-                false,
-                false
+                false, // don't render hand
+                false // disable view bobbing
             );
             
             // Ask it to render the world into the framebuffer the next frame

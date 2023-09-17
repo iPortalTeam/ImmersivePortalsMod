@@ -8,7 +8,7 @@ import qouteall.q_misc_util.Helper;
 
 public class DimensionRenderHelper {
     private static final Minecraft client = Minecraft.getInstance();
-    public Level world;
+    public final Level world;
     
     public final LightTexture lightmapTexture;
     
@@ -27,7 +27,9 @@ public class DimensionRenderHelper {
     }
     
     public void tick() {
-        lightmapTexture.tick();
+        if (lightmapTexture != client.gameRenderer.lightTexture()) {
+            lightmapTexture.tick();
+        }
     }
     
     public void cleanUp() {
