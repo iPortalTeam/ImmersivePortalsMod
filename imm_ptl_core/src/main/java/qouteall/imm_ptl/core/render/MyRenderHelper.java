@@ -299,12 +299,12 @@ public class MyRenderHelper {
     
     public static void drawFramebuffer(
         RenderTarget textureProvider, boolean doUseAlphaBlend, boolean doEnableModifyAlpha,
-        float left, double right, float bottom, double up
+        float xMin, double xMax, float yMin, double yMax
     ) {
         drawFramebufferWithViewport(
             textureProvider,
             doUseAlphaBlend, doEnableModifyAlpha,
-            left, right, bottom, up,
+            xMin, xMax, yMin, yMax,
             client.getWindow().getWidth(),
             client.getWindow().getHeight()
         );

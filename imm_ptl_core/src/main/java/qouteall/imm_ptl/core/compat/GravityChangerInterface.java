@@ -11,11 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
-
-import org.jetbrains.annotations.Nullable;
 
 public class GravityChangerInterface {
     public static Invoker invoker = new Invoker();
@@ -88,11 +87,6 @@ public class GravityChangerInterface {
     }
     
     public static class OnGravityChangerPresent extends Invoker {
-        
-        
-        public OnGravityChangerPresent() {
-        }
-        
         @Override
         public boolean isGravityChangerPresent() {
             return true;
@@ -100,12 +94,7 @@ public class GravityChangerInterface {
         
         @Override
         public Vec3 getEyeOffset(Entity entity) {
-            if (entity instanceof Player player) {
-                return GravityChangerAPI.getEyeOffset(player);
-            }
-            else {
-                return super.getEyeOffset(entity);
-            }
+            return GravityChangerAPI.getEyeOffset(entity);
         }
         
         @Override
@@ -120,10 +109,7 @@ public class GravityChangerInterface {
         
         @Override
         public void setBaseGravityDirectionServer(Entity entity, Direction direction) {
-            GravityChangerAPI.setBaseGravityDirection(
-                entity,
-                direction
-            );
+            GravityChangerAPI.setBaseGravityDirection(entity, direction);
         }
         
         @Override
@@ -152,22 +138,12 @@ public class GravityChangerInterface {
         
         @Override
         public Vec3 getWorldVelocity(Entity entity) {
-            if (entity instanceof Player player) {
-                return GravityChangerAPI.getWorldVelocity(player);
-            }
-            else {
-                return super.getWorldVelocity(entity);
-            }
+            return GravityChangerAPI.getWorldVelocity(entity);
         }
         
         @Override
         public void setWorldVelocity(Entity entity, Vec3 newVelocity) {
-            if (entity instanceof Player player) {
-                GravityChangerAPI.setWorldVelocity(player, newVelocity);
-            }
-            else {
-                super.setWorldVelocity(entity, newVelocity);
-            }
+            GravityChangerAPI.setWorldVelocity(entity, newVelocity);
         }
         
         @Override

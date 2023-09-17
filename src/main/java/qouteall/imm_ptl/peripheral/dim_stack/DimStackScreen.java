@@ -8,12 +8,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.GuiHelper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -258,14 +258,14 @@ public class DimStackScreen extends Screen {
     }
     
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseY, int i, float f) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         
         if (isEnabled) {
-            dimListWidget.render(guiGraphics, mouseY, i, f);
+            dimListWidget.render(guiGraphics, mouseX, mouseY, partialTick);
         }
         
-        super.render(guiGraphics, mouseY, i, f);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
         
         Font font = Minecraft.getInstance().font;
         guiGraphics.drawString(
