@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
         
         this.dimIconPath = CHelper.getDimensionIconPath(this.dimension);
         
-        this.dimensionName = CHelper.getDimensionName(dimension);
+        this.dimensionName = McHelper.getDimensionName(dimension);
         
         this.entry = entry;
     }

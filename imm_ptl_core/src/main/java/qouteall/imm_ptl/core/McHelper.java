@@ -51,6 +51,7 @@ import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -919,5 +920,32 @@ public class McHelper {
     @Nullable
     public static Entity getEntityByUUID(Level world, UUID portalId) {
         return ((IEWorld) world).portal_getEntityLookup().get(portalId);
+    }
+    
+    /**
+     * Firstly try to use translatable `dimension.modid.dimension_id`.
+     * If missing, try to get the mod name and use "a dimension of mod_name" or "a dimension of modid"
+     */
+    public static Component getDimensionName(ResourceKey<Level> dimension) {
+        String namespace = dimension.location().getNamespace();
+        String path = dimension.location().getPath();
+        String translationkey = "dimension." + namespace + "." + path;
+        MutableComponent component = Component.translatable(translationkey);
+        
+        if (component.getString().equals(translationkey)) {
+            // no translation
+            // try to get the mod name
+            String modName = O_O.getModName(namespace);
+            if (modName != null) {
+                return Component.translatable("imm_ptl.a_dimension_of", modName)
+                    .append(" (" + dimension.location() + ")");
+            }
+            else {
+                return Component.translatable("imm_ptl.a_dimension_of", namespace)
+                    .append(" (" + dimension.location() + ")");
+            }
+        }
+        
+        return component;
     }
 }

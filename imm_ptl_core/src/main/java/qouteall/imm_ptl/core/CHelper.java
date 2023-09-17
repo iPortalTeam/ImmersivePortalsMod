@@ -10,7 +10,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -191,28 +190,4 @@ public class CHelper {
         return dimIconPath;
     }
     
-    /**
-     * Firstly try to use translatable `dimension.modid.dimension_id`.
-     * If missing, try to get the mod name and use "a dimension of mod_name" or "a dimension of modid"
-     */
-    public static Component getDimensionName(ResourceKey<Level> dimension) {
-        String namespace = dimension.location().getNamespace();
-        String path = dimension.location().getPath();
-        String translationkey = "dimension." + namespace + "." + path;
-        MutableComponent component = Component.translatable(translationkey);
-        
-        if (component.getString().equals(translationkey)) {
-            // no translation
-            // try to get the mod name
-            String modName = O_O.getModName(namespace);
-            if (modName != null) {
-                return Component.translatable("imm_ptl.a_dimension_of", modName);
-            }
-            else {
-                return Component.translatable("imm_ptl.a_dimension_of", namespace);
-            }
-        }
-        
-        return component;
-    }
 }

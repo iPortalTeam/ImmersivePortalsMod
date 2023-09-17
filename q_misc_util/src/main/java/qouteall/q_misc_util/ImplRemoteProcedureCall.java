@@ -197,42 +197,42 @@ public class ImplRemoteProcedureCall {
     @Environment(EnvType.CLIENT)
     public static Runnable clientReadPacketAndGetHandler(FriendlyByteBuf buf) {
         String methodPath = null;
-        Method method;
+        
         try {
             methodPath = buf.readUtf();
-            method = getMethodByPath(methodPath);
+            Method method = getMethodByPath(methodPath);
+            
+            Type[] genericParameterTypes = method.getGenericParameterTypes();
+            
+            Object[] arguments = new Object[genericParameterTypes.length];
+            
+            for (int i = 0; i < genericParameterTypes.length; i++) {
+                Type parameterType = genericParameterTypes[i];
+                Object obj = deserializeArgument(buf, parameterType);
+                arguments[i] = obj;
+            }
+            
+            return () -> {
+                try {
+                    method.invoke(null, arguments);
+                }
+                catch (Exception e) {
+                    LIMITED_LOGGER.invoke(() -> {
+                        LOGGER.error("Processing remote procedure call", e);
+                        clientTellFailure();
+                    });
+                }
+            };
         }
         catch (Exception e) {
             String methodPath_ = methodPath;
             LIMITED_LOGGER.invoke(() -> {
-                LOGGER.error("Failed to get method {}", methodPath_, e);
+                LOGGER.error("Failed to parse remote procedure call {}", methodPath_, e);
                 clientTellFailure();
             });
             
             return () -> {};
         }
-        
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        
-        Object[] arguments = new Object[genericParameterTypes.length];
-        
-        for (int i = 0; i < genericParameterTypes.length; i++) {
-            Type parameterType = genericParameterTypes[i];
-            Object obj = deserializeArgument(buf, parameterType);
-            arguments[i] = obj;
-        }
-        
-        return () -> {
-            try {
-                method.invoke(null, arguments);
-            }
-            catch (Exception e) {
-                LIMITED_LOGGER.invoke(() -> {
-                    LOGGER.error("Processing remote procedure call", e);
-                    clientTellFailure();
-                });
-            }
-        };
     }
     
     @Environment(EnvType.CLIENT)
@@ -244,43 +244,42 @@ public class ImplRemoteProcedureCall {
     
     public static Runnable serverReadPacketAndGetHandler(ServerPlayer player, FriendlyByteBuf buf) {
         String methodPath = null;
-        Method method;
         try {
             methodPath = buf.readUtf();
-            method = getMethodByPath(methodPath);
+            Method method = getMethodByPath(methodPath);
+            
+            Type[] genericParameterTypes = method.getGenericParameterTypes();
+            
+            Object[] arguments = new Object[genericParameterTypes.length];
+            arguments[0] = player;
+            
+            //the first argument is the player
+            for (int i = 1; i < genericParameterTypes.length; i++) {
+                Type parameterType = genericParameterTypes[i];
+                Object obj = deserializeArgument(buf, parameterType);
+                arguments[i] = obj;
+            }
+            
+            return () -> {
+                try {
+                    method.invoke(null, arguments);
+                }
+                catch (Exception e) {
+                    LIMITED_LOGGER.invoke(() -> {
+                        LOGGER.error("Processing remote procedure call {}", player, e);
+                        serverTellFailure(player);
+                    });
+                }
+            };
         }
         catch (Exception e) {
             String methodPath_ = methodPath;
             LIMITED_LOGGER.invoke(() -> {
-                LOGGER.error("Failed to get method {}", methodPath_, e);
+                LOGGER.error("Failed to parse remote procedure call {}", methodPath_, e);
                 serverTellFailure(player);
             });
             return () -> {};
         }
-        
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        
-        Object[] arguments = new Object[genericParameterTypes.length];
-        arguments[0] = player;
-        
-        //the first argument is the player
-        for (int i = 1; i < genericParameterTypes.length; i++) {
-            Type parameterType = genericParameterTypes[i];
-            Object obj = deserializeArgument(buf, parameterType);
-            arguments[i] = obj;
-        }
-        
-        return () -> {
-            try {
-                method.invoke(null, arguments);
-            }
-            catch (Exception e) {
-                LIMITED_LOGGER.invoke(() -> {
-                    LOGGER.error("Processing remote procedure call {}", player, e);
-                    serverTellFailure(player);
-                });
-            }
-        };
     }
     
     private static void serverTellFailure(ServerPlayer player) {
