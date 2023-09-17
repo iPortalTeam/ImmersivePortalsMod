@@ -110,6 +110,10 @@ public class NewChunkTrackingGraph {
         
         public int loadedChunks = 0;
         
+        // normally chunk loading will update following to an interval
+        // but if this is true, it will immediately update next tick
+        public boolean shouldUpdateImmediately = false;
+        
         public PerformanceLevel performanceLevel = PerformanceLevel.bad;
         
         public PlayerInfo() {
@@ -252,7 +256,7 @@ public class NewChunkTrackingGraph {
     
     private static int getChunkDeliveringLimitPerTick(ServerPlayer player) {
         return 200; // no need to throttle chunk packet sending as there is already chunk loading throttling
-        
+
 //        if (player.tickCount < 100) {
 //            return 200;
 //        }
@@ -398,8 +402,13 @@ public class NewChunkTrackingGraph {
         
         long gameTime = McHelper.getOverWorldOnServer().getGameTime();
         server.getPlayerList().getPlayers().forEach(player -> {
+            PlayerInfo playerInfo = getPlayerInfo(player);
+            
             // spread the player updates to different ticks
-            if ((player.getId() % updateInterval) == (gameTime % updateInterval)) {
+            if (playerInfo.shouldUpdateImmediately ||
+                ((player.getId() % updateInterval) == (gameTime % updateInterval))
+            ) {
+                playerInfo.shouldUpdateImmediately = false;
                 updateForPlayer(player);
             }
             flushPendingLoading(player, generationCounter);
@@ -618,7 +627,9 @@ public class NewChunkTrackingGraph {
     public static void addPerPlayerAdditionalChunkLoader(
         ServerPlayer player, ChunkLoader chunkLoader
     ) {
-        getPlayerInfo(player).additionalChunkLoaders.add(chunkLoader);
+        PlayerInfo playerInfo = getPlayerInfo(player);
+        playerInfo.additionalChunkLoaders.add(chunkLoader);
+        playerInfo.shouldUpdateImmediately = true;
     }
     
     /**
