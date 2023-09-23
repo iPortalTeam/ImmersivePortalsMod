@@ -61,6 +61,7 @@ public class GuiPortalRendering {
         
         if (!worldRenderInfo.doRenderSky) {
             // pre-clear the framebuffer with 0 alpha, if it doesn't render the sky
+            // use purple color for debugging (seeing purple usually means not enabling alpha blend)
             framebuffer.setClearColor(1.0f, 0, 1.0f, 0);
             framebuffer.clear(true);
         }

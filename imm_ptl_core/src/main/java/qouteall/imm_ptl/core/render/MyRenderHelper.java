@@ -21,11 +21,11 @@ import org.apache.commons.lang3.Validate;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
 import java.awt.*;
@@ -173,7 +173,7 @@ public class MyRenderHelper {
             CHelper.getCurrentCameraPos(),
             RenderStates.getPartialTick()
         );
-    
+        
         
         shader.clear();
     }
@@ -206,7 +206,7 @@ public class MyRenderHelper {
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuilder();
         bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
-    
+        
         // upper triangle
 //        bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
 //            .endVertex();
@@ -214,7 +214,7 @@ public class MyRenderHelper {
 //            .endVertex();
 //        bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
 //            .endVertex();
-    
+        
         // down triangle
         bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
             .endVertex();
@@ -222,7 +222,7 @@ public class MyRenderHelper {
             .endVertex();
         bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
             .endVertex();
-    
+        
         bufferBuilder.vertex(1, 0, 0).color(r, g, b, a)
             .endVertex();
         bufferBuilder.vertex(0, 1, 0).color(r, g, b, a)
@@ -343,8 +343,8 @@ public class MyRenderHelper {
         
         shader.setSampler("DiffuseSampler", textureProvider.getColorTextureId());
         
-        Matrix4f projectionMatrix = (new Matrix4f()).setOrtho(0.0F, (float)viewportWidth, (float)viewportHeight, 0.0F, 1000.0F, 3000.0F);
-    
+        Matrix4f projectionMatrix = (new Matrix4f()).setOrtho(0.0F, (float) viewportWidth, (float) viewportHeight, 0.0F, 1000.0F, 3000.0F);
+        
         shader.MODEL_VIEW_MATRIX.set(new Matrix4f().translation(0.0F, 0.0F, -2000.0F));
         
         shader.PROJECTION_MATRIX.set(projectionMatrix);
@@ -444,14 +444,14 @@ public class MyRenderHelper {
     }
     
     public static float transformFogDistance(float value) {
-        if (IPGlobal.debugDisableFog) {
+        if (!WorldRenderInfo.isFogEnabled()) {
             return value * 23333;
         }
-    
+        
         // just disable fog for fuse-view portals for now
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-        
+            
             if (renderingPortal.isFuseView()) {
                 return value * 23333;
             }

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IECamera;
 
 import java.util.List;
@@ -64,6 +65,8 @@ public class WorldRenderInfo {
     
     public final boolean doRenderSky;
     
+    public final boolean hasFog;
+    
     public final @Nullable IsometricParameters isometricParameters;
     
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
@@ -107,6 +110,7 @@ public class WorldRenderInfo {
         this.enableViewBobbing = true;
         this.doRenderSky = true;
         this.isometricParameters = null;
+        this.hasFog = true;
     }
     
     // TODO change to private in 1.20.2
@@ -130,6 +134,7 @@ public class WorldRenderInfo {
         this.enableViewBobbing = enableViewBobbing;
         this.doRenderSky = true;
         this.isometricParameters = null;
+        this.hasFog = true;
     }
     
     private WorldRenderInfo(
@@ -141,6 +146,7 @@ public class WorldRenderInfo {
         boolean doRenderHand,
         boolean enableViewBobbing,
         boolean doRenderSky,
+        boolean hasFog,
         @Nullable IsometricParameters isometricParameters
     ) {
         this.world = world;
@@ -152,6 +158,7 @@ public class WorldRenderInfo {
         this.doRenderHand = doRenderHand;
         this.enableViewBobbing = enableViewBobbing;
         this.doRenderSky = doRenderSky;
+        this.hasFog = hasFog;
         this.isometricParameters = isometricParameters;
     }
     
@@ -237,6 +244,18 @@ public class WorldRenderInfo {
         return renderInfoStack.stream().allMatch(info -> info.enableViewBobbing);
     }
     
+    public static boolean isFogEnabled() {
+        if (IPGlobal.debugDisableFog) {
+            return false;
+        }
+        
+        if (isRendering()) {
+            return getTopRenderInfo().hasFog;
+        }
+        
+        return true;
+    }
+    
     public static class Builder {
         private ClientLevel world;
         private Vec3 cameraPos;
@@ -247,6 +266,7 @@ public class WorldRenderInfo {
         private boolean doRenderHand = false;
         private boolean enableViewBobbing = true;
         private boolean doRenderSky = true;
+        private boolean hasFog = true;
         private @Nullable IsometricParameters isometricParameters = null;
         
         public Builder() {
@@ -297,6 +317,11 @@ public class WorldRenderInfo {
             return this;
         }
         
+        public Builder setHasFog(boolean hasFog) {
+            this.hasFog = hasFog;
+            return this;
+        }
+        
         public Builder setIsometricParameters(@Nullable IsometricParameters isometricParameters) {
             this.isometricParameters = isometricParameters;
             return this;
@@ -308,7 +333,7 @@ public class WorldRenderInfo {
             return new WorldRenderInfo(
                 world, cameraPos, cameraTransformation, overwriteCameraTransformation,
                 description, renderDistance, doRenderHand, enableViewBobbing,
-                doRenderSky, isometricParameters
+                doRenderSky, hasFog, isometricParameters
             );
         }
     }

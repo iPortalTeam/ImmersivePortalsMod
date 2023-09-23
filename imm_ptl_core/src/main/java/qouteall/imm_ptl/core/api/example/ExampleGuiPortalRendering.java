@@ -174,6 +174,8 @@ public class ExampleGuiPortalRendering {
                 .setRenderDistance(minecraft.options.getEffectiveRenderDistance())
                 .setDoRenderHand(false)
                 .setEnableViewBobbing(false)
+                .setDoRenderSky(false)
+                .setHasFog(false)
                 .build();
             
             // Ask it to render the world into the framebuffer the next frame
@@ -184,7 +186,8 @@ public class ExampleGuiPortalRendering {
             int w = minecraft.getWindow().getWidth();
             MyRenderHelper.drawFramebuffer(
                 frameBuffer,
-                false, false,
+                true, // enable alpha blend
+                false, // don't modify alpha
                 w * 0.2f, w * 0.8f,
                 h * 0.2f, h * 0.8f
             );
