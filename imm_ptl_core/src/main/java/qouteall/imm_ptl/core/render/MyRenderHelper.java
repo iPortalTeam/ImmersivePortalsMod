@@ -327,6 +327,20 @@ public class MyRenderHelper {
         
         if (doUseAlphaBlend) {
             RenderSystem.enableBlend();
+            
+            // this is used for rendering a FB onto screen when the FB contains translucent things
+            // the FB should initialize with zero color and zero alpha
+            // MC's default blend func is: color = srcColor * srcAlpha + dstColor * (1-srcAlpha)
+            // then the FB's rendered content would be fbColor = contentColor * contentAlpha
+            // we want the roughtly same effect of rendering the translucent thing directly onto current FB, so we want:
+            // color = contentColor * contentAlpha + dstColor * (1-contentAlpha)
+            // color = fbColor * 1 + dstColor * (1-contentAlpha)
+            RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ZERO,
+                GlStateManager.DestFactor.ONE
+            );
         }
         else {
             RenderSystem.disableBlend();
@@ -380,6 +394,7 @@ public class MyRenderHelper {
         GlStateManager._colorMask(true, true, true, true);
         
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         
         CHelper.checkGlError();
     }
