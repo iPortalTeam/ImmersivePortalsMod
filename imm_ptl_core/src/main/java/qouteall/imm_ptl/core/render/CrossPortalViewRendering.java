@@ -13,7 +13,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -82,14 +81,16 @@ public class CrossPortalViewRendering {
         
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
         
-        WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
-            ClientWorldLoader.getWorld(portal.dimensionTo),
-            renderingCameraPos, portal.getAdditionalCameraTransformation(),
-            false, null,
-            client.options.getEffectiveRenderDistance(),
-            ((IEGameRenderer) client.gameRenderer).getDoRenderHand(),
-            false
-        );
+        WorldRenderInfo worldRenderInfo = new WorldRenderInfo.Builder()
+            .setWorld(ClientWorldLoader.getWorld(portal.dimensionTo))
+            .setCameraPos(renderingCameraPos)
+            .setCameraTransformation(portal.getAdditionalCameraTransformation())
+            .setOverwriteCameraTransformation(true)
+            .setDescription(null)
+            .setRenderDistance(client.options.getEffectiveRenderDistance())
+            .setDoRenderHand(false)
+            .setEnableViewBobbing(false)
+            .build();
         
         IPCGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         

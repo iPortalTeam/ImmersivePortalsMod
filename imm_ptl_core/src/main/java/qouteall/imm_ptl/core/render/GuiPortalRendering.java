@@ -59,6 +59,12 @@ public class GuiPortalRendering {
         
         ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(framebuffer);
         
+        if (!worldRenderInfo.doRenderSky) {
+            // pre-clear the framebuffer with 0 alpha, if it doesn't render the sky
+            framebuffer.setClearColor(1.0f, 0, 1.0f, 0);
+            framebuffer.clear(true);
+        }
+        
         framebuffer.bindWrite(true);
         
         IPCGlobal.renderer.prepareRendering();

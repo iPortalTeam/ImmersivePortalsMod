@@ -498,12 +498,14 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "renderSky",
-        at = @At("HEAD"), cancellable = true
+        method = "renderSky", at = @At("HEAD"), cancellable = true
     )
-    private void onRenderSkyBegin(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
-        if (PortalRendering.isRendering()) {
-            if (PortalRendering.getRenderingPortal().isFuseView()) {
+    private void onRenderSkyBegin(
+        PoseStack poseStack, Matrix4f matrix4f, float partialTick, Camera camera,
+        boolean isFoggy, Runnable runnable, CallbackInfo ci
+    ) {
+        if (WorldRenderInfo.isRendering()) {
+            if (!WorldRenderInfo.getTopRenderInfo().doRenderSky) {
                 if (!IrisInterface.invoker.isShaders()) {
                     ci.cancel();
                 }

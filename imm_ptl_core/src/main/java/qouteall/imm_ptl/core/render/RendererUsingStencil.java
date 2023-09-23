@@ -13,6 +13,7 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.List;
 
@@ -32,11 +33,9 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public boolean replaceFrameBufferClearing() {
-        boolean skipClearing = PortalRendering.isRendering();
+        boolean skipClearing = WorldRenderInfo.isRendering();
         if (skipClearing) {
-            boolean isSkyTransparent = PortalRendering.getRenderingPortal().isFuseView();
-            
-            if (!isSkyTransparent) {
+            if (WorldRenderInfo.getTopRenderInfo().doRenderSky) {
                 RenderSystem.depthMask(false);
                 MyRenderHelper.renderScreenTriangle(FogRendererContext.getCurrentFogColor.get());
                 RenderSystem.depthMask(true);

@@ -239,15 +239,19 @@ public abstract class PortalRenderer {
         
         int renderDistance = getPortalRenderDistance(portalLike);
         
-        invokeWorldRendering(new WorldRenderInfo(
-            newWorld,
-            PortalRendering.getRenderingCameraPos(),
-            portalLike.getAdditionalCameraTransformation(),
-            false, portalLike.getDiscriminator(),
-            renderDistance,
-            false,
-            true
-        ));
+        invokeWorldRendering(
+            new WorldRenderInfo.Builder()
+                .setWorld(newWorld)
+                .setCameraPos(PortalRendering.getRenderingCameraPos())
+                .setCameraTransformation(portalLike.getAdditionalCameraTransformation())
+                .setOverwriteCameraTransformation(false)
+                .setDescription(portalLike.getDiscriminator())
+                .setRenderDistance(renderDistance)
+                .setDoRenderHand(false)
+                .setEnableViewBobbing(true)
+                .setDoRenderSky(!portalLike.isFuseView())
+                .build()
+        );
         
         PortalRendering.onEndPortalWorldRendering();
         

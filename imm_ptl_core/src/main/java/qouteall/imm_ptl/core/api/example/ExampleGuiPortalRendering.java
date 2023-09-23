@@ -165,16 +165,16 @@ public class ExampleGuiPortalRendering {
             );
             
             // Create the world render info
-            WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
-                ClientWorldLoader.getWorld(viewingDimension), // the world that it renders
-                cameraPosition, // the camera position
-                cameraTransformation, // the camera transformation
-                true, // does not apply this transformation to the existing player camera
-                null, // the ID to identify rendering context (for occlusion querying). can be null.
-                minecraft.options.getEffectiveRenderDistance(),// render distance
-                false, // don't render hand
-                false // disable view bobbing
-            );
+            WorldRenderInfo worldRenderInfo = new WorldRenderInfo.Builder()
+                .setWorld(ClientWorldLoader.getWorld(viewingDimension))
+                .setCameraPos(cameraPosition)
+                .setCameraTransformation(cameraTransformation)
+                .setOverwriteCameraTransformation(true) // do not apply camera transformation to existing player camera transformation
+                .setDescription(null)
+                .setRenderDistance(minecraft.options.getEffectiveRenderDistance())
+                .setDoRenderHand(false)
+                .setEnableViewBobbing(false)
+                .build();
             
             // Ask it to render the world into the framebuffer the next frame
             GuiPortalRendering.submitNextFrameRendering(worldRenderInfo, frameBuffer);

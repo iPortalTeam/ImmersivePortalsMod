@@ -21,6 +21,10 @@ import java.util.stream.Collectors;
  */
 public class WorldRenderInfo {
     
+    public static record IsometricParameters(
+    
+    ) {}
+    
     /**
      * The dimension that it's going to render
      */
@@ -58,11 +62,16 @@ public class WorldRenderInfo {
     
     public final boolean enableViewBobbing;
     
+    public final boolean doRenderSky;
+    
+    public final @Nullable IsometricParameters isometricParameters;
+    
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
     
     private static @Nullable List<UUID> renderingDescCache = null;
     
     // should use the builder or the full constructor
+    // TODO remove in 1.20.2
     @Deprecated
     public WorldRenderInfo(
         ClientLevel world, Vec3 cameraPos,
@@ -77,7 +86,8 @@ public class WorldRenderInfo {
         );
     }
     
-    // should use the builder or the full constructor
+    // should use the builder
+    // TODO remove in 1.20.2
     @Deprecated
     public WorldRenderInfo(
         ClientLevel world, Vec3 cameraPos,
@@ -95,8 +105,12 @@ public class WorldRenderInfo {
         this.overwriteCameraTransformation = overwriteCameraTransformation;
         this.doRenderHand = doRenderHand;
         this.enableViewBobbing = true;
+        this.doRenderSky = true;
+        this.isometricParameters = null;
     }
     
+    // TODO change to private in 1.20.2
+    @Deprecated
     public WorldRenderInfo(
         ClientLevel world, Vec3 cameraPos,
         @Nullable Matrix4f cameraTransformation,
@@ -114,6 +128,31 @@ public class WorldRenderInfo {
         this.overwriteCameraTransformation = overwriteCameraTransformation;
         this.doRenderHand = doRenderHand;
         this.enableViewBobbing = enableViewBobbing;
+        this.doRenderSky = true;
+        this.isometricParameters = null;
+    }
+    
+    private WorldRenderInfo(
+        ClientLevel world, Vec3 cameraPos,
+        @Nullable Matrix4f cameraTransformation,
+        boolean overwriteCameraTransformation,
+        @Nullable UUID description,
+        int renderDistance,
+        boolean doRenderHand,
+        boolean enableViewBobbing,
+        boolean doRenderSky,
+        @Nullable IsometricParameters isometricParameters
+    ) {
+        this.world = world;
+        this.cameraPos = cameraPos;
+        this.cameraTransformation = cameraTransformation;
+        this.description = description;
+        this.renderDistance = renderDistance;
+        this.overwriteCameraTransformation = overwriteCameraTransformation;
+        this.doRenderHand = doRenderHand;
+        this.enableViewBobbing = enableViewBobbing;
+        this.doRenderSky = doRenderSky;
+        this.isometricParameters = isometricParameters;
     }
     
     public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {
@@ -128,7 +167,7 @@ public class WorldRenderInfo {
     
     public static void adjustCameraPos(Camera camera) {
         if (!renderInfoStack.isEmpty()) {
-            WorldRenderInfo currWorldRenderInfo = renderInfoStack.peek();
+            WorldRenderInfo currWorldRenderInfo = getTopRenderInfo();
             ((IECamera) camera).portal_setPos(currWorldRenderInfo.cameraPos);
         }
     }
@@ -182,12 +221,16 @@ public class WorldRenderInfo {
             return Minecraft.getInstance().options.getEffectiveRenderDistance();
         }
         
-        return renderInfoStack.peek().renderDistance;
+        return getTopRenderInfo().renderDistance;
+    }
+    
+    public static WorldRenderInfo getTopRenderInfo() {
+        return renderInfoStack.peek();
     }
     
     public static Vec3 getCameraPos() {
         Validate.isTrue(!renderInfoStack.isEmpty());
-        return renderInfoStack.peek().cameraPos;
+        return getTopRenderInfo().cameraPos;
     }
     
     public static boolean isViewBobbingEnabled() {
@@ -197,20 +240,16 @@ public class WorldRenderInfo {
     public static class Builder {
         private ClientLevel world;
         private Vec3 cameraPos;
-        private Matrix4f cameraTransformation;
-        private boolean overwriteCameraTransformation;
-        private UUID description;
-        private int renderDistance;
-        private boolean doRenderHand;
-        private boolean enableViewBobbing;
+        private Matrix4f cameraTransformation = null;
+        private boolean overwriteCameraTransformation = true;
+        private UUID description = null;
+        private int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance();
+        private boolean doRenderHand = false;
+        private boolean enableViewBobbing = true;
+        private boolean doRenderSky = true;
+        private @Nullable IsometricParameters isometricParameters = null;
         
         public Builder() {
-            this.cameraTransformation = null;
-            this.overwriteCameraTransformation = false;
-            this.description = null;
-            this.renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance();
-            this.doRenderHand = false;
-            this.enableViewBobbing = true;
         }
         
         public Builder setWorld(ClientLevel world) {
@@ -253,12 +292,23 @@ public class WorldRenderInfo {
             return this;
         }
         
+        public Builder setDoRenderSky(boolean doRenderSky) {
+            this.doRenderSky = doRenderSky;
+            return this;
+        }
+        
+        public Builder setIsometricParameters(@Nullable IsometricParameters isometricParameters) {
+            this.isometricParameters = isometricParameters;
+            return this;
+        }
+        
         public WorldRenderInfo build() {
             Validate.notNull(world);
             Validate.notNull(cameraPos);
             return new WorldRenderInfo(
                 world, cameraPos, cameraTransformation, overwriteCameraTransformation,
-                description, renderDistance, doRenderHand, enableViewBobbing
+                description, renderDistance, doRenderHand, enableViewBobbing,
+                doRenderSky, isometricParameters
             );
         }
     }
