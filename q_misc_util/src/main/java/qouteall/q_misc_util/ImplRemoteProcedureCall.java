@@ -11,10 +11,6 @@ import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -36,10 +32,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import qouteall.q_misc_util.my_util.CountDownInt;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -52,8 +47,7 @@ import java.util.function.Function;
 
 public class ImplRemoteProcedureCall {
     private static final Logger LOGGER = LogUtils.getLogger();
-    
-    private static final CountDownInt LOG_LIMIT = new CountDownInt(100);
+    private static final LimitedLogger LIMITED_LOGGER = new LimitedLogger(100);
     
     public static final Gson gson = MiscHelper.gson;
     
@@ -63,156 +57,6 @@ public class ImplRemoteProcedureCall {
     private static final ImmutableMap<Type, Function<FriendlyByteBuf, Object>> deserializerMap;
     
     private static final JsonParser jsonParser = new JsonParser();
-    
-    public static final PacketType<StcPayload> stcType = PacketType.create(
-        new ResourceLocation("imm_ptl", "rpc_stc"),
-        StcPayload::read
-    );
-    
-    public static final PacketType<CtsPayload> ctsType = PacketType.create(
-        new ResourceLocation("imm_ptl", "rpc_cts"),
-        CtsPayload::read
-    );
-    
-    public static record StcPayload(
-        // it is null when creating new packet and non-null after deserializing
-        @Nullable Method method,
-        String methodPath,
-        Object[] arguments
-    ) implements FabricPacket {
-        
-        public static StcPayload read(FriendlyByteBuf buf) {
-            String methodPath = buf.readUtf();
-            Method method = getMethodByPath(methodPath);
-            
-            Type[] genericParameterTypes = method.getGenericParameterTypes();
-            
-            Object[] arguments = new Object[genericParameterTypes.length];
-            
-            for (int i = 0; i < genericParameterTypes.length; i++) {
-                Type parameterType = genericParameterTypes[i];
-                Object obj = deserializeArgument(buf, parameterType);
-                arguments[i] = obj;
-            }
-            
-            return new StcPayload(method, methodPath, arguments);
-        }
-        
-        @Override
-        public void write(FriendlyByteBuf buf) {
-            buf.writeUtf(methodPath);
-            
-            for (Object argument : arguments) {
-                serializeArgument(buf, argument);
-            }
-        }
-        
-        @Override
-        public PacketType<?> getType() {
-            return stcType;
-        }
-        
-        public void invoke() {
-            try {
-                Validate.notNull(method, "method is null. %s", methodPath);
-                method.invoke(null, arguments);
-            }
-            catch (Exception e) {
-                if (LOG_LIMIT.tryDecrement()) {
-                    LOGGER.error("Processing remote procedure call", e);
-                    clientTellFailure();
-                }
-            }
-        }
-    }
-    
-    public static record CtsPayload(
-        // it is null when creating new packet and non-null after deserializing
-        @Nullable Method method,
-        String methodPath,
-        Object[] arguments // these arguments do not contain the player reference
-    ) implements FabricPacket {
-        
-        public static CtsPayload read(FriendlyByteBuf buf) {
-            try {
-                String methodPath = buf.readUtf();
-                Method method = getMethodByPath(methodPath);
-                
-                Type[] genericParameterTypes = method.getGenericParameterTypes();
-                
-                Validate.isTrue(
-                    genericParameterTypes.length >= 1,
-                    "the method %s must have at least one argument for player",
-                    methodPath
-                );
-                
-                // the first argument is the player
-                Object[] arguments = new Object[genericParameterTypes.length - 1];
-                
-                for (int i = 0; i < genericParameterTypes.length - 1; i++) {
-                    Type parameterType = genericParameterTypes[i + 1];
-                    Object obj = deserializeArgument(buf, parameterType);
-                    arguments[i] = obj;
-                }
-                
-                return new CtsPayload(method, methodPath, arguments);
-            }
-            catch (Exception e) {
-                if (LOG_LIMIT.tryDecrement()) {
-                    LOGGER.error("Failed to parse remote procedure call", e);
-                    serverTellFailure();
-                }
-                throw e;
-            }
-        }
-        
-        @Override
-        public void write(FriendlyByteBuf buf) {
-            buf.writeUtf(methodPath);
-            
-            for (Object argument : arguments) {
-                serializeArgument(buf, argument);
-            }
-        }
-        
-        @Override
-        public PacketType<?> getType() {
-            return ctsType;
-        }
-        
-        public void invoke(ServerPlayer player) {
-            try {
-                Validate.notNull(method, "method is null. %s", methodPath);
-                
-                Object[] argsForInvoking = new Object[arguments.length + 1];
-                argsForInvoking[0] = player;
-                System.arraycopy(
-                    arguments, 0, argsForInvoking, 1, arguments.length
-                );
-                
-                method.invoke(null, argsForInvoking);
-            }
-            catch (Exception e) {
-                if (LOG_LIMIT.tryDecrement()) {
-                    LOGGER.error("Processing remote procedure call from {}", player, e);
-                    serverTellFailure(player);
-                }
-            }
-        }
-    }
-    
-    private static Object[] readArguments(FriendlyByteBuf buf, Method method) {
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        
-        Object[] arguments = new Object[genericParameterTypes.length];
-        
-        for (int i = 0; i < genericParameterTypes.length; i++) {
-            Type parameterType = genericParameterTypes[i];
-            Object obj = deserializeArgument(buf, parameterType);
-            arguments[i] = obj;
-        }
-        return arguments;
-    }
     
     static {
         serializerMap = ImmutableMap.<Class, BiConsumer<FriendlyByteBuf, Object>>builder()
@@ -274,19 +118,6 @@ public class ImplRemoteProcedureCall {
             )
             .put(byte[].class, buf -> buf.readByteArray())
             .build();
-    }
-    
-    public static void init() {
-        ServerPlayNetworking.registerGlobalReceiver(
-            ctsType,
-            (CtsPayload payload, ServerPlayer player, PacketSender respSender) -> {
-            
-            }
-        );
-    }
-    
-    public static void initClient() {
-    
     }
     
     @SuppressWarnings("rawtypes")
@@ -371,7 +202,15 @@ public class ImplRemoteProcedureCall {
             methodPath = buf.readUtf();
             Method method = getMethodByPath(methodPath);
             
-            Object[] arguments = readArguments(buf, method);
+            Type[] genericParameterTypes = method.getGenericParameterTypes();
+            
+            Object[] arguments = new Object[genericParameterTypes.length];
+            
+            for (int i = 0; i < genericParameterTypes.length; i++) {
+                Type parameterType = genericParameterTypes[i];
+                Object obj = deserializeArgument(buf, parameterType);
+                arguments[i] = obj;
+            }
             
             return () -> {
                 try {
