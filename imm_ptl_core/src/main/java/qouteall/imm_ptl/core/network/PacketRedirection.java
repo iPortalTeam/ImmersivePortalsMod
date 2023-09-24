@@ -6,23 +6,27 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.BundleDelimiterPacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -90,6 +94,7 @@ public class PacketRedirection {
         else {
             serverPlayNetworkHandler.send(
                 createRedirectedMessage(
+                    serverPlayNetworkHandler.player.server,
                     dimension,
                     packet
                 )
@@ -113,51 +118,108 @@ public class PacketRedirection {
         PacketRedirectionClient.handleRedirectedPacket(dimension, packet, handler);
     }
     
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Packet<ClientGamePacketListener> createRedirectedMessage(
+        MinecraftServer server,
         ResourceKey<Level> dimension,
         Packet<ClientGamePacketListener> packet
     ) {
-        Validate.isTrue(!(packet instanceof BundleDelimiterPacket<ClientGamePacketListener>));
+        Validate.isTrue(!(packet instanceof BundleDelimiterPacket));
         if (packet instanceof ClientboundBundlePacket bundlePacket) {
             // vanilla has special handling to bundle packet
             // don't wrap a bundle packet into a normal packet
             List<Packet<ClientGamePacketListener>> newSubPackets = new ArrayList<>();
-            for (Packet<ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
-                newSubPackets.add(createRedirectedMessage(dimension, subPacket));
+            for (var subPacket : bundlePacket.subPackets()) {
+                newSubPackets.add(createRedirectedMessage(server, dimension, subPacket));
             }
+            
             return new ClientboundBundlePacket(newSubPackets);
         }
         else {
-            ClientboundCustomPayloadPacket result =
-                new ClientboundCustomPayloadPacket(id_stcRedirected, dummyByteBuf);
+            // will use the server argument in the future
+            int intDimId = DimensionIdRecord.serverRecord.getIntId(dimension);
+            Payload payload = new Payload(intDimId, packet);
             
-            ((IECustomPayloadPacket) result).ip_setRedirectedDimension(dimension);
-            ((IECustomPayloadPacket) result).ip_setRedirectedPacket(packet);
+            // the custom payload packet should be able to be bundled
+            // the bundle accepts Packet<ClientGamePacketListener>
+            // but the custom payload packet is Packet<ClientCommonPacketListener>
+            // the generic parameter is contravariant (it's used as argument),
+            // which means changing it to subtype is fine
             
-            return result;
+            return (Packet<ClientGamePacketListener>) (Packet)
+                new ClientboundCustomPayloadPacket(payload);
         }
     }
     
     public static void sendRedirectedMessage(
         ServerPlayer player,
         ResourceKey<Level> dimension,
-        Packet packet
+        Packet<ClientGamePacketListener> packet
     ) {
-        player.connection.send(createRedirectedMessage(dimension, packet));
+        player.connection.send(createRedirectedMessage(player.server, dimension, packet));
     }
     
-    public static int getPacketId(Packet packet) {
+    private static final ConnectionProtocol.CodecData<?> clientPlayCodecData =
+        ConnectionProtocol.PLAY.codec(PacketFlow.CLIENTBOUND);
+    
+    public static int getPacketId(Packet<?> packet) {
         try {
-            return ConnectionProtocol.PLAY.getPacketId(PacketFlow.CLIENTBOUND, packet);
+            return clientPlayCodecData.packetId(packet);
         }
         catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
     
-    public static Packet createPacketById(
-        int messageType, FriendlyByteBuf buf
-    ) {
-        return ConnectionProtocol.PLAY.createPacket(PacketFlow.CLIENTBOUND, messageType, buf);
+    public static Packet<?> readPacketById(int messageType, FriendlyByteBuf buf) {
+        return clientPlayCodecData.createPacket(messageType, buf);
+    }
+    
+    public static class Payload implements CustomPacketPayload {
+        // use integer here because the mapping between dimension id and integer id is per-server
+        // the deserialization context does not give access to MinecraftServer object
+        // (going to handle the case of multiple servers per JVM)
+        public int dimensionIntId = 0;
+        public @Nullable Packet<? extends ClientCommonPacketListener> packet;
+        
+        public Payload() {
+        
+        }
+        
+        public Payload(
+            int dimensionIntId,
+            @NotNull Packet<? extends ClientCommonPacketListener> packet
+        ) {
+            this.dimensionIntId = dimensionIntId;
+            this.packet = packet;
+        }
+        
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            Validate.notNull(packet, "packet is null");
+            
+            buf.writeVarInt(dimensionIntId);
+            
+            int packetId = getPacketId(packet);
+            buf.writeVarInt(packetId);
+            
+            packet.write(buf);
+        }
+        
+        @SuppressWarnings("unchecked")
+        public static Payload read(FriendlyByteBuf buf) {
+            int dimensionIntId = buf.readVarInt();
+            
+            int packetId = buf.readVarInt();
+            Packet<ClientGamePacketListener> packet =
+                (Packet<ClientGamePacketListener>) readPacketById(packetId, buf);
+            
+            return new Payload(dimensionIntId, packet);
+        }
+        
+        @Override
+        public @NotNull ResourceLocation id() {
+            return id_stcRedirected;
+        }
     }
 }

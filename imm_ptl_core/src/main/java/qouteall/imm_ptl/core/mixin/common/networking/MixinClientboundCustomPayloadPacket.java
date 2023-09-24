@@ -60,7 +60,7 @@ public class MixinClientboundCustomPayloadPacket implements IECustomPayloadPacke
             ResourceKey<Level> dimension = DimId.readWorldId(buf, true);
             
             int packetId = buf.readInt();
-            Packet packet = PacketRedirection.createPacketById(packetId, buf);
+            Packet packet = PacketRedirection.readPacketById(packetId, buf);
             if (packet == null) {
                 throw new RuntimeException("Unknown packet id %d in %s".formatted(packetId, dimension.location()));
             }

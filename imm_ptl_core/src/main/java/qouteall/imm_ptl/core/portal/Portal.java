@@ -13,7 +13,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -524,7 +523,7 @@ public class Portal extends Entity implements
         CompoundTag customData = new CompoundTag();
         addAdditionalSaveData(customData);
         
-        ClientboundCustomPayloadPacket packet = McRemoteProcedureCall.createPacketToSendToClient(
+        var packet = McRemoteProcedureCall.createPacketToSendToClient(
             "qouteall.imm_ptl.core.portal.Portal.RemoteCallables.acceptPortalDataSync",
             level().dimension(),
             getId(),

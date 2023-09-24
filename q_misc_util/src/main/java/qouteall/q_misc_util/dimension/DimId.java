@@ -23,7 +23,7 @@ public class DimId {
             DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
             int intId = record.getIntId(dimension);
-            buf.writeInt(intId);
+            buf.writeVarInt(intId);
         }
         else {
             buf.writeResourceLocation(dimension.location());
@@ -40,7 +40,7 @@ public class DimId {
         if (useIntegerId) {
             DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
-            int intId = buf.readInt();
+            int intId = buf.readVarInt();
             return record.getDim(intId);
         }
         else {
