@@ -11,6 +11,8 @@ import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -19,8 +21,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -120,6 +123,28 @@ public class ImplRemoteProcedureCall {
             .build();
     }
     
+    public static void init() {
+        ServerPlayNetworking.registerGlobalReceiver(
+            MiscNetworking.id_stcRemote,
+            (server, player, handler, buf, responseSender) -> {
+                Runnable runnable = serverReadPacketAndGetHandler(player, buf);
+                MiscHelper.executeOnServerThread(runnable);
+            }
+        );
+        
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void initClient() {
+        ClientPlayNetworking.registerGlobalReceiver(
+            MiscNetworking.id_stcRemote,
+            (client, handler, buf, responseSender) -> {
+                Runnable runnable = clientReadPacketAndGetHandler(buf);
+                MiscHelper.executeOnRenderThread(runnable);
+            }
+        );
+    }
+    
     @SuppressWarnings("rawtypes")
     private static Object deserializeByCodec(FriendlyByteBuf buf, Codec codec) {
         String jsonString = buf.readUtf();
@@ -172,7 +197,7 @@ public class ImplRemoteProcedureCall {
     }
     
     @Environment(EnvType.CLIENT)
-    public static ServerboundCustomPayloadPacket createC2SPacket(
+    public static Packet<ServerCommonPacketListener> createC2SPacket(
         String methodPath,
         Object... arguments
     ) {
@@ -180,10 +205,10 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new ServerboundCustomPayloadPacket(MiscNetworking.id_ctsRemote, buf);
+        return ClientPlayNetworking.createC2SPacket(MiscNetworking.id_ctsRemote, buf);
     }
     
-    public static ClientboundCustomPayloadPacket createS2CPacket(
+    public static Packet<ClientCommonPacketListener> createS2CPacket(
         String methodPath,
         Object... arguments
     ) {
@@ -191,7 +216,7 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new ClientboundCustomPayloadPacket(MiscNetworking.id_stcRemote, buf);
+        return ServerPlayNetworking.createS2CPacket(MiscNetworking.id_stcRemote, buf);
     }
     
     @Environment(EnvType.CLIENT)

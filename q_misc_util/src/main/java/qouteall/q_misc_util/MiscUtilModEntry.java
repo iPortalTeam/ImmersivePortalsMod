@@ -17,6 +17,8 @@ public class MiscUtilModEntry implements ModInitializer {
         
         DynamicDimensionsImpl.init();
         
+        ImplRemoteProcedureCall.init();
+        
         MiscNetworking.init();
         
         ServerTickEvents.END_SERVER_TICK.register(server -> {

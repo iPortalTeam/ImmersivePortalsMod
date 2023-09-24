@@ -1,18 +1,19 @@
 package qouteall.q_misc_util;
 
-import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
@@ -36,13 +37,13 @@ public class MiscNetworking {
         Supplier<FriendlyByteBuf> buf,
         ClientGamePacketListener networkHandler
     ) {
-        if (id.equals(id_stcRemote)) {
+        /*if (id.equals(id_stcRemote)) {
             MiscHelper.executeOnRenderThread(
                 ImplRemoteProcedureCall.clientReadPacketAndGetHandler(buf.get())
             );
             return true;
-        }
-        else if (id.equals(id_stcDimSync)) {
+        }*/
+        if (id.equals(id_stcDimSync)) {
             processDimSync(buf.get(), networkHandler);
             return true;
         }
@@ -54,12 +55,12 @@ public class MiscNetworking {
         ServerPlayer player,
         FriendlyByteBuf buf
     ) {
-        if (id.equals(id_ctsRemote)) {
-            MiscHelper.executeOnServerThread(
-                ImplRemoteProcedureCall.serverReadPacketAndGetHandler(player, buf)
-            );
-            return true;
-        }
+//        if (id.equals(id_ctsRemote)) {
+//            MiscHelper.executeOnServerThread(
+//                ImplRemoteProcedureCall.serverReadPacketAndGetHandler(player, buf)
+//            );
+//            return true;
+//        }
         return false;
     }
     
@@ -75,18 +76,26 @@ public class MiscNetworking {
     public static Packet createDimSyncPacket() {
         Validate.notNull(DimensionIdRecord.serverRecord);
         
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        return new ClientboundCustomPayloadPacket(new CustomPacketPayload() {
+            @Override
+            public void write(FriendlyByteBuf buf) {
+                CompoundTag idMapTag = DimensionIdRecord.recordToTag(
+                    DimensionIdRecord.serverRecord,
+                    dim -> MiscHelper.getServer().getLevel(dim) != null
+                );
+                buf.writeNbt(idMapTag);
+                
+                CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
+                buf.writeNbt(typeMapTag);
+            }
+            
+            @Override
+            public @NotNull ResourceLocation id() {
+                return id_stcDimSync;
+            }
+        });
         
-        CompoundTag idMapTag = DimensionIdRecord.recordToTag(
-            DimensionIdRecord.serverRecord,
-            dim -> MiscHelper.getServer().getLevel(dim) != null
-        );
-        buf.writeNbt(idMapTag);
-        
-        CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
-        buf.writeNbt(typeMapTag);
-        
-        return new ClientboundCustomPayloadPacket(id_stcDimSync, buf);
+//        return new ClientboundCustomPayloadPacket(id_stcDimSync, buf);
     }
     
     @Environment(EnvType.CLIENT)
