@@ -171,7 +171,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
         
-        //is it necessary?
         MyGameRenderer.resetDiffuseLighting(matrices);
         
         FrontClipping.disableClipping();

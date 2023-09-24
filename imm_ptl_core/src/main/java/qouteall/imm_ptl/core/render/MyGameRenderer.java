@@ -286,6 +286,10 @@ public class MyGameRenderer {
         );
     }
     
+    /**
+     * {@link LevelRenderer#renderLevel(PoseStack, float, long, boolean, Camera, GameRenderer, LightTexture, Matrix4f)}
+     */
+    @IPVanillaCopy
     public static void resetDiffuseLighting(PoseStack matrixStack) {
         if (client.level.effects().constantAmbientLight()) {
             Lighting.setupNetherLevel(matrixStack.last().pose());
