@@ -7,7 +7,11 @@ import qouteall.q_misc_util.Helper;
 
 import java.util.function.Supplier;
 
-// Log error and avoid spam.
+/**
+ * Log error and avoid spam.
+ * TODO replace with {@link CountDownInt}
+ */
+@Deprecated
 public class LimitedLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(LimitedLogger.class);
     
