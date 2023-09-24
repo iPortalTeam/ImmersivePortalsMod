@@ -1,3 +1,10 @@
-Fix rendering issue of connected room case.
+Allow GUI portal functionality to have transparent sky.
 
-Fix a rendering issue of portal wand create mode.
+ImmPtl API's additional chunk loader's removal now removes chunk loader by object reference.
+
+Fix velocity reset on end portal teleportation.
+
+Enhancement to `/portal goback`.
+
+Update Sodium compat version to 0.5.3 and Iris to 1.6.9.
+

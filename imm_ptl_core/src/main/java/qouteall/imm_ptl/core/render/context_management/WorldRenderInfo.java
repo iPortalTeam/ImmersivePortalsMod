@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class WorldRenderInfo {
     
     public static record IsometricParameters(
-    
+    // TODO
     ) {}
     
     /**
@@ -67,6 +67,7 @@ public class WorldRenderInfo {
     
     public final boolean hasFog;
     
+    // NOTE not yet implemented
     public final @Nullable IsometricParameters isometricParameters;
     
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
@@ -322,6 +323,7 @@ public class WorldRenderInfo {
             return this;
         }
         
+        // Note not yet implemented
         public Builder setIsometricParameters(@Nullable IsometricParameters isometricParameters) {
             this.isometricParameters = isometricParameters;
             return this;
