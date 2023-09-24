@@ -17,11 +17,11 @@ transitive-accessible method com/mojang/blaze3d/shaders/Program$Type getGlType (
 
 transitive-extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
 
-transitive-accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
+#transitive-accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
 
-transitive-accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
+#transitive-accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
 
-transitive-accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
+#transitive-accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 
 transitive-extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
 
