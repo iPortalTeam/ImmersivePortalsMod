@@ -21,7 +21,7 @@ transitive-extendable method net/minecraft/world/entity/Entity getBoundingBox ()
 
 #transitive-accessible method net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo <init> (Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;Lnet/minecraft/core/Direction;I)V
 
-#transitive-accessible class net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
+transitive-accessible class net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask
 
 transitive-extendable class net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator
 

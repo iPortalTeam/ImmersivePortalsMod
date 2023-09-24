@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
@@ -141,7 +142,7 @@ public class MyGameRenderer {
         LightTexture oldLightmap = client.gameRenderer.lightTexture();
         boolean oldNoClip = client.player.noPhysics;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        ObjectArrayList<LevelRenderer.RenderChunkInfo> oldChunkInfoList =
+        ObjectArrayList<SectionRenderDispatcher.RenderSection> oldChunkInfoList =
             ((IEWorldRenderer) oldWorldRenderer).portal_getChunkInfoList();
         HitResult oldCrosshairTarget = client.hitResult;
         Camera oldCamera = client.gameRenderer.getMainCamera();
@@ -154,7 +155,7 @@ public class MyGameRenderer {
         // the view bobbing is related with scale
         Matrix4f oldProjectionMatrix = RenderSystem.getProjectionMatrix();
         
-        ObjectArrayList<LevelRenderer.RenderChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
+        ObjectArrayList<SectionRenderDispatcher.RenderSection> newChunkInfoList = VisibleSectionDiscovery.takeList();
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
         Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);

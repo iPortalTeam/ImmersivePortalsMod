@@ -143,7 +143,7 @@ public class VisibleSectionDiscovery {
                 ieBuiltChunk.portal_setMark(timeMark);// mark it checked
                 if (skipFrustumTest || isVisible(builtChunk)) {
                     tempQueue.add(builtChunk);
-                    resultHolder.add(ieBuiltChunk.portal_getDummyChunkInfo());
+                    resultHolder.add(builtChunk);
                 }
             }
         }

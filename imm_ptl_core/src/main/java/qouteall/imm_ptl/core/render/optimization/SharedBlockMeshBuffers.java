@@ -2,15 +2,16 @@ package qouteall.imm_ptl.core.render.optimization;
 
 import com.google.common.collect.Queues;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -21,9 +22,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Some dimension will have no buffer and the chunk cannot rebuild.
  */
 public class SharedBlockMeshBuffers {
-    public static final ThreadLocal<Object> bufferTemp =
+    public static final ThreadLocal<SectionBufferBuilderPack> bufferTemp =
         ThreadLocal.withInitial(() -> null);
-    public static final ThreadLocal<Object> taskTemp =
+    public static final ThreadLocal<SectionRenderDispatcher.RenderSection.CompileTask> taskTemp =
         ThreadLocal.withInitial(() -> null);
     
     public static void init() {
@@ -31,9 +32,9 @@ public class SharedBlockMeshBuffers {
     }
     
     /**
-     * {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher}
+     * {@link net.minecraft.client.renderer.chunk.SectionRenderDispatcher}
      */
-    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> threadBuffers;
+    public static ConcurrentLinkedQueue<SectionBufferBuilderPack> threadBuffers;
     
     public static boolean isEnabled() {
         if (SodiumInterface.invoker.isSodiumPresent()) {
@@ -42,7 +43,7 @@ public class SharedBlockMeshBuffers {
         return IPGlobal.enableSharedBlockMeshBuffers;
     }
     
-    public static ConcurrentLinkedQueue<ChunkBufferBuilderPack> acquireThreadBuffers() {
+    public static ConcurrentLinkedQueue<SectionBufferBuilderPack> acquireThreadBuffers() {
         if (threadBuffers == null) {
             createThreadBuffers();
         }
@@ -63,11 +64,11 @@ public class SharedBlockMeshBuffers {
         int effectiveProcessors = is64Bits ? availableProcessors : Math.min(availableProcessors, 4);
         int bufferCount = Math.max(1, Math.min(effectiveProcessors, bufferCountEstimation));
         
-        ArrayList<ChunkBufferBuilderPack> list = new ArrayList<>();
+        ArrayList<SectionBufferBuilderPack> list = new ArrayList<>();
         
         try {
             for (int m = 0; m < bufferCount; ++m) {
-                list.add(new ChunkBufferBuilderPack());
+                list.add(new SectionBufferBuilderPack());
             }
         }
         catch (OutOfMemoryError error) {

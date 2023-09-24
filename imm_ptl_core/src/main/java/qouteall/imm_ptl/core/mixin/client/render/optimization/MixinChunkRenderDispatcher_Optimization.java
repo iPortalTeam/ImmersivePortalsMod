@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.util.thread.ProcessorMailbox;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 
-@Mixin(ChunkRenderDispatcher.class)
+@Mixin(SectionRenderDispatcher.class)
 public abstract class MixinChunkRenderDispatcher_Optimization {
     @Shadow
     private volatile int freeBufferCount;
@@ -25,7 +25,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
     @Mutable
     @Shadow
     @Final
-    private Queue<ChunkBufferBuilderPack> freeBuffers;
+    private Queue<SectionBufferBuilderPack> freeBuffers;
     
     @Shadow
     @Final
@@ -36,18 +36,18 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
     
     @Shadow
     @Nullable
-    protected abstract ChunkRenderDispatcher.RenderChunk.ChunkCompileTask pollTask();
+    protected abstract SectionRenderDispatcher.RenderSection.CompileTask pollTask();
     
     @Shadow
     private volatile int toBatchCount;
     
     @Shadow
     @Final
-    private PriorityBlockingQueue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchHighPriority;
+    private PriorityBlockingQueue<SectionRenderDispatcher.RenderSection.CompileTask> toBatchHighPriority;
     
     @Shadow
     @Final
-    private Queue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchLowPriority;
+    private Queue<SectionRenderDispatcher.RenderSection.CompileTask> toBatchLowPriority;
     
     @Shadow
     @Final
@@ -106,16 +106,16 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
             target = "Ljava/util/Queue;isEmpty()Z"
         )
     )
-    private boolean redirectIsEmpty(Queue bufferQueue) {
+    private boolean redirectIsEmpty(Queue<SectionBufferBuilderPack> bufferQueue) {
         if (!SharedBlockMeshBuffers.isEnabled()) {
             return bufferQueue.isEmpty();
         }
         
-        Object buffer = bufferQueue.poll();
+        SectionBufferBuilderPack buffer = bufferQueue.poll();
         
         if (buffer != null) {
             for (; ; ) {
-                ChunkRenderDispatcher.RenderChunk.ChunkCompileTask polledTask = pollTask();
+                SectionRenderDispatcher.RenderSection.CompileTask polledTask = pollTask();
                 
                 if (polledTask != null) {
                     if (((IEChunkCompileTask) polledTask).getIsCancelled().get()) {
@@ -154,21 +154,21 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         method = "runTask",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;pollTask()Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask;"
+            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;pollTask()Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;"
         )
     )
-    ChunkRenderDispatcher.RenderChunk.ChunkCompileTask redirectPollTask(ChunkRenderDispatcher instance) {
+    SectionRenderDispatcher.RenderSection.CompileTask redirectPollTask(SectionRenderDispatcher instance) {
         if (!SharedBlockMeshBuffers.isEnabled()) {
             return pollTask();
         }
         
-        Object task = SharedBlockMeshBuffers.taskTemp.get();
+        var task = SharedBlockMeshBuffers.taskTemp.get();
         
         Validate.notNull(task);
         
         SharedBlockMeshBuffers.taskTemp.set(null);
         
-        return (ChunkRenderDispatcher.RenderChunk.ChunkCompileTask) task;
+        return task;
     }
     
     @Redirect(
@@ -183,7 +183,7 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
             return queue.poll();
         }
         
-        Object object = SharedBlockMeshBuffers.bufferTemp.get();
+        var object = SharedBlockMeshBuffers.bufferTemp.get();
         
         Validate.notNull(object);
         

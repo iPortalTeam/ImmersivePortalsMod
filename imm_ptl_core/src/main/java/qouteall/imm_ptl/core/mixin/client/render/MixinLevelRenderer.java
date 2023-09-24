@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.ViewArea;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -86,9 +86,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     );
     
     @Shadow
-    private ChunkRenderDispatcher chunkRenderDispatcher;
-    
-    @Shadow
     private PostChain transparencyChain;
     
     @Mutable
@@ -122,13 +119,16 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Nullable
     private VertexBuffer cloudBuffer;
     
-    @Mutable
-    @Shadow
-    @Final
-    private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
-    
     @Shadow
     protected abstract void deinitTransparency();
+    
+    @Shadow
+    private @Nullable SectionRenderDispatcher sectionRenderDispatcher;
+    
+    @Shadow
+    @Final
+    @Mutable
+    private ObjectArrayList<SectionRenderDispatcher.RenderSection> visibleSections;
     
     @Inject(
         method = "renderLevel",
@@ -213,7 +213,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLorg/joml/Matrix4f;)V"
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSectionLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLorg/joml/Matrix4f;)V"
         )
     )
     private void onBeforeRenderingLayer(
@@ -244,7 +244,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLorg/joml/Matrix4f;)V",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSectionLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLorg/joml/Matrix4f;)V",
             shift = At.Shift.AFTER
         )
     )
@@ -275,7 +275,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     ) {
         if (WorldRenderInfo.isRendering()) {
             if (level.dimension() != RenderStates.originalPlayerDimension) {
-                chunkRenderDispatcher.setCamera(camera.getPosition());
+                sectionRenderDispatcher.setCamera(camera.getPosition());
             }
         }
         
@@ -286,7 +286,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                     level, ((MyBuiltChunkStorage) viewArea),
                     camera,
                     new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
-                    renderChunksInFrustum
+                    visibleSections
                 );
                 level.getProfiler().pop();
                 
@@ -319,7 +319,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                         level, ((MyBuiltChunkStorage) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
-                        renderChunksInFrustum
+                        visibleSections
                     );
                     level.getProfiler().pop();
                 }
@@ -330,7 +330,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                         level, ((MyBuiltChunkStorage) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
-                        renderChunksInFrustum
+                        visibleSections
                     );
                     level.getProfiler().pop();
                 }
@@ -356,11 +356,11 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "allChanged",
         at = @At(
             value = "NEW",
-            target = "net/minecraft/client/renderer/ViewArea"
+            target = "Lnet/minecraft/client/renderer/ViewArea"
         )
     )
     private ViewArea redirectConstructingBuildChunkStorage(
-        ChunkRenderDispatcher chunkBuilder_1,
+        SectionRenderDispatcher chunkBuilder_1,
         Level world_1,
         int int_1,
         LevelRenderer worldRenderer_1
@@ -595,10 +595,10 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     /**
      * when rendering portal, it won't call {@link ViewArea#repositionCamera(double, double)}
-     * So {@link ViewArea#getRenderChunkAt(BlockPos)} will return incorrect result
+     * So {@link ViewArea#getRenderSectionAt(BlockPos)} will return incorrect result
      */
     @Inject(
-        method = "isChunkCompiled",
+        method = "isSectionCompiled",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -614,12 +614,12 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     private boolean ip_isChunkCompiled(MyBuiltChunkStorage myBuiltChunkStorage, BlockPos blockPos) {
         SectionPos sectionPos = SectionPos.of(blockPos);
-        ChunkRenderDispatcher.RenderChunk renderChunk = myBuiltChunkStorage.rawGet(
+        var renderChunk = myBuiltChunkStorage.rawGet(
             sectionPos.x(), sectionPos.y(), sectionPos.z()
         );
         
         return renderChunk != null
-            && renderChunk.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED;
+            && renderChunk.compiled.get() != SectionRenderDispatcher.CompiledSection.UNCOMPILED;
     }
     
     @Override
@@ -630,11 +630,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Override
     public ViewArea ip_getBuiltChunkStorage() {
         return viewArea;
-    }
-    
-    @Override
-    public ChunkRenderDispatcher getChunkBuilder() {
-        return chunkRenderDispatcher;
     }
     
     @Override
@@ -703,12 +698,12 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public void portal_setChunkInfoList(ObjectArrayList<LevelRenderer.RenderChunkInfo> arg) {
-        renderChunksInFrustum = arg;
+    public void portal_setChunkInfoList(ObjectArrayList<SectionRenderDispatcher.RenderSection> arg) {
+        visibleSections = arg;
     }
     
     @Override
-    public ObjectArrayList<LevelRenderer.RenderChunkInfo> portal_getChunkInfoList() {
-        return renderChunksInFrustum;
+    public ObjectArrayList<SectionRenderDispatcher.RenderSection> portal_getChunkInfoList() {
+        return visibleSections;
     }
 }

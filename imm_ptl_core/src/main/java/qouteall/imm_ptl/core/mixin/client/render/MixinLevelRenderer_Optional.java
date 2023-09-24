@@ -6,7 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ViewArea;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -34,7 +34,7 @@ public class MixinLevelRenderer_Optional {
     
     //avoid translucent sort while rendering portal
     @Redirect(
-        method = "renderChunkLayer",
+        method = "renderSectionLayer",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
@@ -55,11 +55,13 @@ public class MixinLevelRenderer_Optional {
         method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;setCamera(Lnet/minecraft/world/phys/Vec3;)V"
+            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;setCamera(Lnet/minecraft/world/phys/Vec3;)V"
         ),
         require = 0
     )
-    private void onSetChunkBuilderCameraPosition(ChunkRenderDispatcher chunkBuilder, Vec3 cameraPosition) {
+    private void onSetChunkBuilderCameraPosition(
+        SectionRenderDispatcher chunkBuilder, Vec3 cameraPosition
+    ) {
         if (PortalRendering.isRendering()) {
             if (minecraft.level.dimension() == RenderStates.originalPlayerDimension) {
                 return;
@@ -69,7 +71,7 @@ public class MixinLevelRenderer_Optional {
     }
     
     @Inject(
-        method = "renderChunkLayer",
+        method = "renderSectionLayer",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/ShaderInstance;apply()V"

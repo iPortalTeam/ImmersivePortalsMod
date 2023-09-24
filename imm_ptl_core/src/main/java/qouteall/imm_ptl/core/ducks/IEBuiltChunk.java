@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
-
 public interface IEBuiltChunk {
     void portal_fullyReset();
     
@@ -11,5 +9,4 @@ public interface IEBuiltChunk {
     
     void portal_setIndex(int arg);
     
-    SectionRenderDispatcher.RenderSection portal_getDummyChunkInfo();
 }
