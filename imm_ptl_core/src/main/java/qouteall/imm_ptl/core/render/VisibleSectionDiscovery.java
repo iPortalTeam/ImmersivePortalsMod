@@ -5,8 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -28,8 +27,7 @@ import java.util.Stack;
  * Discover visible sections by breadth-first traverse, for portal rendering.
  * Probably faster than vanilla (because no cave culling and garbage object allocation).
  * No multi-threading because portal rendering camera views are very dynamic which is not suitable for that.
- * No cave culling because vanilla has a multithreaded cave culling that's very
- *  hard to integrate with portal rendering.
+ * No cave culling because vanilla has a multithreaded cave culling that's hard to integrate with portal rendering.
  * The cave culling is conditionally enabled with Sodium: {@link PortalRendering#shouldEnableSodiumCaveCulling()}
  */
 @Environment(EnvType.CLIENT)
@@ -37,8 +35,8 @@ public class VisibleSectionDiscovery {
     
     private static MyBuiltChunkStorage builtChunks;
     private static Frustum vanillaFrustum;
-    private static ObjectArrayList<LevelRenderer.RenderChunkInfo> resultHolder;
-    private static final ArrayDeque<ChunkRenderDispatcher.RenderChunk> tempQueue = new ArrayDeque<>();
+    private static ObjectArrayList<RenderSection> resultHolder;
+    private static final ArrayDeque<RenderSection> tempQueue = new ArrayDeque<>();
     private static SectionPos cameraSectionPos;
     private static long timeMark;
     private static int viewDistance;
@@ -48,7 +46,7 @@ public class VisibleSectionDiscovery {
         MyBuiltChunkStorage builtChunks_,
         Camera camera,
         Frustum vanillaFrustum_,
-        ObjectArrayList<LevelRenderer.RenderChunkInfo> resultHolder_
+        ObjectArrayList<RenderSection> resultHolder_
     ) {
         builtChunks = builtChunks_;
         vanillaFrustum = vanillaFrustum_;
@@ -82,7 +80,7 @@ public class VisibleSectionDiscovery {
         
         // breadth-first searching
         while (!tempQueue.isEmpty()) {
-            ChunkRenderDispatcher.RenderChunk curr = tempQueue.poll();
+            RenderSection curr = tempQueue.poll();
             int cx = SectionPos.blockToSectionCoord(curr.getOrigin().getX());
             int cy = SectionPos.blockToSectionCoord(curr.getOrigin().getY());
             int cz = SectionPos.blockToSectionCoord(curr.getOrigin().getZ());
@@ -109,7 +107,7 @@ public class VisibleSectionDiscovery {
     }
     
     // NOTE the vanilla frustum culling code may wrongly cull the first section
-    private static boolean isVisible(ChunkRenderDispatcher.RenderChunk builtChunk) {
+    private static boolean isVisible(RenderSection builtChunk) {
         AABB box = builtChunk.getBoundingBox();
         return vanillaFrustum.isVisible(box);
     }
@@ -137,7 +135,7 @@ public class VisibleSectionDiscovery {
             return;
         }
         
-        ChunkRenderDispatcher.RenderChunk builtChunk =
+        RenderSection builtChunk =
             builtChunks.rawFetch(cx, cy, cz, timeMark);
         if (builtChunk != null) {
             IEBuiltChunk ieBuiltChunk = (IEBuiltChunk) builtChunk;
@@ -151,9 +149,9 @@ public class VisibleSectionDiscovery {
         }
     }
     
-    private static final Stack<ObjectArrayList<LevelRenderer.RenderChunkInfo>> listCaches = new Stack<>();
+    private static final Stack<ObjectArrayList<RenderSection>> listCaches = new Stack<>();
     
-    public static ObjectArrayList<LevelRenderer.RenderChunkInfo> takeList() {
+    public static ObjectArrayList<RenderSection> takeList() {
         if (listCaches.isEmpty()) {
             return new ObjectArrayList<>();
         }
@@ -162,7 +160,7 @@ public class VisibleSectionDiscovery {
         }
     }
     
-    public static void returnList(ObjectArrayList<LevelRenderer.RenderChunkInfo> list) {
+    public static void returnList(ObjectArrayList<RenderSection> list) {
         list.clear();// avoid memory leak
         listCaches.push(list);
     }

@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
@@ -38,25 +38,25 @@ public class MyBuiltChunkStorage extends ViewArea {
     
     public static class Column {
         public long mark = 0;
-        public ChunkRenderDispatcher.RenderChunk[] chunks;
+        public RenderSection[] sections;
         
-        public Column(ChunkRenderDispatcher.RenderChunk[] chunks) {
-            this.chunks = chunks;
+        public Column(RenderSection[] sections) {
+            this.sections = sections;
         }
     }
     
     public static class Preset {
-        public final ChunkRenderDispatcher.RenderChunk[] data;
+        public final RenderSection[] data;
         public long lastActiveTime = 0;
         
         public Preset(
-            ChunkRenderDispatcher.RenderChunk[] data
+            RenderSection[] data
         ) {
             this.data = data;
         }
     }
     
-    private final ChunkRenderDispatcher factory;
+    private final SectionRenderDispatcher factory;
     private final Long2ObjectOpenHashMap<Column> columnMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<Preset> presets = new Long2ObjectOpenHashMap<>();
     private Preset currentPreset = null;
@@ -67,34 +67,34 @@ public class MyBuiltChunkStorage extends ViewArea {
     private boolean isAlive = true;
     
     public static void init() {
-        ImmPtlClientChunkMap.clientChunkUnloadSignal.connect(chunk -> {
-            ResourceKey<Level> dimension = chunk.getLevel().dimension();
+        ImmPtlClientChunkMap.clientChunkUnloadSignal.connect(section -> {
+            ResourceKey<Level> dimension = section.getLevel().dimension();
             
             LevelRenderer worldRenderer = ClientWorldLoader.worldRendererMap.get(dimension);
             
             if (worldRenderer != null) {
                 ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
                 if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
-                    myBuiltChunkStorage.onChunkUnload(chunk.getPos().x, chunk.getPos().z);
+                    myBuiltChunkStorage.onChunkUnload(section.getPos().x, section.getPos().z);
                 }
             }
         });
     }
     
     public MyBuiltChunkStorage(
-        ChunkRenderDispatcher chunkBuilder,
+        SectionRenderDispatcher sectionBuilder,
         Level world,
         int r,
         LevelRenderer worldRenderer
     ) {
-        super(chunkBuilder, world, r, worldRenderer);
-        factory = chunkBuilder;
+        super(sectionBuilder, world, r, worldRenderer);
+        factory = sectionBuilder;
         
         IPGlobal.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
         
-        int cacheSize = chunkGridSizeX * chunkGridSizeY * chunkGridSizeZ;
+        int cacheSize = this.sectionGridSizeX * this.sectionGridSizeY * this.sectionGridSizeZ;
         if (IPGlobal.cacheGlBuffer) {
             cacheSize = cacheSize / 10;
         }
@@ -104,16 +104,17 @@ public class MyBuiltChunkStorage extends ViewArea {
     }
     
     @Override
-    protected void createChunks(ChunkRenderDispatcher chunkBuilder_1) {
+    protected void createSections(SectionRenderDispatcher sectionBuilder_1) {
         // WorldRenderer#reload() reads its size
-        chunks = new RenderChunk[chunkGridSizeX * chunkGridSizeY * chunkGridSizeZ];
+        int num = this.sectionGridSizeX * this.sectionGridSizeY * this.sectionGridSizeZ;
+        sections = new RenderSection[num];
     }
     
     @Override
     public void releaseAllBuffers() {
-        Set<RenderChunk> allActiveBuiltChunks = getAllActiveBuiltChunks();
+        Set<RenderSection> allActiveBuiltChunks = getAllActiveBuiltChunks();
         allActiveBuiltChunks.forEach(
-            ChunkRenderDispatcher.RenderChunk::releaseBuffers
+            RenderSection::releaseBuffers
         );
         columnMap.clear();
         presets.clear();
@@ -124,11 +125,11 @@ public class MyBuiltChunkStorage extends ViewArea {
     /**
      * It will only be called during vanilla outer world rendering
      * Won't be called in portal rendering
-     * In {@link LevelRenderer#initializeQueueForFullUpdate(Camera, Queue)} it reads the RenderChunks in another thread.
+     * In {@link net.minecraft.client.renderer.SectionOcclusionGraph#initializeQueueForFullUpdate(Camera, Queue)} it reads the RenderChunks in another thread.
      */
     @Override
     public void repositionCamera(double playerX, double playerZ) {
-        Minecraft.getInstance().getProfiler().push("built_chunk_storage");
+        Minecraft.getInstance().getProfiler().push("built_section_storage");
         
         int cameraBlockX = Mth.floor(playerX);
         int cameraBlockZ = Mth.floor(playerZ);
@@ -147,7 +148,7 @@ public class MyBuiltChunkStorage extends ViewArea {
         );
         preset.lastActiveTime = System.nanoTime();
         
-        this.chunks = preset.data;
+        this.sections = preset.data;
         this.currentPreset = preset;
         
         Minecraft.getInstance().getProfiler().pop();
@@ -155,33 +156,33 @@ public class MyBuiltChunkStorage extends ViewArea {
     
     @Override
     public void setDirty(int cx, int cy, int cz, boolean isImportant) {
-        ChunkRenderDispatcher.RenderChunk builtChunk = provideBuiltChunkByChunkPos(cx, cy, cz);
+        RenderSection builtChunk = provideBuiltChunkByChunkPos(cx, cy, cz);
         builtChunk.setDirty(isImportant);
     }
     
-    public ChunkRenderDispatcher.RenderChunk provideBuiltChunkByChunkPos(int cx, int cy, int cz) {
+    public RenderSection provideBuiltChunkByChunkPos(int cx, int cy, int cz) {
         Column column = provideColumn(ChunkPos.asLong(cx, cz));
         int offsetChunkY = Mth.clamp(
             cy - McHelper.getMinSectionY(level), 0, McHelper.getYSectionNumber(level) - 1
         );
-        return column.chunks[offsetChunkY];
+        return column.sections[offsetChunkY];
     }
     
     /**
-     * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
+     * {@link ViewArea#repositionCamera(double, double)}
      */
-    private Preset createPresetByChunkPos(int chunkX, int chunkZ) {
-        ChunkRenderDispatcher.RenderChunk[] chunks1 =
-            new ChunkRenderDispatcher.RenderChunk[this.chunkGridSizeX * this.chunkGridSizeY * this.chunkGridSizeZ];
+    private Preset createPresetByChunkPos(int sectionX, int sectionZ) {
+        RenderSection[] sections1 =
+            new RenderSection[this.sectionGridSizeX * this.sectionGridSizeY * this.sectionGridSizeZ];
         
-        for (int cx = 0; cx < this.chunkGridSizeX; ++cx) {
-            int xBlockSize = this.chunkGridSizeX * 16;
-            int xStart = (chunkX << 4) - xBlockSize / 2;
+        for (int cx = 0; cx < this.sectionGridSizeX; ++cx) {
+            int xBlockSize = this.sectionGridSizeX * 16;
+            int xStart = (sectionX << 4) - xBlockSize / 2;
             int px = xStart + Math.floorMod(cx * 16 - xStart, xBlockSize);
             
-            for (int cz = 0; cz < this.chunkGridSizeZ; ++cz) {
-                int zBlockSize = this.chunkGridSizeZ * 16;
-                int zStart = (chunkZ << 4) - zBlockSize / 2;
+            for (int cz = 0; cz < this.sectionGridSizeZ; ++cz) {
+                int zBlockSize = this.sectionGridSizeZ * 16;
+                int zStart = (sectionZ << 4) - zBlockSize / 2;
                 int pz = zStart + Math.floorMod(cz * 16 - zStart, zBlockSize);
                 
                 Validate.isTrue(px % 16 == 0);
@@ -189,67 +190,67 @@ public class MyBuiltChunkStorage extends ViewArea {
                 
                 Column column = provideColumn(ChunkPos.asLong(px >> 4, pz >> 4));
                 
-                for (int offsetCy = 0; offsetCy < this.chunkGridSizeY; ++offsetCy) {
+                for (int offsetCy = 0; offsetCy < this.sectionGridSizeY; ++offsetCy) {
                     int index = this.getChunkIndex(cx, offsetCy, cz);
-                    chunks1[index] = column.chunks[offsetCy];
+                    sections1[index] = column.sections[offsetCy];
                 }
             }
         }
         
-        return new Preset(chunks1);
+        return new Preset(sections1);
     }
     
     /**
-     * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
+     * {@link ViewArea#repositionCamera(double, double)}
      */
     private void foreachPresetCoveredChunkPoses(
         int centerChunkX, int centerChunkZ,
         LongConsumer func
     ) {
-        ChunkRenderDispatcher.RenderChunk[] chunks1 =
-            new ChunkRenderDispatcher.RenderChunk[this.chunkGridSizeX * this.chunkGridSizeY * this.chunkGridSizeZ];
+        RenderSection[] sections1 =
+            new RenderSection[this.sectionGridSizeX * this.sectionGridSizeY * this.sectionGridSizeZ];
         
-        for (int cx = 0; cx < this.chunkGridSizeX; ++cx) {
-            int xBlockSize = this.chunkGridSizeX * 16;
+        for (int cx = 0; cx < this.sectionGridSizeX; ++cx) {
+            int xBlockSize = this.sectionGridSizeX * 16;
             int xStart = (centerChunkX << 4) - xBlockSize / 2;
             int px = xStart + Math.floorMod(cx * 16 - xStart, xBlockSize);
             
-            for (int cz = 0; cz < this.chunkGridSizeZ; ++cz) {
-                int zBlockSize = this.chunkGridSizeZ * 16;
+            for (int cz = 0; cz < this.sectionGridSizeZ; ++cz) {
+                int zBlockSize = this.sectionGridSizeZ * 16;
                 int zStart = (centerChunkZ << 4) - zBlockSize / 2;
                 int pz = zStart + Math.floorMod(cz * 16 - zStart, zBlockSize);
                 
                 Validate.isTrue(px % 16 == 0);
                 Validate.isTrue(pz % 16 == 0);
                 
-                long chunkPos = ChunkPos.asLong(px >> 4, pz >> 4);
+                long sectionPos = ChunkPos.asLong(px >> 4, pz >> 4);
                 
-                func.accept(chunkPos);
+                func.accept(sectionPos);
             }
         }
     }
     
     //copy because private
     private int getChunkIndex(int x, int y, int z) {
-        return (z * this.chunkGridSizeY + y) * this.chunkGridSizeX + x;
+        return (z * this.sectionGridSizeY + y) * this.sectionGridSizeX + x;
     }
     
-    public Column provideColumn(long chunkPos) {
-        return columnMap.computeIfAbsent(chunkPos, this::createColumn);
+    public Column provideColumn(long sectionPos) {
+        return columnMap.computeIfAbsent(sectionPos, this::createColumn);
     }
     
-    private Column createColumn(long chunkPos) {
-        ChunkRenderDispatcher.RenderChunk[] array = new ChunkRenderDispatcher.RenderChunk[chunkGridSizeY];
+    private Column createColumn(long sectionPos) {
+        RenderSection[] array = new RenderSection[sectionGridSizeY];
         
-        int chunkX = ChunkPos.getX(chunkPos);
-        int chunkZ = ChunkPos.getZ(chunkPos);
+        int sectionX = ChunkPos.getX(sectionPos);
+        int sectionZ = ChunkPos.getZ(sectionPos);
         
         int minY = McHelper.getMinY(level);
         
-        for (int offsetCY = 0; offsetCY < chunkGridSizeY; offsetCY++) {
-            ChunkRenderDispatcher.RenderChunk builtChunk = factory.new RenderChunk(
+        for (int offsetCY = 0; offsetCY < sectionGridSizeY; offsetCY++) {
+            RenderSection builtChunk = factory.new RenderSection(
                 0,
-                chunkX << 4, (offsetCY << 4) + minY, chunkZ << 4
+                sectionX << 4, (offsetCY << 4) + minY, sectionZ << 4
             );
             
             array[offsetCY] = builtChunk;
@@ -279,7 +280,7 @@ public class MyBuiltChunkStorage extends ViewArea {
     }
     
     private void purge() {
-        Minecraft.getInstance().getProfiler().push("my_built_chunk_storage_purge");
+        Minecraft.getInstance().getProfiler().push("my_built_section_storage_purge");
         
         long dropTime = Helper.secondToNano(GcMonitor.isMemoryNotEnough() ? 3 : 20);
         
@@ -308,14 +309,14 @@ public class MyBuiltChunkStorage extends ViewArea {
         
         long timeThreshold = Helper.secondToNano(5);
         
-        ArrayDeque<RenderChunk> toDelete = new ArrayDeque<>();
+        ArrayDeque<RenderSection> toDelete = new ArrayDeque<>();
         
         columnMap.long2ObjectEntrySet().removeIf(entry -> {
             Column column = entry.getValue();
             
             boolean shouldRemove = currentTime - column.mark > timeThreshold;
             if (shouldRemove) {
-                toDelete.addAll(Arrays.asList(column.chunks));
+                toDelete.addAll(Arrays.asList(column.sections));
             }
             
             return shouldRemove;
@@ -329,7 +330,7 @@ public class MyBuiltChunkStorage extends ViewArea {
                 
                 int num = 0;
                 while (!toDelete.isEmpty() && num < 100) {
-                    RenderChunk builtChunk = toDelete.poll();
+                    RenderSection builtChunk = toDelete.poll();
                     builtChunk.releaseBuffers();
                     num++;
                 }
@@ -342,31 +343,31 @@ public class MyBuiltChunkStorage extends ViewArea {
     }
     
     private boolean shouldDropPreset(long dropTime, long currentTime, Preset preset) {
-        if (preset.data == this.chunks) {
+        if (preset.data == this.sections) {
             return false;
         }
         return currentTime - preset.lastActiveTime > dropTime;
     }
     
-    private Set<ChunkRenderDispatcher.RenderChunk> getAllActiveBuiltChunks() {
-        HashSet<ChunkRenderDispatcher.RenderChunk> result = new HashSet<>();
+    private Set<RenderSection> getAllActiveBuiltChunks() {
+        HashSet<RenderSection> result = new HashSet<>();
         
         presets.forEach((key, preset) -> {
             result.addAll(Arrays.asList(preset.data));
         });
         
-        if (chunks != null) {
-            result.addAll(Arrays.asList(chunks));
+        if (sections != null) {
+            result.addAll(Arrays.asList(sections));
         }
         
-        // if this.chunks are all null, it will have a null
+        // if this.sections are all null, it will have a null
         result.remove(null);
         
         return result;
     }
     
     public int getManagedSectionNum() {
-        return columnMap.size() * chunkGridSizeY;
+        return columnMap.size() * sectionGridSizeY;
     }
     
     public String getDebugString() {
@@ -377,7 +378,7 @@ public class MyBuiltChunkStorage extends ViewArea {
     }
     
     public int getRadius() {
-        return (chunkGridSizeX - 1) / 2;
+        return (sectionGridSizeX - 1) / 2;
     }
     
     public boolean isRegionActive(int cxStart, int czStart, int cxEnd, int czEnd) {
@@ -392,26 +393,26 @@ public class MyBuiltChunkStorage extends ViewArea {
         return false;
     }
     
-    public void onChunkUnload(int chunkX, int chunkZ) {
-        long chunkPos = ChunkPos.asLong(chunkX, chunkZ);
-        Column column = columnMap.get(chunkPos);
+    public void onChunkUnload(int sectionX, int sectionZ) {
+        long sectionPos = ChunkPos.asLong(sectionX, sectionZ);
+        Column column = columnMap.get(sectionPos);
         if (column != null) {
-            for (ChunkRenderDispatcher.RenderChunk builtChunk : column.chunks) {
+            for (RenderSection builtChunk : column.sections) {
                 ((IEBuiltChunk) builtChunk).portal_fullyReset();
             }
         }
     }
     
-    public ChunkRenderDispatcher.RenderChunk getSectionFromRawArray(
-        BlockPos sectionOrigin, ChunkRenderDispatcher.RenderChunk[] chunks
+    public RenderSection getSectionFromRawArray(
+        BlockPos sectionOrigin, RenderSection[] sections
     ) {
         int i = Mth.floorDiv(sectionOrigin.getX(), 16);
         int j = Mth.floorDiv(sectionOrigin.getY() - McHelper.getMinY(level), 16);
         int k = Mth.floorDiv(sectionOrigin.getZ(), 16);
-        if (j >= 0 && j < this.chunkGridSizeY) {
-            i = Mth.positiveModulo(i, this.chunkGridSizeX);
-            k = Mth.positiveModulo(k, this.chunkGridSizeZ);
-            return chunks[this.getChunkIndex(i, j, k)];
+        if (j >= 0 && j < this.sectionGridSizeY) {
+            i = Mth.positiveModulo(i, this.sectionGridSizeX);
+            k = Mth.positiveModulo(k, this.sectionGridSizeZ);
+            return sections[this.getChunkIndex(i, j, k)];
         }
         else {
             return null;
@@ -421,22 +422,22 @@ public class MyBuiltChunkStorage extends ViewArea {
     // NOTE it may be accessed from another thread
     @Nullable
     @Override
-    protected RenderChunk getRenderChunkAt(BlockPos pos) {
+    protected RenderSection getRenderSectionAt(BlockPos pos) {
         int i = Mth.floorDiv(pos.getX(), 16);
         int j = Mth.floorDiv(pos.getY() - McHelper.getMinY(level), 16);
         int k = Mth.floorDiv(pos.getZ(), 16);
-        if (j >= 0 && j < this.chunkGridSizeY) {
-            i = Mth.positiveModulo(i, this.chunkGridSizeX);
-            k = Mth.positiveModulo(k, this.chunkGridSizeZ);
-            int chunkIndex = this.getChunkIndex(i, j, k);
-            RenderChunk result = this.chunks[chunkIndex];
+        if (j >= 0 && j < this.sectionGridSizeY) {
+            i = Mth.positiveModulo(i, this.sectionGridSizeX);
+            k = Mth.positiveModulo(k, this.sectionGridSizeZ);
+            int sectionIndex = this.getChunkIndex(i, j, k);
+            RenderSection result = this.sections[sectionIndex];
             
             if (result == null) {
                 Helper.err("Null RenderChunk " + pos);
                 return null;
             }
             
-            ((IEBuiltChunk) result).portal_setIndex(chunkIndex);
+            ((IEBuiltChunk) result).portal_setIndex(sectionIndex);
             return result;
         }
         else {
@@ -445,7 +446,7 @@ public class MyBuiltChunkStorage extends ViewArea {
     }
     
     @Nullable
-    public RenderChunk rawFetch(int cx, int cy, int cz, long timeMark) {
+    public RenderSection rawFetch(int cx, int cy, int cz, long timeMark) {
         if (cy < minSectionY || cy >= endSectionY) {
             return null;
         }
@@ -457,24 +458,24 @@ public class MyBuiltChunkStorage extends ViewArea {
         
         int yOffset = cy - minSectionY;
         
-        return column.chunks[yOffset];
+        return column.sections[yOffset];
     }
     
     @Nullable
-    public RenderChunk rawGet(int cx, int cy, int cz) {
+    public RenderSection rawGet(int cx, int cy, int cz) {
         if (cy < minSectionY || cy >= endSectionY) {
             return null;
         }
-    
+        
         long l = ChunkPos.asLong(cx, cz);
         Column column = columnMap.get(l);
-    
+        
         if (column == null) {
             return null;
         }
-    
+        
         int yOffset = cy - minSectionY;
-    
-        return column.chunks[yOffset];
+        
+        return column.sections[yOffset];
     }
 }
