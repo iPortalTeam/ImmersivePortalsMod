@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.FrameTimer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Final;
@@ -17,10 +16,6 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public abstract class MixinMinecraftServer implements IEMinecraftServer {
-    @Shadow
-    @Final
-    private FrameTimer frameTimer;
-    
     @Shadow
     public abstract ProfilerFiller getProfiler();
     
@@ -56,11 +51,6 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;
-    }
-    
-    @Override
-    public FrameTimer getMetricsDataNonClientOnly() {
-        return frameTimer;
     }
     
     @Override

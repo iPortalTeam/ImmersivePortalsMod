@@ -34,12 +34,8 @@ import java.util.function.Supplier;
 public class PacketRedirection {
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketRedirection.class);
     
-    public static final ResourceLocation id_stcRedirected =
+    public static final ResourceLocation payloadId =
         new ResourceLocation("imm_ptl", "rd");
-    
-    public static boolean isPacketIdOfRedirection(ResourceLocation packetTypeId) {
-        return packetTypeId.getNamespace().equals("imm_ptl") && packetTypeId.getPath().equals("rd");
-    }
     
     private static final ThreadLocal<ResourceKey<Level>> serverPacketRedirection =
         ThreadLocal.withInitial(() -> null);
@@ -219,7 +215,11 @@ public class PacketRedirection {
         
         @Override
         public @NotNull ResourceLocation id() {
-            return id_stcRedirected;
+            return payloadId;
+        }
+        
+        public void handle(ClientGamePacketListener listener) {
+        
         }
     }
 }

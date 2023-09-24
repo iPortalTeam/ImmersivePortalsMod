@@ -54,7 +54,6 @@
     "common.miscellaneous.MixinFishingHook",
     "common.miscellaneous.MixinMob",
     "common.networking.MixinClientboundCustomPayloadPacket",
-    "common.networking.MixinServerGamePacketListenerImpl_N",
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayer_Pose",
     "common.other_sync.MixinPlayerList",
