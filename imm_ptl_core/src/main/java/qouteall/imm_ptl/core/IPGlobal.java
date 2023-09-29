@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core;
 
 import com.google.gson.Gson;
 import me.shedaniel.autoconfig.ConfigHolder;
-import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.MiscHelper;
@@ -30,8 +29,6 @@ public class IPGlobal {
     public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
     public static final Signal clientCleanupSignal = new Signal();
     public static final Signal serverCleanupSignal = new Signal();
-    
-    public static ChunkDataSyncManager chunkDataSyncManager;
     
     public static ServerTeleportationManager serverTeleportationManager;
     

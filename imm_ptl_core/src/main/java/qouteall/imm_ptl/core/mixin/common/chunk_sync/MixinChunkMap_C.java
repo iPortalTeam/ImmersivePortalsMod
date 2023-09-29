@@ -19,8 +19,6 @@ import qouteall.imm_ptl.core.ducks.IEChunkMap;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
 public abstract class MixinChunkMap_C implements IEChunkMap {
-    @Shadow
-    private int viewDistance;
     
     @Shadow
     @Final
@@ -33,9 +31,12 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
     @Final
     private ThreadedLevelLightEngine lightEngine;
     
+    @Shadow
+    private int serverViewDistance;
+    
     @Override
     public int ip_getWatchDistance() {
-        return viewDistance;
+        return serverViewDistance;
     }
     
     @Override

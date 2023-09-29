@@ -48,7 +48,7 @@ import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoadingInfo;
+import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
@@ -460,7 +460,7 @@ public class PortalDebugCommands {
             .executes(context -> {
                 List<ServerPlayer> players = MiscHelper.getServer().getPlayerList().getPlayers();
                 for (ServerPlayer player : players) {
-                    PlayerChunkLoadingInfo playerInfo = NewChunkTrackingGraph.getPlayerInfo(player);
+                    PlayerChunkLoading playerInfo = NewChunkTrackingGraph.getPlayerInfo(player);
                     String text = "%s %d".formatted(player.getName().getString(), playerInfo.loadedChunks);
                     context.getSource().sendSuccess(() -> Component.literal(text), true);
                 }

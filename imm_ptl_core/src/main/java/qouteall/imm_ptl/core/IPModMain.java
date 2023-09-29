@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
-import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -67,7 +66,6 @@ public class IPModMain {
         IPGlobal.serverCleanupSignal.connect(IPGlobal.serverTaskList::forceClearTasks);
         
         IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
-        IPGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
         
         NewChunkTrackingGraph.init();
         

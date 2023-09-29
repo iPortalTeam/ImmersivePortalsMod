@@ -8,19 +8,22 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
+import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEServerCommonPacketListenerImpl;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +39,42 @@ public class NewChunkTrackingGraph {
     
     public static final int updateInterval = 13;
     public static final int defaultDelayUnloadGenerations = 4;
+    
+    public static void init() {
+        IPGlobal.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
+        IPGlobal.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
+        
+        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(
+            NewChunkTrackingGraph::onDimensionRemove
+        );
+    }
+    
+    public static void onChunkProvidedDeferred(LevelChunk chunk) {
+        // nothing for now
+    }
+    
+    // if the player object is recreated, input the old player
+    public static void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
+        for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+            ServerChunkCache chunkManager = world.getChunkSource();
+            IEChunkMap storage =
+                (IEChunkMap) chunkManager.chunkMap;
+            storage.ip_onPlayerUnload(oldPlayer);
+        }
+        
+        forceRemovePlayer(oldPlayer);
+    }
+    
+    public static void onDimensionRemove(ResourceKey<Level> dimension) {
+        ServerLevel world = McHelper.getServerWorld(dimension);
+        
+        ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
+        IEChunkMap storage =
+            (IEChunkMap) chunkManager.chunkMap;
+        storage.ip_onDimensionRemove();
+        
+        forceRemoveDimension(dimension);
+    }
     
     public static class PlayerWatchRecord {
         public final ServerPlayer player;
@@ -87,7 +126,7 @@ public class NewChunkTrackingGraph {
     
     private static final ArrayList<ChunkLoader> additionalChunkLoaders = new ArrayList<>();
     
-    private static final Object2ObjectOpenHashMap<ServerPlayer, PlayerChunkLoadingInfo> playerInfoMap =
+    private static final Object2ObjectOpenHashMap<ServerPlayer, PlayerChunkLoading> playerInfoMap =
         new Object2ObjectOpenHashMap<>();
     
     private static int generationCounter = 0;
@@ -97,12 +136,18 @@ public class NewChunkTrackingGraph {
         return chunkWatchRecords.computeIfAbsent(dimension, k -> new Long2ObjectOpenHashMap<>());
     }
     
-    public static PlayerChunkLoadingInfo getPlayerInfo(ServerPlayer player) {
-        return playerInfoMap.computeIfAbsent(player, k -> new PlayerChunkLoadingInfo(isMemoryConnection));
+    public static PlayerChunkLoading getPlayerInfo(ServerPlayer player) {
+        return playerInfoMap.computeIfAbsent(
+            player,
+            (ServerPlayer p) -> new PlayerChunkLoading(
+                ((IEServerCommonPacketListenerImpl) p.connection)
+                    .ip_getConnection().isMemoryConnection()
+            )
+        );
     }
     
     public static void updateForPlayer(ServerPlayer player) {
-        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoading playerInfo = getPlayerInfo(player);
         playerInfo.visibleDimensions.clear();
         int lastLoadedChunks = playerInfo.loadedChunks;
         playerInfo.loadedChunks = 0;
@@ -181,62 +226,6 @@ public class NewChunkTrackingGraph {
         }
     }
     
-    public static void flushPendingLoading(
-        ServerPlayer player, int generation
-    ) {
-        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
-        
-        final int limit = getChunkDeliveringLimitPerTick(player);
-        int loaded = 0;
-        
-        for (int distance = 0; distance < playerInfo.distanceToPendingChunks.size(); distance++) {
-            ArrayDeque<PlayerWatchRecord> records = playerInfo.distanceToPendingChunks.get(distance);
-            if (records != null) {
-                while (!records.isEmpty() && loaded < limit) {
-                    PlayerWatchRecord record = records.pollFirst();
-                    if (record.isValid && !record.isLoadedToPlayer) {
-                        record.isLoadedToPlayer = true;
-                        
-                        ServerLevel world = MiscHelper.getServer().getLevel(record.dimension);
-                        if (world != null) {
-                            ChunkPos chunkPos = new ChunkPos(record.chunkPos);
-                            beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
-                                record.dimension, chunkPos
-                            ));
-                            
-                            loaded++;
-                        }
-                        else {
-                            LOGGER.error(
-                                "Missing dimension when flushing pending loading {}", record.dimension.location()
-                            );
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    private static int getChunkDeliveringLimitPerTick(ServerPlayer player) {
-        return 200; // no need to throttle chunk packet sending as there is already chunk loading throttling
-
-//        if (player.tickCount < 100) {
-//            return 200;
-//        }
-//
-//        PlayerInfo playerInfo = getPlayerInfo(player);
-//
-//        if (playerInfo.performanceLevel == PerformanceLevel.good) {
-//            return 5;
-//        }
-//        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
-//            return 1;
-//        }
-//        else {
-//            return player.tickCount % 4 == 0 ? 1 : 0;
-//        }
-    }
-    
     private static void purge(
         Object2ObjectOpenHashMap<ResourceKey<Level>, LongOpenHashSet> additionalLoadedChunks
     ) {
@@ -260,12 +249,13 @@ public class NewChunkTrackingGraph {
                     
                     if (shouldRemove) {
                         if (record.isLoadedToPlayer) {
-                            endWatchChunkSignal.emit(
-                                record.player,
-                                new DimensionalChunkPos(
-                                    dimension,
-                                    ChunkPos.getX(chunkPosLong),
-                                    ChunkPos.getZ(chunkPosLong)
+                            player.connection.send(
+                                PacketRedirection.createRedirectedMessage(
+                                    player.getServer(),
+                                    record.dimension,
+                                    new ClientboundForgetLevelChunkPacket(
+                                        new ChunkPos(record.chunkPos)
+                                    )
                                 )
                             );
                         }
@@ -309,7 +299,7 @@ public class NewChunkTrackingGraph {
     
     // unload chunks earlier if the player loads many chunks
     private static int getDelayUnloadGenerationForPlayer(ServerPlayer player) {
-        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoading playerInfo = getPlayerInfo(player);
         if (playerInfo == null) {
             return defaultDelayUnloadGenerations;
         }
@@ -365,7 +355,7 @@ public class NewChunkTrackingGraph {
         
         long gameTime = McHelper.getOverWorldOnServer().getGameTime();
         server.getPlayerList().getPlayers().forEach(player -> {
-            PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
+            PlayerChunkLoading playerInfo = getPlayerInfo(player);
             
             // spread the player updates to different ticks
             if (playerInfo.shouldUpdateImmediately ||
@@ -374,7 +364,6 @@ public class NewChunkTrackingGraph {
                 playerInfo.shouldUpdateImmediately = false;
                 updateForPlayer(player);
             }
-            flushPendingLoading(player, generationCounter);
         });
         if (gameTime % updateInterval == 0) {
             var additionalLoadedChunks = refreshAdditionalChunkLoaders();
@@ -390,11 +379,6 @@ public class NewChunkTrackingGraph {
         }
         
         server.getProfiler().pop();
-    }
-    
-    public static void init() {
-        IPGlobal.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
-        IPGlobal.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
     }
     
     public static boolean isPlayerWatchingChunk(
@@ -539,7 +523,7 @@ public class NewChunkTrackingGraph {
             return chunkLoader.center.dimension == dim;
         });
         
-        for (PlayerChunkLoadingInfo playerInfo : playerInfoMap.values()) {
+        for (PlayerChunkLoading playerInfo : playerInfoMap.values()) {
             playerInfo.additionalChunkLoaders.removeIf(l -> l.center.dimension == dim);
         }
     }
@@ -585,7 +569,7 @@ public class NewChunkTrackingGraph {
     public static void addPerPlayerAdditionalChunkLoader(
         ServerPlayer player, ChunkLoader chunkLoader
     ) {
-        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoading playerInfo = getPlayerInfo(player);
         playerInfo.additionalChunkLoaders.add(chunkLoader);
         playerInfo.shouldUpdateImmediately = true;
     }
@@ -609,7 +593,7 @@ public class NewChunkTrackingGraph {
             ServerPlayer player,
             PerformanceLevel performanceLevel
         ) {
-            PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
+            PlayerChunkLoading playerInfo = getPlayerInfo(player);
             playerInfo.performanceLevel = performanceLevel;
         }
     }

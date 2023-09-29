@@ -39,14 +39,18 @@ public class MixinChunkHolder implements IEChunkHolder {
     @Final
     private LevelHeightAccessor levelHeightAccessor;
     
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @ModifyVariable(
         method = "broadcast",
         at = @At("HEAD"),
         argsOnly = true
     )
     private Packet<?> modifyPacket(Packet<?> packet) {
+        ServerLevel serverWorld = (ServerLevel) levelHeightAccessor;
         return PacketRedirection.createRedirectedMessage(
-            ((ServerLevel) levelHeightAccessor).dimension(), ((Packet) packet)
+            serverWorld.getServer(),
+            serverWorld.dimension(),
+            ((Packet) packet)
         );
     }
     

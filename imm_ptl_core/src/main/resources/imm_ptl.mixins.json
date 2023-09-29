@@ -15,6 +15,7 @@
     "common.chunk_sync.IEChunkMap_Accessor",
     "common.chunk_sync.IEChunkTaskPriorityQueueSorter",
     "common.chunk_sync.IEDistanceManager",
+    "common.chunk_sync.IEServerCommonPacketListenerImpl",
     "common.chunk_sync.MixinChunkHolder",
     "common.chunk_sync.MixinChunkMap_C",
     "common.chunk_sync.MixinDistanceManager",

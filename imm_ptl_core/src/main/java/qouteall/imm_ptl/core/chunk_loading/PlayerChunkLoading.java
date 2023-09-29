@@ -31,7 +31,7 @@ import java.util.Set;
  * Per-player chunk-loading related info.
  * Also do chunk packet sending throttling {@link PlayerChunkSender}
  */
-public class PlayerChunkLoadingInfo {
+public class PlayerChunkLoading {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
@@ -66,7 +66,7 @@ public class PlayerChunkLoadingInfo {
     private int unacknowledgedBatches;
     private int maxUnacknowledgedBatches = 1;
     
-    public PlayerChunkLoadingInfo(boolean isMemoryConnection) {
+    public PlayerChunkLoading(boolean isMemoryConnection) {
         this.isMemoryConnection = isMemoryConnection;
     }
     
@@ -90,13 +90,18 @@ public class PlayerChunkLoadingInfo {
             return;
         }
         
-        this.batchQuota = Math.min(
-            this.batchQuota + this.desiredChunksPerTick,
-            Math.max(1.0F, this.desiredChunksPerTick)
-        );
-        
-        if (this.batchQuota < 1.0F) {
-            return;
+        if (isMemoryConnection) {
+            this.batchQuota = 256;
+        }
+        else {
+            this.batchQuota = Math.min(
+                this.batchQuota + this.desiredChunksPerTick,
+                Math.max(1.0F, this.desiredChunksPerTick)
+            );
+            
+            if (this.batchQuota < 1.0F) {
+                return;
+            }
         }
         
         ServerGamePacketListenerImpl connection = serverPlayer.connection;
@@ -194,7 +199,7 @@ public class PlayerChunkLoadingInfo {
     @IPVanillaCopy
     public void onChunkBatchReceivedByClient(float clientDesiredChunkPerTick) {
         --this.unacknowledgedBatches;
-        this.desiredChunksPerTick = Double.isNaN((double)clientDesiredChunkPerTick) ?
+        this.desiredChunksPerTick = Double.isNaN((double) clientDesiredChunkPerTick) ?
             0.01F : Mth.clamp(clientDesiredChunkPerTick, 0.01F, 64.0F);
         if (this.unacknowledgedBatches == 0) {
             this.batchQuota = 1.0F;
