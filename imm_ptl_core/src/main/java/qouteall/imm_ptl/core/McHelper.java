@@ -270,21 +270,12 @@ public class McHelper {
     /**
      * {@link Entity#positionRider(Entity)}
      */
-    public static double getRidingOffset(Entity vehicle, Entity passenger) {
-        return passenger.getMyRidingOffset() + vehicle.getPassengersRidingOffset();
-    }
-    
     public static Vec3 getVehicleOffsetFromPassenger(Entity vehicle, Entity passenger) {
-        double ridingOffset = McHelper.getRidingOffset(vehicle, passenger);
+        double ridingOffset = passenger.getMyRidingOffset(vehicle);
         Direction gravity = GravityChangerInterface.invoker.getGravityDirection(passenger);
         Vec3 gravityVec = Vec3.atLowerCornerOf(gravity.getNormal());
         Vec3 vehicleOffset = gravityVec.scale(ridingOffset);
         return vehicleOffset;
-    }
-    
-    @Deprecated
-    public static double getVehicleY(Entity vehicle, Entity passenger) {
-        return passenger.getY() - vehicle.getPassengersRidingOffset() - passenger.getMyRidingOffset();
     }
     
     public static void adjustVehicle(Entity entity) {

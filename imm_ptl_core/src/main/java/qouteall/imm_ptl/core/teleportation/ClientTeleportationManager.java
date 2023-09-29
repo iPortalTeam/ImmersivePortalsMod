@@ -3,10 +3,13 @@ package qouteall.imm_ptl.core.teleportation;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -30,7 +33,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
-import qouteall.imm_ptl.core.network.IPNetworkingClient;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.network.PacketRedirectionClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -44,6 +47,7 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.ArrayList;
@@ -340,11 +344,11 @@ public class ClientTeleportationManager {
         
         PehkuiInterface.invoker.onClientPlayerTeleported(portal);
         
-        player.connection.send(IPNetworkingClient.createCtsTeleport(
-            fromDimension,
+        player.connection.send(ServerPlayNetworking.createS2CPacket(new ImmPtlNetworking.TeleportPacket(
+            DimensionIdRecord.serverRecord.getIntId(fromDimension),
             lastTickEyePos,
             portal.getUUID()
-        ));
+        )));
         
         PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
             player, newThisTickEyePos, newLastTickEyePos, RenderStates.getPartialTick()
@@ -421,6 +425,9 @@ public class ClientTeleportationManager {
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }
     
+    /**
+     * {@link ClientPacketListener#handleRespawn(ClientboundRespawnPacket)}
+     */
     public static void changePlayerDimension(
         LocalPlayer player, ClientLevel fromWorld, ClientLevel toWorld, Vec3 newEyePos
     ) {
@@ -445,7 +452,7 @@ public class ClientTeleportationManager {
         
         ((IEEntity) player).ip_unsetRemoved();
         
-        toWorld.addPlayer(player.getId(), player);
+        toWorld.addEntity(player);
         ((IEAbstractClientPlayer) player).ip_setClientLevel(toWorld);
         
         IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
@@ -527,7 +534,7 @@ public class ClientTeleportationManager {
         ((IEEntity) entity).ip_setWorld(newWorld);
         entity.setPos(newPos.x, newPos.y, newPos.z);
         ((IEEntity) entity).ip_unsetRemoved();
-        newWorld.putNonPlayerEntity(entity.getId(), entity);
+        newWorld.addEntity(entity);
         Validate.isTrue(!entity.isRemoved());
     }
     
@@ -641,7 +648,7 @@ public class ClientTeleportationManager {
                 Vec3 eyePos = McHelper.getEyePos(player);
                 Vec3 newEyePos = newPos.add(McHelper.getEyeOffset(player));
                 if (currentCollidingPortal.rayTrace(eyePos, newEyePos) != null) {
-                    return true;//avoid going back into the portal
+                    return true; // avoid going back into the portal
                 }
             }
             
@@ -672,10 +679,11 @@ public class ClientTeleportationManager {
             }
             
             // both of them are important for Minecart
+            entity.setPos(pos);
             entity.lerpTo(
                 pos.x, pos.y, pos.z,
                 entity.getYRot(), entity.getXRot(),
-                0, false
+                0
             );
             entity.setPos(pos);
         }

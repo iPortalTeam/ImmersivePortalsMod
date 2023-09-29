@@ -18,6 +18,7 @@
     "common.chunk_sync.MixinChunkHolder",
     "common.chunk_sync.MixinChunkMap_C",
     "common.chunk_sync.MixinDistanceManager",
+    "common.chunk_sync.MixinPlayerChunkSender",
     "common.chunk_sync.MixinPlayerTicketTracker",
     "common.chunk_sync.MixinServerPlayer",
     "common.collision.IEEntity_Collision",

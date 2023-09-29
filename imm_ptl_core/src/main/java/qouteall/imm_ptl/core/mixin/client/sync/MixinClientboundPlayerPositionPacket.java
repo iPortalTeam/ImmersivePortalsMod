@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
-import qouteall.imm_ptl.core.network.IPNetworkAdapt;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ClientboundPlayerPositionPacket.class)
@@ -19,10 +19,10 @@ public class MixinClientboundPlayerPositionPacket {
         if (buf.isReadable()) {
             ResourceKey<Level> playerDimension = DimId.readWorldId(buf, true);
             ((IEPlayerPositionLookS2CPacket) this).setPlayerDimension(playerDimension);
-            IPNetworkAdapt.setServerHasIP(true);
+            ImmPtlNetworkAdapt.setServerHasIP(true);
         }
         else {
-            IPNetworkAdapt.setServerHasIP(false);
+            ImmPtlNetworkAdapt.setServerHasIP(false);
         }
     }
     

@@ -20,19 +20,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
-import qouteall.imm_ptl.core.network.IPNetworking;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
-import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,7 +123,7 @@ public class GlobalPortalStorage extends SavedData {
                 GlobalPortalStorage storage = get(world);
                 if (!storage.data.isEmpty()) {
                     player.connection.send(
-                        IPNetworking.createGlobalPortalUpdate(
+                        ImmPtlNetworking.createGlobalPortalUpdate(
                             storage
                         )
                     );
@@ -170,7 +170,7 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     private void syncToAllPlayers() {
-        Packet packet = IPNetworking.createGlobalPortalUpdate(this);
+        Packet packet = ImmPtlNetworking.createGlobalPortalUpdate(this);
         McHelper.getCopiedPlayerList().forEach(
             player -> player.connection.send(packet)
         );

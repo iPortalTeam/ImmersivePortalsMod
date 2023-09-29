@@ -8,15 +8,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.network.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
 
-import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -96,7 +96,7 @@ public class IPOuterClientMisc {
             }
         }
         
-        IPNetworkingClient.clientPortalSpawnSignal.connect(p -> {
+        Portal.clientPortalSpawnSignal.connect(p -> {
             LocalPlayer player = Minecraft.getInstance().player;
             
             if (!outerConfig.wikiInformed) {

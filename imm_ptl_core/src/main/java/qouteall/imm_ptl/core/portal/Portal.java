@@ -46,7 +46,7 @@ import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
-import qouteall.imm_ptl.core.network.IPNetworking;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
@@ -83,6 +83,8 @@ public class Portal extends Entity implements
     private static final Logger LOGGER = LogUtils.getLogger();
     
     public static final EntityType<Portal> entityType = createPortalEntityType(Portal::new);
+    
+    public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
     
     public static <T extends Portal> EntityType<T> createPortalEntityType(
         EntityType.EntityFactory<T> constructor
@@ -399,9 +401,6 @@ public class Portal extends Entity implements
         
         compoundTag.putBoolean("teleportable", teleportable);
         
-        if (specialShape == null) {
-            initDefaultCullableRange();
-        }
         if (rotation != null) {
             compoundTag.putDouble("rotationA", rotation.w);
             compoundTag.putDouble("rotationB", rotation.x);
@@ -876,7 +875,7 @@ public class Portal extends Entity implements
         
         // the listener generic parameter is contravariant. this is fine
         return (Packet<ClientGamePacketListener>) (Packet)
-            ServerPlayNetworking.createS2CPacket(new IPNetworking.PortalSyncPacket(
+            ServerPlayNetworking.createS2CPacket(new ImmPtlNetworking.PortalSyncPacket(
                 getId(), getUUID(), getType(),
                 DimensionIdRecord.serverRecord.getIntId(getOriginDim()),
                 getX(), getY(), getZ(),

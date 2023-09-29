@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import qouteall.imm_ptl.core.CHelper;
 
 @Environment(EnvType.CLIENT)
-public class IPNetworkAdapt {
+public class ImmPtlNetworkAdapt {
     private static boolean serverHasIP = true;
     
     public static void setServerHasIP(boolean cond) {

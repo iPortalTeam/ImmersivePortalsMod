@@ -31,7 +31,7 @@ import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import java.util.Objects;
 import java.util.UUID;
 
-public class IPNetworking {
+public class ImmPtlNetworking {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
@@ -204,7 +204,7 @@ public class IPNetworking {
                 world.addEntity(entity);
                 
                 ClientWorldLoader.getWorld(portal.dimensionTo);
-                IPNetworkingClient.clientPortalSpawnSignal.emit(portal);
+                Portal.clientPortalSpawnSignal.emit(portal);
             }
         }
     }

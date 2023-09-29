@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
-import qouteall.imm_ptl.core.network.IPNetworkAdapt;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ServerboundMovePlayerPacket.StatusOnly.class)
 public class MixinServerboundMovePlayerPacketStatusOnly {
     @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$StatusOnly;write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onWrite(FriendlyByteBuf buf, CallbackInfo ci) {
-        if (!IPNetworkAdapt.doesServerHasIP()) {return;}
+        if (!ImmPtlNetworkAdapt.doesServerHasIP()) {return;}
         ResourceKey<Level> playerDimension = ((IEPlayerMoveC2SPacket) this).getPlayerDimension();
         Validate.notNull(playerDimension);
         DimId.writeWorldId(buf, playerDimension, true);

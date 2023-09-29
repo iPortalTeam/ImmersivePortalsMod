@@ -515,7 +515,6 @@ public class ClientWorldLoader {
         isWorldSwitched = true;
         
         try {
-            
             return supplier.get();
         }
         finally {
@@ -544,9 +543,8 @@ public class ClientWorldLoader {
         ClientLevel world = getOptionalWorld(dim);
         
         if (world == null) {
-            Helper.err(
-                "Ignoring redirected task of invalid dimension %s"
-                    .formatted(dim.location())
+            LOGGER.error(
+                "Ignoring redirected task of invalid dimension {}", dim.location(), new Throwable()
             );
             return;
         }

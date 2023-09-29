@@ -21,7 +21,7 @@ import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.debug.DebugUtil;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.network.IPNetworking;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
@@ -53,7 +53,7 @@ public class IPModMain {
         
         Helper.log("Immersive Portals Mod Initializing");
         
-        IPNetworking.init();
+        ImmPtlNetworking.init();
         
         IPGlobal.postClientTickSignal.connect(IPGlobal.clientTaskList::processTasks);
         IPGlobal.postServerTickSignal.connect(IPGlobal.serverTaskList::processTasks);

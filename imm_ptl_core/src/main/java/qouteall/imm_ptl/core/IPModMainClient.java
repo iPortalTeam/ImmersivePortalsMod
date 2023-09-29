@@ -10,8 +10,7 @@ import qouteall.imm_ptl.core.compat.IPFlywheelCompat;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.network.IPNetworking;
-import qouteall.imm_ptl.core.network.IPNetworkingClient;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -67,8 +66,6 @@ public class IPModMainClient {
     }
     
     public static void init() {
-        IPNetworkingClient.init();
-        
         ClientWorldLoader.init();
         
         ClientTeleportationManager.init();
@@ -122,7 +119,7 @@ public class IPModMainClient {
     
         GuiPortalRendering._init();
         
-        IPNetworking.initClient();
+        ImmPtlNetworking.initClient();
     }
     
 }

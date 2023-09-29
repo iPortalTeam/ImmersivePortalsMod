@@ -19,7 +19,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.network.PacketRedirection;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
@@ -90,7 +89,7 @@ public class NewChunkTrackingGraph {
     
     private static final ArrayList<ChunkLoader> additionalChunkLoaders = new ArrayList<>();
     
-    private static final Object2ObjectOpenHashMap<ServerPlayer, PlayerInfo> playerInfoMap =
+    private static final Object2ObjectOpenHashMap<ServerPlayer, PlayerChunkLoadingInfo> playerInfoMap =
         new Object2ObjectOpenHashMap<>();
     
     public static final SignalBiArged<ServerPlayer, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
@@ -98,48 +97,17 @@ public class NewChunkTrackingGraph {
     
     private static int generationCounter = 0;
     
-    public static class PlayerInfo {
-//        public final Object2ObjectOpenHashMap<ChunkLoader, GenerationCounterRec> chunkLoaderRecs =
-//            new Object2ObjectOpenHashMap<>();
-        
-        public final Set<ResourceKey<Level>> visibleDimensions = new ObjectOpenHashSet<>();
-        public final ArrayList<ChunkLoader> additionalChunkLoaders
-            = new ArrayList<>();
-        public final ArrayList<ArrayDeque<PlayerWatchRecord>> distanceToPendingChunks =
-            new ArrayList<>();
-        
-        public int loadedChunks = 0;
-        
-        // normally chunk loading will update following to an interval
-        // but if this is true, it will immediately update next tick
-        public boolean shouldUpdateImmediately = false;
-        
-        public PerformanceLevel performanceLevel = PerformanceLevel.bad;
-        
-        public PlayerInfo() {
-        }
-        
-        // one chunk may mark pending loading multiple times with different distanceToSource
-        public void markPendingLoading(PlayerWatchRecord record) {
-            Helper.arrayListComputeIfAbsent(
-                distanceToPendingChunks,
-                record.distanceToSource,
-                ArrayDeque::new
-            ).add(record);
-        }
-    }
-    
     private static Long2ObjectOpenHashMap<Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord>>
     getDimChunkWatchRecords(ResourceKey<Level> dimension) {
         return chunkWatchRecords.computeIfAbsent(dimension, k -> new Long2ObjectOpenHashMap<>());
     }
     
-    public static PlayerInfo getPlayerInfo(ServerPlayer player) {
-        return playerInfoMap.computeIfAbsent(player, k -> new PlayerInfo());
+    public static PlayerChunkLoadingInfo getPlayerInfo(ServerPlayer player) {
+        return playerInfoMap.computeIfAbsent(player, k -> new PlayerChunkLoadingInfo());
     }
     
     public static void updateForPlayer(ServerPlayer player) {
-        PlayerInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
         playerInfo.visibleDimensions.clear();
         int lastLoadedChunks = playerInfo.loadedChunks;
         playerInfo.loadedChunks = 0;
@@ -221,7 +189,7 @@ public class NewChunkTrackingGraph {
     public static void flushPendingLoading(
         ServerPlayer player, int generation
     ) {
-        PlayerInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
         
         final int limit = getChunkDeliveringLimitPerTick(player);
         int loaded = 0;
@@ -346,7 +314,7 @@ public class NewChunkTrackingGraph {
     
     // unload chunks earlier if the player loads many chunks
     private static int getDelayUnloadGenerationForPlayer(ServerPlayer player) {
-        PlayerInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
         if (playerInfo == null) {
             return defaultDelayUnloadGenerations;
         }
@@ -402,7 +370,7 @@ public class NewChunkTrackingGraph {
         
         long gameTime = McHelper.getOverWorldOnServer().getGameTime();
         server.getPlayerList().getPlayers().forEach(player -> {
-            PlayerInfo playerInfo = getPlayerInfo(player);
+            PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
             
             // spread the player updates to different ticks
             if (playerInfo.shouldUpdateImmediately ||
@@ -581,7 +549,7 @@ public class NewChunkTrackingGraph {
             return chunkLoader.center.dimension == dim;
         });
         
-        for (PlayerInfo playerInfo : playerInfoMap.values()) {
+        for (PlayerChunkLoadingInfo playerInfo : playerInfoMap.values()) {
             playerInfo.additionalChunkLoaders.removeIf(l -> l.center.dimension == dim);
         }
     }
@@ -627,7 +595,7 @@ public class NewChunkTrackingGraph {
     public static void addPerPlayerAdditionalChunkLoader(
         ServerPlayer player, ChunkLoader chunkLoader
     ) {
-        PlayerInfo playerInfo = getPlayerInfo(player);
+        PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
         playerInfo.additionalChunkLoaders.add(chunkLoader);
         playerInfo.shouldUpdateImmediately = true;
     }
@@ -651,7 +619,7 @@ public class NewChunkTrackingGraph {
             ServerPlayer player,
             PerformanceLevel performanceLevel
         ) {
-            PlayerInfo playerInfo = getPlayerInfo(player);
+            PlayerChunkLoadingInfo playerInfo = getPlayerInfo(player);
             playerInfo.performanceLevel = performanceLevel;
         }
     }

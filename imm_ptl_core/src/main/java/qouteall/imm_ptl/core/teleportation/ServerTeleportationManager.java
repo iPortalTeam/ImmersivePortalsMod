@@ -30,7 +30,7 @@ import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
-import qouteall.imm_ptl.core.network.IPNetworking;
+import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -404,7 +404,7 @@ public class ServerTeleportationManager {
     }
     
     public static void sendPositionConfirmMessage(ServerPlayer player) {
-        Packet packet = IPNetworking.createStcDimensionConfirm(
+        Packet packet = ImmPtlNetworking.createStcDimensionConfirm(
             player.level().dimension(),
             player.position()
         );

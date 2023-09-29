@@ -39,7 +39,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
-import qouteall.imm_ptl.core.network.IPNetworkAdapt;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimensionTypeSync;
@@ -124,7 +124,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         ClientboundPlayerPositionPacket packet,
         CallbackInfo ci
     ) {
-        if (!IPNetworkAdapt.doesServerHasIP()) {
+        if (!ImmPtlNetworkAdapt.doesServerHasIP()) {
             return;
         }
         
