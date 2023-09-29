@@ -14,6 +14,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
@@ -660,6 +662,26 @@ public class Helper {
         for (int i = 0; i < list.size(); i++) {
             T curr = list.get(i);
             if (!predicate.test(curr)) {
+                list.set(placingIndex, curr);
+                placingIndex += 1;
+            }
+        }
+        list.removeElements(placingIndex, list.size());
+    }
+    
+    /**
+     * removeIf, but can early exit when the MutableBoolean is set to true
+     */
+    public static <T> void removeIfWithEarlyExit(
+        ObjectList<T> list, BiPredicate<T, MutableBoolean> predicate
+    ) {
+        MutableBoolean shouldStop = new MutableBoolean(false);
+        
+        int placingIndex = 0;
+        for (int i = 0; i < list.size(); i++) {
+            T curr = list.get(i);
+            // if stopped, it will be deemed as non-remove and not call the predicate
+            if (shouldStop.booleanValue() || !predicate.test(curr, shouldStop)) {
                 list.set(placingIndex, curr);
                 placingIndex += 1;
             }

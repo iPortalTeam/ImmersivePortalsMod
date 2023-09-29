@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchStartPacket;
@@ -16,6 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
@@ -23,7 +25,6 @@ import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class PlayerChunkLoading {
      */
     public final ArrayList<ChunkLoader> additionalChunkLoaders = new ArrayList<>();
     
-    public final ArrayList<ArrayDeque<ImmPtlChunkTracking.PlayerWatchRecord>> distanceToPendingChunks =
+    public final ArrayList<ObjectArrayList<ImmPtlChunkTracking.PlayerWatchRecord>> distanceToPendingChunks =
         new ArrayList<>();
     
     public int loadedChunks = 0;
@@ -77,7 +78,7 @@ public class PlayerChunkLoading {
         Helper.arrayListComputeIfAbsent(
             distanceToPendingChunks,
             record.distanceToSource,
-            ArrayDeque::new
+            ObjectArrayList::new
         ).add(record);
     }
     
@@ -109,68 +110,75 @@ public class PlayerChunkLoading {
         int maxSendNum = (int) Math.floor(batchQuota);
         Validate.isTrue(maxSendNum != 0);
         
-        int sentNum = 0;
-        for (ArrayDeque<ImmPtlChunkTracking.PlayerWatchRecord> queue : distanceToPendingChunks) {
-            if (queue == null || queue.isEmpty()) {
+        MutableInt sentNum = new MutableInt(0);
+        for (var recs : distanceToPendingChunks) {
+            if (recs == null || recs.isEmpty()) {
                 continue;
             }
             
-            ImmPtlChunkTracking.PlayerWatchRecord record = queue.pollFirst();
-            
-            // chunk unloaded, skip
-            if (!record.isValid) {
-                continue;
-            }
-            
-            // already loaded to player, skip
-            if (record.isLoadedToPlayer) {
-                continue;
-            }
-            
-            ServerLevel world = MiscHelper.getServer().getLevel(record.dimension);
-            if (world == null) {
-                LOGGER.error(
-                    "Missing dimension when flushing pending loading {}", record.dimension.location()
-                );
-                continue;
-            }
-            
-            ChunkMap chunkMap = world.getChunkSource().chunkMap;
-            ChunkHolder chunkHolder = ((IEChunkMap) chunkMap).ip_getChunkHolder(record.chunkPos);
-            
-            if (chunkHolder == null) {
-                continue;
-            }
-            
-            LevelChunk tickingChunk = chunkHolder.getTickingChunk();
-            
-            // skip that chunk if not yet loaded
-            if (tickingChunk == null) {
-                continue;
-            }
-            
-            record.isLoadedToPlayer = true;
-            
-            if (sentNum == 0) {
-                ++this.unacknowledgedBatches;
-                connection.send(new ClientboundChunkBatchStartPacket());
-            }
-            sentNum++;
-            
-            sendChunkPacket(
-                connection, world, tickingChunk
-            );
-            
-            if (sentNum >= maxSendNum) {
+            if (sentNum.getValue() >= maxSendNum) {
                 break;
             }
+            
+            Helper.removeIfWithEarlyExit(recs, (record, shouldStop) -> {
+                // chunk unloaded, remove
+                if (!record.isValid) {
+                    return true;
+                }
+                
+                // already loaded to player, remove
+                if (record.isLoadedToPlayer) {
+                    return true;
+                }
+                
+                ServerLevel world = MiscHelper.getServer().getLevel(record.dimension);
+                if (world == null) {
+                    LOGGER.error(
+                        "Missing dimension when flushing pending loading {}",
+                        record.dimension.location()
+                    );
+                    return true;
+                }
+                
+                ChunkMap chunkMap = world.getChunkSource().chunkMap;
+                ChunkHolder chunkHolder = ((IEChunkMap) chunkMap).ip_getChunkHolder(record.chunkPos);
+                
+                if (chunkHolder == null) {
+                    return false; // skip
+                }
+                
+                LevelChunk tickingChunk = chunkHolder.getTickingChunk();
+                
+                // skip that chunk if not yet loaded
+                if (tickingChunk == null) {
+                    return false;
+                }
+                
+                record.isLoadedToPlayer = true;
+                
+                if (sentNum.getValue() == 0) {
+                    ++this.unacknowledgedBatches;
+                    connection.send(new ClientboundChunkBatchStartPacket());
+                }
+                sentNum.increment();
+                
+                sendChunkPacket(
+                    connection, world, tickingChunk
+                );
+                
+                if (sentNum.getValue() >= maxSendNum) {
+                    shouldStop.setValue(true);
+                }
+                
+                return true; // remove from list
+            });
         }
         
-        if (sentNum != 0) {
-            connection.send(new ClientboundChunkBatchFinishedPacket(sentNum));
+        if (sentNum.getValue() != 0) {
+            connection.send(new ClientboundChunkBatchFinishedPacket(sentNum.getValue()));
         }
         
-        this.batchQuota -= (float) sentNum;
+        this.batchQuota -= (float) sentNum.getValue();
     }
     
     /**

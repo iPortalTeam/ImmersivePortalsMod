@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -63,7 +64,11 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Final
     private static Logger LOGGER;
     
-    @Shadow public abstract RegistryAccess.Frozen registryAccess();
+    @Shadow
+    public abstract RegistryAccess.Frozen registryAccess();
+    
+    @Shadow
+    protected abstract void enableChunkLight(LevelChunk chunk, int x, int z);
     
     @Override
     public void ip_setWorld(ClientLevel world) {
@@ -238,6 +243,35 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             ci.cancel();
         }
     }
+    
+//    // It uses `this.level` which is not correct when switched (the lambda captures this)
+//    // Make it capture level
+//    @Inject(
+//        method = "handleLevelChunkWithLight",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/multiplayer/ClientLevel;queueLightUpdate(Ljava/lang/Runnable;)V"
+//        ),
+//        cancellable = true
+//    )
+//    private void redirectQueueLightUpdate(
+//        ClientboundLevelChunkWithLightPacket packet, CallbackInfo ci
+//    ) {
+//        ClientLevel world = this.level;
+//        int x = packet.getX();
+//        int z = packet.getZ();
+//        ClientboundLightUpdatePacketData lightData = packet.getLightData();
+//        world.queueLightUpdate(() -> {
+//            this.applyLightData(x, z, lightData);
+//            LevelChunk levelChunk = world.getChunkSource().getChunk(x, z, false);
+//            if (levelChunk != null) {
+//                this.enableChunkLight(levelChunk, i, j);
+//            }
+//
+//        });
+//        ci.cancel();
+//
+//    }
     
     // for debugging
     @Inject(

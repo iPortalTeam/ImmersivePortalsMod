@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.teleportation;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -344,7 +344,7 @@ public class ClientTeleportationManager {
         
         PehkuiInterface.invoker.onClientPlayerTeleported(portal);
         
-        player.connection.send(ServerPlayNetworking.createS2CPacket(new ImmPtlNetworking.TeleportPacket(
+        player.connection.send(ClientPlayNetworking.createC2SPacket(new ImmPtlNetworking.TeleportPacket(
             DimensionIdRecord.serverRecord.getIntId(fromDimension),
             lastTickEyePos,
             portal.getUUID()
