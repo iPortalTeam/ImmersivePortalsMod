@@ -3,9 +3,9 @@ package qouteall.imm_ptl.core.portal;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.Util;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -60,8 +60,8 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DimId;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -520,16 +520,7 @@ public class Portal extends Entity implements
         Validate.isTrue(!level().isClientSide(), "must be used on server side");
         updateCache();
         
-        CompoundTag customData = new CompoundTag();
-        addAdditionalSaveData(customData);
-        
-        var packet = McRemoteProcedureCall.createPacketToSendToClient(
-            "qouteall.imm_ptl.core.portal.Portal.RemoteCallables.acceptPortalDataSync",
-            level().dimension(),
-            getId(),
-            position(),
-            customData
-        );
+        var packet = createSyncPacket();
         
         McHelper.sendToTrackers(this, packet);
     }
@@ -871,26 +862,26 @@ public class Portal extends Entity implements
         scaling = newScale;
     }
     
-    // TODO remove in 1.20.2
-    @Deprecated
-    private void initDefaultCullableRange() {
-    
-    }
-    
-    // TODO remove in 1.20.2
-    @Deprecated
-    public void initCullableRange(
-        double cullableXStart,
-        double cullableXEnd,
-        double cullableYStart,
-        double cullableYEnd
-    ) {
-    
-    }
-    
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return IPNetworking.createStcSpawnEntity(this);
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
+        return createSyncPacket();
+    }
+    
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Packet<ClientGamePacketListener> createSyncPacket() {
+        Validate.isTrue(!level().isClientSide());
+        
+        CompoundTag compoundTag = new CompoundTag();
+        addAdditionalSaveData(compoundTag);
+        
+        // the listener generic parameter is contravariant. this is fine
+        return (Packet<ClientGamePacketListener>) (Packet)
+            ServerPlayNetworking.createS2CPacket(new IPNetworking.PortalSyncPacket(
+                getId(), getUUID(), getType(),
+                DimensionIdRecord.serverRecord.getIntId(getOriginDim()),
+                getX(), getY(), getZ(),
+                compoundTag
+            ));
     }
     
     @Override
@@ -1767,7 +1758,7 @@ public class Portal extends Entity implements
     }
     
     @Environment(EnvType.CLIENT)
-    private void acceptDataSync(Vec3 pos, CompoundTag customData) {
+    public void acceptDataSync(Vec3 pos, CompoundTag customData) {
         PortalState oldState = getPortalState();
         
         setPos(pos);
@@ -2031,24 +2022,6 @@ public class Portal extends Entity implements
             minX / halfWidth, minY / halfHeight,
             maxX / halfWidth, maxY / halfHeight
         );
-    }
-    
-    public static class RemoteCallables {
-        public static void acceptPortalDataSync(
-            ResourceKey<Level> dim,
-            int entityId,
-            Vec3 pos,
-            CompoundTag customData
-        ) {
-            ClientLevel world = ClientWorldLoader.getWorld(dim);
-            Entity entity = world.getEntity(entityId);
-            if (entity instanceof Portal portal) {
-                portal.acceptDataSync(pos, customData);
-            }
-            else {
-                Helper.err("missing portal entity to sync " + entityId);
-            }
-        }
     }
     
     // for PortalRenderable

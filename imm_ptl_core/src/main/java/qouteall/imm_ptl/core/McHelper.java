@@ -300,12 +300,12 @@ public class McHelper {
         Vec3 newVehiclePos = entity.position().add(vehicleOffset);
         Vec3 newVehicleLastTickPos = McHelper.lastTickPosOf(entity).add(vehicleOffset);
         
-        // MinecartEntity and LivingEntity use position interpolation
-        // disable the interpolation, or it may interpolate into unloaded chunks
+        // minecarts, boats and LivingEntity use position interpolation
+        // don't make interpolate, or it may interpolate into unloaded chunks
+        vehicle.setPos(newVehiclePos.x(), newVehiclePos.y(), newVehiclePos.z());
         vehicle.lerpTo(
             newVehiclePos.x(), newVehiclePos.y(), newVehiclePos.z(),
-            vehicle.getYRot(), vehicle.getXRot(),
-            0, false
+            vehicle.getYRot(), vehicle.getXRot(), 0
         );
         
         McHelper.setPosAndLastTickPos(

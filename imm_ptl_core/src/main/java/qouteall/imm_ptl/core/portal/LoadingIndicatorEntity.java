@@ -10,8 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,11 +18,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import qouteall.imm_ptl.core.network.IPNetworking;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.my_util.IntBox;
 
 public class LoadingIndicatorEntity extends Entity {
@@ -36,21 +31,20 @@ public class LoadingIndicatorEntity extends Entity {
             new EntityDimensions(1, 1, true)
         ).fireImmune().trackable(96, 20).build();
     
-    private static final EntityDataAccessor<Component> text = SynchedEntityData.defineId(
+    private static final EntityDataAccessor<Component> TEXT = SynchedEntityData.defineId(
         LoadingIndicatorEntity.class, EntityDataSerializers.COMPONENT
+    );
+    private static final EntityDataAccessor<BlockPos> BOX_LOW_POS = SynchedEntityData.defineId(
+        LoadingIndicatorEntity.class, EntityDataSerializers.BLOCK_POS
+    );
+    private static final EntityDataAccessor<BlockPos> BOX_HIGH_POS = SynchedEntityData.defineId(
+        LoadingIndicatorEntity.class, EntityDataSerializers.BLOCK_POS
     );
     
     public boolean isValid = false;
     
-    public BlockPortalShape portalShape;
-    
     public LoadingIndicatorEntity(EntityType type, Level world) {
         super(type, world);
-    }
-    
-    @Override
-    public Iterable<ItemStack> getArmorSlots() {
-        return null;
     }
     
     @Override
@@ -88,53 +82,42 @@ public class LoadingIndicatorEntity extends Entity {
     private void addParticles() {
         int num = tickCount < 100 ? 50 : 20;
         
-        if (portalShape != null) {
-            IntBox box = portalShape.innerAreaBox;
-            BlockPos size = box.getSize();
-            RandomSource random = level().getRandom();
+        IntBox box = getBox();
+        BlockPos size = box.getSize();
+        RandomSource random = level().getRandom();
+        
+        for (int i = 0; i < num; i++) {
+            Vec3 p = new Vec3(
+                random.nextDouble(), random.nextDouble(), random.nextDouble()
+            ).multiply(Vec3.atLowerCornerOf(size)).add(Vec3.atLowerCornerOf(box.l));
             
-            for (int i = 0; i < num; i++) {
-                Vec3 p = new Vec3(
-                    random.nextDouble(), random.nextDouble(), random.nextDouble()
-                ).multiply(Vec3.atLowerCornerOf(size)).add(Vec3.atLowerCornerOf(box.l));
-                
-                double speedMultiplier = 20;
-                
-                double vx = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-                double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-                double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-                
-                level().addParticle(
-                    ParticleTypes.PORTAL,
-                    p.x, p.y, p.z,
-                    vx, vy, vz
-                );
-            }
+            double speedMultiplier = 20;
+            
+            double vx = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+            double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+            double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+            
+            level().addParticle(
+                ParticleTypes.PORTAL,
+                p.x, p.y, p.z,
+                vx, vy, vz
+            );
         }
     }
     
     @Override
     protected void defineSynchedData() {
-        getEntityData().define(text, Component.literal("Loading..."));
+        getEntityData().define(TEXT, Component.literal("Loading..."));
     }
     
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
-        if (tag.contains("shape")) {
-            portalShape = new BlockPortalShape(tag.getCompound("shape"));
-        }
+    
     }
     
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
-        if (portalShape != null) {
-            tag.put("shape", portalShape.toTag());
-        }
-    }
     
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return IPNetworking.createStcSpawnEntity(this);
     }
     
     public void inform(Component str) {
@@ -142,11 +125,23 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     public void setText(Component str) {
-        getEntityData().set(text, str);
+        getEntityData().set(TEXT, str);
     }
     
     public Component getText() {
-        return getEntityData().get(text);
+        return getEntityData().get(TEXT);
+    }
+    
+    public void setBox(IntBox box) {
+        getEntityData().set(BOX_LOW_POS, box.l);
+        getEntityData().set(BOX_HIGH_POS, box.h);
+    }
+    
+    public IntBox getBox() {
+        return new IntBox(
+            getEntityData().get(BOX_LOW_POS),
+            getEntityData().get(BOX_HIGH_POS)
+        );
     }
     
     @Environment(EnvType.CLIENT)
