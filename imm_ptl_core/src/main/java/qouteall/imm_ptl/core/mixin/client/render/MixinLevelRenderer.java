@@ -356,7 +356,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "allChanged",
         at = @At(
             value = "NEW",
-            target = "Lnet/minecraft/client/renderer/ViewArea"
+            target = "(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;Lnet/minecraft/world/level/Level;ILnet/minecraft/client/renderer/LevelRenderer;)Lnet/minecraft/client/renderer/ViewArea;"
         )
     )
     private ViewArea redirectConstructingBuildChunkStorage(

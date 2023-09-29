@@ -38,7 +38,7 @@
   "imm_ptl.dim_stack_add": "添加",
   "imm_ptl.dim_stack_remove": "删除",
   "imm_ptl.dim_stack_edit": "编辑",
-  "imm_ptl.stagnate_movement": "传送门另一侧区块未加载，暂停运动",
+  "imm_ptl.stagnate_movement": "传送门另一侧区块未加载",
   "dimension.minecraft.overworld": "主世界",
   "dimension.minecraft.the_nether": "地狱",
   "dimension.minecraft.the_end": "末路之地",

@@ -28,7 +28,7 @@ public class MixinLivingEntity_C {
     
     // avoid entity position interpolate when crossing portal to the same dimension
     @Inject(
-        method = "Lnet/minecraft/world/entity/LivingEntity;lerpTo(DDDFFIZ)V",
+        method = "lerpTo",
         at = @At("RETURN")
     )
     private void onUpdateTrackedPositionAndAngles(
@@ -38,7 +38,6 @@ public class MixinLivingEntity_C {
         float yaw,
         float pitch,
         int interpolationSteps,
-        boolean interpolate,
         CallbackInfo ci
     ) {
         LivingEntity this_ = ((LivingEntity) (Object) this);

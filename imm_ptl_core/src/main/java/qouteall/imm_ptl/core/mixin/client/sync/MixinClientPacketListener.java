@@ -48,10 +48,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Shadow
     private ClientLevel level;
     
-    @Shadow
-    @Final
-    private Minecraft minecraft;
-    
     @Mutable
     @Shadow
     @Final
@@ -112,7 +108,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         
         ResourceKey<Level> packetDim = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         
-        LocalPlayer player = minecraft.player;
+        LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;
         Level playerWorld = player.level();
         
@@ -190,7 +186,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     )
     private void onSetTime(ClientboundSetTimePacket packet, CallbackInfo ci) {
         if (ClientWorldLoader.getIsInitialized()) {
-            ClientLevel currentWorld = minecraft.level;
+            ClientLevel currentWorld = Minecraft.getInstance().level;
             for (ClientLevel clientWorld : ClientWorldLoader.getClientWorlds()) {
                 if (clientWorld != currentWorld) {
                     clientWorld.setGameTime(packet.getGameTime());

@@ -148,8 +148,8 @@ public class ImmPtlNetworking {
         public static PortalSyncPacket read(FriendlyByteBuf buf) {
             int id = buf.readVarInt();
             UUID uuid = buf.readUUID();
-            int dimensionId = buf.readVarInt();
             EntityType<?> type = buf.readById(BuiltInRegistries.ENTITY_TYPE);
+            int dimensionId = buf.readVarInt();
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
@@ -201,6 +201,8 @@ public class ImmPtlNetworking {
                 entity.syncPacketPositionCodec(x, y, z);
                 entity.moveTo(x, y, z);
                 
+                portal.readPortalDataFromNbt(extraData);
+                
                 world.addEntity(entity);
                 
                 ClientWorldLoader.getWorld(portal.dimensionTo);
@@ -219,6 +221,11 @@ public class ImmPtlNetworking {
     public static void initClient() {
         ClientPlayNetworking.registerGlobalReceiver(
             GlobalPortalSyncPacket.TYPE,
+            (packet, player, responseSender) -> packet.handle()
+        );
+        
+        ClientPlayNetworking.registerGlobalReceiver(
+            PortalSyncPacket.TYPE,
             (packet, player, responseSender) -> packet.handle()
         );
     }

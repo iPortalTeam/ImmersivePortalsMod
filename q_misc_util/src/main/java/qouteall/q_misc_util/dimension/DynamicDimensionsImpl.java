@@ -55,12 +55,12 @@ public class DynamicDimensionsImpl {
     }
     
     public static void addDimensionDynamically(
+        MinecraftServer server,
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
         /**{@link MinecraftServer#createLevels(ChunkProgressListener)}*/
         
-        MinecraftServer server = MiscHelper.getServer();
         ResourceKey<Level> dimensionResourceKey = DimId.idToKey(dimensionId);
         
         Validate.isTrue(server.isSameThread());
@@ -123,7 +123,7 @@ public class DynamicDimensionsImpl {
         
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
         
-        Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
+        Packet dimSyncPacket = MiscNetworking.DimSyncPacket.createPacket(server);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
         }
@@ -132,7 +132,7 @@ public class DynamicDimensionsImpl {
     }
     
     public static void removeDimensionDynamically(ServerLevel world) {
-        MinecraftServer server = MiscHelper.getServer();
+        MinecraftServer server = world.getServer();
         
         Validate.isTrue(server.isSameThread());
         
@@ -211,7 +211,7 @@ public class DynamicDimensionsImpl {
             
             Helper.log("Successfully Removed Dimension " + dimension.location());
             
-            Packet dimSyncPacket = MiscNetworking.createDimSyncPacket();
+            Packet dimSyncPacket = MiscNetworking.DimSyncPacket.createPacket(server);
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 player.connection.send(dimSyncPacket);
             }

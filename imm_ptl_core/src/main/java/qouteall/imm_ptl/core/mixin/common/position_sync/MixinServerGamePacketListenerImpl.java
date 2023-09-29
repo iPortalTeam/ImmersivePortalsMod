@@ -1,12 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -60,12 +58,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     private double vehicleLastGoodZ;
     
     @Shadow
-    protected abstract boolean isSingleplayerOwner();
-    
-    @Shadow
-    public abstract void disconnect(Component reason);
-    
-    @Shadow
     private double vehicleFirstGoodX;
     
     @Shadow
@@ -73,14 +65,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     
     @Shadow
     private double vehicleFirstGoodZ;
-    
-    @Shadow
-    @Final
-    public Connection connection;
-    
-    @Shadow
-    @Final
-    private MinecraftServer server;
     
     @Shadow
     private Entity lastVehicle;
@@ -147,20 +131,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         else {
             ip_dubiousMoveCount = 0;
         }
-    }
-    
-    @Redirect(
-        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isSingleplayerOwner()Z"
-        )
-    )
-    private boolean redirectIsServerOwnerOnPlayerMove(ServerGamePacketListenerImpl serverPlayNetworkHandler) {
-        if (shouldAcceptDubiousMovement(player)) {
-            return true;
-        }
-        return isSingleplayerOwner();
     }
     
     @Redirect(

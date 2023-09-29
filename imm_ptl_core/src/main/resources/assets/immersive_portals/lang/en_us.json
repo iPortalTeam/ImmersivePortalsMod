@@ -40,7 +40,7 @@
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
   "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance",
-  "imm_ptl.stagnate_movement": "Movement stagnated because the other side of the Portal is not yet loaded",
+  "imm_ptl.stagnate_movement": "The other side of the Portal is not yet loaded",
   "dimension.minecraft.overworld": "Overworld",
   "dimension.minecraft.the_nether": "Nether",
   "dimension.minecraft.the_end": "The End",

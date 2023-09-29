@@ -11,6 +11,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -110,10 +111,11 @@ public class DimensionAPI {
      * otherwise that dimension will be lost when you restart the server
      */
     public static void addDimensionDynamically(
+        MinecraftServer server,
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
-        DynamicDimensionsImpl.addDimensionDynamically(dimensionId, levelStem);
+        DynamicDimensionsImpl.addDimensionDynamically(server, dimensionId, levelStem);
     }
     
     /**
@@ -130,6 +132,8 @@ public class DimensionAPI {
      * We don't store dimensions in `level.dat` because if you uninstall the mod,
      * DFU will not be able to recognize the chunk generator and cause world data loss (nether and end will vanish)
      */
+    // TODO refactor
+    @Deprecated
     public static void saveDimensionConfiguration(ResourceKey<Level> dimension) {
         Validate.isTrue(
             !dimension.location().getNamespace().equals("minecraft"),

@@ -4,8 +4,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PlayerChunkSender;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 
 /**
@@ -14,6 +17,8 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
  */
 @Mixin(PlayerChunkSender.class)
 public class MixinPlayerChunkSender {
+    @Shadow @Final private static Logger LOGGER;
+    
     /**
      * @author qouteall
      * @reason see class comment
@@ -56,6 +61,7 @@ public class MixinPlayerChunkSender {
      */
     @Overwrite
     public boolean isPending(long l) {
-        throw new RuntimeException("This method should not be called");
+        LOGGER.error("This should not be called", new Throwable());
+        return false;
     }
 }

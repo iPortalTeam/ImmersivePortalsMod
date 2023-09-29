@@ -2,6 +2,7 @@ package qouteall.q_misc_util.mixin.dimension;
 
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,15 +16,17 @@ public class MixinPlayerList_Misc {
         method = "placeNewPlayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;<init>(IZLnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;Ljava/util/Set;Lnet/minecraft/core/RegistryAccess$Frozen;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/ResourceKey;JIIIZZZZLjava/util/Optional;I)V",
-            shift = At.Shift.AFTER
+            target = "Lnet/minecraft/network/protocol/game/ClientboundChangeDifficultyPacket;<init>(Lnet/minecraft/world/Difficulty;Z)V"
         )
     )
     private void onConnectionEstablished(
         Connection connection,
         ServerPlayer player,
+        CommonListenerCookie commonListenerCookie,
         CallbackInfo ci
     ) {
-        player.connection.send(MiscNetworking.createDimSyncPacket());
+        player.connection.send(
+            MiscNetworking.DimSyncPacket.createPacket(player.server)
+        );
     }
 }

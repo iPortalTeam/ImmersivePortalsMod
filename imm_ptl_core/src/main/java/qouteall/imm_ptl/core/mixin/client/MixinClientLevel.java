@@ -115,14 +115,14 @@ public abstract class MixinClientLevel implements IEClientWorld {
     
     // avoid entity duplicate when an entity travels
     @Inject(
-        method = "Lnet/minecraft/client/multiplayer/ClientLevel;addEntity(ILnet/minecraft/world/entity/Entity;)V",
+        method = "addEntity",
         at = @At("TAIL")
     )
-    private void onOnEntityAdded(int entityId, Entity entityIn, CallbackInfo ci) {
+    private void onOnEntityAdded(Entity entityIn, CallbackInfo ci) {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
                 if (world != (Object) this) {
-                    world.removeEntity(entityId, Entity.RemovalReason.DISCARDED);
+                    world.removeEntity(entityIn.getId(), Entity.RemovalReason.DISCARDED);
                 }
             }
         }

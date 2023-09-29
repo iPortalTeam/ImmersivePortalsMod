@@ -171,17 +171,12 @@ public class PacketRedirection {
         return clientPlayCodecData.createPacket(messageType, buf);
     }
     
-    public static class Payload implements CustomPacketPayload {
-        // use integer here because the mapping between dimension id and integer id is per-server
-        // the deserialization context does not give access to MinecraftServer object
-        // (going to handle the case of multiple servers per JVM)
-        public int dimensionIntId = 0;
-        public @Nullable Packet<? extends ClientCommonPacketListener> packet;
-        
-        public Payload() {
-        
-        }
-        
+    /**
+     * @param dimensionIntId use integer here because the mapping between dimension id and integer id is per-server the deserialization context does not give access to MinecraftServer object (going to handle the case of multiple servers per JVM)
+     */
+    public record Payload(
+        int dimensionIntId, Packet<? extends ClientCommonPacketListener> packet
+    ) implements CustomPacketPayload {
         public Payload(
             int dimensionIntId,
             @NotNull Packet<? extends ClientCommonPacketListener> packet
@@ -218,8 +213,12 @@ public class PacketRedirection {
             return payloadId;
         }
         
+        @SuppressWarnings("unchecked")
         public void handle(ClientGamePacketListener listener) {
-        
+            ResourceKey<Level> dim = DimensionIdRecord.clientRecord.getDim(dimensionIntId);
+            PacketRedirectionClient.handleRedirectedPacket(
+                dim, (Packet) packet, listener
+            );
         }
     }
 }
