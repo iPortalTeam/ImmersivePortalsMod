@@ -66,12 +66,12 @@ public class ChunkLoader {
      * Note: if the server closes before the chunks load, it won't be executed when server starts again.
      */
     public void loadChunksAndDo(Runnable runnable) {
-        NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(this);
+        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(this);
         
         IPGlobal.serverTaskList.addTask(MyTaskList.withDelayCondition(
             () -> getLoadedChunkNum() < getChunkNum(),
             MyTaskList.oneShotTask(() -> {
-                NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(this);
+                ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(this);
                 runnable.run();
             })
         ));

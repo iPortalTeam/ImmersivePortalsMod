@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class MixinServerGamePacketListenerImpl_ChunkSync {
@@ -24,7 +24,7 @@ public class MixinServerGamePacketListenerImpl_ChunkSync {
     private void redirectOnChunkBatchReceivedByClient(
         ServerboundChunkBatchReceivedPacket packet, CallbackInfo ci
     ) {
-        NewChunkTrackingGraph.getPlayerInfo(player)
+        ImmPtlChunkTracking.getPlayerInfo(player)
             .onChunkBatchReceivedByClient(packet.desiredChunksPerTick());
     }
     

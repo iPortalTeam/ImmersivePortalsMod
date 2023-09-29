@@ -47,7 +47,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
@@ -460,7 +460,7 @@ public class PortalDebugCommands {
             .executes(context -> {
                 List<ServerPlayer> players = MiscHelper.getServer().getPlayerList().getPlayers();
                 for (ServerPlayer player : players) {
-                    PlayerChunkLoading playerInfo = NewChunkTrackingGraph.getPlayerInfo(player);
+                    PlayerChunkLoading playerInfo = ImmPtlChunkTracking.getPlayerInfo(player);
                     String text = "%s %d".formatted(player.getName().getString(), playerInfo.loadedChunks);
                     context.getSource().sendSuccess(() -> Component.literal(text), true);
                 }
@@ -725,7 +725,7 @@ public class PortalDebugCommands {
         subStr.append(String.format(
             "%s:\nImmPtl Tracked Chunks: %s\nImmPtl Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
             world.dimension().location(),
-            NewChunkTrackingGraph.getLoadedChunkNum(world.dimension()),
+            ImmPtlChunkTracking.getLoadedChunkNum(world.dimension()),
             dimTicketManager.getLoadedChunkNum(),
             world.getChunkSource().chunkMap.size(),
             ((IELevelEntityGetterAdapter) entityLookup).getIndex().count(),

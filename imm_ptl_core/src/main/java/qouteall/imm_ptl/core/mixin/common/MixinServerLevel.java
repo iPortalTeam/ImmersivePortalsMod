@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 
@@ -47,7 +47,7 @@ public abstract class MixinServerLevel implements IEServerWorld {
     )
     private boolean redirectIsEmpty(List list) {
         final ServerLevel this_ = (ServerLevel) (Object) this;
-        if (NewChunkTrackingGraph.shouldLoadDimension(this_.dimension())) {
+        if (ImmPtlChunkTracking.shouldLoadDimension(this_.dimension())) {
             return false;
         }
         return list.isEmpty();

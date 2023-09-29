@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
@@ -134,7 +134,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
         );
         ChunkPos chunkPos = entity.chunkPosition();
         boolean isWatchedNow =
-            NewChunkTrackingGraph.isPlayerWatchingChunkWithinRadius(
+            ImmPtlChunkTracking.isPlayerWatchingChunkWithinRadius(
                 player,
                 this.entity.level().dimension(),
                 chunkPos.x,

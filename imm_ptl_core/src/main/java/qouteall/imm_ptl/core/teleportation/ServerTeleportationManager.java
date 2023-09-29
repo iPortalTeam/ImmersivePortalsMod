@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -333,7 +333,7 @@ public class ServerTeleportationManager {
         player.connection.resetPosition();
         ((IEServerPlayNetworkHandler) player.connection).cancelTeleportRequest();
         
-        NewChunkTrackingGraph.updateForPlayer(player);
+        ImmPtlChunkTracking.updateForPlayer(player);
     }
     
     /**

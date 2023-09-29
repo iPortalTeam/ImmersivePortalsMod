@@ -49,7 +49,7 @@ public class ChunkVisibility {
         Portal portal, ServerPlayer player, int targetLoadingDistance
     ) {
         PerformanceLevel performanceLevel =
-            NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
+            ImmPtlChunkTracking.getPlayerInfo(player).performanceLevel;
         int cap1 = PerformanceLevel.getIndirectLoadingRadiusCap(performanceLevel);
         int cap2 = IPGlobal.indirectLoadingRadiusCap;
         int cap3 = PerformanceLevel.getIndirectLoadingRadiusCap(ServerPerformanceMonitor.getLevel());
@@ -183,7 +183,7 @@ public class ChunkVisibility {
     public static void foreachBaseChunkLoaders(
         ServerPlayer player, Consumer<ChunkLoader> func
     ) {
-        PerformanceLevel perfLevel = NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
+        PerformanceLevel perfLevel = ImmPtlChunkTracking.getPlayerInfo(player).performanceLevel;
         int visiblePortalRangeChunks = PerformanceLevel.getVisiblePortalRangeChunks(perfLevel);
         int indirectVisiblePortalRangeChunks = PerformanceLevel.getIndirectVisiblePortalRangeChunks(perfLevel);
         

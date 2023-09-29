@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkHolder;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
@@ -67,7 +67,7 @@ public class MixinChunkHolder implements IEChunkHolder {
         )
     )
     private List<ServerPlayer> redirectGetPlayers(ChunkHolder.PlayerProvider playerProvider, ChunkPos chunkPos, boolean boundaryOnly) {
-        return NewChunkTrackingGraph.getPlayersViewingChunk(
+        return ImmPtlChunkTracking.getPlayersViewingChunk(
             ((Level) levelHeightAccessor).dimension(),
             chunkPos.x, chunkPos.z,
             boundaryOnly

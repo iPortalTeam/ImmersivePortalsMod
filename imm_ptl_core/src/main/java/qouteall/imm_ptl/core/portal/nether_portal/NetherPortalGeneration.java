@@ -16,7 +16,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
@@ -170,11 +170,11 @@ public class NetherPortalGeneration {
             new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
         
-        NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(chunkLoader);
+        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(chunkLoader);
         
         Runnable finalizer = () -> {
             indicatorEntity.remove(Entity.RemovalReason.KILLED);
-            NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(chunkLoader);
+            ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(chunkLoader);
         };
         
         IPGlobal.serverTaskList.addTask(() -> {

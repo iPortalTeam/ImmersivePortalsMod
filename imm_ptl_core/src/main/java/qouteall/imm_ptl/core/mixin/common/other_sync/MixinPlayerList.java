@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
@@ -49,7 +49,7 @@ public class MixinPlayerList {
     
     @Inject(method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("TAIL"))
     private void onOnPlayerConnect(Connection connection, ServerPlayer player, CallbackInfo ci) {
-        NewChunkTrackingGraph.updateForPlayer(player);
+        ImmPtlChunkTracking.updateForPlayer(player);
     }
     
     //with redirection
@@ -104,15 +104,15 @@ public class MixinPlayerList {
         ChunkPos chunkPos = new ChunkPos(BlockPos.containing(new Vec3(x, y, z)));
         
         var recs =
-            NewChunkTrackingGraph.getPlayerWatchListRecord(dimension, chunkPos.x, chunkPos.z);
+            ImmPtlChunkTracking.getPlayerWatchListRecord(dimension, chunkPos.x, chunkPos.z);
         
         if (recs == null) {
             return;
         }
         
-        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs.values()) {
+        for (ImmPtlChunkTracking.PlayerWatchRecord rec : recs.values()) {
             if (rec.isLoadedToPlayer && rec.player != excludingPlayer) {
-                if (NewChunkTrackingGraph.isPlayerWatchingChunkWithinRadius(
+                if (ImmPtlChunkTracking.isPlayerWatchingChunkWithinRadius(
                     rec.player, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
                 )) {
                     rec.player.connection.send(

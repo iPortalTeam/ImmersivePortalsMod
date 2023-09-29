@@ -36,7 +36,7 @@ public class PlayerChunkLoading {
     private static final Logger LOGGER = LogUtils.getLogger();
     
     /**
-     * Gets cleared in {@link NewChunkTrackingGraph#updateForPlayer(ServerPlayer)} and re-calculated
+     * Gets cleared in {@link ImmPtlChunkTracking#updateForPlayer(ServerPlayer)} and re-calculated
      */
     public final Set<ResourceKey<Level>> visibleDimensions = new ObjectOpenHashSet<>();
     
@@ -45,7 +45,7 @@ public class PlayerChunkLoading {
      */
     public final ArrayList<ChunkLoader> additionalChunkLoaders = new ArrayList<>();
     
-    public final ArrayList<ArrayDeque<NewChunkTrackingGraph.PlayerWatchRecord>> distanceToPendingChunks =
+    public final ArrayList<ArrayDeque<ImmPtlChunkTracking.PlayerWatchRecord>> distanceToPendingChunks =
         new ArrayList<>();
     
     public int loadedChunks = 0;
@@ -73,7 +73,7 @@ public class PlayerChunkLoading {
     /**
      * one chunk may mark pending loading multiple times with different distanceToSource
      */
-    public void markPendingLoading(NewChunkTrackingGraph.PlayerWatchRecord record) {
+    public void markPendingLoading(ImmPtlChunkTracking.PlayerWatchRecord record) {
         Helper.arrayListComputeIfAbsent(
             distanceToPendingChunks,
             record.distanceToSource,
@@ -110,12 +110,12 @@ public class PlayerChunkLoading {
         Validate.isTrue(maxSendNum != 0);
         
         int sentNum = 0;
-        for (ArrayDeque<NewChunkTrackingGraph.PlayerWatchRecord> queue : distanceToPendingChunks) {
+        for (ArrayDeque<ImmPtlChunkTracking.PlayerWatchRecord> queue : distanceToPendingChunks) {
             if (queue == null || queue.isEmpty()) {
                 continue;
             }
             
-            NewChunkTrackingGraph.PlayerWatchRecord record = queue.pollFirst();
+            ImmPtlChunkTracking.PlayerWatchRecord record = queue.pollFirst();
             
             // chunk unloaded, skip
             if (!record.isValid) {

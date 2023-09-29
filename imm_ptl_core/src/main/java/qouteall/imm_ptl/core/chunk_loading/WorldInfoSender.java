@@ -20,7 +20,7 @@ public class WorldInfoSender {
             MiscHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayer player : McHelper.getCopiedPlayerList()) {
-                    Set<ResourceKey<Level>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
+                    Set<ResourceKey<Level>> visibleDimensions = ImmPtlChunkTracking.getVisibleDimensions(player);
                     
                     if (player.level().dimension() != Level.OVERWORLD) {
                         sendWorldInfo(

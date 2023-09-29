@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -109,12 +109,12 @@ public class PortalAPI {
     
     public static void addChunkLoaderForPlayer(ServerPlayer player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
-        NewChunkTrackingGraph.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
+        ImmPtlChunkTracking.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
     public static void removeChunkLoaderForPlayer(ServerPlayer player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
-        NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
+        ImmPtlChunkTracking.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
     

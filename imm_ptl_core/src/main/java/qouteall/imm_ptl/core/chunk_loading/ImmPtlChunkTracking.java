@@ -32,8 +32,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-// TODO rename to ImmPtlChunkTracking in 1.20.2 or 1.21
-public class NewChunkTrackingGraph {
+public class ImmPtlChunkTracking {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     
@@ -41,11 +40,11 @@ public class NewChunkTrackingGraph {
     public static final int defaultDelayUnloadGenerations = 4;
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
-        IPGlobal.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
+        IPGlobal.postServerTickSignal.connect(ImmPtlChunkTracking::tick);
+        IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTracking::cleanup);
         
         DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(
-            NewChunkTrackingGraph::onDimensionRemove
+            ImmPtlChunkTracking::onDimensionRemove
         );
     }
     
@@ -453,7 +452,7 @@ public class NewChunkTrackingGraph {
         boolean boundaryOnly
     ) {
         var recs =
-            NewChunkTrackingGraph.getPlayerWatchListRecord(dimension, x, z);
+            ImmPtlChunkTracking.getPlayerWatchListRecord(dimension, x, z);
         
         if (recs == null) {
             return Collections.emptyList();
@@ -463,7 +462,7 @@ public class NewChunkTrackingGraph {
         // the client can calculate the light by the block data, but not accurate on loading boundary
         
         ArrayList<ServerPlayer> result = new ArrayList<>();
-        for (NewChunkTrackingGraph.PlayerWatchRecord rec : recs.values()) {
+        for (ImmPtlChunkTracking.PlayerWatchRecord rec : recs.values()) {
             if (rec.isLoadedToPlayer && (!boundaryOnly || rec.isBoundary)) {
                 result.add(rec.player);
             }

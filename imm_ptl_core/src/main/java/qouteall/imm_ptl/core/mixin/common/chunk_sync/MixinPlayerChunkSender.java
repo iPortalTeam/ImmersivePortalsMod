@@ -6,7 +6,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 
 /**
  * Disable the functionality of this class.
@@ -38,7 +38,7 @@ public class MixinPlayerChunkSender {
      */
     @Overwrite
     public void sendNextChunks(ServerPlayer serverPlayer) {
-        NewChunkTrackingGraph.getPlayerInfo(serverPlayer).doChunkSending(serverPlayer);
+        ImmPtlChunkTracking.getPlayerInfo(serverPlayer).doChunkSending(serverPlayer);
     }
     
     /**

@@ -9,7 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.collision.CollisionHelper;
@@ -67,7 +67,7 @@ public class IPModMain {
         
         IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
         
-        NewChunkTrackingGraph.init();
+        ImmPtlChunkTracking.init();
         
         WorldInfoSender.init();
         
