@@ -22,9 +22,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
@@ -118,7 +118,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     @IPVanillaCopy
     @Override
     public void updateEntityTrackingStatus(ServerPlayer player) {
-        IEThreadedAnvilChunkStorage storage = (IEThreadedAnvilChunkStorage)
+        IEChunkMap storage = (IEChunkMap)
             ((ServerLevel) entity.level()).getChunkSource().chunkMap;
         
         if (player == this.entity) {

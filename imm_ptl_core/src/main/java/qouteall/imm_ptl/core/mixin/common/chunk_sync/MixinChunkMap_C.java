@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
-public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
+public abstract class MixinChunkMap_C implements IEChunkMap {
     @Shadow
     private int viewDistance;
     

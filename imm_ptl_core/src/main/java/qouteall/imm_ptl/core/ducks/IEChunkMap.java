@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 
-public interface IEThreadedAnvilChunkStorage {
+public interface IEChunkMap {
     int ip_getWatchDistance();
     
     ServerLevel ip_getWorld();

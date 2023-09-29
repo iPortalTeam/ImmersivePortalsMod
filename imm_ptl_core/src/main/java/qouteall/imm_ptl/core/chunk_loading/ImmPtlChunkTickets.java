@@ -24,9 +24,9 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
@@ -311,7 +311,7 @@ public class ImmPtlChunkTickets {
     }
     
     public static ChunkHolder getChunkHolder(ServerLevel world, long chunkPos) {
-        return ((IEThreadedAnvilChunkStorage) (world.getChunkSource()).chunkMap).ip_getChunkHolder(chunkPos);
+        return ((IEChunkMap) (world.getChunkSource()).chunkMap).ip_getChunkHolder(chunkPos);
     }
     
     public static DistanceManager getDistanceManager(ServerLevel world) {

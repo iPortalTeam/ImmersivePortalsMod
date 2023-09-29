@@ -65,10 +65,9 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     }
     
     @Override
-    public void drop(int x, int z) {
+    public void drop(ChunkPos chunkPos) {
         Validate.isTrue(Thread.currentThread() == mainThread);
         
-        ChunkPos chunkPos = new ChunkPos(x, z);
         LevelChunk chunk = chunkMapForMainThread.get(chunkPos.toLong());
         if (chunk != null) {
             modifyChunkMap(chunkMap -> {
@@ -77,7 +76,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             
             O_O.postClientChunkUnloadEvent(chunk);
             this.level.unload(chunk);
-            SodiumInterface.invoker.onClientChunkUnloaded(level, x, z);
+            SodiumInterface.invoker.onClientChunkUnloaded(level, chunkPos.x, chunkPos.z);
             clientChunkUnloadSignal.emit(chunk);
         }
     }

@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -17,10 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.my_util.SignalBiArged;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -31,7 +29,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-// TODO rename to ChunkTrackingGraph in 1.20.2 or 1.21
+// TODO rename to ImmPtlChunkTracking in 1.20.2 or 1.21
 public class NewChunkTrackingGraph {
     
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -92,9 +90,6 @@ public class NewChunkTrackingGraph {
     private static final Object2ObjectOpenHashMap<ServerPlayer, PlayerChunkLoadingInfo> playerInfoMap =
         new Object2ObjectOpenHashMap<>();
     
-    public static final SignalBiArged<ServerPlayer, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
-    public static final SignalBiArged<ServerPlayer, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
-    
     private static int generationCounter = 0;
     
     private static Long2ObjectOpenHashMap<Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord>>
@@ -103,7 +98,7 @@ public class NewChunkTrackingGraph {
     }
     
     public static PlayerChunkLoadingInfo getPlayerInfo(ServerPlayer player) {
-        return playerInfoMap.computeIfAbsent(player, k -> new PlayerChunkLoadingInfo());
+        return playerInfoMap.computeIfAbsent(player, k -> new PlayerChunkLoadingInfo(isMemoryConnection));
     }
     
     public static void updateForPlayer(ServerPlayer player) {
@@ -389,7 +384,7 @@ public class NewChunkTrackingGraph {
         
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             ImmPtlChunkTickets dimTicketManager = ImmPtlChunkTickets.get(world);
-            IEThreadedAnvilChunkStorage chunkMap = (IEThreadedAnvilChunkStorage) world.getChunkSource().chunkMap;
+            IEChunkMap chunkMap = (IEChunkMap) world.getChunkSource().chunkMap;
             
             dimTicketManager.tick(world);
         }
@@ -508,10 +503,7 @@ public class NewChunkTrackingGraph {
                 PlayerWatchRecord rec = records.remove(player);
                 if (rec != null) {
                     PacketRedirection.sendRedirectedMessage(
-                        player, dim, new ClientboundForgetLevelChunkPacket(
-                            ChunkPos.getX(chunkPos),
-                            ChunkPos.getZ(chunkPos)
-                        )
+                        player, dim, new ClientboundForgetLevelChunkPacket(new ChunkPos(chunkPos))
                     );
                 }
                 
@@ -529,11 +521,9 @@ public class NewChunkTrackingGraph {
         }
         
         map.forEach((chunkPos, records) -> {
-            Packet unloadPacket = PacketRedirection.createRedirectedMessage(
-                dim, new ClientboundForgetLevelChunkPacket(
-                    ChunkPos.getX(chunkPos),
-                    ChunkPos.getZ(chunkPos)
-                )
+            var unloadPacket = PacketRedirection.createRedirectedMessage(
+                MiscHelper.getServer(),
+                dim, new ClientboundForgetLevelChunkPacket(new ChunkPos(chunkPos))
             );
             for (PlayerWatchRecord record : records.values()) {
                 if (record.isValid && record.isLoadedToPlayer) {

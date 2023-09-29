@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -49,7 +49,7 @@ public class ChunkDataSyncManager {
     private void onBeginWatch(ServerPlayer player, DimensionalChunkPos chunkPos) {
         MiscHelper.getServer().getProfiler().push("begin_watch");
         
-        IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(chunkPos.dimension);
+        IEChunkMap ieStorage = McHelper.getIEStorage(chunkPos.dimension);
         
         sendChunkDataPacketNow(player, chunkPos, ieStorage);
         
@@ -59,7 +59,7 @@ public class ChunkDataSyncManager {
     private void sendChunkDataPacketNow(
         ServerPlayer player,
         DimensionalChunkPos chunkPos,
-        IEThreadedAnvilChunkStorage ieStorage
+        IEChunkMap ieStorage
     ) {
         ChunkHolder chunkHolder = ieStorage.ip_getChunkHolder(chunkPos.getChunkPos().toLong());
         
@@ -91,7 +91,7 @@ public class ChunkDataSyncManager {
      */
     public void onChunkProvidedDeferred(LevelChunk chunk) {
         ResourceKey<Level> dimension = chunk.getLevel().dimension();
-        IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
+        IEChunkMap ieStorage = McHelper.getIEStorage(dimension);
         ThreadedLevelLightEngine lightingProvider = ieStorage.ip_getLightingProvider();
         
         MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
@@ -129,8 +129,8 @@ public class ChunkDataSyncManager {
     public void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             ServerChunkCache chunkManager = world.getChunkSource();
-            IEThreadedAnvilChunkStorage storage =
-                (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
+            IEChunkMap storage =
+                (IEChunkMap) chunkManager.chunkMap;
             storage.ip_onPlayerUnload(oldPlayer);
         }
         
@@ -141,8 +141,8 @@ public class ChunkDataSyncManager {
     public void removePlayerFromEntityTrackersWithoutSendingPacket(ServerPlayer player) {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             ServerChunkCache chunkManager = world.getChunkSource();
-            IEThreadedAnvilChunkStorage storage =
-                (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
+            IEChunkMap storage =
+                (IEChunkMap) chunkManager.chunkMap;
             storage.ip_onPlayerDisconnected(player);
         }
     }
@@ -151,8 +151,8 @@ public class ChunkDataSyncManager {
         ServerLevel world = McHelper.getServerWorld(dimension);
         
         ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
-        IEThreadedAnvilChunkStorage storage =
-            (IEThreadedAnvilChunkStorage) chunkManager.chunkMap;
+        IEChunkMap storage =
+            (IEChunkMap) chunkManager.chunkMap;
         storage.ip_onDimensionRemove();
         
         NewChunkTrackingGraph.forceRemoveDimension(dimension);

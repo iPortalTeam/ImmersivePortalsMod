@@ -44,10 +44,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
@@ -80,8 +80,8 @@ public class McHelper {
     
     public static final Placeholder placeholder = new Placeholder();
     
-    public static IEThreadedAnvilChunkStorage getIEStorage(ResourceKey<Level> dimension) {
-        return (IEThreadedAnvilChunkStorage) (
+    public static IEChunkMap getIEStorage(ResourceKey<Level> dimension) {
+        return (IEChunkMap) (
             (ServerChunkCache) getServerWorld(dimension).getChunkSource()
         ).chunkMap;
     }
@@ -321,7 +321,7 @@ public class McHelper {
     public static LevelChunk getServerChunkIfPresent(
         ServerLevel world, int x, int z
     ) {
-        ChunkHolder chunkHolder_ = ((IEThreadedAnvilChunkStorage) (
+        ChunkHolder chunkHolder_ = ((IEChunkMap) (
             (ServerChunkCache) world.getChunkSource()
         ).chunkMap).ip_getChunkHolder(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {

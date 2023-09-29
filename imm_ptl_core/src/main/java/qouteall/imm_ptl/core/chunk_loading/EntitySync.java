@@ -10,8 +10,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
@@ -51,7 +51,7 @@ public class EntitySync {
             ChunkMap storage =
                 ((ServerLevel) player.level()).getChunkSource().chunkMap;
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
-                ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
+                ((IEChunkMap) storage).ip_getEntityTrackerMap();
             
             ChunkMap.TrackedEntity playerItselfTracker =
                 entityTrackerMap.get(player.getId());
@@ -70,7 +70,7 @@ public class EntitySync {
         server.getAllLevels().forEach(world -> {
             ChunkMap storage = world.getChunkSource().chunkMap;
             Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
-                ((IEThreadedAnvilChunkStorage) storage).ip_getEntityTrackerMap();
+                ((IEChunkMap) storage).ip_getEntityTrackerMap();
             
             PacketRedirection.withForceRedirect(world, () -> {
                 for (ChunkMap.TrackedEntity tracker : entityTrackerMap.values()) {

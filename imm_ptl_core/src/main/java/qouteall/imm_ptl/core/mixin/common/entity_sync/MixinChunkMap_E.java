@@ -21,15 +21,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
 
 @Mixin(ChunkMap.class)
-public abstract class MixinChunkMap_E implements IEThreadedAnvilChunkStorage {
+public abstract class MixinChunkMap_E implements IEChunkMap {
     
     @Shadow
     @Final

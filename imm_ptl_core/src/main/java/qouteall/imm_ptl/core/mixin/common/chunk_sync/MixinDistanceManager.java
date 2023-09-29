@@ -18,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
+import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 
 @Mixin(DistanceManager.class)
@@ -49,7 +49,7 @@ public abstract class MixinDistanceManager implements IEChunkTicketManager {
     )
     private void onRunAllUpdates(ChunkMap chunkManager, CallbackInfoReturnable<Boolean> cir) {
         if (IPConfig.getConfig().enableImmPtlChunkLoading) {
-            ServerLevel world = ((IEThreadedAnvilChunkStorage) chunkManager).ip_getWorld();
+            ServerLevel world = ((IEChunkMap) chunkManager).ip_getWorld();
             ImmPtlChunkTickets.get(world).flushThrottling(world);
         }
     }
