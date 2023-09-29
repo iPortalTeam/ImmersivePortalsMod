@@ -44,7 +44,7 @@ public class DimStackEntryEditScreen extends Screen {
         DimEntryWidget editing,
         Runnable callback
     ) {
-        super(Component.translatable("imm_ptl.dim_stack_edit_screen"));
+        super(Component.literal("you cannot see me"));
         
         this.parent = parent;
         this.editing = editing;
@@ -161,8 +161,6 @@ public class DimStackEntryEditScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        scaleField.tick();
-        horizontalRotationField.tick();
     }
     
     @Override
@@ -294,7 +292,7 @@ public class DimStackEntryEditScreen extends Screen {
     
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, delta);
         
         super.render(guiGraphics, mouseX, mouseY, delta);
         

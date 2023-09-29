@@ -108,6 +108,8 @@ public class LoadingIndicatorEntity extends Entity {
     @Override
     protected void defineSynchedData() {
         getEntityData().define(TEXT, Component.literal("Loading..."));
+        getEntityData().define(BOX_LOW_POS, BlockPos.ZERO);
+        getEntityData().define(BOX_HIGH_POS, BlockPos.ZERO);
     }
     
     @Override

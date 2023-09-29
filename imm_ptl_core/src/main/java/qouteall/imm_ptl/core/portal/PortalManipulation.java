@@ -104,13 +104,6 @@ public class PortalManipulation {
             newPortal.specialShape = portal.specialShape.getFlippedWithScaling(1);
         }
         
-        newPortal.initCullableRange(
-            -portal.cullableXStart * portal.scaling,
-            -portal.cullableXEnd * portal.scaling,
-            portal.cullableYStart * portal.scaling,
-            portal.cullableYEnd * portal.scaling
-        );
-        
         if (portal.rotation != null) {
             rotatePortalBody(newPortal, portal.rotation);
             
@@ -154,13 +147,6 @@ public class PortalManipulation {
             newPortal.specialShape = portal.specialShape.getFlippedWithScaling(1);
         }
         
-        newPortal.initCullableRange(
-            -portal.cullableXStart,
-            -portal.cullableXEnd,
-            portal.cullableYStart,
-            portal.cullableYEnd
-        );
-        
         newPortal.rotation = portal.rotation;
         
         newPortal.scaling = portal.scaling;
@@ -185,13 +171,6 @@ public class PortalManipulation {
         newPortal.axisH = portal.axisH;
         
         newPortal.specialShape = portal.specialShape;
-        
-        newPortal.initCullableRange(
-            portal.cullableXStart,
-            portal.cullableXEnd,
-            portal.cullableYStart,
-            portal.cullableYEnd
-        );
         
         newPortal.rotation = portal.rotation;
         

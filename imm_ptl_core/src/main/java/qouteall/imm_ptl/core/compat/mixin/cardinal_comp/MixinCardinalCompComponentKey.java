@@ -30,6 +30,7 @@ public class MixinCardinalCompComponentKey {
             (Packet<ClientGamePacketListener>) (Packet) instance.toComponentPacket(key, writer, recipient);
         if (instance instanceof Entity entity) {
             packet = PacketRedirection.createRedirectedMessage(
+                entity.getServer(),
                 entity.level().dimension(),
                 (Packet<ClientGamePacketListener>) (Packet) packet
             );

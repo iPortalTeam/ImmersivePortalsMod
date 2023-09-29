@@ -49,7 +49,7 @@ public class ImmPtlChunkTracking {
     }
     
     public static void onChunkProvidedDeferred(LevelChunk chunk) {
-        // nothing for now
+        // do nothing for now
     }
     
     // if the player object is recreated, input the old player

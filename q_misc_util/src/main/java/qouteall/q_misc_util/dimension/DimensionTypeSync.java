@@ -26,14 +26,6 @@ public class DimensionTypeSync {
     public static Map<ResourceKey<Level>, ResourceKey<DimensionType>> clientTypeMap;
     
     @Environment(EnvType.CLIENT)
-    private static RegistryAccess currentDimensionTypeTracker;
-    
-    @Environment(EnvType.CLIENT)
-    public static void onGameJoinPacketReceived(RegistryAccess tracker) {
-        currentDimensionTypeTracker = tracker;
-    }
-    
-    @Environment(EnvType.CLIENT)
     private static Map<ResourceKey<Level>, ResourceKey<DimensionType>> typeMapFromTag(CompoundTag tag) {
         Map<ResourceKey<Level>, ResourceKey<DimensionType>> result = new HashMap<>();
         tag.getAllKeys().forEach(key -> {
@@ -107,11 +99,6 @@ public class DimensionTypeSync {
         }
         
         return obj;
-    }
-    
-    @Environment(EnvType.CLIENT)
-    public static DimensionType getDimensionType(ResourceKey<DimensionType> registryKey) {
-        return currentDimensionTypeTracker.registryOrThrow(Registries.DIMENSION_TYPE).get(registryKey);
     }
     
 }

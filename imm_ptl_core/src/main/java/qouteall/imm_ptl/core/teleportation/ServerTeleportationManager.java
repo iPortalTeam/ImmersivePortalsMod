@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -30,7 +29,6 @@ import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
-import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -320,7 +318,6 @@ public class ServerTeleportationManager {
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos.add(McHelper.getEyeOffset(player)));
-            sendPositionConfirmMessage(player);
         }
         
         player.connection.teleport(
@@ -403,15 +400,6 @@ public class ServerTeleportationManager {
         ((IEServerPlayerEntity) player).portal_worldChanged(fromWorld, oldPos);
     }
     
-    public static void sendPositionConfirmMessage(ServerPlayer player) {
-        Packet packet = ImmPtlNetworking.createStcDimensionConfirm(
-            player.level().dimension(),
-            player.position()
-        );
-        
-        player.connection.send(packet);
-    }
-    
     private void manageGlobalPortalTeleportation() {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             for (Entity entity : world.getAllEntities()) {
@@ -438,8 +426,6 @@ public class ServerTeleportationManager {
         Long lastTeleportGameTime =
             this.lastTeleportGameTime.getOrDefault(player, 0L);
         if (tickTimeNow - lastTeleportGameTime > 60) {
-            sendPositionConfirmMessage(player);
-            
             //for vanilla nether portal cooldown to work normally
             player.hasChangedDimension();
         }

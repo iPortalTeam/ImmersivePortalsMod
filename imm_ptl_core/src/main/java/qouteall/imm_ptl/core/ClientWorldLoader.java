@@ -57,6 +57,7 @@ public class ClientWorldLoader {
     public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
     
     // sent to client by login and respawn packets
+    // TODO is it needed in 1.20.2?
     public static boolean isFlatWorld = false;
     
     private static final Map<ResourceKey<Level>, ClientLevel> clientWorldMap = new HashMap<>();

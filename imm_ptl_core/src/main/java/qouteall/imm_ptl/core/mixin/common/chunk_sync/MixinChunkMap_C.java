@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
@@ -72,6 +72,6 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
      */
     @Overwrite
     private void onChunkReadyToSend(LevelChunk chunk) {
-        IPGlobal.chunkDataSyncManager.onChunkProvidedDeferred(chunk);
+        ImmPtlChunkTracking.onChunkProvidedDeferred(chunk);
     }
 }

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 
 @Mixin(PlayerList.class)
 public class MixinPlayerManager_MA {
@@ -20,7 +20,7 @@ public class MixinPlayerManager_MA {
         boolean bl,
         CallbackInfoReturnable<ServerPlayer> cir
     ) {
-        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(oldPlayer);
+        ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(oldPlayer);
     }
     
     @Inject(
@@ -28,6 +28,6 @@ public class MixinPlayerManager_MA {
         at = @At("HEAD")
     )
     private void onPlayerDisconnect(ServerPlayer player, CallbackInfo ci) {
-        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(player);
+        ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(player);
     }
 }

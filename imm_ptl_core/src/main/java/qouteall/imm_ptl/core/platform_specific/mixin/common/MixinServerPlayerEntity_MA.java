@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(ServerPlayer.class)
@@ -42,7 +43,7 @@ public class MixinServerPlayerEntity_MA {
     
     private static void onBeforeDimensionTravel(ServerPlayer player) {
         CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
-        IPGlobal.chunkDataSyncManager.removePlayerFromChunkTrackersAndEntityTrackers(player);
+        ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(player);
         
         IPGlobal.serverTaskList.addTask(() -> {
             CustomPortalGenManagement.onAfterConventionalDimensionChange(player);

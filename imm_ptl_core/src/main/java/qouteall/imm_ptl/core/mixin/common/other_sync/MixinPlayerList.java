@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -47,12 +48,16 @@ public class MixinPlayerList {
         }
     }
     
-    @Inject(method = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("TAIL"))
-    private void onOnPlayerConnect(Connection connection, ServerPlayer player, CallbackInfo ci) {
+    @Inject(method = "placeNewPlayer", at = @At("TAIL"))
+    private void onOnPlayerConnect(
+        Connection connection, ServerPlayer player,
+        CommonListenerCookie commonListenerCookie, CallbackInfo ci
+    ) {
         ImmPtlChunkTracking.updateForPlayer(player);
     }
     
     //with redirection
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Inject(
         method = "Lnet/minecraft/server/players/PlayerList;broadcastAll(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/resources/ResourceKey;)V",
         at = @At("HEAD"),
@@ -64,7 +69,7 @@ public class MixinPlayerList {
                 PacketRedirection.sendRedirectedMessage(
                     player,
                     dimension,
-                    packet
+                    (Packet<ClientGamePacketListener>) (Packet) packet
                 );
             }
         }
@@ -117,6 +122,7 @@ public class MixinPlayerList {
                 )) {
                     rec.player.connection.send(
                         PacketRedirection.createRedirectedMessage(
+                            rec.player.getServer(),
                             dimension, (Packet<ClientGamePacketListener>) packet
                         )
                     );

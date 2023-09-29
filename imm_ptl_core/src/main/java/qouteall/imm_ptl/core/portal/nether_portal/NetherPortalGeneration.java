@@ -127,10 +127,10 @@ public class NetherPortalGeneration {
         LoadingIndicatorEntity indicatorEntity =
             LoadingIndicatorEntity.entityType.create(fromWorld);
         indicatorEntity.isValid = true;
-        indicatorEntity.portalShape = fromShape;
         indicatorEntity.setPos(
             indicatorPos.x, indicatorPos.y, indicatorPos.z
         );
+        indicatorEntity.setBox(fromShape.innerAreaBox);
         fromWorld.addFreshEntity(indicatorEntity);
         
         Runnable onGenerateNewFrame = () -> {

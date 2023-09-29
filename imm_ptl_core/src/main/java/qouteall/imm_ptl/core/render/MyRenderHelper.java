@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -417,7 +418,7 @@ public class MyRenderHelper {
     
     /**
      * If we don't do this
-     * the future created in {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
+     * the future created in {@link SectionRenderDispatcher#uploadSectionLayer(BufferBuilder.RenderedBuffer, VertexBuffer)}
      * may never complete
      */
     public static void earlyRemoteUpload() {
@@ -427,7 +428,7 @@ public class MyRenderHelper {
         
         ClientWorldLoader.worldRendererMap.forEach((dim, worldRenderer) -> {
             if (client.level.dimension() != dim) {
-                worldRenderer.getChunkRenderDispatcher().uploadAllPendingUploads();
+                worldRenderer.getSectionRenderDispatcher().uploadAllPendingUploads();
             }
         });
     }

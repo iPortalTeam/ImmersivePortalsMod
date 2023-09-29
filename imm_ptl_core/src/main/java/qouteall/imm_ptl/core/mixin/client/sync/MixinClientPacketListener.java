@@ -1,24 +1,18 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.ClientRegistryLayer;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
-import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
@@ -42,7 +36,6 @@ import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.Map;
@@ -71,14 +64,10 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     protected abstract void applyLightData(int x, int z, ClientboundLightUpdatePacketData data);
     
     @Shadow
-    public abstract RegistryAccess registryAccess();
-    
-    @Shadow
-    private LayeredRegistryAccess<ClientRegistryLayer> registryAccess;
-    
-    @Shadow
     @Final
     private static Logger LOGGER;
+    
+    @Shadow public abstract RegistryAccess.Frozen registryAccess();
     
     @Override
     public void ip_setWorld(ClientLevel world) {
@@ -100,16 +89,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         at = @At("RETURN")
     )
     private void onInit(
-        Minecraft minecraft, Screen screen, Connection connection, ServerData serverData,
-        GameProfile gameProfile, WorldSessionTelemetryManager worldSessionTelemetryManager, CallbackInfo ci
+        Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie, CallbackInfo ci
     ) {
         isReProcessingPassengerPacket = false;
-    }
-    
-    @Inject(method = "Lnet/minecraft/client/multiplayer/ClientPacketListener;handleLogin(Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;)V", at = @At("RETURN"))
-    private void onOnGameJoin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        ClientWorldLoader.isFlatWorld = packet.isFlat();
-        DimensionTypeSync.onGameJoinPacketReceived(packet.registryHolder());
     }
     
     @Inject(
@@ -145,7 +127,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
                 packetDim,
                 new Vec3(packet.getX(), packet.getY(), packet.getZ())
             );
-            
+
 //            ClientTeleportationManager.disableTeleportFor(2);
         }
         
@@ -291,7 +273,10 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         ClientboundForgetLevelChunkPacket packet, CallbackInfo ci
     ) {
         if (IPGlobal.chunkPacketDebug) {
-            LOGGER.info("Chunk Unload Packet {} {} {}", level.dimension().location(), packet.getX(), packet.getZ());
+            LOGGER.info(
+                "Chunk Unload Packet {} {} {}",
+                level.dimension().location(), packet.pos().x, packet.pos().z
+            );
         }
     }
 }

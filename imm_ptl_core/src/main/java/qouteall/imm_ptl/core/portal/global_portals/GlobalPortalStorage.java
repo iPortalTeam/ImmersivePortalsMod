@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +34,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -83,15 +86,18 @@ public class GlobalPortalStorage extends SavedData {
         ServerLevel world
     ) {
         return world.getDataStorage().computeIfAbsent(
-            (nbt) -> {
-                GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
-                globalPortalStorage.fromNbt(nbt);
-                return globalPortalStorage;
-            },
-            () -> {
-                Helper.log("Global portal storage initialized " + world.dimension().location());
-                return new GlobalPortalStorage(world);
-            },
+            new SavedData.Factory<>(
+                () -> {
+                    Helper.log("Global portal storage initialized " + world.dimension().location());
+                    return new GlobalPortalStorage(world);
+                },
+                (nbt) -> {
+                    GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
+                    globalPortalStorage.fromNbt(nbt);
+                    return globalPortalStorage;
+                },
+                null
+            ),
             "global_portal"
         );
     }
@@ -122,23 +128,29 @@ public class GlobalPortalStorage extends SavedData {
             world -> {
                 GlobalPortalStorage storage = get(world);
                 if (!storage.data.isEmpty()) {
-                    player.connection.send(
-                        ImmPtlNetworking.createGlobalPortalUpdate(
-                            storage
-                        )
-                    );
+                    Packet<ClientCommonPacketListener> packet = createSyncPacket(world, storage);
+                    player.connection.send(packet);
                 }
             }
         );
         
     }
     
+    public static Packet<ClientCommonPacketListener> createSyncPacket(
+        ServerLevel world, GlobalPortalStorage storage
+    ) {
+        return ServerPlayNetworking.createS2CPacket(
+            new ImmPtlNetworking.GlobalPortalSyncPacket(
+                DimensionIdRecord.serverRecord.getIntId(world.dimension()),
+                storage.save(new CompoundTag())
+            )
+        );
+    }
+    
     public void onDataChanged() {
         setDirty(true);
         
         shouldReSync = true;
-        
-        
     }
     
     public void removePortal(Portal portal) {
@@ -170,7 +182,9 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     private void syncToAllPlayers() {
-        Packet packet = ImmPtlNetworking.createGlobalPortalUpdate(this);
+        ServerLevel currWorld = world.get();
+        Validate.notNull(currWorld);
+        Packet packet = createSyncPacket(currWorld, this);
         McHelper.getCopiedPlayerList().forEach(
             player -> player.connection.send(packet)
         );

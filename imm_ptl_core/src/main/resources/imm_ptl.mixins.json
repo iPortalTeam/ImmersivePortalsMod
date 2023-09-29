@@ -43,7 +43,7 @@
     "common.entity_sync.MixinChunkMap_E",
     "common.entity_sync.MixinPersistentEntitySectionManager",
     "common.entity_sync.MixinServerEntity",
-    "common.entity_sync.MixinServerGamePacketListenerImpl_E",
+    "common.entity_sync.MixinServerGamePacketListenerImpl_Redirect",
     "common.entity_sync.MixinServerPlayer",
     "common.entity_sync.MixinTrackedEntity",
     "common.interaction.MixinServerPlayerGameMode",

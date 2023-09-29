@@ -4,9 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import qouteall.q_misc_util.Helper;
-
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.Helper;
 
 public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
     
@@ -45,7 +44,6 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
         this.type = type;
         this.draggingCallback = draggingCallback;
         setRenderBackground(false);
-        setRenderTopAndBottom(false);
     }
     
     @Override

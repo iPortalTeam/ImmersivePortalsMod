@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_E;
+import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_Redirect;
 import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class PacketRedirection {
     
     /**
      * If it's not null, all sent packets will be wrapped into redirected packet
-     * {@link MixinServerGamePacketListenerImpl_E}
+     * {@link MixinServerGamePacketListenerImpl_Redirect}
      */
     @Nullable
     public static ResourceKey<Level> getForceRedirectDimension() {
