@@ -69,7 +69,7 @@ public class GlobalPortalStorage extends SavedData {
             }
         });
         
-        DimensionAPI.serverDimensionDynamicUpdateEvent.register(dims -> {
+        DimensionAPI.serverDimensionDynamicUpdateEvent.register((server, dims) -> {
             for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
                 GlobalPortalStorage gps = get(world);
                 gps.clearAbnormalPortals();

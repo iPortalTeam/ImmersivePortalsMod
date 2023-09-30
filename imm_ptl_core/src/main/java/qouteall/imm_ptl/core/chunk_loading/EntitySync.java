@@ -31,7 +31,7 @@ public class EntitySync {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(EntitySync::tick);
-        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(EntitySync::forceRemoveDimension);
+        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(EntitySync::forceRemoveDimension);
     }
     
     /**

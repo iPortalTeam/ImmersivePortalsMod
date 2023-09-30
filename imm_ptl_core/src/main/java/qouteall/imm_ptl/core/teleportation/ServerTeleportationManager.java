@@ -67,7 +67,9 @@ public class ServerTeleportationManager {
             }
         );
         
-        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(this::evacuatePlayersFromDimension);
+        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
+            this::evacuatePlayersFromDimension
+        );
     }
     
     private void tick() {

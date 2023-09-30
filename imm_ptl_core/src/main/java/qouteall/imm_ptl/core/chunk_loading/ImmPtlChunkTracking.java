@@ -43,7 +43,7 @@ public class ImmPtlChunkTracking {
         IPGlobal.postServerTickSignal.connect(ImmPtlChunkTracking::tick);
         IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTracking::cleanup);
         
-        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(
+        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
             ImmPtlChunkTracking::onDimensionRemove
         );
     }

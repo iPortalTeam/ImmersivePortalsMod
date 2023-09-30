@@ -4,6 +4,8 @@ import com.google.common.collect.Streams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -36,6 +38,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -450,15 +453,18 @@ public class Helper {
     }
     
     // TODO use separate logger for each class
+    @Deprecated
     public static void log(Object str) {
         logger.info(str);
     }
     
     // TODO use separate logger for each class
+    @Deprecated
     public static void err(Object str) {
         logger.error(str);
     }
     
+    @Deprecated
     public static void dbg(Object str) {
         logger.debug(str);
     }
@@ -1242,5 +1248,27 @@ public class Helper {
                 return list.get(i);
             }
         });
+    }
+    
+    public static <T> Event<Consumer<T>> createConsumerEvent() {
+        return EventFactory.createArrayBacked(
+            Consumer.class,
+            (listeners) -> (t) -> {
+                for (Consumer<T> listener : listeners) {
+                    listener.accept(t);
+                }
+            }
+        );
+    }
+    
+    public static <A, B> Event<BiConsumer<A, B>> createBiConsumerEvent() {
+        return EventFactory.createArrayBacked(
+            BiConsumer.class,
+            (listeners) -> (a, b) -> {
+                for (BiConsumer<A, B> listener : listeners) {
+                    listener.accept(a, b);
+                }
+            }
+        );
     }
 }

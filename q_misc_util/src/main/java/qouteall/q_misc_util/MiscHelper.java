@@ -105,6 +105,7 @@ public class MiscHelper {
         }
     }
     
+    @Deprecated
     public static MinecraftServer getServer() {
         return MiscGlobals.refMinecraftServer.get();
     }

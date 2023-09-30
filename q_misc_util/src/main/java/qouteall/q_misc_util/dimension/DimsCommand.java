@@ -63,8 +63,6 @@ public class DimsCommand {
                     
                     DimensionAPI.removeDimensionDynamically(dimension);
                     
-                    DimensionAPI.deleteDimensionConfiguration(dimension.dimension());
-                    
                     context.getSource().sendSuccess(() -> Component.literal(
                         "Dynamically removed dimension %s . Its world file is not yet deleted."
                             .formatted(dimension.dimension().location())
@@ -99,8 +97,6 @@ public class DimsCommand {
                 generator
             )
         );
-        
-        DimensionAPI.saveDimensionConfiguration(DimId.idToKey(newDimId));
     }
     
 }

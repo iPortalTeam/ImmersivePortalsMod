@@ -71,7 +71,9 @@ public class ImmPtlChunkTickets {
     public static final WeakHashMap<ServerLevel, ImmPtlChunkTickets> BY_DIMENSION = new WeakHashMap<>();
     
     public static void init() {
-        DynamicDimensionsImpl.beforeRemovingDimensionSignal.connect(ImmPtlChunkTickets::onDimensionRemove);
+        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
+            ImmPtlChunkTickets::onDimensionRemove
+        );
         
         IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTickets::cleanup);
     }

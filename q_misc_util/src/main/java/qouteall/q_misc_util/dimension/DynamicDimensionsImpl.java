@@ -3,6 +3,7 @@ package qouteall.q_misc_util.dimension;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -29,6 +30,8 @@ import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscGlobals;
@@ -40,13 +43,16 @@ import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 import qouteall.q_misc_util.mixin.dimension.IEWorldBorder;
 import qouteall.q_misc_util.my_util.MyTaskList;
-import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class DynamicDimensionsImpl {
-    public static final SignalArged<ResourceKey<Level>> beforeRemovingDimensionSignal = new SignalArged<>();
+    private static final Logger LOGGER = LogManager.getLogger();
+    
+    public static final Event<Consumer<ResourceKey<Level>>> beforeRemovingDimensionEvent =
+        Helper.createConsumerEvent();
     
     public static boolean isRemovingDimension = false;
     
@@ -128,7 +134,7 @@ public class DynamicDimensionsImpl {
             player.connection.send(dimSyncPacket);
         }
         
-        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
+        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server, server.levelKeys());
     }
     
     public static void removeDimensionDynamically(ServerLevel world) {
@@ -145,7 +151,7 @@ public class DynamicDimensionsImpl {
         Helper.log("Started Removing Dimension " + dimension.location());
         
         MiscGlobals.serverTaskList.addTask(MyTaskList.oneShotTask(() -> {
-            beforeRemovingDimensionSignal.emit(dimension);
+            beforeRemovingDimensionEvent.invoker().accept(dimension);
             
             evacuatePlayersFromDimension(world);
             
@@ -216,7 +222,7 @@ public class DynamicDimensionsImpl {
                 player.connection.send(dimSyncPacket);
             }
             
-            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server.levelKeys());
+            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server, server.levelKeys());
         }));
     }
     

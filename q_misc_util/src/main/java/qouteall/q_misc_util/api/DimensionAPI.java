@@ -18,11 +18,9 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldOptions;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
-import qouteall.q_misc_util.dimension.ExtraDimensionStorage;
 import qouteall.q_misc_util.mixin.dimension.IELayeredRegistryAccess;
 import qouteall.q_misc_util.mixin.dimension.IEMappedRegistry;
 
@@ -30,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 public class DimensionAPI {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     
     public static interface ServerDimensionsLoadCallback {
         /**
@@ -53,7 +51,7 @@ public class DimensionAPI {
                         listener.run(worldOptions, registryManager);
                     }
                     catch (Exception e) {
-                        logger.error("Error registering custom dimension", e);
+                        LOGGER.error("Error registering custom dimension", e);
                     }
                 }
             })
@@ -105,10 +103,8 @@ public class DimensionAPI {
     }
     
     /**
-     * Add a new dimension when the server is running
-     * Cannot be used during server initialization
-     * It's recommended to save the dimension config using {@link DimensionAPI#saveDimensionConfiguration(ResourceKey)} ,
-     * otherwise that dimension will be lost when you restart the server
+     * Add a new dimension when the server is running.
+     * The new dimension's config will be saved in the `level.dat` file.
      */
     public static void addDimensionDynamically(
         MinecraftServer server,
@@ -120,6 +116,7 @@ public class DimensionAPI {
     
     /**
      * Remove a dimension dynamically.
+     * The removed dimension's config will be removed from the `level.dat` file.
      * Cannot be used during server initialization. Cannot remove vanilla dimensions.
      * Does not delete that dimension's world saving files.
      */
@@ -127,31 +124,11 @@ public class DimensionAPI {
         DynamicDimensionsImpl.removeDimensionDynamically(world);
     }
     
-    /**
-     * Store the dimension configurations as a json file in folder `q_dimension_configs` in the world saving
-     * We don't store dimensions in `level.dat` because if you uninstall the mod,
-     * DFU will not be able to recognize the chunk generator and cause world data loss (nether and end will vanish)
-     */
-    // TODO refactor
-    @Deprecated
-    public static void saveDimensionConfiguration(ResourceKey<Level> dimension) {
-        Validate.isTrue(
-            !dimension.location().getNamespace().equals("minecraft"),
-            "cannot save a vanilla dimension"
-        );
-        ExtraDimensionStorage.saveDimensionIntoExtraStorage(dimension);
+    public static interface ServerDynamicUpdateListener {
+        void run(MinecraftServer server, Set<ResourceKey<Level>> dimensions);
     }
     
-    /**
-     * Delete the dimension configuration json file from folder `q_dimension_configs`
-     *
-     * @return True if it finds the file and deleted it successfully
-     */
-    public static boolean deleteDimensionConfiguration(ResourceKey<Level> dimension) {
-        return ExtraDimensionStorage.removeDimensionFromExtraStorage(dimension);
-    }
-    
-    public static interface DynamicUpdateListener {
+    public static interface ClientDynamicUpdateListener {
         void run(Set<ResourceKey<Level>> dimensions);
     }
     
@@ -159,12 +136,12 @@ public class DimensionAPI {
      * Will be triggered when the server dynamically add or remove a dimension
      * Does not get triggered during server initialization
      */
-    public static final Event<DynamicUpdateListener> serverDimensionDynamicUpdateEvent =
+    public static final Event<ServerDynamicUpdateListener> serverDimensionDynamicUpdateEvent =
         EventFactory.createArrayBacked(
-            DynamicUpdateListener.class,
-            arr -> (set) -> {
-                for (DynamicUpdateListener runnable : arr) {
-                    runnable.run(set);
+            ServerDynamicUpdateListener.class,
+            arr -> (server, dims) -> {
+                for (ServerDynamicUpdateListener runnable : arr) {
+                    runnable.run(server, dims);
                 }
             }
         );
@@ -172,11 +149,11 @@ public class DimensionAPI {
     /**
      * Will be triggered when the client receives dimension data synchronization
      */
-    public static final Event<DynamicUpdateListener> clientDimensionUpdateEvent =
+    public static final Event<ClientDynamicUpdateListener> clientDimensionUpdateEvent =
         EventFactory.createArrayBacked(
-            DynamicUpdateListener.class,
+            ClientDynamicUpdateListener.class,
             arr -> (set) -> {
-                for (DynamicUpdateListener runnable : arr) {
+                for (ClientDynamicUpdateListener runnable : arr) {
                     runnable.run(set);
                 }
             }
