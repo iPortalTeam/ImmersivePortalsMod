@@ -90,7 +90,7 @@ public class ClientPerformanceMonitor {
         }
         
         McRemoteProcedureCall.tellServerToInvoke(
-            "qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph.RemoteCallables.acceptClientPerformanceInfo",
+            "qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking.RemoteCallables.acceptClientPerformanceInfo",
             level
         );
     }

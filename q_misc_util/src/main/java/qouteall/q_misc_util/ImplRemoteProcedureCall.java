@@ -125,7 +125,7 @@ public class ImplRemoteProcedureCall {
     
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(
-            MiscNetworking.id_stcRemote,
+            MiscNetworking.id_ctsRemote,
             (server, player, handler, buf, responseSender) -> {
                 Runnable runnable = serverReadPacketAndGetHandler(player, buf);
                 MiscHelper.executeOnServerThread(runnable);

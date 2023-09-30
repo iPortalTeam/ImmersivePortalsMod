@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.network;
 
-import io.netty.buffer.Unpooled;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.BundleDelimiterPacket;
@@ -34,15 +33,13 @@ import java.util.function.Supplier;
 public class PacketRedirection {
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketRedirection.class);
     
+    // most game packets sent are redirected, so that payload id will be used very frequently
+    // use a short id to reduce packet size
     public static final ResourceLocation payloadId =
-        new ResourceLocation("imm_ptl", "rd");
+        new ResourceLocation("i:r");
     
     private static final ThreadLocal<ResourceKey<Level>> serverPacketRedirection =
         ThreadLocal.withInitial(() -> null);
-    
-    // Mixin does not allow cancelling in constructor
-    // so use a dummy argument instead of null
-    private static final FriendlyByteBuf dummyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
     
     public static void withForceRedirect(ServerLevel world, Runnable func) {
         withForceRedirectAndGet(world, () -> {
@@ -177,13 +174,6 @@ public class PacketRedirection {
     public record Payload(
         int dimensionIntId, Packet<? extends ClientCommonPacketListener> packet
     ) implements CustomPacketPayload {
-        public Payload(
-            int dimensionIntId,
-            @NotNull Packet<? extends ClientCommonPacketListener> packet
-        ) {
-            this.dimensionIntId = dimensionIntId;
-            this.packet = packet;
-        }
         
         @Override
         public void write(FriendlyByteBuf buf) {
