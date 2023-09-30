@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
@@ -23,11 +24,9 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DimId;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +58,10 @@ public class DimStackManagement {
     }
     
     public static void onServerCreatedWorlds(MinecraftServer server) {
-        applyDimStackPresetInDedicatedServer();
+        applyDimStackPresetInDedicatedServer(server);
         
         if (dimStackToApply != null) {
-            dimStackToApply.apply();
+            dimStackToApply.apply(server);
             dimStackToApply = null;
         }
         else {
@@ -70,12 +69,12 @@ public class DimStackManagement {
         }
     }
     
-    private static void applyDimStackPresetInDedicatedServer() {
+    private static void applyDimStackPresetInDedicatedServer(MinecraftServer server) {
         if (O_O.isDedicatedServer()) {
             DimStackInfo dimStackPreset = getDimStackPreset();
             
             if (dimStackPreset != null) {
-                if (!hasDimStackPortal()) {
+                if (!hasDimStackPortal(server)) {
                     LOGGER.info("Applying dimension stack preset in dedicated server");
                     dimStackToApply = dimStackPreset;
                 }
@@ -181,9 +180,11 @@ public class DimStackManagement {
                 return;
             }
             
-            clearDimStackPortals();
+            MinecraftServer server = player.getServer();
             
-            dimStackInfo.apply();
+            clearDimStackPortals(server);
+            
+            dimStackInfo.apply(server);
             
             player.displayClientMessage(
                 Component.translatable("imm_ptl.dim_stack_established"),
@@ -205,7 +206,9 @@ public class DimStackManagement {
                 return;
             }
             
-            clearDimStackPortals();
+            MinecraftServer server = player.getServer();
+            
+            clearDimStackPortals(server);
             
             player.displayClientMessage(
                 Component.translatable("imm_ptl.dim_stack_removed"),
@@ -220,8 +223,7 @@ public class DimStackManagement {
         }
     }
     
-    public static boolean hasDimStackPortal() {
-        MinecraftServer server = MiscHelper.getServer();
+    public static boolean hasDimStackPortal(MinecraftServer server) {
         for (ServerLevel world : server.getAllLevels()) {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             if (Helper.indexOf(gps.data, p -> p instanceof VerticalConnectingPortal) != -1) {
@@ -231,8 +233,7 @@ public class DimStackManagement {
         return false;
     }
     
-    private static void clearDimStackPortals() {
-        MinecraftServer server = MiscHelper.getServer();
+    private static void clearDimStackPortals(MinecraftServer server) {
         for (ServerLevel world : server.getAllLevels()) {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             gps.data.removeIf(p -> p instanceof VerticalConnectingPortal);

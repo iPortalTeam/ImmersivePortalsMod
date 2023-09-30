@@ -128,7 +128,7 @@ public class ImplRemoteProcedureCall {
             MiscNetworking.id_ctsRemote,
             (server, player, handler, buf, responseSender) -> {
                 Runnable runnable = serverReadPacketAndGetHandler(player, buf);
-                MiscHelper.executeOnServerThread(runnable);
+                MiscHelper.executeOnServerThread(server, runnable);
             }
         );
         

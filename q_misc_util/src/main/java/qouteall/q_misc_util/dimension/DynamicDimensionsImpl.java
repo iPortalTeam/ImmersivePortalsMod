@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscGlobals;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.ducks.IEMappedRegistry2;
@@ -127,7 +126,7 @@ public class DynamicDimensionsImpl {
         
         Helper.log("Added Dimension " + dimensionId);
         
-        DimensionIdManagement.updateAndSaveServerDimIdRecord();
+        DimensionIdManagement.updateAndSaveServerDimIdRecord(server);
         
         Packet dimSyncPacket = MiscNetworking.DimSyncPacket.createPacket(server);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -242,7 +241,7 @@ public class DynamicDimensionsImpl {
     }
     
     private static void evacuatePlayersFromDimension(ServerLevel world) {
-        MinecraftServer server = MiscHelper.getServer();
+        MinecraftServer server = world.getServer();
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         
         List<ServerPlayer> players = world.getPlayers(p -> true);

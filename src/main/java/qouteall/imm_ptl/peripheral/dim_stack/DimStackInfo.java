@@ -11,15 +11,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,7 +106,7 @@ public class DimStackInfo {
         }
     }
     
-    public void apply() {
+    public void apply(MinecraftServer server) {
         
         if (entries.isEmpty()) {
             McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
@@ -116,7 +115,6 @@ public class DimStackInfo {
             return;
         }
         
-        MinecraftServer server = MiscHelper.getServer();
         for (DimStackEntry entry : entries) {
             if (server.getLevel(entry.getDimension()) == null) {
                 McHelper.sendMessageToFirstLoggedPlayer(Component.literal(

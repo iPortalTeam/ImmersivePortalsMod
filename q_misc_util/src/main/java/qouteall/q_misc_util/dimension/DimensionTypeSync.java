@@ -10,11 +10,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,11 +54,11 @@ public class DimensionTypeSync {
         ));
     }
     
-    public static CompoundTag createTagFromServerWorldInfo() {
-        RegistryAccess registryManager = MiscHelper.getServer().registryAccess();
+    public static CompoundTag createTagFromServerWorldInfo(MinecraftServer server) {
+        RegistryAccess registryManager = server.registryAccess();
         Registry<DimensionType> dimensionTypes = registryManager.registryOrThrow(Registries.DIMENSION_TYPE);
         return typeMapToTag(
-            Streams.stream(MiscHelper.getServer().getAllLevels()).collect(
+            Streams.stream(server.getAllLevels()).collect(
                 Collectors.toMap(
                     Level::dimension,
                     w -> {

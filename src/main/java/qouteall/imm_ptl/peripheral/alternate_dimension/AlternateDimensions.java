@@ -7,7 +7,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -21,13 +20,11 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,18 +183,20 @@ public class AlternateDimensions {
     
     
     private static void tick() {
-        if (!IPGlobal.enableAlternateDimensions) {
-            return;
-        }
-        
-        ServerLevel overworld = McHelper.getServerWorld(Level.OVERWORLD);
-        
-        MinecraftServer server = MiscHelper.getServer();
-        
-        syncWithOverworldTimeWeather(server.getLevel(alternate1), overworld);
-        syncWithOverworldTimeWeather(server.getLevel(alternate2), overworld);
-        syncWithOverworldTimeWeather(server.getLevel(alternate3), overworld);
-        syncWithOverworldTimeWeather(server.getLevel(alternate4), overworld);
-        syncWithOverworldTimeWeather(server.getLevel(alternate5), overworld);
+        // TODO check whether manual weather sync necessary
+        // or sync weather based on dimension type
+//        if (!IPGlobal.enableAlternateDimensions) {
+//            return;
+//        }
+//
+//        ServerLevel overworld = McHelper.getServerWorld(Level.OVERWORLD);
+//
+//        MinecraftServer server = MiscHelper.getServer();
+//
+//        syncWithOverworldTimeWeather(server.getLevel(alternate1), overworld);
+//        syncWithOverworldTimeWeather(server.getLevel(alternate2), overworld);
+//        syncWithOverworldTimeWeather(server.getLevel(alternate3), overworld);
+//        syncWithOverworldTimeWeather(server.getLevel(alternate4), overworld);
+//        syncWithOverworldTimeWeather(server.getLevel(alternate5), overworld);
     }
 }

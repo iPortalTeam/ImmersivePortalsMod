@@ -44,10 +44,10 @@ public class MiscNetworking {
         public static DimSyncPacket createFromServer(MinecraftServer server) {
             CompoundTag idMapTag = DimensionIdRecord.recordToTag(
                 DimensionIdRecord.serverRecord,
-                dim -> MiscHelper.getServer().getLevel(dim) != null
+                dim -> server.getLevel(dim) != null
             );
             
-            CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
+            CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo(server);
             
             return new DimSyncPacket(idMapTag, typeMapTag);
         }

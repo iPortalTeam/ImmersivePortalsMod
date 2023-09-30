@@ -42,6 +42,7 @@ public abstract class MixinMinecraftServer_D {
     private void onFinishedLoadingAllWorlds(
         CallbackInfo ci
     ) {
-        DimensionIdManagement.onServerStarted();
+        MinecraftServer this_ = (MinecraftServer) (Object) this;
+        DimensionIdManagement.onServerStarted(this_);
     }
 }

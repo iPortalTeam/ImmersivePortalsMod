@@ -105,14 +105,15 @@ public class MiscHelper {
         }
     }
     
+    /**
+     * TODO support multi-server-in-one-JVM
+     */
     @Deprecated
     public static MinecraftServer getServer() {
         return MiscGlobals.refMinecraftServer.get();
     }
     
-    public static void executeOnServerThread(Runnable runnable) {
-        MinecraftServer server = getServer();
-        
+    public static void executeOnServerThread(MinecraftServer server, Runnable runnable) {
         if (server.isSameThread()) {
             try {
                 runnable.run();
@@ -131,8 +132,7 @@ public class MiscHelper {
     }
     
     
-    public static Path getWorldSavingDirectory() {
-        MinecraftServer server = getServer();
+    public static Path getWorldSavingDirectory(MinecraftServer server) {
         Validate.notNull(server);
         Path saveDir =
             ((IELevelStorageAccess_Misc) ((IEMinecraftServer_Misc) server).ip_getStorageSource())

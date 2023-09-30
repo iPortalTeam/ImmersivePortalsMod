@@ -5,6 +5,7 @@ import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -23,8 +24,8 @@ import java.util.Set;
 // It used to be able to upgrade the dimension id by reading the id map inside fabric api
 // I removed that because Fabric API changed so the hack broke and very few people use 1.15 now
 public class DimensionIdManagement {
-    public static void onServerStarted() {
-        DimensionIdRecord ipRecord = readIPDimensionRegistry();
+    public static void onServerStarted(MinecraftServer server) {
+        DimensionIdRecord ipRecord = readIPDimensionRegistry(server);
         if (ipRecord == null) {
             Helper.log("Immersive Portals' dimension id record is missing");
             
@@ -35,14 +36,14 @@ public class DimensionIdManagement {
             Helper.log("Successfully read IP's dimension id record");
         }
         
-        updateAndSaveServerDimIdRecord();
+        updateAndSaveServerDimIdRecord(server);
     }
     
-    public static void updateAndSaveServerDimIdRecord() {
-        completeServerIdRecord();
+    public static void updateAndSaveServerDimIdRecord(MinecraftServer server) {
+        completeServerIdRecord(server);
         
         try {
-            File file = getIPDimIdFile();
+            File file = getIPDimIdFile(server);
             
             FileOutputStream fileInputStream = new FileOutputStream(file);
             
@@ -62,8 +63,8 @@ public class DimensionIdManagement {
     }
     
     //return null for failed
-    private static DimensionIdRecord readIPDimensionRegistry() {
-        File dataFile = getIPDimIdFile();
+    private static DimensionIdRecord readIPDimensionRegistry(MinecraftServer server) {
+        File dataFile = getIPDimIdFile(server);
         
         if (!dataFile.exists()) {
             Helper.log("Immersive Portals' Dimension Id Record File Does Not Exist");
@@ -83,13 +84,13 @@ public class DimensionIdManagement {
         }
     }
     
-    private static File getIPDimIdFile() {
-        Path saveDir = MiscHelper.getWorldSavingDirectory();
+    private static File getIPDimIdFile(MinecraftServer server) {
+        Path saveDir = MiscHelper.getWorldSavingDirectory(server);
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
         // we don't use the vanilla data storage here because it's maybe not usable early enough
     }
     
-    private static void completeServerIdRecord() {
+    private static void completeServerIdRecord(MinecraftServer server) {
         if (DimensionIdRecord.serverRecord == null) {
             Helper.log("Dimension Id Record is Missing");
             DimensionIdRecord.serverRecord = new DimensionIdRecord(HashBiMap.create());
@@ -98,7 +99,7 @@ public class DimensionIdManagement {
         Helper.log("Start Completing Dimension Id Record");
         Helper.log("Before:\n" + DimensionIdRecord.serverRecord);
         
-        Set<ResourceKey<Level>> keys = MiscHelper.getServer().levelKeys();
+        Set<ResourceKey<Level>> keys = server.levelKeys();
         
         BiMap<ResourceKey<Level>, Integer> bimap = DimensionIdRecord.serverRecord.idMap;
         

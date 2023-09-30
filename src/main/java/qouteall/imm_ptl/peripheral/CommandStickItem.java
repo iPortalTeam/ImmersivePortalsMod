@@ -22,7 +22,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.commands.PortalCommand;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -100,7 +99,7 @@ public class CommandStickItem extends Item {
             
             CommandSourceStack commandSource = player.createCommandSourceStack().withPermission(2);
             
-            Commands commandManager = MiscHelper.getServer().getCommands();
+            Commands commandManager = player.getServer().getCommands();
             
             String command = data.command;
             
