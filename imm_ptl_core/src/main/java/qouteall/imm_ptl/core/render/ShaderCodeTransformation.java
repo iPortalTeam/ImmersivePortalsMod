@@ -1,16 +1,15 @@
 package qouteall.imm_ptl.core.render;
 
-import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.shaders.Program;
+import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.Yaml;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 // change the shader code to add clipping mechanism
 // 2 ways of clipping:
@@ -31,32 +30,38 @@ public class ShaderCodeTransformation {
         return false;
     }
     
+    // snakeyaml does not allow passing generic type
+    // so use another wrapper type to make list generic type work
+    public static class ConfigsObj {
+        public List<Config> configs;
+    }
+    
     public static class TransformationEntry {
+        public String comment;
         public String pattern;
-        public List<String> replacement;
+        public String replacement;
     }
     
     public static class Config {
+        public String comment;
         public ShaderType type;
         public Set<String> affectedShaders;
         public List<TransformationEntry> transformations;
         public boolean debugOutput;
     }
     
-    private static final Pattern patternVoidMain = Pattern.compile(
-        "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{");
-    
     private static List<Config> configs;
     
     public static void init() {
         if (IPGlobal.enableClippingMechanism) {
-            String json = McHelper.readTextResource(new ResourceLocation(
-                "immersive_portals:shaders/shader_transformation.json"
+            Yaml yaml = new Yaml();
+            
+            String yamlStr = McHelper.readTextResource(new ResourceLocation(
+                "immersive_portals:shaders/shader_transformation.yaml"
             ));
-            configs = IPGlobal.gson.fromJson(
-                json,
-                new TypeToken<List<Config>>() {}.getType()
-            );
+            ConfigsObj configsObj = yaml.loadAs(yamlStr, ConfigsObj.class);
+            
+            configs = configsObj.configs;
             
             Helper.log("Loaded Shader Code Transformation");
         }
