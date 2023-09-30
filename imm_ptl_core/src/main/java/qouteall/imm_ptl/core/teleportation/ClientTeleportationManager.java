@@ -80,7 +80,7 @@ public class ClientTeleportationManager {
     private static long teleportationCounter = 0;
     
     public static void init() {
-        IPGlobal.postClientTickSignal.connect(
+        IPGlobal.postClientTickEvent.register(
             ClientTeleportationManager::tick
         );
         

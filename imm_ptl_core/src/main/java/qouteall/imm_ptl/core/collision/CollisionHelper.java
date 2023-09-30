@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.collision;
 import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
@@ -429,8 +430,8 @@ public class CollisionHelper {
     }
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(() -> {
-            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+        ServerTickEvents.END_SERVER_TICK.register((server) -> {
+            for (ServerLevel world : server.getAllLevels()) {
                 updateCollidingPortalForWorld(world, 0);
             }
         });
@@ -438,7 +439,7 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        IPGlobal.postClientTickSignal.connect(CollisionHelper::tickClient);
+        IPGlobal.postClientTickEvent.register(CollisionHelper::tickClient);
     }
     
     @Environment(EnvType.CLIENT)

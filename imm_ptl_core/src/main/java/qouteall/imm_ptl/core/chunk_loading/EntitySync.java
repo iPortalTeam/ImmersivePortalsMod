@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -8,39 +9,32 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.network.PacketRedirection;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * In 1.18 MC has two separate entity tracking systems. This looks weird.
- * One is in {@link net.minecraft.server.world.ServerEntityManager},
- * one is in {@link net.minecraft.server.world.ThreadedAnvilChunkStorage.EntityTracker}
- *  and {@link net.minecraft.server.network.EntityTrackerEntry}
- * */
 public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(EntitySync::tick);
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            EntitySync.tick(server);
+        });
+        
         DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(EntitySync::forceRemoveDimension);
     }
     
     /**
-     * Replace ThreadedAnvilChunkStorage#tickEntityMovement()
+     * Replace {@link ChunkMap#tick()}
      * regarding to the players in all dimensions
      */
-    private static void tick() {
-        MinecraftServer server = MiscHelper.getServer();
-        
+    private static void tick(MinecraftServer server) {
         server.getProfiler().push("ip_entity_tracking");
         
         List<ServerPlayer> playerList = McHelper.getRawPlayerList();

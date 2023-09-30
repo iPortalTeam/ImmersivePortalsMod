@@ -51,7 +51,7 @@ public class IrisPortalRenderer extends PortalRenderer {
     private boolean nextFramePortalRenderingNeeded = false;
     
     IrisPortalRenderer() {
-        IPGlobal.preGameRenderSignal.connect(() -> {
+        IPGlobal.preGameRenderSignal.register(() -> {
             updateNeedsPortalRendering();
         });
     }

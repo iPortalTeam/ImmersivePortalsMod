@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -40,7 +41,7 @@ public class ImmPtlChunkTracking {
     public static final int defaultDelayUnloadGenerations = 4;
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(ImmPtlChunkTracking::tick);
+        ServerTickEvents.END_SERVER_TICK.register(ImmPtlChunkTracking::tick);
         IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTracking::cleanup);
         
         DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
@@ -348,8 +349,7 @@ public class ImmPtlChunkTracking {
         return additionalLoadedChunks;
     }
     
-    private static void tick() {
-        MinecraftServer server = MiscHelper.getServer();
+    private static void tick(MinecraftServer server) {
         server.getProfiler().push("portal_chunk_tracking");
         
         long gameTime = McHelper.getOverWorldOnServer().getGameTime();

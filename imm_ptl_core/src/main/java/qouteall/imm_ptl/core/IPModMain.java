@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -54,9 +55,14 @@ public class IPModMain {
         
         ImmPtlNetworking.init();
         
-        IPGlobal.postClientTickSignal.connect(IPGlobal.clientTaskList::processTasks);
-        IPGlobal.postServerTickSignal.connect(IPGlobal.serverTaskList::processTasks);
-        IPGlobal.preGameRenderSignal.connect(IPGlobal.preGameRenderTaskList::processTasks);
+        IPGlobal.postClientTickEvent.register(IPGlobal.clientTaskList::processTasks);
+        
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            // TODO make it per-server
+            IPGlobal.serverTaskList.processTasks();
+        });
+        
+        IPGlobal.preGameRenderSignal.register(IPGlobal.preGameRenderTaskList::processTasks);
         
         IPGlobal.clientCleanupSignal.connect(() -> {
             if (ClientWorldLoader.getIsInitialized()) {
@@ -74,6 +80,8 @@ public class IPModMain {
         GlobalPortalStorage.init();
         
         EntitySync.init();
+        
+        ServerTeleportationManager.init();
         
         CollisionHelper.init();
         

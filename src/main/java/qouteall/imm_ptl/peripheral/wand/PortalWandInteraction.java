@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.peripheral.wand;
 
 import com.mojang.logging.LogUtils;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -301,7 +302,7 @@ public class PortalWandInteraction {
     private static final WeakHashMap<ServerPlayer, DraggingSession> draggingSessionMap = new WeakHashMap<>();
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(() -> {
+        ServerTickEvents.END_SERVER_TICK.register((server) -> {
             draggingSessionMap.entrySet().removeIf(
                 e -> {
                     ServerPlayer player = e.getKey();

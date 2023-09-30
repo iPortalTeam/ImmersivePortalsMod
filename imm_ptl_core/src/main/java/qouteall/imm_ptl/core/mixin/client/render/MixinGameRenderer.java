@@ -81,7 +81,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         StableClientTimer.update(minecraft.level.getGameTime(), tickDelta);
         ClientPortalAnimationManagement.update(); // must update before teleportation
         ClientTeleportationManager.manageTeleportation(false);
-        IPGlobal.preGameRenderSignal.emit();
+        IPGlobal.preGameRenderSignal.invoker().run();
         if (IPCGlobal.earlyRemoteUpload) {
             MyRenderHelper.earlyRemoteUpload();
         }

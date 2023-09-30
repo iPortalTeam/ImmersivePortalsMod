@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -56,8 +57,8 @@ public class GlobalPortalStorage extends SavedData {
     public BlockState bedrockReplacement;
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(() -> {
-            MiscHelper.getServer().getAllLevels().forEach(world1 -> {
+        ServerTickEvents.END_SERVER_TICK.register((server) -> {
+            server.getAllLevels().forEach(world1 -> {
                 GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
                 gps.tick();
             });

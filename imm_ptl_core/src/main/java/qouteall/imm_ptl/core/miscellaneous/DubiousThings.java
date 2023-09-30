@@ -4,7 +4,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 
 public class DubiousThings {
     public static void init() {
-        IPGlobal.postClientTickSignal.connect(DubiousThings::tick);
+        IPGlobal.postClientTickEvent.register(DubiousThings::tick);
     }
     
     private static void tick() {

@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 public class ServerPerformanceMonitor {
@@ -15,19 +15,14 @@ public class ServerPerformanceMonitor {
     private static final LimitedLogger limitedLogger = new LimitedLogger(50);
     
     public static void init() {
-        IPGlobal.postServerTickSignal.connect(ServerPerformanceMonitor::tick);
+        ServerTickEvents.END_SERVER_TICK.register(ServerPerformanceMonitor::tick);
     }
     
     private static long lastUpdateTime = 0;
     
-    private static void tick() {
+    private static void tick(MinecraftServer server) {
         if (!IPGlobal.enableServerPerformanceAdjustment) {
             level = PerformanceLevel.good;
-            return;
-        }
-        
-        MinecraftServer server = MiscHelper.getServer();
-        if (server == null) {
             return;
         }
         

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -7,6 +8,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -29,12 +31,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class AlternateDimensions {
-//    public static final HolderLookup.Provider vanillaRegistriesLookup = VanillaRegistries.createLookup();
     
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
         
-        IPGlobal.postServerTickSignal.connect(AlternateDimensions::tick);
+        ServerTickEvents.END_SERVER_TICK.register(AlternateDimensions::tick);
     }
     
     private static void initializeAlternateDimensions(
@@ -182,7 +183,7 @@ public class AlternateDimensions {
     }
     
     
-    private static void tick() {
+    private static void tick(MinecraftServer server) {
         // TODO check whether manual weather sync necessary
         // or sync weather based on dimension type
 //        if (!IPGlobal.enableAlternateDimensions) {

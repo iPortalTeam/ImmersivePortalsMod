@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.teleportation;
 
 import com.mojang.logging.LogUtils;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -57,8 +58,13 @@ public class ServerTeleportationManager {
     public boolean isFiringMyChangeDimensionEvent = false;
     public final WeakHashMap<ServerPlayer, WithDim<Vec3>> lastPosition = new WeakHashMap<>();
     
+    public static void init() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            IPGlobal.serverTeleportationManager.tick();
+        });
+    }
+    
     public ServerTeleportationManager() {
-        IPGlobal.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
         Portal.serverPortalTickSignal.connectWithWeakRef(
             this, (this_, portal) -> {
                 getEntitiesToTeleport(portal).forEach(entity -> {

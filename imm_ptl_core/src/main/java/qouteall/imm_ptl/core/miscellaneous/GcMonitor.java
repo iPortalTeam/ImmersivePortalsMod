@@ -2,16 +2,15 @@ package qouteall.imm_ptl.core.miscellaneous;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -35,16 +34,13 @@ public class GcMonitor {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        IPGlobal.preGameRenderSignal.connect(GcMonitor::update);
+        IPGlobal.preGameRenderSignal.register(GcMonitor::update);
     }
     
     public static void initCommon() {
-        IPGlobal.postServerTickSignal.connect(() -> {
-            MinecraftServer server = MiscHelper.getServer();
-            if (server != null) {
-                if (server.isDedicatedServer()) {
-                    update();
-                }
+        ServerTickEvents.END_SERVER_TICK.register((server) -> {
+            if (server.isDedicatedServer()) {
+                update();
             }
         });
     }

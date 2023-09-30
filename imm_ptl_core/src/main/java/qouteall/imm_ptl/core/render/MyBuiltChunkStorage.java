@@ -79,6 +79,19 @@ public class MyBuiltChunkStorage extends ViewArea {
                 }
             }
         });
+        
+        IPGlobal.postClientTickEvent.register(() -> {
+            if (ClientWorldLoader.getIsInitialized()) {
+                for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
+                    LevelRenderer worldRenderer =
+                        ClientWorldLoader.getWorldRenderer(world.dimension());
+                    ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
+                    if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
+                        myBuiltChunkStorage.tick();
+                    }
+                }
+            }
+        });
     }
     
     public MyBuiltChunkStorage(
@@ -89,10 +102,6 @@ public class MyBuiltChunkStorage extends ViewArea {
     ) {
         super(sectionBuilder, world, r, worldRenderer);
         factory = sectionBuilder;
-        
-        IPGlobal.postClientTickSignal.connectWithWeakRef(
-            this, MyBuiltChunkStorage::tick
-        );
         
         int cacheSize = this.sectionGridSizeX * this.sectionGridSizeY * this.sectionGridSizeZ;
         if (IPGlobal.cacheGlBuffer) {

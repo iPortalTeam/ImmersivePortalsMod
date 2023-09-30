@@ -1250,6 +1250,17 @@ public class Helper {
         });
     }
     
+    public static Event<Runnable> createRunnableEvent() {
+        return EventFactory.createArrayBacked(
+            Runnable.class,
+            (listeners) -> () -> {
+                for (Runnable listener : listeners) {
+                    listener.run();
+                }
+            }
+        );
+    }
+    
     public static <T> Event<Consumer<T>> createConsumerEvent() {
         return EventFactory.createArrayBacked(
             Consumer.class,
