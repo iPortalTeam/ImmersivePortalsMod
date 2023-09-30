@@ -21,6 +21,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
+import qouteall.q_misc_util.my_util.Mesh2D;
 
 import java.util.function.Predicate;
 
@@ -227,7 +228,7 @@ public class BreakableMirror extends Mirror {
         Vec3 axisW = breakableMirror.axisW;
         Vec3 axisH = breakableMirror.axisH;
         
-        GeometryPortalShape geometryPortalShape = new GeometryPortalShape();
+        GeometryPortalShape geometryPortalShape = new GeometryPortalShape(new Mesh2D());
         for (BlockPos blockPos : shape.area) {
             VoxelShape collisionShape = world.getBlockState(blockPos).getCollisionShape(world, blockPos);
             

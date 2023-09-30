@@ -69,10 +69,10 @@ import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
+import qouteall.q_misc_util.my_util.TriangleConsumer;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -280,30 +280,25 @@ public class Portal extends Entity implements
         destination = (Helper.getVec3d(compoundTag, "destination"));
         specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         if (compoundTag.contains("specialShape")) {
-            specialShape = new GeometryPortalShape(
-                compoundTag.getList("specialShape", 6)
-            );
+            // if missing, it will be false
+            boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
             
-            // upgrade from old portal data where shape coord is not normalized
-            if (!specialShape.normalized) {
-                boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
-                specialShape.normalized = shapeNormalized;
-            }
-            specialShape.normalize(width, height);
-            
-            if (specialShape.triangles.isEmpty()) {
-                specialShape = null;
+            if (shapeNormalized) {
+                specialShape = GeometryPortalShape.fromTag(
+                    compoundTag.getList("specialShape", 6)
+                );
             }
             else {
-                if (!specialShape.isValid()) {
-                    Helper.err("Portal shape invalid ");
-                    specialShape = null;
-                }
+                specialShape = GeometryPortalShape.fromTagOldFormat(
+                    compoundTag.getList("specialShape", 6),
+                    width / 2, height / 2
+                );
             }
         }
         else {
             specialShape = null;
         }
+        
         if (compoundTag.contains("teleportable")) {
             teleportable = compoundTag.getBoolean("teleportable");
         }
@@ -394,7 +389,6 @@ public class Portal extends Entity implements
         }
         
         if (specialShape != null) {
-            specialShape.normalize(width, height);
             compoundTag.put("specialShape", specialShape.writeToTag());
             compoundTag.putBoolean("shapeNormalized", true);
         }
@@ -624,10 +618,10 @@ public class Portal extends Entity implements
      *                                  Every 3 vertices correspond to a triangle.
      *                                  In camera-centered coordinate.
      */
-    // TODO refactor to turn it into tri-double consumer
     @Environment(EnvType.CLIENT)
-    @Override
-    public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
+    public void renderViewAreaMesh(
+        Vec3 portalPosRelativeToCamera, TriangleConsumer vertexOutput
+    ) {
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
             boolean offsetFront = IrisInterface.invoker.isShaders()
@@ -637,7 +631,9 @@ public class Portal extends Entity implements
                 ((Mirror) this).getNormal().scale(mirrorOffset));
         }
         
-        ViewAreaRenderer.generateViewAreaTriangles(this, portalPosRelativeToCamera, vertexOutput);
+        ViewAreaRenderer.generateViewAreaTriangles(
+            this, portalPosRelativeToCamera, vertexOutput
+        );
     }
     
     @Override
@@ -895,11 +891,6 @@ public class Portal extends Entity implements
     public void tick() {
         if (getBoundingBox().equals(nullBox)) {
             Helper.err("Abnormal bounding box " + this);
-        }
-        
-        // TODO refactor and avoid this in 1.20.2
-        if (specialShape != null) {
-            specialShape.normalize(width, height);
         }
         
         if (thisTickPortalState == null) {
@@ -1265,21 +1256,24 @@ public class Portal extends Entity implements
     public boolean lenientIsLocalXYOnPortal(double xInPlane, double yInPlane, double leniency) {
         double halfWidth = width / 2;
         double halfHeight = height / 2;
-        boolean roughResult = Math.abs(xInPlane) < (halfWidth + leniency) &&
+        boolean inRange = Math.abs(xInPlane) < (halfWidth + leniency) &&
             Math.abs(yInPlane) < (halfHeight + leniency);
         
         if (halfWidth == 0 || halfHeight == 0) {
             return false;
         }
         
-        if (roughResult && specialShape != null) {
-            return specialShape.triangles.stream()
-                .anyMatch(triangle ->
-                    triangle.lenientIsPointInTriangle(xInPlane / halfWidth, yInPlane / halfHeight, leniency)
-                );
+        if (inRange && specialShape != null) {
+            double boxR = Math.max(leniency, 0.00001);
+            double nx = xInPlane / halfWidth;
+            double ny = yInPlane / halfHeight;
+            return specialShape.boxIntersects(
+                nx - boxR, ny - boxR,
+                nx + boxR, ny + boxR
+            );
         }
         
-        return roughResult;
+        return inRange;
     }
     
     /**
@@ -1340,16 +1334,14 @@ public class Portal extends Entity implements
     
     public Vec3 getPointProjectedToPlane(Vec3 pos) {
         Vec3 originPos = getOriginPos();
-        Vec3 offset = pos.subtract(originPos);
-        
+        return getLocalVecProjectedToPlane(pos.subtract(originPos)).add(originPos);
+    }
+    
+    public Vec3 getLocalVecProjectedToPlane(Vec3 offset) {
         double yInPlane = offset.dot(axisH);
         double xInPlane = offset.dot(axisW);
         
-        return originPos.add(
-            axisW.scale(xInPlane)
-        ).add(
-            axisH.scale(yInPlane)
-        );
+        return axisW.scale(xInPlane).add(axisH.scale(yInPlane));
     }
     
     public Vec3 getNearestPointInPortal(Vec3 pos) {

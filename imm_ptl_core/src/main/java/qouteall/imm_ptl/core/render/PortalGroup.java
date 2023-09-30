@@ -22,7 +22,6 @@ import qouteall.q_misc_util.my_util.Plane;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // currently only exists on client side
@@ -218,19 +217,6 @@ public class PortalGroup implements PortalLike {
     @Override
     public Vec3[] getOuterFrustumCullingVertices() {
         return null;
-    }
-    
-    @Environment(EnvType.CLIENT)
-    @Override
-    @Deprecated
-    public void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput) {
-        for (Portal portal : portals) {
-            Vec3 relativeToGroup = portal.getOriginPos().subtract(getOriginPos());
-            portal.renderViewAreaMesh(
-                portalPosRelativeToCamera.add(relativeToGroup),
-                vertexOutput
-            );
-        }
     }
     
     @Nullable

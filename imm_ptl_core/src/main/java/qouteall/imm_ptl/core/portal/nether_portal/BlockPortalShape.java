@@ -14,6 +14,7 @@ import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
+import qouteall.q_misc_util.my_util.Mesh2D;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
@@ -383,7 +384,9 @@ public class BlockPortalShape {
             portal.specialShape = null;
         }
         else {
-            GeometryPortalShape shape = new GeometryPortalShape();
+            GeometryPortalShape shape = new GeometryPortalShape(new Mesh2D());
+            double halfWidth = portal.width / 2;
+            double halfHeight = portal.height / 2;
             
             area.forEach(part -> {
                 Vec3 p1 = Vec3.atLowerCornerOf(part).add(offset);
@@ -393,16 +396,14 @@ public class BlockPortalShape {
                 double p2LocalX = p2.subtract(center).dot(portal.axisW);
                 double p2LocalY = p2.subtract(center).dot(portal.axisH);
                 shape.addTriangleForRectangle(
-                    p1LocalX, p1LocalY,
-                    p2LocalX, p2LocalY
+                    p1LocalX / halfWidth, p1LocalY / halfHeight,
+                    p2LocalX / halfWidth, p2LocalY/ halfHeight
                 );
             });
             
-            shape.normalize(portal.width, portal.height);
+            shape.mesh.simplify();
             
-            GeometryPortalShape simplified = shape.simplified();
-            
-            portal.specialShape = simplified;
+            portal.specialShape = shape;
         }
     }
     

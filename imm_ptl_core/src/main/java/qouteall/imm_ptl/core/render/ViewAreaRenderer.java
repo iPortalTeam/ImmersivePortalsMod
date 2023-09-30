@@ -18,8 +18,8 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-
-import java.util.function.Consumer;
+import qouteall.q_misc_util.my_util.Mesh2D;
+import qouteall.q_misc_util.my_util.TriangleConsumer;
 
 public class ViewAreaRenderer {
     
@@ -130,9 +130,20 @@ public class ViewAreaRenderer {
         
         Vec3 originRelativeToCamera = portalRenderable.getPortalLike().getOriginPos().subtract(cameraPos);
         
-        Consumer<Vec3> vertexOutput = p -> putIntoVertex(
-            bufferBuilder, p, fogColor
-        );
+        TriangleConsumer vertexOutput = (p0x, p0y, p0z, p1x, p1y, p1z, p2x, p2y, p2z) -> {
+            bufferBuilder
+                .vertex(p0x, p0y, p0z)
+                .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
+                .endVertex();
+            bufferBuilder
+                .vertex(p1x, p1y, p1z)
+                .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
+                .endVertex();
+            bufferBuilder
+                .vertex(p2x, p2y, p2z)
+                .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
+                .endVertex();
+        };
         
         if (portalRenderable instanceof Portal portal) {
             portal.renderViewAreaMesh(originRelativeToCamera, vertexOutput);
@@ -151,7 +162,10 @@ public class ViewAreaRenderer {
         BufferUploader.draw(bufferBuilder.end());
     }
     
-    public static void generateViewAreaTriangles(Portal portal, Vec3 posInPlayerCoordinate, Consumer<Vec3> vertexOutput) {
+    public static void generateViewAreaTriangles(
+        Portal portal, Vec3 posInPlayerCoordinate,
+        TriangleConsumer vertexOutput
+    ) {
         if (portal.specialShape == null) {
             if (portal.getIsGlobal()) {
                 generateTriangleForGlobalPortal(
@@ -178,7 +192,7 @@ public class ViewAreaRenderer {
     }
     
     public static void generateTriangleForSpecialShape(
-        Consumer<Vec3> vertexOutput,
+        TriangleConsumer vertexOutput,
         Portal portal,
         Vec3 posInPlayerCoordinate
     ) {
@@ -188,231 +202,115 @@ public class ViewAreaRenderer {
     }
     
     public static void generateTriangleSpecial(
-        Consumer<Vec3> vertexOutput,
+        TriangleConsumer vertexOutput,
         Portal portal,
         Vec3 posInPlayerCoordinate
     ) {
         GeometryPortalShape specialShape = portal.specialShape;
         assert specialShape != null;
         
-        specialShape.normalize(portal.width, portal.height);
         double halfWidth = portal.width / 2;
         double halfHeight = portal.height / 2;
         
-        for (GeometryPortalShape.TriangleInPlane triangle : specialShape.triangles) {
-            Vec3 a = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x1 * halfWidth))
-                .add(portal.axisH.scale(triangle.y1 * halfHeight));
-            
-            Vec3 b = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x3 * halfWidth))
-                .add(portal.axisH.scale(triangle.y3 * halfHeight));
-            
-            Vec3 c = posInPlayerCoordinate
-                .add(portal.axisW.scale(triangle.x2 * halfWidth))
-                .add(portal.axisH.scale(triangle.y2 * halfHeight));
-            
-            vertexOutput.accept(a);
-            vertexOutput.accept(b);
-            vertexOutput.accept(c);
+        Vec3 localXAxis = portal.axisW.scale(halfWidth);
+        Vec3 localYAxis = portal.axisH.scale(halfHeight);
+        
+        Mesh2D mesh = specialShape.mesh;
+        
+        for (int ti = 0; ti < mesh.getStoredTriangleNum(); ti++) {
+            if (mesh.isTriangleValid(ti)) {
+                int p0Index = mesh.getTrianglePointIndex(ti, 0);
+                int p1Index = mesh.getTrianglePointIndex(ti, 1);
+                int p2Index = mesh.getTrianglePointIndex(ti, 2);
+                
+                double p0x = mesh.getPointX(p0Index);
+                double p0y = mesh.getPointY(p0Index);
+                double p1x = mesh.getPointX(p1Index);
+                double p1y = mesh.getPointY(p1Index);
+                double p2x = mesh.getPointX(p2Index);
+                double p2y = mesh.getPointY(p2Index);
+                
+                outputTriangle(
+                    vertexOutput, posInPlayerCoordinate,
+                    localXAxis, localYAxis, p0x, p0y, p1x, p1y, p2x, p2y);
+            }
         }
+        
     }
     
-    private static void putIntoLocalVertex(
-        Consumer<Vec3> vertexOutput,
-        Portal portal,
-        Vec3 offset,
-        Vec3 posInPlayerCoordinate,
-        double localX, double localY
+    private static void outputTriangle(
+        TriangleConsumer vertexOutput, Vec3 center,
+        Vec3 localXAxis, Vec3 localYAxis,
+        double p0x, double p0y, double p1x, double p1y, double p2x, double p2y
     ) {
-        //according to https://stackoverflow.com/questions/43002528/when-can-hotspot-allocate-objects-on-the-stack
-        //this will possibly not generate gc pressure?
-        
         vertexOutput.accept(
-            posInPlayerCoordinate
-                .add(portal.axisW.scale(localX))
-                .add(portal.axisH.scale(localY))
-                .add(offset)
+            center.x + p0x * localXAxis.x() + p0y * localYAxis.x(),
+            center.y + p0x * localXAxis.y() + p0y * localYAxis.y(),
+            center.z + p0x * localXAxis.z() + p0y * localYAxis.z(),
+            center.x + p1x * localXAxis.x() + p1y * localYAxis.x(),
+            center.y + p1x * localXAxis.y() + p1y * localYAxis.y(),
+            center.z + p1x * localXAxis.z() + p1y * localYAxis.z(),
+            center.x + p2x * localXAxis.x() + p2y * localYAxis.x(),
+            center.y + p2x * localXAxis.y() + p2y * localYAxis.y(),
+            center.z + p2x * localXAxis.z() + p2y * localYAxis.z()
         );
     }
     
     private static void generateTriangleForNormalShape(
-        Consumer<Vec3> vertexOutput,
+        TriangleConsumer vertexOutput,
         Portal portal,
         Vec3 posInPlayerCoordinate
     ) {
         //avoid floating point error for converted global portal
         final double w = Math.min(portal.width, 23333);
         final double h = Math.min(portal.height, 23333);
-        Vec3 v0 = portal.getPointInPlaneLocal(
-            w / 2 - (double) 0,
-            -h / 2 + (double) 0
-        );
-        Vec3 v1 = portal.getPointInPlaneLocal(
-            -w / 2 + (double) 0,
-            -h / 2 + (double) 0
-        );
-        Vec3 v2 = portal.getPointInPlaneLocal(
-            w / 2 - (double) 0,
-            h / 2 - (double) 0
-        );
-        Vec3 v3 = portal.getPointInPlaneLocal(
-            -w / 2 + (double) 0,
-            h / 2 - (double) 0
-        );
         
-        putIntoQuad(
-            vertexOutput,
-            v0.add(posInPlayerCoordinate),
-            v2.add(posInPlayerCoordinate),
-            v3.add(posInPlayerCoordinate),
-            v1.add(posInPlayerCoordinate)
-        );
+        Vec3 localXAxis = portal.axisW.scale(w / 2);
+        Vec3 localYAxis = portal.axisH.scale(h / 2);
+        
+        outputFullQuad(vertexOutput, posInPlayerCoordinate, localXAxis, localYAxis);
         
     }
     
     private static void generateTriangleForGlobalPortal(
-        Consumer<Vec3> vertexOutput,
+        TriangleConsumer vertexOutput,
         Portal portal,
-        Vec3 posInPlayerCoordinate
+        Vec3 portalOriginLocal
     ) {
-        Vec3 cameraPosLocal = posInPlayerCoordinate.scale(-1);
+        Vec3 cameraPosFromPortalOrigin = portalOriginLocal.scale(-1);
         
-        double cameraLocalX = cameraPosLocal.dot(portal.axisW);
-        double cameraLocalY = cameraPosLocal.dot(portal.axisH);
+        Vec3 cameraPosFromPortalOriginProjected =
+            portal.getLocalVecProjectedToPlane(cameraPosFromPortalOrigin);
+        
+        Vec3 localCenter = portalOriginLocal.add(cameraPosFromPortalOriginProjected);
         
         double r = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16 - 16;
         if (TransformationManager.isIsometricView) {
             r *= 2;
         }
         
-        double distance = Math.abs(cameraPosLocal.dot(portal.getNormal()));
+        double distance = Math.abs(cameraPosFromPortalOrigin.dot(portal.getNormal()));
         if (distance > 200) {
             r = r * 200 / distance;
         }
         
-        Vec3 v0 = portal.getPointInPlaneLocalClamped(
-            r + cameraLocalX,
-            -r + cameraLocalY
-        );
-        Vec3 v1 = portal.getPointInPlaneLocalClamped(
-            -r + cameraLocalX,
-            -r + cameraLocalY
-        );
-        Vec3 v2 = portal.getPointInPlaneLocalClamped(
-            r + cameraLocalX,
-            r + cameraLocalY
-        );
-        Vec3 v3 = portal.getPointInPlaneLocalClamped(
-            -r + cameraLocalX,
-            r + cameraLocalY
-        );
+        Vec3 localXAxis = portal.axisW.scale(r);
+        Vec3 localYAxis = portal.axisH.scale(r);
         
-        putIntoQuad(
-            vertexOutput,
-            v0.add(posInPlayerCoordinate),
-            v2.add(posInPlayerCoordinate),
-            v3.add(posInPlayerCoordinate),
-            v1.add(posInPlayerCoordinate)
-        );
+        outputFullQuad(vertexOutput, localCenter, localXAxis, localYAxis);
     }
     
-    static private void putIntoVertex(BufferBuilder bufferBuilder, Vec3 pos, Vec3 fogColor) {
-        bufferBuilder
-            .vertex(pos.x, pos.y, pos.z)
-            .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
-            .endVertex();
-    }
-    
-    //a d
-    //b c
-    private static void putIntoQuad(
-        Consumer<Vec3> vertexOutput,
-        Vec3 a,
-        Vec3 b,
-        Vec3 c,
-        Vec3 d
+    private static void outputFullQuad(
+        TriangleConsumer vertexOutput, Vec3 posInPlayerCoordinate,
+        Vec3 localXAxis, Vec3 localYAxis
     ) {
-        //counter-clockwise triangles are front-faced in default
-        
-        vertexOutput.accept(b);
-        vertexOutput.accept(c);
-        vertexOutput.accept(d);
-        
-        vertexOutput.accept(d);
-        vertexOutput.accept(a);
-        vertexOutput.accept(b);
-        
+        outputTriangle(
+            vertexOutput, posInPlayerCoordinate,
+            localXAxis, localYAxis, 1, 1, -1, 1, 1, -1
+        );
+        outputTriangle(
+            vertexOutput, posInPlayerCoordinate,
+            localXAxis, localYAxis, -1, 1, -1, -1, 1, -1
+        );
     }
-
-
-//    public static void drawPortalViewTriangle(
-//        PortalLike portal,
-//        MatrixStack matrixStack,
-//        boolean doFrontCulling,
-//        boolean doFaceCulling
-//    ) {
-//
-//        MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
-//
-//        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
-//
-//        if (doFaceCulling) {
-//            GlStateManager.enableCull();
-//        }
-//        else {
-//            GlStateManager.disableCull();
-//        }
-//
-//        //should not affect shader pipeline
-//        FrontClipping.disableClipping();
-//
-//        Tessellator tessellator = Tessellator.getInstance();
-//        BufferBuilder bufferbuilder = tessellator.getBuffer();
-//        buildPortalViewAreaTrianglesBuffer(
-//            fogColor,
-//            portal,
-//            bufferbuilder,
-//            PortalRenderer.client.gameRenderer.getCamera().getPos(),
-//            RenderStates.tickDelta,
-//            portal instanceof Mirror ? 0 : 0.45F
-//        );
-//
-//        boolean shouldReverseCull = PortalRendering.isRenderingOddNumberOfMirrors();
-//        if (shouldReverseCull) {
-//            MyRenderHelper.applyMirrorFaceCulling();
-//        }
-//        if (doFrontCulling) {
-//            if (PortalRendering.isRendering()) {
-//                FrontClipping.setupInnerClipping(
-//                    matrixStack, PortalRendering.getRenderingPortal(), false
-//                );
-//            }
-//        }
-//
-//        MinecraftClient.getInstance().getProfiler().push("draw");
-//        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
-//        CHelper.checkGlError();
-//        McHelper.runWithTransformation(
-//            matrixStack,
-//            tessellator::draw
-//        );
-//        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
-//        MinecraftClient.getInstance().getProfiler().pop();
-//
-//        if (shouldReverseCull) {
-//            MyRenderHelper.recoverFaceCulling();
-//        }
-//        if (doFrontCulling) {
-//            if (PortalRendering.isRendering()) {
-//                FrontClipping.disableClipping();
-//            }
-//        }
-//
-//        //this is important
-//        GlStateManager.enableCull();
-//
-//        MinecraftClient.getInstance().getProfiler().pop();
-//    }
-    
 }

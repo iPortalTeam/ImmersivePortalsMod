@@ -14,7 +14,6 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
  * The PortalLike interface is introduced for the merge portal rendering optimization.
@@ -73,10 +72,6 @@ public interface PortalLike {
     // used for super advanced frustum culling
     @Nullable
     Vec3[] getOuterFrustumCullingVertices();
-    
-    // TODO remove from interface in 1.20.2
-    @Environment(EnvType.CLIENT)
-    void renderViewAreaMesh(Vec3 portalPosRelativeToCamera, Consumer<Vec3> vertexOutput);
     
     // Scaling does not interfere camera transformation
     @Nullable

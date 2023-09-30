@@ -115,32 +115,46 @@ public class GeometryUtil {
      * The triangle must be counter-clockwise.
      */
     public static boolean triangleIntersectsWithAABB(
-        double t0x0, double t0y0, double t0x1, double t0y1, double t0x2, double t0y2,
+        double tx0, double ty0, double tx1, double ty1, double tx2, double ty2,
         double minX, double minY, double maxX, double maxY
     ) {
         // firstly test the AABB's 4 edges
         
-        double tMinX = Math.min(Math.min(t0x0, t0x1), t0x2);
-        double tMaxX = Math.max(Math.max(t0x0, t0x1), t0x2);
-        double tMinY = Math.min(Math.min(t0y0, t0y1), t0y2);
-        double tMaxY = Math.max(Math.max(t0y0, t0y1), t0y2);
+        double tMinX = Math.min(Math.min(tx0, tx1), tx2);
+        double tMaxX = Math.max(Math.max(tx0, tx1), tx2);
+        double tMinY = Math.min(Math.min(ty0, ty1), ty2);
+        double tMaxY = Math.max(Math.max(ty0, ty1), ty2);
         
         if (tMaxX < minX || tMinX > maxX || tMaxY < minY || tMinY > maxY) {
             return false;
         }
         
         // then test the triangle's 3 edges
+        // AABB on the right side of edge means that the edge can separate them
+        // intersecting means no edge can separate them, so no edge has AABB on the right side of it
         
-        return !isAABBOnLeftSideOfLine(
-            minX, minY, maxX, maxY, t0x0, t0y0, t0x1 - t0x0, t0y1 - t0y0
-        ) && !isAABBOnLeftSideOfLine(
-            minX, minY, maxX, maxY, t0x1, t0y1, t0x2 - t0x1, t0y2 - t0y1
-        ) && !isAABBOnLeftSideOfLine(
-            minX, minY, maxX, maxY, t0x2, t0y2, t0x0 - t0x2, t0y0 - t0y2
-        );
+        if (isAABBFullyOnRightSideOfLine(
+            minX, minY, maxX, maxY, tx0, ty0, tx1 - tx0, ty1 - ty0
+        )) {
+            return false;
+        }
+        
+        if (isAABBFullyOnRightSideOfLine(
+            minX, minY, maxX, maxY, tx1, ty1, tx2 - tx1, ty2 - ty1
+        )) {
+            return false;
+        }
+        
+        if (isAABBFullyOnRightSideOfLine(
+            minX, minY, maxX, maxY, tx2, ty2, tx0 - tx2, ty0 - ty2
+        )) {
+            return false;
+        }
+        
+        return true;
     }
     
-    private static boolean isAABBOnLeftSideOfLine(
+    private static boolean isAABBFullyOnLeftSideOfLine(
         double minX, double minY, double maxX, double maxY,
         double originX, double originY, double lineVecX, double lineVecY
     ) {
@@ -158,6 +172,15 @@ public class GeometryUtil {
         double dot = dx * facingVecX + dy * facingVecY;
         
         return dot > 0;
+    }
+    
+    private static boolean isAABBFullyOnRightSideOfLine(
+        double minX, double minY, double maxX, double maxY,
+        double originX, double originY, double lineVecX, double lineVecY
+    ) {
+        return isAABBFullyOnLeftSideOfLine(
+            minX, minY, maxX, maxY, originX, originY, -lineVecX, -lineVecY
+        );
     }
     
     @FunctionalInterface

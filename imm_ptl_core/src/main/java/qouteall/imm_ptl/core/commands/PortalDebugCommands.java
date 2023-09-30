@@ -59,7 +59,6 @@ import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.time.Duration;
@@ -483,9 +482,7 @@ public class PortalDebugCommands {
             .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
                 GeometryPortalShape shape = portal.specialShape;
                 if (shape != null) {
-                    Mesh2D mesh = shape.toMesh();
-                    mesh.simplifySteps(1);
-                    portal.specialShape = GeometryPortalShape.fromMesh(mesh);
+                    shape.mesh.simplifySteps(1);
                     portal.reloadPortal();
                 }
             }))

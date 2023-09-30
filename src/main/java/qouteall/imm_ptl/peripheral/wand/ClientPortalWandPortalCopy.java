@@ -123,7 +123,7 @@ public class ClientPortalWandPortalCopy {
                 eyePos.add(viewVec.scale(64)),
                 false,
                 p -> true,
-                1.0
+                0
             ).orElse(null);
             
             if (rayTraceResult != null) {

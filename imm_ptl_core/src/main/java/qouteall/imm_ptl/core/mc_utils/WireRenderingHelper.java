@@ -652,7 +652,9 @@ public class WireRenderingHelper {
         
         GeometryPortalShape shape = portal.specialShape;
         if (shape != null) {
-            int triangleNum = shape.triangles.size();
+            shape.mesh.compact();
+            
+            int triangleNum = shape.mesh.getStoredTriangleNum();
             int vertexNum = triangleNum * 3;
             Vec3[] vertexes = new Vec3[vertexNum];
             double halfWidth = portal.width / 2;
@@ -661,22 +663,36 @@ public class WireRenderingHelper {
             Vec3 Y = portal.axisH.scale(halfHeight);
             
             matrixStack.pushPose();
-
+            
             Matrix4f matrix = matrixStack.last().pose();
             Matrix3f normalMatrix = matrixStack.last().normal();
             
-            for (int i = 0; i < shape.triangles.size(); i++) {
-                GeometryPortalShape.TriangleInPlane triangleInPlane = shape.triangles.get(i);
+            for (int i = 0; i < triangleNum; i++) {
+                int p0Index = shape.mesh.getTrianglePointIndex(i, 0);
+                int p1Index = shape.mesh.getTrianglePointIndex(i, 1);
+                int p2Index = shape.mesh.getTrianglePointIndex(i, 2);
                 
-                double centerX = (triangleInPlane.x1 + triangleInPlane.x2 + triangleInPlane.x3) / 3;
-                double centerY = (triangleInPlane.y1 + triangleInPlane.y2 + triangleInPlane.y3) / 3;
+                double p0x = shape.mesh.pointCoords.getDouble(p0Index * 2);
+                double p0y = shape.mesh.pointCoords.getDouble(p0Index * 2 + 1);
+                double p1x = shape.mesh.pointCoords.getDouble(p1Index * 2);
+                double p1y = shape.mesh.pointCoords.getDouble(p1Index * 2 + 1);
+                double p2x = shape.mesh.pointCoords.getDouble(p2Index * 2);
+                double p2y = shape.mesh.pointCoords.getDouble(p2Index * 2 + 1);
                 
-                double x1 = triangleInPlane.x1 * (1 - shrink) + centerX * shrink;
-                double y1 = triangleInPlane.y1 * (1 - shrink) + centerY * shrink;
-                double x2 = triangleInPlane.x2 * (1 - shrink) + centerX * shrink;
-                double y2 = triangleInPlane.y2 * (1 - shrink) + centerY * shrink;
-                double x3 = triangleInPlane.x3 * (1 - shrink) + centerX * shrink;
-                double y3 = triangleInPlane.y3 * (1 - shrink) + centerY * shrink;
+                double centerX = (p0x + p1x + p2x) / 3;
+                double centerY = (p0y + p1y + p2y) / 3;
+                
+                double x0 = p0x * (1 - shrink) + centerX * shrink;
+                double y0 = p0y * (1 - shrink) + centerY * shrink;
+                double x1 = p1x * (1 - shrink) + centerX * shrink;
+                double y1 = p1y * (1 - shrink) + centerY * shrink;
+                double x2 = p2x * (1 - shrink) + centerX * shrink;
+                double y2 = p2y * (1 - shrink) + centerY * shrink;
+                
+                WireRenderingHelper.putLine(
+                    vertexConsumer, 0x80ff0000, matrix, normalMatrix,
+                    X.scale(x0).add(Y.scale(y0)), X.scale(x1).add(Y.scale(y1))
+                );
                 
                 WireRenderingHelper.putLine(
                     vertexConsumer, 0x80ff0000, matrix, normalMatrix,
@@ -685,12 +701,7 @@ public class WireRenderingHelper {
                 
                 WireRenderingHelper.putLine(
                     vertexConsumer, 0x80ff0000, matrix, normalMatrix,
-                    X.scale(x2).add(Y.scale(y2)), X.scale(x3).add(Y.scale(y3))
-                );
-                
-                WireRenderingHelper.putLine(
-                    vertexConsumer, 0x80ff0000, matrix, normalMatrix,
-                    X.scale(x3).add(Y.scale(y3)), X.scale(x1).add(Y.scale(y1))
+                    X.scale(x2).add(Y.scale(y2)), X.scale(x0).add(Y.scale(y0))
                 );
             }
             

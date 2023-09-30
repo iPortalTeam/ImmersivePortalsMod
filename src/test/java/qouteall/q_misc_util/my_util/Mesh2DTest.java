@@ -64,6 +64,9 @@ public class Mesh2DTest {
         mesh2D.checkStorageIntegrity();
         
         Validate.isTrue(mesh2D.getStoredTriangleNum() == 3);
+        
+        int a = (int) Double.NaN;
+        System.out.println(a);
     }
     
     @Test

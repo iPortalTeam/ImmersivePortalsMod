@@ -353,7 +353,7 @@ public class PortalExtension {
             flippedPortal.animation.defaultAnimation.inverseScale = false;
             
             if (portal.specialShape != null) {
-                flippedPortal.specialShape = portal.specialShape.getFlippedWithScaling(1.0);
+                flippedPortal.specialShape = portal.specialShape.getFlipped();
             }
             else {
                 flippedPortal.specialShape = null;
@@ -394,7 +394,7 @@ public class PortalExtension {
             reversePortal.animation.defaultAnimation.inverseScale = true;
             
             if (portal.specialShape != null) {
-                reversePortal.specialShape = portal.specialShape.getFlippedWithScaling(1.0);
+                reversePortal.specialShape = portal.specialShape.getFlipped();
             }
             else {
                 reversePortal.specialShape = null;
@@ -434,7 +434,12 @@ public class PortalExtension {
             
             parallelPortal.animation.defaultAnimation.inverseScale = true;
             
-            parallelPortal.specialShape = portal.specialShape;
+            if (portal.specialShape != null) {
+                parallelPortal.specialShape = portal.specialShape.copy();
+            }
+            else {
+                parallelPortal.specialShape = null;
+            }
             
             if (sync) {
                 parallelPortal.reloadAndSyncToClientNextTick();

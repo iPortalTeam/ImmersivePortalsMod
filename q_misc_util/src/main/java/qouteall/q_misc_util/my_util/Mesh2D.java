@@ -240,6 +240,14 @@ public class Mesh2D {
         return trianglePointIndexes.getInt(triangleIndex * 3 + indexInTriangle);
     }
     
+    public double getPointX(int pointIndex) {
+        return pointCoords.getDouble(pointIndex * 2);
+    }
+    
+    public double getPointY(int pointIndex) {
+        return pointCoords.getDouble(pointIndex * 2 + 1);
+    }
+    
     public void updateTrianglePoint(
         int triangleIndex,
         int pointIndexInTriangle,
@@ -1560,6 +1568,64 @@ public class Mesh2D {
             long newGridIndex = encodeToGrid(transformedX, transformedY);
             gridToPointIndex.put(newGridIndex, i);
         }
+    }
+    
+    public boolean boxIntersects(double minX, double minY, double maxX, double maxY) {
+        enableTriangleLookup();
+        assert triangleLookup != null;
+        
+        Unit result = this.triangleLookup.traverse(
+            minX, minY, maxX, maxY,
+            triangleList -> {
+                for (int i = 0; i < triangleList.size(); i++) {
+                    int triangleId = triangleList.getInt(i);
+                    int p0Index = getTrianglePointIndex(triangleId, 0);
+                    int p1Index = getTrianglePointIndex(triangleId, 1);
+                    int p2Index = getTrianglePointIndex(triangleId, 2);
+                    
+                    double p0x = this.pointCoords.getDouble(p0Index * 2);
+                    double p0y = this.pointCoords.getDouble(p0Index * 2 + 1);
+                    double p1x = this.pointCoords.getDouble(p1Index * 2);
+                    double p1y = this.pointCoords.getDouble(p1Index * 2 + 1);
+                    double p2x = this.pointCoords.getDouble(p2Index * 2);
+                    double p2y = this.pointCoords.getDouble(p2Index * 2 + 1);
+                    
+                    if (GeometryUtil.triangleIntersectsWithAABB(
+                        p0x, p0y, p1x, p1y, p2x, p2y,
+                        minX, minY, maxX, maxY
+                    )) {
+                        return Unit.INSTANCE;
+                    }
+                }
+                
+                return null;
+            }
+        );
+        
+        return result != null;
+    }
+    
+    public Mesh2D copy() {
+        Mesh2D mesh = new Mesh2D();
+        
+        for (int ti = 0; ti < getStoredTriangleNum(); ti++) {
+            if (isTriangleValid(ti)) {
+                int p0Index = trianglePointIndexes.getInt(ti * 3);
+                int p1Index = trianglePointIndexes.getInt(ti * 3 + 1);
+                int p2Index = trianglePointIndexes.getInt(ti * 3 + 2);
+                
+                mesh.addTriangle(
+                    pointCoords.getDouble(p0Index * 2),
+                    pointCoords.getDouble(p0Index * 2 + 1),
+                    pointCoords.getDouble(p1Index * 2),
+                    pointCoords.getDouble(p1Index * 2 + 1),
+                    pointCoords.getDouble(p2Index * 2),
+                    pointCoords.getDouble(p2Index * 2 + 1)
+                );
+            }
+        }
+        
+        return mesh;
     }
     
     public void debugVisualize() {

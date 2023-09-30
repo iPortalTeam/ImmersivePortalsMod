@@ -2550,7 +2550,7 @@ public class PortalCommand {
         otherSideMirror.setDestination(otherSideState.position());
         otherSideMirror.width = otherSideState.width();
         otherSideMirror.height = otherSideState.height();
-        otherSideMirror.specialShape = specialShape != null ? specialShape.getFlippedWithScaling(1) : null;
+        otherSideMirror.specialShape = specialShape != null ? specialShape.getFlipped() : null;
         otherSideMirror.setRotationTransformationForMirror(spacialRotation.getConjugated());
         
         McHelper.spawnServerEntity(thisSideMirror);
@@ -2599,7 +2599,7 @@ public class PortalCommand {
         Vec3 axisH = portal.axisH;
         Plane plane = new Plane(portal.getOriginPos(), portal.getNormal());
         
-        Mesh2D mesh2D = portal.specialShape.toMesh();
+        Mesh2D mesh2D = portal.specialShape.mesh;
         
         double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
         
@@ -2726,7 +2726,7 @@ public class PortalCommand {
             portal.setHeight(newPortalHeight);
         }
         
-        portal.specialShape = GeometryPortalShape.fromMesh(mesh2D);
+        portal.specialShape = new GeometryPortalShape(mesh2D);
     }
     
     
