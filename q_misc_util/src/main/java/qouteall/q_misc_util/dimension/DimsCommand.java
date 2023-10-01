@@ -1,19 +1,29 @@
 package qouteall.q_misc_util.dimension;
 
+import com.google.gson.JsonElement;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
+import org.slf4j.Logger;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
 public class DimsCommand {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands
             .literal("dims")
@@ -76,6 +86,48 @@ public class DimsCommand {
                     return 0;
                 })
             
+            )
+        );
+        
+        builder.then(Commands.literal("view_dim_config")
+            .then(Commands.argument("dim", DimensionArgument.dimension())
+                .executes(context -> {
+                    ServerLevel world =
+                        DimensionArgument.getDimension(context, "dim");
+                    
+                    MappedRegistry<LevelStem> dimensionRegistry =
+                        DimensionImpl.getDimensionRegistry(world.getServer());
+                    
+                    LevelStem levelStem = dimensionRegistry.get(world.dimension().location());
+                    
+                    if (levelStem == null) {
+                        context.getSource().sendFailure(
+                            Component.literal("Dimension config not found")
+                        );
+                        return 0;
+                    }
+                    
+                    DataResult<JsonElement> encoded = LevelStem.CODEC.encodeStart(
+                        RegistryOps.create(JsonOps.INSTANCE, world.registryAccess()),
+                        levelStem
+                    );
+                    
+                    if (encoded.result().isPresent()) {
+                        String jsonStr = MiscHelper.gson.toJson(encoded.result().get());
+                        
+                        context.getSource().sendSuccess(
+                            () -> Component.literal(jsonStr),
+                            true
+                        );
+                    }
+                    else {
+                        context.getSource().sendFailure(Component.literal(
+                            encoded.error().toString()
+                        ));
+                    }
+                    
+                    return 0;
+                })
             )
         );
         
