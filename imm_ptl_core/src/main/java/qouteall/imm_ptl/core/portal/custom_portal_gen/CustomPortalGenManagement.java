@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO refactor to use Fabric API dynamic registry
+// TODO change to per-server
 public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
     private static final Multimap<Item, CustomPortalGeneration> throwItemGen = HashMultimap.create();

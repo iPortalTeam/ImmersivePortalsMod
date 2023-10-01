@@ -74,11 +74,9 @@ public class SelectDimensionScreen extends Screen {
     
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, delta);
+        super.render(guiGraphics, mouseX, mouseY, delta);
         
         dimListWidget.render(guiGraphics, mouseX, mouseY, delta);
-        
-        super.render(guiGraphics, mouseX, mouseY, delta);
         
         guiGraphics.drawCenteredString(
             this.font, this.title.getString(), this.width / 2, 10, -1

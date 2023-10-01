@@ -51,7 +51,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     public final static int widgetHeight = 50;
     
     @Override
-    public List<? extends NarratableEntry> narratables() {
+    public @NotNull List<? extends NarratableEntry> narratables() {
         return List.of();
     }
     
@@ -75,7 +75,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     private final List<GuiEventListener> children = new ArrayList<>();
     
     @Override
-    public List<? extends GuiEventListener> children() {
+    public @NotNull List<? extends GuiEventListener> children() {
         return children;
     }
     
