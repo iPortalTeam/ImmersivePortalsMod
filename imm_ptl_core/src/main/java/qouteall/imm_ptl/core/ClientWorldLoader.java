@@ -30,6 +30,7 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.mixin.client.accessor.IEClientLevelData;
 import qouteall.imm_ptl.core.mixin.client.accessor.IEClientLevel_Accessor;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
@@ -55,10 +56,6 @@ public class ClientWorldLoader {
     public static final SignalArged<ResourceKey<Level>> clientDimensionDynamicRemoveSignal =
         new SignalArged<>();
     public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
-    
-    // sent to client by login and respawn packets
-    // TODO is it needed in 1.20.2?
-    public static boolean isFlatWorld = false;
     
     private static final Map<ResourceKey<Level>, ClientLevel> clientWorldMap = new HashMap<>();
     public static final Map<ResourceKey<Level>, LevelRenderer> worldRendererMap = new HashMap<>();
@@ -398,7 +395,7 @@ public class ClientWorldLoader {
             ClientLevel.ClientLevelData properties = new ClientLevel.ClientLevelData(
                 currentProperty.getDifficulty(),
                 currentProperty.isHardcore(),
-                isFlatWorld
+                ((IEClientLevelData) currentProperty).ip_getIsFlat()
             );
             newWorld = new ClientLevel(
                 mainNetHandler,
