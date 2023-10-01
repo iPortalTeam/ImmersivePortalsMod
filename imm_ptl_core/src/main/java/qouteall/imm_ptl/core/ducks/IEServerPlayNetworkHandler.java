@@ -1,5 +1,5 @@
 package qouteall.imm_ptl.core.ducks;
 
 public interface IEServerPlayNetworkHandler {
-    void cancelTeleportRequest();
+    void ip_cancelTeleportRequest();
 }

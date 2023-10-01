@@ -45,7 +45,7 @@ public class GuiPortalRendering {
         
         CHelper.checkGlError();
         
-        ((IECamera) RenderStates.originalCamera).resetState(
+        ((IECamera) RenderStates.originalCamera).ip_resetState(
             worldRenderInfo.cameraPos, worldRenderInfo.world
         );
         
@@ -58,7 +58,7 @@ public class GuiPortalRendering {
         
         Validate.isTrue(mcFb != framebuffer);
         
-        ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(framebuffer);
+        ((IEMinecraftClient) MyGameRenderer.client).ip_setFrameBuffer(framebuffer);
         
         if (!worldRenderInfo.doRenderSky) {
             // pre-clear the framebuffer with 0 alpha, if it doesn't render the sky
@@ -75,7 +75,7 @@ public class GuiPortalRendering {
         
         IPCGlobal.renderer.finishRendering();
         
-        ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(mcFb);
+        ((IEMinecraftClient) MyGameRenderer.client).ip_setFrameBuffer(mcFb);
         
         mcFb.bindWrite(true);
         

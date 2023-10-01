@@ -304,7 +304,7 @@ public class ServerTeleportationManager {
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
-            ((IEServerPlayNetworkHandler) player.connection).cancelTeleportRequest();
+            ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         }
         
         McHelper.adjustVehicle(player);
@@ -336,7 +336,7 @@ public class ServerTeleportationManager {
             player.getXRot()
         );
         player.connection.resetPosition();
-        ((IEServerPlayNetworkHandler) player.connection).cancelTeleportRequest();
+        ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         
         ImmPtlChunkTracking.updateForPlayer(player);
     }
@@ -356,7 +356,7 @@ public class ServerTeleportationManager {
         
         Entity vehicle = player.getVehicle();
         if (vehicle != null) {
-            ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
+            ((IEServerPlayerEntity) player).ip_stopRidingWithoutTeleportRequest();
         }
         
         Vec3 oldPos = player.position();
@@ -385,7 +385,7 @@ public class ServerTeleportationManager {
                 player.position().add(offset),
                 McHelper.lastTickPosOf(player).add(offset)
             );
-            ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
+            ((IEServerPlayerEntity) player).ip_startRidingWithoutTeleportRequest(vehicle);
             McHelper.adjustVehicle(player);
         }
         
@@ -438,7 +438,7 @@ public class ServerTeleportationManager {
             player.hasChangedDimension();
         }
         else {
-            ((IEServerPlayNetworkHandler) player.connection).cancelTeleportRequest();
+            ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         }
     }
     

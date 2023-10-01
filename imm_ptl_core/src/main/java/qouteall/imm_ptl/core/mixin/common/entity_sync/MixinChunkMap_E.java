@@ -55,7 +55,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         if (IPGlobal.serverTeleportationManager.isTeleporting(entity)) {
             if (entity instanceof ServerPlayer player) {
                 Object tracker = entityMap.remove(entity.getId());
-                ((IEEntityTracker) tracker).stopTrackingToAllPlayers_();
+                ((IEEntityTracker) tracker).ip_stopTrackingToAllPlayers();
                 updatePlayerStatus(player, false);
             }
             else {
@@ -80,13 +80,6 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     }
     
     @Override
-    public void ip_onPlayerDisconnected(ServerPlayer player) {
-        entityMap.values().forEach(trackedEntity -> {
-            ((IEEntityTracker) trackedEntity).ip_onPlayerDisconnect(player);
-        });
-    }
-    
-    @Override
     public void ip_onDimensionRemove() {
         entityMap.values().forEach(obj -> {
             ((IEEntityTracker) obj).ip_onDimensionRemove();
@@ -104,9 +97,9 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         List<Entity> passengerList = Lists.newArrayList();
         
         for (Object entityTracker : this.entityMap.values()) {
-            Entity entity = ((IEEntityTracker) entityTracker).getEntity_();
+            Entity entity = ((IEEntityTracker) entityTracker).ip_getEntity();
             if (entity != player && entity.chunkPosition().equals(chunk.getPos())) {
-                ((IEEntityTracker) entityTracker).updateEntityTrackingStatus(player);
+                ((IEEntityTracker) entityTracker).ip_updateEntityTrackingStatus(player);
                 if (entity instanceof Mob && ((Mob) entity).getLeashHolder() != null) {
                     attachedEntityList.add(entity);
                 }
@@ -137,7 +130,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     public void ip_resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityMap.get(entity.getId());
         Validate.notNull(tracker, "entity not yet tracked");
-        ((IEEntityTracker) tracker).resendSpawnPacketToTrackers();
+        ((IEEntityTracker) tracker).ip_resendSpawnPacketToTrackers();
     }
     
     @Override

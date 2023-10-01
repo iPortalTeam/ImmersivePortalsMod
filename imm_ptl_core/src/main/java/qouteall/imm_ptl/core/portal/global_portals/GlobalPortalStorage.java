@@ -318,7 +318,7 @@ public class GlobalPortalStorage extends SavedData {
     public static void receiveGlobalPortalSync(ResourceKey<Level> dimension, CompoundTag compoundTag) {
         ClientLevel world = ClientWorldLoader.getWorld(dimension);
         
-        List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
+        List<Portal> oldGlobalPortals = ((IEClientWorld) world).ip_getGlobalPortals();
         if (oldGlobalPortals != null) {
             for (Portal p : oldGlobalPortals) {
                 p.remove(Entity.RemovalReason.KILLED);
@@ -335,7 +335,7 @@ public class GlobalPortalStorage extends SavedData {
             ClientWorldLoader.getWorld(p.getDestDim());
         }
         
-        ((IEClientWorld) world).setGlobalPortals(newPortals);
+        ((IEClientWorld) world).ip_setGlobalPortals(newPortals);
         
         Helper.log("Global Portals Updated " + dimension.location());
     }

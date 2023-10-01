@@ -200,7 +200,7 @@ public class ClientWorldLoader {
         );
         
         for (ClientLevel clientWorld : clientWorldMap.values()) {
-            ((IEClientWorld) clientWorld).resetWorldRendererRef();
+            ((IEClientWorld) clientWorld).ip_resetWorldRendererRef();
         }
         
         clientWorldMap.clear();
@@ -231,7 +231,7 @@ public class ClientWorldLoader {
         Validate.isTrue(client.levelRenderer != worldRenderer);
         
         ClientLevel clientWorld = clientWorldMap.get(dimension);
-        ((IEClientWorld) clientWorld).resetWorldRendererRef();
+        ((IEClientWorld) clientWorld).ip_resetWorldRendererRef();
         clientWorldMap.remove(dimension);
         
         DimensionRenderHelper renderHelper = renderHelperMap.remove(dimension);
@@ -387,7 +387,7 @@ public class ClientWorldLoader {
             ResourceKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientLevel.ClientLevelData currentProperty =
-                (ClientLevel.ClientLevelData) ((IEWorld) client.level).myGetProperties();
+                (ClientLevel.ClientLevelData) ((IEWorld) client.level).ip_getLevelData();
             RegistryAccess registryManager = mainNetHandler.registryAccess();
             int simulationDistance = client.level.getServerSimulationDistance();
             
@@ -511,7 +511,7 @@ public class ClientWorldLoader {
         
         client.level = newWorld;
         ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
-        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
+        ((IEMinecraftClient) client).ip_setWorldRenderer(newWorldRenderer);
         ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
         isWorldSwitched = true;
         
@@ -526,7 +526,7 @@ public class ClientWorldLoader {
             }
             
             client.level = originalWorld;
-            ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
+            ((IEMinecraftClient) client).ip_setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleEngine).ip_setWorld(originalWorld);
             ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
             isWorldSwitched = originalIsWorldSwitched;

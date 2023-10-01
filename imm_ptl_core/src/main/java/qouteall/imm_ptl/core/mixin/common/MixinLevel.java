@@ -54,7 +54,7 @@ public abstract class MixinLevel implements IEWorld {
     }
     
     @Override
-    public WritableLevelData myGetProperties() {
+    public WritableLevelData ip_getLevelData() {
         return levelData;
     }
     

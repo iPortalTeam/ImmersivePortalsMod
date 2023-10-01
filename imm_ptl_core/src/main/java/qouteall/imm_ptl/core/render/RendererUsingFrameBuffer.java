@@ -67,7 +67,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         RenderTarget oldFrameBuffer = client.getMainRenderTarget();
         
-        ((IEMinecraftClient) client).setFrameBuffer(secondaryFrameBuffer.fb);
+        ((IEMinecraftClient) client).ip_setFrameBuffer(secondaryFrameBuffer.fb);
         secondaryFrameBuffer.fb.bindWrite(true);
         
         GlStateManager._clearColor(1, 0, 1, 1);
@@ -80,7 +80,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         renderPortalContent(portal);
         
-        ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
+        ((IEMinecraftClient) client).ip_setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.bindWrite(true);
         
         PortalRendering.popPortalLayer();

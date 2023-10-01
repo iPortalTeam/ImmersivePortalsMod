@@ -91,7 +91,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         cancellable = true
     )
     private void onProcessMovePacket(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
-        ResourceKey<Level> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
+        ResourceKey<Level> packetDimension = ((IEPlayerMoveC2SPacket) packet).ip_getPlayerDimension();
         
         if (packetDimension == null) {
             // this actually never happens, because the vanilla client will disconnect immediately
@@ -107,7 +107,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         }
         
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-            cancelTeleportRequest();
+            ip_cancelTeleportRequest();
         }
         
         if (player.level().dimension() != packetDimension) {
@@ -180,7 +180,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             x - xDiff, y - yDiff, z - zDiff, yaw - yawDiff, pitch - pitchDiff, nonRelative, this.awaitingTeleport
         );
         
-        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.level().dimension());
+        ((IEPlayerPositionLookS2CPacket) lookPacket).ip_setPlayerDimension(player.level().dimension());
         
         this.player.connection.send(lookPacket);
     }
@@ -267,7 +267,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     }
     
     @Override
-    public void cancelTeleportRequest() {
+    public void ip_cancelTeleportRequest() {
         awaitingPositionFromClient = null;
     }
 }

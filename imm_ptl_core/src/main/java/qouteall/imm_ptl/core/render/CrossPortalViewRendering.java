@@ -33,9 +33,9 @@ public class CrossPortalViewRendering {
         Entity cameraEntity = client.cameraEntity;
         
         Camera camera1 = new Camera();
-        float cameraY = ((IECamera) RenderStates.originalCamera).getCameraY();
-        float lastCameraY = ((IECamera) RenderStates.originalCamera).getLastCameraY();
-        ((IECamera) camera1).setCameraY(cameraY, lastCameraY);
+        float cameraY = ((IECamera) RenderStates.originalCamera).ip_getCameraY();
+        float lastCameraY = ((IECamera) RenderStates.originalCamera).ip_getLastCameraY();
+        ((IECamera) camera1).ip_setCameraY(cameraY, lastCameraY);
         Camera camera = camera1;
         camera.setup(
             client.level, cameraEntity,

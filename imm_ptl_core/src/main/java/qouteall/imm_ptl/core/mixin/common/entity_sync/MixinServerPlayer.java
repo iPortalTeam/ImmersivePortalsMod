@@ -30,22 +30,12 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
     @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);
     
     @Override
-    public void setEnteredNetherPos(Vec3 pos) {
-        enteredNetherPosition = pos;
-    }
-    
-    @Override
-    public void setIsInTeleportationState(boolean arg) {
-        isChangingDimension = arg;
-    }
-    
-    @Override
-    public void stopRidingWithoutTeleportRequest() {
+    public void ip_stopRidingWithoutTeleportRequest() {
         super.stopRiding();
     }
     
     @Override
-    public void startRidingWithoutTeleportRequest(Entity newVehicle) {
+    public void ip_startRidingWithoutTeleportRequest(Entity newVehicle) {
         super.startRiding(newVehicle, true);
     }
     

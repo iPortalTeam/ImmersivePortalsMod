@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
 public interface IEFrameBuffer {
-    boolean getIsStencilBufferEnabled();
+    boolean ip_getIsStencilBufferEnabled();
     
-    void setIsStencilBufferEnabledAndReload(boolean cond);
+    void ip_setIsStencilBufferEnabledAndReload(boolean cond);
 }

@@ -18,6 +18,6 @@ public class MixinServerboundMovePlayerPacketStatusOnly {
         FriendlyByteBuf buf, CallbackInfoReturnable<ServerboundMovePlayerPacket.StatusOnly> cir
     ) {
         ResourceKey<Level> playerDim = DimId.readWorldId(buf, false);
-        ((IEPlayerMoveC2SPacket) cir.getReturnValue()).setPlayerDimension(playerDim);
+        ((IEPlayerMoveC2SPacket) cir.getReturnValue()).ip_setPlayerDimension(playerDim);
     }
 }

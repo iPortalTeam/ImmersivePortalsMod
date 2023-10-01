@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public interface IEPlayerMoveC2SPacket {
-    ResourceKey<Level> getPlayerDimension();
+    ResourceKey<Level> ip_getPlayerDimension();
     
-    void setPlayerDimension(ResourceKey<Level> dim);
+    void ip_setPlayerDimension(ResourceKey<Level> dim);
 }

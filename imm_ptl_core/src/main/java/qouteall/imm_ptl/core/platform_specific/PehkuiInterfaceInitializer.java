@@ -127,9 +127,9 @@ public class PehkuiInterfaceInitializer {
             doScalingForEntity(player, portal);
             
             IECamera camera = (IECamera) client.gameRenderer.getMainCamera();
-            camera.setCameraY(
-                ((float) (camera.getCameraY() * portal.scaling)),
-                ((float) (camera.getLastCameraY() * portal.scaling))
+            camera.ip_setCameraY(
+                ((float) (camera.ip_getCameraY() * portal.scaling)),
+                ((float) (camera.ip_getLastCameraY() * portal.scaling))
             );
         }
     }

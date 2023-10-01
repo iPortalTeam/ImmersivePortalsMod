@@ -84,23 +84,23 @@ public abstract class MixinCamera implements IECamera {
     }
     
     @Override
-    public void resetState(Vec3 pos, ClientLevel currWorld) {
+    public void ip_resetState(Vec3 pos, ClientLevel currWorld) {
         setPosition(pos);
         level = currWorld;
     }
     
     @Override
-    public float getCameraY() {
+    public float ip_getCameraY() {
         return eyeHeight;
     }
     
     @Override
-    public float getLastCameraY() {
+    public float ip_getLastCameraY() {
         return eyeHeightOld;
     }
     
     @Override
-    public void setCameraY(float cameraY_, float lastCameraY_) {
+    public void ip_setCameraY(float cameraY_, float lastCameraY_) {
         eyeHeight = cameraY_;
         eyeHeightOld = lastCameraY_;
     }

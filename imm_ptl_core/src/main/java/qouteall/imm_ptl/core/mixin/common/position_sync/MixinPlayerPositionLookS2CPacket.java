@@ -16,12 +16,12 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
     private ResourceKey<Level> playerDimension;
     
     @Override
-    public ResourceKey<Level> getPlayerDimension() {
+    public ResourceKey<Level> ip_getPlayerDimension() {
         return playerDimension;
     }
     
     @Override
-    public void setPlayerDimension(ResourceKey<Level> dimension) {
+    public void ip_setPlayerDimension(ResourceKey<Level> dimension) {
         playerDimension = dimension;
     }
     

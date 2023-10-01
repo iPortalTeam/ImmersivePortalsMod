@@ -38,7 +38,7 @@ public class IPPortingLibCompat {
             );
         }
         else {
-            return ((IEFrameBuffer) renderTarget).getIsStencilBufferEnabled();
+            return ((IEFrameBuffer) renderTarget).ip_getIsStencilBufferEnabled();
         }
     }
     
@@ -61,7 +61,7 @@ public class IPPortingLibCompat {
             }
         }
         else {
-            ((IEFrameBuffer) renderTarget).setIsStencilBufferEnabledAndReload(cond);
+            ((IEFrameBuffer) renderTarget).ip_setIsStencilBufferEnabledAndReload(cond);
         }
         
     }

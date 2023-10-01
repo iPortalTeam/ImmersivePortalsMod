@@ -21,7 +21,7 @@ public class MixinServerBoundMovePlayerPacketPosRot {
     @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$PosRot;write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onWrite(FriendlyByteBuf buf, CallbackInfo ci) {
         if (!ImmPtlNetworkAdapt.doesServerHasIP()) {return;}
-        ResourceKey<Level> playerDimension = ((IEPlayerMoveC2SPacket) this).getPlayerDimension();
+        ResourceKey<Level> playerDimension = ((IEPlayerMoveC2SPacket) this).ip_getPlayerDimension();
         Validate.notNull(playerDimension);
         DimId.writeWorldId(buf, playerDimension, true);
     }

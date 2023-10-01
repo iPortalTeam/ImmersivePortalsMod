@@ -164,17 +164,17 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     }
     
     @Override
-    public void setFrameBuffer(RenderTarget buffer) {
+    public void ip_setFrameBuffer(RenderTarget buffer) {
         mainRenderTarget = buffer;
     }
     
     @Override
-    public Screen getCurrentScreen() {
+    public Screen ip_getCurrentScreen() {
         return screen;
     }
     
     @Override
-    public void setWorldRenderer(LevelRenderer r) {
+    public void ip_setWorldRenderer(LevelRenderer r) {
         levelRenderer = r;
     }
     

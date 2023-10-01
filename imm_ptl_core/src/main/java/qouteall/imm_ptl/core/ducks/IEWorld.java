@@ -6,7 +6,7 @@ import net.minecraft.world.level.storage.WritableLevelData;
 
 public interface IEWorld {
     
-    WritableLevelData myGetProperties();
+    WritableLevelData ip_getLevelData();
     
     void portal_setWeather(float rainGradPrev, float rainGrad, float thunderGradPrev, float thunderGrad);
     

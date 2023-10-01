@@ -1,26 +1,22 @@
 package qouteall.imm_ptl.core.ducks;
 
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
 public interface IEClientWorld {
-    ClientPacketListener getNetHandler();
-    
-    void setNetHandler(ClientPacketListener handler);
     
     @Nullable
-    List<Portal> getGlobalPortals();
+    List<Portal> ip_getGlobalPortals();
     
-    void setGlobalPortals(List<Portal> arg);
+    void ip_setGlobalPortals(List<Portal> arg);
     
-    void resetWorldRendererRef();
+    void ip_resetWorldRendererRef();
     
     EntityTickList ip_getEntityList();
     

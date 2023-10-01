@@ -141,7 +141,7 @@ public class MyGameRenderer {
         LevelRenderer oldWorldRenderer = client.levelRenderer;
         LightTexture oldLightmap = client.gameRenderer.lightTexture();
         boolean oldNoClip = client.player.noPhysics;
-        boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
+        boolean oldDoRenderHand = ieGameRenderer.ip_getDoRenderHand();
         ObjectArrayList<SectionRenderDispatcher.RenderSection> oldChunkInfoList =
             ((IEWorldRenderer) oldWorldRenderer).portal_getChunkInfoList();
         HitResult oldCrosshairTarget = client.hitResult;
@@ -161,9 +161,9 @@ public class MyGameRenderer {
         Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
         //switch
-        ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
+        ((IEMinecraftClient) client).ip_setWorldRenderer(worldRenderer);
         client.level = newWorld;
-        ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
+        ieGameRenderer.ip_setLightmapTextureManager(helper.lightmapTexture);
         
         client.getBlockEntityRenderDispatcher().level = newWorld;
         client.player.noPhysics = true;
@@ -177,7 +177,7 @@ public class MyGameRenderer {
         if (!PortalRendering.shouldRenderHitResult()) {
             client.hitResult = null;
         }
-        ieGameRenderer.setCamera(newCamera);
+        ieGameRenderer.ip_setCamera(newCamera);
         
         RenderBuffers newRenderBuffers = null;
         if (IPGlobal.useSecondaryEntityVertexConsumer) {
@@ -213,16 +213,16 @@ public class MyGameRenderer {
         
         //recover
         
-        ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
+        ((IEMinecraftClient) client).ip_setWorldRenderer(oldWorldRenderer);
         client.level = oldWorld;
-        ieGameRenderer.setLightmapTextureManager(oldLightmap);
+        ieGameRenderer.ip_setLightmapTextureManager(oldLightmap);
         client.getBlockEntityRenderDispatcher().level = oldWorld;
         client.player.noPhysics = oldNoClip;
         client.gameRenderer.setRenderHand(oldDoRenderHand);
         
         ((IEParticleManager) client.particleEngine).ip_setWorld(oldWorld);
         client.hitResult = oldCrosshairTarget;
-        ieGameRenderer.setCamera(oldCamera);
+        ieGameRenderer.ip_setCamera(oldCamera);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(oldTransparencyShader);
         

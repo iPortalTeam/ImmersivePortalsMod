@@ -237,8 +237,8 @@ public class IPMcHelper {
         IERayTraceContext betterContext = (IERayTraceContext) context;
         
         betterContext
-            .setStart(portal.transformPoint(intersection))
-            .setEnd(portal.transformPoint(end));
+            .ip_setStart(portal.transformPoint(intersection))
+            .ip_setEnd(portal.transformPoint(end));
         
         portals.add(portal);
         Level destWorld = portal.getDestinationWorld();
@@ -248,8 +248,8 @@ public class IPMcHelper {
         );
         
         betterContext
-            .setStart(start)
-            .setEnd(end);
+            .ip_setStart(start)
+            .ip_setEnd(end);
         
         return recursion;
     }

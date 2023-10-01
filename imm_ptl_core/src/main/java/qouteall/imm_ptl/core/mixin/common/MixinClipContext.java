@@ -44,13 +44,13 @@ public abstract class MixinClipContext implements IERayTraceContext {
     private CollisionContext collisionContext;
     
     @Override
-    public IERayTraceContext setStart(Vec3 newStart) {
+    public IERayTraceContext ip_setStart(Vec3 newStart) {
         from = newStart;
         return this;
     }
     
     @Override
-    public IERayTraceContext setEnd(Vec3 newEnd) {
+    public IERayTraceContext ip_setEnd(Vec3 newEnd) {
         to = newEnd;
         return this;
     }

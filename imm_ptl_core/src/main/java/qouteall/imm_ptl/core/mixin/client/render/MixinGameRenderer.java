@@ -294,22 +294,22 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     }
     
     @Override
-    public void setLightmapTextureManager(LightTexture manager) {
+    public void ip_setLightmapTextureManager(LightTexture manager) {
         lightTexture = manager;
     }
     
     @Override
-    public boolean getDoRenderHand() {
+    public boolean ip_getDoRenderHand() {
         return renderHand;
     }
     
     @Override
-    public void setCamera(Camera camera_) {
+    public void ip_setCamera(Camera camera_) {
         mainCamera = camera_;
     }
     
     @Override
-    public void setIsRenderingPanorama(boolean cond) {
+    public void ip_setIsRenderingPanorama(boolean cond) {
         panoramicMode = cond;
     }
     

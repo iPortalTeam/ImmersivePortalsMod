@@ -5,22 +5,20 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
 public interface IEEntityTracker {
-    Entity getEntity_();
+    Entity ip_getEntity();
     
-    void updateEntityTrackingStatus(ServerPlayer player);
+    void ip_updateEntityTrackingStatus(ServerPlayer player);
     
     void ip_onDimensionRemove();
     
-    void resendSpawnPacketToTrackers();
+    void ip_resendSpawnPacketToTrackers();
     
-    void stopTrackingToAllPlayers_();
+    void ip_stopTrackingToAllPlayers();
     
-    void tickEntry();
+    void ip_tickEntry();
     
-    SectionPos getLastCameraPosition();
+    SectionPos ip_getLastCameraPosition();
     
-    void setLastCameraPosition(SectionPos arg);
+    void ip_setLastCameraPosition(SectionPos arg);
     
-    @Deprecated
-    void ip_onPlayerDisconnect(ServerPlayer player);
 }

@@ -78,22 +78,12 @@ public abstract class MixinClientLevel implements IEClientWorld {
     private BlockStatePredictionHandler blockStatePredictionHandler;
     
     @Override
-    public ClientPacketListener getNetHandler() {
-        return connection;
-    }
-    
-    @Override
-    public void setNetHandler(ClientPacketListener handler) {
-        connection = handler;
-    }
-    
-    @Override
-    public List<Portal> getGlobalPortals() {
+    public List<Portal> ip_getGlobalPortals() {
         return portal_globalPortals;
     }
     
     @Override
-    public void setGlobalPortals(List<Portal> arg) {
+    public void ip_setGlobalPortals(List<Portal> arg) {
         portal_globalPortals = arg;
     }
     
@@ -164,7 +154,7 @@ public abstract class MixinClientLevel implements IEClientWorld {
     }
     
     @Override
-    public void resetWorldRendererRef() {
+    public void ip_resetWorldRendererRef() {
         levelRenderer = null;
     }
     

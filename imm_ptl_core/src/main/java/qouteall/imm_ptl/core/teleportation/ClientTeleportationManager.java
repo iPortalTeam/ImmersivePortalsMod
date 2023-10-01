@@ -456,11 +456,11 @@ public class ClientTeleportationManager {
         ((IEAbstractClientPlayer) player).ip_setClientLevel(toWorld);
         
         IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
-        gameRenderer.setLightmapTextureManager(ClientWorldLoader
+        gameRenderer.ip_setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(toDimension).lightmapTexture);
         
         client.level = toWorld;
-        ((IEMinecraftClient) client).setWorldRenderer(
+        ((IEMinecraftClient) client).ip_setWorldRenderer(
             ClientWorldLoader.getWorldRenderer(toDimension)
         );
         

@@ -21,9 +21,6 @@ public interface IEChunkMap {
     
     void ip_onPlayerUnload(ServerPlayer oldPlayer);
     
-    @Deprecated
-    void ip_onPlayerDisconnected(ServerPlayer player);
-    
     void ip_onDimensionRemove();
     
     void ip_updateEntityTrackersAfterSendingChunkPacket(

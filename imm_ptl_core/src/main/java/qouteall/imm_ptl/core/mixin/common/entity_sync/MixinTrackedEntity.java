@@ -92,7 +92,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     // Note VMP redirects getEffectiveRange()
     @Inject(method = "updatePlayer", at = @At("HEAD"), cancellable = true)
     private void onUpdatePlayer(ServerPlayer player, CallbackInfo ci) {
-        updateEntityTrackingStatus(player);
+        ip_updateEntityTrackingStatus(player);
         ci.cancel();
     }
     
@@ -103,12 +103,12 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     @Overwrite
     public void updatePlayers(List<ServerPlayer> list) {
         for (ServerPlayer player : McHelper.getRawPlayerList()) {
-            updateEntityTrackingStatus(player);
+            ip_updateEntityTrackingStatus(player);
         }
     }
     
     @Override
-    public Entity getEntity_() {
+    public Entity ip_getEntity() {
         return entity;
     }
     
@@ -117,7 +117,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
      */
     @IPVanillaCopy
     @Override
-    public void updateEntityTrackingStatus(ServerPlayer player) {
+    public void ip_updateEntityTrackingStatus(ServerPlayer player) {
         IEChunkMap storage = (IEChunkMap)
             ((ServerLevel) entity.level()).getChunkSource().chunkMap;
         
@@ -164,7 +164,7 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     }
     
     @Override
-    public void resendSpawnPacketToTrackers() {
+    public void ip_resendSpawnPacketToTrackers() {
         // avoid sending wrong position delta update packet
         ((IEEntityTrackerEntry) serverEntity).ip_updateTrackedEntityPosition();
         
@@ -179,34 +179,23 @@ public abstract class MixinTrackedEntity implements IEEntityTracker {
     }
     
     @Override
-    public void stopTrackingToAllPlayers_() {
+    public void ip_stopTrackingToAllPlayers() {
         broadcastRemoved();
     }
     
     @Override
-    public void tickEntry() {
+    public void ip_tickEntry() {
         serverEntity.sendChanges();
     }
     
     @Override
-    public SectionPos getLastCameraPosition() {
+    public SectionPos ip_getLastCameraPosition() {
         return lastSectionPos;
     }
     
     @Override
-    public void setLastCameraPosition(SectionPos arg) {
+    public void ip_setLastCameraPosition(SectionPos arg) {
         lastSectionPos = arg;
     }
     
-    /**
-     * Similar to {@link ChunkMap.TrackedEntity#removePlayer(ServerPlayer)}
-     * but does not send entity unload packet
-     * because in this stage the connection was already closed
-     */
-    @Override
-    public void ip_onPlayerDisconnect(ServerPlayer player) {
-        if (seenBy.remove(player.connection)) {
-            entity.stopSeenByPlayer(player);
-        }
-    }
 }

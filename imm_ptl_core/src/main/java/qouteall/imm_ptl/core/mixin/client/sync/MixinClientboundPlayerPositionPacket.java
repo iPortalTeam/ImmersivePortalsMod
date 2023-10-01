@@ -18,7 +18,7 @@ public class MixinClientboundPlayerPositionPacket {
     private void onRead(FriendlyByteBuf buf, CallbackInfo ci) {
         if (buf.isReadable()) {
             ResourceKey<Level> playerDimension = DimId.readWorldId(buf, true);
-            ((IEPlayerPositionLookS2CPacket) this).setPlayerDimension(playerDimension);
+            ((IEPlayerPositionLookS2CPacket) this).ip_setPlayerDimension(playerDimension);
             ImmPtlNetworkAdapt.setServerHasIP(true);
         }
         else {

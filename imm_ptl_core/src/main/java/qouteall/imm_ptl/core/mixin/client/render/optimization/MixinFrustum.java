@@ -64,7 +64,7 @@ public class MixinFrustum implements IEFrustum {
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (IPCGlobal.doUseAdvancedFrustumCulling) {
-            boolean canDetermineInvisible = canDetermineInvisible(minX, minY, minZ, maxX, maxY, maxZ);
+            boolean canDetermineInvisible = ip_canDetermineInvisible(minX, minY, minZ, maxX, maxY, maxZ);
             if (canDetermineInvisible) {
                 cir.setReturnValue(false);
             }
@@ -81,7 +81,7 @@ public class MixinFrustum implements IEFrustum {
     }
     
     @Override
-    public boolean canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+    public boolean ip_canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         if (portal_frustumCuller == null) {
             return false;
         }

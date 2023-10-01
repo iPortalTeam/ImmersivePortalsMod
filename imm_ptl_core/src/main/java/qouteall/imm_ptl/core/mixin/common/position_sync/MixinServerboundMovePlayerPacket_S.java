@@ -11,12 +11,12 @@ public class MixinServerboundMovePlayerPacket_S implements IEPlayerMoveC2SPacket
     private ResourceKey<Level> playerDimension;
     
     @Override
-    public ResourceKey<Level> getPlayerDimension() {
+    public ResourceKey<Level> ip_getPlayerDimension() {
         return playerDimension;
     }
     
     @Override
-    public void setPlayerDimension(ResourceKey<Level> dim) {
+    public void ip_setPlayerDimension(ResourceKey<Level> dim) {
         playerDimension = dim;
     }
     

@@ -75,16 +75,6 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         this.level = world;
     }
     
-    @Override
-    public Map getPlayerListEntries() {
-        return playerInfoMap;
-    }
-    
-    @Override
-    public void setPlayerListEntries(Map value) {
-        playerInfoMap = value;
-    }
-    
     @Inject(
         method = "<init>",
         at = @At("RETURN")
@@ -111,7 +101,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             return;
         }
         
-        ResourceKey<Level> packetDim = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
+        ResourceKey<Level> packetDim = ((IEPlayerPositionLookS2CPacket) packet).ip_getPlayerDimension();
         
         LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;

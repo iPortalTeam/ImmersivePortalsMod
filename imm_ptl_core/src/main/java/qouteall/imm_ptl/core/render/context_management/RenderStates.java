@@ -195,7 +195,7 @@ public class RenderStates {
     public static void onTotalRenderEnd() {
         Minecraft client = Minecraft.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) Minecraft.getInstance().gameRenderer;
-        gameRenderer.setLightmapTextureManager(ClientWorldLoader
+        gameRenderer.ip_setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(client.level.dimension()).lightmapTexture);
         
         Vec3 currCameraPos = client.gameRenderer.getMainCamera().getPosition();

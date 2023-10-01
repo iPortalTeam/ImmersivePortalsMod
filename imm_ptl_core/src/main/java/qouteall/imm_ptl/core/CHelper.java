@@ -55,7 +55,7 @@ public class CHelper {
     @Nullable
     public static List<Portal> getClientGlobalPortal(Level world) {
         if (world instanceof ClientLevel) {
-            return ((IEClientWorld) world).getGlobalPortals();
+            return ((IEClientWorld) world).ip_getGlobalPortals();
         }
         else {
             return null;

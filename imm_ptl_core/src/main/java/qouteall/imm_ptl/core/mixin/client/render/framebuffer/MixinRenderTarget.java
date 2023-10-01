@@ -145,12 +145,12 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
     }
     
     @Override
-    public boolean getIsStencilBufferEnabled() {
+    public boolean ip_getIsStencilBufferEnabled() {
         return isStencilBufferEnabled;
     }
     
     @Override
-    public void setIsStencilBufferEnabledAndReload(boolean cond) {
+    public void ip_setIsStencilBufferEnabledAndReload(boolean cond) {
         if (isStencilBufferEnabled != cond) {
             isStencilBufferEnabled = cond;
             resize(width, height, Minecraft.ON_OSX);
