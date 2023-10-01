@@ -2,7 +2,6 @@ package qouteall.imm_ptl.peripheral;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -14,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -164,16 +163,14 @@ public class CommandStickItem extends Item {
             player.getInventory().add(itemStack);
             player.inventoryMenu.broadcastChanges();
         });
-        
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(
-            groupEntries -> {
-                for (Data data : BUILT_IN_COMMAND_STICK_TYPES.values()) {
-                    ItemStack stack = new ItemStack(instance);
-                    data.serialize(stack.getOrCreateTag());
-                    groupEntries.accept(stack);
-                }
-            }
-        );
+    }
+    
+    public static void addIntoCreativeTag(CreativeModeTab.Output entries) {
+        for (Data data : BUILT_IN_COMMAND_STICK_TYPES.values()) {
+            ItemStack stack = new ItemStack(instance);
+            data.serialize(stack.getOrCreateTag());
+            entries.accept(stack);
+        }
     }
     
     public static void registerCommandStickTypes() {
@@ -259,7 +256,7 @@ public class CommandStickItem extends Item {
             new Data(
                 "execute positioned 0.0 0.0 0.0 run portal animation rotate_infinitely @p ^0.0 ^0.0 ^1.0 1.7",
                 "imm_ptl.command.rotate_around_view",
-                Lists.newArrayList("imm_ptl.command_dest.rotate_around_view")
+                Lists.newArrayList("imm_ptl.command_desc.rotate_around_view")
             )
         );
         registerPortalSubCommandStick(

@@ -216,6 +216,8 @@
   "imm_ptl.message_from_server": "[Immersive Portals] Message from server: ",
   "imm_ptl.incompatible_shaderpack": "[Immersive Portals] The current shaderpack is incompatible with Immersive Portals. Portal rendering may be very broken. If you want better portal rendering, it's recommended to try another shaderpack.",
 
+  "imm_ptl.item_group": "Immersive Portals",
+
   "imm_ptl.wand.first_side_left_bottom": "Use %s to select the left bottom point of the portal",
   "imm_ptl.wand.first_side_right_bottom": "Select the right bottom point\n(width: %1$s)",
   "imm_ptl.wand.first_side_left_up": "Select the left top point\n(width: %1$s, height: %2$s)",

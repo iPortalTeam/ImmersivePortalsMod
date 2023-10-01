@@ -2,14 +2,16 @@ package qouteall.imm_ptl.peripheral;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
@@ -32,6 +34,19 @@ public class PeripheralModMain {
     
     public static final BlockItem portalHelperBlockItem =
         new PortalHelperItem(PeripheralModMain.portalHelperBlock, new Item.Properties());
+    
+    public static final CreativeModeTab TAB =
+        FabricItemGroup.builder()
+            .icon(() -> new ItemStack(PortalWandItem.instance))
+            .title(Component.translatable("imm_ptl.item_group"))
+            .displayItems((enabledFeatures, entries) -> {
+                PortalWandItem.addIntoCreativeTag(entries);
+                
+                CommandStickItem.addIntoCreativeTag(entries);
+                
+                entries.accept(PeripheralModMain.portalHelperBlockItem);
+            })
+            .build();
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
@@ -79,9 +94,12 @@ public class PeripheralModMain {
         
         CommandStickItem.registerCommandStickTypes();
         
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
-            entries.accept(PeripheralModMain.portalHelperBlockItem);
-        });
+        Registry.register(
+            BuiltInRegistries.CREATIVE_MODE_TAB,
+            new ResourceLocation("immersive_portals", "general"),
+            TAB
+        );
+        
     }
     
     public static void registerItems(BiConsumer<ResourceLocation, Item> regFunc) {

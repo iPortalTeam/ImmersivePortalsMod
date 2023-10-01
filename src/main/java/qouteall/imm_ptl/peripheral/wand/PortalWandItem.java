@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -18,7 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -35,22 +34,6 @@ public class PortalWandItem extends Item {
     public static final PortalWandItem instance = new PortalWandItem(new Properties());
     
     public static void init() {
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(
-            groupEntries -> {
-                ItemStack s1 = new ItemStack(instance);
-                s1.setTag(Mode.CREATE_PORTAL.toTag());
-                groupEntries.accept(s1);
-                
-                ItemStack s2 = new ItemStack(instance);
-                s2.setTag(Mode.DRAG_PORTAL.toTag());
-                groupEntries.accept(s2);
-                
-                ItemStack s3 = new ItemStack(instance);
-                s3.setTag(Mode.COPY_PORTAL.toTag());
-                groupEntries.accept(s3);
-            }
-        );
-        
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if (player.getMainHandItem().getItem() == instance) {
                 // cannot break block using the wand
@@ -82,6 +65,20 @@ public class PortalWandItem extends Item {
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCreation::reset);
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalDrag::reset);
         IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCopy::reset);
+    }
+    
+    public static void addIntoCreativeTag(CreativeModeTab.Output entries) {
+        ItemStack w1 = new ItemStack(instance);
+        w1.setTag(Mode.CREATE_PORTAL.toTag());
+        entries.accept(w1);
+        
+        ItemStack w2 = new ItemStack(instance);
+        w2.setTag(Mode.DRAG_PORTAL.toTag());
+        entries.accept(w2);
+        
+        ItemStack w3 = new ItemStack(instance);
+        w3.setTag(Mode.COPY_PORTAL.toTag());
+        entries.accept(w3);
     }
     
     public static enum Mode {
