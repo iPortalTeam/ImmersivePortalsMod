@@ -4,10 +4,10 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
-        maven { // for quilt-flower
-            name = 'Cotton'
-            url = 'https://server.bbkr.space/artifactory/libs-release/'
-        }
+//        maven { // for quilt-flower
+//            name = 'Cotton'
+//            url = 'https://server.bbkr.space/artifactory/libs-release/'
+//        }
         gradlePluginPortal()
 //        mavenLocal()
         maven {
@@ -16,14 +16,14 @@ pluginManagement {
         }
     }
 
-    resolutionStrategy {
-        eachPlugin {
-            // use qouteall's fork of fabric loom
-            if (requested.id.toString() == "fabric-loom") {
-                useModule("com.github.qouteall.fabric-loom:fabric-loom:dev~1.3-SNAPSHOT")
-            }
-        }
-    }
+//    resolutionStrategy {
+//        eachPlugin {
+//            // use qouteall's fork of fabric loom
+//            if (requested.id.toString() == "fabric-loom") {
+//                useModule("com.github.qouteall.fabric-loom:fabric-loom:dev~1.3-SNAPSHOT")
+//            }
+//        }
+//    }
 }
 
 include 'imm_ptl_core'

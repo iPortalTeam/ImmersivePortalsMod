@@ -1,12 +1,12 @@
 plugins {
     id 'java-library'
 
-    id 'fabric-loom' version '1.3-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '1.4-SNAPSHOT' apply(false)
     // uses qouteall's fork of fabric loom, see settings.gradle
 
     id 'maven-publish'
 
-    id 'io.github.juuxel.loom-vineflower' version '1.11.0' // https://github.com/Juuxel/loom-vineflower
+//    id 'io.github.juuxel.loom-vineflower' version '1.11.0' // https://github.com/Juuxel/loom-vineflower
 
     id "me.modmuss50.mod-publish-plugin" version "0.3.5"
 }
@@ -128,11 +128,11 @@ allprojects {
         withSourcesJar()
     }
 
-    loom {
-        // from qouteall's fork of fabric loom
-        // https://github.com/qouteall/fabric-loom/blob/dev/1.3/src/main/java/net/fabricmc/loom/configuration/providers/minecraft/mapped/ProcessedNamedMinecraftProvider.java#L136
-        forceShareMinecraftJarBetweenSubModules = true
-    }
+//    loom {
+//        // from qouteall's fork of fabric loom
+//        // https://github.com/qouteall/fabric-loom/blob/dev/1.3/src/main/java/net/fabricmc/loom/configuration/providers/minecraft/mapped/ProcessedNamedMinecraftProvider.java#L136
+//        forceShareMinecraftJarBetweenSubModules = true
+//    }
 
 }
 
