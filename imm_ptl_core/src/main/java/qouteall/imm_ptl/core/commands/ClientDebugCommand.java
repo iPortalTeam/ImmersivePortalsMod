@@ -55,7 +55,7 @@ import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
-import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
+import qouteall.imm_ptl.core.render.ImmPtlViewArea;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -173,14 +173,6 @@ public class ClientDebugCommand {
             .executes(context1 -> {
                 RemoteCallables.reportResourceConsumption();
                 
-                return 0;
-            })
-        );
-        builder = builder.then(ClientCommandManager
-            .literal("report_render_info_num")
-            .executes(context -> {
-                String str = Helper.myToString(IPCGlobal.renderInfoNumMap.entrySet().stream());
-                context.getSource().getPlayer().displayClientMessage(Component.literal(str), false);
                 return 0;
             })
         );
@@ -329,7 +321,7 @@ public class ClientDebugCommand {
             .executes(context -> {
                 Minecraft.getInstance().execute(() -> {
                     ClientWorldLoader.getClientWorlds().forEach((world) -> {
-                        MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
+                        ImmPtlViewArea builtChunkStorage = (ImmPtlViewArea) ((IEWorldRenderer)
                             ClientWorldLoader.getWorldRenderer(world.dimension()))
                             .ip_getBuiltChunkStorage();
                         CHelper.printChat(
@@ -762,7 +754,7 @@ public class ClientDebugCommand {
                     str.append(String.format(
                         "%s %s\n",
                         dimension.location(),
-                        ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
+                        ((ImmPtlViewArea) ((IEWorldRenderer) worldRenderer)
                             .ip_getBuiltChunkStorage()
                         ).getManagedSectionNum()
                     ));

@@ -49,7 +49,7 @@ import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
-import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
+import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -433,7 +433,7 @@ public class PortalDebugCommands {
                 for (ChunkHolder chunkHolder : chunkHolders) {
                     long chunkPos = chunkHolder.getPos().toLong();
                     SortedArraySet<Ticket<?>> chunkTickets =
-                        ((IEChunkTicketManager) getDistanceManager(world))
+                        ((IEDistanceManager) getDistanceManager(world))
                             .portal_getTicketSet(chunkPos);
                     
                     for (Ticket<?> ticket : chunkTickets) {
@@ -697,7 +697,7 @@ public class PortalDebugCommands {
             
             DistanceManager distanceManager =
                 ((IEServerChunkManager) world.getChunkSource()).ip_getDistanceManager();
-            SortedArraySet<Ticket<?>> tickets = ((IEChunkTicketManager) distanceManager).portal_getTicketSet(longChunkPos);
+            SortedArraySet<Ticket<?>> tickets = ((IEDistanceManager) distanceManager).portal_getTicketSet(longChunkPos);
             for (Ticket<?> ticket : tickets) {
                 McHelper.serverLog(
                     player,

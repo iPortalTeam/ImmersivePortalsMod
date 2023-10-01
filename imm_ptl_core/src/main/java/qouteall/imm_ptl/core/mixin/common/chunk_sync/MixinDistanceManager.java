@@ -19,11 +19,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
-import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
+import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 
 @Mixin(DistanceManager.class)
-public abstract class MixinDistanceManager implements IEChunkTicketManager {
+public abstract class MixinDistanceManager implements IEDistanceManager {
     
     @Shadow
     @Final

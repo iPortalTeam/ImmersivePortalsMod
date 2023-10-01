@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
-import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
+import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
@@ -33,7 +33,7 @@ import java.util.Set;
 
 //NOTE must redirect all packets about entities
 @Mixin(ChunkMap.TrackedEntity.class)
-public abstract class MixinTrackedEntity implements IEEntityTracker {
+public abstract class MixinTrackedEntity implements IETrackedEntity {
     @Shadow
     @Final
     private ServerEntity serverEntity;

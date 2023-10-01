@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
-import qouteall.imm_ptl.core.ducks.IEEntityTracker;
+import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
@@ -68,13 +68,13 @@ public class EntitySync {
             
             PacketRedirection.withForceRedirect(world, () -> {
                 for (ChunkMap.TrackedEntity tracker : entityTrackerMap.values()) {
-                    ((IEEntityTracker) tracker).ip_tickEntry();
+                    ((IETrackedEntity) tracker).ip_tickEntry();
                     
                     boolean dirty = isDirty(tracker);
                     List<ServerPlayer> updatedPlayerList = dirty ? playerList : dirtyPlayers;
                     
                     for (ServerPlayer player : updatedPlayerList) {
-                        ((IEEntityTracker) tracker).ip_updateEntityTrackingStatus(player);
+                        ((IETrackedEntity) tracker).ip_updateEntityTrackingStatus(player);
                     }
                     
                     if (dirty) {
@@ -88,13 +88,13 @@ public class EntitySync {
     }
     
     private static boolean isDirty(ChunkMap.TrackedEntity tracker) {
-        SectionPos newPos = SectionPos.of(((IEEntityTracker) tracker).ip_getEntity());
-        return !((IEEntityTracker) tracker).ip_getLastCameraPosition().equals(newPos);
+        SectionPos newPos = SectionPos.of(((IETrackedEntity) tracker).ip_getEntity());
+        return !((IETrackedEntity) tracker).ip_getLastCameraPosition().equals(newPos);
     }
     
     private static void markUnDirty(ChunkMap.TrackedEntity tracker) {
-        SectionPos currPos = SectionPos.of(((IEEntityTracker) tracker).ip_getEntity());
-        ((IEEntityTracker) tracker).ip_setLastCameraPosition(currPos);
+        SectionPos currPos = SectionPos.of(((IETrackedEntity) tracker).ip_getEntity());
+        ((IETrackedEntity) tracker).ip_setLastCameraPosition(currPos);
     }
     
     private static void forceRemoveDimension(ResourceKey<Level> dimension) {

@@ -47,7 +47,7 @@ import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.FrontClipping;
-import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
+import qouteall.imm_ptl.core.render.ImmPtlViewArea;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.TransformationManager;
@@ -283,7 +283,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
             if (WorldRenderInfo.isRendering()) {
                 level.getProfiler().push("ip_terrain_setup");
                 VisibleSectionDiscovery.discoverVisibleSections(
-                    level, ((MyBuiltChunkStorage) viewArea),
+                    level, ((ImmPtlViewArea) viewArea),
                     camera,
                     new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                     visibleSections
@@ -316,7 +316,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                     
                     level.getProfiler().push("ip_terrain_setup");
                     VisibleSectionDiscovery.discoverVisibleSections(
-                        level, ((MyBuiltChunkStorage) viewArea),
+                        level, ((ImmPtlViewArea) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                         visibleSections
@@ -327,7 +327,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                     // debug
                     level.getProfiler().push("ip_terrain_setup_debug");
                     VisibleSectionDiscovery.discoverVisibleSections(
-                        level, ((MyBuiltChunkStorage) viewArea),
+                        level, ((ImmPtlViewArea) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                         visibleSections
@@ -366,7 +366,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         LevelRenderer worldRenderer_1
     ) {
         if (IPCGlobal.useHackedChunkRenderDispatcher) {
-            return new MyBuiltChunkStorage(
+            return new ImmPtlViewArea(
                 chunkBuilder_1, world_1, int_1, worldRenderer_1
             );
         }
@@ -605,16 +605,16 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     private void onIsChunkCompiled(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
         if (PortalRendering.isRendering()) {
             if (!SodiumInterface.invoker.isSodiumPresent()) {
-                if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
-                    cir.setReturnValue(ip_isChunkCompiled(myBuiltChunkStorage, blockPos));
+                if (viewArea instanceof ImmPtlViewArea immPtlViewArea) {
+                    cir.setReturnValue(ip_isChunkCompiled(immPtlViewArea, blockPos));
                 }
             }
         }
     }
     
-    private boolean ip_isChunkCompiled(MyBuiltChunkStorage myBuiltChunkStorage, BlockPos blockPos) {
+    private boolean ip_isChunkCompiled(ImmPtlViewArea immPtlViewArea, BlockPos blockPos) {
         SectionPos sectionPos = SectionPos.of(blockPos);
-        var renderChunk = myBuiltChunkStorage.rawGet(
+        var renderChunk = immPtlViewArea.rawGet(
             sectionPos.x(), sectionPos.y(), sectionPos.z()
         );
         

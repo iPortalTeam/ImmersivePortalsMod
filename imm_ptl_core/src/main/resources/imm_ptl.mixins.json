@@ -99,7 +99,7 @@
     "client.render.MixinLevelRenderer_BeforeIris",
     "client.render.MixinLevelRenderer_Optional",
     "client.render.MixinMultiBufferSourceBufferSource",
-    "client.render.MixinRenderChunk",
+    "client.render.MixinRenderSection",
     "client.render.MixinRenderSystem_Clipping",
     "client.render.MixinRenderSystem_Fog",
     "client.render.MixinScreenEffectRenderer",

@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
-import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.ducks.IERenderSection;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -33,7 +33,7 @@ import java.util.Stack;
 @Environment(EnvType.CLIENT)
 public class VisibleSectionDiscovery {
     
-    private static MyBuiltChunkStorage builtChunks;
+    private static ImmPtlViewArea builtChunks;
     private static Frustum vanillaFrustum;
     private static ObjectArrayList<RenderSection> resultHolder;
     private static final ArrayDeque<RenderSection> tempQueue = new ArrayDeque<>();
@@ -43,7 +43,7 @@ public class VisibleSectionDiscovery {
     
     public static void discoverVisibleSections(
         ClientLevel world,
-        MyBuiltChunkStorage builtChunks_,
+        ImmPtlViewArea builtChunks_,
         Camera camera,
         Frustum vanillaFrustum_,
         ObjectArrayList<RenderSection> resultHolder_
@@ -138,9 +138,9 @@ public class VisibleSectionDiscovery {
         RenderSection builtChunk =
             builtChunks.rawFetch(cx, cy, cz, timeMark);
         if (builtChunk != null) {
-            IEBuiltChunk ieBuiltChunk = (IEBuiltChunk) builtChunk;
-            if (ieBuiltChunk.portal_getMark() != timeMark) {
-                ieBuiltChunk.portal_setMark(timeMark);// mark it checked
+            IERenderSection ieRenderSection = (IERenderSection) builtChunk;
+            if (ieRenderSection.portal_getMark() != timeMark) {
+                ieRenderSection.portal_setMark(timeMark);// mark it checked
                 if (skipFrustumTest || isVisible(builtChunk)) {
                     tempQueue.add(builtChunk);
                     resultHolder.add(builtChunk);

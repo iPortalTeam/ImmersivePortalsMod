@@ -5,10 +5,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.ducks.IERenderSection;
 
 @Mixin(SectionRenderDispatcher.RenderSection.class)
-public abstract class MixinRenderChunk implements IEBuiltChunk {
+public abstract class MixinRenderSection implements IERenderSection {
     
     private long portal_mark;
     

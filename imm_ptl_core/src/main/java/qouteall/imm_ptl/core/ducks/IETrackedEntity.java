@@ -4,7 +4,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-public interface IEEntityTracker {
+public interface IETrackedEntity {
     Entity ip_getEntity();
     
     void ip_updateEntityTrackingStatus(ServerPlayer player);

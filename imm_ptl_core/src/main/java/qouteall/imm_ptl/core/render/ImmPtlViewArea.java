@@ -21,7 +21,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
-import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.ducks.IERenderSection;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.q_misc_util.Helper;
@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.function.LongConsumer;
 
 @Environment(EnvType.CLIENT)
-public class MyBuiltChunkStorage extends ViewArea {
+public class ImmPtlViewArea extends ViewArea {
     
     public static class Column {
         public long mark = 0;
@@ -74,8 +74,8 @@ public class MyBuiltChunkStorage extends ViewArea {
             
             if (worldRenderer != null) {
                 ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
-                if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
-                    myBuiltChunkStorage.onChunkUnload(section.getPos().x, section.getPos().z);
+                if (viewArea instanceof ImmPtlViewArea immPtlViewArea) {
+                    immPtlViewArea.onChunkUnload(section.getPos().x, section.getPos().z);
                 }
             }
         });
@@ -86,15 +86,15 @@ public class MyBuiltChunkStorage extends ViewArea {
                     LevelRenderer worldRenderer =
                         ClientWorldLoader.getWorldRenderer(world.dimension());
                     ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
-                    if (viewArea instanceof MyBuiltChunkStorage myBuiltChunkStorage) {
-                        myBuiltChunkStorage.tick();
+                    if (viewArea instanceof ImmPtlViewArea immPtlViewArea) {
+                        immPtlViewArea.tick();
                     }
                 }
             }
         });
     }
     
-    public MyBuiltChunkStorage(
+    public ImmPtlViewArea(
         SectionRenderDispatcher sectionBuilder,
         Level world,
         int r,
@@ -407,7 +407,7 @@ public class MyBuiltChunkStorage extends ViewArea {
         Column column = columnMap.get(sectionPos);
         if (column != null) {
             for (RenderSection builtChunk : column.sections) {
-                ((IEBuiltChunk) builtChunk).portal_fullyReset();
+                ((IERenderSection) builtChunk).portal_fullyReset();
             }
         }
     }
@@ -446,7 +446,7 @@ public class MyBuiltChunkStorage extends ViewArea {
                 return null;
             }
             
-            ((IEBuiltChunk) result).portal_setIndex(sectionIndex);
+            ((IERenderSection) result).portal_setIndex(sectionIndex);
             return result;
         }
         else {

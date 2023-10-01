@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
-import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
+import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
-import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
@@ -182,7 +181,7 @@ public class ImmPtlChunkTickets {
         }
         
         DistanceManager distanceManager = getDistanceManager(world);
-        Executor mainThreadExecutor = ((IEDistanceManager) distanceManager).ip_getMainThreadExecutor();
+        Executor mainThreadExecutor = ((qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager) distanceManager).ip_getMainThreadExecutor();
         
         // clear the already loaded chunks
         waitingForLoading.removeIf((long chunkPos) -> {
@@ -287,7 +286,7 @@ public class ImmPtlChunkTickets {
         DistanceManager ticketManager = getDistanceManager(world);
         
         dimTicketManager.chunkPosToTicketInfo.keySet().forEach((long pos) -> {
-            SortedArraySet<Ticket<?>> tickets = ((IEChunkTicketManager) getDistanceManager(world))
+            SortedArraySet<Ticket<?>> tickets = ((IEDistanceManager) getDistanceManager(world))
                 .portal_getTicketSet(pos);
             
             // avoid removing ticket when iterating the ticket set

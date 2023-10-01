@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
-import qouteall.imm_ptl.core.ducks.IEEntityTracker;
+import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
@@ -55,7 +55,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         if (IPGlobal.serverTeleportationManager.isTeleporting(entity)) {
             if (entity instanceof ServerPlayer player) {
                 Object tracker = entityMap.remove(entity.getId());
-                ((IEEntityTracker) tracker).ip_stopTrackingToAllPlayers();
+                ((IETrackedEntity) tracker).ip_stopTrackingToAllPlayers();
                 updatePlayerStatus(player, false);
             }
             else {
@@ -82,7 +82,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     @Override
     public void ip_onDimensionRemove() {
         entityMap.values().forEach(obj -> {
-            ((IEEntityTracker) obj).ip_onDimensionRemove();
+            ((IETrackedEntity) obj).ip_onDimensionRemove();
         });
     }
     
@@ -97,9 +97,9 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         List<Entity> passengerList = Lists.newArrayList();
         
         for (Object entityTracker : this.entityMap.values()) {
-            Entity entity = ((IEEntityTracker) entityTracker).ip_getEntity();
+            Entity entity = ((IETrackedEntity) entityTracker).ip_getEntity();
             if (entity != player && entity.chunkPosition().equals(chunk.getPos())) {
-                ((IEEntityTracker) entityTracker).ip_updateEntityTrackingStatus(player);
+                ((IETrackedEntity) entityTracker).ip_updateEntityTrackingStatus(player);
                 if (entity instanceof Mob && ((Mob) entity).getLeashHolder() != null) {
                     attachedEntityList.add(entity);
                 }
@@ -130,7 +130,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     public void ip_resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityMap.get(entity.getId());
         Validate.notNull(tracker, "entity not yet tracked");
-        ((IEEntityTracker) tracker).ip_resendSpawnPacketToTrackers();
+        ((IETrackedEntity) tracker).ip_resendSpawnPacketToTrackers();
     }
     
     @Override

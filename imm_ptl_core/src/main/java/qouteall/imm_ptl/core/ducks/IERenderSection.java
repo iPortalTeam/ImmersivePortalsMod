@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.ducks;
 
-public interface IEBuiltChunk {
+public interface IERenderSection {
     void portal_fullyReset();
     
     long portal_getMark();
