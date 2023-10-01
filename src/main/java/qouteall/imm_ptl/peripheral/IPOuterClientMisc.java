@@ -110,32 +110,7 @@ public class IPOuterClientMisc {
                 }
             }
             
-//            if (!outerConfig.lagInformed) {
-//                if (player != null) {
-//                    outerConfig.lagInformed = true;
-//                    writeToFile(outerConfig);
-//
-//                    IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
-//                        CHelper.printChat(
-//                            Component.translatable("imm_ptl.about_lag")
-//                        );
-//                        return true;
-//                    }));
-//                }
-//            }
         });
-    }
-    
-    public static void onClientPlacePortalHelper() {
-        if (!outerConfig.portalHelperInformed) {
-            outerConfig.portalHelperInformed = true;
-            writeToFile(outerConfig);
-            
-            informWithURL(
-                "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
-                Component.translatable("imm_ptl.inform_portal_helper")
-            );
-        }
     }
     
     private static void informWithURL(String link, MutableComponent text) {

@@ -35,7 +35,6 @@
   "gamerule.ipDimensionStack.description": "You don't need to change this here",
   "imm_ptl.dim_stack_initialized": "[Immersive Portals] Dimension Stack World Initialized",
   "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals ",
-  "imm_ptl.inform_portal_helper": "[Immersive Portals] Check the wiki about how to use portal helper ",
   "imm_ptl.portal_helper_tooltip": "Build two frames, use flint and steel to light it",
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
@@ -217,6 +216,7 @@
   "imm_ptl.incompatible_shaderpack": "[Immersive Portals] The current shaderpack is incompatible with Immersive Portals. Portal rendering may be very broken. If you want better portal rendering, it's recommended to try another shaderpack.",
 
   "imm_ptl.item_group": "Immersive Portals",
+  "imm_ptl.portal_helper_deprecated": "Portal Helper is now deprecated. It's recommended to use portal wand. Portal wand is easier to use and more powerful. It's recommended to use command %s to edit portal shape.",
 
   "imm_ptl.wand.first_side_left_bottom": "Use %s to select the left bottom point of the portal",
   "imm_ptl.wand.first_side_right_bottom": "Select the right bottom point\n(width: %1$s)",
