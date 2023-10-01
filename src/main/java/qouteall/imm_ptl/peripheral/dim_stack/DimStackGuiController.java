@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.q_misc_util.Helper;
@@ -46,13 +45,19 @@ public class DimStackGuiController {
     public void setEnabled(boolean enabled) {
         model.isEnabled = enabled;
         view.setEnabled(enabled);
+        updateViewState();
     }
     
     private void updateViewState() {
+        hasConflict = false;
+        
+        if (!model.isEnabled) {
+            return;
+        }
+        
         Map<DimStackInfo.PortalInfo, List<DimStackEntry>> portalInfoMap =
             model.dimStackInfo.getPortalInfoMap();
         
-        hasConflict = false;
         for (int i = 0; i < view.dimListWidget.children().size(); i++) {
             DimEntryWidget widget = view.dimListWidget.children().get(i);
             widget.entryIndex = i;
@@ -176,10 +181,8 @@ public class DimStackGuiController {
             
             List<DimStackEntry> entriesToAdd = new ArrayList<>();
             
-            if (IPGlobal.enableAlternateDimensions) {
-                entriesToAdd.add(new DimStackEntry(AlternateDimensions.alternate5));
-                entriesToAdd.add(new DimStackEntry(AlternateDimensions.alternate1));
-            }
+            entriesToAdd.add(new DimStackEntry(AlternateDimensions.BRIGHT_VOID));
+            entriesToAdd.add(new DimStackEntry(AlternateDimensions.BRIGHT_SKYLAND));
             
             entriesToAdd.add(new DimStackEntry(Level.OVERWORLD));
             entriesToAdd.add(new DimStackEntry(Level.NETHER));

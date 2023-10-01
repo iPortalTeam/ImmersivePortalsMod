@@ -23,9 +23,11 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
+import qouteall.imm_ptl.peripheral.dim_stack.DimensionStackAPI;
 import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.util.List;
@@ -43,107 +45,131 @@ public class AlternateDimensions {
         new ResourceLocation("immersive_portals:surface_type_bright")
     );
     
+    public static final ResourceKey<Level> SKYLAND = ResourceKey.create(
+        Registries.DIMENSION,
+        new ResourceLocation("immersive_portals:skyland")
+    );
+    
+    public static final ResourceKey<Level> BRIGHT_SKYLAND = ResourceKey.create(
+        Registries.DIMENSION,
+        new ResourceLocation("immersive_portals:bright_skyland")
+    );
+    
+    public static final ResourceKey<Level> CHAOS = ResourceKey.create(
+        Registries.DIMENSION,
+        new ResourceLocation("immersive_portals:chaos")
+    );
+    
+    public static final ResourceKey<Level> VOID = ResourceKey.create(
+        Registries.DIMENSION,
+        new ResourceLocation("immersive_portals:void")
+    );
+    
+    public static final ResourceKey<Level> BRIGHT_VOID = ResourceKey.create(
+        Registries.DIMENSION,
+        new ResourceLocation("immersive_portals:bright_void")
+    );
+    
     public static void init() {
-        DimensionAPI.SEVER_DIMENSIONS_LOAD_EVENT.register(AlternateDimensions::initializeAlternateDimensions);
+        DimensionStackAPI.DIMENSION_STACK_CANDIDATE_COLLECTION_EVENT.register(
+            (registryAccess, options) -> {
+                return List.of(BRIGHT_SKYLAND, SKYLAND, CHAOS, VOID);
+            }
+        );
+        
+        DimensionAPI.SEVER_DIMENSIONS_LOAD_EVENT.register(
+            AlternateDimensions::addAltDimsIfUsedInDimStack
+        );
         
         ServerTickEvents.END_SERVER_TICK.register(AlternateDimensions::tick);
     }
     
-    private static void initializeAlternateDimensions(
+    private static void addAltDimsIfUsedInDimStack(
         MinecraftServer server,
         WorldOptions worldOptions,
         MappedRegistry<LevelStem> levelStemRegistry,
         RegistryAccess registryManager
     ) {
         long seed = worldOptions.seed();
-        if (!IPGlobal.enableAlternateDimensions) {
-            return;
+        
+        // the dimesnion load event is fired before applying dimension stack
+        DimStackInfo dimStackToApply = DimStackManagement.dimStackToApply;
+        
+        if (dimStackToApply != null) {
+            Holder<DimensionType> surfaceTypeHolder = registryManager
+                .registryOrThrow(Registries.DIMENSION_TYPE)
+                .getHolder(SURFACE_TYPE)
+                .orElseThrow(
+                    () -> new RuntimeException("Missing immersive_portals:surface_type")
+                );
+            
+            Holder<DimensionType> surfaceTypeBrightHolder = registryManager
+                .registryOrThrow(Registries.DIMENSION_TYPE)
+                .getHolder(SURFACE_TYPE_BRIGHT)
+                .orElseThrow(
+                    () -> new RuntimeException("Missing immersive_portals:surface_type_bright")
+                );
+            
+            if (dimStackToApply.hasDimension(BRIGHT_SKYLAND)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    BRIGHT_SKYLAND.location(),
+                    surfaceTypeBrightHolder,
+                    createSkylandGenerator(registryManager, seed)
+                );
+            }
+            
+            if (dimStackToApply.hasDimension(SKYLAND)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    SKYLAND.location(),
+                    surfaceTypeHolder,
+                    createSkylandGenerator(registryManager, seed)
+                );
+            }
+            
+            if (dimStackToApply.hasDimension(BRIGHT_SKYLAND)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    BRIGHT_SKYLAND.location(),
+                    surfaceTypeBrightHolder,
+                    createVoidGenerator(registryManager)
+                );
+            }
+            
+            if (dimStackToApply.hasDimension(CHAOS)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    CHAOS.location(),
+                    surfaceTypeHolder,
+                    createErrorTerrainGenerator(seed, registryManager)
+                );
+            }
+            
+            if (dimStackToApply.hasDimension(VOID)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    VOID.location(),
+                    surfaceTypeHolder,
+                    createVoidGenerator(registryManager)
+                );
+            }
+            
+            if (dimStackToApply.hasDimension(BRIGHT_VOID)) {
+                DimensionAPI.addDimensionToRegistry(
+                    levelStemRegistry,
+                    BRIGHT_VOID.location(),
+                    surfaceTypeBrightHolder,
+                    createVoidGenerator(registryManager)
+                );
+            }
         }
-        
-        Holder<DimensionType> surfaceTypeHolder = registryManager
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(SURFACE_TYPE)
-            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
-        
-        Holder<DimensionType> surfaceTypeBrightHolder = registryManager
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(SURFACE_TYPE_BRIGHT)
-            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type_bright"));
-        
-        DimensionAPI.addDimensionToRegistry(
-            levelStemRegistry,
-            alternate1.location(),
-            surfaceTypeBrightHolder,
-            createSkylandGenerator(registryManager, seed)
-        );
-        
-        DimensionAPI.addDimensionToRegistry(
-            levelStemRegistry,
-            alternate2.location(),
-            surfaceTypeHolder,
-            createSkylandGenerator(registryManager, seed + 1) // different seed
-        );
-        
-        DimensionAPI.addDimensionToRegistry(
-            levelStemRegistry,
-            alternate3.location(),
-            surfaceTypeHolder,
-            createErrorTerrainGenerator(seed + 1, registryManager)
-        );
-        
-        DimensionAPI.addDimensionToRegistry(
-            levelStemRegistry,
-            alternate4.location(),
-            surfaceTypeHolder,
-            createErrorTerrainGenerator(seed, registryManager)
-        );
-        
-        DimensionAPI.addDimensionToRegistry(
-            levelStemRegistry,
-            alternate5.location(),
-            surfaceTypeHolder,
-            createVoidGenerator(registryManager)
-        );
     }
-    
-    public static final ResourceKey<Level> alternate1 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate1")
-    );
-    public static final ResourceKey<Level> alternate2 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate2")
-    );
-    public static final ResourceKey<Level> alternate3 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate3")
-    );
-    public static final ResourceKey<Level> alternate4 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate4")
-    );
-    public static final ResourceKey<Level> alternate5 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate5")
-    );
     
     public static boolean isAlternateDimension(Level world) {
-        final ResourceKey<Level> key = world.dimension();
-        return key == alternate1 ||
-            key == alternate2 ||
-            key == alternate3 ||
-            key == alternate4 ||
-            key == alternate5;
-    }
-    
-    private static void syncWithOverworldTimeWeather(@Nullable ServerLevel world, ServerLevel overworld) {
-        if (world == null) {
-            return;
-        }
-        ((IEWorld) world).portal_setWeather(
-            overworld.getRainLevel(1), overworld.getRainLevel(1),
-            overworld.getThunderLevel(1), overworld.getThunderLevel(1)
-        );
+        ResourceKey<DimensionType> dimensionTypeId = world.dimensionTypeId();
+        return dimensionTypeId == SURFACE_TYPE
+            || dimensionTypeId == SURFACE_TYPE_BRIGHT;
     }
     
     public static ChunkGenerator createSkylandGenerator(RegistryAccess rm, long seed) {
@@ -183,22 +209,22 @@ public class AlternateDimensions {
         return new FlatLevelSource(flatChunkGeneratorConfig);
     }
     
-    
     private static void tick(MinecraftServer server) {
-        // TODO check whether manual weather sync necessary
-        // or sync weather based on dimension type
-//        if (!IPGlobal.enableAlternateDimensions) {
-//            return;
-//        }
-//
-//        ServerLevel overworld = McHelper.getServerWorld(Level.OVERWORLD);
-//
-//        MinecraftServer server = MiscHelper.getServer();
-//
-//        syncWithOverworldTimeWeather(server.getLevel(alternate1), overworld);
-//        syncWithOverworldTimeWeather(server.getLevel(alternate2), overworld);
-//        syncWithOverworldTimeWeather(server.getLevel(alternate3), overworld);
-//        syncWithOverworldTimeWeather(server.getLevel(alternate4), overworld);
-//        syncWithOverworldTimeWeather(server.getLevel(alternate5), overworld);
+        for (ServerLevel world : server.getAllLevels()) {
+            if (isAlternateDimension(world)) {
+                syncWeatherFromOverworld(
+                    world, McHelper.getOverWorldOnServer()
+                );
+            }
+        }
+    }
+    
+    private static void syncWeatherFromOverworld(
+        ServerLevel world, ServerLevel overworld
+    ) {
+        ((IEWorld) world).portal_setWeather(
+            overworld.getRainLevel(1), overworld.getRainLevel(1),
+            overworld.getThunderLevel(1), overworld.getThunderLevel(1)
+        );
     }
 }

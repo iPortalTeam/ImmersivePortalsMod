@@ -8,7 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldOptions;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class DimensionStackAPI {
     public static interface DimensionCollectionCallback {
@@ -22,7 +23,7 @@ public class DimensionStackAPI {
         EventFactory.createArrayBacked(
             DimensionCollectionCallback.class,
             (listeners) -> ((registryAccess, options) -> {
-                HashSet<ResourceKey<Level>> totalResult = new HashSet<>();
+                Set<ResourceKey<Level>> totalResult = new LinkedHashSet<>();
                 for (DimensionCollectionCallback listener : listeners) {
                     totalResult.addAll(
                         listener.getExtraDimensionKeys(registryAccess, options)

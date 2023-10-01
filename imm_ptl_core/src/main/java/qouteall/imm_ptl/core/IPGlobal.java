@@ -72,8 +72,6 @@ public class IPGlobal {
     
     public static boolean cacheGlBuffer = true;
     
-    public static boolean enableAlternateDimensions = true;
-    
     public static boolean reducedPortalRendering = false;
     
     public static boolean useSecondaryEntityVertexConsumer = true;

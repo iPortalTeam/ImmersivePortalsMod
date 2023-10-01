@@ -28,7 +28,7 @@ import qouteall.q_misc_util.dimension.DimId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -88,7 +88,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     private List<ResourceKey<Level>> portal_getDimensionList() {
         Helper.log("Getting the dimension list");
         
-        Set<ResourceKey<Level>> result = new HashSet<>();
+        Set<ResourceKey<Level>> result = new LinkedHashSet<>();
         
         try {
             WorldCreationContext settings = uiState.getSettings();

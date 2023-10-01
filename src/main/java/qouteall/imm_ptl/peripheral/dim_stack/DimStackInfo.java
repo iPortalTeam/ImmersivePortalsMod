@@ -274,4 +274,8 @@ public class DimStackInfo {
             return null;
         }
     }
+    
+    public boolean hasDimension(ResourceKey<Level> dimension) {
+        return entries.stream().anyMatch(e -> e.getDimension() == dimension);
+    }
 }

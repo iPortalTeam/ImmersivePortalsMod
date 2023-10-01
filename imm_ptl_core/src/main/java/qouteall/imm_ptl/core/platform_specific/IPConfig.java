@@ -79,7 +79,6 @@ public class IPConfig implements ConfigData {
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
     public boolean enableWarning = true;
     public boolean lightVanillaNetherPortalWhenCrouching = true;
-    public boolean enableAlternateDimensions = true;
     public boolean enableServerPerformanceAdjustment = true;
     public boolean enableDatapackPortalGen = true;
     @ConfigEntry.BoundedDiscrete(min = 1, max = 32)
@@ -147,7 +146,6 @@ public class IPConfig implements ConfigData {
         IPGlobal.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         IPGlobal.looseMovementCheck = looseMovementCheck;
         IPGlobal.pureMirror = pureMirror;
-        IPGlobal.enableAlternateDimensions = enableAlternateDimensions;
         IPGlobal.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
         IPGlobal.netherPortalMode = netherPortalMode;
         IPGlobal.endPortalMode = endPortalMode;
