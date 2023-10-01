@@ -1,98 +1,112 @@
 package qouteall.q_misc_util.api;
 
-import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.core.Holder;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.storage.WorldData;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.dimension.DimensionImpl;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
+import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class DimensionAPI {
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
     
     public static interface ServerDimensionsLoadCallback {
         /**
-         * TODO update doc
+         * See {@link DimensionAPI#SERVER_DIMENSIONS_LOAD_EVENT}
          */
-        void run(
-            MinecraftServer server,
-            WorldOptions worldOptions,
-            MappedRegistry<LevelStem> levelStemRegistry,
-            RegistryAccess registryAccess
-        );
+        void run(MinecraftServer server);
     }
     
     /**
      * This event is fired when loading custom dimensions when the server is starting.
-     * Note: when showing the dimension list on client dimension stack menu, this event will also be fired.
+     * Inside this event, you can:
+     * - use {@link MinecraftServer#registryAccess()} and {@link RegistryAccess#registryOrThrow(ResourceKey)} to access registries (including dimension type registry)
+     * - use {@link MinecraftServer#getWorldData()} {@link WorldData#worldGenOptions()} to access world information like seed.
+     * - use {@link DimensionAPI#addDimension(MinecraftServer, ResourceLocation, LevelStem)}.
      */
-    public static final Event<ServerDimensionsLoadCallback> SEVER_DIMENSIONS_LOAD_EVENT =
+    public static final Event<ServerDimensionsLoadCallback> SERVER_DIMENSIONS_LOAD_EVENT =
         EventFactory.createArrayBacked(
             ServerDimensionsLoadCallback.class,
-            (listeners) -> ((server, worldOptions, levelStemRegistry, registryAccess) -> {
+            (listeners) -> ((server) -> {
                 for (ServerDimensionsLoadCallback listener : listeners) {
                     try {
-                        listener.run(server, worldOptions, levelStemRegistry, registryAccess);
+                        listener.run(server);
                     }
                     catch (Exception e) {
-                        LOGGER.error("Error registering dimension", e);
+                        LOGGER.error("Error during server dimensions load event", e);
                     }
                 }
             })
         );
     
     /**
-     * A helper method for adding dimension into registry.
-     * Should only be used in {@link DimensionAPI#SEVER_DIMENSIONS_LOAD_EVENT}
+     * Add a new dimension.
+     * Can be used both when server is running or during {@link DimensionAPI#SERVER_DIMENSIONS_LOAD_EVENT}.
+     * Note: Should not register a dimension that already exists.
+     * The added dimension's config will be saved into `level.dat`
      */
-    public static void addDimensionToRegistry(
-        MappedRegistry<LevelStem> levelStemRegistry,
-        ResourceLocation dimensionId,
-        Holder<DimensionType> dimensionTypeHolder,
-        ChunkGenerator chunkGenerator
-    ) {
-        addDimensionToRegistry(
-            levelStemRegistry, dimensionId,
-            new LevelStem(dimensionTypeHolder, chunkGenerator)
-        );
-    }
-    
-    /**
-     * A helper method for adding dimension into registry.
-     * Should only be used in {@link DimensionAPI#SEVER_DIMENSIONS_LOAD_EVENT}
-     */
-    private static void addDimensionToRegistry(
-        MappedRegistry<LevelStem> levelStemRegistry,
+    public static void addDimension(
+        MinecraftServer server,
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
-        if (!levelStemRegistry.containsKey(dimensionId)) {
-            levelStemRegistry.register(
-                ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
-                levelStem,
-                Lifecycle.stable()
-            );
+        if (server.isRunning()) {
+            addDimensionDynamically(server, dimensionId, levelStem);
+        }
+        else {
+            if (((IEMinecraftServer_Misc) server).ip_getCanDirectlyRegisterDimensions()) {
+                DimensionImpl.directlyRegisterLevelStem(server, dimensionId, levelStem);
+            }
+            else {
+                LOGGER.error(
+                    "Cannot add dimension at this time {}", dimensionId, new Throwable()
+                );
+            }
         }
     }
     
     /**
+     * Check if a dimension exists.
+     */
+    public static boolean dimensionExists(
+        MinecraftServer server, ResourceLocation dimensionId
+    ) {
+        // if the server is not yet running, getLevel() doesn't work
+        return DimensionImpl.getDimensionRegistry(server).containsKey(dimensionId);
+    }
+    
+    /**
+     * Similar to {@link DimensionAPI#addDimension(MinecraftServer, ResourceLocation, LevelStem)},
+     * but will not add the dimension if it already exists.
+     */
+    public static void addDimensionIfNotExists(
+        MinecraftServer server,
+        ResourceLocation dimensionId,
+        Supplier<LevelStem> levelStem
+    ) {
+        if (dimensionExists(server, dimensionId)) {
+            return;
+        }
+        
+        addDimension(server, dimensionId, levelStem.get());
+    }
+    
+    /**
      * Add a new dimension when the server is running.
-     * Cannot be used during server initialization.
+     * Cannot only be used when server is running.
      * The new dimension's config will be saved in the `level.dat` file.
      */
     public static void addDimensionDynamically(
@@ -100,6 +114,7 @@ public class DimensionAPI {
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
+        Validate.isTrue(server.isRunning(), "The server is not running");
         DynamicDimensionsImpl.addDimensionDynamically(server, dimensionId, levelStem);
     }
     
@@ -111,6 +126,13 @@ public class DimensionAPI {
      * Does not delete that dimension's world saving files.
      */
     public static void removeDimensionDynamically(ServerLevel world) {
+        if (!world.getServer().isRunning()) {
+            LOGGER.error(
+                "Cannot remove dimension at this time {}", world, new Throwable()
+            );
+            return;
+        }
+        
         DynamicDimensionsImpl.removeDimensionDynamically(world);
     }
     

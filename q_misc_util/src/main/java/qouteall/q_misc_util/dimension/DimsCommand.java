@@ -89,7 +89,7 @@ public class DimsCommand {
         
         ChunkGenerator generator = templateDimension.getChunkSource().getGenerator();
         
-        DimensionAPI.addDimensionDynamically(
+        DimensionAPI.addDimension(
             templateDimension.getServer(),
             newDimId,
             new LevelStem(

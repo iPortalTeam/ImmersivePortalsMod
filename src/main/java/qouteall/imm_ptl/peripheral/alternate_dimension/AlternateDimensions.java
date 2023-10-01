@@ -3,7 +3,6 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -23,10 +22,10 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
-import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.dim_stack.DimensionStackAPI;
 import qouteall.q_misc_util.api.DimensionAPI;
 
@@ -77,7 +76,7 @@ public class AlternateDimensions {
             }
         );
         
-        DimensionAPI.SEVER_DIMENSIONS_LOAD_EVENT.register(
+        DimensionStackAPI.DIMENSION_STACK_PRE_UPDATE_EVENT.register(
             AlternateDimensions::addAltDimsIfUsedInDimStack
         );
         
@@ -85,85 +84,87 @@ public class AlternateDimensions {
     }
     
     private static void addAltDimsIfUsedInDimStack(
-        MinecraftServer server,
-        WorldOptions worldOptions,
-        MappedRegistry<LevelStem> levelStemRegistry,
-        RegistryAccess registryManager
+        MinecraftServer server, @Nullable DimStackInfo dimStackInfo
     ) {
+        if (dimStackInfo == null) {
+            return;
+        }
+        
+        WorldOptions worldOptions = server.getWorldData().worldGenOptions();
+        
+        RegistryAccess.Frozen registryAccess = server.registryAccess();
+        
         long seed = worldOptions.seed();
         
-        // the dimesnion load event is fired before applying dimension stack
-        DimStackInfo dimStackToApply = DimStackManagement.dimStackToApply;
+        Holder<DimensionType> surfaceTypeHolder = registryAccess
+            .registryOrThrow(Registries.DIMENSION_TYPE)
+            .getHolder(SURFACE_TYPE)
+            .orElseThrow(
+                () -> new RuntimeException("Missing immersive_portals:surface_type")
+            );
         
-        if (dimStackToApply != null) {
-            Holder<DimensionType> surfaceTypeHolder = registryManager
-                .registryOrThrow(Registries.DIMENSION_TYPE)
-                .getHolder(SURFACE_TYPE)
-                .orElseThrow(
-                    () -> new RuntimeException("Missing immersive_portals:surface_type")
-                );
-            
-            Holder<DimensionType> surfaceTypeBrightHolder = registryManager
-                .registryOrThrow(Registries.DIMENSION_TYPE)
-                .getHolder(SURFACE_TYPE_BRIGHT)
-                .orElseThrow(
-                    () -> new RuntimeException("Missing immersive_portals:surface_type_bright")
-                );
-            
-            if (dimStackToApply.hasDimension(BRIGHT_SKYLAND)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    BRIGHT_SKYLAND.location(),
+        Holder<DimensionType> surfaceTypeBrightHolder = registryAccess
+            .registryOrThrow(Registries.DIMENSION_TYPE)
+            .getHolder(SURFACE_TYPE_BRIGHT)
+            .orElseThrow(
+                () -> new RuntimeException("Missing immersive_portals:surface_type_bright")
+            );
+        
+        if (dimStackInfo.hasDimension(BRIGHT_SKYLAND)) {
+            DimensionAPI.addDimensionIfNotExists(
+                server,
+                BRIGHT_SKYLAND.location(),
+                () -> new LevelStem(
                     surfaceTypeBrightHolder,
-                    createSkylandGenerator(registryManager, seed)
-                );
-            }
-            
-            if (dimStackToApply.hasDimension(SKYLAND)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    SKYLAND.location(),
-                    surfaceTypeHolder,
-                    createSkylandGenerator(registryManager, seed)
-                );
-            }
-            
-            if (dimStackToApply.hasDimension(BRIGHT_SKYLAND)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    BRIGHT_SKYLAND.location(),
-                    surfaceTypeBrightHolder,
-                    createVoidGenerator(registryManager)
-                );
-            }
-            
-            if (dimStackToApply.hasDimension(CHAOS)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    CHAOS.location(),
-                    surfaceTypeHolder,
-                    createErrorTerrainGenerator(seed, registryManager)
-                );
-            }
-            
-            if (dimStackToApply.hasDimension(VOID)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    VOID.location(),
-                    surfaceTypeHolder,
-                    createVoidGenerator(registryManager)
-                );
-            }
-            
-            if (dimStackToApply.hasDimension(BRIGHT_VOID)) {
-                DimensionAPI.addDimensionToRegistry(
-                    levelStemRegistry,
-                    BRIGHT_VOID.location(),
-                    surfaceTypeBrightHolder,
-                    createVoidGenerator(registryManager)
-                );
-            }
+                    createSkylandGenerator(registryAccess, seed)
+                )
+            );
         }
+        
+        if (dimStackInfo.hasDimension(SKYLAND)) {
+            DimensionAPI.addDimensionIfNotExists(
+                server,
+                BRIGHT_SKYLAND.location(),
+                () -> new LevelStem(
+                    surfaceTypeHolder,
+                    createSkylandGenerator(registryAccess, seed)
+                )
+            );
+        }
+        
+        if (dimStackInfo.hasDimension(CHAOS)) {
+            DimensionAPI.addDimensionIfNotExists(
+                server,
+                CHAOS.location(),
+                () -> new LevelStem(
+                    surfaceTypeHolder,
+                    createErrorTerrainGenerator(seed, registryAccess)
+                )
+            );
+        }
+        
+        if (dimStackInfo.hasDimension(VOID)) {
+            DimensionAPI.addDimensionIfNotExists(
+                server,
+                VOID.location(),
+                () -> new LevelStem(
+                    surfaceTypeHolder,
+                    createVoidGenerator(registryAccess)
+                )
+            );
+        }
+        
+        if (dimStackInfo.hasDimension(BRIGHT_VOID)) {
+            DimensionAPI.addDimensionIfNotExists(
+                server,
+                BRIGHT_VOID.location(),
+                () -> new LevelStem(
+                    surfaceTypeBrightHolder,
+                    createVoidGenerator(registryAccess)
+                )
+            );
+        }
+        
     }
     
     public static boolean isAlternateDimension(Level world) {

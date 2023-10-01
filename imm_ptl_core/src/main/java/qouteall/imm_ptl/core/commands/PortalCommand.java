@@ -70,7 +70,6 @@ import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalMatcher;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.GeometryUtil;
 import qouteall.q_misc_util.my_util.IntBox;
@@ -99,6 +98,13 @@ public class PortalCommand {
         createCommandStickCommandSignal = new SignalBiArged<>();
     
     private static final Logger LOGGER = LogUtils.getLogger();
+    
+    // the inner mod needs to call outer mod, but cannot have cyclic dependency
+    public static Consumer<ServerPlayer> onDimensionStackCommandExecute = p -> {
+        p.sendSystemMessage(Component.literal(
+            "Immersive Portals mod is not present (but imm_ptl_core is present)"
+        ));
+    };
     
     public static void register(
         CommandDispatcher<CommandSourceStack> dispatcher
@@ -1728,16 +1734,7 @@ public class PortalCommand {
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
                 
-                List<String> dimIdList = new ArrayList<>();
-                for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
-                    dimIdList.add(world.dimension().location().toString());
-                }
-                
-                McRemoteProcedureCall.tellClientToInvoke(
-                    player,
-                    "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.clientOpenScreen",
-                    dimIdList
-                );
+                onDimensionStackCommandExecute.accept(player);
                 
                 return 0;
             })

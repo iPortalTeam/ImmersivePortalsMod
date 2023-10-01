@@ -19,5 +19,5 @@ public interface IEMinecraftServer_Misc {
     
     void ip_waitUntilNextTick();
     
-    void ip_setStopped(boolean arg);
+    boolean ip_getCanDirectlyRegisterDimensions();
 }

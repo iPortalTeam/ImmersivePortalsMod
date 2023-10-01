@@ -19,15 +19,19 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.dimension.DimId;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +43,14 @@ public class DimStackManagement {
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
     public static void init() {
-    
+        DimensionAPI.SERVER_DIMENSIONS_LOAD_EVENT.register(server -> {
+            if (dimStackToApply != null) {
+                DimensionStackAPI.DIMENSION_STACK_PRE_UPDATE_EVENT.invoker()
+                    .run(server, dimStackToApply);
+            }
+        });
+        
+        PortalCommand.onDimensionStackCommandExecute = DimStackManagement::onDimensionStackCommandExecute;
     }
     
     // at that time, only overworld has been created, only overworld data can be read
@@ -144,6 +155,35 @@ public class DimStackManagement {
         }
     }
     
+    private static Collection<ResourceKey<Level>> collectDimStackCandidateWhenServerRunning(
+        MinecraftServer server
+    ) {
+        LinkedHashSet<ResourceKey<Level>> result = new LinkedHashSet<>(server.levelKeys());
+        
+        Collection<ResourceKey<Level>> extra =
+            DimensionStackAPI.DIMENSION_STACK_CANDIDATE_COLLECTION_EVENT
+                .invoker().getExtraDimensionKeys(
+                    server.registryAccess(), server.getWorldData().worldGenOptions()
+                );
+        
+        result.addAll(extra);
+        
+        return result;
+    }
+    
+    public static void onDimensionStackCommandExecute(
+        ServerPlayer player
+    ) {
+        List<String> dimIdList = collectDimStackCandidateWhenServerRunning(player.server)
+            .stream().map(k -> k.location().toString()).toList();
+        
+        McRemoteProcedureCall.tellClientToInvoke(
+            player,
+            "qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement.RemoteCallables.clientOpenScreen",
+            dimIdList
+        );
+    }
+    
     public static class RemoteCallables {
         @Environment(EnvType.CLIENT)
         public static void clientOpenScreen(List<String> dimensions) {
@@ -182,20 +222,12 @@ public class DimStackManagement {
             
             MinecraftServer server = player.getServer();
             
-            clearDimStackPortals(server);
-            
-            dimStackInfo.apply(server);
+            updateDimStack(server, dimStackInfo);
             
             player.displayClientMessage(
                 Component.translatable("imm_ptl.dim_stack_established"),
                 false
             );
-            
-            // on dedicated server, the preset should be consistent with the current dimension stack
-            // because it will try to apply dimension stack preset when initializing the server
-            if (O_O.isDedicatedServer()) {
-                setDimStackPreset(dimStackInfo);
-            }
         }
         
         public static void serverRemoveDimStack(
@@ -220,6 +252,21 @@ public class DimStackManagement {
             if (O_O.isDedicatedServer()) {
                 setDimStackPreset(null);
             }
+        }
+    }
+    
+    private static void updateDimStack(MinecraftServer server, DimStackInfo dimStackInfo) {
+        DimensionStackAPI.DIMENSION_STACK_PRE_UPDATE_EVENT.invoker()
+            .run(server, dimStackInfo);
+        
+        clearDimStackPortals(server);
+        
+        dimStackInfo.apply(server);
+        
+        // on dedicated server, the preset should be consistent with the current dimension stack
+        // because it will try to apply dimension stack preset when initializing the server
+        if (O_O.isDedicatedServer()) {
+            setDimStackPreset(dimStackInfo);
         }
     }
     
