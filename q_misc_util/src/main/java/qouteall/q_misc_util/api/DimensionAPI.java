@@ -162,6 +162,7 @@ public class DimensionAPI {
     /**
      * This is called when opening "Add Dimension" GUI in dimension stack
      */
+    @Deprecated
     public static MappedRegistry<LevelStem> collectCustomDimensions(
         RegistryAccess.Frozen worldGenLoadContext,
         WorldOptions options
