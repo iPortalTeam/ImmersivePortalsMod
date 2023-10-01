@@ -86,7 +86,7 @@ public class MiscNetworking {
             Set<ResourceKey<Level>> dimIdSet = DimensionIdRecord.clientRecord.getDimIdSet();
             ((IEClientPacketListener_Misc) packetListener).ip_setLevels(dimIdSet);
             
-            DimensionAPI.clientDimensionUpdateEvent.invoker().run(dimIdSet);
+            DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(dimIdSet);
         }
     }
     

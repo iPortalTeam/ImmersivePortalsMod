@@ -3,7 +3,6 @@ package qouteall.q_misc_util.mixin.dimension;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.WorldData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,8 +10,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
+import qouteall.q_misc_util.dimension.DimensionImpl;
 
 @Mixin(MinecraftServer.class)
 public abstract class MixinMinecraftServer_D {
@@ -27,12 +26,10 @@ public abstract class MixinMinecraftServer_D {
     private void onBeforeCreateWorlds(
         ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci
     ) {
-        WorldOptions worldOptions = worldData.worldGenOptions();
-        
-        RegistryAccess registryManager = registryAccess();
-        
-        DimensionAPI.serverDimensionsLoadEvent.invoker().run(worldOptions, registryManager);
-        
+        DimensionImpl.fireDimensionLoadEvent(
+            (MinecraftServer) (Object) this,
+            worldData.worldGenOptions(), registryAccess()
+        );
     }
     
     @Inject(

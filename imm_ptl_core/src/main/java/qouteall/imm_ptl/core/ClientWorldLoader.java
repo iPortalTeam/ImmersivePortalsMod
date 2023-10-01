@@ -77,7 +77,7 @@ public class ClientWorldLoader {
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
         
-        DimensionAPI.clientDimensionUpdateEvent.register((serverDimensions) -> {
+        DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.register((serverDimensions) -> {
             if (getIsInitialized()) {
                 List<ResourceKey<Level>> dimensionsToRemove =
                     clientWorldMap.keySet().stream()

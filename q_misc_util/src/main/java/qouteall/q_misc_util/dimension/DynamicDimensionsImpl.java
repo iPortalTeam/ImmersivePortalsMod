@@ -69,6 +69,7 @@ public class DynamicDimensionsImpl {
         ResourceKey<Level> dimensionResourceKey = DimId.idToKey(dimensionId);
         
         Validate.isTrue(server.isSameThread());
+        Validate.isTrue(server.isRunning(), "Server is not running");
         
         if (server.getLevel(dimensionResourceKey) != null) {
             throw new RuntimeException("Dimension " + dimensionId + " already exists.");
@@ -133,7 +134,7 @@ public class DynamicDimensionsImpl {
             player.connection.send(dimSyncPacket);
         }
         
-        DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server, server.levelKeys());
+        DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.invoker().run(server, server.levelKeys());
     }
     
     public static void removeDimensionDynamically(ServerLevel world) {
@@ -144,8 +145,10 @@ public class DynamicDimensionsImpl {
         ResourceKey<Level> dimension = world.dimension();
         
         if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
-            throw new RuntimeException();
+            throw new RuntimeException("Cannot remove vanilla dimension");
         }
+        
+        Validate.isTrue(server.isRunning(), "Server is not running");
         
         Helper.log("Started Removing Dimension " + dimension.location());
         
@@ -221,7 +224,7 @@ public class DynamicDimensionsImpl {
                 player.connection.send(dimSyncPacket);
             }
             
-            DimensionAPI.serverDimensionDynamicUpdateEvent.invoker().run(server, server.levelKeys());
+            DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.invoker().run(server, server.levelKeys());
         }));
     }
     

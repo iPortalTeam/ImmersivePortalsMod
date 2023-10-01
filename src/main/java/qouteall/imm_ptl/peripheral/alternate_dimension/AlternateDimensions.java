@@ -3,6 +3,7 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -32,17 +33,28 @@ import java.util.Optional;
 
 public class AlternateDimensions {
     
+    public static final ResourceKey<DimensionType> SURFACE_TYPE = ResourceKey.create(
+        Registries.DIMENSION_TYPE,
+        new ResourceLocation("immersive_portals:surface_type")
+    );
+    
+    public static final ResourceKey<DimensionType> SURFACE_TYPE_BRIGHT = ResourceKey.create(
+        Registries.DIMENSION_TYPE,
+        new ResourceLocation("immersive_portals:surface_type_bright")
+    );
+    
     public static void init() {
-        DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
+        DimensionAPI.SEVER_DIMENSIONS_LOAD_EVENT.register(AlternateDimensions::initializeAlternateDimensions);
         
         ServerTickEvents.END_SERVER_TICK.register(AlternateDimensions::tick);
     }
     
     private static void initializeAlternateDimensions(
-        WorldOptions worldOptions, RegistryAccess registryManager
+        MinecraftServer server,
+        WorldOptions worldOptions,
+        MappedRegistry<LevelStem> levelStemRegistry,
+        RegistryAccess registryManager
     ) {
-        Registry<LevelStem> registry = registryManager.registryOrThrow(Registries.LEVEL_STEM);
-        
         long seed = worldOptions.seed();
         if (!IPGlobal.enableAlternateDimensions) {
             return;
@@ -50,61 +62,50 @@ public class AlternateDimensions {
         
         Holder<DimensionType> surfaceTypeHolder = registryManager
             .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(ResourceKey.create(
-                Registries.DIMENSION_TYPE,
-                new ResourceLocation("immersive_portals:surface_type")
-            ))
+            .getHolder(SURFACE_TYPE)
             .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
         
         Holder<DimensionType> surfaceTypeBrightHolder = registryManager
             .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(ResourceKey.create(
-                Registries.DIMENSION_TYPE,
-                new ResourceLocation("immersive_portals:surface_type_bright")
-            ))
+            .getHolder(SURFACE_TYPE_BRIGHT)
             .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type_bright"));
         
-        DimensionAPI.addDimension(
-            registry,
+        DimensionAPI.addDimensionToRegistry(
+            levelStemRegistry,
             alternate1.location(),
             surfaceTypeBrightHolder,
             createSkylandGenerator(registryManager, seed)
         );
         
-        DimensionAPI.addDimension(
-            registry,
+        DimensionAPI.addDimensionToRegistry(
+            levelStemRegistry,
             alternate2.location(),
             surfaceTypeHolder,
             createSkylandGenerator(registryManager, seed + 1) // different seed
         );
         
-        DimensionAPI.addDimension(
-            registry,
+        DimensionAPI.addDimensionToRegistry(
+            levelStemRegistry,
             alternate3.location(),
             surfaceTypeHolder,
             createErrorTerrainGenerator(seed + 1, registryManager)
         );
         
-        DimensionAPI.addDimension(
-            registry,
+        DimensionAPI.addDimensionToRegistry(
+            levelStemRegistry,
             alternate4.location(),
             surfaceTypeHolder,
             createErrorTerrainGenerator(seed, registryManager)
         );
         
-        DimensionAPI.addDimension(
-            registry,
+        DimensionAPI.addDimensionToRegistry(
+            levelStemRegistry,
             alternate5.location(),
             surfaceTypeHolder,
             createVoidGenerator(registryManager)
         );
     }
     
-    
-    public static final ResourceKey<DimensionType> surfaceType = ResourceKey.create(
-        Registries.DIMENSION_TYPE,
-        new ResourceLocation("immersive_portals:surface_type")
-    );
     public static final ResourceKey<Level> alternate1 = ResourceKey.create(
         Registries.DIMENSION,
         new ResourceLocation("immersive_portals:alternate1")

@@ -46,20 +46,20 @@ public class DimStackManagement {
     // it's going to generate overworld spawn chunks
     // make sure the bedrock replacement map for overworld is initialized in time
     public static void onServerEarlyInit(MinecraftServer server) {
-        Map<ResourceKey<Level>, BlockState> newMap = new HashMap<>();
+        updateDimStackFromPresetInDedicatedServer(server);
+        
+        Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
         
         if (dimStackToApply != null) {
             for (DimStackEntry entry : dimStackToApply.entries) {
-                newMap.put(entry.getDimension(), DimStackInfo.parseBlockString(entry.bedrockReplacementStr));
+                bedrockReplacementMap.put(entry.getDimension(), DimStackInfo.parseBlockString(entry.bedrockReplacementStr));
             }
         }
         
-        bedrockReplacementMap = newMap;
+        DimStackManagement.bedrockReplacementMap = bedrockReplacementMap;
     }
     
     public static void onServerCreatedWorlds(MinecraftServer server) {
-        applyDimStackPresetInDedicatedServer(server);
-        
         if (dimStackToApply != null) {
             dimStackToApply.apply(server);
             dimStackToApply = null;
@@ -69,7 +69,7 @@ public class DimStackManagement {
         }
     }
     
-    private static void applyDimStackPresetInDedicatedServer(MinecraftServer server) {
+    private static void updateDimStackFromPresetInDedicatedServer(MinecraftServer server) {
         if (O_O.isDedicatedServer()) {
             DimStackInfo dimStackPreset = getDimStackPreset();
             
