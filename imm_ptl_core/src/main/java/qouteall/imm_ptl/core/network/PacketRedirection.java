@@ -205,6 +205,12 @@ public class PacketRedirection {
         
         @SuppressWarnings("unchecked")
         public void handle(ClientGamePacketListener listener) {
+            if (DimensionIdRecord.clientRecord == null) {
+                throw new RuntimeException(
+                    "The dimension id sync packet is not received early enough"
+                );
+            }
+            
             ResourceKey<Level> dim = DimensionIdRecord.clientRecord.getDim(dimensionIntId);
             PacketRedirectionClient.handleRedirectedPacket(
                 dim, (Packet) packet, listener

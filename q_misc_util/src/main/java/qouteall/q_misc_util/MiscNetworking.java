@@ -75,7 +75,7 @@ public class MiscNetworking {
             return TYPE;
         }
         
-        public void handle(ClientGamePacketListener packetListener) {
+        public void handleOnNetworkingThread(ClientGamePacketListener packetListener) {
             DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMapTag);
             
             DimensionTypeSync.acceptTypeMapData(typeMapTag);
@@ -86,16 +86,28 @@ public class MiscNetworking {
             Set<ResourceKey<Level>> dimIdSet = DimensionIdRecord.clientRecord.getDimIdSet();
             ((IEClientPacketListener_Misc) packetListener).ip_setLevels(dimIdSet);
             
-            DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(dimIdSet);
+            MiscHelper.executeOnRenderThread(() -> {
+                DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(dimIdSet);
+            });
         }
     }
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
+//        ClientPlayNetworking.registerGlobalReceiver(
+//            DimSyncPacket.TYPE,
+//            (packet, player, responseSender) -> {
+//                packet.handleOnNetworkingThread(player.connection);
+//            }
+//        );
+        
         ClientPlayNetworking.registerGlobalReceiver(
-            DimSyncPacket.TYPE,
-            (packet, player, responseSender) -> {
-                packet.handle(player.connection);
+            DimSyncPacket.TYPE.getId(),
+            (client, handler, buf, responseSender) -> {
+                // must be handled early
+                // should not be handled in client main thread, otherwise it may be late
+                DimSyncPacket dimSyncPacket = DimSyncPacket.TYPE.read(buf);
+                dimSyncPacket.handleOnNetworkingThread(handler);
             }
         );
     }
