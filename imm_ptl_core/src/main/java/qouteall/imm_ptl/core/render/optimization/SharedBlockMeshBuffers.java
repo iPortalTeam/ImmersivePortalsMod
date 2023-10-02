@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *  use the same queue of ChunkBufferBuilderPack.
  * In vanilla, it will cause OutOfMemory exception then it will allocate fewer buffers.
  * Some dimension will have no buffer and the chunk cannot rebuild.
- * TODO fix its issue with dimension removal
  */
 public class SharedBlockMeshBuffers {
     public static final ThreadLocal<SectionBufferBuilderPack> bufferTemp =

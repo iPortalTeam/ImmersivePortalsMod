@@ -14,11 +14,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 
 @Mixin(SectionRenderDispatcher.class)
-public abstract class MixinChunkRenderDispatcher_Optimization {
+public abstract class MixinSectionRenderDispatcher_Optimization {
     @Shadow
     private volatile int freeBufferCount;
     
@@ -190,6 +191,24 @@ public abstract class MixinChunkRenderDispatcher_Optimization {
         SharedBlockMeshBuffers.bufferTemp.set(null);
         
         return (E) object;
+    }
+    
+    @Redirect(
+        method = "dispose",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/Queue;clear()V"
+        )
+    )
+    private void redirectClear(Queue<SectionBufferBuilderPack> queue) {
+        if (SharedBlockMeshBuffers.isEnabled()) {
+            // the freeBuffers queue was a shared object, don't clear it
+            // otherwise it will break after dynamically removing a dimension
+            freeBuffers = new ConcurrentLinkedQueue<>();
+        }
+        else {
+            freeBuffers.clear();
+        }
     }
     
 }
