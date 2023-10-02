@@ -96,6 +96,13 @@ public class ClientPortalWandPortalDrag {
         RenderedPlane.NONE
     );
     
+    public static Animated<RenderedPlane> renderedPrePlane = new Animated<>(
+        Animated.RENDERED_PLANE_TYPE_INFO,
+        () -> RenderStates.renderStartNanoTime,
+        TimingFunction.sine::mapProgress,
+        RenderedPlane.NONE
+    );
+    
     private static Animated<RenderedPoint> renderedLockedAnchor = new Animated<>(
         Animated.RENDERED_POINT_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
@@ -173,6 +180,7 @@ public class ClientPortalWandPortalDrag {
         clearLock();
         selectionStatus = null;
         cursor.clearTarget();
+        renderedPrePlane.clearTarget();
         renderedPlane.clearTarget();
         renderedRect.clearTarget();
         draggingContext = null;
@@ -319,6 +327,7 @@ public class ClientPortalWandPortalDrag {
             selectionStatus = null;
             cursor.clearTarget();
             renderedPlane.clearTarget();
+            renderedPrePlane.clearTarget();
             ImmPtlCustomOverlay.putText(
                 Component.translatable("imm_ptl.wand.select_portal")
             );
@@ -425,6 +434,7 @@ public class ClientPortalWandPortalDrag {
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
                 )
             );
+            renderedPrePlane.clearTarget();
         }
         else if (selectsVerticalEdge) {
             ImmPtlCustomOverlay.putText(
@@ -433,6 +443,7 @@ public class ClientPortalWandPortalDrag {
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
                 )
             );
+            renderedPrePlane.clearTarget();
         }
         else {
             Component planeText = Component.translatable(
@@ -446,6 +457,14 @@ public class ClientPortalWandPortalDrag {
                     minecraft.options.keyUse.getTranslatedKeyMessage(),
                     planeText
                 )
+            );
+            
+            renderedPrePlane.setTarget(
+                new RenderedPlane(
+                    new WithDim<>(player.level().dimension(), planeInfo.getFirst()),
+                    0.2
+                ),
+                Helper.secondToNano(0.5)
             );
         }
     }
@@ -654,7 +673,7 @@ public class ClientPortalWandPortalDrag {
         Pair<Plane, MutableComponent> info = getPlayerFacingPlaneAligned(player, cursorPos, portal);
         Plane plane = info.getFirst();
         
-        renderedPlane.setTarget(new RenderedPlane(
+        renderedPrePlane.setTarget(new RenderedPlane(
             new WithDim<>(currDim, plane),
             1
         ), Helper.secondToNano(0.5));
@@ -798,6 +817,7 @@ public class ClientPortalWandPortalDrag {
         ).orElseThrow();
     }
     
+    // ARGB
     private static final int colorOfCursor = 0xff03fcfc;
     private static final int colorOfRect1 = 0xffec03fc;
     private static final int colorOfRect2 = 0xfffca903;
@@ -932,24 +952,45 @@ public class ClientPortalWandPortalDrag {
             renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
         }
         
-        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
-        
-        RenderedPlane plane = renderedPlane.getCurrent();
-        if (plane != null && plane.plane() != null && plane.plane().dimension() == currDim) {
-            Plane planeValue = plane.plane().value();
-            
+        RenderedPlane prePlane = renderedPrePlane.getCurrent();
+        if (prePlane != null && prePlane.plane() != null && prePlane.plane().dimension() == currDim) {
+            Plane planeValue = prePlane.plane().value();
+
             // make the plane to follow the cursor
             // even the animation of the two are in different curve and duration
             if (renderedCursor != null) {
                 planeValue = planeValue.getParallelPlane(renderedCursor);
             }
-            
+
+            int alpha = (int) (prePlane.scale() * 255);
+
             WireRenderingHelper.renderPlane(
-                debugLineStripConsumer, cameraPos, planeValue,
-                plane.scale(), colorOfPlane,
-                matrixStack
+                vertexConsumer, cameraPos, planeValue,
+                1.0, 0x00ffffff | (alpha << 24),
+                matrixStack,
+                false
             );
         }
+        
+        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
+        
+//        RenderedPlane plane = renderedPlane.getCurrent();
+//        if (plane != null && plane.plane() != null && plane.plane().dimension() == currDim) {
+//            Plane planeValue = plane.plane().value();
+//
+//            // make the plane to follow the cursor
+//            // even the animation of the two are in different curve and duration
+//            if (renderedCursor != null) {
+//                planeValue = planeValue.getParallelPlane(renderedCursor);
+//            }
+//
+//            WireRenderingHelper.renderPlane(
+//                debugLineStripConsumer, cameraPos, planeValue,
+//                plane.scale(), colorOfPlane,
+//                matrixStack,
+//                true
+//            );
+//        }
     }
     
     @Nullable

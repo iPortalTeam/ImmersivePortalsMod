@@ -116,7 +116,7 @@ public record Plane(Vec3 pos, Vec3 normal) {
     
     public static Plane interpolate(Plane a, Plane b, double progress) {
         Vec3 pos = a.pos.lerp(b.pos, progress);
-        Vec3 normal = a.normal.lerp(b.normal, progress);
+        Vec3 normal = a.normal.lerp(b.normal, progress).normalize();
         return new Plane(pos, normal);
     }
     

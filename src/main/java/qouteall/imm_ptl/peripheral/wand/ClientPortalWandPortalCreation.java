@@ -342,7 +342,8 @@ public class ClientPortalWandPortalCreation {
                     cameraPos, currRenderedPlane.plane().value(),
                     scale,
                     colorOfPlane,
-                    matrixStack
+                    matrixStack,
+                    true
                 );
             }
         }

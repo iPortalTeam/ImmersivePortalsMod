@@ -108,11 +108,11 @@ public class WireRenderingHelper {
         return new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5);
     }
     
-    // NOTE it uses line strip
     public static void renderPlane(
         VertexConsumer vertexConsumer, Vec3 cameraPos,
         Plane plane, double renderedPlaneScale,
-        int color, PoseStack matrixStack
+        int color, PoseStack matrixStack,
+        boolean isLineStrip
     ) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -157,7 +157,15 @@ public class WireRenderingHelper {
             Vec3 lineEnd = planeX.scale(ix * lineInterval)
                 .add(planeY.scale(lineLenPerSide));
             
-            putLineToLineStrip(vertexConsumer, color, planeY, matrix, lineStart, lineEnd);
+            if (isLineStrip) {
+                putLineToLineStrip(vertexConsumer, color, planeY, matrix, lineStart, lineEnd);
+            }
+            else {
+                putLine(
+                    vertexConsumer, color, planeY, matrix, matrixStack.last().normal(),
+                    lineStart, lineEnd
+                );
+            }
         }
         
         for (int iy = -lineNumPerSide; iy <= lineNumPerSide; iy++) {
@@ -166,7 +174,15 @@ public class WireRenderingHelper {
             Vec3 lineEnd = planeY.scale(iy * lineInterval)
                 .add(planeX.scale(lineLenPerSide));
             
-            putLineToLineStrip(vertexConsumer, color, planeX, matrix, lineStart, lineEnd);
+            if (isLineStrip) {
+                putLineToLineStrip(vertexConsumer, color, planeX, matrix, lineStart, lineEnd);
+            }
+            else {
+                putLine(
+                    vertexConsumer, color, planeX, matrix, matrixStack.last().normal(),
+                    lineStart, lineEnd
+                );
+            }
         }
         
         matrixStack.popPose();
