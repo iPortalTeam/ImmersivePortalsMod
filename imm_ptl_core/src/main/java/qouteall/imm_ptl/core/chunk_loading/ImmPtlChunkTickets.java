@@ -179,6 +179,12 @@ public class ImmPtlChunkTickets {
             return;
         }
         
+        if (!world.getServer().isRunning()) {
+            // important: don't add chunk ticket when server is saving
+            // https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1455
+            return;
+        }
+        
         DistanceManager distanceManager = getDistanceManager(world);
         Executor mainThreadExecutor = ((IEDistanceManager) distanceManager).ip_getMainThreadExecutor();
         
