@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.network.chat.Component;
@@ -29,8 +28,8 @@ public class TimingFunctionArgumentType implements ArgumentType<TimingFunction> 
             Component.literal("Invalid Timing Function "+object)
         );
     
-    public static TimingFunction get(CommandContext<CommandSourceStack> context, String timingFunction) {
-        return context.getArgument(timingFunction, TimingFunction.class);
+    public static TimingFunction get(CommandContext<?> context, String argName) {
+        return context.getArgument(argName, TimingFunction.class);
     }
     
     @Override

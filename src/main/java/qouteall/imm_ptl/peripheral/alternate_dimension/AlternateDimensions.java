@@ -18,16 +18,15 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackInfo;
 import qouteall.imm_ptl.peripheral.dim_stack.DimensionStackAPI;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.dimension.DimensionTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +68,46 @@ public class AlternateDimensions {
         new ResourceLocation("immersive_portals:bright_void")
     );
     
+    public static final DimensionTemplate SKYLAND_TEMPLATE = new DimensionTemplate(
+        SURFACE_TYPE,
+        (server, dimensionTypeHolder) -> new LevelStem(
+            dimensionTypeHolder,
+            createSkylandGenerator(
+                server.registryAccess(), server.getWorldData().worldGenOptions().seed()
+            )
+        )
+    );
+    
+    public static final DimensionTemplate BRIGHT_SKYLAND_TEMPLATE = new DimensionTemplate(
+        SURFACE_TYPE_BRIGHT,
+        (server, dimensionTypeHolder) -> new LevelStem(
+            dimensionTypeHolder,
+            createSkylandGenerator(
+                server.registryAccess(), server.getWorldData().worldGenOptions().seed()
+            )
+        )
+    );
+    
+    public static final DimensionTemplate CHAOS_TEMPLATE = new DimensionTemplate(
+        SURFACE_TYPE,
+        (server, dimensionTypeHolder) -> new LevelStem(
+            dimensionTypeHolder,
+            createErrorTerrainGenerator(
+                server.getWorldData().worldGenOptions().seed(),
+                server.registryAccess()
+            )
+        )
+    );
+    
+    public static final DimensionTemplate BRIGHT_VOID_TEMPLATE = new DimensionTemplate(
+        SURFACE_TYPE_BRIGHT,
+        (server, dimensionTypeHolder) -> new LevelStem(
+            dimensionTypeHolder,
+            createVoidGenerator(server.registryAccess())
+        )
+    );
+    
+    
     public static void init() {
         DimensionStackAPI.DIMENSION_STACK_CANDIDATE_COLLECTION_EVENT.register(
             (registryAccess, options) -> {
@@ -81,6 +120,19 @@ public class AlternateDimensions {
         );
         
         ServerTickEvents.END_SERVER_TICK.register(AlternateDimensions::tick);
+        
+        DimensionTemplate.registerDimensionTemplate(
+            "skyland", SKYLAND_TEMPLATE
+        );
+        DimensionTemplate.registerDimensionTemplate(
+            "bright_skyland", BRIGHT_SKYLAND_TEMPLATE
+        );
+        DimensionTemplate.registerDimensionTemplate(
+            "chaos", CHAOS_TEMPLATE
+        );
+        DimensionTemplate.registerDimensionTemplate(
+            "bright_void", BRIGHT_VOID_TEMPLATE
+        );
     }
     
     private static void addAltDimsIfUsedInDimStack(
@@ -90,45 +142,19 @@ public class AlternateDimensions {
             return;
         }
         
-        WorldOptions worldOptions = server.getWorldData().worldGenOptions();
-        
-        RegistryAccess.Frozen registryAccess = server.registryAccess();
-        
-        long seed = worldOptions.seed();
-        
-        Holder<DimensionType> surfaceTypeHolder = registryAccess
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(SURFACE_TYPE)
-            .orElseThrow(
-                () -> new RuntimeException("Missing immersive_portals:surface_type")
-            );
-        
-        Holder<DimensionType> surfaceTypeBrightHolder = registryAccess
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(SURFACE_TYPE_BRIGHT)
-            .orElseThrow(
-                () -> new RuntimeException("Missing immersive_portals:surface_type_bright")
-            );
-        
         if (dimStackInfo.hasDimension(BRIGHT_SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
                 BRIGHT_SKYLAND.location(),
-                () -> new LevelStem(
-                    surfaceTypeBrightHolder,
-                    createSkylandGenerator(registryAccess, seed)
-                )
+                () -> BRIGHT_SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
         
         if (dimStackInfo.hasDimension(SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                BRIGHT_SKYLAND.location(),
-                () -> new LevelStem(
-                    surfaceTypeHolder,
-                    createSkylandGenerator(registryAccess, seed)
-                )
+                SKYLAND.location(),
+                () -> SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
         
@@ -136,10 +162,7 @@ public class AlternateDimensions {
             DimensionAPI.addDimensionIfNotExists(
                 server,
                 CHAOS.location(),
-                () -> new LevelStem(
-                    surfaceTypeHolder,
-                    createErrorTerrainGenerator(seed, registryAccess)
-                )
+                () -> CHAOS_TEMPLATE.createLevelStem(server)
             );
         }
         
@@ -147,10 +170,7 @@ public class AlternateDimensions {
             DimensionAPI.addDimensionIfNotExists(
                 server,
                 VOID.location(),
-                () -> new LevelStem(
-                    surfaceTypeHolder,
-                    createVoidGenerator(registryAccess)
-                )
+                () -> DimensionTemplate.VOID_TEMPLATE.createLevelStem(server)
             );
         }
         
@@ -158,10 +178,7 @@ public class AlternateDimensions {
             DimensionAPI.addDimensionIfNotExists(
                 server,
                 BRIGHT_VOID.location(),
-                () -> new LevelStem(
-                    surfaceTypeBrightHolder,
-                    createVoidGenerator(registryAccess)
-                )
+                () -> BRIGHT_VOID_TEMPLATE.createLevelStem(server)
             );
         }
         
@@ -193,8 +210,6 @@ public class AlternateDimensions {
     
     public static ChunkGenerator createVoidGenerator(RegistryAccess rm) {
         Registry<Biome> biomeRegistry = rm.registryOrThrow(Registries.BIOME);
-        
-        Registry<StructureSet> structureSets = rm.registryOrThrow(Registries.STRUCTURE_SET);
         
         Holder.Reference<Biome> plainsHolder = biomeRegistry.getHolderOrThrow(Biomes.PLAINS);
         

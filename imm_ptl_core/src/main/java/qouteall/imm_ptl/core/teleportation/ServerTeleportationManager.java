@@ -9,7 +9,6 @@ import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +40,7 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.WithDim;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -782,8 +782,11 @@ public class ServerTeleportationManager {
     }
     
     private void evacuatePlayersFromDimension(ResourceKey<Level> dim) {
-        PlayerList playerList = MiscHelper.getServer().getPlayerList();
-        for (ServerPlayer player : playerList.getPlayers()) {
+        // teleportation modifies the player list
+        List<ServerPlayer> players = new ArrayList<>(
+            MiscHelper.getServer().getPlayerList().getPlayers()
+        );
+        for (ServerPlayer player : players) {
             if (player.level().dimension() == dim) {
                 ServerLevel overWorld = McHelper.getOverWorldOnServer();
                 BlockPos spawnPos = overWorld.getSharedSpawnPos();

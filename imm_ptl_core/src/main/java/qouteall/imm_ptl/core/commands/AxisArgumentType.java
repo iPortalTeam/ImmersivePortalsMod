@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Direction;
@@ -29,8 +28,8 @@ public class AxisArgumentType implements ArgumentType<Direction.Axis> {
             Component.literal("Invalid Axis " + object)
         );
     
-    public static Direction.Axis getAxis(CommandContext<CommandSourceStack> context, String axis) {
-        return context.getArgument(axis, Direction.Axis.class);
+    public static <S> Direction.Axis getAxis(CommandContext<S> context, String argName) {
+        return context.getArgument(argName, Direction.Axis.class);
     }
     
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -54,7 +55,46 @@ public class DimsCommand {
                         ), true);
                         
                         context.getSource().sendSuccess(
-                            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental and not yet stable."),
+                            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental."),
+                            false
+                        );
+                        
+                        return 0;
+                    })
+                )
+            )
+        );
+        
+        builder.then(Commands.literal("add_dimension")
+            .then(Commands.argument("newDimensionId", StringArgumentType.string())
+                .then(Commands.argument("template", DimTemplateArgumentType.INSTANCE)
+                    .executes(context -> {
+                        String newDimensionId = StringArgumentType.getString(
+                            context, "newDimensionId"
+                        );
+                        
+                        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
+                        
+                        DimensionTemplate template =
+                            DimTemplateArgumentType.getDimTemplate(context, "template");
+                        
+                        MinecraftServer server = context.getSource().getServer();
+                        
+                        if (DimensionAPI.dimensionExists(server, newDimId)) {
+                            context.getSource().sendFailure(
+                                Component.literal("Dimension" + newDimId + " already exists")
+                            );
+                            return 0;
+                        }
+                        
+                        DimensionAPI.addDimensionDynamically(
+                            server,
+                            newDimId,
+                            template.createLevelStem(server)
+                        );
+                        
+                        context.getSource().sendSuccess(
+                            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental."),
                             false
                         );
                         
@@ -79,7 +119,7 @@ public class DimsCommand {
                     ), true);
                     
                     context.getSource().sendSuccess(
-                        () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental and not yet stable."),
+                        () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental."),
                         false
                     );
                     
