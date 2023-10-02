@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -201,12 +200,9 @@ public abstract class MixinSectionRenderDispatcher_Optimization {
         )
     )
     private void redirectClear(Queue<SectionBufferBuilderPack> queue) {
-        if (SharedBlockMeshBuffers.isEnabled()) {
-            // the freeBuffers queue was a shared object, don't clear it
-            // otherwise it will break after dynamically removing a dimension
-            freeBuffers = new ConcurrentLinkedQueue<>();
-        }
-        else {
+        // the freeBuffers queue was a shared object, don't clear it
+        // otherwise it will break after dynamically removing a dimension
+        if (!SharedBlockMeshBuffers.isEnabled()) {
             freeBuffers.clear();
         }
     }
