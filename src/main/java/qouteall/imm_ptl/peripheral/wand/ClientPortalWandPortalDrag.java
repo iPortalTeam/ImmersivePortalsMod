@@ -673,7 +673,7 @@ public class ClientPortalWandPortalDrag {
         Pair<Plane, MutableComponent> info = getPlayerFacingPlaneAligned(player, cursorPos, portal);
         Plane plane = info.getFirst();
         
-        renderedPrePlane.setTarget(new RenderedPlane(
+        renderedPlane.setTarget(new RenderedPlane(
             new WithDim<>(currDim, plane),
             1
         ), Helper.secondToNano(0.5));
@@ -952,31 +952,9 @@ public class ClientPortalWandPortalDrag {
             renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
         }
         
-        RenderedPlane prePlane = renderedPrePlane.getCurrent();
-        if (prePlane != null && prePlane.plane() != null && prePlane.plane().dimension() == currDim) {
-            Plane planeValue = prePlane.plane().value();
-
-            // make the plane to follow the cursor
-            // even the animation of the two are in different curve and duration
-            if (renderedCursor != null) {
-                planeValue = planeValue.getParallelPlane(renderedCursor);
-            }
-
-            int alpha = (int) (prePlane.scale() * 255);
-
-            WireRenderingHelper.renderPlane(
-                vertexConsumer, cameraPos, planeValue,
-                1.0, 0x00ffffff | (alpha << 24),
-                matrixStack,
-                false
-            );
-        }
-        
-        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
-        
-//        RenderedPlane plane = renderedPlane.getCurrent();
-//        if (plane != null && plane.plane() != null && plane.plane().dimension() == currDim) {
-//            Plane planeValue = plane.plane().value();
+//        RenderedPlane prePlane = renderedPrePlane.getCurrent();
+//        if (prePlane != null && prePlane.plane() != null && prePlane.plane().dimension() == currDim) {
+//            Plane planeValue = prePlane.plane().value();
 //
 //            // make the plane to follow the cursor
 //            // even the animation of the two are in different curve and duration
@@ -984,13 +962,35 @@ public class ClientPortalWandPortalDrag {
 //                planeValue = planeValue.getParallelPlane(renderedCursor);
 //            }
 //
+//            int alpha = (int) (prePlane.scale() * 255);
+//
 //            WireRenderingHelper.renderPlane(
-//                debugLineStripConsumer, cameraPos, planeValue,
-//                plane.scale(), colorOfPlane,
+//                vertexConsumer, cameraPos, planeValue,
+//                1.0, 0x00ffffff | (alpha << 24),
 //                matrixStack,
-//                true
+//                false
 //            );
 //        }
+        
+        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
+        
+        RenderedPlane plane = renderedPlane.getCurrent();
+        if (plane != null && plane.plane() != null && plane.plane().dimension() == currDim) {
+            Plane planeValue = plane.plane().value();
+
+            // make the plane to follow the cursor
+            // even the animation of the two are in different curve and duration
+            if (renderedCursor != null) {
+                planeValue = planeValue.getParallelPlane(renderedCursor);
+            }
+
+            WireRenderingHelper.renderPlane(
+                debugLineStripConsumer, cameraPos, planeValue,
+                plane.scale(), colorOfPlane,
+                matrixStack,
+                true
+            );
+        }
     }
     
     @Nullable
