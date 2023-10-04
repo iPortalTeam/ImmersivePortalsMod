@@ -141,6 +141,7 @@ public class IPGlobal {
     public static boolean chunkPacketDebug = false;
     
     public static boolean entityUnloadDebug = false;
+    public static boolean portalLoadDebug = false;
     
     public static boolean debugRenderPortalShapeMesh = false;
     

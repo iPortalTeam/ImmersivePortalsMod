@@ -7,11 +7,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 
 public interface IEChunkMap {
-    int ip_getWatchDistance();
+    int ip_getPlayerViewDistance(ServerPlayer player);
     
     ServerLevel ip_getWorld();
     
@@ -22,11 +21,6 @@ public interface IEChunkMap {
     void ip_onPlayerUnload(ServerPlayer oldPlayer);
     
     void ip_onDimensionRemove();
-    
-    void ip_updateEntityTrackersAfterSendingChunkPacket(
-        LevelChunk chunk,
-        ServerPlayer playerEntity
-    );
     
     void ip_resendSpawnPacketToTrackers(Entity entity);
     

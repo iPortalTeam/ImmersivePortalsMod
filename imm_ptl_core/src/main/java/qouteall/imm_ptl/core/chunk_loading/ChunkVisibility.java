@@ -30,7 +30,7 @@ public class ChunkVisibility {
                 player.level().dimension(),
                 player.chunkPosition()
             ),
-            McHelper.getRenderDistanceOnServer(),
+            McHelper.getPlayerLoadDistance(player),
             true
         );
     }
@@ -106,7 +106,7 @@ public class ChunkVisibility {
                 //load a little more to make dimension stack more complete
                 Math.max(
                     2,
-                    McHelper.getRenderDistanceOnServer() -
+                    McHelper.getPlayerLoadDistance(player) -
                         Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.position()), 16)
                 )
             );
@@ -122,12 +122,12 @@ public class ChunkVisibility {
             );
         }
         else {
-            int renderDistance = McHelper.getRenderDistanceOnServer();
+            int loadDistance = McHelper.getPlayerLoadDistance(player);
             double distance = portal.getDistanceToNearestPointInPortal(player.position());
             
             // load more for up scaling portal
             if (portal.scaling > 2 && distance < 5) {
-                renderDistance = (int) ((portal.getDestAreaRadiusEstimation() * 1.4) / 16);
+                loadDistance = (int) ((portal.getDestAreaRadiusEstimation() * 1.4) / 16);
             }
             
             return new ChunkLoader(
@@ -137,7 +137,7 @@ public class ChunkVisibility {
                 ),
                 getCappedLoadingDistance(
                     portal, player,
-                    getDirectLoadingDistance(renderDistance, distance)
+                    getDirectLoadingDistance(loadDistance, distance)
                 )
             );
         }
@@ -148,12 +148,12 @@ public class ChunkVisibility {
         Vec3 transformedPos,
         Portal portal
     ) {
-        int serverLoadingDistance = McHelper.getRenderDistanceOnServer();
+        int loadDistance = McHelper.getPlayerLoadDistance(player);
         
         if (portal.getIsGlobal()) {
             int renderDistance = Math.min(
                 IPGlobal.indirectLoadingRadiusCap,
-                serverLoadingDistance / 3
+                loadDistance / 3
             );
             return new ChunkLoader(
                 new DimensionalChunkPos(
@@ -170,7 +170,7 @@ public class ChunkVisibility {
                     new ChunkPos(BlockPos.containing(portal.getDestPos()))
                 ),
                 getCappedLoadingDistance(
-                    portal, player, serverLoadingDistance / 4
+                    portal, player, loadDistance / 4
                 )
             );
         }

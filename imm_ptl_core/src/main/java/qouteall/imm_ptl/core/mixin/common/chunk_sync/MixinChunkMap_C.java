@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
+import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
@@ -32,11 +33,11 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
     private ThreadedLevelLightEngine lightEngine;
     
     @Shadow
-    private int serverViewDistance;
+    abstract int getPlayerViewDistance(ServerPlayer serverPlayer);
     
     @Override
-    public int ip_getWatchDistance() {
-        return serverViewDistance;
+    public int ip_getPlayerViewDistance(ServerPlayer player) {
+        return getPlayerViewDistance(player);
     }
     
     @Override
@@ -54,7 +55,9 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
         return getVisibleChunkIfPresent(long_1);
     }
     
-    // packets will be sent on ChunkDataSyncManager
+    /**
+     * packets will be sent on {@link PlayerChunkLoading}
+     */
     @Inject(
         method = "applyChunkTrackingView",
         at = @At("HEAD"),

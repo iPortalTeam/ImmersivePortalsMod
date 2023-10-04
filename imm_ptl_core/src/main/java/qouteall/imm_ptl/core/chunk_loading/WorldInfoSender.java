@@ -19,7 +19,7 @@ public class WorldInfoSender {
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
             server.getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
-                for (ServerPlayer player : McHelper.getCopiedPlayerList()) {
+                for (ServerPlayer player : McHelper.getRawPlayerList()) {
                     Set<ResourceKey<Level>> visibleDimensions = ImmPtlChunkTracking.getVisibleDimensions(player);
                     
                     // sync overworld status when the player is not in overworld

@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -50,6 +51,7 @@ import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -80,14 +82,11 @@ public class McHelper {
     
     public static final Placeholder placeholder = new Placeholder();
     
-    public static IEChunkMap getIEStorage(ResourceKey<Level> dimension) {
+    @Deprecated
+    public static IEChunkMap getIEChunkMap(ResourceKey<Level> dimension) {
         return (IEChunkMap) (
             (ServerChunkCache) getServerWorld(dimension).getChunkSource()
         ).chunkMap;
-    }
-    
-    public static ArrayList<ServerPlayer> getCopiedPlayerList() {
-        return new ArrayList<>(MiscHelper.getServer().getPlayerList().getPlayers());
     }
     
     public static List<ServerPlayer> getRawPlayerList() {
@@ -215,8 +214,18 @@ public class McHelper {
         );
     }
     
-    public static int getRenderDistanceOnServer() {
-        return getIEStorage(Level.OVERWORLD).ip_getWatchDistance();
+    public static int getLoadDistanceOnServer(MinecraftServer server) {
+        return server.getPlayerList().getViewDistance();
+    }
+    
+    /**
+     * {@link ChunkMap#getPlayerViewDistance(ServerPlayer)}
+     */
+    @IPVanillaCopy
+    public static int getPlayerLoadDistance(ServerPlayer player) {
+        assert player.getServer() != null;
+        int loadDistanceOnServer = getLoadDistanceOnServer(player.getServer());
+        return Mth.clamp(player.requestedViewDistance(), 2, loadDistanceOnServer);
     }
     
     public static void setPosAndLastTickPos(
@@ -311,7 +320,7 @@ public class McHelper {
         ResourceKey<Level> dimension,
         int x, int z
     ) {
-        ChunkHolder chunkHolder_ = getIEStorage(dimension).ip_getChunkHolder(ChunkPos.asLong(x, z));
+        ChunkHolder chunkHolder_ = getIEChunkMap(dimension).ip_getChunkHolder(ChunkPos.asLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
@@ -418,12 +427,12 @@ public class McHelper {
     }
     
     public static void resendSpawnPacketToTrackers(Entity entity) {
-        getIEStorage(entity.level().dimension()).ip_resendSpawnPacketToTrackers(entity);
+        getIEChunkMap(entity.level().dimension()).ip_resendSpawnPacketToTrackers(entity);
     }
     
     public static void sendToTrackers(Entity entity, Packet<?> packet) {
         ChunkMap.TrackedEntity entityTracker =
-            getIEStorage(entity.level().dimension()).ip_getEntityTrackerMap().get(entity.getId());
+            getIEChunkMap(entity.level().dimension()).ip_getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
 //            Helper.err("missing entity tracker object");
             return;

@@ -308,6 +308,28 @@ public class PortalDebugCommands {
             })
         );
         
+        builder.then(Commands
+            .literal("report_loaded_portals")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+            .executes(context -> {
+                CommandSourceStack source = context.getSource();
+                MinecraftServer server = source.getServer();
+                
+                for (ServerLevel world : server.getAllLevels()) {
+                    for (Entity entity : world.getAllEntities()) {
+                        if (entity instanceof Portal portal) {
+                            source.sendSuccess(
+                                () -> Component.literal(entity.toString()),
+                                true
+                            );
+                        }
+                    }
+                }
+                
+                return 0;
+            })
+        );
+        
         builder.then(Commands.literal("is_chunk_loaded")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("dim", DimensionArgument.dimension())
@@ -678,7 +700,7 @@ public class PortalDebugCommands {
             McHelper.serverLog(player, "Server chunk not loaded");
         }
         
-        ChunkHolder chunkHolder = McHelper.getIEStorage(world.dimension()).ip_getChunkHolder(
+        ChunkHolder chunkHolder = McHelper.getIEChunkMap(world.dimension()).ip_getChunkHolder(
             longChunkPos
         );
         

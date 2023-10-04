@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchStartPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +24,6 @@ import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -106,6 +106,7 @@ public class PlayerChunkLoading {
         }
         
         ServerGamePacketListenerImpl connection = serverPlayer.connection;
+        MinecraftServer server = serverPlayer.server;
         
         int maxSendNum = (int) Math.floor(batchQuota);
         Validate.isTrue(maxSendNum != 0);
@@ -131,7 +132,7 @@ public class PlayerChunkLoading {
                     return true;
                 }
                 
-                ServerLevel world = MiscHelper.getServer().getLevel(record.dimension);
+                ServerLevel world = server.getLevel(record.dimension);
                 if (world == null) {
                     LOGGER.error(
                         "Missing dimension when flushing pending loading {}",

@@ -89,12 +89,12 @@ public class EntitySync {
     
     private static boolean isDirty(ChunkMap.TrackedEntity tracker) {
         SectionPos newPos = SectionPos.of(((IETrackedEntity) tracker).ip_getEntity());
-        return !((IETrackedEntity) tracker).ip_getLastCameraPosition().equals(newPos);
+        return !((IETrackedEntity) tracker).ip_getLastSectionPos().equals(newPos);
     }
     
     private static void markUnDirty(ChunkMap.TrackedEntity tracker) {
         SectionPos currPos = SectionPos.of(((IETrackedEntity) tracker).ip_getEntity());
-        ((IETrackedEntity) tracker).ip_setLastCameraPosition(currPos);
+        ((IETrackedEntity) tracker).ip_setLastSectionPos(currPos);
     }
     
     private static void forceRemoveDimension(ResourceKey<Level> dimension) {

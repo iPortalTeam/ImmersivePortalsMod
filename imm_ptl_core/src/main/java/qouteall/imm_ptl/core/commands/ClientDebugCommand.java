@@ -203,6 +203,21 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+        
+        builder.then(ClientCommandManager.literal("report_loaded_portals")
+            .executes(context -> {
+                for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
+                    EntityTickList entityList = ((IEClientWorld) world).ip_getEntityList();
+                    entityList.forEach(e -> {
+                        if (e instanceof Portal portal) {
+                            CHelper.printChat(portal.toString());
+                        }
+                    });
+                }
+                return 0;
+            })
+        );
+        
         builder = builder.then(ClientCommandManager
             .literal("vanilla_chunk_culling_enable")
             .executes(context -> {
@@ -616,6 +631,11 @@ public class ClientDebugCommand {
             builder,
             "entity_unload_debug",
             cond -> IPGlobal.entityUnloadDebug = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "portal_load_debug",
+            cond -> IPGlobal.portalLoadDebug = cond
         );
         registerSwitchCommand(
             builder,

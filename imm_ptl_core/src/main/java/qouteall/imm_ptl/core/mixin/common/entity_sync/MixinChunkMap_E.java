@@ -1,17 +1,12 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkMap.TrackedEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -24,9 +19,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
-import qouteall.imm_ptl.core.network.PacketRedirection;
-
-import java.util.List;
 
 @Mixin(ChunkMap.class)
 public abstract class MixinChunkMap_E implements IEChunkMap {
@@ -42,7 +34,8 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     @Final
     private ServerLevel level;
     
-    @Shadow protected abstract @Nullable ChunkHolder getUpdatingChunkIfPresent(long l);
+    @Shadow
+    protected abstract @Nullable ChunkHolder getUpdatingChunkIfPresent(long l);
     
     @IPVanillaCopy
     @Inject(
@@ -84,46 +77,6 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         entityMap.values().forEach(obj -> {
             ((IETrackedEntity) obj).ip_onDimensionRemove();
         });
-    }
-    
-    /**
-     * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
-     */
-    @Override
-    public void ip_updateEntityTrackersAfterSendingChunkPacket(
-        LevelChunk chunk, ServerPlayer player
-    ) {
-        List<Entity> attachedEntityList = Lists.newArrayList();
-        List<Entity> passengerList = Lists.newArrayList();
-        
-        for (Object entityTracker : this.entityMap.values()) {
-            Entity entity = ((IETrackedEntity) entityTracker).ip_getEntity();
-            if (entity != player && entity.chunkPosition().equals(chunk.getPos())) {
-                ((IETrackedEntity) entityTracker).ip_updateEntityTrackingStatus(player);
-                if (entity instanceof Mob && ((Mob) entity).getLeashHolder() != null) {
-                    attachedEntityList.add(entity);
-                }
-                
-                if (!entity.getPassengers().isEmpty()) {
-                    passengerList.add(entity);
-                }
-            }
-        }
-        
-        PacketRedirection.withForceRedirect(
-            level,
-            () -> {
-                for (Entity entity : attachedEntityList) {
-                    player.connection.send(new ClientboundSetEntityLinkPacket(
-                        entity, ((Mob) entity).getLeashHolder()
-                    ));
-                }
-                
-                for (Entity entity : passengerList) {
-                    player.connection.send(new ClientboundSetPassengersPacket(entity));
-                }
-            }
-        );
     }
     
     @Override

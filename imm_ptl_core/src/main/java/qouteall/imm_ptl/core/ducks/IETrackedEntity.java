@@ -17,8 +17,8 @@ public interface IETrackedEntity {
     
     void ip_tickEntry();
     
-    SectionPos ip_getLastCameraPosition();
+    SectionPos ip_getLastSectionPos();
     
-    void ip_setLastCameraPosition(SectionPos arg);
+    void ip_setLastSectionPos(SectionPos arg);
     
 }

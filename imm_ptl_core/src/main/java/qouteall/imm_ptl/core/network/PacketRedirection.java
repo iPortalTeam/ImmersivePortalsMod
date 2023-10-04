@@ -56,13 +56,21 @@ public class PacketRedirection {
             );
         }
         
+        ResourceKey<Level> redirectDim = world.dimension();
+        
         ResourceKey<Level> oldRedirection = serverPacketRedirection.get();
-        serverPacketRedirection.set(world.dimension());
+        
+        if (oldRedirection != redirectDim) {
+            serverPacketRedirection.set(redirectDim);
+        }
+        
         try {
             return func.get();
         }
         finally {
-            serverPacketRedirection.set(oldRedirection);
+            if (oldRedirection != redirectDim) {
+                serverPacketRedirection.set(oldRedirection);
+            }
         }
     }
     

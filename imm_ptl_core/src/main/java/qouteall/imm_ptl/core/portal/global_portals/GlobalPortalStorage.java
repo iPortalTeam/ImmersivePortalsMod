@@ -186,7 +186,7 @@ public class GlobalPortalStorage extends SavedData {
         ServerLevel currWorld = world.get();
         Validate.notNull(currWorld);
         Packet packet = createSyncPacket(currWorld, this);
-        McHelper.getCopiedPlayerList().forEach(
+        McHelper.getRawPlayerList().forEach(
             player -> player.connection.send(packet)
         );
     }

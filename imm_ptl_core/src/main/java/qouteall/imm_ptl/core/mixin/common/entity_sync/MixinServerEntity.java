@@ -49,7 +49,7 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         Packet packet
     ) {
         if (IPGlobal.entityUnloadDebug) {
-            LOGGER.info("[Debug] Entity remove packet sent {}", entity);
+            LOGGER.info("Entity remove packet sent {}", entity);
         }
         PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level().dimension());
     }

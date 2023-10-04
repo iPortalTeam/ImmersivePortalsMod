@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
@@ -92,7 +90,13 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     // Note VMP redirects getEffectiveRange()
     @Inject(method = "updatePlayer", at = @At("HEAD"), cancellable = true)
     private void onUpdatePlayer(ServerPlayer player, CallbackInfo ci) {
-        ip_updateEntityTrackingStatus(player);
+        PacketRedirection.withForceRedirect(
+            ((ServerLevel) entity.level()),
+            () -> {
+                ip_updateEntityTrackingStatus(player);
+            }
+        );
+        
         ci.cancel();
     }
     
@@ -102,9 +106,14 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
      */
     @Overwrite
     public void updatePlayers(List<ServerPlayer> list) {
-        for (ServerPlayer player : McHelper.getRawPlayerList()) {
-            ip_updateEntityTrackingStatus(player);
-        }
+        PacketRedirection.withForceRedirect(
+            ((ServerLevel) entity.level()),
+            () -> {
+                for (ServerPlayer player : entity.getServer().getPlayerList().getPlayers()) {
+                    ip_updateEntityTrackingStatus(player);
+                }
+            }
+        );
     }
     
     @Override
@@ -118,19 +127,15 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     @IPVanillaCopy
     @Override
     public void ip_updateEntityTrackingStatus(ServerPlayer player) {
-        IEChunkMap storage = (IEChunkMap)
+        IEChunkMap chunkMap = (IEChunkMap)
             ((ServerLevel) entity.level()).getChunkSource().chunkMap;
         
         if (player == this.entity) {
             return;
         }
         
-        ProfilerFiller profiler = player.level().getProfiler();
-        profiler.push("portal_entity_track");
-        
         int maxWatchDistance = Math.min(
-            this.getEffectiveRange(),
-            (storage.ip_getWatchDistance() - 1) * 16
+            this.getEffectiveRange(), chunkMap.ip_getPlayerViewDistance(player) * 16
         );
         ChunkPos chunkPos = entity.chunkPosition();
         boolean isWatchedNow =
@@ -142,7 +147,6 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
                 maxWatchDistance
             ) && this.entity.broadcastToPlayer(player);
         if (isWatchedNow) {
-            
             if (seenBy.add(player.connection)) {
                 this.serverEntity.addPairing(player);
             }
@@ -150,9 +154,6 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
         else if (seenBy.remove(player.connection)) {
             this.serverEntity.removePairing(player);
         }
-        
-        profiler.pop();
-        
     }
     
     @Override
@@ -189,12 +190,12 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     }
     
     @Override
-    public SectionPos ip_getLastCameraPosition() {
+    public SectionPos ip_getLastSectionPos() {
         return lastSectionPos;
     }
     
     @Override
-    public void ip_setLastCameraPosition(SectionPos arg) {
+    public void ip_setLastSectionPos(SectionPos arg) {
         lastSectionPos = arg;
     }
     
