@@ -165,8 +165,7 @@ public class ImmPtlChunkTracking {
         
         for (ChunkLoader chunkLoader : chunkLoaders) {
             ResourceKey<Level> dimension = chunkLoader.center.dimension;
-            var chunkRecordMap
-                = getDimChunkWatchRecords(dimension);
+            var chunkRecordMap = getDimChunkWatchRecords(dimension);
             
             ServerLevel world = server.getLevel(dimension);
             if (world == null) {
@@ -352,8 +351,9 @@ public class ImmPtlChunkTracking {
     private static void tick(MinecraftServer server) {
         server.getProfiler().push("portal_chunk_tracking");
         
+        boolean updates = false;
         long gameTime = McHelper.getOverWorldOnServer().getGameTime();
-        server.getPlayerList().getPlayers().forEach(player -> {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PlayerChunkLoading playerInfo = getPlayerInfo(player);
             
             // spread the player updates to different ticks
@@ -362,22 +362,27 @@ public class ImmPtlChunkTracking {
             ) {
                 playerInfo.shouldUpdateImmediately = false;
                 updateForPlayer(player);
+                updates = true;
             }
-        });
+        }
         if (gameTime % updateInterval == 0) {
             var additionalLoadedChunks = refreshAdditionalChunkLoaders();
             purge(additionalLoadedChunks);
             generationCounter++;
+            updates = true;
         }
         
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             ImmPtlChunkTickets dimTicketManager = ImmPtlChunkTickets.get(world);
-            IEChunkMap chunkMap = (IEChunkMap) world.getChunkSource().chunkMap;
             
             dimTicketManager.tick(world);
         }
         
         server.getProfiler().pop();
+        
+        if (updates) {
+            EntitySync.update(server);
+        }
     }
     
     public static boolean isPlayerWatchingChunk(
@@ -439,7 +444,7 @@ public class ImmPtlChunkTracking {
         ResourceKey<Level> dimension,
         int x, int z
     ) {
-        var records = getPlayerWatchListRecord(dimension, x, z);
+        var records = getWatchRecordForChunk(dimension, x, z);
         if (records == null) {
             return Stream.empty();
         }
@@ -452,7 +457,7 @@ public class ImmPtlChunkTracking {
         boolean boundaryOnly
     ) {
         var recs =
-            ImmPtlChunkTracking.getPlayerWatchListRecord(dimension, x, z);
+            ImmPtlChunkTracking.getWatchRecordForChunk(dimension, x, z);
         
         if (recs == null) {
             return Collections.emptyList();
@@ -471,8 +476,9 @@ public class ImmPtlChunkTracking {
         return result;
     }
     
+    // Note all PlayerWatchRecord taken from it are valid
     @Nullable
-    public static Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord> getPlayerWatchListRecord(
+    public static Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord> getWatchRecordForChunk(
         ResourceKey<Level> dimension, int x, int z
     ) {
         return getDimChunkWatchRecords(dimension).get(ChunkPos.asLong(x, z));

@@ -97,8 +97,6 @@ public class ImmPtlChunkTickets {
     
     public final int throttlingLimit = 4;
     
-    public int immediateTaskQuota = 0;
-    
     private ImmPtlChunkTickets() {
     
     }
@@ -148,7 +146,6 @@ public class ImmPtlChunkTickets {
     }
     
     public void tick(ServerLevel world) {
-        immediateTaskQuota = 0;
         flushThrottling(world);
     }
     

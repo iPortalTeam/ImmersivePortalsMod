@@ -125,6 +125,11 @@ public class PacketRedirection {
         ResourceKey<Level> dimension,
         Packet<ClientGamePacketListener> packet
     ) {
+        if (isRedirectPacket(packet)) {
+            // avoid duplicate redirect nesting
+            return packet;
+        }
+        
         Validate.isTrue(!(packet instanceof BundleDelimiterPacket));
         if (packet instanceof ClientboundBundlePacket bundlePacket) {
             // vanilla has special handling to bundle packet
@@ -174,6 +179,12 @@ public class PacketRedirection {
     
     public static Packet<?> readPacketById(int messageType, FriendlyByteBuf buf) {
         return clientPlayCodecData.createPacket(messageType, buf);
+    }
+    
+    // Note this doesn't consider bundle packet
+    public static boolean isRedirectPacket(Packet<?> packet) {
+        return packet instanceof ClientboundCustomPayloadPacket customPayloadPacket &&
+            customPayloadPacket.payload() instanceof Payload;
     }
     
     /**

@@ -1,13 +1,12 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
 public interface IETrackedEntity {
     Entity ip_getEntity();
     
-    void ip_updateEntityTrackingStatus(ServerPlayer player);
+    void ip_updateEntityTrackingStatus();
     
     void ip_onDimensionRemove();
     

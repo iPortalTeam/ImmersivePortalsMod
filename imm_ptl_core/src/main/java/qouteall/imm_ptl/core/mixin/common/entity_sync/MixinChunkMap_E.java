@@ -59,7 +59,9 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
         }
     }
     
-    // Managed by EntitySync
+    /**
+     * Managed by {@link qouteall.imm_ptl.core.chunk_loading.EntitySync}
+     */
     @Inject(method = "Lnet/minecraft/server/level/ChunkMap;tick()V", at = @At("HEAD"), cancellable = true)
     private void onTickEntityMovement(CallbackInfo ci) {
         ci.cancel();

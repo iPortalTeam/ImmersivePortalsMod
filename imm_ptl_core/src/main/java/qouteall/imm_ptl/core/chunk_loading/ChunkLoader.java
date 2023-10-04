@@ -55,6 +55,47 @@ public class ChunkLoader {
         }
     }
     
+    public void foreachChunkPosFromInnerToOuter(ChunkPosConsumer func) {
+        // case for r == 0
+        func.consume(center.dimension, center.x, center.z, 0);
+        
+        for (int r = 1; r <= radius; r++) {
+            // traverse the four sides
+            // edge1: x = maxX, y = [minY, maxY)  covers (maxX, minY)
+            // edge2: y = maxY, x = [maxX, minX)  covers (maxX, maxY)
+            // edge3: x = minX, y = [maxY, minY)  covers (minX, maxY)
+            // edge4: y = minY, x = [minX, maxX)  covers (minX, minY)
+            
+            // x - - - - - x
+            // |           |
+            // |           |
+            // |           |
+            // |           |
+            // x - - - - - x
+            
+            int minX = center.x - r;
+            int maxX = center.x + r;
+            int minY = center.z - r;
+            int maxY = center.z + r;
+            
+            for (int y = minY; y < maxY; y++) {
+                func.consume(center.dimension, maxX, y, r);
+            }
+            
+            for (int x = maxX; x > minX; x--) {
+                func.consume(center.dimension, x, maxY, r);
+            }
+            
+            for (int y = maxY; y > minY; y--) {
+                func.consume(center.dimension, minX, y, r);
+            }
+            
+            for (int x = minX; x < maxX; x++) {
+                func.consume(center.dimension, x, minY, r);
+            }
+        }
+    }
+    
     public LenientChunkRegion createChunkRegion() {
         ServerLevel world = MiscHelper.getServer().getLevel(center.dimension);
         

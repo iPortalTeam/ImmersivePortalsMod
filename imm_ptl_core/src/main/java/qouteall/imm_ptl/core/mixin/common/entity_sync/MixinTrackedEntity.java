@@ -10,15 +10,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //NOTE must redirect all packets about entities
@@ -38,9 +39,6 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     @Shadow
     @Final
     private Entity entity;
-    @Shadow
-    @Final
-    private int range;
     
     @Shadow
     public abstract void broadcastRemoved();
@@ -82,38 +80,29 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     )
     private void onSendToNearbyPlayers(
         ServerGamePacketListenerImpl serverPlayNetworkHandler,
-        Packet packet_1
+        Packet packet
     ) {
-        PacketRedirection.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.level().dimension());
-    }
-    
-    // Note VMP redirects getEffectiveRange()
-    @Inject(method = "updatePlayer", at = @At("HEAD"), cancellable = true)
-    private void onUpdatePlayer(ServerPlayer player, CallbackInfo ci) {
-        PacketRedirection.withForceRedirect(
-            ((ServerLevel) entity.level()),
-            () -> {
-                ip_updateEntityTrackingStatus(player);
-            }
+        PacketRedirection.sendRedirectedPacket(
+            serverPlayNetworkHandler, packet, entity.level().dimension()
         );
-        
-        ci.cancel();
     }
     
     /**
      * @author qouteall
-     * @reason make incompat fail fast
+     * @reason managed by {@link EntitySync}
+     */
+    @Overwrite
+    public void updatePlayer(ServerPlayer player) {
+        // nothing
+    }
+    
+    /**
+     * @author qouteall
+     * @reason managed by {@link EntitySync}
      */
     @Overwrite
     public void updatePlayers(List<ServerPlayer> list) {
-        PacketRedirection.withForceRedirect(
-            ((ServerLevel) entity.level()),
-            () -> {
-                for (ServerPlayer player : entity.getServer().getPlayerList().getPlayers()) {
-                    ip_updateEntityTrackingStatus(player);
-                }
-            }
-        );
+        // nothing
     }
     
     @Override
@@ -123,37 +112,99 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     
     /**
      * {@link ChunkMap.TrackedEntity#updatePlayer(ServerPlayer)}
+     * This only checks the players viewing the chunk.
+     * Vanilla checks all players in dimension {@link ChunkMap#tick()}
+     * so this is more efficient in this aspect.
+     * However, in vanilla, if both the entity and player doesn't move,
+     * it won't update.
+     * But in ImmPtl, it constantly updates because portals can change at any time and
+     * that can changes entity visibility at anytime.
      */
     @IPVanillaCopy
     @Override
-    public void ip_updateEntityTrackingStatus(ServerPlayer player) {
+    public void ip_updateEntityTrackingStatus() {
         IEChunkMap chunkMap = (IEChunkMap)
             ((ServerLevel) entity.level()).getChunkSource().chunkMap;
         
-        if (player == this.entity) {
-            return;
-        }
-        
-        int maxWatchDistance = Math.min(
-            this.getEffectiveRange(), chunkMap.ip_getPlayerViewDistance(player) * 16
+        var watchRecMap = ImmPtlChunkTracking.getWatchRecordForChunk(
+            entity.level().dimension(),
+            entity.chunkPosition().x, entity.chunkPosition().z
         );
-        ChunkPos chunkPos = entity.chunkPosition();
-        boolean isWatchedNow =
-            ImmPtlChunkTracking.isPlayerWatchingChunkWithinRadius(
-                player,
-                this.entity.level().dimension(),
-                chunkPos.x,
-                chunkPos.z,
-                maxWatchDistance
-            ) && this.entity.broadcastToPlayer(player);
-        if (isWatchedNow) {
-            if (seenBy.add(player.connection)) {
-                this.serverEntity.addPairing(player);
+        
+        // no need to clamp it with render distance, as we check chunk watch records now
+        int effectiveRange = getEffectiveRange();
+        
+        seenBy.removeIf(connection -> {
+            ServerPlayer player = connection.getPlayer();
+            boolean shouldRemove = !watches(entity, watchRecMap, effectiveRange, player);
+            if (shouldRemove) {
+                PacketRedirection.withForceRedirect(
+                    ((ServerLevel) entity.level()),
+                    () -> {
+                        this.serverEntity.removePairing(player);
+                    }
+                );
+            }
+            return shouldRemove;
+        });
+        
+        if (watchRecMap != null) {
+            for (var e : watchRecMap.entrySet()) {
+                ServerPlayer player = e.getKey();
+                ImmPtlChunkTracking.PlayerWatchRecord rec = e.getValue();
+                
+                if (recWatches(entity, effectiveRange, rec, player)) {
+                    if (seenBy.add(player.connection)) {
+                        PacketRedirection.withForceRedirect(
+                            ((ServerLevel) entity.level()),
+                            () -> {
+                                this.serverEntity.addPairing(player);
+                            }
+                        );
+                    }
+                }
             }
         }
-        else if (seenBy.remove(player.connection)) {
-            this.serverEntity.removePairing(player);
+    }
+    
+    @Unique
+    private static boolean watches(
+        Entity entity,
+        @Nullable Map<ServerPlayer, ImmPtlChunkTracking.PlayerWatchRecord> watchRec,
+        int effectiveRange,
+        ServerPlayer player
+    ) {
+        if (watchRec == null) {
+            return false;
         }
+        
+        if (entity == player) {
+            return false;
+        }
+        
+        ImmPtlChunkTracking.PlayerWatchRecord rec = watchRec.get(player);
+        
+        return recWatches(entity, effectiveRange, rec, player);
+    }
+    
+    @Unique
+    private static boolean recWatches(
+        Entity entity, int effectiveRange,
+        ImmPtlChunkTracking.PlayerWatchRecord rec, ServerPlayer player
+    ) {
+        if (rec == null) {
+            return false;
+        }
+        
+        if (!rec.isLoadedToPlayer) {
+            return false;
+        }
+        
+        if (entity == player) {
+            return false;
+        }
+        
+        return rec.distanceToSource * 16 + 8 <= effectiveRange;
     }
     
     @Override
