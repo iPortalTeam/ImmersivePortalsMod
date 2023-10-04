@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -65,43 +67,23 @@ public class DimsCommand {
             )
         );
         
+        // to make q_misc_util be able to work server-only
+        // we cannot use custom command argument type
+        RequiredArgumentBuilder<CommandSourceStack, String> addDimensionCommandNode =
+            Commands.argument("newDimensionId", StringArgumentType.string());
+        
+        for (var e : DimensionTemplate.DIMENSION_TEMPLATES.entrySet()) {
+            String dimTemplateId = e.getKey();
+            DimensionTemplate dimensionTemplate = e.getValue();
+            addDimensionCommandNode.then(Commands.literal(dimTemplateId)
+                .executes(context -> {
+                    return runAddDimension(context, dimensionTemplate);
+                })
+            );
+        }
+        
         builder.then(Commands.literal("add_dimension")
-            .then(Commands.argument("newDimensionId", StringArgumentType.string())
-                .then(Commands.argument("template", DimTemplateArgumentType.INSTANCE)
-                    .executes(context -> {
-                        String newDimensionId = StringArgumentType.getString(
-                            context, "newDimensionId"
-                        );
-                        
-                        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
-                        
-                        DimensionTemplate template =
-                            DimTemplateArgumentType.getDimTemplate(context, "template");
-                        
-                        MinecraftServer server = context.getSource().getServer();
-                        
-                        if (DimensionAPI.dimensionExists(server, newDimId)) {
-                            context.getSource().sendFailure(
-                                Component.literal("Dimension" + newDimId + " already exists")
-                            );
-                            return 0;
-                        }
-                        
-                        DimensionAPI.addDimensionDynamically(
-                            server,
-                            newDimId,
-                            template.createLevelStem(server)
-                        );
-                        
-                        context.getSource().sendSuccess(
-                            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental."),
-                            false
-                        );
-                        
-                        return 0;
-                    })
-                )
-            )
+            .then(addDimensionCommandNode)
         );
         
         builder.then(Commands
@@ -172,6 +154,38 @@ public class DimsCommand {
         );
         
         dispatcher.register(builder);
+    }
+    
+    private static int runAddDimension(
+        CommandContext<CommandSourceStack> context, DimensionTemplate template
+    ) {
+        String newDimensionId = StringArgumentType.getString(
+            context, "newDimensionId"
+        );
+        
+        ResourceLocation newDimId = new ResourceLocation(newDimensionId);
+        
+        MinecraftServer server = context.getSource().getServer();
+        
+        if (DimensionAPI.dimensionExists(server, newDimId)) {
+            context.getSource().sendFailure(
+                Component.literal("Dimension" + newDimId + " already exists")
+            );
+            return 0;
+        }
+        
+        DimensionAPI.addDimensionDynamically(
+            server,
+            newDimId,
+            template.createLevelStem(server)
+        );
+        
+        context.getSource().sendSuccess(
+            () -> Component.literal("Warning: In the current version, dynamic dimension feature is still experimental."),
+            false
+        );
+        
+        return 0;
     }
     
     private static void cloneDimension(

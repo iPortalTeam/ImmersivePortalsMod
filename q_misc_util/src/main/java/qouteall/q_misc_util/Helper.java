@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 // helper methods
 public class Helper {
     
-    public static final Logger logger = LogManager.getLogger("Portal");
+    public static final Logger LOGGER = LogManager.getLogger("Portal");
     
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
     
@@ -455,18 +455,18 @@ public class Helper {
     // TODO use separate logger for each class
     @Deprecated
     public static void log(Object str) {
-        logger.info(str);
+        LOGGER.info(str);
     }
     
     // TODO use separate logger for each class
     @Deprecated
     public static void err(Object str) {
-        logger.error(str);
+        LOGGER.error(str);
     }
     
     @Deprecated
     public static void dbg(Object str) {
-        logger.debug(str);
+        LOGGER.debug(str);
     }
     
     public static Vec3[] eightVerticesOf(AABB box) {
@@ -577,7 +577,7 @@ public class Helper {
                 }
             }
             else {
-                logger.error("Unexpected tag class: {}", tag.getClass(), new Throwable());
+                LOGGER.error("Unexpected tag class: {}", tag.getClass(), new Throwable());
             }
         });
         return result;

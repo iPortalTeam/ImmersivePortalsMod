@@ -16,6 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * All command argument types will be in registry and synced by Fabric API.
+ * To make q_misc_util be able to work server-only, synced registry should not differ.
+ */
+@Deprecated
 public class DimTemplateArgumentType implements ArgumentType<DimensionTemplate> {
     
     public static final DimTemplateArgumentType INSTANCE = new DimTemplateArgumentType();

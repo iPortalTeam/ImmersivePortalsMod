@@ -9,20 +9,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
-import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ClientboundPlayerPositionPacket.class)
 public class MixinClientboundPlayerPositionPacket {
     @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onRead(FriendlyByteBuf buf, CallbackInfo ci) {
-        if (buf.isReadable()) {
+        if (ImmPtlNetworkConfig.doesServerHaveImmPtl()) {
             ResourceKey<Level> playerDimension = DimId.readWorldId(buf, true);
             ((IEPlayerPositionLookS2CPacket) this).ip_setPlayerDimension(playerDimension);
-            ImmPtlNetworkAdapt.setServerHasIP(true);
-        }
-        else {
-            ImmPtlNetworkAdapt.setServerHasIP(false);
         }
     }
     

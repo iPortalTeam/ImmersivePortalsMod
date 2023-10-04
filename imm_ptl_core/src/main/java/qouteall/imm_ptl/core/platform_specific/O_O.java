@@ -7,6 +7,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
+import net.fabricmc.loader.impl.util.version.SemanticVersionImpl;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -17,9 +18,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.q_misc_util.Helper;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -132,13 +136,37 @@ public class O_O {
         }
     }
     
-    public static @Nullable String getImmPtlVersion() {
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            return null;
+    public static @NotNull ImmPtlNetworkConfig.ModVersion getImmPtlVersion() {
+        Version version = FabricLoader.getInstance()
+            .getModContainer("imm_ptl_core").orElseThrow()
+            .getMetadata().getVersion();
+        
+        if (!(version instanceof SemanticVersionImpl semanticVersion)) {
+            // in dev env, its ${version}
+            return ImmPtlNetworkConfig.ModVersion.OTHER;
         }
+        
+        if (semanticVersion.getVersionComponentCount() != 3) {
+            Helper.LOGGER.error(
+                "immersive portals version {} is not in regular form", semanticVersion
+            );
+            return ImmPtlNetworkConfig.ModVersion.OTHER;
+        }
+        
+        return new ImmPtlNetworkConfig.ModVersion(
+            semanticVersion.getVersionComponent(0),
+            semanticVersion.getVersionComponent(1),
+            semanticVersion.getVersionComponent(2)
+        );
+    }
     
+    public static String getImmPtlVersionStr() {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            return "DevEnv";
+        }
+        
         return FabricLoader.getInstance()
-            .getModContainer("imm_ptl_core").get()
+            .getModContainer("imm_ptl_core").orElseThrow()
             .getMetadata().getVersion().toString();
     }
     

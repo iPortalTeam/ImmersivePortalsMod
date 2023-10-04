@@ -56,6 +56,7 @@
     "common.miscellaneous.MixinFishingHook",
     "common.miscellaneous.MixinMob",
     "common.networking.MixinClientboundCustomPayloadPacket",
+    "common.other_sync.IEServerConfigurationPacketListenerImpl",
     "common.other_sync.MixinMapItemSavedData",
     "common.other_sync.MixinPlayer_Pose",
     "common.other_sync.MixinPlayerList",

@@ -301,7 +301,7 @@ public class IPMcHelper {
         return Component.literal(" ").append(getTextWithCommand(
             Component.translatable("imm_ptl.disable_warning"),
             "/imm_ptl_client_debug disable_warning_for \"" + warningKey + "\""
-        ));
+        )).append(" ");
     }
     
     public static Component getDisableUpdateCheckText() {

@@ -29,7 +29,7 @@ public interface MixinBlockGetter {
 	) {
 		if (from.distanceToSqr(_to) > (512 * 512)) {
 			IPMcHelper.limitedLogger.invoke(() -> {
-				Helper.logger.error("Raycast too far", new Throwable());
+				Helper.LOGGER.error("Raycast too far", new Throwable());
 			});
 			return _to.subtract(from).normalize().scale(30).add(from);
 		}

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
-import qouteall.imm_ptl.core.network.ImmPtlNetworkAdapt;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.q_misc_util.dimension.DimId;
 
 @Environment(EnvType.CLIENT)
@@ -20,7 +20,7 @@ import qouteall.q_misc_util.dimension.DimId;
 public class MixinServerboundMovePlayerPacketPos {
     @Inject(method = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos;write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("RETURN"))
     private void onWrite(FriendlyByteBuf buf, CallbackInfo ci) {
-        if (!ImmPtlNetworkAdapt.doesServerHasIP()) {return;}
+        if (!ImmPtlNetworkConfig.doesServerHaveImmPtl()) {return;}
         ResourceKey<Level> playerDimension = ((IEPlayerMoveC2SPacket) this).ip_getPlayerDimension();
         Validate.notNull(playerDimension);
         DimId.writeWorldId(buf, playerDimension, true);

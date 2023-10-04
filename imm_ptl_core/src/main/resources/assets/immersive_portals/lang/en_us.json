@@ -209,6 +209,7 @@
   "text.autoconfig.immersive_portals.option.easeCommandStickPermission": "Ease Command Stick Permission",
   "text.autoconfig.immersive_portals.option.regularPortalLengthLimit": "Regular Portal Length Limit",
   "text.autoconfig.immersive_portals.option.portalsChangeGravityByDefault": "Portals Change Gravity by Default",
+  "text.autoconfig.immersive_portals.option.clientTolerantVersionMismatchWithServer": "Tolerant Version Mismatch with Server",
   "imm_ptl.conflicting_dim_stack": "Cannot set dimension stack because of portal conflicts",
   "imm_ptl.conflicting_dim_stack_detail": "The red arrows indicate conflicting portals. There cannot be two portals in the floor or ceiling of a dimension.\nTo fix that, you can remove entries or disable a specific connection.",
   "imm_ptl.a_dimension_of": "A dimension of %1$s",
@@ -274,6 +275,10 @@
   "imm_ptl.wand.alignment_updated": "Alignment updated",
 
   "imm_ptl.quilt_warning": "You are using Immersive Portals mod on Quilt. The Fabric version of Immersive Portals mod is designed for Fabric and may malfunction on Quilt. ",
+
+  "imm_ptl.mod_patch_version_mismatch": "The server's Immersive Portals mod version (%s) does not match the client's (%s). It's recommended to upgrade both client and server's Immersive Portals mod to latest.",
+  "imm_ptl.mod_major_minor_version_mismatch": "The server's Immersive Portals mod version (%s) is incompatible with client's Immersive Portals mod version (%s).\nIt's recommended to upgrade both client and server's Immersive Portals mod to the latest version.\nIf you want to connect without using another version of Immersive Portals, turn on 'Tolerant version mismatch with server' in the mod settings (you need to install Mod Menu to access the settings).",
+  "imm_ptl.server_missing_immptl": "You logged into a server that does not install Immersive Portals mod. Immersive portals mod is designed to work with the server that installs it. All Immersive Portals functionality will not work here. And other issue may arise. It's recommended to log into this server without Immersive Portals.",
 
   "imm_ptl.put_this_in_the_end_to_avoid_editing_trailing_comma": ""
 }

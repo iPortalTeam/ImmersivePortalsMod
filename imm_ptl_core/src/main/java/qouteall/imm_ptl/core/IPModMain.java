@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core;
 
+import com.mojang.logging.LogUtils;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -7,6 +8,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
@@ -21,6 +23,7 @@ import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.debug.DebugUtil;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
+import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -48,12 +51,15 @@ import java.util.function.BiConsumer;
 
 public class IPModMain {
     
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static void init() {
         loadConfig();
         
-        Helper.log("Immersive Portals Mod Initializing");
+        Helper.LOGGER.info("Immersive Portals Mod Initializing");
         
         ImmPtlNetworking.init();
+        ImmPtlNetworkConfig.init();
         
         IPGlobal.postClientTickEvent.register(IPGlobal.clientTaskList::processTasks);
         

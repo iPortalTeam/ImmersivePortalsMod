@@ -3,7 +3,6 @@ package qouteall.q_misc_util;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import qouteall.q_misc_util.dimension.DimTemplateArgumentType;
 import qouteall.q_misc_util.dimension.DimensionMisc;
 import qouteall.q_misc_util.dimension.DimensionTemplate;
 import qouteall.q_misc_util.dimension.DimsCommand;
@@ -29,7 +28,5 @@ public class MiscUtilModEntry implements ModInitializer {
         });
         
         DimensionTemplate.init();
-        
-        DimTemplateArgumentType.init();
     }
 }

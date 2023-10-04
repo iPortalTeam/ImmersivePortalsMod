@@ -158,7 +158,7 @@ public class IPModInfoChecking {
                     }
                     
                     if (IPConfig.getConfig().shouldDisplayWarning("preview")) {
-                        if (immPtlInfo.previewVersions.contains(O_O.getImmPtlVersion())) {
+                        if (immPtlInfo.previewVersions.contains(O_O.getImmPtlVersionStr())) {
                             MutableComponent text1 = Component.translatable("imm_ptl.preview_warning")
                                 .append(McHelper.getLinkText(O_O.getIssueLink()))
                                 .append(" ")

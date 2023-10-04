@@ -45,6 +45,8 @@ public class IPConfig implements ConfigData {
     public boolean enableNetherPortalEffect = true;
     @ConfigEntry.Category("client")
     public boolean enableClientPerformanceAdjustment = true;
+    @ConfigEntry.Category("client")
+    public boolean clientTolerantVersionMismatchWithServer = false;
     
     // client invisible configs
     
@@ -105,6 +107,8 @@ public class IPConfig implements ConfigData {
     public boolean chunkPacketDebug = false;
     @ConfigEntry.Gui.Excluded
     public boolean enableImmPtlChunkLoading = true;
+    @ConfigEntry.Gui.Excluded
+    public boolean serverTolerantVersionMismatchWithClient = false;
     @ConfigEntry.Gui.Excluded
     public HashSet<String> disabledWarnings = new HashSet<>();
     
