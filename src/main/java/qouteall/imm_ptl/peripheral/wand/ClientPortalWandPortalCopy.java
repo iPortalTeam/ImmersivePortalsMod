@@ -89,7 +89,7 @@ public class ClientPortalWandPortalCopy {
     );
     
     public static Animated<Double> placementOffsetLen = new Animated<>(
-        Animated.DOUBLE_TYPE_INFO,
+        Animated.DOUBLE_DEFAULT_ZERO_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         0.0

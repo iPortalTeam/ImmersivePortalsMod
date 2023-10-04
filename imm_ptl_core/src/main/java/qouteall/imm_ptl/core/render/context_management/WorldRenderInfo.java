@@ -74,70 +74,7 @@ public class WorldRenderInfo {
     
     private static @Nullable List<UUID> renderingDescCache = null;
     
-    // should use the builder or the full constructor
-    // TODO remove in 1.20.2
-    @Deprecated
-    public WorldRenderInfo(
-        ClientLevel world, Vec3 cameraPos,
-        @Nullable Matrix4f cameraTransformation,
-        boolean overwriteCameraTransformation,
-        @Nullable UUID description,
-        int renderDistance
-    ) {
-        this(
-            world, cameraPos, cameraTransformation, overwriteCameraTransformation,
-            description, renderDistance, false
-        );
-    }
-    
     // should use the builder
-    // TODO remove in 1.20.2
-    @Deprecated
-    public WorldRenderInfo(
-        ClientLevel world, Vec3 cameraPos,
-        @Nullable Matrix4f cameraTransformation,
-        boolean overwriteCameraTransformation,
-        @Nullable UUID description,
-        int renderDistance,
-        boolean doRenderHand
-    ) {
-        this.world = world;
-        this.cameraPos = cameraPos;
-        this.cameraTransformation = cameraTransformation;
-        this.description = description;
-        this.renderDistance = renderDistance;
-        this.overwriteCameraTransformation = overwriteCameraTransformation;
-        this.doRenderHand = doRenderHand;
-        this.enableViewBobbing = true;
-        this.doRenderSky = true;
-        this.isometricParameters = null;
-        this.hasFog = true;
-    }
-    
-    // TODO change to private in 1.20.2
-    @Deprecated
-    public WorldRenderInfo(
-        ClientLevel world, Vec3 cameraPos,
-        @Nullable Matrix4f cameraTransformation,
-        boolean overwriteCameraTransformation,
-        @Nullable UUID description,
-        int renderDistance,
-        boolean doRenderHand,
-        boolean enableViewBobbing
-    ) {
-        this.world = world;
-        this.cameraPos = cameraPos;
-        this.cameraTransformation = cameraTransformation;
-        this.description = description;
-        this.renderDistance = renderDistance;
-        this.overwriteCameraTransformation = overwriteCameraTransformation;
-        this.doRenderHand = doRenderHand;
-        this.enableViewBobbing = enableViewBobbing;
-        this.doRenderSky = true;
-        this.isometricParameters = null;
-        this.hasFog = true;
-    }
-    
     private WorldRenderInfo(
         ClientLevel world, Vec3 cameraPos,
         @Nullable Matrix4f cameraTransformation,

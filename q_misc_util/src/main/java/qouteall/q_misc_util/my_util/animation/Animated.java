@@ -142,8 +142,7 @@ public class Animated<T> {
         // the empty is null
     };
     
-    // TODO rename to VEC3_DEFAULT_ZERO_TYPE_INFO
-    public static final TypeInfo<Vec3> VEC_3_TYPE_INFO = new TypeInfo<Vec3>() {
+    public static final TypeInfo<Vec3> VEC_3_DEFAULT_ZERO_TYPE_INFO = new TypeInfo<Vec3>() {
         @Override
         public Vec3 interpolate(Vec3 start, Vec3 end, double progress) {
             return start.lerp(end, progress);
@@ -160,8 +159,7 @@ public class Animated<T> {
         }
     };
     
-    // TODO rename to DOUBLE_DEFAULT_ZERO_TYPE_INFO
-    public static final TypeInfo<Double> DOUBLE_TYPE_INFO = new TypeInfo<Double>() {
+    public static final TypeInfo<Double> DOUBLE_DEFAULT_ZERO_TYPE_INFO = new TypeInfo<Double>() {
         @Override
         public Double interpolate(Double start, Double end, double progress) {
             if (start == null) {

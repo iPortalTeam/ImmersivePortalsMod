@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.mixin.common.position_sync;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -238,16 +237,17 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
 //        return false;
 //    }
     
-    @Inject(
-        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleAcceptTeleportPacket(Lnet/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket;)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onOnTeleportConfirm(ServerboundAcceptTeleportationPacket packet, CallbackInfo ci) {
-        if (awaitingPositionFromClient == null) {
-            ci.cancel();
-        }
-    }
+    // TODO check teleport accept packet
+//    @Inject(
+//        method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleAcceptTeleportPacket(Lnet/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket;)V",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onOnTeleportConfirm(ServerboundAcceptTeleportationPacket packet, CallbackInfo ci) {
+//        if (awaitingPositionFromClient == null) {
+//            ci.cancel();
+//        }
+//    }
     
     private static boolean shouldAcceptDubiousMovement(ServerPlayer player) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {

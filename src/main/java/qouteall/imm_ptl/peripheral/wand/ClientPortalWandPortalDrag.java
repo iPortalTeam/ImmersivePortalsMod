@@ -111,28 +111,28 @@ public class ClientPortalWandPortalDrag {
     );
     
     private static Animated<Double> renderedWidthLineSegment = new Animated<>(
-        Animated.DOUBLE_TYPE_INFO,
+        Animated.DOUBLE_DEFAULT_ZERO_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         0.0
     );
     
     private static Animated<Double> renderedHeightLineSegment = new Animated<>(
-        Animated.DOUBLE_TYPE_INFO,
+        Animated.DOUBLE_DEFAULT_ZERO_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         0.0
     );
     
     private static Animated<Double> renderedWidthLock = new Animated<>(
-        Animated.DOUBLE_TYPE_INFO,
+        Animated.DOUBLE_DEFAULT_ZERO_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         0.0
     );
     
     private static Animated<Double> renderedHeightLock = new Animated<>(
-        Animated.DOUBLE_TYPE_INFO,
+        Animated.DOUBLE_DEFAULT_ZERO_TYPE_INFO,
         () -> RenderStates.renderStartNanoTime,
         TimingFunction.sine::mapProgress,
         0.0
