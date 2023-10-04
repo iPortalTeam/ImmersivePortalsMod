@@ -105,10 +105,6 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             return;
         }
         
-        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-            ip_cancelTeleportRequest();
-        }
-        
         if (player.level().dimension() != packetDimension) {
             ip_limitedLogger.lInfo(LOGGER, "[ImmPtl] Ignoring player move packet %s %s".formatted(player, packetDimension.location()));
             
@@ -157,8 +153,9 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         // it may request teleport while this.player is marked removed during respawn
         
         if (player.getRemovalReason() != null) {
-            Helper.err("Tries to send player pos packet to a removed player");
-            new Throwable().printStackTrace();
+            LOGGER.error(
+                "[ImmPtl] Tries to send player pos packet to a removed player",
+                new Throwable());
             return;
         }
         
@@ -249,6 +246,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
 //        }
 //    }
     
+    // TODO refactor to avoid using this
     private static boolean shouldAcceptDubiousMovement(ServerPlayer player) {
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
@@ -266,8 +264,4 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         return false;
     }
     
-    @Override
-    public void ip_cancelTeleportRequest() {
-        awaitingPositionFromClient = null;
-    }
 }

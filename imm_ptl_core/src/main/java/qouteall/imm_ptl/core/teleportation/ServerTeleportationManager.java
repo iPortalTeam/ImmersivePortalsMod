@@ -27,7 +27,6 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -80,12 +79,6 @@ public class ServerTeleportationManager {
     
     private void tick() {
         teleportingEntities.clear();
-        long tickTimeNow = McHelper.getServerGameTime();
-        if (tickTimeNow % 30 == 7) {
-            for (ServerPlayer player : McHelper.getRawPlayerList()) {
-                updateForPlayer(tickTimeNow, player);
-            }
-        }
         
         manageGlobalPortalTeleportation();
     }
@@ -304,10 +297,11 @@ public class ServerTeleportationManager {
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
-            ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         }
         
         McHelper.adjustVehicle(player);
+        
+        // reset the "authentic" player position as the current position
         player.connection.resetPosition();
 
 //        CollisionHelper.updateCollidingPortalAfterTeleportation(
@@ -335,8 +329,9 @@ public class ServerTeleportationManager {
             player.getYRot(),
             player.getXRot()
         );
+        
+        // reset the "authentic" player position as the current position
         player.connection.resetPosition();
-        ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         
         ImmPtlChunkTracking.updateForPlayer(player);
     }
@@ -421,24 +416,6 @@ public class ServerTeleportationManager {
                     }
                 }
             }
-        }
-    }
-    
-    private void updateForPlayer(long tickTimeNow, ServerPlayer player) {
-        // teleporting means dimension change
-        // inTeleportationState means syncing position to client
-        if (player.wonGame || player.isChangingDimension()) {
-            lastTeleportGameTime.put(player, tickTimeNow);
-            return;
-        }
-        Long lastTeleportGameTime =
-            this.lastTeleportGameTime.getOrDefault(player, 0L);
-        if (tickTimeNow - lastTeleportGameTime > 60) {
-            //for vanilla nether portal cooldown to work normally
-            player.hasChangedDimension();
-        }
-        else {
-            ((IEServerPlayNetworkHandler) player.connection).ip_cancelTeleportRequest();
         }
     }
     
