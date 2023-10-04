@@ -52,6 +52,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -473,6 +474,15 @@ public class ClientDebugCommand {
                 else {
                     context.getSource().sendFeedback(Component.literal("No pointing to a portal."));
                 }
+                return 0;
+            })
+        );
+        
+        builder.then(ClientCommandManager.literal("show_mod_id_list")
+            .executes(context -> {
+                List<String> loadedModIds = O_O.getLoadedModIds();
+                String str = loadedModIds.stream().collect(Collectors.joining("\n"));
+                context.getSource().sendFeedback(Component.literal(str));
                 return 0;
             })
         );

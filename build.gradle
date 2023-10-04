@@ -111,6 +111,57 @@ allprojects {
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
         annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
+
+        // put these into inner mod to reduce duplicate MC jar
+
+        if (project.enable_sodium.equals('true')) {
+            modLocalRuntime "${project.sodium_path}"
+        }
+
+        if (project.enable_iris.equals('true')) {
+            modLocalRuntime "${project.iris_path}"
+            implementation "org.anarres:jcpp:1.4.14" // for iris
+            implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
+            implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
+        }
+
+        if (project.enable_pehkui.equals('true')) {
+            modLocalRuntime("com.github.Virtuoel:Pehkui:${pehkui_version}", {
+                exclude(group: "net.fabricmc.fabric-api")
+            })
+        }
+
+        if (project.enable_gravity_changer.equals('true')) {
+            modLocalRuntime("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
+                exclude(group: "net.fabricmc.fabric-api")
+            }
+        }
+
+        if (project.enable_geckolib.equals('true')) {
+            // for testing portal gun using dev jar
+            modLocalRuntime ('software.bernie.geckolib:geckolib-fabric-1.20:4.2') {
+                transitive(false)
+            }
+        }
+
+        if (project.enable_test_mod.equals('true')) {
+            fileTree(dir: 'deps', include: '*.jar').each {
+                String baseName = it.name.replace(".jar", "")
+                String version = "0.1.0"
+                int split = baseName.lastIndexOf('-')
+
+                if (split != -1) {
+                    version = baseName.substring(split + 1)
+                    baseName = baseName.substring(0, split)
+                }
+
+                String name = "testmod:${baseName}:${version}"
+
+                System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+
+                modImplementation name
+            }
+        }
     }
 
     processResources {
@@ -181,55 +232,6 @@ dependencies {
     include("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
 
     modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
-
-    if (project.enable_sodium.equals('true')) {
-        modLocalRuntime "${project.sodium_path}"
-    }
-
-    if (project.enable_iris.equals('true')) {
-        modLocalRuntime "${project.iris_path}"
-        implementation "org.anarres:jcpp:1.4.14" // for iris
-        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
-        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
-    }
-
-    if (project.enable_pehkui.equals('true')) {
-        modLocalRuntime("com.github.Virtuoel:Pehkui:${pehkui_version}", {
-            exclude(group: "net.fabricmc.fabric-api")
-        })
-    }
-
-    if (project.enable_gravity_changer.equals('true')) {
-        modLocalRuntime("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
-            exclude(group: "net.fabricmc.fabric-api")
-        }
-    }
-
-    if (project.enable_geckolib.equals('true')) {
-        // for testing portal gun using dev jar
-        modLocalRuntime ('software.bernie.geckolib:geckolib-fabric-1.20:4.2') {
-            transitive(false)
-        }
-    }
-
-    if (project.enable_test_mod.equals('true')) {
-        fileTree(dir: 'deps', include: '*.jar').each {
-            String baseName = it.name.replace(".jar", "")
-            String version = "0.1.0"
-            int split = baseName.lastIndexOf('-')
-
-            if (split != -1) {
-                version = baseName.substring(split + 1)
-                baseName = baseName.substring(0, split)
-            }
-
-            String name = "testmod:${baseName}:${version}"
-
-            System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
-
-            modImplementation name
-        }
-    }
 
     testImplementation(platform('org.junit:junit-bom:5.10.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')

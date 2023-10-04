@@ -22,6 +22,7 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 public class O_O {
@@ -208,5 +209,10 @@ public class O_O {
     // most quilt installations use quilted fabric api
     public static boolean isQuilt() {
         return FabricLoader.getInstance().isModLoaded("quilted_fabric_api");
+    }
+    
+    public static List<String> getLoadedModIds() {
+        return FabricLoader.getInstance().getAllMods().stream()
+            .map(c -> c.getMetadata().getId()).sorted().toList();
     }
 }
