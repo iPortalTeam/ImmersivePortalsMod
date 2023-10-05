@@ -14,11 +14,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+
+import java.util.List;
 
 @Mixin(ChunkMap.class)
 public abstract class MixinChunkMap_E implements IEChunkMap {
@@ -36,6 +40,19 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     
     @Shadow
     protected abstract @Nullable ChunkHolder getUpdatingChunkIfPresent(long l);
+    
+    @Redirect(
+        method = "addEntity",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ChunkMap$TrackedEntity;updatePlayers(Ljava/util/List;)V"
+        )
+    )
+    private void redirectUpdatePlayers(
+        TrackedEntity trackedEntity, List<ServerPlayer> playersList
+    ) {
+        ((IETrackedEntity) trackedEntity).ip_updateEntityTrackingStatus();
+    }
     
     @IPVanillaCopy
     @Inject(
@@ -60,7 +77,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     }
     
     /**
-     * Managed by {@link qouteall.imm_ptl.core.chunk_loading.EntitySync}
+     * Managed by {@link EntitySync}
      */
     @Inject(method = "Lnet/minecraft/server/level/ChunkMap;tick()V", at = @At("HEAD"), cancellable = true)
     private void onTickEntityMovement(CallbackInfo ci) {

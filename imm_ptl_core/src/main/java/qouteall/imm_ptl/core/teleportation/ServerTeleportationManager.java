@@ -333,7 +333,7 @@ public class ServerTeleportationManager {
         // reset the "authentic" player position as the current position
         player.connection.resetPosition();
         
-        ImmPtlChunkTracking.updateForPlayer(player);
+        ImmPtlChunkTracking.immediatelyUpdateForPlayer(player);
     }
     
     /**

@@ -1,12 +1,15 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import net.minecraft.core.SectionPos;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
@@ -18,12 +21,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import qouteall.imm_ptl.core.chunk_loading.EntitySync;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+import qouteall.imm_ptl.core.mixin.common.other_sync.MixinPlayerList;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.List;
@@ -89,7 +93,25 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     
     /**
      * @author qouteall
-     * @reason managed by {@link EntitySync}
+     * @reason managed by ImmPtl
+     * In vanilla, entity tracking updates when
+     * - {@link ChunkMap#move(ServerPlayer)}
+     *   When the player moves, the entities in curr dim except that player updates to that player,
+     *   and that player updates to all player in that dimension.
+     *   In ImmPtl, handled in {@link ImmPtlChunkTracking#tick(MinecraftServer)}
+     *
+     * - {@link ChunkMap#addEntity(Entity)}
+     *   When adding a new entity, it's updated to all players in curr dim.
+     *   When adding a new player, all entities (except the player) in curr dim updates to that player.
+     *   In ImmPtl, adding entity is handled in
+     *   {@link MixinChunkMap_E#redirectUpdatePlayers(ChunkMap.TrackedEntity, List)}
+     *   player login is handled in
+     *   {@link MixinPlayerList#onOnPlayerConnect(Connection, ServerPlayer, CommonListenerCookie, CallbackInfo)}
+     *
+     * - {@link ChunkMap#tick()}
+     *   If a player's section pos changes, all entities in curr dim updates to that player.
+     *   If an entity's section pos changes, it's updates to all players in that dimension.
+     *   In ImmPtl, handled in {@link ImmPtlChunkTracking#tick(MinecraftServer)}
      */
     @Overwrite
     public void updatePlayer(ServerPlayer player) {
@@ -98,7 +120,7 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     
     /**
      * @author qouteall
-     * @reason managed by {@link EntitySync}
+     * @reason managed by ImmPtl
      */
     @Overwrite
     public void updatePlayers(List<ServerPlayer> list) {
@@ -115,8 +137,7 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
      * This only checks the players viewing the chunk.
      * Vanilla checks all players in dimension {@link ChunkMap#tick()}
      * so this is more efficient in this aspect.
-     * However, in vanilla, if both the entity and player doesn't move,
-     * it won't update.
+     * However, in vanilla, if both the entity and player doesn't move, it won't update.
      * But in ImmPtl, it constantly updates because portals can change at any time and
      * that can changes entity visibility at anytime.
      */
@@ -197,6 +218,12 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
         }
         
         if (!rec.isLoadedToPlayer) {
+            // when player logging in standing on cross portal collision
+            // we need to send add entity packet early,
+            // otherwise cross portal collision will not work early enough
+            // but if the portal is big (center can be 4 chunks away from player)
+            // the new slow chunk sending mechanism will slow its packet sent
+            // TODO find a solution to this
             return false;
         }
         
@@ -236,7 +263,7 @@ public abstract class MixinTrackedEntity implements IETrackedEntity {
     }
     
     @Override
-    public void ip_tickEntry() {
+    public void ip_sendChanges() {
         serverEntity.sendChanges();
     }
     

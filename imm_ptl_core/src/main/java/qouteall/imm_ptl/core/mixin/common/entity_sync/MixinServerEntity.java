@@ -48,8 +48,8 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl networkHandler,
         Packet packet
     ) {
-        if (IPGlobal.entityUnloadDebug) {
-            LOGGER.info("Entity remove packet sent {}", entity);
+        if (IPGlobal.entityUntrackDebug) {
+            LOGGER.info("Entity remove packet sent {} {}", entity.level().getGameTime(), entity);
         }
         PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level().dimension());
     }
@@ -65,6 +65,9 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
         ServerGamePacketListenerImpl networkHandler,
         Packet packet
     ) {
+        if (IPGlobal.entityTrackDebug) {
+            LOGGER.info("Entity add packet sent {} {}", entity.level().getGameTime(), entity);
+        }
         PacketRedirection.sendRedirectedPacket(networkHandler, packet, entity.level().dimension());
     }
     

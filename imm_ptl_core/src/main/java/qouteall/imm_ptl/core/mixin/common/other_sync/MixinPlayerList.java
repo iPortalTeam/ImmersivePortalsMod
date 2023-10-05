@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.q_misc_util.Helper;
 
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,10 @@ public class MixinPlayerList {
         Connection connection, ServerPlayer player,
         CommonListenerCookie commonListenerCookie, CallbackInfo ci
     ) {
-        ImmPtlChunkTracking.updateForPlayer(player);
+        ImmPtlChunkTracking.immediatelyUpdateForPlayer(player);
+        
+        // debug
+        Helper.LOGGER.info("Player login {} {}", player.level().getGameTime(), player);
     }
     
     //with redirection

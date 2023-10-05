@@ -208,7 +208,7 @@ public class ImmPtlNetworking {
                 ClientWorldLoader.getWorld(portal.dimensionTo);
                 Portal.clientPortalSpawnSignal.emit(portal);
                 
-                if (IPGlobal.portalLoadDebug) {
+                if (IPGlobal.clientPortalLoadDebug) {
                     LOGGER.info("Portal loaded to client {}", portal);
                 }
             }

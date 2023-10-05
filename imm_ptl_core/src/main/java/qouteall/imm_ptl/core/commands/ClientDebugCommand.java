@@ -629,13 +629,18 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "entity_unload_debug",
-            cond -> IPGlobal.entityUnloadDebug = cond
+            "entity_untrack_debug",
+            cond -> IPGlobal.entityUntrackDebug = cond
         );
         registerSwitchCommand(
             builder,
-            "portal_load_debug",
-            cond -> IPGlobal.portalLoadDebug = cond
+            "entity_track_debug",
+            cond -> IPGlobal.entityTrackDebug = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "client_portal_load_debug",
+            cond -> IPGlobal.clientPortalLoadDebug = cond
         );
         registerSwitchCommand(
             builder,

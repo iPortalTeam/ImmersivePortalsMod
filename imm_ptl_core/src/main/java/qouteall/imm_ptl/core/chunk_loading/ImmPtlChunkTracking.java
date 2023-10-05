@@ -146,6 +146,18 @@ public class ImmPtlChunkTracking {
         );
     }
     
+    public static void immediatelyUpdateForPlayer(ServerPlayer player) {
+        ImmPtlChunkTracking.updateForPlayer(player);
+        
+        getPlayerInfo(player).doChunkSending(player);
+        
+        // must call after chunk tracking update and chunk packet sending
+        // (not sending chunk packet disallows entity tracking)
+        // we need to send add entity packet early,
+        // otherwise player will fall when standing on cross-portal-collision when logging in
+        EntitySync.update(player.server);
+    }
+    
     public static void updateForPlayer(ServerPlayer player) {
         PlayerChunkLoading playerInfo = getPlayerInfo(player);
         playerInfo.visibleDimensions.clear();
@@ -383,6 +395,8 @@ public class ImmPtlChunkTracking {
         if (updates) {
             EntitySync.update(server);
         }
+        
+        EntitySync.tick(server);
     }
     
     public static boolean isPlayerWatchingChunk(

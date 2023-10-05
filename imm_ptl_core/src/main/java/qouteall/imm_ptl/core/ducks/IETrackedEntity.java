@@ -14,7 +14,7 @@ public interface IETrackedEntity {
     
     void ip_stopTrackingToAllPlayers();
     
-    void ip_tickEntry();
+    void ip_sendChanges();
     
     SectionPos ip_getLastSectionPos();
     
