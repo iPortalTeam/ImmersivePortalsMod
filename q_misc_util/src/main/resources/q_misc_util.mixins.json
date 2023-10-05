@@ -16,7 +16,8 @@
     "dimension.MixinWorldGenSettings"
   ],
   "client": [
-    "client.IEClientPacketListener_Misc"
+    "client.IEClientPacketListener_Misc",
+    "client.MixinGui_Overlay"
   ],
   "injectors": {
     "defaultRequire": 1

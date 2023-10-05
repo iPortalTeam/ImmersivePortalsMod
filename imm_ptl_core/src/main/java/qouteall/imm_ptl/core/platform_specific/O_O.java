@@ -161,10 +161,6 @@ public class O_O {
     }
     
     public static String getImmPtlVersionStr() {
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            return "DevEnv";
-        }
-        
         return FabricLoader.getInstance()
             .getModContainer("imm_ptl_core").orElseThrow()
             .getMetadata().getVersion().toString();

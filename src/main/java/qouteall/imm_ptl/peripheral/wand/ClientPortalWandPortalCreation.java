@@ -23,7 +23,7 @@ import qouteall.imm_ptl.core.mc_utils.WireRenderingHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.animation.TimingFunction;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
+import qouteall.q_misc_util.CustomTextOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Circle;
@@ -170,7 +170,7 @@ public class ClientPortalWandPortalCreation {
             
             MutableComponent promptMessage = protoPortal.getPromptMessage(pendingState);
             if (promptMessage != null) {
-                ImmPtlCustomOverlay.putText(
+                CustomTextOverlay.putText(
                     promptMessage
                 );
             }

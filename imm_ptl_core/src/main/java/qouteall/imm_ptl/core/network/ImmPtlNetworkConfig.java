@@ -25,12 +25,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.mixin.common.other_sync.IEServerConfigurationPacketListenerImpl;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.util.function.Consumer;
 
@@ -128,33 +126,6 @@ public class ImmPtlNetworkConfig {
             responseSender.sendPacket(new C2SConfigCompletePacket(
                 immPtlVersion, IPConfig.getConfig().clientTolerantVersionMismatchWithServer
             ));
-            
-            if (!versionFromServer.isNormalVersion() || !immPtlVersion.isNormalVersion()) {
-                return;
-            }
-            
-            if (!versionFromServer.equals(immPtlVersion)) {
-                MyTaskList.MyTask task = MyTaskList.oneShotTask(() -> {
-                    if (IPConfig.getConfig()
-                        .shouldDisplayWarning("mod_version_mismatch")
-                    ) {
-                        MutableComponent text =
-                            Component.translatable(
-                                "imm_ptl.mod_patch_version_mismatch",
-                                Component.literal(versionFromServer.toString())
-                                    .withStyle(ChatFormatting.GOLD),
-                                Component.literal(immPtlVersion.toString())
-                                    .withStyle(ChatFormatting.GOLD)
-                            ).append(
-                                IPMcHelper.getDisableWarningText("mod_version_mismatch")
-                            );
-                        CHelper.printChat(text);
-                    }
-                });
-                IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-                    () -> Minecraft.getInstance().level == null, task
-                ));
-            }
         }
     }
     
@@ -226,6 +197,8 @@ public class ImmPtlNetworkConfig {
     public static void init() {
         immPtlVersion = O_O.getImmPtlVersion();
         
+        LOGGER.info("Immersive Portals Core version {}", immPtlVersion);
+        
         ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
             if (ServerConfigurationNetworking.canSend(handler, S2CConfigStartPacket.TYPE)) {
                 handler.addTask(new ImmPtlConfigurationTask());
@@ -243,8 +216,6 @@ public class ImmPtlNetworkConfig {
             C2SConfigCompletePacket.TYPE,
             C2SConfigCompletePacket::handle
         );
-        
-        LOGGER.info("Immersive Portals Core version {}", immPtlVersion);
     }
     
     @Environment(EnvType.CLIENT)
@@ -267,10 +238,34 @@ public class ImmPtlNetworkConfig {
         );
         
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            if (!doesServerHaveImmPtl()) {
-                warnServerMissingImmPtl();
-            }
+            onClientJoin();
         });
+    }
+    
+    private static void onClientJoin() {
+        if (serverVersion == null) {
+            warnServerMissingImmPtl();
+        }
+        else {
+            if (serverVersion.isNormalVersion() &&
+                immPtlVersion.isNormalVersion() &&
+                !serverVersion.equals(immPtlVersion)
+            ) {
+                if (IPConfig.getConfig().shouldDisplayWarning("mod_version_mismatch")) {
+                    MutableComponent text =
+                        Component.translatable(
+                            "imm_ptl.mod_patch_version_mismatch",
+                            Component.literal(serverVersion.toString())
+                                .withStyle(ChatFormatting.GOLD),
+                            Component.literal(immPtlVersion.toString())
+                                .withStyle(ChatFormatting.GOLD)
+                        ).append(
+                            IPMcHelper.getDisableWarningText("mod_version_mismatch")
+                        );
+                    CHelper.printChat(text);
+                }
+            }
+        }
     }
     
     // used on client

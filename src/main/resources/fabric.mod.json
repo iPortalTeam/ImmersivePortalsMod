@@ -3,7 +3,7 @@
   "id": "immersive_portals",
   "version": "${version}",
   "name": "Immersive Portals",
-  "description": "See through portals and travel between dimensions seamlessly. (Includes Dimension Data Fix mod)",
+  "description": "See through portals and travel between dimensions seamlessly.",
   "authors": [
     "qouteall", "Other Contributors (see GitHub)"
   ],

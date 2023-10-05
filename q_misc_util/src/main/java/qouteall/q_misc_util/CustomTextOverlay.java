@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.peripheral;
+package qouteall.q_misc_util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -10,7 +10,6 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
-import qouteall.q_misc_util.Helper;
 
 import java.util.TreeMap;
 
@@ -18,7 +17,7 @@ import java.util.TreeMap;
  * Make this because {@link Gui#setOverlayMessage(Component, boolean)} does not support multi-line
  */
 @Environment(EnvType.CLIENT)
-public class ImmPtlCustomOverlay {
+public class CustomTextOverlay {
     
     public static record Entry(
         Component component,
@@ -26,6 +25,8 @@ public class ImmPtlCustomOverlay {
     ) {}
     
     private static final TreeMap<String, Entry> ENTRIES = new TreeMap<>();
+    
+    private static final boolean renderAtBottomCenter = true;
     
     @Nullable
     private static MultiLineLabel multiLineLabelCache;
@@ -106,11 +107,24 @@ public class ImmPtlCustomOverlay {
         Font font = minecraft.gui.getFont();
         
         minecraft.getProfiler().push("imm_ptl_custom_overlay");
-        // Note: the parchment names are incorrect
-        multiLineLabelCache.renderCentered(
-            guiGraphics,
-            guiScaledWidth / 2, (int) (guiScaledHeight * 0.75)
-        );
+        if (renderAtBottomCenter) {
+            // Note: the parchment names are incorrect
+            multiLineLabelCache.renderCentered(
+                guiGraphics,
+                guiScaledWidth / 2, // x
+                (int) (guiScaledHeight * 0.75) // y
+            );
+        }
+        else {
+            multiLineLabelCache.renderLeftAligned(
+                guiGraphics,
+                10, // x
+                10, // y
+                9, // line height
+                0xffffffff // color
+            );
+        }
+        
         guiGraphics.pose().popPose();
         
         minecraft.getProfiler().pop();

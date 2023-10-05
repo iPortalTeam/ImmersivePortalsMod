@@ -93,7 +93,7 @@ public class IPModInfoChecking {
         String url = O_O.getImmPtlModInfoUrl();
         
         if (url == null) {
-            Helper.log("Not fetching immptl mod info");
+            LOGGER.info("Not fetching immptl mod info");
             return null;
         }
         
@@ -107,7 +107,7 @@ public class IPModInfoChecking {
             );
             
             if (response.statusCode() != 200) {
-                Helper.err("Failed to fetch immptl mod info " + response.statusCode());
+                LOGGER.error("Failed to fetch immptl mod info {}", response.statusCode());
                 return null;
             }
             
@@ -117,7 +117,7 @@ public class IPModInfoChecking {
             return immPtlInfo;
         }
         catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to fetch immptl mod info", e);
             return null;
         }
     }
@@ -135,12 +135,27 @@ public class IPModInfoChecking {
                 return;
             }
             
+            // test
+//            immPtlInfo.severelyIncompatible.add(new ModIncompatInfo(
+//                "fabric-api", "Test", null, null, "desc", "https://github.com/iPortalTeam/ImmersivePortalsMod/issues"
+//            ));
+            
             incompatibleShaderpacks = immPtlInfo.incompatibleShaderpacks;
+            
+            List<MutableComponent> severeIncompatWarningText =
+                getSevereIncompatWarningText(immPtlInfo);
+            
+            if (!severeIncompatWarningText.isEmpty()) {
+                MutableComponent toDirectlyDisplay = severeIncompatWarningText.stream()
+                    .reduce(Component.empty(), (a, b)->a.append("\n").append(b));
+                
+                // TODO display before entering world
+            }
             
             IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
                 MyTaskList.oneShotTask(() -> {
-                    List<Component> texts = new ArrayList<>();
+                    List<MutableComponent> texts = new ArrayList<>();
                     
                     if (IPGlobal.enableUpdateNotification) {
                         if (O_O.shouldUpdateImmPtl(immPtlInfo.latestReleaseVersion)) {
@@ -168,33 +183,7 @@ public class IPModInfoChecking {
                         }
                     }
                     
-                    for (ModIncompatInfo info : immPtlInfo.severelyIncompatible) {
-                        if (info != null && info.isModLoadedWithinVersion()) {
-                            MutableComponent text1;
-                            if (info.startVersion != null || info.endVersion != null) {
-                                text1 = Component.translatable(
-                                    "imm_ptl.severely_incompatible_within_version",
-                                    info.modName, info.modId,
-                                    info.getVersionRangeStr()
-                                ).withStyle(ChatFormatting.RED);
-                            }
-                            else {
-                                text1 = Component.translatable("imm_ptl.severely_incompatible", info.modName, info.modId)
-                                    .withStyle(ChatFormatting.RED);
-                            }
-                            
-                            if (info.desc != null) {
-                                text1.append(Component.literal(" " + info.desc + " "));
-                            }
-                            
-                            if (info.link != null) {
-                                text1.append(Component.literal(" "));
-                                text1.append(McHelper.getLinkText(info.link));
-                            }
-                            
-                            texts.add(text1);
-                        }
-                    }
+                    texts.addAll(severeIncompatWarningText);
                     
                     for (ModIncompatInfo info : immPtlInfo.incompatible) {
                         if (info != null && info.isModLoadedWithinVersion()) {
@@ -240,6 +229,41 @@ public class IPModInfoChecking {
             })
         ));
         
+    }
+    
+    private static List<MutableComponent> getSevereIncompatWarningText(
+        ImmPtlInfo immPtlInfo
+    ) {
+        List<MutableComponent> texts = new ArrayList<>();
+        for (ModIncompatInfo info : immPtlInfo.severelyIncompatible) {
+            if (info != null && info.isModLoadedWithinVersion()) {
+                MutableComponent text1;
+                if (info.startVersion != null || info.endVersion != null) {
+                    text1 = Component.translatable(
+                        "imm_ptl.severely_incompatible_within_version",
+                        info.modName, info.modId,
+                        info.getVersionRangeStr()
+                    ).withStyle(ChatFormatting.RED);
+                }
+                else {
+                    text1 = Component.translatable("imm_ptl.severely_incompatible", info.modName, info.modId)
+                        .withStyle(ChatFormatting.RED);
+                }
+                
+                if (info.desc != null) {
+                    text1.append(Component.literal(" " + info.desc + " "));
+                }
+                
+                if (info.link != null) {
+                    text1.append(Component.literal(" "));
+                    text1.append(McHelper.getLinkText(info.link));
+                }
+                
+                texts.add(text1);
+            }
+        }
+        
+        return texts;
     }
     
     public static void initDedicatedServer() {

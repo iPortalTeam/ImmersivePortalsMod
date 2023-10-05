@@ -32,7 +32,7 @@ import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.portal.util.PortalLocalXYNormalized;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
+import qouteall.q_misc_util.CustomTextOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -201,7 +201,7 @@ public class ClientPortalWandPortalDrag {
             if (selectionStatus != null) {
                 if (selectionStatus.selectsHorizontalEdge) {
                     lockWidth = !lockWidth;
-                    ImmPtlCustomOverlay.putText(
+                    CustomTextOverlay.putText(
                         Component.translatable(lockWidth ?
                             "imm_ptl.wand.width_locked" : "imm_ptl.wand.width_unlocked"
                         ).withStyle(ChatFormatting.GOLD),
@@ -211,7 +211,7 @@ public class ClientPortalWandPortalDrag {
                 }
                 else if (selectionStatus.selectsVerticalEdge) {
                     lockHeight = !lockHeight;
-                    ImmPtlCustomOverlay.putText(
+                    CustomTextOverlay.putText(
                         Component.translatable(lockHeight ?
                             "imm_ptl.wand.height_locked" : "imm_ptl.wand.height_unlocked"
                         ).withStyle(ChatFormatting.GOLD),
@@ -223,7 +223,7 @@ public class ClientPortalWandPortalDrag {
                     PortalLocalXYNormalized selectedAnchor = selectionStatus.selectedAnchor;
                     if (lockedAnchor != null && lockedAnchor.isCloseTo(selectedAnchor, 0.01)) {
                         lockedAnchor = null;
-                        ImmPtlCustomOverlay.putText(
+                        CustomTextOverlay.putText(
                             Component.translatable("imm_ptl.wand.anchor_unlocked")
                                 .withStyle(ChatFormatting.GOLD),
                             3.0,
@@ -231,7 +231,7 @@ public class ClientPortalWandPortalDrag {
                         );
                     }
                     else {
-                        ImmPtlCustomOverlay.putText(
+                        CustomTextOverlay.putText(
                             Component.translatable(lockedAnchor != null ?
                                 "imm_ptl.wand.anchor_lock_moved" : "imm_ptl.wand.anchor_locked"
                             ).withStyle(ChatFormatting.GOLD),
@@ -328,7 +328,7 @@ public class ClientPortalWandPortalDrag {
             cursor.clearTarget();
             renderedPlane.clearTarget();
             renderedPrePlane.clearTarget();
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable("imm_ptl.wand.select_portal")
             );
             
@@ -370,7 +370,7 @@ public class ClientPortalWandPortalDrag {
                     // change portal selection, clear the locks and selection
                     selectionStatus = null;
                     if (hasLock()) {
-                        ImmPtlCustomOverlay.putText(
+                        CustomTextOverlay.putText(
                             Component.translatable("imm_ptl.wand.lock_cleared")
                                 .withStyle(ChatFormatting.GOLD),
                             5.0,
@@ -428,7 +428,7 @@ public class ClientPortalWandPortalDrag {
         );
         
         if (selectsHorizontalEdge) {
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.lock_width",
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
@@ -437,7 +437,7 @@ public class ClientPortalWandPortalDrag {
             renderedPrePlane.clearTarget();
         }
         else if (selectsVerticalEdge) {
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.lock_height",
                     minecraft.options.keyAttack.getTranslatedKeyMessage()
@@ -450,7 +450,7 @@ public class ClientPortalWandPortalDrag {
                 "imm_ptl.wand.on_plane", planeInfo.getSecond().withStyle(ChatFormatting.GOLD)
             );
             
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.pre_drag",
                     minecraft.options.keyAttack.getTranslatedKeyMessage(),
@@ -590,7 +590,7 @@ public class ClientPortalWandPortalDrag {
             portalSizeText = Component.literal("");
         }
         
-        ImmPtlCustomOverlay.putText(
+        CustomTextOverlay.putText(
             draggingText
                 .append(planeText)
                 .append(undoPrompt)
@@ -744,10 +744,10 @@ public class ClientPortalWandPortalDrag {
                 "qouteall.imm_ptl.peripheral.wand.PortalWandInteraction.RemoteCallables.requestApplyDrag",
                 selectedPortalId, cursorPos, draggingInfo
             );
-            ImmPtlCustomOverlay.remove("1_invalid_dragging");
+            CustomTextOverlay.remove("1_invalid_dragging");
         }
         else {
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable("imm_ptl.wand.invalid_dragging")
                     .withStyle(ChatFormatting.RED),
                 3.0,

@@ -27,7 +27,7 @@ import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.TransformationManager;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.peripheral.ImmPtlCustomOverlay;
+import qouteall.q_misc_util.CustomTextOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.AARotation;
@@ -132,7 +132,7 @@ public class ClientPortalWandPortalCopy {
                 selection.setTarget(portal.getThisSideState(), Helper.secondToNano(0.5));
                 statusSelectPortal.selectedPortalId = portal.getUUID();
                 
-                ImmPtlCustomOverlay.putText(
+                CustomTextOverlay.putText(
                     Component.translatable(
                         "imm_ptl.wand.copy.prompt.copy_or_cut",
                         Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
@@ -144,7 +144,7 @@ public class ClientPortalWandPortalCopy {
                 selection.clearTarget();
                 statusSelectPortal.selectedPortalId = null;
                 
-                ImmPtlCustomOverlay.putText(
+                CustomTextOverlay.putText(
                     Component.translatable("imm_ptl.wand.copy.prompt.select_portal")
                 );
             }
@@ -204,7 +204,7 @@ public class ClientPortalWandPortalCopy {
             placementOrientation.setTarget(orientation, Helper.secondToNano(0.5));
             placementOffsetLen.setTarget(offsetLen, Helper.secondToNano(0.5));
             
-            ImmPtlCustomOverlay.putText(
+            CustomTextOverlay.putText(
                 Component.translatable(
                     "imm_ptl.wand.copy.prompt.place_portal",
                     Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
