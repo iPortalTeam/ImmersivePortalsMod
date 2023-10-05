@@ -344,11 +344,13 @@ public class ClientTeleportationManager {
         
         PehkuiInterface.invoker.onClientPlayerTeleported(portal);
         
-        player.connection.send(ClientPlayNetworking.createC2SPacket(new ImmPtlNetworking.TeleportPacket(
-            DimensionIdRecord.serverRecord.getIntId(fromDimension),
-            lastTickEyePos,
-            portal.getUUID()
-        )));
+        player.connection.send(ClientPlayNetworking.createC2SPacket(
+            new ImmPtlNetworking.TeleportPacket(
+                DimensionIdRecord.clientRecord.getIntId(fromDimension),
+                lastTickEyePos,
+                portal.getUUID()
+            )
+        ));
         
         PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
             player, newThisTickEyePos, newLastTickEyePos, RenderStates.getPartialTick()
