@@ -42,3 +42,7 @@ logs/
 /deps/
 
 /misc/mesh_to_visualize.json
+
+/remappedSrc
+/imm_ptl_core/remappedSrc
+/q_misc_util/remappedSrc

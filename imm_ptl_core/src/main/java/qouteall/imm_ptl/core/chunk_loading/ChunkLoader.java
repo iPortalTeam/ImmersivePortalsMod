@@ -11,10 +11,11 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.util.Objects;
 
-//the players and portals are chunk loaders
 public class ChunkLoader {
+    // TODO flatten it in 1.20.3
     public DimensionalChunkPos center;
     public int radius;
+    // TODO remove in 1.20.3
     @Deprecated
     public boolean isDirectLoader = false;
     
@@ -22,6 +23,7 @@ public class ChunkLoader {
         this(center, radius, false);
     }
     
+    @Deprecated
     public ChunkLoader(DimensionalChunkPos center, int radius, boolean isDirectLoader) {
         this.center = center;
         this.radius = radius;
