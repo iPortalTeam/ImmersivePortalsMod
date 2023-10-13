@@ -18,6 +18,7 @@ public class DimensionIdRecord {
     
     public static DimensionIdRecord clientRecord;
     
+    // TODO make it in MinecraftServer
     public static DimensionIdRecord serverRecord;
     
     final BiMap<ResourceKey<Level>, Integer> idMap;

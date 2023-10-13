@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.network;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.BundleDelimiterPacket;
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_Redirect;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
 import java.util.ArrayList;
@@ -143,7 +146,7 @@ public class PacketRedirection {
         }
         else {
             // will use the server argument in the future
-            int intDimId = DimensionIdRecord.serverRecord.getIntId(dimension);
+            int intDimId = DimensionAPI.getServerDimIntId(server, dimension);
             Payload payload = new Payload(intDimId, packet);
             
             // the custom payload packet should be able to be bundled
@@ -223,6 +226,7 @@ public class PacketRedirection {
         }
         
         @SuppressWarnings("unchecked")
+        @Environment(EnvType.CLIENT)
         public void handle(ClientGamePacketListener listener) {
             if (DimensionIdRecord.clientRecord == null) {
                 throw new RuntimeException(
@@ -230,7 +234,7 @@ public class PacketRedirection {
                 );
             }
             
-            ResourceKey<Level> dim = DimensionIdRecord.clientRecord.getDim(dimensionIntId);
+            ResourceKey<Level> dim = DimensionAPI.getClientDimKeyFromIntId(dimensionIntId);
             PacketRedirectionClient.handleRedirectedPacket(
                 dim, (Packet) packet, listener
             );

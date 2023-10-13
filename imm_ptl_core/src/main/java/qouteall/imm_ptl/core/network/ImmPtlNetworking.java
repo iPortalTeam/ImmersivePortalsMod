@@ -26,7 +26,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
+import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -70,7 +70,9 @@ public class ImmPtlNetworking {
         }
         
         public void handle(ServerPlayer player) {
-            ResourceKey<Level> dim = DimensionIdRecord.serverRecord.getDim(dimensionId);
+            ResourceKey<Level> dim = DimensionAPI.getServerDimKeyFromIntId(
+                player.server, dimensionId
+            );
             
             IPGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
                 player, dim, posBefore, portalId
@@ -106,7 +108,7 @@ public class ImmPtlNetworking {
         
         @Environment(EnvType.CLIENT)
         public void handle() {
-            ResourceKey<Level> dim = DimensionIdRecord.clientRecord.getDim(dimensionId);
+            ResourceKey<Level> dim = DimensionAPI.getClientDimKeyFromIntId(dimensionId);
             
             GlobalPortalStorage.receiveGlobalPortalSync(dim, data);
         }
@@ -167,7 +169,7 @@ public class ImmPtlNetworking {
          */
         @Environment(EnvType.CLIENT)
         public void handle() {
-            ResourceKey<Level> dimension = DimensionIdRecord.clientRecord.getDim(dimensionId);
+            ResourceKey<Level> dimension = DimensionAPI.getClientDimKeyFromIntId(dimensionId);
             ClientLevel world = ClientWorldLoader.getWorld(dimension);
             
             Entity existing = world.getEntity(id);

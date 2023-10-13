@@ -2,11 +2,14 @@ package qouteall.q_misc_util.dimension;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -20,20 +23,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-// ImmPtl in 1.15 and before store integer dimension id
-// It used to be able to upgrade the dimension id by reading the id map inside fabric api
-// I removed that because Fabric API changed so the hack broke and very few people use 1.15 now
 public class DimensionIdManagement {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
     public static void onServerStarted(MinecraftServer server) {
         DimensionIdRecord ipRecord = readIPDimensionRegistry(server);
         if (ipRecord == null) {
-            Helper.log("Immersive Portals' dimension id record is missing");
+            LOGGER.info("Immersive Portals' dimension id record is missing");
             
             DimensionIdRecord.serverRecord = null;
         }
         else {
             DimensionIdRecord.serverRecord = ipRecord;
-            Helper.log("Successfully read IP's dimension id record");
+            LOGGER.info("Successfully read IP's dimension id record");
         }
         
         updateAndSaveServerDimIdRecord(server);
@@ -53,7 +55,7 @@ public class DimensionIdManagement {
             
             NbtIo.writeCompressed(tag, fileInputStream);
             
-            Helper.log("Dimension Id Info Saved to File");
+            LOGGER.info("Dimension Id Info Saved to File");
         }
         catch (IOException e) {
             throw new RuntimeException(
@@ -62,12 +64,12 @@ public class DimensionIdManagement {
         }
     }
     
-    //return null for failed
-    private static DimensionIdRecord readIPDimensionRegistry(MinecraftServer server) {
+    // return null for failed
+    private static @Nullable DimensionIdRecord readIPDimensionRegistry(MinecraftServer server) {
         File dataFile = getIPDimIdFile(server);
         
         if (!dataFile.exists()) {
-            Helper.log("Immersive Portals' Dimension Id Record File Does Not Exist");
+            LOGGER.info("Immersive Portals' Dimension Id Record File Does Not Exist");
             return null;
         }
         
@@ -79,7 +81,7 @@ public class DimensionIdManagement {
             return DimensionIdRecord.tagToRecord(tag);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Failed to read Immersive Portals' Dimension Id Record File", e);
             return null;
         }
     }
@@ -92,12 +94,12 @@ public class DimensionIdManagement {
     
     private static void completeServerIdRecord(MinecraftServer server) {
         if (DimensionIdRecord.serverRecord == null) {
-            Helper.log("Dimension Id Record is Missing");
+            LOGGER.info("Dimension Id Record is Missing");
             DimensionIdRecord.serverRecord = new DimensionIdRecord(HashBiMap.create());
         }
         
-        Helper.log("Start Completing Dimension Id Record");
-        Helper.log("Before:\n" + DimensionIdRecord.serverRecord);
+        LOGGER.info("Start Completing Dimension Id Record");
+        LOGGER.info("Before:\n" + DimensionIdRecord.serverRecord);
         
         Set<ResourceKey<Level>> keys = server.levelKeys();
         
@@ -116,7 +118,7 @@ public class DimensionIdManagement {
         List<ResourceKey<Level>> keysList = new ArrayList<>(keys);
         keysList.sort(Comparator.comparing(ResourceKey::toString));
         
-        Helper.log("Server Loaded Dimensions:\n" + Helper.myToString(
+        LOGGER.info("Server Loaded Dimensions:\n" + Helper.myToString(
             keysList.stream().map(ResourceKey::location)
         ));
         
@@ -127,6 +129,6 @@ public class DimensionIdManagement {
             }
         });
         
-        Helper.log("After:\n" + DimensionIdRecord.serverRecord);
+        LOGGER.info("After:\n" + DimensionIdRecord.serverRecord);
     }
 }

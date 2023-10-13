@@ -35,7 +35,6 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -142,7 +141,7 @@ public class GlobalPortalStorage extends SavedData {
     ) {
         return ServerPlayNetworking.createS2CPacket(
             new ImmPtlNetworking.GlobalPortalSyncPacket(
-                DimensionIdRecord.serverRecord.getIntId(world.dimension()),
+                DimensionAPI.getServerDimIntId(world.getServer(), world.dimension()),
                 storage.save(new CompoundTag())
             )
         );

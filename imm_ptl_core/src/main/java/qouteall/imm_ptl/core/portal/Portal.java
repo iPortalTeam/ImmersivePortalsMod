@@ -60,8 +60,8 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimId;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -873,7 +873,7 @@ public class Portal extends Entity implements
         return (Packet<ClientGamePacketListener>) (Packet)
             ServerPlayNetworking.createS2CPacket(new ImmPtlNetworking.PortalSyncPacket(
                 getId(), getUUID(), getType(),
-                DimensionIdRecord.serverRecord.getIntId(getOriginDim()),
+                DimensionAPI.getServerDimIntId(getServer(), getOriginDim()),
                 getX(), getY(), getZ(),
                 compoundTag
             ));

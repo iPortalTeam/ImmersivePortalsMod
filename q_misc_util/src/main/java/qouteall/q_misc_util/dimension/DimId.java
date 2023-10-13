@@ -16,6 +16,7 @@ public class DimId {
     
     private static final boolean useIntegerId = true;
     
+    @Deprecated
     public static void writeWorldId(
         FriendlyByteBuf buf, ResourceKey<Level> dimension, boolean isClient
     ) {
@@ -30,6 +31,7 @@ public class DimId {
         }
     }
     
+    @Deprecated
     public static ResourceKey<Level> readWorldId(FriendlyByteBuf buf, boolean isClient) {
         if (isClient) {
             if (MiscHelper.isDedicatedServer()) {

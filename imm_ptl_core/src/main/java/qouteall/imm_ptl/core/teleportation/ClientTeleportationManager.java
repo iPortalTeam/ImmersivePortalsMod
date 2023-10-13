@@ -47,7 +47,7 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.ArrayList;
@@ -346,7 +346,7 @@ public class ClientTeleportationManager {
         
         player.connection.send(ClientPlayNetworking.createC2SPacket(
             new ImmPtlNetworking.TeleportPacket(
-                DimensionIdRecord.clientRecord.getIntId(fromDimension),
+                DimensionAPI.getClientDimIntId(fromDimension),
                 lastTickEyePos,
                 portal.getUUID()
             )

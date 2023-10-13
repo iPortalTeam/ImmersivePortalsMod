@@ -1,5 +1,7 @@
 package qouteall.q_misc_util.api;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.RegistryAccess;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.dimension.DimensionIdRecord;
 import qouteall.q_misc_util.dimension.DimensionImpl;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
@@ -170,4 +173,31 @@ public class DimensionAPI {
                 }
             }
         );
+    
+    public static int getServerDimIntId(
+        MinecraftServer server,
+        ResourceKey<Level> dimension
+    ) {
+        return DimensionIdRecord.serverRecord.getIntId(dimension);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static int getClientDimIntId(
+        ResourceKey<Level> dimension
+    ) {
+        return DimensionIdRecord.clientRecord.getIntId(dimension);
+    }
+    
+    public static ResourceKey<Level> getServerDimKeyFromIntId(
+        MinecraftServer server, int intId
+    ) {
+        return DimensionIdRecord.serverRecord.getDim(intId);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static ResourceKey<Level> getClientDimKeyFromIntId(
+        int intId
+    ) {
+        return DimensionIdRecord.clientRecord.getDim(intId);
+    }
 }
