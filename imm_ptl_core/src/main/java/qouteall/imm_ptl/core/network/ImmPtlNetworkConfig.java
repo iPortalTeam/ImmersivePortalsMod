@@ -207,7 +207,10 @@ public class ImmPtlNetworkConfig {
                 // cannot use translation key here
                 // because the translation does not exist on client without the mod
                 handler.disconnect(Component.literal(
-                    "The client should have Immersive Portals mod installed to join this server"
+                    """
+The client should have Immersive Portals mod installed to join this server.
+(Note: Immersive Portals has compatibility issue with Bad Packets mod. If the client actually has Immersive Portals mod and Bad Packets mod, try without Bad Packets mod.)
+                """
                 ));
             }
         });
