@@ -19,9 +19,6 @@
   "icon": "assets/immersive_portals/icon.png",
   "environment": "*",
   "entrypoints": {
-    "preLaunch": [
-      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
-    ],
     "main": [
       "qouteall.imm_ptl.core.platform_specific.IPModEntry"
     ],
