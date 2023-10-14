@@ -27,6 +27,7 @@ public class IntBox {
     }
     
     // the name is misleading.
+    // TODO remove in 1.20.3
     @Deprecated
     public static IntBox getBoxByBasePointAndSize(
         BlockPos areaSize,
@@ -36,13 +37,19 @@ public class IntBox {
     }
     
     public static IntBox fromBasePointAndSize(
-        BlockPos blockPos,
-        BlockPos areaSize
+        BlockPos basePoint, BlockPos areaSize
     ) {
         return new IntBox(
-            blockPos,
-            blockPos.offset(areaSize).offset(-1, -1, -1)
+            basePoint,
+            basePoint.offset(areaSize).offset(-1, -1, -1)
         );
+    }
+    
+    // Note the offset is one-block shorter than size
+    public static IntBox fromPosAndOffset(
+        BlockPos pos, BlockPos offset
+    ) {
+        return new IntBox(pos, pos.offset(offset));
     }
     
     public IntBox expandOrShrink(Vec3i offset) {
@@ -96,6 +103,10 @@ public class IntBox {
     
     public BlockPos getSize() {
         return h.offset(1, 1, 1).subtract(l);
+    }
+    
+    public BlockPos getDiagonalOffset() {
+        return h.subtract(l);
     }
     
     public IntBox getSurfaceLayer(
@@ -417,6 +428,56 @@ public class IntBox {
         boolean zOnEnd = pos.getZ() == l.getZ() || pos.getZ() == h.getZ();
         
         return xOnEnd && yOnEnd && zOnEnd;
+    }
+    
+    /**
+     * Move the inner box to be inside this box
+     */
+    public IntBox confineInnerBox(IntBox innerBox) {
+        int offsetX = getOffsetForConfiningIntegerRange(
+            l.getX(), h.getX(),
+            innerBox.l.getX(), innerBox.h.getX()
+        );
+        int offsetY = getOffsetForConfiningIntegerRange(
+            l.getY(), h.getY(),
+            innerBox.l.getY(), innerBox.h.getY()
+        );
+        int offsetZ = getOffsetForConfiningIntegerRange(
+            l.getZ(), h.getZ(),
+            innerBox.l.getZ(), innerBox.h.getZ()
+        );
+        
+        return innerBox.getMoved(new BlockPos(offsetX, offsetY, offsetZ));
+    }
+    
+    public static int getOffsetForConfiningIntegerRange(
+        int outerRangeStart,
+        int outerRangeEnd, // inclusive
+        int innerRangeStart,
+        int innerRangeEnd // inclusive
+    ) {
+        int outerRangeSize = outerRangeEnd - outerRangeStart + 1;
+        int innerRangeSize = innerRangeEnd - innerRangeStart + 1;
+        
+        Validate.isTrue(
+            outerRangeSize >= innerRangeSize,
+            "cannot confine range (%d %d) to (%d %d)",
+            innerRangeStart, innerRangeEnd, outerRangeStart, outerRangeEnd
+        );
+        
+        // if it's already inside, no need to move
+        if (innerRangeStart >= outerRangeStart && innerRangeEnd <= outerRangeEnd) {
+            return 0;
+        }
+        
+        if (innerRangeStart < outerRangeStart) {
+            // move to right
+            return outerRangeStart - innerRangeStart;
+        }
+        else {
+            // move to left
+            return outerRangeEnd - innerRangeEnd;
+        }
     }
     
     public CompoundTag toTag() {

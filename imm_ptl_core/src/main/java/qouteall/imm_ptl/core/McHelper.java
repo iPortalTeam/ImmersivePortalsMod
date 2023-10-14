@@ -43,6 +43,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
@@ -833,8 +834,15 @@ public class McHelper {
         }
     }
     
+    @Deprecated
     public static ServerLevel getServerWorld(ResourceKey<Level> dim) {
-        ServerLevel world = MiscHelper.getServer().getLevel(dim);
+        return getServerWorld(MiscHelper.getServer(), dim);
+    }
+    
+    public static @NotNull ServerLevel getServerWorld(
+        MinecraftServer server, ResourceKey<Level> dim
+    ) {
+        ServerLevel world = server.getLevel(dim);
         if (world == null) {
             throw new RuntimeException("Missing dimension " + dim.location());
         }

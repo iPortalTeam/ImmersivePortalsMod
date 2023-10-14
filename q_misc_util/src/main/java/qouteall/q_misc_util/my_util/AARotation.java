@@ -6,8 +6,10 @@ import com.mojang.math.OctahedralGroup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.Rotation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -176,6 +178,26 @@ public enum AARotation {
         Direction newY = rotateDir90DegreesAlong(defaultY, direction);
         
         return AARotation.getAARotationFromXY(newX, newY);
+    }
+    
+    public @Nullable Rotation toVanillaRotation() {
+        return switch (this) {
+            case SOUTH_ROT0 -> Rotation.NONE;
+            case EAST_ROT0 -> Rotation.CLOCKWISE_90;
+            case NORTH_ROT0 -> Rotation.CLOCKWISE_180;
+            case WEST_ROT0 -> Rotation.COUNTERCLOCKWISE_90;
+            
+            default -> null;
+        };
+    }
+    
+    public static AARotation fromVanillaRotation(Rotation vanillaRotation) {
+        return switch (vanillaRotation) {
+            case NONE -> SOUTH_ROT0;
+            case CLOCKWISE_90 -> EAST_ROT0;
+            case CLOCKWISE_180 -> NORTH_ROT0;
+            case COUNTERCLOCKWISE_90 -> WEST_ROT0;
+        };
     }
     
     public static final ImmutableList<AARotation> rotationsSortedByAngle;

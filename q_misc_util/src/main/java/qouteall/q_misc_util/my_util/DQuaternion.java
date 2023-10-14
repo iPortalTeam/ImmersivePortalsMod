@@ -224,6 +224,13 @@ public class DQuaternion {
         }
     }
     
+    /**
+     * @param pitch same as xRot
+     * @param yaw same as yRot
+     * @return the rotation quaternion that represents the camera rotation.
+     * Note: it's the rotation applied to world for world rendering.
+     * Its inverse is the rotation applied to entity head.
+     */
     public static DQuaternion getCameraRotation(double pitch, double yaw) {
         DQuaternion r1 = rotationByDegrees(new Vec3(1, 0, 0), pitch);
         DQuaternion r2 = rotationByDegrees(new Vec3(0, 1, 0), yaw + 180);

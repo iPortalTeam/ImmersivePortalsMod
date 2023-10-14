@@ -12,7 +12,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 import java.util.Objects;
 
 public class ChunkLoader {
-    // TODO flatten it in 1.20.3
+    // TODO flatten and turn to record in 1.20.3
     public DimensionalChunkPos center;
     public int radius;
     // TODO remove in 1.20.3
