@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Tuple;
@@ -1281,5 +1282,27 @@ public class Helper {
                 }
             }
         );
+    }
+    
+    public static ListTag vec3ToListTag(Vec3 vec) {
+        ListTag listTag = new ListTag();
+        listTag.add(DoubleTag.valueOf(vec.x));
+        listTag.add(DoubleTag.valueOf(vec.y));
+        listTag.add(DoubleTag.valueOf(vec.z));
+        return listTag;
+    }
+    
+    public static @Nullable Vec3 vec3FromListTag(Tag tag) {
+        if (tag instanceof ListTag listTag) {
+            if (listTag.getElementType() == Tag.TAG_DOUBLE && listTag.size() == 3) {
+                return new Vec3(
+                    listTag.getDouble(0),
+                    listTag.getDouble(1),
+                    listTag.getDouble(2)
+                );
+            }
+        }
+        
+        return null;
     }
 }

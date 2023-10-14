@@ -27,6 +27,8 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.mixin.common.miscellaneous.IEEndDragonFight;
+import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
+import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -59,17 +61,21 @@ public class EndPortalEntity extends Portal {
             return;
         }
         
-        if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.normal) {
+        IPGlobal.EndPortalMode endPortalMode = IPGlobal.endPortalMode;
+        if (endPortalMode == IPGlobal.EndPortalMode.normal) {
             generateClassicalEndPortal(world, new Vec3(0, 120, 0), portalCenter);
         }
-        else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
+        else if (endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
             BlockPos endSpawnPos = ServerLevel.END_SPAWN_POINT;
             generateClassicalEndPortal(world,
                 Vec3.atCenterOf(endSpawnPos).add(0, 1, 0), portalCenter
             );
         }
-        else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.scaledView) {
-            generateScaledViewEndPortal(world, portalCenter);
+        else if (endPortalMode == IPGlobal.EndPortalMode.scaledView) {
+            generateScaledViewEndPortal(world, portalCenter, false);
+        }
+        else if (endPortalMode == IPGlobal.EndPortalMode.scaledViewRotating) {
+            generateScaledViewEndPortal(world, portalCenter, true);
         }
         else {
             Helper.err("End portal mode abnormal");
@@ -107,15 +113,18 @@ public class EndPortalEntity extends Portal {
         world.addFreshEntity(portal);
     }
     
-    private static void generateScaledViewEndPortal(ServerLevel world, Vec3 portalCenter) {
+    private static void generateScaledViewEndPortal(
+        ServerLevel world, Vec3 portalCenter, boolean hasAnimation
+    ) {
         ServerLevel endWorld = McHelper.getServerWorld(Level.END);
         
-        double d = 3;
-        final Vec3 viewBoxSize = new Vec3(d, 1.2, d);
-        final double scale = 280 / d;
+        double sideLen = 3;
+        double height = 1.5;
+        final Vec3 viewBoxSize = new Vec3(sideLen, height, sideLen);
+        final double scale = 280 / sideLen;
         
         AABB thisSideBox = Helper.getBoxByBottomPosAndSize(
-            portalCenter.add(0, 0, 0), viewBoxSize
+            portalCenter.add(0, 0.2, 0), viewBoxSize
         );
         AABB otherSideBox = Helper.getBoxByBottomPosAndSize(
             new Vec3(0, 0, 0),
@@ -135,6 +144,27 @@ public class EndPortalEntity extends Portal {
             portal.setInteractable(false);
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
+            
+            if (hasAnimation) {
+                Vec3 rotationCenter = Vec3.ZERO;
+                portal.addOtherSideAnimationDriver(
+                    new RotationAnimation.Builder()
+                        .setDegreesPerTick(0.5)
+                        .setInitialOffset(portal.destination.subtract(rotationCenter))
+                        .setRotationAxis(new Vec3(0, 1, 0))
+                        .setStartGameTime(world.getGameTime())
+                        .setEndGameTime(Long.MAX_VALUE)
+                        .build()
+                );
+                
+                portal.addOtherSideAnimationDriver(
+                    NormalAnimation.createOscillationAnimation(
+                        new Vec3(0, 10, 0),
+                        100,
+                        world.getGameTime()
+                    )
+                );
+            }
             
             McHelper.spawnServerEntity(portal);
         }

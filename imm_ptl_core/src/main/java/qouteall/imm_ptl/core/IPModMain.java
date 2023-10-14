@@ -115,6 +115,7 @@ public class IPModMain {
         // intrinsic animation driver types
         RotationAnimation.init();
         NormalAnimation.init();
+//        OscillationAnimation.init();
     }
     
     private static void loadConfig() {

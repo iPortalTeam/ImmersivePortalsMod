@@ -165,6 +165,7 @@ public class IPGlobal {
         normal,
         toObsidianPlatform,
         scaledView,
+        scaledViewRotating,
         vanilla
     }
     

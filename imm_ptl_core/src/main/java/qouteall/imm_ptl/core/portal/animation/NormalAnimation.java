@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -270,6 +271,11 @@ public class NormalAnimation implements PortalAnimationDriver {
             return this;
         }
         
+        public Builder infiniteLoop() {
+            this.loopCount = INFINITE_THRESHOLD;
+            return this;
+        }
+        
         /**
          * Note: only true when using `/portal animation build` to build the animation.
          * Should be false by default.
@@ -311,6 +317,42 @@ public class NormalAnimation implements PortalAnimationDriver {
             .phases(List.of(initialPhase, endingPhase))
             .startingGameTime(startingGameTime)
             .loopCount(1)
+            .build();
+    }
+    
+    public static NormalAnimation createOscillationAnimation(
+        Vec3 vec, int cycleTicks, long startingGameTime
+    ) {
+        // one cycle is split into 4 parts
+        int partTickNum = cycleTicks / 4;
+        
+        return new Builder()
+            .startingGameTime(startingGameTime)
+            .infiniteLoop()
+            .phases(List.of(
+                new Phase.Builder()
+                    .delta(new DeltaUnilateralPortalState.Builder().offset(vec).build())
+                    .durationTicks(partTickNum)
+                    .timingFunction(TimingFunction.sine)
+                    .build(),
+                new Phase.Builder()
+                    .delta(DeltaUnilateralPortalState.identity)
+                    .durationTicks(partTickNum)
+                    .timingFunction(TimingFunction.sineFlipped)
+                    .build(),
+                new Phase.Builder()
+                    .delta(new DeltaUnilateralPortalState.Builder()
+                        .offset(vec.scale(-1)).build()
+                    )
+                    .durationTicks(partTickNum)
+                    .timingFunction(TimingFunction.sine)
+                    .build(),
+                new Phase.Builder()
+                    .delta(DeltaUnilateralPortalState.identity)
+                    .durationTicks(partTickNum)
+                    .timingFunction(TimingFunction.sineFlipped)
+                    .build()
+            ))
             .build();
     }
     
