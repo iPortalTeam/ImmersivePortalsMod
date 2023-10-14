@@ -204,14 +204,32 @@ public class ImmPtlNetworkConfig {
                 handler.addTask(new ImmPtlConfigurationTask());
             }
             else {
-                // cannot use translation key here
-                // because the translation does not exist on client without the mod
-                handler.disconnect(Component.literal(
-                    """
-The client should have Immersive Portals mod installed to join this server.
-(Note: Immersive Portals has compatibility issue with Bad Packets mod. If the client actually has Immersive Portals mod and Bad Packets mod, try without Bad Packets mod.)
-                """
-                ));
+                if (server.isDedicatedServer()) {
+                    if (IPConfig.getConfig().serverRejectClientWithoutImmPtl) {
+                        // cannot use translation key here
+                        // because the translation does not exist on client without the mod
+                        handler.disconnect(Component.literal(
+                            """
+                                The server detected that client does not install Immersive Portals mod.
+                                A server with Immersive Portals mod only works with the clients that have it.
+                                
+                                (Note: The networking sync may be interfered by Essential mod, Bad Packets mod or other mods. When you are using these mods, the detection may malfunction. In this case, you can disable networking check in the server side by changing `serverRejectClientWithoutImmPtl` to `false` in the server's config file `config/immersive_portals.json` and restart.)
+                                """
+                        ));
+                    }
+                    else {
+                        GameProfile gameProfile =
+                            ((IEServerConfigurationPacketListenerImpl) handler).ip_getGameProfile();
+                        
+                        LOGGER.warn(
+                            "Fabric API's sendable channel sync detected that client does not install ImmPtl. {} {}",
+                            gameProfile.getName(), gameProfile.getId()
+                        );
+                    }
+                }
+                else {
+                    LOGGER.error("ImmPtl configuration channel is non-sendable from Fabric API in integrated server. Fabric API sendable channel sync is interfered.");
+                }
             }
         });
         
