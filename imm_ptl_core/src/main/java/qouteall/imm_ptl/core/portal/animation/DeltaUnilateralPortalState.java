@@ -3,12 +3,12 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Vec2d;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -114,7 +114,7 @@ public record DeltaUnilateralPortalState(
         }
         
         DQuaternion rotation = this.rotation;
-        if (rotation != null && DQuaternion.isClose(rotation, DQuaternion.identity, 0.0001)) {
+        if (rotation != null && DQuaternion.isClose(rotation, DQuaternion.identity)) {
             rotation = null;
         }
         

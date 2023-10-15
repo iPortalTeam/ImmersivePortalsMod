@@ -199,7 +199,7 @@ public class Animated<T> {
         
         @Override
         public boolean isClose(DQuaternion a, DQuaternion b) {
-            return DQuaternion.isClose(a, b, 0.01);
+            return DQuaternion.isClose(a, b);
         }
     };
     

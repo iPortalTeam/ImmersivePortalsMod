@@ -320,4 +320,19 @@ public class PortalGroup implements PortalLike {
             return portal;
         }
     }
+    
+    public boolean removeFromGroupIfNecessary(Portal portal) {
+        if (portal == getFirstPortal()) {
+            return false;
+        }
+        
+        Portal.TransformationDesc desc = portal.getTransformationDesc();
+        
+        if (!Portal.TransformationDesc.isRoughlyEqual(transformationDesc, desc)) {
+            removePortal(portal);
+            return true;
+        }
+        
+        return false;
+    }
 }

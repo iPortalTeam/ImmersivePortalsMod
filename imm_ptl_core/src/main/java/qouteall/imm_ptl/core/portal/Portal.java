@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.Util;
@@ -73,6 +74,7 @@ import qouteall.q_misc_util.my_util.TriangleConsumer;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -84,6 +86,10 @@ public class Portal extends Entity implements
     
     public static final EntityType<Portal> entityType = createPortalEntityType(Portal::new);
     
+    public static final Event<Consumer<Portal>> CLIENT_PORTAL_ACCEPT_SYNC_EVENT =
+        Helper.createConsumerEvent();
+    
+    @Deprecated
     public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
     
     public static <T extends Portal> EntityType<T> createPortalEntityType(
@@ -257,6 +263,7 @@ public class Portal extends Entity implements
     @Nullable
     private VoxelShape thisSideCollisionExclusion;
     
+    // TODO change to event in 1.20.3
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -1718,7 +1725,7 @@ public class Portal extends Entity implements
         setOriginPos(state.fromPos);
         setDestination(state.toPos);
         PortalManipulation.setPortalOrientationQuaternion(this, state.orientation);
-        if (DQuaternion.isClose(state.rotation, DQuaternion.identity, 0.00005)) {
+        if (DQuaternion.isClose(state.rotation, DQuaternion.identity)) {
             setRotationTransformationD(null);
         }
         else {
@@ -1758,6 +1765,8 @@ public class Portal extends Entity implements
         if (animation.defaultAnimation.durationTicks > 0) {
             animation.defaultAnimation.startClientDefaultAnimation(this, oldState);
         }
+        
+        CLIENT_PORTAL_ACCEPT_SYNC_EVENT.invoker().accept(this);
     }
     
     public CompoundTag writePortalDataToNbt() {

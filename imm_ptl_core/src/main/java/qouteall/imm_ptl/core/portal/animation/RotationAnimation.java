@@ -4,10 +4,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
-
-import org.jetbrains.annotations.Nullable;
 
 public class RotationAnimation implements PortalAnimationDriver {
     
@@ -41,7 +41,6 @@ public class RotationAnimation implements PortalAnimationDriver {
         this.endGameTime = endGameTime;
         this.timingFunction = timingFunction;
     }
-        
     
     @Override
     public CompoundTag toTag() {
@@ -76,7 +75,9 @@ public class RotationAnimation implements PortalAnimationDriver {
     }
     
     @Override
-    public AnimationResult getAnimationResult(long tickTime, float partialTicks, AnimationContext context) {
+    public @NotNull AnimationResult getAnimationResult(
+        long tickTime, float partialTicks, AnimationContext context
+    ) {
         double passedTicks = ((double) (tickTime - 1 - startGameTime)) + partialTicks;
         
         boolean ended = false;

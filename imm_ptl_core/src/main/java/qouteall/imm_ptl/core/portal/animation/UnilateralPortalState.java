@@ -234,26 +234,6 @@ public record UnilateralPortalState(
             }
             return this;
         }
-        
-        @Deprecated
-        @NotNull
-        public Builder correctFrom(UnilateralPortalState other) {
-            this.dimension = other.dimension;
-            if (position.distanceToSqr(other.position) > 0.0001) {
-                this.position = other.position;
-            }
-            if (!DQuaternion.isClose(orientation, other.orientation, 0.001)) {
-                this.orientation = other.orientation;
-            }
-            if (Math.abs(width - other.width) > 0.0001) {
-                this.width = other.width;
-            }
-            if (Math.abs(height - other.height) > 0.0001) {
-                this.height = other.height;
-            }
-            
-            return this;
-        }
     }
     
     // treating UnilateralPortalState as a rectangle,
@@ -360,10 +340,10 @@ public record UnilateralPortalState(
         @Override
         public boolean isClose(UnilateralPortalState a, UnilateralPortalState b) {
             return a.dimension() == b.dimension() &&
-                a.position().distanceToSqr(b.position()) < 0.01 &&
-                DQuaternion.isClose(a.orientation(), b.orientation(), 0.01) &&
-                Math.abs(a.width() - b.width()) < 0.01 &&
-                Math.abs(a.height() - b.height()) < 0.01;
+                a.position().distanceToSqr(b.position()) < 0.0001 &&
+                DQuaternion.isClose(a.orientation(), b.orientation()) &&
+                Math.abs(a.width() - b.width()) < 0.001 &&
+                Math.abs(a.height() - b.height()) < 0.001;
         }
     };
 }

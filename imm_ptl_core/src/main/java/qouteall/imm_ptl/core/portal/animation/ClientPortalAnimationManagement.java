@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -17,6 +18,9 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class ClientPortalAnimationManagement {
+    public static final Event<Consumer<Portal>> CLIENT_PORTAL_DEFAULT_ANIMATION_FINISH =
+        Helper.createConsumerEvent();
+    
     private static final Map<Portal, RunningDefaultAnimation> defaultAnimatedPortals = new HashMap<>();
     private static final HashSet<Portal> customAnimatedPortals = new HashSet<>();
     
@@ -91,6 +95,7 @@ public class ClientPortalAnimationManagement {
             if (currTime > animation.toTimeNano) {
                 portal.setPortalState(animation.toState);
                 // animation finished
+                CLIENT_PORTAL_DEFAULT_ANIMATION_FINISH.invoker().accept(portal);
                 return true;
             }
             

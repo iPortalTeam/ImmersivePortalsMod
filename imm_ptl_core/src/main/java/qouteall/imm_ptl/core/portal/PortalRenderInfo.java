@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.render.GlQueryObject;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.QueryManager;
@@ -87,14 +88,10 @@ public class PortalRenderInfo {
             }
         });
         
-        Portal.portalCacheUpdateSignal.connect(portal -> {
-            if (portal.level().isClientSide()) {
-                PortalRenderInfo renderInfo = getOptional(portal);
-                if (renderInfo != null) {
-                    renderInfo.onPortalCacheUpdate(portal);
-                }
-            }
-        });
+        Portal.CLIENT_PORTAL_ACCEPT_SYNC_EVENT.register(PortalRenderInfo::updateGroupBinding);
+        ClientPortalAnimationManagement.CLIENT_PORTAL_DEFAULT_ANIMATION_FINISH.register(
+            PortalRenderInfo::updateGroupBinding
+        );
         
         Portal.portalDisposeSignal.connect(portal -> {
             if (portal.level().isClientSide()) {
@@ -105,6 +102,22 @@ public class PortalRenderInfo {
                 }
             }
         });
+    }
+    
+    private static void updateGroupBinding(Portal portal) {
+        if (portal.level().isClientSide()) {
+            PortalRenderInfo renderInfo = getOptional(portal);
+            if (renderInfo != null) {
+                PortalGroup group = renderInfo.renderingGroup;
+                if (group != null) {
+                    boolean removed = group.removeFromGroupIfNecessary(portal);
+                    if (removed) {
+                        renderInfo.renderingGroup = null;
+                        renderInfo.needsGroupingUpdate = true;
+                    }
+                }
+            }
+        }
     }
     
     @Nullable
@@ -261,11 +274,6 @@ public class PortalRenderInfo {
     }
     
     // Grouping -----
-    
-    private void onPortalCacheUpdate(Portal portal) {
-        needsGroupingUpdate = true;
-        setGroup(portal, null);
-    }
     
     private void setGroup(Portal portal, @Nullable PortalGroup group) {
         if (renderingGroup != null) {
