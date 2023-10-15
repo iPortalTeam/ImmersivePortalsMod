@@ -1,1 +1,1 @@
-Fix crash with cardinal components.
+Change warning to tell that networking sync may malfunction with essential and bad packets. Add a config option to diable disconnecting from networking config.
