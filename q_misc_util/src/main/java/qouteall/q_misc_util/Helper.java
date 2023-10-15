@@ -870,11 +870,26 @@ public class Helper {
         );
     }
     
-    private static double getDistanceToRange(double start, double end, double pos) {
+    public static double getDistanceToRange(double start, double end, double pos) {
         Validate.isTrue(end >= start);
         if (pos >= start) {
             if (pos <= end) {
                 return 0;
+            }
+            else {
+                return pos - end;
+            }
+        }
+        else {
+            return start - pos;
+        }
+    }
+    
+    public static double getSignedDistanceToRange(double start, double end, double pos) {
+        Validate.isTrue(end >= start);
+        if (pos >= start) {
+            if (pos <= end) {
+                return -Math.min(pos - start, end - pos);
             }
             else {
                 return pos - end;
@@ -891,6 +906,20 @@ public class Helper {
         double dz = getDistanceToRange(box.minZ, box.maxZ, point.z);
         
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    
+    public static double getSignedDistanceToBox(AABB aabb, Vec3 point) {
+        double dx = getSignedDistanceToRange(aabb.minX, aabb.maxX, point.x);
+        double dy = getSignedDistanceToRange(aabb.minY, aabb.maxY, point.y);
+        double dz = getSignedDistanceToRange(aabb.minZ, aabb.maxZ, point.z);
+        
+        double l = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dx < 0 && dy < 0 && dz < 0) {
+            return -l;
+        }
+        else {
+            return l;
+        }
     }
     
     public static <T> T firstOf(List<T> list) {
@@ -1304,5 +1333,28 @@ public class Helper {
         }
         
         return null;
+    }
+    
+    public static AABB boundingBoxOfPoints(Vec3[] arr) {
+        Validate.isTrue(arr.length != 0, "arr must not be empty");
+        
+        double minX = arr[0].x;
+        double minY = arr[0].y;
+        double minZ = arr[0].z;
+        double maxX = arr[0].x;
+        double maxY = arr[0].y;
+        double maxZ = arr[0].z;
+        
+        for (int i = 1; i < arr.length; i++) {
+            Vec3 vec3 = arr[i];
+            minX = Math.min(minX, vec3.x);
+            minY = Math.min(minY, vec3.y);
+            minZ = Math.min(minZ, vec3.z);
+            maxX = Math.max(maxX, vec3.x);
+            maxY = Math.max(maxY, vec3.y);
+            maxZ = Math.max(maxZ, vec3.z);
+        }
+        
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 }

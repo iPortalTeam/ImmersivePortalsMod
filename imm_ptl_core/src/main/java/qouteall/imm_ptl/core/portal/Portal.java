@@ -110,11 +110,17 @@ public class Portal extends Entity implements
     public static final UUID nullUUID = Util.NIL_UUID;
     private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
     
+    // TODO 3D portal
+    public boolean isFlat = true;
+    
     /**
      * The portal area length along axisW
      */
     public double width = 0;
     public double height = 0;
+    
+    // TODO 3D portal
+    public double depth = 0;
     
     /**
      * axisW and axisH define the orientation of the portal
@@ -167,7 +173,7 @@ public class Portal extends Entity implements
     
     /**
      * These values are unused
-     * TODO remove in 1.20.2
+     * TODO remove in 1.20.3
      */
     @Deprecated
     public double cullableXStart = 0;
@@ -1611,6 +1617,8 @@ public class Portal extends Entity implements
         return teleportable;
     }
     
+    // TODO remove in 1.20.3
+    @Deprecated
     public static boolean doesPortalBlockEntityView(
         LivingEntity observer, Entity target
     ) {
@@ -1647,7 +1655,7 @@ public class Portal extends Entity implements
     }
     
     // It's overridden by MiniScaled
-    @Deprecated // TODO remove in 1.20.2
+    @Deprecated // TODO remove in 1.20.3
     public boolean allowOverlappedTeleport() {
         return false;
     }
@@ -1789,6 +1797,7 @@ public class Portal extends Entity implements
         readPortalDataFromNbt(data);
     }
     
+    // TODO remove in 1.20.3
     @Deprecated
     public void rectifyClusterPortals() {
         PortalExtension.get(this).rectifyClusterPortals(this, true);

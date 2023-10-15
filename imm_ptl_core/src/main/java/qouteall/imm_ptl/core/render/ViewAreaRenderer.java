@@ -238,7 +238,7 @@ public class ViewAreaRenderer {
         
     }
     
-    private static void outputTriangle(
+    public static void outputTriangle(
         TriangleConsumer vertexOutput, Vec3 center,
         Vec3 localXAxis, Vec3 localYAxis,
         double p0x, double p0y, double p1x, double p1y, double p2x, double p2y
@@ -300,7 +300,7 @@ public class ViewAreaRenderer {
         outputFullQuad(vertexOutput, localCenter, localXAxis, localYAxis);
     }
     
-    private static void outputFullQuad(
+    public static void outputFullQuad(
         TriangleConsumer vertexOutput, Vec3 posInPlayerCoordinate,
         Vec3 localXAxis, Vec3 localYAxis
     ) {

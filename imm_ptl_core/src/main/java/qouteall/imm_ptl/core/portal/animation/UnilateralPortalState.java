@@ -7,6 +7,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3d;
+import org.joml.Matrix3dc;
+import org.joml.Vector3d;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
@@ -28,8 +31,24 @@ public record UnilateralPortalState(
     Vec3 position,
     DQuaternion orientation,
     double width,
-    double height
+    double height,
+    // TODO 3D portal
+    double thickness,
+    Matrix3dc orientationMatrix,
+    Matrix3dc orientationMatrixReverse
 ) {
+    public UnilateralPortalState(
+        ResourceKey<Level> dimension,
+        Vec3 position, DQuaternion orientation,
+        double width, double height
+    ) {
+        this(
+            dimension, position, orientation,
+            width, height, 0,
+            new Matrix3d().set(orientation.toMcQuaternion()),
+            new Matrix3d().set(orientation.toMcQuaternion().conjugate())
+        );
+    }
     
     public static UnilateralPortalState extractThisSide(PortalState portalState) {
         return new UnilateralPortalState(
@@ -134,15 +153,57 @@ public record UnilateralPortalState(
     }
     
     public Vec3 getAxisW() {
-        return orientation.getAxisW();
+        // same as multiplying (1, 0, 0) to matrix
+        return new Vec3(
+            orientationMatrix.m00(),
+            orientationMatrix.m01(),
+            orientationMatrix.m02()
+        );
     }
     
     public Vec3 getAxisH() {
-        return orientation.getAxisH();
+        // same as multiplying (0, 1, 0) to matrix
+        return new Vec3(
+            orientationMatrix.m10(),
+            orientationMatrix.m11(),
+            orientationMatrix.m12()
+        );
     }
     
     public Vec3 getNormal() {
-        return orientation.getNormal();
+        // same as multiplying (0, 0, 1) to matrix
+        return new Vec3(
+            orientationMatrix.m20(),
+            orientationMatrix.m21(),
+            orientationMatrix.m22()
+        );
+    }
+    
+    // Note only works with flat portal shape
+    public Vec3 pointOnPlane(double x, double y) {
+        return transformLocalToGlobal(x, y, 0);
+    }
+    
+    public Vec3 transformLocalToGlobal(double x, double y, double z) {
+        Vector3d v = new Vector3d(x, y, z);
+        orientationMatrix.transform(v);
+        v.add(position.x(), position.y(), position.z());
+        return new Vec3(v.x, v.y, v.z);
+    }
+    
+    public Vec3 transformLocalToGlobal(Vec3 vec3) {
+        return transformLocalToGlobal(vec3.x, vec3.y, vec3.z);
+    }
+    
+    public Vec3 transformGlobalToLocal(double x, double y, double z) {
+        Vector3d v = new Vector3d(x, y, z);
+        v.sub(position.x(), position.y(), position.z());
+        orientationMatrixReverse.transform(v);
+        return new Vec3(v.x, v.y, v.z);
+    }
+    
+    public Vec3 transformGlobalToLocal(Vec3 vec3) {
+        return transformGlobalToLocal(vec3.x, vec3.y, vec3.z);
     }
     
     /**
