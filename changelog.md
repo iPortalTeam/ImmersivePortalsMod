@@ -1,1 +1,1 @@
-Change warning to tell that networking sync may malfunction with essential and bad packets. Add a config option to diable disconnecting from networking config.
+Add experimental animated version of scaled box view end portal. The new end portal mode can be accessed from the config. Change iris comat version to 1.6.10.
