@@ -1,1 +1,1 @@
-Fix sometimes server hang when closing.
+Change Iris compat version to 1.6.10
