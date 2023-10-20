@@ -110,9 +110,6 @@ public class Portal extends Entity implements
     public static final UUID nullUUID = Util.NIL_UUID;
     private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
     
-    // TODO 3D portal
-    public boolean isFlat = true;
-    
     /**
      * The portal area length along axisW
      */
@@ -120,7 +117,7 @@ public class Portal extends Entity implements
     public double height = 0;
     
     // TODO 3D portal
-    public double depth = 0;
+    public double thickness = 0;
     
     /**
      * axisW and axisH define the orientation of the portal
