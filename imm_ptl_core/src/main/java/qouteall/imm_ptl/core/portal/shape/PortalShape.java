@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
@@ -21,10 +23,6 @@ public interface PortalShape {
     );
     
     public double distanceToPortalShape(
-        UnilateralPortalState portalState, Vec3 pos
-    );
-    
-    public double signedDistanceForTeleportation(
         UnilateralPortalState portalState, Vec3 pos
     );
     
@@ -97,6 +95,15 @@ public interface PortalShape {
     public static final class RectangularShape implements PortalShape {
         public static final RectangularShape INSTANCE = new RectangularShape();
         
+        public static void init() {
+            PortalShapeSerialization.addSerializer(new PortalShapeSerialization.Serializer<>(
+                "rectangular",
+                RectangularShape.class,
+                s -> new CompoundTag(),
+                t -> INSTANCE
+            ));
+        }
+        
         @Override
         public boolean isPlanar() {
             return true;
@@ -132,13 +139,6 @@ public interface PortalShape {
             );
             
             return Math.sqrt(distToRec * distToRec + localPos.z() * localPos.z());
-        }
-        
-        @Override
-        public double signedDistanceForTeleportation(UnilateralPortalState portalState, Vec3 pos) {
-            Vec3 localPos = portalState.transformGlobalToLocal(pos);
-            
-            return localPos.z();
         }
         
         public @Nullable RayTraceResult raytracePortalShapeByLocalPos(
@@ -230,6 +230,32 @@ public interface PortalShape {
     public static final class SpecialFlatShape implements PortalShape {
         public final Mesh2D mesh;
         
+        public static void init() {
+            PortalShapeSerialization.addSerializer(
+                new PortalShapeSerialization.Serializer<>(
+                    "specialFlat",
+                    SpecialFlatShape.class,
+                    SpecialFlatShape::serialize,
+                    SpecialFlatShape::deserialize
+                )
+            );
+        }
+        
+        @NotNull
+        private CompoundTag serialize() {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.put("shape", mesh.toTag());
+            return compoundTag;
+        }
+        
+        private static @Nullable SpecialFlatShape deserialize(CompoundTag tag) {
+            Mesh2D m = Mesh2D.fromTag(tag.getCompound("shape"));
+            if (m == null) {
+                return null;
+            }
+            return new SpecialFlatShape(m);
+        }
+        
         public SpecialFlatShape(Mesh2D mesh) {this.mesh = mesh;}
         
         @Override
@@ -246,11 +272,6 @@ public interface PortalShape {
         @Override
         public double distanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
             return RectangularShape.INSTANCE.distanceToPortalShape(portalState, pos);
-        }
-        
-        @Override
-        public double signedDistanceForTeleportation(UnilateralPortalState portalState, Vec3 pos) {
-            return RectangularShape.INSTANCE.signedDistanceForTeleportation(portalState, pos);
         }
         
         @Override
@@ -379,6 +400,31 @@ public interface PortalShape {
         
         public final boolean facingOutwards;
         
+        public static void init() {
+            PortalShapeSerialization.addSerializer(new PortalShapeSerialization.Serializer<>(
+                "box",
+                BoxShape.class,
+                BoxShape::serialize,
+                BoxShape::deserialize
+            ));
+        }
+        
+        private static BoxShape deserialize(CompoundTag tag) {
+            boolean facingOutwards1 = tag.getBoolean("facingOutwards");
+            if (facingOutwards1) {
+                return FACING_OUTWARDS;
+            }
+            else {
+                return FACING_INWARDS;
+            }
+        }
+        
+        public static CompoundTag serialize(BoxShape boxShape) {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.putBoolean("facingOutwards", boxShape.facingOutwards);
+            return compoundTag;
+        }
+        
         private BoxShape(boolean facingOutwards) {this.facingOutwards = facingOutwards;}
         
         @Override
@@ -420,29 +466,6 @@ public interface PortalShape {
             );
             
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
-        }
-        
-        @Override
-        public double signedDistanceForTeleportation(UnilateralPortalState portalState, Vec3 pos) {
-            Vec3 localPos = portalState.transformGlobalToLocal(pos);
-            
-            double sx = Helper.getSignedDistanceToRange(
-                -portalState.width() / 2, portalState.width() / 2, localPos.x()
-            );
-            double sy = Helper.getSignedDistanceToRange(
-                -portalState.height() / 2, portalState.height() / 2, localPos.y()
-            );
-            double sz = Helper.getSignedDistanceToRange(
-                -portalState.thickness() / 2, portalState.thickness() / 2, localPos.z()
-            );
-            
-            double l = Math.sqrt(sx * sx + sy * sy + sz * sz);
-            if (sx < 0 && sy < 0 && sz < 0) {
-                return -l;
-            }
-            else {
-                return l;
-            }
         }
         
         @Override

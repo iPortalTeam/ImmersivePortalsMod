@@ -54,6 +54,8 @@ import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.imm_ptl.core.portal.shape.PortalShape;
+import qouteall.imm_ptl.core.portal.shape.PortalShapeSerialization;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderable;
@@ -142,6 +144,7 @@ public class Portal extends Entity implements
      */
     public boolean teleportable = true;
     
+    // TODO change to selector in 1.20.3
     /**
      * If not null, this portal can only be accessed by one player
      * If it's {@link Portal#nullUUID} the portal can only be accessed by entities
@@ -182,7 +185,7 @@ public class Portal extends Entity implements
     public double cullableYEnd = 0;
     
     /**
-     * The rotating transformation of the portal
+     * The rotation transformation of the portal
      */
     @Nullable
     protected DQuaternion rotation;
@@ -266,6 +269,8 @@ public class Portal extends Entity implements
     @Nullable
     private VoxelShape thisSideCollisionExclusion;
     
+    private @Nullable PortalShape portalShape;
+    
     // TODO change to event in 1.20.3
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -289,24 +294,46 @@ public class Portal extends Entity implements
         dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", level().isClientSide);
         destination = (Helper.getVec3d(compoundTag, "destination"));
         specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
-        if (compoundTag.contains("specialShape")) {
-            // if missing, it will be false
-            boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
-            
-            if (shapeNormalized) {
-                specialShape = GeometryPortalShape.fromTag(
-                    compoundTag.getList("specialShape", 6)
-                );
+        
+        if (compoundTag.contains("portalShape")) {
+            CompoundTag portalShapeTag = compoundTag.getCompound("portalShape");
+            PortalShape portalShape = PortalShapeSerialization.deserialize(portalShapeTag);
+            if (portalShape == null) {
+                LOGGER.error("Cannot deserialize portal shape {}", portalShapeTag);
+                this.portalShape = null;
             }
             else {
-                specialShape = GeometryPortalShape.fromTagOldFormat(
-                    compoundTag.getList("specialShape", 6),
-                    width / 2, height / 2
-                );
+                this.portalShape = portalShape;
             }
         }
         else {
-            specialShape = null;
+            // upgrade old data
+            if (compoundTag.contains("specialShape")) {
+                // if missing, it will be false
+                boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
+                
+                if (shapeNormalized) {
+                    specialShape = GeometryPortalShape.fromTag(
+                        compoundTag.getList("specialShape", 6)
+                    );
+                }
+                else {
+                    specialShape = GeometryPortalShape.fromTagOldFormat(
+                        compoundTag.getList("specialShape", 6),
+                        width / 2, height / 2
+                    );
+                }
+            }
+            else {
+                specialShape = null;
+            }
+            
+            if (specialShape == null) {
+                portalShape = PortalShape.RectangularShape.INSTANCE;
+            }
+            else {
+                portalShape = new PortalShape.SpecialFlatShape(specialShape.mesh);
+            }
         }
         
         if (compoundTag.contains("teleportable")) {
@@ -387,6 +414,9 @@ public class Portal extends Entity implements
     
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
+        // make portalShape field update from specialShape field
+        updateCache();
+        
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         Helper.putVec3d(compoundTag, "axisW", axisW);
@@ -447,6 +477,14 @@ public class Portal extends Entity implements
         
         writePortalDataSignal.emit(this, compoundTag);
         
+    }
+    
+    public @NotNull PortalShape getPortalShape() {
+        if (portalShape == null) {
+            portalShape = PortalShape.RectangularShape.INSTANCE;
+        }
+        
+        return portalShape;
     }
     
     @Override
@@ -564,6 +602,12 @@ public class Portal extends Entity implements
         contentDirection = null;
         thisTickPortalState = null;
         thisSideCollisionExclusion = null;
+        
+        // for API compat, we need to make portalShape change by specialShape
+        // going to remove specialShape in 1.20.3
+        if (specialShape != null) {
+            portalShape = new PortalShape.SpecialFlatShape(specialShape.mesh);
+        }
         
         if (updates) {
             portalCacheUpdateSignal.emit(this);

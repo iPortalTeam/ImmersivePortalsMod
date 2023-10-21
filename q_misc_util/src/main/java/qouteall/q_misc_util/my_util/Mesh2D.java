@@ -12,6 +12,11 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import org.apache.commons.lang3.Validate;
@@ -1623,6 +1628,75 @@ public class Mesh2D {
                     pointCoords.getDouble(p2Index * 2 + 1)
                 );
             }
+        }
+        
+        return mesh;
+    }
+    
+    public CompoundTag toTag() {
+        compact();
+        
+        ListTag pointCoords = new ListTag();
+        ListTag triangles = new ListTag();
+        
+        for (int i = 0; i < getStoredPointNum(); i++) {
+            double x = pointCoords.getDouble(i * 2);
+            double y = pointCoords.getDouble(i * 2 + 1);
+            
+            pointCoords.add(DoubleTag.valueOf(x));
+            pointCoords.add(DoubleTag.valueOf(y));
+        }
+        
+        for (int i = 0; i < getStoredTriangleNum(); i++) {
+            if (!isTriangleValid(i)) {
+                continue;
+            }
+            
+            int p0Index = trianglePointIndexes.getInt(i * 3);
+            int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
+            int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
+            
+            triangles.add(IntTag.valueOf(p0Index));
+            triangles.add(IntTag.valueOf(p1Index));
+            triangles.add(IntTag.valueOf(p2Index));
+        }
+        
+        CompoundTag tag = new CompoundTag();
+        tag.put("pointCoords", pointCoords);
+        tag.put("triangles", triangles);
+        
+        return tag;
+    }
+    
+    public static @Nullable Mesh2D fromTag(CompoundTag tag) {
+        ListTag pointCoords = tag.getList("pointCoords", Tag.TAG_DOUBLE);
+        ListTag triangles = tag.getList("triangles", Tag.TAG_INT);
+        
+        if (pointCoords.isEmpty() || pointCoords.size() % 2 != 0) {
+            return null;
+        }
+        
+        if (triangles.isEmpty() || triangles.size() % 3 != 0) {
+            return null;
+        }
+        
+        int pointNum = pointCoords.size() / 2;
+        
+        Mesh2D mesh = new Mesh2D();
+        
+        for (int i = 0; i < triangles.size() / 3; i++) {
+            int p0Index = triangles.getInt(i * 3);
+            int p1Index = triangles.getInt(i * 3 + 1);
+            int p2Index = triangles.getInt(i * 3 + 2);
+            
+            mesh.addTriangle(
+                pointCoords.getDouble(p0Index * 2),
+                pointCoords.getDouble(p0Index * 2 + 1),
+                pointCoords.getDouble(p1Index * 2),
+                pointCoords.getDouble(p1Index * 2 + 1),
+                pointCoords.getDouble(p2Index * 2),
+                pointCoords.getDouble(p2Index * 2 + 1)
+            );
         }
         
         return mesh;

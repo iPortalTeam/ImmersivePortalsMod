@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.q_misc_util.my_util.Mesh2D;
 
+// TODO remove in 1.20.3
 public class GeometryPortalShape {
     private static final Logger LOGGER = LogUtils.getLogger();
     
