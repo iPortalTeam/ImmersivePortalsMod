@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.LongBlockPos;
+import qouteall.q_misc_util.my_util.RayTraceResult;
 
 import java.lang.reflect.Method;
 import java.util.AbstractList;
@@ -75,6 +76,108 @@ public class Helper {
         return (planeCenter.subtract(lineOrigin).dot(planeNormal))
             /
             (lineDirection.dot(planeNormal));
+    }
+    
+    public static double getCollidingT(
+        double planeCenterX, double planeCenterY, double planeCenterZ,
+        double planeNormalX, double planeNormalY, double planeNormalZ,
+        double lineOriginX, double lineOriginY, double lineOriginZ,
+        double lineDirectionX, double lineDirectionY, double lineDirectionZ
+    ) {
+        double denom = lineDirectionX * planeNormalX +
+            lineDirectionY * planeNormalY +
+            lineDirectionZ * planeNormalZ;
+        
+        if (Math.abs(denom) < 1e-6) {
+            return Double.NaN;
+        }
+        
+        return (planeCenterX - lineOriginX) * planeNormalX +
+            (planeCenterY - lineOriginY) * planeNormalY +
+            (planeCenterZ - lineOriginZ) * planeNormalZ
+                / denom;
+    }
+    
+    public static @Nullable RayTraceResult raytraceAABB(
+        boolean boxFacingOutwards,
+        double boxMinX, double boxMinY, double boxMinZ,
+        double boxMaxX, double boxMaxY, double boxMaxZ,
+        double lineOriginX, double lineOriginY, double lineOriginZ,
+        double lineDirectionX, double lineDirectionY, double lineDirectionZ
+    ) {
+        boolean originInBox = lineOriginX > boxMinX && lineOriginX < boxMaxX ||
+            lineOriginY > boxMinY && lineOriginY < boxMaxY ||
+            lineOriginZ > boxMinZ && lineOriginZ < boxMaxZ;
+        
+        if (boxFacingOutwards && originInBox) {
+            return null;
+        }
+        
+        // if box is facing inwards, the testing direction is the same as line direction
+        // but flip when the box is facing outwards
+        boolean testXPosi = (lineDirectionX > 0) ^ boxFacingOutwards;
+        boolean testYPosi = (lineDirectionY > 0) ^ boxFacingOutwards;
+        boolean testZPosi = (lineDirectionZ > 0) ^ boxFacingOutwards;
+        
+        boolean normalXPosi = lineDirectionX <= 0;
+        boolean normalYPosi = lineDirectionY <= 0;
+        boolean normalZPosi = lineDirectionZ <= 0;
+        
+        double tX = getCollidingT(
+            testXPosi ? boxMaxX : boxMinX, 0, 0,
+            normalXPosi ? 1 : -1, 0, 0,
+            lineOriginX, lineOriginY, lineOriginZ,
+            lineDirectionX, lineDirectionY, lineDirectionZ
+        );
+        if (!Double.isNaN(tX) && tX >= 0 && tX <= 1) {
+            double y = lineOriginY + tX * lineDirectionY;
+            double z = lineOriginZ + tX * lineDirectionZ;
+            if (y >= boxMinY && y <= boxMaxY && z >= boxMinZ && z <= boxMaxZ) {
+                return new RayTraceResult(
+                    tX,
+                    new Vec3(testXPosi ? boxMaxX : boxMinX, y, z),
+                    new Vec3(testXPosi ? 1 : -1, 0, 0)
+                );
+            }
+        }
+        
+        double tY = getCollidingT(
+            0, testYPosi ? boxMaxY : boxMinY, 0,
+            0, normalYPosi ? 1 : -1, 0,
+            lineOriginX, lineOriginY, lineOriginZ,
+            lineDirectionX, lineDirectionY, lineDirectionZ
+        );
+        if (!Double.isNaN(tY) && tY >= 0 && tY <= 1) {
+            double x = lineOriginX + tY * lineDirectionX;
+            double z = lineOriginZ + tY * lineDirectionZ;
+            if (x >= boxMinX && x <= boxMaxX && z >= boxMinZ && z <= boxMaxZ) {
+                return new RayTraceResult(
+                    tY,
+                    new Vec3(x, testYPosi ? boxMaxY : boxMinY, z),
+                    new Vec3(0, testYPosi ? 1 : -1, 0)
+                );
+            }
+        }
+        
+        double tZ = getCollidingT(
+            0, 0, testZPosi ? boxMaxZ : boxMinZ,
+            0, 0, normalZPosi ? 1 : -1,
+            lineOriginX, lineOriginY, lineOriginZ,
+            lineDirectionX, lineDirectionY, lineDirectionZ
+        );
+        if (!Double.isNaN(tZ) && tZ >= 0 && tZ <= 1) {
+            double x = lineOriginX + tZ * lineDirectionX;
+            double y = lineOriginY + tZ * lineDirectionY;
+            if (x >= boxMinX && x <= boxMaxX && y >= boxMinY && y <= boxMaxY) {
+                return new RayTraceResult(
+                    tZ,
+                    new Vec3(x, y, testZPosi ? boxMaxZ : boxMinZ),
+                    new Vec3(0, 0, testZPosi ? 1 : -1)
+                );
+            }
+        }
+        
+        return null;
     }
     
     public static boolean isInFrontOfPlane(
@@ -1157,7 +1260,7 @@ public class Helper {
         if (x > box.maxX) x = box.maxX;
         if (y > box.maxY) y = box.maxY;
         if (z > box.maxZ) z = box.maxZ;
-    
+        
         double boxSizeX = box.getXsize();
         double boxSizeY = box.getYsize();
         double boxSizeZ = box.getZsize();
@@ -1220,11 +1323,12 @@ public class Helper {
      * Compacts an array in-place, by moving valid elements at the end to
      * fill in the places of invalid elements in the beginning.
      * After using this, all valid elements will be at the beginning of the array without gaps.
-     * @param arraySize size of the array
+     *
+     * @param arraySize      size of the array
      * @param isElementValid predicate that returns true if the element at the
-     * @param swap function that swaps a valid element with an invalid element.
-     *             Its first argument is the index of a valid element on the right side,
-     *             and its second argument is the index of an invalid element on the left side.
+     * @param swap           function that swaps a valid element with an invalid element.
+     *                       Its first argument is the index of a valid element on the right side,
+     *                       and its second argument is the index of an invalid element on the left side.
      * @return number of valid elements in the beginning of the array
      */
     public static int compactArrayStorage(

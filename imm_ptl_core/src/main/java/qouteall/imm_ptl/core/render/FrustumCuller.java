@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.render;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
@@ -300,17 +299,5 @@ public class FrustumCuller {
         ).min(
             Comparator.comparingDouble(portal -> portal.getDistanceToNearestPointInPortal(cameraPos))
         ).orElse(null);
-    }
-    
-    public static boolean isTouchingInsideContentArea(Portal renderingPortal, AABB boundingBox) {
-        Vec3 planeNormal = renderingPortal.getContentDirection();
-        Vec3 planePos = renderingPortal.getDestPos();
-        BatchTestResult batchTestResult = testBoxTwoVertices(
-            boundingBox.minX, boundingBox.minY, boundingBox.minZ,
-            boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ,
-            planeNormal.x, planeNormal.y, planeNormal.z,
-            planePos.x, planePos.y, planePos.z
-        );
-        return batchTestResult != BatchTestResult.all_false;
     }
 }

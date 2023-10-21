@@ -3,14 +3,15 @@ package qouteall.imm_ptl.core.portal.shape;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Intersectiond;
-import org.joml.Vector2d;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
+
+import java.util.List;
 
 public interface PortalShape {
     public boolean isPlanar();
@@ -27,12 +28,12 @@ public interface PortalShape {
         UnilateralPortalState portalState, Vec3 pos
     );
     
-    public @Nullable Vec3 raytracePortalShapeByLocalPos(
+    public @Nullable RayTraceResult raytracePortalShapeByLocalPos(
         UnilateralPortalState portalState,
         Vec3 localFrom, Vec3 localTo, double leniency
     );
     
-    public default @Nullable Vec3 raytracePortalShape(
+    public default @Nullable RayTraceResult raytracePortalShape(
         UnilateralPortalState portalState,
         Vec3 from, Vec3 to,
         double leniency
@@ -40,20 +41,42 @@ public interface PortalShape {
         Vec3 localFrom = portalState.transformGlobalToLocal(from);
         Vec3 localTo = portalState.transformGlobalToLocal(to);
         
-        Vec3 hit = raytracePortalShapeByLocalPos(
+        RayTraceResult hit = raytracePortalShapeByLocalPos(
             portalState, localFrom, localTo, leniency
         );
         
         if (hit != null) {
-            return portalState.transformLocalToGlobal(hit);
+            return new RayTraceResult(
+                hit.t(),
+                portalState.transformLocalToGlobal(hit.hitPos()),
+                portalState.transformVecLocalToGlobal(hit.surfaceNormal())
+            );
         }
         
         return null;
     }
     
-    public @Nullable Plane getClipping(
+    public @Nullable Plane getOuterClipping(
         UnilateralPortalState portalState
     );
+    
+    public @Nullable Plane getInnerClipping(
+        UnilateralPortalState thisSideState,
+        UnilateralPortalState otherSideState
+    );
+    
+    public default @Nullable List<Plane> getNearbyPortalPlanes(
+        UnilateralPortalState portalState,
+        AABB box
+    ) {
+        Plane outerClipping = getOuterClipping(portalState);
+        if (outerClipping != null) {
+            return List.of(outerClipping);
+        }
+        else {
+            return null;
+        }
+    }
     
     public PortalShape getFlipped();
     
@@ -118,7 +141,7 @@ public interface PortalShape {
             return localPos.z();
         }
         
-        public @Nullable Vec3 raytracePortalShapeByLocalPos(
+        public @Nullable RayTraceResult raytracePortalShapeByLocalPos(
             UnilateralPortalState portalState,
             Vec3 localFrom, Vec3 localTo, double leniency
         ) {
@@ -137,7 +160,9 @@ public interface PortalShape {
                 if (Math.abs(hit.x()) < width / 2 + leniency &&
                     Math.abs(hit.z()) < height / 2 + leniency
                 ) {
-                    return hit;
+                    return new RayTraceResult(
+                        t, hit, new Vec3(0, 0, 1)
+                    );
                 }
             }
             
@@ -146,10 +171,20 @@ public interface PortalShape {
         
         // the plane's normal points to the "remaining" side
         @Override
-        public Plane getClipping(UnilateralPortalState portalState) {
+        public Plane getOuterClipping(UnilateralPortalState portalState) {
             return new Plane(
                 portalState.position(),
                 portalState.getNormal()
+            );
+        }
+        
+        @Override
+        public Plane getInnerClipping(
+            UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        ) {
+            return new Plane(
+                otherSideState.position(),
+                otherSideState.getNormal()
             );
         }
         
@@ -219,20 +254,21 @@ public interface PortalShape {
         }
         
         @Override
-        public @Nullable Vec3 raytracePortalShapeByLocalPos(
+        public @Nullable RayTraceResult raytracePortalShapeByLocalPos(
             UnilateralPortalState portalState,
             Vec3 localFrom, Vec3 localTo, double leniency
         ) {
-            Vec3 roughRayTrace = RectangularShape.INSTANCE.raytracePortalShapeByLocalPos(
-                portalState, localFrom, localTo, leniency
-            );
+            RayTraceResult roughRayTrace = RectangularShape.INSTANCE
+                .raytracePortalShapeByLocalPos(
+                    portalState, localFrom, localTo, leniency
+                );
             
             if (roughRayTrace == null) {
                 return null;
             }
             
-            double localX = roughRayTrace.x();
-            double localY = roughRayTrace.y();
+            double localX = roughRayTrace.hitPos().x();
+            double localY = roughRayTrace.hitPos().y();
             double halfWidth = portalState.width() / 2;
             double halfHeight = portalState.height() / 2;
             
@@ -253,8 +289,15 @@ public interface PortalShape {
         }
         
         @Override
-        public @Nullable Plane getClipping(UnilateralPortalState portalState) {
-            return RectangularShape.INSTANCE.getClipping(portalState);
+        public Plane getOuterClipping(UnilateralPortalState portalState) {
+            return RectangularShape.INSTANCE.getOuterClipping(portalState);
+        }
+        
+        @Override
+        public Plane getInnerClipping(
+            UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        ) {
+            return RectangularShape.INSTANCE.getInnerClipping(thisSideState, otherSideState);
         }
         
         @Override
@@ -336,7 +379,7 @@ public interface PortalShape {
         
         public final boolean facingOutwards;
         
-        public BoxShape(boolean facingOutwards) {this.facingOutwards = facingOutwards;}
+        private BoxShape(boolean facingOutwards) {this.facingOutwards = facingOutwards;}
         
         @Override
         public boolean isPlanar() {
@@ -403,29 +446,35 @@ public interface PortalShape {
         }
         
         @Override
-        public @Nullable Vec3 raytracePortalShapeByLocalPos(
+        public @Nullable RayTraceResult raytracePortalShapeByLocalPos(
             UnilateralPortalState portalState, Vec3 localFrom, Vec3 localTo, double leniency
         ) {
-            Vector2d resultHolder = new Vector2d();
-            int r = Intersectiond.intersectLineSegmentAab(
+            Vec3 lineVec = localTo.subtract(localFrom);
+            
+            RayTraceResult rayTraceResult = Helper.raytraceAABB(
+                facingOutwards,
+                -portalState.width() / 2,
+                -portalState.height() / 2,
+                -portalState.thickness() / 2,
+                portalState.width() / 2,
+                portalState.height() / 2,
+                portalState.thickness() / 2,
                 localFrom.x(), localFrom.y(), localFrom.z(),
-                localTo.x(), localTo.y(), localTo.z(),
-                -portalState.width() / 2, -portalState.height() / 2, -portalState.thickness() / 2,
-                portalState.width() / 2, portalState.height() / 2, portalState.thickness() / 2,
-                resultHolder
+                lineVec.x(), lineVec.y(), lineVec.z()
             );
             
-            if (r == Intersectiond.OUTSIDE) {
-                return null;
-            }
-            
-            double t = resultHolder.x;
-            
-            return localFrom.add(localTo.subtract(localFrom).scale(t));
+            return rayTraceResult;
         }
         
         @Override
-        public @Nullable Plane getClipping(UnilateralPortalState portalState) {
+        public @Nullable Plane getOuterClipping(UnilateralPortalState portalState) {
+            return null;
+        }
+        
+        @Override
+        public @Nullable Plane getInnerClipping(
+            UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        ) {
             return null;
         }
         

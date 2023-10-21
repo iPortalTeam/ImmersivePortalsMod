@@ -251,7 +251,7 @@ public class ServerTeleportationManager {
         return portal.canTeleportEntity(player)
             && player.level().dimension() == dimensionBefore
             && player.position().distanceToSqr(posBefore) < 256
-            && portal.getDistanceToPlane(posBefore) < 20;
+            && portal.getDistanceToNearestPointInPortal(posBefore) < 20;
     }
     
     public static boolean canPlayerReachPos(

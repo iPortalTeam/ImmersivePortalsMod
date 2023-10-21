@@ -7,12 +7,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
@@ -118,33 +116,6 @@ public class PortalRendering {
             }
         }
         return scale;
-    }
-    
-    /**
-     * @return The cave culling starting point. Null if it's a portal group (e.g. a scale box).
-     */
-    @Nullable
-    public static BlockPos getCaveCullingStartingPoint() {
-        Validate.isTrue(isRendering());
-        PortalLike renderingPortal = getRenderingPortal();
-        
-        if (!(renderingPortal instanceof Portal portal)) {
-            return null;
-        }
-        
-        Minecraft mc = Minecraft.getInstance();
-        Vec3 cameraPos = CHelper.getCurrentCameraPos();
-        
-        Vec3 outerCameraPos = portal.inverseTransformPoint(cameraPos);
-        Vec3 nearestPoint = portal.getNearestPointInPortal(outerCameraPos);
-        
-        // for dimension stack, don't make it to be inside other side's block.
-        // move it backwards a little.
-        nearestPoint = nearestPoint.add(portal.getNormal().scale(0.00001));
-        
-        Vec3 result = portal.transformPoint(nearestPoint);
-        
-        return BlockPos.containing(result);
     }
     
     /**

@@ -557,25 +557,6 @@ public class CollisionHelper {
         return PortalGroup.getPortalUnit(portal);
     }
     
-    // currently does not support handling the case of colliding with multiple portals at the same time
-    // select one (this is a workaround)
-    @Deprecated
-    public static Portal chooseCollidingPortalBetweenTwo(
-        Entity entity,
-        Portal a,
-        Portal b
-    ) {
-        Vec3 velocity = McHelper.getWorldVelocity(entity);
-        
-        boolean movingTowardsA = velocity.dot(a.getNormal()) < 0;
-        boolean movingTowardsB = velocity.dot(b.getNormal()) < 0;
-        
-        if (movingTowardsA) {
-            return a;
-        }
-        return b;
-    }
-    
     @Nullable
     public static AABB getTotalBlockCollisionBox(Entity entity, AABB box, Function<VoxelShape, VoxelShape> shapeFilter) {
         Iterable<VoxelShape> collisions = entity.level().getBlockCollisions(entity, box);
