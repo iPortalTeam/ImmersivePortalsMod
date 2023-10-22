@@ -1636,15 +1636,15 @@ public class Mesh2D {
     public CompoundTag toTag() {
         compact();
         
-        ListTag pointCoords = new ListTag();
-        ListTag triangles = new ListTag();
+        ListTag pointCoordsTag = new ListTag();
+        ListTag trianglesTag = new ListTag();
         
         for (int i = 0; i < getStoredPointNum(); i++) {
-            double x = pointCoords.getDouble(i * 2);
-            double y = pointCoords.getDouble(i * 2 + 1);
+            double x = this.pointCoords.getDouble(i * 2);
+            double y = this.pointCoords.getDouble(i * 2 + 1);
             
-            pointCoords.add(DoubleTag.valueOf(x));
-            pointCoords.add(DoubleTag.valueOf(y));
+            pointCoordsTag.add(DoubleTag.valueOf(x));
+            pointCoordsTag.add(DoubleTag.valueOf(y));
         }
         
         for (int i = 0; i < getStoredTriangleNum(); i++) {
@@ -1656,14 +1656,14 @@ public class Mesh2D {
             int p1Index = trianglePointIndexes.getInt(i * 3 + 1);
             int p2Index = trianglePointIndexes.getInt(i * 3 + 2);
             
-            triangles.add(IntTag.valueOf(p0Index));
-            triangles.add(IntTag.valueOf(p1Index));
-            triangles.add(IntTag.valueOf(p2Index));
+            trianglesTag.add(IntTag.valueOf(p0Index));
+            trianglesTag.add(IntTag.valueOf(p1Index));
+            trianglesTag.add(IntTag.valueOf(p2Index));
         }
         
         CompoundTag tag = new CompoundTag();
-        tag.put("pointCoords", pointCoords);
-        tag.put("triangles", triangles);
+        tag.put("pointCoords", pointCoordsTag);
+        tag.put("triangles", trianglesTag);
         
         return tag;
     }

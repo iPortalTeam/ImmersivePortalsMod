@@ -60,7 +60,6 @@ import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
-import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
@@ -156,6 +155,7 @@ public class Portal extends Entity implements
      * If not null, defines the special shape of the portal
      * The shape should not exceed the area defined by width and height
      */
+    // TODO remove in 1.20.3
     @Nullable
     public GeometryPortalShape specialShape;
     
@@ -271,6 +271,9 @@ public class Portal extends Entity implements
     
     private @Nullable PortalShape portalShape;
     
+    private @Nullable UnilateralPortalState thisSideStateCache;
+    private @Nullable UnilateralPortalState otherSideStateCache;
+    
     // TODO change to event in 1.20.3
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -300,7 +303,7 @@ public class Portal extends Entity implements
             PortalShape portalShape = PortalShapeSerialization.deserialize(portalShapeTag);
             if (portalShape == null) {
                 LOGGER.error("Cannot deserialize portal shape {}", portalShapeTag);
-                this.portalShape = null;
+                this.portalShape = PortalShape.RectangularShape.INSTANCE;
             }
             else {
                 this.portalShape = portalShape;
@@ -428,10 +431,8 @@ public class Portal extends Entity implements
             Helper.putUuid(compoundTag, "specificPlayer", specificPlayerId);
         }
         
-        if (specialShape != null) {
-            compoundTag.put("specialShape", specialShape.writeToTag());
-            compoundTag.putBoolean("shapeNormalized", true);
-        }
+        CompoundTag portalShapeTag = PortalShapeSerialization.serialize(getPortalShape());
+        compoundTag.put("portalShape", portalShapeTag);
         
         compoundTag.putBoolean("teleportable", teleportable);
         
@@ -487,6 +488,16 @@ public class Portal extends Entity implements
         return portalShape;
     }
     
+    public void setPortalShape(PortalShape portalShape) {
+        this.portalShape = portalShape;
+        
+        if (!(portalShape instanceof PortalShape.SpecialFlatShape)) {
+            this.specialShape = null;
+        }
+        
+        updateCache();
+    }
+    
     @Override
     public void ip_onEntityPositionUpdated() {
         updateCache();
@@ -517,6 +528,7 @@ public class Portal extends Entity implements
     
     /**
      * @return The normal vector of the portal plane
+     * Note: the normal is no longer the plane normal for 3D portals.
      */
     public Vec3 getNormal() {
         if (normal == null) {
@@ -527,6 +539,7 @@ public class Portal extends Entity implements
     
     /**
      * @return The direction of "portal content", the "direction" of the "inner world view"
+     * Note: it should not be used for 3D portals.
      */
     public Vec3 getContentDirection() {
         if (contentDirection == null) {
@@ -602,11 +615,18 @@ public class Portal extends Entity implements
         contentDirection = null;
         thisTickPortalState = null;
         thisSideCollisionExclusion = null;
+        thisSideStateCache = null;
+        otherSideStateCache = null;
         
         // for API compat, we need to make portalShape change by specialShape
         // going to remove specialShape in 1.20.3
         if (specialShape != null) {
             portalShape = new PortalShape.SpecialFlatShape(specialShape.mesh);
+        }
+        else {
+            if (portalShape instanceof PortalShape.SpecialFlatShape s) {
+                this.specialShape = new GeometryPortalShape(s.mesh);
+            }
         }
         
         if (updates) {
@@ -685,8 +705,11 @@ public class Portal extends Entity implements
                 ((Mirror) this).getNormal().scale(mirrorOffset));
         }
         
-        ViewAreaRenderer.generateViewAreaTriangles(
-            this, portalPosRelativeToCamera, vertexOutput
+        getPortalShape().renderViewAreaMesh(
+            portalPosRelativeToCamera,
+            getThisSideState(),
+            vertexOutput,
+            getIsGlobal()
         );
     }
     
@@ -1289,11 +1312,15 @@ public class Portal extends Entity implements
     
     /**
      * Project the point into the portal plane, is it in the portal area
+     * TODO remove in 1.20.3
      */
+    @Deprecated
     public boolean isPointInPortalProjection(Vec3 pos) {
         return lenientIsPointInPortalProjection(pos, 0.001);
     }
     
+    // TODO remove in 1.20.3
+    @Deprecated
     public boolean lenientIsPointInPortalProjection(Vec3 pos, double leniency) {
         Vec3 offset = pos.subtract(getOriginPos());
         
@@ -1746,6 +1773,7 @@ public class Portal extends Entity implements
     }
     
     // if the portal is not yet initialized, will return null
+    // TODO change it to NotNull in 1.20.3
     @Nullable
     public PortalState getPortalState() {
         if (axisW == null) {
@@ -1785,10 +1813,14 @@ public class Portal extends Entity implements
     }
     
     public UnilateralPortalState getThisSideState() {
-        return new UnilateralPortalState(
-            getOriginDim(), getOriginPos(),
-            getOrientationRotation(), width, height
-        );
+        if (thisSideStateCache == null) {
+            thisSideStateCache = new UnilateralPortalState(
+                getOriginDim(), getOriginPos(),
+                getOrientationRotation(), width, height
+            );
+        }
+        
+        return thisSideStateCache;
     }
     
     public void setThisSideState(UnilateralPortalState ups) {
@@ -1825,7 +1857,15 @@ public class Portal extends Entity implements
     }
     
     public void readPortalDataFromNbt(CompoundTag compound) {
-        readAdditionalSaveData(compound);
+        try {
+            readAdditionalSaveData(compound);
+        }
+        catch (Exception e) {
+            LOGGER.error("Failed to read portal data from nbt {}", compound, e);
+            if (!isPortalValid()) {
+                setRemoved(RemovalReason.KILLED);
+            }
+        }
     }
     
     public void updatePortalFromNbt(CompoundTag newNbt) {
