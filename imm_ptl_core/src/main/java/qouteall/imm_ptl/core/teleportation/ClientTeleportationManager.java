@@ -263,14 +263,14 @@ public class ClientTeleportationManager {
         TeleportationUtil.Teleportation teleportation = teleportationCandidates
             .stream()
             .min(Comparator.comparingDouble(
-                p -> p.collidingPos().distanceToSqr(lastPlayerEyePos)
+                p -> p.worldCollisionPoint().distanceToSqr(lastPlayerEyePos)
             ))
             .orElse(null);
         
         
         if (teleportation != null) {
             Portal portal = teleportation.portal();
-            Vec3 collidingPos = teleportation.collidingPos();
+            Vec3 collidingPos = teleportation.worldCollisionPoint();
             
             client.getProfiler().push("portal_teleport");
             teleportPlayer(teleportation, partialTicks);
@@ -281,8 +281,11 @@ public class ClientTeleportationManager {
             // avoid teleporting through parallel portal due to floating point inaccuracy
             double adjustment = allowOverlappedTeleport ? -0.001 : 0.001;
             
+            Vec3 newDelta = teleportation.newThisTickEyePos()
+                .subtract(teleportation.newLastTickEyePos());
+            
             lastPlayerEyePos = teleportation.teleportationCheckpoint()
-                .add(portal.getContentDirection().scale(adjustment));
+                .add(newDelta.scale(adjustment));
             
             return teleportation;
         }
@@ -376,7 +379,7 @@ public class ClientTeleportationManager {
                     portal origin/normal: {} {}
                     portal dest/content dir: {} {}""",
                 portal, tickTimeForTeleportation, isTicking, teleportationCounter,
-                teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos(), partialTicks,
+                teleportation.lastWorldEyePos(), teleportation.currentWorldEyePos(), partialTicks,
                 teleportation.newLastTickEyePos().lerp(teleportation.newThisTickEyePos(), tickDelta),
                 portal.getOriginPos(), portal.getNormal(),
                 portal.getDestPos(), portal.getContentDirection()
@@ -388,7 +391,7 @@ public class ClientTeleportationManager {
                     Client Teleported Statically
                     portal: {}
                     eye pos: {} -> {}""",
-                portal, teleportation.lastFrameEyePos(), teleportation.thisFrameEyePos()
+                portal, teleportation.lastWorldEyePos(), teleportation.currentWorldEyePos()
             );
         }
         

@@ -1,10 +1,12 @@
 package qouteall.imm_ptl.core.portal.shape;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.my_util.Mesh2D;
@@ -173,6 +175,42 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
+    public boolean canCollideWith(
+        Portal portal, UnilateralPortalState portalState, Entity entity, float partialTick
+    ) {
+        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
+        boolean inFrontOfPortal = portal.isInFrontOfPortal(cameraPosVec);
+        
+        if (!inFrontOfPortal) {
+            return false;
+        }
+        
+        return isBoxInPortalProjection(portalState, entity.getBoundingBox());
+    }
+    
+    @Override
+    public boolean isLocalBoxInPortalProjection(
+        UnilateralPortalState portalState,
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ
+    ) {
+        boolean roughTest = RectangularPortalShape.INSTANCE.isLocalBoxInPortalProjection(
+            portalState, minX, minY, minZ, maxX, maxY, maxZ
+        );
+        
+        if (!roughTest) {
+            return false;
+        }
+        
+        double halfWidth = portalState.width() / 2;
+        double halfHeight = portalState.height() / 2;
+        
+        return mesh.boxIntersects(
+            minX / halfWidth, minY / halfHeight,
+            maxX / halfWidth, maxY / halfHeight
+        );
+    }
+    
+    @Override
     public boolean roughTestVisibility(
         UnilateralPortalState portalState,
         Vec3 cameraPos
@@ -183,4 +221,6 @@ public final class SpecialFlatPortalShape implements PortalShape {
     public static SpecialFlatPortalShape createDefault() {
         return new SpecialFlatPortalShape(Mesh2D.createNewFullQuadMesh());
     }
+    
+    
 }

@@ -1,9 +1,13 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
@@ -87,4 +91,56 @@ public interface PortalShape {
         boolean isGlobalPortal
     );
     
+    public boolean canCollideWith(
+        Portal portal,
+        UnilateralPortalState portalState, Entity entity,
+        float partialTick
+    );
+    
+    public default boolean isBoxInPortalProjection(
+        UnilateralPortalState portalState, AABB box
+    ) {
+        Vec3[] vertexes = Helper.eightVerticesOf(box);
+        
+        Vec3 originPos = portalState.position();
+        
+        Vec3[] transformed = new Vec3[vertexes.length];
+        
+        for (int i = 0; i < transformed.length; i++) {
+            transformed[i] = portalState.transformGlobalToLocal(vertexes[i]);
+        }
+        
+        double minX = transformed[0].x();
+        double maxX = minX;
+        double minY = transformed[0].y();
+        double maxY = minY;
+        double minZ = transformed[0].z();
+        double maxZ = minZ;
+        
+        for (int i = 1; i < 8; i++) {
+            Vec3 v = transformed[i];
+            minX = Math.min(minX, v.x());
+            maxX = Math.max(maxX, v.x());
+            minY = Math.min(minY, v.y());
+            maxY = Math.max(maxY, v.y());
+            minZ = Math.min(minZ, v.z());
+            maxZ = Math.max(maxZ, v.z());
+        }
+        
+        return isLocalBoxInPortalProjection(
+            portalState, minX, minY, minZ, maxX, maxY, maxZ
+        );
+    }
+    
+    public boolean isLocalBoxInPortalProjection(
+        UnilateralPortalState portalState,
+        double minX, double minY, double minZ,
+        double maxX, double maxY, double maxZ
+    );
+    
+    public default @Nullable VoxelShape getThisSideCollisionExclusion(
+        UnilateralPortalState portalState
+    ) {
+        return null;
+    }
 }

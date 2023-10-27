@@ -1,13 +1,16 @@
 package qouteall.imm_ptl.core.portal.shape;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
 
@@ -207,6 +210,28 @@ public final class BoxPortalShape implements PortalShape {
             portalOriginRelativeToCamera.subtract(localHZ),
             facingOutwards ? localHY : localHX,
             facingOutwards ? localHX : localHY
+        );
+    }
+    
+    @Override
+    public boolean canCollideWith(
+        Portal portal, UnilateralPortalState portalState,
+        Entity entity, float partialTick
+    ) {
+        return portal.getBoundingBox().intersects(entity.getBoundingBox());
+    }
+    
+    @Override
+    public boolean isLocalBoxInPortalProjection(
+        UnilateralPortalState portalState,
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ
+    ) {
+        return Range.rangeIntersects(
+            -portalState.width() / 2, portalState.width() / 2, minX, maxX
+        ) && Range.rangeIntersects(
+            -portalState.height() / 2, portalState.height() / 2, minY, maxY
+        ) && Range.rangeIntersects(
+            -portalState.thickness() / 2, portalState.thickness() / 2, minZ, maxZ
         );
     }
 }

@@ -1,13 +1,16 @@
 package qouteall.imm_ptl.core.portal.shape;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
 
@@ -67,17 +70,18 @@ public final class RectangularPortalShape implements PortalShape {
         double width = portalState.width();
         double height = portalState.height();
         
-        if (localFrom.y() > 0 && localTo.y() < 0) {
-            double deltaY = localTo.y() - localFrom.y();
+        if (localFrom.z() > 0 && localTo.z() < 0) {
+            double deltaZ = localTo.z() - localFrom.z();
             
             // localFrom + (localTo - localFrom) * t = 0
-            // localFrom.y() + deltaY * t = 0
-            // t = -localFrom.y() / deltaY
+            // localFrom.z() + deltaZ * t = 0
+            // t = -localFrom.z() / deltaZ
+            // Note: do not trust GitHub copilot. It may use z as up axis.
             
-            double t = -localFrom.y() / deltaY;
+            double t = -localFrom.z() / deltaZ;
             Vec3 hit = localFrom.add(localTo.subtract(localFrom).scale(t));
             if (Math.abs(hit.x()) < width / 2 + leniency &&
-                Math.abs(hit.z()) < height / 2 + leniency
+                Math.abs(hit.y()) < height / 2 + leniency
             ) {
                 return new RayTraceResult(
                     t, hit, new Vec3(0, 0, 1)
@@ -143,5 +147,32 @@ public final class RectangularPortalShape implements PortalShape {
         Vec3 localPos = portalState.transformGlobalToLocal(cameraPos);
         
         return localPos.z() > 0;
+    }
+    
+    @Override
+    public boolean canCollideWith(
+        Portal portal, UnilateralPortalState portalState, Entity entity,
+        float partialTick
+    ) {
+        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
+        boolean inFrontOfPortal = portalState.transformGlobalToLocal(cameraPosVec).z() > 0;
+        
+        if (!inFrontOfPortal) {
+            return false;
+        }
+        
+        return isBoxInPortalProjection(portalState, entity.getBoundingBox());
+    }
+    
+    @Override
+    public boolean isLocalBoxInPortalProjection(
+        UnilateralPortalState portalState,
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ
+    ) {
+        double halfWidth = portalState.width() / 2;
+        double halfHeight = portalState.height() / 2;
+        
+        return Range.rangeIntersects(-halfWidth, halfWidth, minX, maxX)
+            && Range.rangeIntersects(-halfHeight, halfHeight, minY, maxY);
     }
 }

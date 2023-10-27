@@ -1168,6 +1168,7 @@ public class Portal extends Entity implements
     /**
      * @param pos
      * @return the distance to the portal plane without regarding the shape
+     * Note: only works with flat portal
      */
     public double getDistanceToPlane(Vec3 pos) {
         return pos.subtract(getOriginPos()).dot(getNormal());
@@ -1176,6 +1177,7 @@ public class Portal extends Entity implements
     /**
      * @param pos
      * @return is the point in front of the portal plane without regarding the shape
+     * Note: only works with flat portal
      */
     public boolean isInFrontOfPortal(Vec3 pos) {
         return getDistanceToPlane(pos) > 0;

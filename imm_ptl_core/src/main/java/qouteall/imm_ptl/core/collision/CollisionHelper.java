@@ -105,20 +105,9 @@ public class CollisionHelper {
             return false;
         }
         
-        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
-        boolean inFrontOfPortal = portal.isInFrontOfPortal(cameraPosVec);
-        
-        if (!inFrontOfPortal) {
-            return false;
-        }
-        
-        boolean inProjection = portal.isBoundingBoxInPortalProjection(entity.getBoundingBox());
-        
-        if (!inProjection) {
-            return false;
-        }
-        
-        return true;
+        return portal.getPortalShape().canCollideWith(
+            portal, portal.getThisSideState(), entity, partialTick
+        );
     }
     
     public static double absMin(double a, double b) {
