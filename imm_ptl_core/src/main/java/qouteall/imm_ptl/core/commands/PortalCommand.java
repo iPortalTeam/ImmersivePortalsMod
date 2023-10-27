@@ -845,14 +845,11 @@ public class PortalCommand {
             .then(Commands.argument("offset", Vec3Argument.vec3(false))
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
                     Vec3 offset = Vec3Argument.getVec3(context, "offset");
+                    
+                    Vec3 offsetTransformed = portal.transformLocalVec(offset);
+                    
                     portal.setOriginPos(
-                        portal.getOriginPos().add(
-                            portal.axisW.scale(offset.x)
-                        ).add(
-                            portal.axisH.scale(offset.y)
-                        ).add(
-                            portal.getNormal().scale(offset.z)
-                        )
+                        portal.getOriginPos().add(offsetTransformed)
                     );
                     reloadPortal(portal);
                 }))
@@ -1035,6 +1032,8 @@ public class PortalCommand {
     }
     
     private static void adjustPortalAreaToFitFrame(Portal portal) {
+        portal.setPortalShapeToDefault();
+        
         BlockPos origin = BlockPos.containing(portal.getOriginPos());
         
         Direction portalNormalDirection =
@@ -1065,7 +1064,6 @@ public class PortalCommand {
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection, portalNormalCoordinate);
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection.getOpposite(), portalNormalCoordinate);
         
-        portal.setPortalShapeToDefault();
         PortalAPI.setPortalOrthodoxShape(portal, portalNormalDirection, portalBox);
     }
     

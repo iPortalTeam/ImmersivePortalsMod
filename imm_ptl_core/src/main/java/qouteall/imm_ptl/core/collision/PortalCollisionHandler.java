@@ -10,6 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -17,8 +19,8 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Plane;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -202,34 +204,18 @@ public class PortalCollisionHandler {
         if (entity instanceof Player && entity.level().isClientSide()) {
             CollisionHelper.informClientStagnant();
         }
-        Vec3 innerDirection = collidingPortal.getNormal().scale(-1);
         
-        if (attemptedMove.dot(innerDirection) < 0) {
-            return attemptedMove;
-        }
-        else {
-            // when the other side chunk is not loaded, don't let the player to go into the portal.
-            // this works fine for global portals.
-            // however, for normal portals, if the portal is not in the same chunk as player, the portal
-            // may not load in time and this will not stop player from start falling through solid ground on the other side.
-            // When the portal loads, push the bounding box out of portal.
-            
-            double innerSignedDistance = Arrays.stream(Helper.eightVerticesOf(originalBoundingBox))
-                .mapToDouble(
-                    pos -> pos.subtract(collidingPortal.getOriginPos()).dot(collidingPortal.getNormal())
-                )
-                .min().orElseThrow();
-            
-            if (innerSignedDistance < 0) {
-                return attemptedMove
-                    .add(collidingPortal.getNormal().scale(-innerSignedDistance))
-                    .subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
-            }
-            else {
-                return attemptedMove
-                    .subtract(innerDirection.scale(innerDirection.dot(attemptedMove)));
-            }
-        }
+        // when the other side chunk is not loaded, don't let the player to go into the portal.
+        // this works fine for global portals.
+        // however, for normal portals, if the portal is not in the same chunk as player, the portal
+        // may not load in time and this will not stop player from start falling through solid ground on the other side.
+        // When the portal loads, push the bounding box out of portal.
+        
+        return collidingPortal.getPortalShape().getOffsetForPushingEntityOutOfPortal(
+            collidingPortal,
+            collidingPortal.getThisSideState(),
+            entity, attemptedMove
+        );
     }
     
     private static Vec3 handleThisSideMove(
@@ -305,15 +291,20 @@ public class PortalCollisionHandler {
         for (PortalCollisionEntry portalCollision : portalCollisions) {
             Portal portal = portalCollision.portal;
             
-            AABB newBox = CollisionHelper.clipBox(
-                currentBox, portal.getOriginPos(), portal.getNormal()
-            );
+            Plane outerClipping = portal.getPortalShape()
+                .getOuterClipping(portal.getThisSideState());
             
-            if (newBox == null) {
-                return null;
+            if (outerClipping != null) {
+                AABB newBox = CollisionHelper.clipBox(
+                    currentBox, outerClipping.pos(), outerClipping.normal()
+                );
+                
+                if (newBox == null) {
+                    return null;
+                }
+                
+                currentBox = newBox;
             }
-            
-            currentBox = newBox;
         }
         
         return currentBox;
@@ -364,5 +355,36 @@ public class PortalCollisionHandler {
     
     public List<Portal> getCollidingPortals() {
         return Helper.mappedListView(portalCollisions, p -> p.portal);
+    }
+    
+    @NotNull
+    public static Vec3 getOffsetForPushingEntityOutOfPortal(
+        Vec3 attemptedMove, Vec3 origin, Vec3 normal, AABB originalBoundingBox
+    ) {
+        Vec3 innerDirection = normal.scale(-1);
+        
+        double innerSignedDistance = Arrays
+            .stream(Helper.eightVerticesOf(originalBoundingBox))
+            .mapToDouble(
+                pos -> pos.subtract(origin).dot(normal)
+            )
+            .min().orElseThrow();
+        
+        Vec3 attemptedMoveProjectedToInnerDirection =
+            innerDirection.scale(innerDirection.dot(attemptedMove));
+        
+        // subtract the attempted move projection along inner direction
+        // to cancel the movement inward
+        if (innerSignedDistance < 0) {
+            // when the bounding box is already inside portal
+            // subtract the extra to push it out
+            return attemptedMove
+                .add(normal.scale(-innerSignedDistance))
+                .subtract(attemptedMoveProjectedToInnerDirection);
+        }
+        else {
+            return attemptedMove
+                .subtract(attemptedMoveProjectedToInnerDirection);
+        }
     }
 }

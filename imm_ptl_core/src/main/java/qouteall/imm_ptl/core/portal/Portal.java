@@ -71,6 +71,7 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
+import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
@@ -1012,25 +1013,9 @@ public class Portal extends Entity implements
             return nullBox;
         }
         if (boundingBoxCache == null) {
-            double w = width;
-            double h = height;
-            if (shouldLimitBoundingBox()) {
-                // avoid bounding box too big after converting global portal to normal portal
-                w = Math.min(this.width, 64.0);
-                h = Math.min(this.height, 64.0);
-            }
-            
-            boundingBoxCache = new AABB(
-                getPointInPlane(w / 2, h / 2)
-                    .add(getNormal().scale(0.2)),
-                getPointInPlane(-w / 2, -h / 2)
-                    .add(getNormal().scale(-0.2))
-            ).minmax(new AABB(
-                getPointInPlane(-w / 2, h / 2)
-                    .add(getNormal().scale(0.2)),
-                getPointInPlane(w / 2, -h / 2)
-                    .add(getNormal().scale(-0.2))
-            ));
+            boundingBoxCache = getPortalShape()
+                .getBoundingBox(getThisSideState(), shouldLimitBoundingBox())
+                .inflate(0.2);
         }
         return boundingBoxCache;
     }
@@ -1041,17 +1026,9 @@ public class Portal extends Entity implements
     
     public AABB getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
-            exactBoundingBoxCache = new AABB(
-                getPointInPlane(width / 2, height / 2)
-                    .add(getNormal().scale(0.02)),
-                getPointInPlane(-width / 2, -height / 2)
-                    .add(getNormal().scale(-0.02))
-            ).minmax(new AABB(
-                getPointInPlane(-width / 2, height / 2)
-                    .add(getNormal().scale(0.02)),
-                getPointInPlane(width / 2, -height / 2)
-                    .add(getNormal().scale(-0.02))
-            ));
+            exactBoundingBoxCache = getPortalShape().getBoundingBox(
+                getThisSideState(), false
+            );
         }
         
         return exactBoundingBoxCache;
@@ -1384,41 +1361,24 @@ public class Portal extends Entity implements
     
     @Nullable
     public Vec3 lenientRayTrace(Vec3 from, Vec3 to, double leniency) {
-        double lastDistance = getDistanceToPlane(from);
-        double nowDistance = getDistanceToPlane(to);
+        RayTraceResult rayTraceResult = getPortalShape().raytracePortalShape(
+            getThisSideState(), from, to, leniency
+        );
         
-        if (!(lastDistance > 0 && nowDistance < 0)) {
+        if (rayTraceResult == null) {
             return null;
         }
         
-        Vec3 lineOrigin = from;
-        Vec3 lineDirection = to.subtract(from).normalize();
-        
-        double collidingT = Helper.getCollidingT(getOriginPos(), normal, lineOrigin, lineDirection);
-        Vec3 collidingPoint = lineOrigin.add(lineDirection.scale(collidingT));
-        
-        if (lenientIsPointInPortalProjection(collidingPoint, leniency)) {
-            return collidingPoint;
-        }
-        else {
-            return null;
-        }
+        return rayTraceResult.hitPos();
     }
     
     @Override
     public double getDistanceToNearestPointInPortal(
         Vec3 point
     ) {
-        double distanceToPlane = getDistanceToPlane(point);
-        Vec3 localPos = point.subtract(getOriginPos());
-        double localX = localPos.dot(axisW);
-        double localY = localPos.dot(axisH);
-        double distanceToRect = Helper.getDistanceToRectangle(
-            localX, localY,
-            -(width / 2), -(height / 2),
-            (width / 2), (height / 2)
+        return getPortalShape().roughDistanceToPortalShape(
+            getThisSideState(), point
         );
-        return Math.sqrt(distanceToPlane * distanceToPlane + distanceToRect * distanceToRect);
     }
     
     public Vec3 getPointProjectedToPlane(Vec3 pos) {

@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
@@ -54,7 +55,9 @@ public final class BoxPortalShape implements PortalShape {
     }
     
     @Override
-    public AABB getBoundingBox(UnilateralPortalState portalState) {
+    public AABB getBoundingBox(
+        UnilateralPortalState portalState, boolean limitSize
+    ) {
         double halfW = portalState.width() / 2;
         double halfH = portalState.height() / 2;
         double halfT = portalState.thickness() / 2;
@@ -73,7 +76,7 @@ public final class BoxPortalShape implements PortalShape {
     }
     
     @Override
-    public double distanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
+    public double roughDistanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
         Vec3 localPos = portalState.transformGlobalToLocal(pos);
         
         double dx = Helper.getDistanceToRange(
@@ -232,6 +235,57 @@ public final class BoxPortalShape implements PortalShape {
             -portalState.height() / 2, portalState.height() / 2, minY, maxY
         ) && Range.rangeIntersects(
             -portalState.thickness() / 2, portalState.thickness() / 2, minZ, maxZ
+        );
+    }
+    
+    @Override
+    public Vec3 getOffsetForPushingEntityOutOfPortal(
+        Portal portal, UnilateralPortalState portalState, Entity entity,
+        Vec3 attemptedMove
+    ) {
+        AABB entityBox = entity.getBoundingBox();
+        
+        Vec3 localAttemptedMove = portalState.transformVecGlobalToLocal(attemptedMove);
+        
+        Vec3 oXP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(portalState.width() / 2, 0, 0),
+            new Vec3(facingOutwards ? 1 : -1, 0, 0),
+            entityBox
+        );
+        Vec3 oXN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(-portalState.width() / 2, 0, 0),
+            new Vec3(facingOutwards ? -1 : 1, 0, 0),
+            entityBox
+        );
+        Vec3 oYP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(0, portalState.height() / 2, 0),
+            new Vec3(0, facingOutwards ? 1 : -1, 0),
+            entityBox
+        );
+        Vec3 oYN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(0, -portalState.height() / 2, 0),
+            new Vec3(0, facingOutwards ? -1 : 1, 0),
+            entityBox
+        );
+        Vec3 oZP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(0, 0, portalState.thickness() / 2),
+            new Vec3(0, 0, facingOutwards ? 1 : -1),
+            entityBox
+        );
+        Vec3 oZN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            localAttemptedMove,
+            new Vec3(0, 0, -portalState.thickness() / 2),
+            new Vec3(0, 0, facingOutwards ? -1 : 1),
+            entityBox
+        );
+        
+        return portalState.transformVecLocalToGlobal(
+            oXP.add(oXN).add(oYP).add(oYN).add(oZP).add(oZN)
         );
     }
 }

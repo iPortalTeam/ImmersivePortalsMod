@@ -514,10 +514,11 @@ public class ServerTeleportationManager {
         );
         
         if (collidingPoint == null) {
-            collidingPoint = portal.getPointProjectedToPlane(eyePosThisTick);
+            collidingPoint = eyePosLastTick;
         }
         
-        Vec3 result = portal.transformPoint(collidingPoint).add(portal.getContentDirection().scale(0.05));
+        Vec3 result = portal.transformPoint(collidingPoint)
+            .add(deltaMovementDirection.scale(0.05));
         return result;
     }
     

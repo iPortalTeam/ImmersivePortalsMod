@@ -54,14 +54,14 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
-    public AABB getBoundingBox(UnilateralPortalState portalState) {
-        return RectangularPortalShape.INSTANCE.getBoundingBox(portalState);
+    public AABB getBoundingBox(UnilateralPortalState portalState, boolean limitSize) {
+        return RectangularPortalShape.INSTANCE.getBoundingBox(portalState, limitSize);
     }
     
     // it does not calculate "real" distance here
     @Override
-    public double distanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
-        return RectangularPortalShape.INSTANCE.distanceToPortalShape(portalState, pos);
+    public double roughDistanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
+        return RectangularPortalShape.INSTANCE.roughDistanceToPortalShape(portalState, pos);
     }
     
     @Override
@@ -207,6 +207,13 @@ public final class SpecialFlatPortalShape implements PortalShape {
         return mesh.boxIntersects(
             minX / halfWidth, minY / halfHeight,
             maxX / halfWidth, maxY / halfHeight
+        );
+    }
+    
+    @Override
+    public Vec3 getOffsetForPushingEntityOutOfPortal(Portal portal, UnilateralPortalState portalState, Entity entity, Vec3 attemptedMove) {
+        return RectangularPortalShape.INSTANCE.getOffsetForPushingEntityOutOfPortal(
+            portal, portalState, entity, attemptedMove
         );
     }
     

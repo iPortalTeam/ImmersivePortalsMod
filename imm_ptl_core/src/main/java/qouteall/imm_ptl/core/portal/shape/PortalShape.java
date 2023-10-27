@@ -17,11 +17,15 @@ import java.util.List;
 public interface PortalShape {
     public boolean isPlanar();
     
+    /**
+     * @param limitSize true when it's not a global portal.
+     *                  having too big bounding box cause lag
+     */
     public AABB getBoundingBox(
-        UnilateralPortalState portalState
+        UnilateralPortalState portalState, boolean limitSize
     );
     
-    public double distanceToPortalShape(
+    public double roughDistanceToPortalShape(
         UnilateralPortalState portalState, Vec3 pos
     );
     
@@ -143,4 +147,12 @@ public interface PortalShape {
     ) {
         return null;
     }
+    
+    /**
+     * Entities are pushed out when the other side of the portal is not yet loaded.
+     */
+    public Vec3 getOffsetForPushingEntityOutOfPortal(
+        Portal portal, UnilateralPortalState portalState,
+        Entity entity, Vec3 attemptedMove
+    );
 }

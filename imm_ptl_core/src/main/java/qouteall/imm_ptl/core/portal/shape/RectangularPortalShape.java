@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
@@ -32,10 +33,18 @@ public final class RectangularPortalShape implements PortalShape {
     }
     
     @Override
-    public AABB getBoundingBox(UnilateralPortalState portalState) {
+    public AABB getBoundingBox(
+        UnilateralPortalState portalState, boolean limitSize
+    ) {
         double thickness = 0.02;
         double halfW = portalState.width() / 2;
         double halfH = portalState.height() / 2;
+        
+        if (limitSize) {
+            halfW = Math.min(halfH, 64);
+            halfH = Math.min(halfH, 64);
+        }
+        
         return Helper.boundingBoxOfPoints(
             new Vec3[]{
                 portalState.transformLocalToGlobal(halfW, halfH, thickness),
@@ -51,7 +60,7 @@ public final class RectangularPortalShape implements PortalShape {
     }
     
     @Override
-    public double distanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
+    public double roughDistanceToPortalShape(UnilateralPortalState portalState, Vec3 pos) {
         Vec3 localPos = portalState.transformGlobalToLocal(pos);
         
         double distToRec = Helper.getDistanceToRectangle(
@@ -175,4 +184,17 @@ public final class RectangularPortalShape implements PortalShape {
         return Range.rangeIntersects(-halfWidth, halfWidth, minX, maxX)
             && Range.rangeIntersects(-halfHeight, halfHeight, minY, maxY);
     }
+    
+    @Override
+    public Vec3 getOffsetForPushingEntityOutOfPortal(
+        Portal portal, UnilateralPortalState portalState, Entity entity,
+        Vec3 attemptedMove
+    ) {
+        AABB originalBoundingBox = entity.getBoundingBox();
+        
+        return PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+            attemptedMove, portalState.position(), portalState.getNormal(), originalBoundingBox
+        );
+    }
+    
 }
