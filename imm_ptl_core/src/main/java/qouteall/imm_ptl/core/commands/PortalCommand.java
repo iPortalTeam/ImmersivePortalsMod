@@ -53,7 +53,6 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -67,6 +66,8 @@ import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalMatcher;
+import qouteall.imm_ptl.core.portal.shape.PortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -885,7 +886,7 @@ public class PortalCommand {
                         
                         portal.width = width;
                         portal.height = height;
-                        portal.specialShape = null;
+                        portal.setPortalShapeToDefault();
                         
                         reloadPortal(portal);
                     }))
@@ -998,7 +999,7 @@ public class PortalCommand {
         
         shapeBuilder.then(Commands.literal("reset")
             .executes(context -> processPortalTargetedCommand(context, portal -> {
-                portal.specialShape = null;
+                portal.setPortalShapeToDefault();
                 reloadPortal(portal);
             }))
         );
@@ -1064,7 +1065,7 @@ public class PortalCommand {
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection, portalNormalCoordinate);
         portalBox = Helper.replaceBoxCoordinate(portalBox, portalNormalDirection.getOpposite(), portalNormalCoordinate);
         
-        portal.specialShape = null;
+        portal.setPortalShapeToDefault();
         PortalAPI.setPortalOrthodoxShape(portal, portalNormalDirection, portalBox);
     }
     
@@ -2516,8 +2517,7 @@ public class PortalCommand {
         UnilateralPortalState otherSideState = UnilateralPortalState.extractOtherSide(portalState);
         Level fromWorld = portal.level();
         Level toWorld = portal.getDestinationWorld();
-        @Nullable
-        GeometryPortalShape specialShape = portal.specialShape;
+        PortalShape specialShape = portal.getPortalShape();
         DQuaternion spacialRotation = portal.getRotationD();
         
         // remove the old portal
@@ -2536,7 +2536,7 @@ public class PortalCommand {
         thisSideMirror.setDestination(thisSideState.position());
         thisSideMirror.width = thisSideState.width();
         thisSideMirror.height = thisSideState.height();
-        thisSideMirror.specialShape = specialShape;
+        thisSideMirror.setPortalShape(specialShape);
         thisSideMirror.setRotationTransformationForMirror(spacialRotation);
         
         Mirror otherSideMirror = Mirror.entityType.create(toWorld);
@@ -2547,7 +2547,7 @@ public class PortalCommand {
         otherSideMirror.setDestination(otherSideState.position());
         otherSideMirror.width = otherSideState.width();
         otherSideMirror.height = otherSideState.height();
-        otherSideMirror.specialShape = specialShape != null ? specialShape.getFlipped() : null;
+        otherSideMirror.setPortalShape(specialShape.getFlipped());
         otherSideMirror.setRotationTransformationForMirror(spacialRotation.getConjugated());
         
         McHelper.spawnServerEntity(thisSideMirror);
@@ -2558,7 +2558,7 @@ public class PortalCommand {
         assert invisiblePortal != null;
         invisiblePortal.dimensionTo = toWorld.dimension();
         invisiblePortal.setPortalState(UnilateralPortalState.combine(thisSideState, otherSideState));
-        invisiblePortal.specialShape = specialShape;
+        invisiblePortal.setPortalShape(specialShape);
         invisiblePortal.setIsVisible(false);
         invisiblePortal.setOriginPos(invisiblePortal.getOriginPos().add(portal.getNormal().scale(0.001)));
         invisiblePortal.setDestination(invisiblePortal.getDestPos().add(portal.getContentDirection().scale(0.001)));
@@ -2586,8 +2586,13 @@ public class PortalCommand {
             return;
         }
         
-        if (portal.specialShape == null) {
-            portal.specialShape = GeometryPortalShape.createDefault();
+        PortalShape originalPortalShape = portal.getPortalShape();
+        Mesh2D mesh2D;
+        if (originalPortalShape instanceof SpecialFlatPortalShape s) {
+            mesh2D = s.mesh.copy();
+        }
+        else {
+            mesh2D = Mesh2D.createNewFullQuadMesh();
         }
         
         double halfWidth = portal.width / 2;
@@ -2595,8 +2600,6 @@ public class PortalCommand {
         Vec3 axisW = portal.axisW;
         Vec3 axisH = portal.axisH;
         Plane plane = new Plane(portal.getOriginPos(), portal.getNormal());
-        
-        Mesh2D mesh2D = portal.specialShape.mesh;
         
         double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
         
@@ -2723,7 +2726,7 @@ public class PortalCommand {
             portal.setHeight(newPortalHeight);
         }
         
-        portal.specialShape = new GeometryPortalShape(mesh2D);
+        portal.setPortalShape(new SpecialFlatPortalShape(mesh2D));
     }
     
     

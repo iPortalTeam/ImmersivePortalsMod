@@ -7,7 +7,10 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalState;
+import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.RayTraceResult;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,7 +57,7 @@ public class TeleportationUtil {
         boolean isDynamic,
         Portal portal,
         Vec3 lastFrameEyePos, Vec3 thisFrameEyePos,
-        double collidingPosPortalLocalX, double collidingPosPortalLocalY,
+        Vec3 collidingPortalLocalPos,
         double tOfCollision, Vec3 collidingPos,
         PortalState collidingPortalState, // for a moving portal, it's the portal state at the time of collision
         PortalState lastFrameState, PortalState thisFrameState,
@@ -90,13 +93,23 @@ public class TeleportationUtil {
         Vec3 lastLocalPos = portal.transformFromWorldToPortalLocal(lastPos);
         Vec3 currentLocalPos = portal.transformFromWorldToPortalLocal(currentPos);
         
-        CollisionInfo collisionInfo = checkTeleportationByPortalLocalPos(
-            portal, lastLocalPos, currentLocalPos
+        PortalShape portalShape = portal.getPortalShape();
+        UnilateralPortalState portalThisSideState = portal.getThisSideState();
+        
+        // use portal-local coordinate to simplify teleportation check
+        RayTraceResult localRayTraceResult = portalShape.raytracePortalShapeByLocalPos(
+            portalThisSideState,
+            lastLocalPos, currentLocalPos,
+            0
         );
         
-        if (collisionInfo == null) {
+        if (localRayTraceResult == null) {
             return null;
         }
+        
+        Vec3 worldHitPos = portalThisSideState.transformLocalToGlobal(
+            localRayTraceResult.hitPos()
+        );
         
         Vec3 newLastTickEyePos = portal.transformPoint(lastTickEyePos);
         Vec3 newThisTickEyePos = portal.transformPoint(thisTickEyePos);
@@ -106,8 +119,9 @@ public class TeleportationUtil {
             false,
             portal,
             lastPos, currentPos,
-            collisionInfo.portalLocalX, collisionInfo.portalLocalY,
-            collisionInfo.tOfCollision, collisionInfo.collisionPos,
+            localRayTraceResult.hitPos(),
+            localRayTraceResult.t(),
+            worldHitPos,
             portalState,
             portalState, portalState,
             portalState, portalState,
@@ -237,9 +251,24 @@ public class TeleportationUtil {
     
     // use the portal-local coordinate to simplify teleportation check
     @Nullable
+    @Deprecated
     private static CollisionInfo checkTeleportationByPortalLocalPos(
         Portal portal, Vec3 lastLocalPos, Vec3 currentLocalPos
     ) {
+        PortalShape portalShape = portal.getPortalShape();
+        
+        RayTraceResult rayTraceResult = portalShape.raytracePortalShapeByLocalPos(
+            portal.getThisSideState(),
+            lastLocalPos, currentLocalPos,
+            0
+        );
+        
+        if (rayTraceResult != null) {
+            return new CollisionInfo(
+            
+            )
+        }
+        
         boolean movedThrough = lastLocalPos.z > 0 && currentLocalPos.z < 0;
         
         if (!movedThrough) {

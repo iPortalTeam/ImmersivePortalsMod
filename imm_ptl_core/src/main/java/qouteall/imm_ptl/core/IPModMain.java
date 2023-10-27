@@ -42,7 +42,9 @@ import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
 import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
-import qouteall.imm_ptl.core.portal.shape.PortalShape;
+import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
+import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
@@ -80,9 +82,9 @@ public class IPModMain {
         
         IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
         
-        PortalShape.RectangularShape.init();
-        PortalShape.SpecialFlatShape.init();
-        PortalShape.BoxShape.init();
+        RectangularPortalShape.init();
+        SpecialFlatPortalShape.init();
+        BoxPortalShape.init();
         
         ImmPtlChunkTracking.init();
         

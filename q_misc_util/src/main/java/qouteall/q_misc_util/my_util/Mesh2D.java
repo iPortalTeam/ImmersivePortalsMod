@@ -1633,6 +1633,17 @@ public class Mesh2D {
         return mesh;
     }
     
+    public void addQuad(double x1, double y1, double x2, double y2) {
+        addTriangle(x1, y1, x2, y1, x2, y2);
+        addTriangle(x2, y2, x1, y2, x1, y1);
+    }
+    
+    public static Mesh2D createNewFullQuadMesh() {
+        Mesh2D mesh2D = new Mesh2D();
+        mesh2D.addQuad(-1, -1, 1, 1);
+        return mesh2D;
+    }
+    
     public CompoundTag toTag() {
         compact();
         

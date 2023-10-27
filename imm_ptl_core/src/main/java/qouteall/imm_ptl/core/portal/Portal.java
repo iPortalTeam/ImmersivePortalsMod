@@ -56,6 +56,8 @@ import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.PortalShapeSerialization;
+import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderable;
@@ -303,7 +305,7 @@ public class Portal extends Entity implements
             PortalShape portalShape = PortalShapeSerialization.deserialize(portalShapeTag);
             if (portalShape == null) {
                 LOGGER.error("Cannot deserialize portal shape {}", portalShapeTag);
-                this.portalShape = PortalShape.RectangularShape.INSTANCE;
+                this.portalShape = RectangularPortalShape.INSTANCE;
             }
             else {
                 this.portalShape = portalShape;
@@ -332,10 +334,10 @@ public class Portal extends Entity implements
             }
             
             if (specialShape == null) {
-                portalShape = PortalShape.RectangularShape.INSTANCE;
+                portalShape = RectangularPortalShape.INSTANCE;
             }
             else {
-                portalShape = new PortalShape.SpecialFlatShape(specialShape.mesh);
+                portalShape = new SpecialFlatPortalShape(specialShape.mesh);
             }
         }
         
@@ -482,7 +484,7 @@ public class Portal extends Entity implements
     
     public @NotNull PortalShape getPortalShape() {
         if (portalShape == null) {
-            portalShape = PortalShape.RectangularShape.INSTANCE;
+            portalShape = RectangularPortalShape.INSTANCE;
         }
         
         return portalShape;
@@ -491,11 +493,15 @@ public class Portal extends Entity implements
     public void setPortalShape(PortalShape portalShape) {
         this.portalShape = portalShape;
         
-        if (!(portalShape instanceof PortalShape.SpecialFlatShape)) {
+        if (!(portalShape instanceof SpecialFlatPortalShape)) {
             this.specialShape = null;
         }
         
         updateCache();
+    }
+    
+    public void setPortalShapeToDefault() {
+        setPortalShape(RectangularPortalShape.INSTANCE);
     }
     
     @Override
@@ -621,10 +627,10 @@ public class Portal extends Entity implements
         // for API compat, we need to make portalShape change by specialShape
         // going to remove specialShape in 1.20.3
         if (specialShape != null) {
-            portalShape = new PortalShape.SpecialFlatShape(specialShape.mesh);
+            portalShape = new SpecialFlatPortalShape(specialShape.mesh);
         }
         else {
-            if (portalShape instanceof PortalShape.SpecialFlatShape s) {
+            if (portalShape instanceof SpecialFlatPortalShape s) {
                 this.specialShape = new GeometryPortalShape(s.mesh);
             }
         }
