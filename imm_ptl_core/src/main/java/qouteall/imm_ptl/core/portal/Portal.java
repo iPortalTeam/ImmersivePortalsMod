@@ -58,7 +58,6 @@ import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.PortalShapeSerialization;
 import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
-import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
@@ -1502,13 +1501,15 @@ public class Portal extends Entity implements
     
     @Override
     public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
-        return isInFrontOfPortal(cameraPos);
+        return getPortalShape().roughTestVisibility(getThisSideState(), cameraPos);
     }
     
     @Nullable
     @Override
     public Plane getInnerClipping() {
-        return new Plane(getDestPos(), getContentDirection());
+        return getPortalShape().getInnerClipping(
+            getThisSideState(), getOtherSideState()
+        );
     }
     
     //3  2
@@ -1520,36 +1521,13 @@ public class Portal extends Entity implements
     }
     
     
-    // function return true for culled
     @Environment(EnvType.CLIENT)
+    @Deprecated
     @Override
     public BoxPredicate getInnerFrustumCullingFunc(
         double cameraX, double cameraY, double cameraZ
     ) {
-        
-        Vec3 portalOriginInLocalCoordinate = getDestPos().add(
-            -cameraX, -cameraY, -cameraZ
-        );
-        Vec3[] innerFrustumCullingVertices = getFourVerticesLocalRotated(0);
-        if (innerFrustumCullingVertices == null) {
-            return BoxPredicate.nonePredicate;
-        }
-        Vec3[] downLeftUpRightPlaneNormals = FrustumCuller.getDownLeftUpRightPlaneNormals(
-            portalOriginInLocalCoordinate,
-            innerFrustumCullingVertices
-        );
-        
-        Vec3 downPlane = downLeftUpRightPlaneNormals[0];
-        Vec3 leftPlane = downLeftUpRightPlaneNormals[1];
-        Vec3 upPlane = downLeftUpRightPlaneNormals[2];
-        Vec3 rightPlane = downLeftUpRightPlaneNormals[3];
-        
-        return
-            (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
-                FrustumCuller.isFullyOutsideFrustum(
-                    minX, minY, minZ, maxX, maxY, maxZ,
-                    leftPlane, rightPlane, upPlane, downPlane
-                );
+        throw new UnsupportedOperationException();
     }
     
     public Matrix4d getFullSpaceTransformation() {
@@ -1812,6 +1790,16 @@ public class Portal extends Entity implements
         }
         
         return thisSideStateCache;
+    }
+    
+    public UnilateralPortalState getOtherSideState() {
+        if (otherSideStateCache == null) {
+            PortalState portalState = getPortalState();
+            assert portalState != null;
+            otherSideStateCache = UnilateralPortalState.extractOtherSide(portalState);
+        }
+        
+        return otherSideStateCache;
     }
     
     public void setThisSideState(UnilateralPortalState ups) {

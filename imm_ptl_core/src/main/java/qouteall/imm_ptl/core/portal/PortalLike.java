@@ -21,6 +21,7 @@ import java.util.UUID;
  * You probably need to manipulate portal entities, not PortalLike
  */
 public interface PortalLike {
+    @Deprecated
     @Environment(EnvType.CLIENT)
     BoxPredicate getInnerFrustumCullingFunc(
         double cameraX, double cameraY, double cameraZ

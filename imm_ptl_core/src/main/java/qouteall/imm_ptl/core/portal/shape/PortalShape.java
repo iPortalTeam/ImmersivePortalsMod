@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.BoxPredicateF;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
@@ -161,7 +162,23 @@ public interface PortalShape {
     
     public PortalShape cloneIfNecessary();
     
+    @Environment(EnvType.CLIENT)
     public default boolean canDoOuterFrustumCulling() {
         return false;
+    }
+    
+    // the func returning true for culled
+    @Environment(EnvType.CLIENT)
+    public default @Nullable BoxPredicateF getInnerFrustumCullingFunc(
+        Portal portal, Vec3 cameraPos
+    ) {
+        return null;
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public default @Nullable BoxPredicateF getOuterFrustumCullingFunc(
+        Portal portal, Vec3 cameraPos
+    ) {
+        return null;
     }
 }

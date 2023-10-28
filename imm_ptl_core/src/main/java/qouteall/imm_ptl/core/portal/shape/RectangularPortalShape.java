@@ -10,8 +10,10 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.BoxPredicateF;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.RayTraceResult;
@@ -207,9 +209,30 @@ public final class RectangularPortalShape implements PortalShape {
         return this;
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public boolean canDoOuterFrustumCulling() {
         return true;
     }
     
+    @Environment(EnvType.CLIENT)
+    @Override
+    public BoxPredicateF getInnerFrustumCullingFunc(
+        Portal portal,
+        Vec3 cameraPos
+    ) {
+        return FrustumCuller.getFlatPortalInnerFrustumCullingFunc(
+            portal, cameraPos
+        );
+    }
+    
+    @Override
+    public BoxPredicateF getOuterFrustumCullingFunc(
+        Portal portal,
+        Vec3 cameraPos
+    ) {
+        return FrustumCuller.getFlatPortalOuterFrustumCullingFunc(
+            portal, cameraPos
+        );
+    }
 }

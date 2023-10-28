@@ -123,4 +123,24 @@ public record Plane(Vec3 pos, Vec3 normal) {
     public Plane getParallelPlane(Vec3 pos) {
         return new Plane(pos, normal);
     }
+    
+    // (p - origin) * normal > 0
+    // p * normal - origin * normal > 0
+    // planeX * x + planeY * y + planeZ * z + planeW > 0
+    // planeX = normal.x  planeY = normal.y  planeZ = normal.z  planeW = -origin * normal
+    public double getEquationX() {
+        return normal.x();
+    }
+    
+    public double getEquationY() {
+        return normal.y();
+    }
+    
+    public double getEquationZ() {
+        return normal.z();
+    }
+    
+    public double getEquationW() {
+        return -normal.dot(pos);
+    }
 }

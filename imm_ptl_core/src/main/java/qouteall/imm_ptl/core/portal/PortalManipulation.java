@@ -487,6 +487,10 @@ public class PortalManipulation {
         return PortalCommand.raytracePortals(world, from, to, includeGlobalPortal);
     }
     
+    /**
+     * Given this side orientation and other side orientation,
+     * compute the rotation transformation of the portal.
+     */
     public static DQuaternion computeDeltaTransformation(
         DQuaternion thisSideOrientation, DQuaternion otherSideOrientation
     ) {

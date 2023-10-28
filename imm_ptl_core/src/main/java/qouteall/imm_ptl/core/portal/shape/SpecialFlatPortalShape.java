@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
+import qouteall.q_misc_util.my_util.BoxPredicateF;
 import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.RayTraceResult;
@@ -237,5 +238,25 @@ public final class SpecialFlatPortalShape implements PortalShape {
         return new SpecialFlatPortalShape(Mesh2D.createNewFullQuadMesh());
     }
     
+    @Environment(EnvType.CLIENT)
+    @Override
+    public BoxPredicateF getInnerFrustumCullingFunc(
+        Portal portal,
+        Vec3 cameraPos
+    ) {
+        return RectangularPortalShape.INSTANCE.getInnerFrustumCullingFunc(
+            portal, cameraPos
+        );
+    }
     
+    @Environment(EnvType.CLIENT)
+    @Override
+    public BoxPredicateF getOuterFrustumCullingFunc(
+        Portal portal,
+        Vec3 cameraPos
+    ) {
+        return RectangularPortalShape.INSTANCE.getOuterFrustumCullingFunc(
+            portal, cameraPos
+        );
+    }
 }
