@@ -45,7 +45,7 @@ public final class RectangularPortalShape implements PortalShape {
         double halfH = portalState.height() / 2;
         
         if (limitSize) {
-            halfW = Math.min(halfH, 64);
+            halfW = Math.min(halfW, 64);
             halfH = Math.min(halfH, 64);
         }
         

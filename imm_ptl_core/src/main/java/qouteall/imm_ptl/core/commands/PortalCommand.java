@@ -1445,10 +1445,6 @@ public class PortalCommand {
                         .then(Commands.argument("placeTargetEntity", EntityArgument.entity())
                             .then(Commands.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
-                                    context.getSource().sendSuccess(
-                                        () -> Component.literal("This command is deprecated. Use create_scaled_box_view_optimized instead."),
-                                        false
-                                    );
                                     invokeOldCreateScaledViewCommand(
                                         context,
                                         false,
@@ -1461,11 +1457,6 @@ public class PortalCommand {
                                 })
                                 .then(Commands.argument("teleportChangesScale", BoolArgumentType.bool())
                                     .executes(context -> {
-                                        context.getSource().sendSuccess(
-                                            () -> Component.literal("This command is deprecated. Use create_scaled_box_view_optimized instead."),
-                                            false
-                                        );
-                                        
                                         boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
                                         invokeOldCreateScaledViewCommand(
                                             context,
@@ -1499,23 +1490,36 @@ public class PortalCommand {
                                     EntityArgument.getEntity(context, "placeTargetEntity");
                                 
                                 ServerLevel boxWorld = ((ServerLevel) placeTargetEntity.level());
-                                Vec3 boxBottomCenter = placeTargetEntity.position();
+                                
                                 AABB area = intBox.toRealNumberBox();
                                 ServerLevel areaWorld = context.getSource().getLevel();
                                 
                                 double scale = DoubleArgumentType.getDouble(context, "scale");
                                 
+                                double thisSideWidth = area.getXsize() / scale;
+                                double thisSideHeight = area.getYsize() / scale;
+                                double thisSideThickness = area.getZsize() / scale;
+                                
                                 Portal portal = Portal.entityType.create(boxWorld);
+                                assert portal != null;
                                 portal.setDestinationDimension(areaWorld.dimension());
-                                portal.setOriginPos(placeTargetEntity.position());
+                                portal.setOriginPos(
+                                    placeTargetEntity.position()
+                                        .add(0, thisSideHeight / 2, 0)
+                                );
                                 portal.setDestination(area.getCenter());
                                 
                                 portal.setOrientationRotation(DQuaternion.identity);
                                 portal.setPortalSize(
-                                    area.getXsize(), area.getYsize(), area.getZsize()
+                                    thisSideWidth, thisSideHeight, thisSideThickness
                                 );
                                 
                                 portal.setPortalShape(BoxPortalShape.FACING_OUTWARDS);
+                                
+                                portal.setScaleTransformation(scale);
+                                
+                                portal.fuseView = true;
+                                portal.teleportChangesScale = false;
                                 
                                 McHelper.spawnServerEntity(portal);
                                 

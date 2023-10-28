@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IEFrustum;
 import qouteall.imm_ptl.core.render.FrustumCuller;
@@ -24,12 +23,36 @@ public class MixinFrustum implements IEFrustum {
     @Shadow
     private double camZ;
     
-    @Shadow private Vector4f viewVector;
+    @Shadow
+    private Vector4f viewVector;
+    
+    /**
+     * In {@link Frustum#offsetToFullyIncludeCameraCube(int)}
+     * the camX, camY, camZ may get changed.
+     * So we need to store the original value.
+     * normal frustums can be moved back without wrongly culling anything
+     * but the portal frustum may be tilted and moving it back may be wrong
+     */
     private double portal_camX;
     private double portal_camY;
     private double portal_camZ;
     
     private FrustumCuller portal_frustumCuller;
+    
+    // copy the extra fields when copying frustum
+    @Inject(
+        method = "<init>(Lnet/minecraft/client/renderer/culling/Frustum;)V",
+        at = @At("RETURN")
+    )
+    private void onFrustumCopy(Frustum other, CallbackInfo ci) {
+        if (other instanceof IEFrustum) {
+            MixinFrustum otherFrustum = (MixinFrustum) (Object) other;
+            portal_camX = otherFrustum.portal_camX;
+            portal_camY = otherFrustum.portal_camY;
+            portal_camZ = otherFrustum.portal_camZ;
+            portal_frustumCuller = otherFrustum.portal_frustumCuller;
+        }
+    }
     
     @Inject(
         method = "Lnet/minecraft/client/renderer/culling/Frustum;prepare(DDD)V",
@@ -45,29 +68,29 @@ public class MixinFrustum implements IEFrustum {
         }
         portal_frustumCuller.update(camX, camY, camZ);
         
-        // the camX, camY, camZ may get changed in offsetToFullyIncludeCameraCube()
-        // normal frustums can be moved back without wrongly culling anything
-        // but the portal frustum may be tilted and moving it back may be wrong
         portal_camX = camX;
         portal_camY = camY;
         portal_camZ = camZ;
     }
     
-    
     @Inject(
-        method = "Lnet/minecraft/client/renderer/culling/Frustum;cubeInFrustum(DDDDDD)Z",
+        method = "cubeInFrustum",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onIntersectionTest(
+    private void onCubeInFrustum(
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (IPCGlobal.doUseAdvancedFrustumCulling) {
-            boolean canDetermineInvisible = ip_canDetermineInvisible(minX, minY, minZ, maxX, maxY, maxZ);
-            if (canDetermineInvisible) {
-                cir.setReturnValue(false);
-            }
+        if (ip_canDetermineInvisibleWithCamCoord(
+            (float) (minX - portal_camX),
+            (float) (minY - portal_camY),
+            (float) (minZ - portal_camZ),
+            (float) (maxX - portal_camX),
+            (float) (maxY - portal_camY),
+            (float) (maxZ - portal_camZ)
+        )) {
+            cir.setReturnValue(false);
         }
     }
     
@@ -76,18 +99,18 @@ public class MixinFrustum implements IEFrustum {
         method = "calculateFrustum",
         at = @At("RETURN")
     )
-    private void onCalculateFrustumReturn(Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
+    private void onCalculateFrustumReturn(
+        Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci
+    ) {
         viewVector.normalize();
     }
     
     @Override
-    public boolean ip_canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        if (portal_frustumCuller == null) {
-            return false;
-        }
+    public boolean ip_canDetermineInvisibleWithCamCoord(
+        float minX, float minY, float minZ, float maxX, float maxY, float maxZ
+    ) {
         return portal_frustumCuller.canDetermineInvisibleWithCameraCoord(
-            minX - portal_camX, minY - portal_camY, minZ - portal_camZ,
-            maxX - portal_camX, maxY - portal_camY, maxZ - portal_camZ
+            minX, minY, minZ, maxX, maxY, maxZ
         );
     }
     

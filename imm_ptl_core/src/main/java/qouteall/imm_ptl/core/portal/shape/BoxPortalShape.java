@@ -157,10 +157,10 @@ public final class BoxPortalShape implements PortalShape {
             localPos.z() < portalState.thickness() / 2;
         
         if (facingOutwards) {
-            return in;
+            return !in;
         }
         else {
-            return !in;
+            return in;
         }
     }
     

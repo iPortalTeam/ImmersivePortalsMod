@@ -92,10 +92,10 @@ public class Helper {
             return Double.NaN;
         }
         
-        return (planeCenterX - lineOriginX) * planeNormalX +
+        return ((planeCenterX - lineOriginX) * planeNormalX +
             (planeCenterY - lineOriginY) * planeNormalY +
             (planeCenterZ - lineOriginZ) * planeNormalZ
-                / denom;
+        ) / denom;
     }
     
     public static @Nullable RayTraceResult raytraceAABB(
@@ -105,8 +105,8 @@ public class Helper {
         double lineOriginX, double lineOriginY, double lineOriginZ,
         double lineDirectionX, double lineDirectionY, double lineDirectionZ
     ) {
-        boolean originInBox = lineOriginX > boxMinX && lineOriginX < boxMaxX ||
-            lineOriginY > boxMinY && lineOriginY < boxMaxY ||
+        boolean originInBox = lineOriginX > boxMinX && lineOriginX < boxMaxX &&
+            lineOriginY > boxMinY && lineOriginY < boxMaxY &&
             lineOriginZ > boxMinZ && lineOriginZ < boxMaxZ;
         
         if (boxFacingOutwards && originInBox) {

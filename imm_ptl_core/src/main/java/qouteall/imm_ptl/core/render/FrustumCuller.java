@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -98,6 +99,15 @@ public class FrustumCuller {
         }
         else {
             if (!IPCGlobal.useSuperAdvancedFrustumCulling) {
+                return null;
+            }
+            
+            // don't do outer frustum culling when sodium is not present
+            // in vanilla, it rebuilds visibility section list lazily
+            // if the player moves but does not rotate camera, it won't update immediately
+            // that will cause artifacts with outer frustum culling
+            // the inner frustum culling is controlled by ImmPtl and is correct
+            if (!SodiumInterface.invoker.isSodiumPresent()) {
                 return null;
             }
             
@@ -223,7 +233,9 @@ public class FrustumCuller {
         Frustum4Planes fourPlanes =
             getFrustumPlanesFromFourVerticesCounterClockwise(vTransformed);
         
-        Plane portalPlane = new Plane(portal.getOriginPos(), portal.getNormal());
+        Plane portalPlane = new Plane(
+            portal.getOriginPos().subtract(cameraPos), portal.getNormal()
+        );
         
         float portalPlaneX = (float) portalPlane.getEquationX();
         float portalPlaneY = (float) portalPlane.getEquationY();
@@ -233,12 +245,14 @@ public class FrustumCuller {
         // to cull out, it must be fully behind portal plane
         // and inside portal frustum
         return (float minX, float minY, float minZ, float maxX, float maxY, float maxZ) -> {
-            return isFullyBehindPlane(
+            boolean a = isFullyBehindPlane(
                 minX, minY, minZ, maxX, maxY, maxZ,
                 portalPlaneX, portalPlaneY, portalPlaneZ, portalPlaneW
-            ) && fourPlanes.isFullyOutside(
+            );
+            boolean b = fourPlanes.isFullyInside(
                 minX, minY, minZ, maxX, maxY, maxZ
             );
+            return a && b;
         };
     }
     

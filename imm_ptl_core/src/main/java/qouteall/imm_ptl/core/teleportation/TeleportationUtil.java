@@ -133,7 +133,7 @@ public class TeleportationUtil {
             portalState, portalState,
             portalState, portalState,
             PortalPointVelocity.zero,
-            worldHitPos,
+            portal.transformPoint(worldHitPos),
             newLastTickEyePos, newThisTickEyePos
         );
     }
