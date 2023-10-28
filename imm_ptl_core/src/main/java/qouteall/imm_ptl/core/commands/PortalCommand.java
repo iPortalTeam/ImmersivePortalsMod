@@ -66,6 +66,7 @@ import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
 import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalMatcher;
+import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
 import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
@@ -1444,7 +1445,11 @@ public class PortalCommand {
                         .then(Commands.argument("placeTargetEntity", EntityArgument.entity())
                             .then(Commands.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
-                                    invokeCreateScaledViewCommand(
+                                    context.getSource().sendSuccess(
+                                        () -> Component.literal("This command is deprecated. Use create_scaled_box_view_optimized instead."),
+                                        false
+                                    );
+                                    invokeOldCreateScaledViewCommand(
                                         context,
                                         false,
                                         false,
@@ -1456,8 +1461,13 @@ public class PortalCommand {
                                 })
                                 .then(Commands.argument("teleportChangesScale", BoolArgumentType.bool())
                                     .executes(context -> {
+                                        context.getSource().sendSuccess(
+                                            () -> Component.literal("This command is deprecated. Use create_scaled_box_view_optimized instead."),
+                                            false
+                                        );
+                                        
                                         boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
-                                        invokeCreateScaledViewCommand(
+                                        invokeOldCreateScaledViewCommand(
                                             context,
                                             teleportChangesScale,
                                             false,
@@ -1481,14 +1491,38 @@ public class PortalCommand {
                     .then(Commands.argument("scale", DoubleArgumentType.doubleArg())
                         .then(Commands.argument("placeTargetEntity", EntityArgument.entity())
                             .executes(context -> {
-                                invokeCreateScaledViewCommand(
-                                    context,
-                                    false,
-                                    true,
-                                    true,
-                                    true,
-                                    true
+                                BlockPos bp1 = BlockPosArgument.getSpawnablePos(context, "p1");
+                                BlockPos bp2 = BlockPosArgument.getSpawnablePos(context, "p2");
+                                IntBox intBox = new IntBox(bp1, bp2);
+                                
+                                Entity placeTargetEntity =
+                                    EntityArgument.getEntity(context, "placeTargetEntity");
+                                
+                                ServerLevel boxWorld = ((ServerLevel) placeTargetEntity.level());
+                                Vec3 boxBottomCenter = placeTargetEntity.position();
+                                AABB area = intBox.toRealNumberBox();
+                                ServerLevel areaWorld = context.getSource().getLevel();
+                                
+                                double scale = DoubleArgumentType.getDouble(context, "scale");
+                                
+                                Portal portal = Portal.entityType.create(boxWorld);
+                                portal.setDestinationDimension(areaWorld.dimension());
+                                portal.setOriginPos(placeTargetEntity.position());
+                                portal.setDestination(area.getCenter());
+                                
+                                portal.setOrientationRotation(DQuaternion.identity);
+                                portal.setPortalSize(
+                                    area.getXsize(), area.getYsize(), area.getZsize()
                                 );
+                                
+                                portal.setPortalShape(BoxPortalShape.FACING_OUTWARDS);
+                                
+                                McHelper.spawnServerEntity(portal);
+                                
+                                Portal reverse = PortalAPI.createReversePortal(portal);
+                                
+                                McHelper.spawnServerEntity(reverse);
+                                
                                 return 0;
                             })
                         )
@@ -1901,7 +1935,7 @@ public class PortalCommand {
     }
     
     
-    private static void invokeCreateScaledViewCommand(
+    private static void invokeOldCreateScaledViewCommand(
         CommandContext<CommandSourceStack> context,
         boolean teleportChangesScale,
         boolean outerFuseView,

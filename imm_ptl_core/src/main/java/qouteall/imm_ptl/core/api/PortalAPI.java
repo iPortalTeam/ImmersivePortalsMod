@@ -73,6 +73,10 @@ public class PortalAPI {
         PortalManipulation.setPortalOrientationQuaternion(portal, quaternion);
     }
     
+    /**
+     * Using entity.level().addFreshEntity(entity) is enough
+     */
+    @Deprecated
     public static void spawnServerEntity(Entity entity) {
         McHelper.spawnServerEntity(entity);
     }

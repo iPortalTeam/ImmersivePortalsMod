@@ -49,7 +49,18 @@ public record UnilateralPortalState(
     ) {
         this(
             dimension, position, orientation,
-            width, height, 0,
+            width, height, 0
+        );
+    }
+    
+    public UnilateralPortalState(
+        ResourceKey<Level> dimension,
+        Vec3 position, DQuaternion orientation,
+        double width, double height, double thickness
+    ) {
+        this(
+            dimension, position, orientation,
+            width, height, thickness,
             new Matrix3d().set(orientation.toMcQuaternion()),
             new Matrix3d().set(orientation.toMcQuaternion().conjugate())
         );

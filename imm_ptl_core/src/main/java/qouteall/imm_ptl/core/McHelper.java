@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -45,6 +46,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -78,6 +80,8 @@ import java.util.stream.Stream;
 
 // mc related helper methods
 public class McHelper {
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     public static class Placeholder {}
     
@@ -830,7 +834,7 @@ public class McHelper {
         boolean spawned = entity.level().addFreshEntity(entity);
         
         if (!spawned) {
-            Helper.err("Failed to spawn " + entity + entity.level());
+            LOGGER.error("Failed to spawn {} {}", entity, entity.level());
         }
     }
     

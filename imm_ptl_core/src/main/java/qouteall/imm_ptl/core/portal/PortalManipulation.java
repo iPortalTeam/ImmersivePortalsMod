@@ -285,6 +285,11 @@ public class PortalManipulation {
         }
     }
     
+    /**
+     * It creates the old scale box which is formed by 6 portals for one side.
+     * It's recommended to use the new box portal shape, except for the case of wrapping an existing region.
+     */
+    @Deprecated
     public static void createScaledBoxView(
         ServerLevel areaWorld, AABB area,
         ServerLevel boxWorld, Vec3 boxBottomCenter,

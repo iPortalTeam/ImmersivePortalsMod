@@ -905,6 +905,18 @@ public class Portal extends Entity implements
         updateCache();
     }
     
+    public void setThickness(double newThickness) {
+        thickness = newThickness;
+        updateCache();
+    }
+    
+    public void setPortalSize(double newWidth, double newHeight, double newThickness) {
+        width = newWidth;
+        height = newHeight;
+        thickness = newThickness;
+        updateCache();
+    }
+    
     public DQuaternion getOrientationRotation() {
         return PortalManipulation.getPortalOrientationQuaternion(axisW, axisH);
     }
@@ -1795,7 +1807,7 @@ public class Portal extends Entity implements
         if (thisSideStateCache == null) {
             thisSideStateCache = new UnilateralPortalState(
                 getOriginDim(), getOriginPos(),
-                getOrientationRotation(), width, height
+                getOrientationRotation(), width, height, thickness
             );
         }
         
