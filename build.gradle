@@ -131,7 +131,7 @@ allprojects {
     loom {
         // from qouteall's fork of fabric loom
         // https://github.com/qouteall/fabric-loom/blob/dev/1.3/src/main/java/net/fabricmc/loom/configuration/providers/minecraft/mapped/ProcessedNamedMinecraftProvider.java#L136
-        forceShareMinecraftJarBetweenSubModules = true
+//        forceShareMinecraftJarBetweenSubModules = true
     }
 
 }
