@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -57,8 +58,12 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
-    public AABB getBoundingBox(UnilateralPortalState portalState, boolean limitSize) {
-        return RectangularPortalShape.INSTANCE.getBoundingBox(portalState, limitSize);
+    public AABB getBoundingBox(
+        UnilateralPortalState portalState, boolean limitSize, double boxExpand
+    ) {
+        return RectangularPortalShape.INSTANCE.getBoundingBox(
+            portalState, limitSize, boxExpand
+        );
     }
     
     // it does not calculate "real" distance here
@@ -258,5 +263,10 @@ public final class SpecialFlatPortalShape implements PortalShape {
         return RectangularPortalShape.INSTANCE.getOuterFrustumCullingFunc(
             portal, cameraPos
         );
+    }
+    
+    @Override
+    public VoxelShape getThisSideCollisionExclusion(UnilateralPortalState portalState) {
+        return RectangularPortalShape.INSTANCE.getThisSideCollisionExclusion(portalState);
     }
 }

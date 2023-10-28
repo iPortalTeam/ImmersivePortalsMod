@@ -6,6 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -38,9 +40,9 @@ public final class RectangularPortalShape implements PortalShape {
     
     @Override
     public AABB getBoundingBox(
-        UnilateralPortalState portalState, boolean limitSize
+        UnilateralPortalState portalState, boolean limitSize,
+        double boxExpand
     ) {
-        double thickness = 0.02;
         double halfW = portalState.width() / 2;
         double halfH = portalState.height() / 2;
         
@@ -51,14 +53,14 @@ public final class RectangularPortalShape implements PortalShape {
         
         return Helper.boundingBoxOfPoints(
             new Vec3[]{
-                portalState.transformLocalToGlobal(halfW, halfH, thickness),
-                portalState.transformLocalToGlobal(halfW, -halfH, thickness),
-                portalState.transformLocalToGlobal(-halfW, halfH, thickness),
-                portalState.transformLocalToGlobal(-halfW, -halfH, thickness),
-                portalState.transformLocalToGlobal(halfW, halfH, -thickness),
-                portalState.transformLocalToGlobal(halfW, -halfH, -thickness),
-                portalState.transformLocalToGlobal(-halfW, halfH, -thickness),
-                portalState.transformLocalToGlobal(-halfW, -halfH, -thickness)
+                portalState.transformLocalToGlobal(halfW, halfH, boxExpand),
+                portalState.transformLocalToGlobal(halfW, -halfH, boxExpand),
+                portalState.transformLocalToGlobal(-halfW, halfH, boxExpand),
+                portalState.transformLocalToGlobal(-halfW, -halfH, boxExpand),
+                portalState.transformLocalToGlobal(halfW, halfH, -boxExpand),
+                portalState.transformLocalToGlobal(halfW, -halfH, -boxExpand),
+                portalState.transformLocalToGlobal(-halfW, halfH, -boxExpand),
+                portalState.transformLocalToGlobal(-halfW, -halfH, -boxExpand)
             }
         );
     }
@@ -234,5 +236,15 @@ public final class RectangularPortalShape implements PortalShape {
         return FrustumCuller.getFlatPortalOuterFrustumCullingFunc(
             portal, cameraPos
         );
+    }
+    
+    @Override
+    public VoxelShape getThisSideCollisionExclusion(
+        UnilateralPortalState portalState
+    ) {
+        AABB thinAreaBox = getBoundingBox(portalState, true, 0);
+        Vec3 reaching = portalState.getNormal().scale(-10);
+        AABB exclusion = thinAreaBox.minmax(thinAreaBox.move(reaching));
+        return Shapes.create(exclusion);
     }
 }

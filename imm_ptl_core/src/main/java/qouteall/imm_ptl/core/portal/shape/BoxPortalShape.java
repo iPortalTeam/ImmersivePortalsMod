@@ -58,11 +58,12 @@ public final class BoxPortalShape implements PortalShape {
     
     @Override
     public AABB getBoundingBox(
-        UnilateralPortalState portalState, boolean limitSize
+        UnilateralPortalState portalState, boolean limitSize,
+        double boxExpand
     ) {
-        double halfW = portalState.width() / 2;
-        double halfH = portalState.height() / 2;
-        double halfT = portalState.thickness() / 2;
+        double halfW = portalState.width() / 2 + boxExpand;
+        double halfH = portalState.height() / 2 + boxExpand;
+        double halfT = portalState.thickness() / 2 + boxExpand;
         return Helper.boundingBoxOfPoints(
             new Vec3[]{
                 portalState.transformLocalToGlobal(-halfW, -halfH, -halfT),

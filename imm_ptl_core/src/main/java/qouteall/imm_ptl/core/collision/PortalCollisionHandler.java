@@ -250,18 +250,26 @@ public class PortalCollisionHandler {
         for (int i = 0; i < portalCollisions.size(); i++) {
             Portal portal = portalCollisions.get(i);
             
-            boolean boxFullyBehindPlane = CollisionHelper.isBoxFullyBehindPlane(
-                portal.getOriginPos(), portal.getNormal(), shapeBounds
-            );
+            Plane clipping = portal.getPortalShape().getOuterClipping(portal.getThisSideState());
             
-            // it's a workaround for diagonal portals
-            // MC does not support not axis-aligned shape collision
-            // if the box is not fully behind the plane, keep it
-            if (!boxFullyBehindPlane) {
-                continue;
+            if (clipping != null) {
+                boolean boxFullyBehindPlane = CollisionHelper.isBoxFullyBehindPlane(
+                    clipping.pos(), clipping.normal(), shapeBounds
+                );
+                
+                // it's a workaround for diagonal portals
+                // MC does not support not axis-aligned shape collision
+                // if the box is not fully behind the plane, keep it
+                if (!boxFullyBehindPlane) {
+                    continue;
+                }
             }
             
             VoxelShape exclusion = portal.getThisSideCollisionExclusion();
+            
+            if (exclusion == null || exclusion.isEmpty()) {
+                continue;
+            }
             
             if (Helper.boxContains(exclusion.bounds(), shapeBounds)) {
                 // fully excluded

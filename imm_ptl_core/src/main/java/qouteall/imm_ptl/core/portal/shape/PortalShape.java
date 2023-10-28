@@ -23,9 +23,11 @@ public interface PortalShape {
     /**
      * @param limitSize true when it's not a global portal.
      *                  having too big bounding box cause lag
+     * @param boxExpand
      */
     public AABB getBoundingBox(
-        UnilateralPortalState portalState, boolean limitSize
+        UnilateralPortalState portalState, boolean limitSize,
+        double boxExpand
     );
     
     public double roughDistanceToPortalShape(

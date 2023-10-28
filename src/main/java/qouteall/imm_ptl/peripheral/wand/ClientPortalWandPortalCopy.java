@@ -171,7 +171,7 @@ public class ClientPortalWandPortalCopy {
                 new RenderedPoint(
                     new WithDim<>(player.level().dimension(), cursorPointing), 1.0
                 ),
-                Helper.secondToNano(0.5)
+                Helper.secondToNano(0.3)
             );
             
             // the camera rotation is used for rotating the world onto local camera,
@@ -201,8 +201,8 @@ public class ClientPortalWandPortalCopy {
             
             statusPlacingPortal.pendingPlacement = placement;
             
-            placementOrientation.setTarget(orientation, Helper.secondToNano(0.5));
-            placementOffsetLen.setTarget(offsetLen, Helper.secondToNano(0.5));
+            placementOrientation.setTarget(orientation, Helper.secondToNano(0.3));
+            placementOffsetLen.setTarget(offsetLen, Helper.secondToNano(0.3));
             
             CustomTextOverlay.putText(
                 Component.translatable(

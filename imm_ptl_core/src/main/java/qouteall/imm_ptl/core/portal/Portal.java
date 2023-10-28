@@ -31,7 +31,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -282,8 +281,13 @@ public class Portal extends Entity implements
     // TODO change to event in 1.20.3
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
+    
+    // TODO remove in 1.20.3
+    @Deprecated
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
+    
     public static final SignalArged<Portal> portalDisposeSignal = new SignalArged<>();
+    
     public static final SignalBiArged<Portal, CompoundTag> readPortalDataSignal = new SignalBiArged<>();
     public static final SignalBiArged<Portal, CompoundTag> writePortalDataSignal = new SignalBiArged<>();
     
@@ -1034,8 +1038,7 @@ public class Portal extends Entity implements
         }
         if (boundingBoxCache == null) {
             boundingBoxCache = getPortalShape()
-                .getBoundingBox(getThisSideState(), shouldLimitBoundingBox())
-                .inflate(0.2);
+                .getBoundingBox(getThisSideState(), shouldLimitBoundingBox(), 0.2);
         }
         return boundingBoxCache;
     }
@@ -1047,7 +1050,7 @@ public class Portal extends Entity implements
     public AABB getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
             exactBoundingBoxCache = getPortalShape().getBoundingBox(
-                getThisSideState(), false
+                getThisSideState(), false, 0.001
             );
         }
         
@@ -2040,10 +2043,9 @@ public class Portal extends Entity implements
     
     public VoxelShape getThisSideCollisionExclusion() {
         if (thisSideCollisionExclusion == null) {
-            AABB thinAreaBox = getThinAreaBox();
-            Vec3 reaching = getNormal().scale(-10);
-            AABB ignorance = thinAreaBox.minmax(thinAreaBox.move(reaching));
-            thisSideCollisionExclusion = Shapes.create(ignorance);
+            thisSideCollisionExclusion = getPortalShape()
+                .getThisSideCollisionExclusion(getThisSideState());
+            
         }
         return thisSideCollisionExclusion;
     }
