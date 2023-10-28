@@ -1,1 +1,1 @@
-Change Iris compat version to 1.6.10
+Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1465
