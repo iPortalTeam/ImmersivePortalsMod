@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
@@ -118,10 +119,20 @@ public class FrontClipping {
             return;
         }
         
-        if (portalLike instanceof Portal) {
-            activeClipPlaneEquationBeforeModelView = getClipEquationOuter(((Portal) portalLike));
-            activeClipPlaneAfterModelView = transformClipEquation(activeClipPlaneEquationBeforeModelView, matrixStack.last().pose());
-            enableClipping();
+        if (portalLike instanceof Portal portal) {
+            double[] clipEquationOuter = getClipEquationOuter(portal);
+            
+            if (clipEquationOuter != null) {
+                activeClipPlaneEquationBeforeModelView = clipEquationOuter;
+                activeClipPlaneAfterModelView = transformClipEquation(
+                    activeClipPlaneEquationBeforeModelView, matrixStack.last().pose()
+                );
+                enableClipping();
+            }
+            else {
+                activeClipPlaneEquationBeforeModelView = null;
+                disableClipping();
+            }
         }
         else {
             activeClipPlaneEquationBeforeModelView = null;
@@ -129,12 +140,21 @@ public class FrontClipping {
         }
     }
     
-    private static double[] getClipEquationOuter(Portal portal) {
-        Vec3 planeNormal = portal.getNormal();
+    // "double @Nullable []" is weird...
+    private static double @Nullable [] getClipEquationOuter(Portal portal) {
+        @Nullable Plane outerClipping = portal.getPortalShape()
+            .getOuterClipping(portal.getThisSideState());
         
-        Vec3 portalPos = portal.getOriginPos()
-            //.subtract(planeNormal.multiply(0.01))//avoid z fighting
-            .subtract(client.gameRenderer.getMainCamera().getPosition());
+        if (outerClipping == null) {
+            return null;
+        }
+        
+        Vec3 planeNormal = outerClipping.normal();
+        
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+        
+        Vec3 portalPos = outerClipping.pos()
+            .subtract(cameraPos);
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
@@ -153,7 +173,9 @@ public class FrontClipping {
         return activeClipPlaneAfterModelView;
     }
     
-    public static void updateClippingEquationUniformForCurrentShader(boolean isRenderingEntities) {
+    public static void updateClippingEquationUniformForCurrentShader(
+        boolean isRenderingEntities
+    ) {
         if (!IPGlobal.enableClippingMechanism) {
             return;
         }
@@ -169,10 +191,8 @@ public class FrontClipping {
             if (isClippingEnabled) {
                 double[] equation = isRenderingEntities ? activeClipPlaneAfterModelView : activeClipPlaneEquationBeforeModelView;
                 clippingEquationUniform.set(
-                    (float) equation[0],
-                    (float) equation[1],
-                    (float) equation[2],
-                    (float) equation[3]
+                    (float) equation[0], (float) equation[1],
+                    (float) equation[2], (float) equation[3]
                 );
             }
             else {

@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.commands.PortalCommand;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -96,12 +97,11 @@ public class PortalManipulation {
         
         newPortal.width = portal.width * portal.scaling;
         newPortal.height = portal.height * portal.scaling;
+        newPortal.thickness = portal.thickness * portal.scaling;
         newPortal.axisW = portal.axisW.scale(-1);
         newPortal.axisH = portal.axisH;
         
-        if (portal.specialShape != null) {
-            newPortal.specialShape = portal.specialShape.getFlipped();
-        }
+        newPortal.setPortalShape(portal.getPortalShape().getReverse());
         
         if (portal.rotation != null) {
             rotatePortalBody(newPortal, portal.rotation);
@@ -132,6 +132,7 @@ public class PortalManipulation {
     public static <T extends Portal> T createFlippedPortal(Portal portal, EntityType<T> entityType) {
         Level world = portal.level();
         T newPortal = entityType.create(world);
+        assert newPortal != null;
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
@@ -139,12 +140,11 @@ public class PortalManipulation {
         
         newPortal.width = portal.width;
         newPortal.height = portal.height;
+        newPortal.thickness = portal.thickness;
         newPortal.axisW = portal.axisW.scale(-1);
         newPortal.axisH = portal.axisH;
         
-        if (portal.specialShape != null) {
-            newPortal.specialShape = portal.specialShape.getFlipped();
-        }
+        newPortal.setPortalShape(portal.getPortalShape().getFlipped());
         
         newPortal.rotation = portal.rotation;
         
@@ -169,7 +169,7 @@ public class PortalManipulation {
         newPortal.axisW = portal.axisW;
         newPortal.axisH = portal.axisH;
         
-        newPortal.specialShape = portal.specialShape == null ? null : portal.specialShape.copy();
+        newPortal.setPortalShape(portal.getPortalShape().cloneIfNecessary());
         
         newPortal.rotation = portal.rotation;
         
@@ -494,10 +494,10 @@ public class PortalManipulation {
     }
     
     public static void makePortalRound(Portal portal, int triangleNum) {
-        GeometryPortalShape shape = new GeometryPortalShape(new Mesh2D());
+        Mesh2D mesh2D = new Mesh2D();
         
         for (int i = 0; i < triangleNum; i++) {
-            shape.mesh.addTriangle(
+            mesh2D.addTriangle(
                 0, 0,
                 Math.cos(Math.PI * 2 * ((double) i) / triangleNum),
                 Math.sin(Math.PI * 2 * ((double) i) / triangleNum),
@@ -506,6 +506,6 @@ public class PortalManipulation {
             );
         }
         
-        portal.specialShape = shape;
+        portal.setPortalShape(new SpecialFlatPortalShape(mesh2D));
     }
 }

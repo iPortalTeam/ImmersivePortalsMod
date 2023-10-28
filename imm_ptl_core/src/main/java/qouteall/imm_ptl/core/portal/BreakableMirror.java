@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Mesh2D;
@@ -219,7 +220,7 @@ public class BreakableMirror extends Mirror {
         if (shape.isRectangle()) {
             // if it's rectangular, no special shape
             // this does not handle the jagged glass pane edge
-            breakableMirror.specialShape = null;
+            breakableMirror.setPortalShapeToDefault();
             return;
         }
         
@@ -228,7 +229,7 @@ public class BreakableMirror extends Mirror {
         Vec3 axisW = breakableMirror.axisW;
         Vec3 axisH = breakableMirror.axisH;
         
-        GeometryPortalShape geometryPortalShape = new GeometryPortalShape(new Mesh2D());
+        Mesh2D mesh2D = new Mesh2D();
         for (BlockPos blockPos : shape.area) {
             VoxelShape collisionShape = world.getBlockState(blockPos).getCollisionShape(world, blockPos);
             
@@ -240,14 +241,14 @@ public class BreakableMirror extends Mirror {
                 double p1LocalY = p1.subtract(center).dot(axisH);
                 double p2LocalX = p2.subtract(center).dot(axisW);
                 double p2LocalY = p2.subtract(center).dot(axisH);
-                geometryPortalShape.addTriangleForRectangle(
+                mesh2D.addQuad(
                     p1LocalX, p1LocalY,
                     p2LocalX, p2LocalY
                 );
             }
         }
         
-        breakableMirror.specialShape = geometryPortalShape;
+        breakableMirror.setPortalShape(new SpecialFlatPortalShape(mesh2D));
     }
     
     public IntBox getAreaBox() {

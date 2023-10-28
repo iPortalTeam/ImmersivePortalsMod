@@ -343,8 +343,8 @@ public class GlobalPortalStorage extends SavedData {
         Validate.isTrue(!portal.getIsGlobal());
         Validate.isTrue(!portal.level().isClientSide());
         
-        //global portal can only be square
-        portal.specialShape = null;
+        // global portal can only be square
+        portal.setPortalShapeToDefault();
         
         portal.remove(Entity.RemovalReason.KILLED);
         

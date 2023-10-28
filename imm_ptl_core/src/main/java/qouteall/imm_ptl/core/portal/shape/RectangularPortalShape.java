@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -130,6 +132,7 @@ public final class RectangularPortalShape implements PortalShape {
         return this;
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public void renderViewAreaMesh(
         Vec3 portalOriginRelativeToCamera,
@@ -195,6 +198,18 @@ public final class RectangularPortalShape implements PortalShape {
         return PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
             attemptedMove, portalState.position(), portalState.getNormal(), originalBoundingBox
         );
+    }
+    
+    @Override
+    public PortalShape cloneIfNecessary() {
+        // the object does not contain any mutable field
+        // no need to clone
+        return this;
+    }
+    
+    @Override
+    public boolean canDoOuterFrustumCulling() {
+        return true;
     }
     
 }

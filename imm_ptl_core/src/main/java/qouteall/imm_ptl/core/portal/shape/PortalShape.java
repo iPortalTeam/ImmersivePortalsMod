@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -88,6 +90,7 @@ public interface PortalShape {
         Vec3 cameraPos
     );
     
+    @Environment(EnvType.CLIENT)
     public void renderViewAreaMesh(
         Vec3 portalOriginRelativeToCamera,
         UnilateralPortalState portalState,
@@ -155,4 +158,10 @@ public interface PortalShape {
         Portal portal, UnilateralPortalState portalState,
         Entity entity, Vec3 attemptedMove
     );
+    
+    public PortalShape cloneIfNecessary();
+    
+    public default boolean canDoOuterFrustumCulling() {
+        return false;
+    }
 }

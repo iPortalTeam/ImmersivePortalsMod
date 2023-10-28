@@ -2632,7 +2632,7 @@ public class PortalCommand {
             double areaAfter = meshArea * halfWidth * halfHeight;
             
             if (Math.abs(4.0 - meshArea) < 0.00001) {
-                portal.specialShape = null;
+                portal.setPortalShapeToDefault();
                 if (player != null) {
                     player.sendSystemMessage(
                         Component.literal("Portal shape is still rectangular now.")

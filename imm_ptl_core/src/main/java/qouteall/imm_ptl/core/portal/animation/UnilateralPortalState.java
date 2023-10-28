@@ -29,11 +29,16 @@ import java.util.Comparator;
 public record UnilateralPortalState(
     ResourceKey<Level> dimension,
     Vec3 position,
+    
+    // the orientation rotation rotates portal from "local orientation" to world orientation
+    // in the local orientation, the flat portal is facing positive Z
     DQuaternion orientation,
+    
     double width,
     double height,
     // TODO 3D portal
     double thickness,
+    
     Matrix3dc orientationMatrix,
     Matrix3dc orientationMatrixReverse
 ) {
@@ -228,6 +233,7 @@ public record UnilateralPortalState(
         public DQuaternion orientation;
         public double width;
         public double height;
+        public double thickness;
         
         public UnilateralPortalState build() {
             return new UnilateralPortalState(
@@ -261,6 +267,11 @@ public record UnilateralPortalState(
         
         public Builder height(double height) {
             this.height = height;
+            return this;
+        }
+        
+        public Builder thickness(double thickness) {
+            this.thickness = thickness;
             return this;
         }
         

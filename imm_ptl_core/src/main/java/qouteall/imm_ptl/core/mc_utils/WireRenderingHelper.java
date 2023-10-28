@@ -13,10 +13,11 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
+import qouteall.imm_ptl.core.portal.shape.PortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -666,8 +667,9 @@ public class WireRenderingHelper {
         double cycle = (Math.sin(CHelper.getSmoothCycles(50) * 2 * Math.PI) + 1) / 2;
         double shrink = 0.03 * cycle;
         
-        GeometryPortalShape shape = portal.specialShape;
-        if (shape != null) {
+        PortalShape portalShape = portal.getPortalShape();
+        
+        if (portalShape instanceof SpecialFlatPortalShape shape) {
             shape.mesh.compact();
             
             int triangleNum = shape.mesh.getStoredTriangleNum();

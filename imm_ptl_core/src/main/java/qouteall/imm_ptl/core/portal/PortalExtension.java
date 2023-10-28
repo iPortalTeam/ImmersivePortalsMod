@@ -347,17 +347,13 @@ public class PortalExtension {
             
             flippedPortal.width = portal.width;
             flippedPortal.height = portal.height;
+            flippedPortal.thickness = portal.thickness;
             
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
             flippedPortal.animation.defaultAnimation.inverseScale = false;
             
-            if (portal.specialShape != null) {
-                flippedPortal.specialShape = portal.specialShape.getFlipped();
-            }
-            else {
-                flippedPortal.specialShape = null;
-            }
+            flippedPortal.setPortalShape(portal.getPortalShape().getFlipped());
             
             if (sync) {
                 flippedPortal.reloadAndSyncToClientNextTick();
@@ -388,17 +384,13 @@ public class PortalExtension {
             
             reversePortal.width = portal.width * portal.getScale();
             reversePortal.height = portal.height * portal.getScale();
+            reversePortal.thickness = portal.thickness * portal.getScale();
             
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
             reversePortal.animation.defaultAnimation.inverseScale = true;
             
-            if (portal.specialShape != null) {
-                reversePortal.specialShape = portal.specialShape.getFlipped();
-            }
-            else {
-                reversePortal.specialShape = null;
-            }
+            reversePortal.setPortalShape(portal.getPortalShape().getReverse());
             
             if (sync) {
                 reversePortal.reloadAndSyncToClientNextTick();
@@ -429,17 +421,13 @@ public class PortalExtension {
             
             parallelPortal.width = portal.width * portal.getScale();
             parallelPortal.height = portal.height * portal.getScale();
+            parallelPortal.thickness = portal.thickness * portal.getScale();
             
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             
             parallelPortal.animation.defaultAnimation.inverseScale = true;
             
-            if (portal.specialShape != null) {
-                parallelPortal.specialShape = portal.specialShape.copy();
-            }
-            else {
-                parallelPortal.specialShape = null;
-            }
+            parallelPortal.setPortalShape(portal.getPortalShape().cloneIfNecessary());
             
             if (sync) {
                 parallelPortal.reloadAndSyncToClientNextTick();

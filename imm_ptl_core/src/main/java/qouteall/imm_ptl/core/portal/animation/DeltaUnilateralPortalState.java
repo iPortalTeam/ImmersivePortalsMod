@@ -16,6 +16,7 @@ public record DeltaUnilateralPortalState(
     @Nullable Vec3 offset,
     @Nullable DQuaternion rotation,
     @Nullable Vec2d sizeScaling
+    // TODO add thickness scaling
 ) {
     public static final DeltaUnilateralPortalState identity =
         new DeltaUnilateralPortalState(null, null, null);

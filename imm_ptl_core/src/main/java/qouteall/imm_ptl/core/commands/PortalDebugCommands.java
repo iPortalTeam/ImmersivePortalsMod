@@ -55,8 +55,9 @@ import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEChunkMap_Accessor;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.shape.PortalShape;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -502,9 +503,10 @@ public class PortalDebugCommands {
             .literal("simplify_portal_mesh")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .executes(context -> PortalCommand.processPortalTargetedCommand(context, portal -> {
-                GeometryPortalShape shape = portal.specialShape;
-                if (shape != null) {
-                    shape.mesh.simplifySteps(1);
+                PortalShape portalShape = portal.getPortalShape();
+                
+                if (portalShape instanceof SpecialFlatPortalShape s) {
+                    s.mesh.simplifySteps(1);
                     portal.reloadPortal();
                 }
             }))

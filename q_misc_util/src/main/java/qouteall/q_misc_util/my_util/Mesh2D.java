@@ -33,6 +33,8 @@ public class Mesh2D {
     
     public static final int gridCountForOneSide = 1 << 30;
     
+    // the grid coord is used for merging near points, not to represent points
+    // the points still retain double precision
     public static long encodeToGrid(double x, double y) {
         int gridX = (int) Math.round((x * gridCountForOneSide));
         int gridY = (int) Math.round((y * gridCountForOneSide));
@@ -1633,6 +1635,8 @@ public class Mesh2D {
         return mesh;
     }
     
+    // the x1 does not need to be smaller than x2, same for y1 and y2
+    // because it will normalize the trangle to counter-clockwise
     public void addQuad(double x1, double y1, double x2, double y2) {
         addTriangle(x1, y1, x2, y1, x2, y2);
         addTriangle(x2, y2, x1, y2, x1, y1);

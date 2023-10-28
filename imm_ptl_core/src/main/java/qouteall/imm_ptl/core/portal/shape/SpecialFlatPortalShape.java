@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -140,6 +142,7 @@ public final class SpecialFlatPortalShape implements PortalShape {
         return getFlipped();
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public void renderViewAreaMesh(
         Vec3 portalOriginRelativeToCamera,
@@ -215,6 +218,11 @@ public final class SpecialFlatPortalShape implements PortalShape {
         return RectangularPortalShape.INSTANCE.getOffsetForPushingEntityOutOfPortal(
             portal, portalState, entity, attemptedMove
         );
+    }
+    
+    @Override
+    public PortalShape cloneIfNecessary() {
+        return new SpecialFlatPortalShape(mesh.copy());
     }
     
     @Override

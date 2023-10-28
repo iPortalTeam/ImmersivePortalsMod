@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.shape;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -162,6 +164,7 @@ public final class BoxPortalShape implements PortalShape {
         }
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public void renderViewAreaMesh(
         Vec3 portalOriginRelativeToCamera,
@@ -287,5 +290,12 @@ public final class BoxPortalShape implements PortalShape {
         return portalState.transformVecLocalToGlobal(
             oXP.add(oXN).add(oYP).add(oYN).add(oZP).add(oZN)
         );
+    }
+    
+    @Override
+    public PortalShape cloneIfNecessary() {
+        // the object does not contain any mutable field
+        // no need to clone
+        return this;
     }
 }

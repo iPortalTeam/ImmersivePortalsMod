@@ -162,6 +162,8 @@ public class ViewAreaRenderer {
         BufferUploader.draw(bufferBuilder.end());
     }
     
+    // TODO remove in 1.20.3
+    @Deprecated
     public static void generateViewAreaTriangles(
         Portal portal, Vec3 posInPlayerCoordinate,
         TriangleConsumer vertexOutput
@@ -191,6 +193,7 @@ public class ViewAreaRenderer {
         }
     }
     
+    @Deprecated
     public static void generateTriangleForSpecialShape(
         TriangleConsumer vertexOutput,
         Portal portal,
@@ -201,6 +204,7 @@ public class ViewAreaRenderer {
         );
     }
     
+    @Deprecated
     public static void generateTriangleSpecial(
         TriangleConsumer vertexOutput,
         Portal portal,
@@ -256,6 +260,7 @@ public class ViewAreaRenderer {
         );
     }
     
+    @Deprecated
     private static void generateTriangleForNormalShape(
         TriangleConsumer vertexOutput,
         Portal portal,
@@ -272,6 +277,7 @@ public class ViewAreaRenderer {
         
     }
     
+    @Deprecated
     private static void generateTriangleForGlobalPortal(
         TriangleConsumer vertexOutput,
         Portal portal,

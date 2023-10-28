@@ -10,8 +10,8 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Mesh2D;
@@ -381,29 +381,32 @@ public class BlockPortalShape {
         ).scale(0.5);
         
         if (isRectangle()) {
-            portal.specialShape = null;
+            portal.setPortalShapeToDefault();
         }
         else {
-            GeometryPortalShape shape = new GeometryPortalShape(new Mesh2D());
+            Mesh2D mesh2D = new Mesh2D();
             double halfWidth = portal.width / 2;
             double halfHeight = portal.height / 2;
+            
+            Vec3 axisW = portal.axisW;
+            Vec3 axisH = portal.axisH;
             
             area.forEach(part -> {
                 Vec3 p1 = Vec3.atLowerCornerOf(part).add(offset);
                 Vec3 p2 = Vec3.atLowerCornerOf(part).add(1, 1, 1).add(offset);
-                double p1LocalX = p1.subtract(center).dot(portal.axisW);
-                double p1LocalY = p1.subtract(center).dot(portal.axisH);
-                double p2LocalX = p2.subtract(center).dot(portal.axisW);
-                double p2LocalY = p2.subtract(center).dot(portal.axisH);
-                shape.addTriangleForRectangle(
+                double p1LocalX = p1.subtract(center).dot(axisW);
+                double p1LocalY = p1.subtract(center).dot(axisH);
+                double p2LocalX = p2.subtract(center).dot(axisW);
+                double p2LocalY = p2.subtract(center).dot(axisH);
+                mesh2D.addQuad(
                     p1LocalX / halfWidth, p1LocalY / halfHeight,
-                    p2LocalX / halfWidth, p2LocalY/ halfHeight
+                    p2LocalX / halfWidth, p2LocalY / halfHeight
                 );
             });
             
-            shape.mesh.simplify();
+            mesh2D.simplify();
             
-            portal.specialShape = shape;
+            portal.setPortalShape(new SpecialFlatPortalShape(mesh2D));
         }
     }
     

@@ -19,6 +19,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -92,14 +93,17 @@ public class BlockManipulationServer {
     ) {
         Direction side = blockHitResult.getDirection();
         Vec3 sideVec = Vec3.atLowerCornerOf(side.getNormal());
-        Vec3 hitCenter = Vec3.atCenterOf(blockHitResult.getBlockPos());
+        BlockPos hitPos = blockHitResult.getBlockPos();
+        Vec3 hitCenter = Vec3.atCenterOf(hitPos);
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         
         Portal portal = globalPortals.stream().filter(p ->
             p.getNormal().dot(sideVec) < -0.9
-                && p.isPointInPortalProjection(hitCenter)
-                && p.getDistanceToPlane(hitCenter) < 0.6
+                && p.getPortalShape().isBoxInPortalProjection(
+                p.getThisSideState(),
+                new AABB(hitPos)
+            ) && p.getDistanceToPlane(hitCenter) < 0.6
         ).findFirst().orElse(null);
         
         if (portal == null) {

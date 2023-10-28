@@ -160,6 +160,7 @@ public class Portal extends Entity implements
      */
     // TODO remove in 1.20.3
     @Nullable
+    @Deprecated
     public GeometryPortalShape specialShape;
     
     /**
@@ -236,7 +237,9 @@ public class Portal extends Entity implements
      * It can improve rendering performance.
      * However, the merged rendering's front clipping won't work as if they are separately rendered.
      * So this is by default disabled.
+     * TODO remove in a future version.
      */
+    @Deprecated
     public boolean renderingMergable = false;
     
     /**
@@ -295,6 +298,7 @@ public class Portal extends Entity implements
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         width = compoundTag.getDouble("width");
         height = compoundTag.getDouble("height");
+        thickness = compoundTag.getDouble("thickness");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", level().isClientSide);
@@ -425,6 +429,7 @@ public class Portal extends Entity implements
         
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
+        compoundTag.putDouble("thickness", thickness);
         Helper.putVec3d(compoundTag, "axisW", axisW);
         Helper.putVec3d(compoundTag, "axisH", axisH);
         DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
@@ -496,6 +501,10 @@ public class Portal extends Entity implements
         
         if (!(portalShape instanceof SpecialFlatPortalShape)) {
             this.specialShape = null;
+        }
+        
+        if (portalShape.isPlanar()) {
+            thickness = 0;
         }
         
         updateCache();
@@ -1315,10 +1324,12 @@ public class Portal extends Entity implements
         return lenientIsLocalXYOnPortal(xInPlane, yInPlane, leniency);
     }
     
+    @Deprecated
     public boolean isLocalXYOnPortal(double xInPlane, double yInPlane) {
         return lenientIsLocalXYOnPortal(xInPlane, yInPlane, 0.001);
     }
     
+    @Deprecated
     public boolean lenientIsLocalXYOnPortal(double xInPlane, double yInPlane, double leniency) {
         double halfWidth = width / 2;
         double halfHeight = height / 2;
@@ -1644,7 +1655,7 @@ public class Portal extends Entity implements
         if (!isVisible()) {
             return false;
         }
-        return specialShape == null;
+        return getPortalShape().canDoOuterFrustumCulling();
     }
     
     // it's recommended to use canTeleportEntity
@@ -2037,6 +2048,7 @@ public class Portal extends Entity implements
         return thisSideCollisionExclusion;
     }
     
+    @Deprecated
     public boolean isBoundingBoxInPortalProjection(AABB boundingBox) {
         Vec3[] vertexes = Helper.eightVerticesOf(boundingBox);
         
@@ -2060,6 +2072,7 @@ public class Portal extends Entity implements
         return isLocalBoxInShape(minX, minY, maxX, maxY);
     }
     
+    @Deprecated
     private boolean isLocalBoxInShape(double minX, double minY, double maxX, double maxY) {
         double halfWidth = width / 2;
         double halfHeight = height / 2;
