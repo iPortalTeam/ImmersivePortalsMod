@@ -97,6 +97,7 @@ public class ExampleGuiPortalRendering {
             world.dimension(),
             pos
         );
+        /**{@link RemoteCallables#clientActivateExampleGuiPortal(ResourceKey, Vec3)}*/
     }
     
     public static class RemoteCallables {

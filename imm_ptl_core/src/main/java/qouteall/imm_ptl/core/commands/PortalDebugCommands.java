@@ -579,6 +579,8 @@ public class PortalDebugCommands {
                     int intId = biomes.getId(entry.getValue());
                     map.put(strId, intId);
                 }
+                
+                /**{@link qouteall.imm_ptl.core.ClientWorldLoader.RemoteCallables#checkBiomeRegistry(Map)}*/
                 McRemoteProcedureCall.tellClientToInvoke(
                     context.getSource().getPlayerOrException(),
                     "qouteall.imm_ptl.core.ClientWorldLoader.RemoteCallables.checkBiomeRegistry",
