@@ -1,1 +1,5 @@
-Add experimental animated version of scaled box view end portal. The new end portal mode can be accessed from the config. Change iris comat version to 1.6.10.
+Note: this version is experimental.
+
+Portal shape system refactoring.
+
+Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1467
