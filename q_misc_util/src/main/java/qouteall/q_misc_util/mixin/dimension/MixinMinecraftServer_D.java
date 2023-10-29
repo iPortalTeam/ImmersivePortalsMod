@@ -42,6 +42,8 @@ public abstract class MixinMinecraftServer_D implements IEMinecraftServer_Misc {
     
     private boolean ip_canDirectlyRegisterDimension = false;
     
+    private boolean ip_finishedCreatingWorlds = false;
+    
     @Inject(method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V", at = @At("HEAD"))
     private void onBeforeCreateWorlds(
         ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci
@@ -67,6 +69,7 @@ public abstract class MixinMinecraftServer_D implements IEMinecraftServer_Misc {
     ) {
         MinecraftServer this_ = (MinecraftServer) (Object) this;
         DimensionIdManagement.onServerStarted(this_);
+        ip_finishedCreatingWorlds = true;
     }
     
     
@@ -104,5 +107,10 @@ public abstract class MixinMinecraftServer_D implements IEMinecraftServer_Misc {
     @Override
     public boolean ip_getCanDirectlyRegisterDimensions() {
         return ip_canDirectlyRegisterDimension;
+    }
+    
+    @Override
+    public boolean ip_getIsFinishedCreatingWorlds() {
+        return ip_finishedCreatingWorlds;
     }
 }

@@ -20,4 +20,6 @@ public interface IEMinecraftServer_Misc {
     void ip_waitUntilNextTick();
     
     boolean ip_getCanDirectlyRegisterDimensions();
+    
+    boolean ip_getIsFinishedCreatingWorlds();
 }

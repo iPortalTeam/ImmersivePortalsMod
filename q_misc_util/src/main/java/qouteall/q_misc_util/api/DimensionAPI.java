@@ -66,7 +66,7 @@ public class DimensionAPI {
         ResourceLocation dimensionId,
         LevelStem levelStem
     ) {
-        if (server.isRunning()) {
+        if (((IEMinecraftServer_Misc) server).ip_getIsFinishedCreatingWorlds()) {
             addDimensionDynamically(server, dimensionId, levelStem);
         }
         else {
