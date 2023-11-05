@@ -333,6 +333,7 @@ public record UnilateralPortalState(
     
     // treating UnilateralPortalState as a rectangle,
     // then it has these invariants
+    // (only for flat portal)
     public static enum RectInvariant {
         IDENTITY, ROTATE_90, ROTATE_180, ROTATE_270,
         FLIP_X, FLIP_X_ROTATE_90, FLIP_X_ROTATE_180, FLIP_X_ROTATE_270;
@@ -428,7 +429,8 @@ public record UnilateralPortalState(
                 start.position().lerp(end.position(), progress),
                 DQuaternion.interpolate(start.orientation(), end.orientation(), progress),
                 Mth.lerp(progress, start.width(), end.width()),
-                Mth.lerp(progress, start.height(), end.height())
+                Mth.lerp(progress, start.height(), end.height()),
+                Mth.lerp(progress, start.thickness(), end.thickness())
             );
         }
         
@@ -438,7 +440,8 @@ public record UnilateralPortalState(
                 a.position().distanceToSqr(b.position()) < 0.0001 &&
                 DQuaternion.isClose(a.orientation(), b.orientation()) &&
                 Math.abs(a.width() - b.width()) < 0.001 &&
-                Math.abs(a.height() - b.height()) < 0.001;
+                Math.abs(a.height() - b.height()) < 0.001 &&
+                Math.abs(a.thickness() - b.thickness()) < 0.001;
         }
     };
 }

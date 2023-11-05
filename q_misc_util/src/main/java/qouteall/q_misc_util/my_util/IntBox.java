@@ -480,6 +480,14 @@ public class IntBox {
         }
     }
     
+    public BlockPos getVertex(boolean xPosi, boolean yPosi, boolean zPosi) {
+        return new BlockPos(
+            xPosi ? h.getX() : l.getX(),
+            yPosi ? h.getY() : l.getY(),
+            zPosi ? h.getZ() : l.getZ()
+        );
+    }
+    
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         
