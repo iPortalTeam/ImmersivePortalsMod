@@ -200,4 +200,6 @@ public class DimensionAPI {
     ) {
         return DimensionIdRecord.clientRecord.getDim(intId);
     }
+    
+    // TODO a method to test whether a world is alive
 }

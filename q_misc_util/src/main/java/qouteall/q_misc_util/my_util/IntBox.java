@@ -280,7 +280,6 @@ public class IntBox {
     }
     
     public AABB toRealNumberBox() {
-        
         return new AABB(
             l.getX(),
             l.getY(),
@@ -293,14 +292,7 @@ public class IntBox {
     
     public IntBox getExpanded(BlockPos newPoint) {
         return new IntBox(
-            Helper.min(
-                l,
-                newPoint
-            ),
-            Helper.max(
-                h,
-                newPoint
-            )
+            Helper.min(l, newPoint), Helper.max(h, newPoint)
         );
     }
     
@@ -311,6 +303,10 @@ public class IntBox {
             pos.getY() <= h.getY() &&
             pos.getZ() >= l.getZ() &&
             pos.getZ() <= h.getZ();
+    }
+    
+    public boolean contains(IntBox box) {
+        return contains(box.l) && contains(box.h);
     }
     
     public BlockPos selectCoordinateFromBox(boolean high) {

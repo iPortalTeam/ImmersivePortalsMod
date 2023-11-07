@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -30,10 +31,18 @@ public class ChunkLoader {
         this.isDirectLoader = isDirectLoader;
     }
     
+    @Deprecated
     public int getLoadedChunkNum() {
+        return getLoadedChunkNum(MiscHelper.getServer());
+    }
+    
+    public int getLoadedChunkNum(MinecraftServer server) {
         int[] numBox = {0};
+        
+        ServerLevel serverWorld = McHelper.getServerWorld(server, center.dimension);
+        
         foreachChunkPos((dim, x, z, dist) -> {
-            if (McHelper.isServerChunkFullyLoaded(McHelper.getServerWorld(dim), new ChunkPos(x, z))) {
+            if (McHelper.isServerChunkFullyLoaded(serverWorld, new ChunkPos(x, z))) {
                 numBox[0] += 1;
             }
         });
@@ -42,6 +51,10 @@ public class ChunkLoader {
     
     public int getChunkNum() {
         return (this.radius * 2 + 1) * (this.radius * 2 + 1);
+    }
+    
+    public boolean isFullyLoaded(MinecraftServer server) {
+        return getLoadedChunkNum(server) >= getChunkNum();
     }
     
     public void foreachChunkPos(ChunkPosConsumer func) {
