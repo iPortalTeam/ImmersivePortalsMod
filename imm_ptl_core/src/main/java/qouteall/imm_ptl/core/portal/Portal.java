@@ -1760,7 +1760,7 @@ public class Portal extends Entity implements
             getScale(),
             getRotationD(),
             getOrientationRotation(),
-            width, height
+            width, height, thickness
         );
     }
     
@@ -1770,6 +1770,7 @@ public class Portal extends Entity implements
         
         width = state.width;
         height = state.height;
+        thickness = state.thickness;
         
         setOriginPos(state.fromPos);
         setDestination(state.toPos);

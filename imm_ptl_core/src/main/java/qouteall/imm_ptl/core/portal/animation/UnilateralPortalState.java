@@ -15,7 +15,6 @@ import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.q_misc_util.my_util.Vec2d;
 import qouteall.q_misc_util.my_util.animation.Animated;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ public record UnilateralPortalState(
     
     double width,
     double height,
-    // TODO 3D portal
     double thickness,
     
     Matrix3dc orientationMatrix,
@@ -72,7 +70,8 @@ public record UnilateralPortalState(
             portalState.fromPos,
             portalState.orientation,
             portalState.width,
-            portalState.height
+            portalState.height,
+            portalState.thickness
         );
     }
     
@@ -85,7 +84,8 @@ public record UnilateralPortalState(
             portalState.toPos,
             otherSideOrientation,
             portalState.width * portalState.scaling,
-            portalState.height * portalState.scaling
+            portalState.height * portalState.scaling,
+            portalState.thickness * portalState.scaling
         );
     }
     
@@ -111,7 +111,8 @@ public record UnilateralPortalState(
             rotation,
             thisSide.orientation,
             thisSide.width,
-            thisSide.height
+            thisSide.height,
+            thisSide.thickness
         );
         
         return result;
@@ -127,7 +128,8 @@ public record UnilateralPortalState(
             Helper.interpolatePos(from.position, to.position, progress),
             DQuaternion.interpolate(from.orientation, to.orientation, progress),
             Mth.lerp(progress, from.width, to.width),
-            Mth.lerp(progress, from.height, to.height)
+            Mth.lerp(progress, from.height, to.height),
+            Mth.lerp(progress, from.thickness, to.thickness)
         );
     }
     
@@ -138,6 +140,7 @@ public record UnilateralPortalState(
         tag.put("orientation", orientation.toTag());
         tag.putDouble("width", width);
         tag.putDouble("height", height);
+        tag.putDouble("thickness", thickness);
         return tag;
     }
     
@@ -147,21 +150,16 @@ public record UnilateralPortalState(
         DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
         double width = tag.getDouble("width");
         double height = tag.getDouble("height");
+        double thickness = tag.getDouble("thickness");
         return new UnilateralPortalState(
-            dimension, point, orientation, width, height
+            dimension, point, orientation, width, height, thickness
         );
     }
     
     public DeltaUnilateralPortalState subtract(UnilateralPortalState other) {
-        Vec3 offset = position.subtract(other.position);
-        DQuaternion rotation = orientation.hamiltonProduct(other.orientation.getConjugated());
-        double widthScale = width / other.width;
-        double heightScale = height / other.height;
-        return new DeltaUnilateralPortalState(
-            offset,
-            rotation,
-            new Vec2d(widthScale, heightScale)
-        ).purgeFPError();
+        return DeltaUnilateralPortalState.fromDiff(
+            other, this
+        );
     }
     
     public UnilateralPortalState apply(DeltaUnilateralPortalState thisSideDelta) {
@@ -252,7 +250,8 @@ public record UnilateralPortalState(
                 position,
                 orientation,
                 width,
-                height
+                height,
+                thickness
             );
         }
         
@@ -293,6 +292,7 @@ public record UnilateralPortalState(
             this.orientation = other.orientation;
             this.width = other.width;
             this.height = other.height;
+            this.thickness = other.thickness;
             return this;
         }
         
@@ -316,6 +316,11 @@ public record UnilateralPortalState(
             return this;
         }
         
+        public Builder scaleThickness(double scale) {
+            this.thickness *= scale;
+            return this;
+        }
+        
         public Builder apply(DeltaUnilateralPortalState delta) {
             if (delta.offset() != null) {
                 this.position = this.position.add(delta.offset());
@@ -326,6 +331,7 @@ public record UnilateralPortalState(
             if (delta.sizeScaling() != null) {
                 this.width *= delta.sizeScaling().x();
                 this.height *= delta.sizeScaling().y();
+                this.thickness *= delta.sizeScaling().z();
             }
             return this;
         }

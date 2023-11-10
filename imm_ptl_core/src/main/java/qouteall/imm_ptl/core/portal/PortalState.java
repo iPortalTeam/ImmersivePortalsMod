@@ -25,8 +25,15 @@ public class PortalState {
     public final DQuaternion orientation;
     public final double width;
     public final double height;
+    public final double thickness;
     
-    public PortalState(ResourceKey<Level> fromWorld, Vec3 fromPos, ResourceKey<Level> toWorld, Vec3 toPos, double scaling, DQuaternion rotation, DQuaternion orientation, double width, double height) {
+    @Deprecated
+    public PortalState(
+        ResourceKey<Level> fromWorld, Vec3 fromPos,
+        ResourceKey<Level> toWorld, Vec3 toPos,
+        double scaling, DQuaternion rotation, DQuaternion orientation,
+        double width, double height
+    ) {
         this.fromWorld = fromWorld;
         this.fromPos = fromPos;
         this.toWorld = toWorld;
@@ -36,6 +43,24 @@ public class PortalState {
         this.orientation = orientation;
         this.width = width;
         this.height = height;
+        this.thickness = 0;
+    }
+    
+    public PortalState(
+        ResourceKey<Level> fromWorld, Vec3 fromPos, ResourceKey<Level> toWorld, Vec3 toPos,
+        double scaling, DQuaternion rotation, DQuaternion orientation,
+        double width, double height, double thickness
+    ) {
+        this.fromWorld = fromWorld;
+        this.fromPos = fromPos;
+        this.toWorld = toWorld;
+        this.toPos = toPos;
+        this.scaling = scaling;
+        this.rotation = rotation;
+        this.orientation = orientation;
+        this.width = width;
+        this.height = height;
+        this.thickness = thickness;
     }
     
     public PortalState withThisSideUpdated(
@@ -48,6 +73,7 @@ public class PortalState {
                 .from(otherSide)
                 .width(thisSide.width() * scaling)
                 .height(thisSide.height() * scaling)
+                .thickness(thisSide.thickness() * scaling)
                 .build();
         }
         
@@ -64,6 +90,7 @@ public class PortalState {
         tag.putDouble("scaling", scaling);
         tag.putDouble("width", width);
         tag.putDouble("height", height);
+        tag.putDouble("thickness", thickness);
         tag.put("rotation", rotation.toTag());
         tag.put("orientation", orientation.toTag());
         return tag;
@@ -77,10 +104,12 @@ public class PortalState {
         double scaling = tag.getDouble("scaling");
         double width = tag.getDouble("width");
         double height = tag.getDouble("height");
+        double thickness = tag.getDouble("thickness");
         DQuaternion rotation = DQuaternion.fromTag(tag.getCompound("rotation"));
         DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
         return new PortalState(
-            fromWorld, fromPos, toWorld, toPos, scaling, rotation, orientation, width, height
+            fromWorld, fromPos, toWorld, toPos, scaling, rotation, orientation,
+            width, height, thickness
         );
     }
     
@@ -99,7 +128,8 @@ public class PortalState {
             DQuaternion.interpolate(a.rotation, b.rotation, progress),
             DQuaternion.interpolate(a.orientation, b.orientation, progress),
             Mth.lerp(progress, a.width, b.width),
-            Mth.lerp(progress, a.height, b.height)
+            Mth.lerp(progress, a.height, b.height),
+            Mth.lerp(progress, a.thickness, b.thickness)
         );
     }
     

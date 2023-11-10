@@ -15,17 +15,19 @@ import java.util.stream.Stream;
 public record DeltaUnilateralPortalState(
     @Nullable Vec3 offset,
     @Nullable DQuaternion rotation,
-    @Nullable Vec2d sizeScaling
-    // TODO add thickness scaling
+    @Nullable Vec3 sizeScaling
 ) {
     public static final DeltaUnilateralPortalState identity =
-        new DeltaUnilateralPortalState(null, null, null);
+        new DeltaUnilateralPortalState(null, null, (Vec3) null);
     
     public DeltaUnilateralPortalState getInverse() {
         return new DeltaUnilateralPortalState(
             offset == null ? null : offset.scale(-1),
             rotation == null ? null : rotation.getConjugated(),
-            sizeScaling == null ? null : new Vec2d(1.0 / sizeScaling.x(), 1.0 / sizeScaling.y())
+            sizeScaling == null ? null : new Vec3(
+                1.0 / sizeScaling.x(), 1.0 / sizeScaling.y(),
+                sizeScaling.z() == 0 ? 1.0 : 1.0 / sizeScaling.z()
+            )
         );
     }
     
@@ -38,7 +40,9 @@ public record DeltaUnilateralPortalState(
                 rotation, then.rotation, DQuaternion::hamiltonProduct
             ),
             Helper.combineNullable(
-                sizeScaling, then.sizeScaling, (a, b) -> new Vec2d(a.x() * b.x(), a.y() * b.y())
+                sizeScaling, then.sizeScaling, (a, b) -> new Vec3(
+                    a.x() * b.x(), a.y() * b.y(), a.z() * b.z()
+                )
             )
         );
     }
@@ -47,9 +51,10 @@ public record DeltaUnilateralPortalState(
         return new DeltaUnilateralPortalState(
             Helper.getVec3dOptional(tag, "offset"),
             tag.contains("rotation") ? DQuaternion.fromTag(tag.getCompound("rotation")) : null,
-            tag.contains("sizeScalingX") ? new Vec2d(
+            tag.contains("sizeScalingX") ? new Vec3(
                 tag.getDouble("sizeScalingX"),
-                tag.getDouble("sizeScalingY")
+                tag.getDouble("sizeScalingY"),
+                tag.contains("sizeScalingZ") ? tag.getDouble("sizeScalingZ") : 1
             ) : null
         );
     }
@@ -65,6 +70,7 @@ public record DeltaUnilateralPortalState(
         if (sizeScaling != null) {
             tag.putDouble("sizeScalingX", sizeScaling.x());
             tag.putDouble("sizeScalingY", sizeScaling.y());
+            tag.putDouble("sizeScalingZ", sizeScaling.z());
         }
         return tag;
     }
@@ -73,9 +79,10 @@ public record DeltaUnilateralPortalState(
         return new DeltaUnilateralPortalState(
             offset == null ? null : offset.scale(progress),
             rotation == null ? null : DQuaternion.interpolate(DQuaternion.identity, rotation, progress),
-            sizeScaling == null ? null : new Vec2d(
+            sizeScaling == null ? null : new Vec3(
                 Mth.lerp(progress, 1, sizeScaling.x()),
-                Mth.lerp(progress, 1, sizeScaling.y())
+                Mth.lerp(progress, 1, sizeScaling.y()),
+                Mth.lerp(progress, 1, sizeScaling.z())
             )
         );
     }
@@ -119,10 +126,11 @@ public record DeltaUnilateralPortalState(
             rotation = null;
         }
         
-        Vec2d sizeScaling = this.sizeScaling;
+        Vec3 sizeScaling = this.sizeScaling;
         if (sizeScaling != null
             && Math.abs(sizeScaling.x() - 1) < 0.00001
             && Math.abs(sizeScaling.y() - 1) < 0.00001
+            && Math.abs(sizeScaling.z() - 1) < 0.00001
         ) {
             sizeScaling = null;
         }
@@ -156,11 +164,12 @@ public record DeltaUnilateralPortalState(
         return new DeltaUnilateralPortalState(
             after.position().subtract(before.position()),
             after.orientation().hamiltonProduct(before.orientation().getConjugated()),
-            new Vec2d(
+            new Vec3(
                 before.width() == 0 ? 1 : after.width() / before.width(),
-                before.height() == 0 ? 1 : after.height() / before.height()
+                before.height() == 0 ? 1 : after.height() / before.height(),
+                before.width() == 0 ? 1 : after.width() / before.width()
             )
-        );
+        ).purgeFPError();
     }
     
     public static class Builder {
@@ -169,7 +178,7 @@ public record DeltaUnilateralPortalState(
         @Nullable
         private DQuaternion rotation;
         @Nullable
-        private Vec2d sizeScaling;
+        private Vec3 sizeScaling;
         
         public Builder offset(Vec3 offset) {
             this.offset = offset;
@@ -182,11 +191,16 @@ public record DeltaUnilateralPortalState(
         }
         
         public Builder scaleSize(double scale) {
-            this.sizeScaling = new Vec2d(scale, scale);
+            this.sizeScaling = new Vec3(scale, scale, scale);
             return this;
         }
         
         public Builder scaleSize(Vec2d scale) {
+            this.sizeScaling = new Vec3(scale.x(), scale.y(), 1);
+            return this;
+        }
+        
+        public Builder scaleSize(Vec3 scale) {
             this.sizeScaling = scale;
             return this;
         }
