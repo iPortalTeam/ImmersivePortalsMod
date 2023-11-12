@@ -10,10 +10,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -173,6 +173,7 @@ public class PortalUtils {
             double portalDistance = portalHit.get().getSecond().distanceTo(startingPoint);
             Portal portal = portalHit.get().getFirst();
             
+            // TODO update this for 3D portal
             Vec3 newStartingPoint = portal.transformPoint(portalHit.get().getSecond())
                 .add(portal.getContentDirection().scale(0.001));
             Vec3 newDirection = portal.transformLocalVecNonScale(direction);

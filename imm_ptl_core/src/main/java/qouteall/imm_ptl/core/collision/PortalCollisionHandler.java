@@ -156,14 +156,17 @@ public class PortalCollisionHandler {
         PortalLike collisionHandlingUnit = CollisionHelper.getCollisionHandlingUnit(collidingPortal);
         Direction transformedGravityDirection = collidingPortal.getTransformedGravityDirection(GravityChangerInterface.invoker.getGravityDirection(entity));
         
+        Plane innerClipping = collidingPortal.getInnerClipping();
+        
         Vec3 collided = transformedAttemptedMove;
         collided = CollisionHelper.handleCollisionWithShapeProcessor(
             entity, boxOtherSide, destinationWorld,
             collided,
             shape -> {
-                VoxelShape current = CollisionHelper.clipVoxelShape(
-                    shape, collidingPortal.getDestPos(), collidingPortal.getContentDirection()
-                );
+                VoxelShape current = innerClipping == null ? shape :
+                    CollisionHelper.clipVoxelShape(
+                        shape, innerClipping.pos(), innerClipping.normal()
+                    );
                 
                 if (current == null) {
                     return null;
