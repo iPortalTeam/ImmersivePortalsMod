@@ -106,7 +106,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
                 new Throwable().printStackTrace();
             });
             
-            return attemptedMove;
+            return Vec3.ZERO;
         }
         
         if (!IPGlobal.crossPortalCollision

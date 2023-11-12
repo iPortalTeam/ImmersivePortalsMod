@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.mixin.common.container_gui;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +21,17 @@ public interface MixinContainer {
         BlockEntity blockEntity, Player player, int distance, CallbackInfoReturnable<Boolean> cir
     ) {
         if (!cir.getReturnValue()) {
-            PortalUtils.PortalAwareRaytraceResult result = PortalUtils.portalAwareRayTrace(player, 32);
-            if (result != null && result.hitResult().getBlockPos().equals(blockEntity.getBlockPos())) {
+            PortalUtils.PortalAwareRaytraceResult result = PortalUtils.portalAwareRayTrace(
+                player.level(),
+                player.getEyePosition(),
+                player.getViewVector(1),
+                32,
+                player,
+                ClipContext.Block.COLLIDER
+            );
+            if (result != null &&
+                result.hitResult().getBlockPos().equals(blockEntity.getBlockPos())
+            ) {
                 cir.setReturnValue(true);
             }
         }

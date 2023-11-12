@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.render.ForceMainThreadRebuild;
 
-@Mixin(FlawlessFrames.class)
+@Mixin(value = FlawlessFrames.class, remap = false)
 public class MixinSodiumFlawlessFrames {
     @Inject(method = "isActive", at = @At("HEAD"), cancellable = true)
     private static void onIsActive(CallbackInfoReturnable<Boolean> cir) {

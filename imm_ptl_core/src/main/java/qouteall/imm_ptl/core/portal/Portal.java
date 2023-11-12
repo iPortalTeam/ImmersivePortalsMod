@@ -1307,15 +1307,7 @@ public class Portal extends Entity implements
     }
     
     public AABB getThinAreaBox() {
-        double w = width;
-        double h = height;
-        return new AABB(
-            getPointInPlane(w / 2, h / 2),
-            getPointInPlane(-w / 2, -h / 2)
-        ).minmax(new AABB(
-            getPointInPlane(-w / 2, h / 2),
-            getPointInPlane(w / 2, -h / 2)
-        ));
+        return getExactAreaBox();
     }
     
     /**
@@ -1497,6 +1489,7 @@ public class Portal extends Entity implements
         return true;
     }
     
+    // TODO rename to getThinBoundingBox
     @Override
     public AABB getExactAreaBox() {
         return getExactBoundingBox();

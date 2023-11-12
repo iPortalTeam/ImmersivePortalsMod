@@ -114,6 +114,33 @@ public class PortalUtils {
         Vec3 direction,
         double maxDistance,
         Entity entity,
+        ClipContext.Block clipContextBlock
+    ) {
+        return portalAwareRayTrace(
+            world, startingPoint, direction, maxDistance, entity,
+            clipContextBlock, List.of()
+        );
+    }
+    
+    @Nullable
+    public static PortalAwareRaytraceResult portalAwareRayTrace(
+        Level world,
+        Vec3 startingPoint,
+        Vec3 direction,
+        double maxDistance,
+        Entity entity,
+        @NotNull List<Portal> portalsPassingThrough
+    ) {
+        return portalAwareRayTrace(
+            world, startingPoint, direction, maxDistance, entity,
+            ClipContext.Block.OUTLINE, portalsPassingThrough
+        );
+    }
+    
+    @Nullable
+    public static PortalAwareRaytraceResult portalAwareRayTrace(
+        Level world, Vec3 startingPoint, Vec3 direction, double maxDistance,
+        Entity entity, ClipContext.Block clipContextBlock,
         @NotNull List<Portal> portalsPassingThrough
     ) {
         if (portalsPassingThrough.size() > 5) {
@@ -136,7 +163,7 @@ public class PortalUtils {
         ClipContext context = new ClipContext(
             startingPoint,
             endingPoint,
-            ClipContext.Block.OUTLINE,
+            clipContextBlock,
             ClipContext.Fluid.NONE,
             entity
         );
@@ -149,7 +176,9 @@ public class PortalUtils {
         if (portalHitFound && blockHitFound) {
             double portalDistance = portalHit.get().getSecond().distanceTo(startingPoint);
             double blockDistance = blockHitResult.getLocation().distanceTo(startingPoint);
-            if (portalDistance < blockDistance) {
+            // add a little to block distance to make it raytrace to portal
+            // when portal overlaps with block surface
+            if (portalDistance < blockDistance + 0.0001) {
                 // continue raytrace from within the portal
                 shouldContinueRaytraceInsidePortal = true;
             }

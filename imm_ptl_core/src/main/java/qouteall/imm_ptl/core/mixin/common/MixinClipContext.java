@@ -84,11 +84,8 @@ public abstract class MixinClipContext implements IERayTraceContext {
                     }
                 }
             }
-            else if (block == ClipContext.Block.COLLIDER) {
-                cir.setReturnValue(PortalPlaceholderBlock.instance.getShape(
-                    blockState, blockView, blockPos, collisionContext
-                ));
-            }
+            
+            // TODO disable non-player entity view through placeholder block?
         }
     }
 }
