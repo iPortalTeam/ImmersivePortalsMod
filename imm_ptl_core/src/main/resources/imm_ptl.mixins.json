@@ -99,6 +99,7 @@
     "client.render.MixinGlStateManager",
     "client.render.MixinLevelRenderer",
     "client.render.MixinLevelRenderer_BeforeIris",
+    "client.render.MixinLevelRenderer_ForceMainThreadRebuild",
     "client.render.MixinLevelRenderer_Optional",
     "client.render.MixinMultiBufferSourceBufferSource",
     "client.render.MixinRenderSection",

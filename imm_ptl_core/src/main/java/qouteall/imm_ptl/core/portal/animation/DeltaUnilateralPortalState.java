@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.Helper;
@@ -161,6 +162,10 @@ public record DeltaUnilateralPortalState(
     public static DeltaUnilateralPortalState fromDiff(
         UnilateralPortalState before, UnilateralPortalState after
     ) {
+        Validate.isTrue(
+            before.dimension() == after.dimension(),
+            "dimension mismatch"
+        );
         return new DeltaUnilateralPortalState(
             after.position().subtract(before.position()),
             after.orientation().hamiltonProduct(before.orientation().getConjugated()),

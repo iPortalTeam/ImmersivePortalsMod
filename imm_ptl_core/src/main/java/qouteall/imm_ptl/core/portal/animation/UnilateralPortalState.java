@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3d;
 import org.joml.Matrix3dc;
@@ -245,13 +246,13 @@ public record UnilateralPortalState(
         public double thickness;
         
         public UnilateralPortalState build() {
+            Validate.notNull(dimension, "dimension is null");
+            Validate.notNull(position, "position is null");
+            Validate.notNull(orientation, "orientation is null");
+            Validate.isTrue(width > 0, "invalid width %s", width);
+            Validate.isTrue(height > 0, "invalid height %s", height);
             return new UnilateralPortalState(
-                dimension,
-                position,
-                orientation,
-                width,
-                height,
-                thickness
+                dimension, position, orientation, width, height, thickness
             );
         }
         

@@ -56,6 +56,7 @@ import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.imm_ptl.core.render.ForceMainThreadRebuild;
 import qouteall.imm_ptl.core.render.ImmPtlViewArea;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.PortalGroup;
@@ -500,6 +501,18 @@ public class ClientDebugCommand {
                 context.getSource().sendFeedback(Component.literal(str));
                 return 0;
             })
+        );
+        
+        builder.then(ClientCommandManager
+            .literal("force_main_thread_chunk_rebuild")
+            .then(ClientCommandManager
+                .argument("frameCount", IntegerArgumentType.integer(0, 10000))
+                .executes(context -> {
+                    int frameCount = IntegerArgumentType.getInteger(context, "frameCount");
+                    ForceMainThreadRebuild.forceMainThreadRebuildFor(frameCount);
+                    return 0;
+                })
+            )
         );
         
         LiteralArgumentBuilder<FabricClientCommandSource> wandBuilder = ClientCommandManager.literal("wand");

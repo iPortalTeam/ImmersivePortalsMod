@@ -53,7 +53,7 @@ public class ImmPtlChunkTracking {
         // do nothing for now
     }
     
-    // if the player object is recreated, input the old player
+    // if the player object is recreated, pass in the old player object
     public static void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
         for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
             ServerChunkCache chunkManager = world.getChunkSource();

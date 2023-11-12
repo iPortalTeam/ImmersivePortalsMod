@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -21,6 +23,7 @@ import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.mixin.client.particle.IEParticle;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.render.ForceMainThreadRebuild;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.QueryManager;
 
@@ -31,6 +34,8 @@ import java.util.List;
 import java.util.Set;
 
 public class RenderStates {
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     public static int frameIndex = 0;
     
@@ -107,6 +112,8 @@ public class RenderStates {
         originalCamera = MyRenderHelper.client.gameRenderer.getMainCamera();
         
         updateIsLaggy();
+        
+        ForceMainThreadRebuild.onPreRender();
         
         debugText = "";
 //        debugText = originalCamera.getPos().toString();

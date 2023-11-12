@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
+import qouteall.imm_ptl.core.render.ForceMainThreadRebuild;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
 import qouteall.imm_ptl.core.render.ImmPtlViewArea;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
@@ -122,6 +123,8 @@ public class IPModMainClient {
         
         ImmPtlNetworking.initClient();
         ImmPtlNetworkConfig.initClient();
+        
+        ForceMainThreadRebuild.init();
     }
     
 }

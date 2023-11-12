@@ -17,6 +17,7 @@
     "iris.MixinIrisSodiumSodiumTerrainPipeline",
     "sodium.IESodiumWorldRenderer",
     "sodium.MixinSodiumChunkShaderInterface",
+    "sodium.MixinSodiumFlawlessFrames",
     "sodium.MixinSodiumRenderRegion",
     "sodium.MixinSodiumRenderSectionManager",
     "sodium.MixinSodiumShaderLoader",
