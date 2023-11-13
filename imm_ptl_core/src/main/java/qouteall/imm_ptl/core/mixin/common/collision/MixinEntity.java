@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.mixin.common.collision;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +32,7 @@ import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.CountDownInt;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
@@ -77,7 +78,9 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     @Shadow
     private ChunkPos chunkPosition;
     
-    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
+    @Shadow @Final private static Logger LOGGER;
+    @Unique
+    private static final CountDownInt IMM_PTL_LOG_COUNTER = new CountDownInt(20);
     
     @Redirect(
         method = "Lnet/minecraft/world/entity/Entity;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
@@ -100,11 +103,13 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
         
         if (attemptedMove.lengthSqr() > 60 * 60) {
             // avoid loading too many chunks in collision calculation and lag the server
-            limitedLogger.invoke(() -> {
-                Helper.err("Skipping collision calculation because entity moves too fast %s%s%d"
-                    .formatted(entity, attemptedMove, entity.level().getGameTime()));
-                new Throwable().printStackTrace();
-            });
+            if (IMM_PTL_LOG_COUNTER.tryDecrement()) {
+                LOGGER.error(
+                    "[ImmPtl] Skipping collision calculation because entity moves too fast {} {} {}",
+                    entity, attemptedMove, entity.level().getGameTime(),
+                    new Throwable()
+                );
+            }
             
             return Vec3.ZERO;
         }
@@ -120,6 +125,17 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
         Vec3 result = ip_portalCollisionHandler.handleCollision(
             (Entity) (Object) this, attemptedMove
         );
+        
+        if (result.lengthSqr() > 20 * 20) {
+            if (IMM_PTL_LOG_COUNTER.tryDecrement()) {
+                LOGGER.error(
+                    "[ImmPtl] cross portal collision result too large {} {} {}",
+                    this, attemptedMove, result
+                );
+            }
+            return Vec3.ZERO;
+        }
+        
         return result;
     }
     
@@ -180,7 +196,7 @@ public abstract class MixinEntity implements IEEntity, ImmPtlEntityExtension {
     private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
         Entity this_ = (Entity) (Object) this;
         
-        if (this_ instanceof ServerPlayer) {
+        if (this_ instanceof Player) {
             if (IPGlobal.teleportationDebugEnabled) {
                 if (Math.abs(getX() - nx) > 10 ||
                     Math.abs(getY() - ny) > 10 ||

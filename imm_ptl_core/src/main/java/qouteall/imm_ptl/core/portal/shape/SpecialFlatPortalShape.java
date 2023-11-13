@@ -220,8 +220,8 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
-    public Vec3 getOffsetForPushingEntityOutOfPortal(Portal portal, UnilateralPortalState portalState, Entity entity, Vec3 attemptedMove) {
-        return RectangularPortalShape.INSTANCE.getOffsetForPushingEntityOutOfPortal(
+    public Vec3 getMovementForPushingEntityOutOfPortal(Portal portal, UnilateralPortalState portalState, Entity entity, Vec3 attemptedMove) {
+        return RectangularPortalShape.INSTANCE.getMovementForPushingEntityOutOfPortal(
             portal, portalState, entity, attemptedMove
         );
     }

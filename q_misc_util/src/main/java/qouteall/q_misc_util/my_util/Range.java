@@ -31,4 +31,46 @@ public record Range(double start, double end) {
     ) {
         return Math.max(r1Start, r2Start) <= Math.min(r1End, r2End);
     }
+    
+    // push a range out of another range
+    public static double getPushRangeMovement(
+        double rangeToPushStart, double rangeToPushEnd,
+        double colliderStart, double colliderEnd
+    ) {
+        // if two ranges does not overlap, return 0
+        if (rangeToPushStart >= colliderEnd) {
+            return 0;
+        }
+        if (rangeToPushEnd <= colliderStart) {
+            return 0;
+        }
+        
+        double toPushMid = (rangeToPushStart + rangeToPushEnd) / 2;
+        double colliderMid = (colliderStart + colliderEnd) / 2;
+        
+        if (toPushMid > colliderMid) {
+            // push to right
+            return colliderEnd - rangeToPushStart;
+        }
+        else {
+            // push to left
+            return colliderStart - rangeToPushEnd;
+        }
+    }
+    
+    // confine a range to be inside another range
+    public static double getConfineRangeMovement(
+        double rangeToConfineStart, double rangeToConfineEnd,
+        double barrierStart, double barrierEnd
+    ) {
+        if (rangeToConfineStart < barrierStart) {
+            return barrierStart - rangeToConfineStart;
+        }
+        
+        if (rangeToConfineEnd > barrierEnd) {
+            return barrierEnd - rangeToConfineEnd;
+        }
+        
+        return 0;
+    }
 }

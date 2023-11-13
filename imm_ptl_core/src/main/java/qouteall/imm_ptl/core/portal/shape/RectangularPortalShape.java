@@ -193,13 +193,13 @@ public final class RectangularPortalShape implements PortalShape {
     }
     
     @Override
-    public Vec3 getOffsetForPushingEntityOutOfPortal(
+    public Vec3 getMovementForPushingEntityOutOfPortal(
         Portal portal, UnilateralPortalState portalState, Entity entity,
         Vec3 attemptedMove
     ) {
         AABB originalBoundingBox = entity.getBoundingBox();
         
-        return PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
+        return PortalCollisionHandler.getMovementForPushingEntityOutOfPortal(
             attemptedMove, portalState.position(), portalState.getNormal(), originalBoundingBox
         );
     }

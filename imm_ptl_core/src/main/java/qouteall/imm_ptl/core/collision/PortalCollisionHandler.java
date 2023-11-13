@@ -20,6 +20,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.Range;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,6 +201,10 @@ public class PortalCollisionHandler {
         
         Vec3 result = collidingPortal.inverseTransformLocalVec(collided);
         
+//        if (result.lengthSqr() > 10) {
+//            Helper.LOGGER.info("debug");
+//        }
+        
         return result;
     }
     
@@ -214,7 +219,7 @@ public class PortalCollisionHandler {
         // may not load in time and this will not stop player from start falling through solid ground on the other side.
         // When the portal loads, push the bounding box out of portal.
         
-        return collidingPortal.getPortalShape().getOffsetForPushingEntityOutOfPortal(
+        return collidingPortal.getPortalShape().getMovementForPushingEntityOutOfPortal(
             collidingPortal,
             collidingPortal.getThisSideState(),
             entity, attemptedMove
@@ -368,8 +373,82 @@ public class PortalCollisionHandler {
         return Helper.mappedListView(portalCollisions, p -> p.portal);
     }
     
+    public static Vec3 getOffsetForPushingBoxOutOfAABB(
+        AABB boxToPush, AABB portalBox
+    ) {
+        double mx = Range.getPushRangeMovement(
+            boxToPush.minX, boxToPush.maxX,
+            portalBox.minX, portalBox.maxX
+        );
+        double my = Range.getPushRangeMovement(
+            boxToPush.minY, boxToPush.maxY,
+            portalBox.minY, portalBox.maxY
+        );
+        double mz = Range.getPushRangeMovement(
+            boxToPush.minZ, boxToPush.maxZ,
+            portalBox.minZ, portalBox.maxZ
+        );
+        
+        if (mx != 0) {
+            return new Vec3(mx, 0, 0);
+        }
+        
+        if (my != 0) {
+            return new Vec3(0, my, 0);
+        }
+        
+        if (mz != 0) {
+            return new Vec3(0, 0, mz);
+        }
+        
+        return Vec3.ZERO;
+    }
+    
+    public static Vec3 getOffsetForConfiningBoxInsideAABB(
+        AABB boxToPush, AABB portalBox
+    ) {
+        return new Vec3(
+            Range.getConfineRangeMovement(
+                boxToPush.minX, boxToPush.maxX,
+                portalBox.minX, portalBox.maxX
+            ),
+            Range.getConfineRangeMovement(
+                boxToPush.minY, boxToPush.maxY,
+                portalBox.minY, portalBox.maxY
+            ),
+            Range.getConfineRangeMovement(
+                boxToPush.minZ, boxToPush.maxZ,
+                portalBox.minZ, portalBox.maxZ
+            )
+        );
+    }
+    
+    public static @Nullable Vec3 getOffsetForPushingBoxOutOfPlane(
+        Vec3 origin, Vec3 normal, AABB movedBoundingBox
+    ) {
+        Vec3 innerDirection = normal.scale(-1);
+        
+        double innerSignedDistance = Arrays
+            .stream(Helper.eightVerticesOf(movedBoundingBox))
+            .mapToDouble(
+                pos -> pos.subtract(origin).dot(normal)
+            )
+            .min().orElseThrow();
+        
+        // subtract the attempted move projection along inner direction
+        // to cancel the movement inward
+        if (innerSignedDistance < 0) {
+            // when the bounding box is already inside portal
+            // subtract the extra to push it out
+            return normal.scale(-innerSignedDistance);
+        }
+        else {
+            return null;
+        }
+    }
+    
     @NotNull
-    public static Vec3 getOffsetForPushingEntityOutOfPortal(
+    public static Vec3 getMovementForPushingEntityOutOfPortal(
         Vec3 attemptedMove, Vec3 origin, Vec3 normal, AABB originalBoundingBox
     ) {
         Vec3 innerDirection = normal.scale(-1);

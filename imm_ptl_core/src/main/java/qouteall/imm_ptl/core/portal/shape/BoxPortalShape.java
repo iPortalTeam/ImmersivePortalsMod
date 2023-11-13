@@ -243,54 +243,31 @@ public final class BoxPortalShape implements PortalShape {
     }
     
     @Override
-    public Vec3 getOffsetForPushingEntityOutOfPortal(
+    public Vec3 getMovementForPushingEntityOutOfPortal(
         Portal portal, UnilateralPortalState portalState, Entity entity,
         Vec3 attemptedMove
     ) {
-        AABB entityBox = entity.getBoundingBox();
-        
-        Vec3 localAttemptedMove = portalState.transformVecGlobalToLocal(attemptedMove);
-        
-        Vec3 oXP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(portalState.width() / 2, 0, 0),
-            new Vec3(facingOutwards ? 1 : -1, 0, 0),
-            entityBox
-        );
-        Vec3 oXN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(-portalState.width() / 2, 0, 0),
-            new Vec3(facingOutwards ? -1 : 1, 0, 0),
-            entityBox
-        );
-        Vec3 oYP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(0, portalState.height() / 2, 0),
-            new Vec3(0, facingOutwards ? 1 : -1, 0),
-            entityBox
-        );
-        Vec3 oYN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(0, -portalState.height() / 2, 0),
-            new Vec3(0, facingOutwards ? -1 : 1, 0),
-            entityBox
-        );
-        Vec3 oZP = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(0, 0, portalState.thickness() / 2),
-            new Vec3(0, 0, facingOutwards ? 1 : -1),
-            entityBox
-        );
-        Vec3 oZN = PortalCollisionHandler.getOffsetForPushingEntityOutOfPortal(
-            localAttemptedMove,
-            new Vec3(0, 0, -portalState.thickness() / 2),
-            new Vec3(0, 0, facingOutwards ? -1 : 1),
-            entityBox
+        AABB entityLocalBox = Helper.transformBox(
+            entity.getBoundingBox(), portalState::transformGlobalToLocal
         );
         
-        return portalState.transformVecLocalToGlobal(
-            oXP.add(oXN).add(oYP).add(oYN).add(oZP).add(oZN)
+        Vec3 localMove = portalState.transformVecGlobalToLocal(attemptedMove);
+        
+        AABB movedEntityLocalBox = entityLocalBox.move(localMove);
+        
+        AABB portalLocalBox = new AABB(
+            -portalState.width(), -portalState.height(), -portalState.thickness(),
+            portalState.width(), portalState.height(), portalState.thickness()
         );
+        Vec3 offset = facingOutwards ?
+            PortalCollisionHandler.getOffsetForPushingBoxOutOfAABB(
+                movedEntityLocalBox, portalLocalBox
+            ) :
+            PortalCollisionHandler.getOffsetForConfiningBoxInsideAABB(
+                movedEntityLocalBox, portalLocalBox
+            );
+        
+        return portalState.transformVecLocalToGlobal(localMove.add(offset));
     }
     
     @Override

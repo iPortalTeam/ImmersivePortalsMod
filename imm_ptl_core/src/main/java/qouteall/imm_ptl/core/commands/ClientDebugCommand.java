@@ -660,6 +660,11 @@ public class ClientDebugCommand {
             "mesh_render",
             cond -> IPGlobal.debugRenderPortalShapeMesh = cond
         );
+        registerSwitchCommand(
+            builder,
+            "teleportation_debug",
+            cond -> IPGlobal.teleportationDebugEnabled = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")

@@ -569,6 +569,7 @@ public class ClientTeleportationManager {
         Function<VoxelShape, VoxelShape> shapeFilter = c -> {
             VoxelShape curr = c;
             for (Portal collidingPortal : collidingPortals) {
+                // TODO update for 3D portal
                 curr = CollisionHelper.clipVoxelShape(
                     curr, collidingPortal.getOriginPos(), collidingPortal.getNormal()
                 );

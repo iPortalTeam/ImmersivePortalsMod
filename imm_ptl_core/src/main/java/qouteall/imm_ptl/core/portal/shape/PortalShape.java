@@ -157,7 +157,7 @@ public interface PortalShape {
     /**
      * Entities are pushed out when the other side of the portal is not yet loaded.
      */
-    public Vec3 getOffsetForPushingEntityOutOfPortal(
+    public Vec3 getMovementForPushingEntityOutOfPortal(
         Portal portal, UnilateralPortalState portalState,
         Entity entity, Vec3 attemptedMove
     );
