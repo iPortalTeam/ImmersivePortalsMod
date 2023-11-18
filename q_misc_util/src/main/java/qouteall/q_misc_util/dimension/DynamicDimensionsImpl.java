@@ -68,7 +68,10 @@ public class DynamicDimensionsImpl {
         
         ResourceKey<Level> dimensionResourceKey = DimId.idToKey(dimensionId);
         
-        Validate.isTrue(server.isSameThread());
+        Validate.isTrue(
+            server.isSameThread(),
+            "this should be called in server main thread"
+        );
         Validate.isTrue(server.isRunning(), "Server is not running");
         
         if (server.getLevel(dimensionResourceKey) != null) {

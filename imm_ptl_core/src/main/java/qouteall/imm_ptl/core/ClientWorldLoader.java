@@ -355,8 +355,8 @@ public class ClientWorldLoader {
     }
     
     private static ClientLevel createSecondaryClientWorld(ResourceKey<Level> dimension) {
-        Validate.notNull(client.player);
-        Validate.isTrue(client.isSameThread());
+        Validate.notNull(client.player, "player is null");
+        Validate.isTrue(client.isSameThread(), "not on client thread");
         
         Set<ResourceKey<Level>> dimIds = getServerDimensions();
         if (!dimIds.contains(dimension)) {
@@ -428,7 +428,7 @@ public class ClientWorldLoader {
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);
         
-        Helper.log("Client World Created " + dimension.location());
+        LOGGER.info("Client World Created {}", dimension.location());
         
         isCreatingClientWorld = false;
         
@@ -454,7 +454,7 @@ public class ClientWorldLoader {
     public static void _onWorldRendererReloaded() {
         Validate.isTrue(client.isSameThread());
         if (client.level != null) {
-            Helper.log("WorldRenderer reloaded " + client.level.dimension().location());
+            LOGGER.info("WorldRenderer reloaded {}", client.level.dimension().location());
         }
         
         if (isReloadingOtherWorldRenderers) {
@@ -491,11 +491,13 @@ public class ClientWorldLoader {
     /**
      * It will not switch the dimension of client player
      */
+    @SuppressWarnings("ReassignedVariable")
     public static <T> T withSwitchedWorld(ClientLevel newWorld, Supplier<T> supplier) {
-        Validate.isTrue(client.isSameThread());
-        Validate.isTrue(client.player != null);
+        Validate.isTrue(client.isSameThread(), "not on client thread");
+        Validate.isTrue(client.player != null, "player is null");
         
         ClientPacketListener networkHandler = client.getConnection();
+        assert networkHandler != null;
         
         ClientLevel originalWorld = client.level;
         LevelRenderer originalWorldRenderer = client.levelRenderer;
@@ -504,7 +506,7 @@ public class ClientWorldLoader {
         
         LevelRenderer newWorldRenderer = getWorldRenderer(newWorld.dimension());
         
-        Validate.notNull(newWorldRenderer);
+        Validate.notNull(newWorldRenderer, "new world renderer is null");
         
         client.level = newWorld;
         ((IEParticleManager) client.particleEngine).ip_setWorld(newWorld);
@@ -517,9 +519,10 @@ public class ClientWorldLoader {
         }
         finally {
             if (client.level != newWorld) {
-                Helper.err("Respawn packet should not be redirected");
+                LOGGER.error("Respawn packet should not be redirected");
                 originalWorld = client.level;
                 originalWorldRenderer = client.levelRenderer;
+                // client.levelRenderer is not final by mixin.
             }
             
             client.level = originalWorld;
@@ -566,7 +569,7 @@ public class ClientWorldLoader {
                 int expectedId = entry.getValue();
                 
                 if (biomes.getId(biomes.get(id)) != expectedId) {
-                    LOGGER.error("Biome id mismatch: " + id + " " + expectedId);
+                    LOGGER.error("Biome id mismatch: {} {}", id, expectedId);
                 }
             }
             

@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
+import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
@@ -162,7 +163,7 @@ public class ImmPtlChunkTickets {
      * {@link DistanceManager#runAllUpdates(ChunkMap)}.
      */
     public void flushThrottling(ServerLevel world) {
-        if (!world.getServer().isSameThread()) {
+        if (Thread.currentThread() != ((IEWorld) world).portal_getThread()) {
             // https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1402
             LOGGER.error("Called in a non-server-main thread.", new Throwable());
             return;
