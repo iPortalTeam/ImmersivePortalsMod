@@ -128,6 +128,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         }
     }
     
+    // TODO improve position validation
     @Redirect(
         method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
         at = @At(

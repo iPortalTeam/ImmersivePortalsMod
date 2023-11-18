@@ -105,6 +105,8 @@ public class IPGlobal {
     
     public static boolean enableSharedBlockMeshBuffers = true;
     
+    public static boolean saveMemoryInBufferPack = true;
+    
     public static boolean enableDatapackPortalGen = true;
     
     public static boolean enableCrossPortalView = true;

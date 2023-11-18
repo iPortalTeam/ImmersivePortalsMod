@@ -46,7 +46,7 @@ public class RenderStates {
     public static AABB originalPlayerBoundingBox;
     
     /**
-     * This does not always equal Minecraft.getFrameTime.
+     * It is not always equal to {@link Minecraft#getFrameTime()}.
      * It will be 0 right after ticking.
      */
     private static float partialTick = 0;

@@ -20,7 +20,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *  use the same queue of ChunkBufferBuilderPack.
  * In vanilla, it will cause OutOfMemory exception then it will allocate fewer buffers.
  * Some dimension will have no buffer and the chunk cannot rebuild.
+ *
+ * Deprecated by {@link qouteall.imm_ptl.core.mixin.client.render.optimization.MixinSectionBufferBuilderPack}
  */
+@Deprecated
 public class SharedBlockMeshBuffers {
     public static final ThreadLocal<SectionBufferBuilderPack> bufferTemp =
         ThreadLocal.withInitial(() -> null);

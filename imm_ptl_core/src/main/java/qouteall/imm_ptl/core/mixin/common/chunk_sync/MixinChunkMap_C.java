@@ -51,8 +51,8 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
     }
     
     @Override
-    public ChunkHolder ip_getChunkHolder(long long_1) {
-        return getVisibleChunkIfPresent(long_1);
+    public ChunkHolder ip_getChunkHolder(long chunkPosLong) {
+        return getVisibleChunkIfPresent(chunkPosLong);
     }
     
     /**

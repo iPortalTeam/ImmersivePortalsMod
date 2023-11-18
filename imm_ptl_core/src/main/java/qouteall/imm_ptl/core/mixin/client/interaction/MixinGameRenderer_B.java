@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer_B {
@@ -16,7 +16,7 @@ public class MixinGameRenderer_B {
     @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V", at = @At("HEAD"), cancellable = true)
     private void onUpdateTargetedEntity(float tickDelta, CallbackInfo ci) {
         if (Minecraft.getInstance().level != null) {
-            if (PortalRendering.isRendering()) {
+            if (WorldRenderInfo.isRendering()) {
                 ci.cancel();
             }
         }

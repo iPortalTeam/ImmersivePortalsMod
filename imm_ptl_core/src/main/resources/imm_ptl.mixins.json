@@ -113,6 +113,7 @@
     "client.render.optimization.IEChunkCompileTask",
     "client.render.optimization.MixinFrustum",
     "client.render.optimization.MixinLevelRenderer_Clouds",
+    "client.render.optimization.MixinSectionBufferBuilderPack",
     "client.render.optimization.MixinSectionRenderDispatcher_Optimization",
     "client.render.shader.MixinGameRenderer_Shaders",
     "client.render.shader.MixinProgram",

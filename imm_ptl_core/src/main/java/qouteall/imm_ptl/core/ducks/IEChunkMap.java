@@ -16,7 +16,7 @@ public interface IEChunkMap {
     
     ThreadedLevelLightEngine ip_getLightingProvider();
     
-    ChunkHolder ip_getChunkHolder(long long_1);
+    ChunkHolder ip_getChunkHolder(long chunkPosLong);
     
     void ip_onPlayerUnload(ServerPlayer oldPlayer);
     

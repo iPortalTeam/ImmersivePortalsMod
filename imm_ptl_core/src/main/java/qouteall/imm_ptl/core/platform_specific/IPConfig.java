@@ -72,6 +72,8 @@ public class IPConfig implements ConfigData {
     public boolean shaderpackWarning = true;
     @ConfigEntry.Gui.Excluded
     public int portalWandCursorAlignment = 2; // zero for no align
+    @ConfigEntry.Gui.Excluded
+    public boolean saveMemoryInBufferPack = false;
     
     // common visible configs
     
@@ -175,9 +177,9 @@ public class IPConfig implements ConfigData {
         BlockPortalShape.defaultLengthLimit = regularPortalLengthLimit;
         IPGlobal.maxNormalPortalRadius = Math.max(regularPortalLengthLimit / 2, 16);
         IPGlobal.chunkPacketDebug = chunkPacketDebug;
+        IPGlobal.saveMemoryInBufferPack = saveMemoryInBufferPack;
         
-        Helper.log("IP Config Applied");
-        
+        Helper.LOGGER.info("IP Config Applied");
     }
     
     public boolean shouldDisplayWarning(String warningKey) {
