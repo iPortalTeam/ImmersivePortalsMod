@@ -74,7 +74,7 @@ public class MyGameRenderer {
         if (usingRenderBuffersObjectNum >= 2) {
             return null;
         }
-        usingRenderBuffersObjectNum--;
+        usingRenderBuffersObjectNum++;
         
         if (secondaryRenderBuffers.isEmpty()) {
             return new RenderBuffers();
@@ -85,7 +85,7 @@ public class MyGameRenderer {
     }
     
     private static void returnRenderBuffersObject(RenderBuffers renderBuffers) {
-        usingRenderBuffersObjectNum++;
+        usingRenderBuffersObjectNum--;
         secondaryRenderBuffers.push(renderBuffers);
     }
     
@@ -182,8 +182,15 @@ public class MyGameRenderer {
         RenderBuffers newRenderBuffers = null;
         if (IPGlobal.useSecondaryEntityVertexConsumer) {
             newRenderBuffers = acquireRenderBuffersObject();
-            ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(newRenderBuffers);
-            ((IEMinecraftClient) client).ip_setRenderBuffers(newRenderBuffers);
+            if (newRenderBuffers != null) {
+                ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(newRenderBuffers);
+                ((IEMinecraftClient) client).ip_setRenderBuffers(newRenderBuffers);
+            }
+            else{
+                // draw the content in the buffers,
+                // to avoid messing with content in the portals
+                client.renderBuffers().bufferSource().endBatch();
+            }
         }
         
         Object newSodiumContext = SodiumInterface.invoker.createNewContext(renderDistance);

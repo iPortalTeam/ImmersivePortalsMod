@@ -6,9 +6,9 @@ import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 
-// Note: this is not fully working (maybe because of lighting or uploading delay?)
+// Note: this is sometimes effective but not always effective
+// (maybe because of lighting or uploading delay?)
 @Environment(EnvType.CLIENT)
-@Deprecated
 public class ForceMainThreadRebuild {
     private static final Logger LOGGER = LogUtils.getLogger();
     
