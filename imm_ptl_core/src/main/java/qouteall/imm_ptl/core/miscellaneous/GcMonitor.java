@@ -3,15 +3,19 @@ package qouteall.imm_ptl.core.miscellaneous;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -32,9 +36,31 @@ public class GcMonitor {
     private static long lastUpdateTime = 0;
     private static long lastLongPauseTime = 0;
     
+    public static final String LINK = "https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html";
+    
     @Environment(EnvType.CLIENT)
     public static void initClient() {
         IPGlobal.preGameRenderSignal.register(GcMonitor::update);
+        
+        long maxMemory = Runtime.getRuntime().maxMemory();
+        long maxMemoryMB = PortalDebugCommands.toMiB(maxMemory);
+        if (maxMemoryMB <= 2048) {
+            IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+                () -> Minecraft.getInstance().level == null,
+                MyTaskList.oneShotTask(() -> {
+                    if (IPConfig.getConfig().shouldDisplayWarning("low_max_memory")) {
+                        CHelper.printChat(
+                            Component.translatable("imm_ptl.low_max_memory", maxMemoryMB)
+                                .withStyle(ChatFormatting.RED)
+                                .append(McHelper.getLinkText(LINK))
+                                .append(
+                                    IPMcHelper.getDisableWarningText("low_max_memory")
+                                )
+                        );
+                    }
+                })
+            ));
+        }
     }
     
     public static void initCommon() {
@@ -126,7 +152,7 @@ public class GcMonitor {
                 limitedLogger.invoke(() -> {
                     CHelper.printChat(
                         Component.translatable("imm_ptl.memory_not_enough").append(
-                            McHelper.getLinkText("https://filmora.wondershare.com/game-recording/how-to-allocate-more-ram-to-minecraft.html")
+                            McHelper.getLinkText(LINK)
                         )
                     );
                 });

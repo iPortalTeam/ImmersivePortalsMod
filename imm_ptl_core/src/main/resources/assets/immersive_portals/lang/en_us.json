@@ -274,6 +274,7 @@
   "imm_ptl.mod_patch_version_mismatch": "The server's Immersive Portals mod version (%s) does not match the client's (%s). It's recommended to upgrade both client and server's Immersive Portals mod to latest.",
   "imm_ptl.mod_major_minor_version_mismatch": "The server's Immersive Portals mod version (%s) is incompatible with client's Immersive Portals mod version (%s).\nIt's recommended to upgrade both client and server's Immersive Portals mod to the latest version.\nIf you want to connect without using another version of Immersive Portals, turn on 'Tolerant version mismatch with server' in the mod settings (you need to install Mod Menu to access the settings).",
   "imm_ptl.server_missing_immptl": "You logged into a server that does not install Immersive Portals mod. Immersive portals mod is designed to work with the server that installs it. All Immersive Portals functionality will not work here. And other issue may arise. It's recommended to log into this server without Immersive Portals.",
+  "imm_ptl.low_max_memory": "[Immersive Portals] The game is allocated with only %s MB memory. Portals will load more chunks and require more memory. It's recommended to allocate more memory to the game to get smoother experience. (The official launcher sometimes will only allocate 2GB to the game even if the computer has much more memory.) How to allocate more memory: ",
 
   "imm_ptl.put_this_in_the_end_to_avoid_editing_trailing_comma": ""
 }

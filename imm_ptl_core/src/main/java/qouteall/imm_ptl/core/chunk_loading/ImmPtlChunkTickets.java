@@ -164,8 +164,7 @@ public class ImmPtlChunkTickets {
      */
     public void flushThrottling(ServerLevel world) {
         if (Thread.currentThread() != ((IEWorld) world).portal_getThread()) {
-            // https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1402
-            LOGGER.error("Called in a non-server-main thread.", new Throwable());
+            LOGGER.error("Called in a non-server-main (or server-world) thread.", new Throwable());
             return;
         }
         
