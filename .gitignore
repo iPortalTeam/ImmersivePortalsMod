@@ -46,3 +46,6 @@ logs/
 /remappedSrc
 /imm_ptl_core/remappedSrc
 /q_misc_util/remappedSrc
+
+/imm_ptl_core/crowdin-translate-1.2.jar
+/imm_ptl_core/src/main/resources/immersive_portals.timestamp
