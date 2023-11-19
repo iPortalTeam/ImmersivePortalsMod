@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -375,28 +374,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
             return new ViewArea(
                 chunkBuilder_1, world_1, int_1, worldRenderer_1
             );
-        }
-    }
-    
-    /**
-     * the vanilla buffer pack may be used by {@link net.minecraft.client.renderer.MultiBufferSource.BufferSource}
-     * The BufferSource does not always immediately finish building.
-     * Reusing that may cause "Already Building" error in Buffer Builder when doing main-thread chunk rebuilding.
-     * This does not occur in vanilla because vanilla does main-thread chunk rebuilding before entity rendering. With portal rendering it could do chunk rebuilding after some entity rendering.
-     */
-    @Redirect(
-        method = "allChanged",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/RenderBuffers;fixedBufferPack()Lnet/minecraft/client/renderer/SectionBufferBuilderPack;"
-        )
-    )
-    private SectionBufferBuilderPack redirectFixedBufferPack(RenderBuffers instance) {
-        if (ClientWorldLoader.getIsCreatingClientWorld()) {
-            return new SectionBufferBuilderPack();
-        }
-        else {
-            return instance.fixedBufferPack();
         }
     }
     

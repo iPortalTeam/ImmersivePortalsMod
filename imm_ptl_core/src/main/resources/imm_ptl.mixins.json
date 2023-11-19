@@ -91,6 +91,7 @@
     "client.multiworld_awareness.MixinFogRenderer",
     "client.particle.IEParticle",
     "client.particle.MixinParticleEngine",
+    "client.render.IESectionRenderDispatcher",
     "client.render.MixinBlockEntityRenderDispatcher",
     "client.render.MixinCamera",
     "client.render.MixinEntityRenderDispatcher",

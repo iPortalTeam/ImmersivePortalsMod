@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceKey;
@@ -36,6 +37,7 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+import qouteall.imm_ptl.core.mixin.client.render.IESectionRenderDispatcher;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -149,6 +151,9 @@ public class MyGameRenderer {
         PostChain oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         RenderBuffers oldRenderBuffers = ((IEWorldRenderer) worldRenderer).ip_getRenderBuffers();
         RenderBuffers oldClientRenderBuffers = client.renderBuffers();
+        SectionBufferBuilderPack oldSectionRenderDispatcherFixedBuffers =
+            ((IESectionRenderDispatcher) worldRenderer.getSectionRenderDispatcher())
+                .ip_getFixedBuffers();
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
         // the projection matrix contains view bobbing.
@@ -185,6 +190,15 @@ public class MyGameRenderer {
             if (newRenderBuffers != null) {
                 ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(newRenderBuffers);
                 ((IEMinecraftClient) client).ip_setRenderBuffers(newRenderBuffers);
+                
+                /*
+                  the vanilla buffer pack may be used by {@link net.minecraft.client.renderer.MultiBufferSource.BufferSource}
+                  The BufferSource does not always immediately finish building.
+                  Reusing that may cause "Already Building" error in Buffer Builder when doing main-thread chunk rebuilding.
+                  This does not occur in vanilla because vanilla does main-thread chunk rebuilding before entity rendering. With portal rendering it could do chunk rebuilding after some entity rendering.
+                 */
+                ((IESectionRenderDispatcher) worldRenderer.getSectionRenderDispatcher())
+                    .ip_setFixedBuffers(newRenderBuffers.fixedBufferPack());
             }
             else{
                 // draw the content in the buffers,
@@ -240,6 +254,8 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).ip_setRenderBuffers(oldRenderBuffers);
         ((IEMinecraftClient) client).ip_setRenderBuffers(oldClientRenderBuffers);
+        ((IESectionRenderDispatcher) worldRenderer.getSectionRenderDispatcher())
+            .ip_setFixedBuffers(oldSectionRenderDispatcherFixedBuffers);
         if (newRenderBuffers != null) {
             returnRenderBuffersObject(newRenderBuffers);
         }
