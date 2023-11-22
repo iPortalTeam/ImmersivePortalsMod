@@ -65,6 +65,7 @@ public class TeleportationUtil {
         Vec3 localCollisionPoint,
         double tOfCollision,
         Vec3 worldCollisionPoint,
+        Vec3 worldSurfaceNormal,
         PortalState collidingPortalState, // for a moving portal, it's the portal state at the time of collision
         PortalState lastFrameState, PortalState thisFrameState,
         PortalState lastTickState, PortalState thisTickState,
@@ -129,6 +130,7 @@ public class TeleportationUtil {
             localRayTraceResult.hitPos(),
             localRayTraceResult.t(),
             worldHitPos,
+            portalThisSideState.transformVecLocalToGlobal(localRayTraceResult.surfaceNormal()),
             portalState,
             portalState, portalState,
             portalState, portalState,
@@ -254,6 +256,7 @@ public class TeleportationUtil {
             localHitPos,
             rayTraceResult.t(),
             worldHitPos,
+            portalThisSideState.transformVecLocalToGlobal(rayTraceResult.surfaceNormal()),
             collisionPortalState,
             lastFrameState, currentFrameState,
             lastTickState, thisTickState,

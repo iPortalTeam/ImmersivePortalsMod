@@ -75,7 +75,7 @@ public class ClientTeleportationManager {
     public static boolean isTeleportingFrame = false;
     public static boolean isTicking = false;
     
-    private static final int teleportLimitPerFrame = 2;
+    private static final int teleportLimitPerFrame = 3;
     
     private static long teleportationCounter = 0;
     
@@ -154,9 +154,10 @@ public class ClientTeleportationManager {
         float realPartialTicks = RenderStates.getPartialTick();
         
         TeleportationUtil.Teleportation lastTeleportation = null;
+        ResourceKey<Level> originalDim = client.player.level().dimension();
         
         if (lastPlayerEyePos != null) {
-            for (int i = 0; i < teleportLimitPerFrame; i++) {
+            for (int i = 0; i <= teleportLimitPerFrame; i++) {
                 TeleportationUtil.Teleportation teleportation = tryTeleport(realPartialTicks);
                 if (teleportation == null) {
                     break;
@@ -164,7 +165,23 @@ public class ClientTeleportationManager {
                 else {
                     lastTeleportation = teleportation;
                     if (i != 0) {
-                        Helper.log("The client player made a combo-teleport");
+                        LOGGER.info("The client player made a combo-teleport");
+                        if (i == teleportLimitPerFrame) {
+                            // we should reject combo teleportation of too many layers
+                            // if not, the player can escape a fractal scale box from the portal that overlaps its two sides
+                            LOGGER.info("Combo teleport out of limit. Reject teleportation!");
+                            Vec3 oldPos =
+                                lastPlayerEyePos.subtract(McHelper.getEyeOffset(client.player));
+                            forceTeleportPlayer(
+                                originalDim,
+                                oldPos.add(teleportation.worldSurfaceNormal().scale(-0.001))
+                            );
+                            client.player.setDeltaMovement(
+                                teleportation.worldSurfaceNormal().scale(-0.1)
+                            );
+                            lastTeleportation = null;
+                            break;
+                        }
                     }
                 }
             }
