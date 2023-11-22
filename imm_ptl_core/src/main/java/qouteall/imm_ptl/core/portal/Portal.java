@@ -1137,7 +1137,13 @@ public class Portal extends Entity implements
         );
     }
     
-    public Vec3 transformVelocityRelativeToPortal(Vec3 originalVelocityRelativeToPortal, Entity entity) {
+    /**
+     * @param originalVelocityRelativeToPortal The velocity relative to portal movement. In world coordinate (not portal local coordinate).
+     * @return The resulting velocity relative to portal movement (in world coordinate).
+     */
+    public Vec3 transformVelocityRelativeToPortal(
+        Vec3 originalVelocityRelativeToPortal, Entity entity
+    ) {
         Vec3 result;
         if (PehkuiInterface.invoker.isPehkuiPresent()) {
             if (teleportChangesScale) {

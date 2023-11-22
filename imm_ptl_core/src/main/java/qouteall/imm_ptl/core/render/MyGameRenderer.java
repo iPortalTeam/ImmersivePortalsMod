@@ -138,7 +138,7 @@ public class MyGameRenderer {
             ClientWorldLoader.getDimensionRenderHelper(newDimension);
         Camera newCamera = new Camera();
         
-        //store old state
+        // store old state
         ClientLevel oldWorld = client.level;
         LevelRenderer oldWorldRenderer = client.levelRenderer;
         LightTexture oldLightmap = client.gameRenderer.lightTexture();
@@ -165,7 +165,7 @@ public class MyGameRenderer {
         
         Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
-        //switch
+        // switch (note: it will no longer switch the world that client player is in )
         ((IEMinecraftClient) client).ip_setWorldRenderer(worldRenderer);
         client.level = newWorld;
         ieGameRenderer.ip_setLightmapTextureManager(helper.lightmapTexture);
