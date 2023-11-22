@@ -225,7 +225,10 @@ public final class BoxPortalShape implements PortalShape {
         Portal portal, UnilateralPortalState portalState,
         Entity entity, float partialTick
     ) {
-        return portal.getBoundingBox().intersects(entity.getBoundingBox());
+        AABB expandedBox = getBoundingBox(
+            portalState, false, 2.0
+        );
+        return expandedBox.intersects(entity.getBoundingBox());
     }
     
     @Override
