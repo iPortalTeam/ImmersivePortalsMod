@@ -35,6 +35,7 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.CustomTextOverlay;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
+import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Sphere;
@@ -462,9 +463,9 @@ public class ClientPortalWandPortalDrag {
             renderedPrePlane.setTarget(
                 new RenderedPlane(
                     new WithDim<>(player.level().dimension(), planeInfo.getFirst()),
-                    0.2
+                    1.0
                 ),
-                Helper.secondToNano(0.5)
+                Helper.secondToNano(0.3)
             );
         }
     }
@@ -677,6 +678,7 @@ public class ClientPortalWandPortalDrag {
             new WithDim<>(currDim, plane),
             1
         ), Helper.secondToNano(0.5));
+        renderedPrePlane.clearTarget();
         
         draggingContext = new DraggingContext(
             currDim,
@@ -828,6 +830,8 @@ public class ClientPortalWandPortalDrag {
     private static final int colorOfCursorInLock = 0xfffa2360;
     private static final int colorOfSphere = 0xffffffff;
     
+    private static final double renderedPreCircleRadius = 0.5;
+    
     public static void render(
         PoseStack matrixStack,
         MultiBufferSource.BufferSource bufferSource,
@@ -952,26 +956,6 @@ public class ClientPortalWandPortalDrag {
             renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
         }
         
-//        RenderedPlane prePlane = renderedPrePlane.getCurrent();
-//        if (prePlane != null && prePlane.plane() != null && prePlane.plane().dimension() == currDim) {
-//            Plane planeValue = prePlane.plane().value();
-//
-//            // make the plane to follow the cursor
-//            // even the animation of the two are in different curve and duration
-//            if (renderedCursor != null) {
-//                planeValue = planeValue.getParallelPlane(renderedCursor);
-//            }
-//
-//            int alpha = (int) (prePlane.scale() * 255);
-//
-//            WireRenderingHelper.renderPlane(
-//                vertexConsumer, cameraPos, planeValue,
-//                1.0, 0x00ffffff | (alpha << 24),
-//                matrixStack,
-//                false
-//            );
-//        }
-        
         VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
         
         RenderedPlane plane = renderedPlane.getCurrent();
@@ -989,6 +973,29 @@ public class ClientPortalWandPortalDrag {
                 plane.scale(), colorOfPlane,
                 matrixStack,
                 true
+            );
+        }
+        
+        // render the pre-plane as a circle
+        RenderedPlane prePlane = renderedPrePlane.getCurrent();
+        if (prePlane != null && prePlane.plane() != null
+            && prePlane.plane().dimension() == currDim
+        ) {
+            Plane planeValue = prePlane.plane().value();
+            
+            // make the plane to follow the cursor
+            // even the animation of the two are in different curve and duration
+            if (renderedCursor != null) {
+                planeValue = planeValue.getParallelPlane(renderedCursor);
+            }
+            
+            WireRenderingHelper.renderCircle(
+                debugLineStripConsumer, cameraPos, new Circle(
+                    planeValue, planeValue.pos(),
+                    prePlane.scale() * renderedPreCircleRadius
+                ),
+                colorOfPlane,
+                matrixStack
             );
         }
     }

@@ -100,13 +100,26 @@ public class CollisionHelper {
         return testingPos.subtract(planePos).dot(planeNormal) < 0;
     }
     
-    public static boolean canCollideWithPortal(Entity entity, Portal portal, float partialTick) {
+    public static boolean canCollideWithPortal(
+        Entity entity, Portal portal, float partialTick
+    ) {
+        return mayEntityCollideWithPortal(
+            entity, portal,
+            entity.getEyePosition(partialTick),
+            entity.getBoundingBox()
+        );
+    }
+    
+    public static boolean mayEntityCollideWithPortal(
+        Entity entity, Portal portal,
+        Vec3 entityEyePos, AABB entityBoundingBox
+    ) {
         if (!portal.canCollideWithEntity(entity)) {
             return false;
         }
         
         return portal.getPortalShape().canCollideWith(
-            portal, portal.getThisSideState(), entity, partialTick
+            portal, portal.getThisSideState(), entityEyePos, entityBoundingBox
         );
     }
     

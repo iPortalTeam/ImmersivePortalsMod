@@ -223,12 +223,12 @@ public final class BoxPortalShape implements PortalShape {
     @Override
     public boolean canCollideWith(
         Portal portal, UnilateralPortalState portalState,
-        Entity entity, float partialTick
+        Vec3 entityEyePos, AABB entityBoundingBox
     ) {
         AABB expandedBox = getBoundingBox(
             portalState, false, 2.0
         );
-        return expandedBox.intersects(entity.getBoundingBox());
+        return expandedBox.intersects(entityBoundingBox);
     }
     
     @Override

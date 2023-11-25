@@ -103,8 +103,8 @@ public interface PortalShape {
     
     public boolean canCollideWith(
         Portal portal,
-        UnilateralPortalState portalState, Entity entity,
-        float partialTick
+        UnilateralPortalState portalState,
+        Vec3 entityEyePos, AABB entityBoundingBox
     );
     
     public default boolean isBoxInPortalProjection(

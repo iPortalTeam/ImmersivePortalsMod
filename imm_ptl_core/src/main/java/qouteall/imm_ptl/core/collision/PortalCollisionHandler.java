@@ -56,7 +56,9 @@ public class PortalCollisionHandler {
             // the camera pos is behind this tick pos,
             // this tick pos may go behind the portal before teleportation.
             // use last tick pos to check whether it should collide
-            if (!CollisionHelper.canCollideWithPortal(entity, p.portal, 0)) {
+            if (!CollisionHelper.mayEntityCollideWithPortal(
+                entity, p.portal, entity.getEyePosition(0), entity.getBoundingBox()
+            )) {
                 return true;
             }
             
@@ -103,15 +105,38 @@ public class PortalCollisionHandler {
         for (PortalCollisionEntry portalCollision : portalCollisions) {
             currentMove = handleOtherSideMove(
                 entity, currentMove, portalCollision.portal,
-                originalBoundingBox, portalLayer
+                originalBoundingBox, entity.getEyePosition(0),
+                portalLayer
             );
         }
         
-        return new Vec3(
+        Vec3 r = new Vec3(
             CollisionHelper.fixCoordinateFloatingPointError(attemptedMove.x, currentMove.x),
             CollisionHelper.fixCoordinateFloatingPointError(attemptedMove.y, currentMove.y),
             CollisionHelper.fixCoordinateFloatingPointError(attemptedMove.z, currentMove.z)
         );
+        
+        // debug
+//        if (Math.abs(r.y) < Math.abs(attemptedMove.y)) {
+//            Helper.LOGGER.info("debug");
+//            currentMove = attemptedMove;
+//
+//            currentMove = handleThisSideMove(
+//                entity, currentMove,
+//                originalBoundingBox,
+//                portalCollisions
+//            );
+//
+//            for (PortalCollisionEntry portalCollision : portalCollisions) {
+//                currentMove = handleOtherSideMove(
+//                    entity, currentMove, portalCollision.portal,
+//                    originalBoundingBox, entity.getEyePosition(0),
+//                    portalLayer
+//                );
+//            }
+//        }
+        
+        return r;
     }
     
     private static Vec3 handleOtherSideMove(
@@ -119,6 +144,7 @@ public class PortalCollisionHandler {
         Vec3 attemptedMove,
         Portal collidingPortal,
         AABB originalBoundingBox,
+        Vec3 entityEyePos,
         int portalLayer
     ) {
         if (!collidingPortal.getHasCrossPortalCollision()) {
@@ -150,8 +176,9 @@ public class PortalCollisionHandler {
             collidingPortal.getDestinationWorld(),
             boxOtherSide.expandTowards(transformedAttemptedMove),
             IPGlobal.maxNormalPortalRadius,
-            p -> CollisionHelper.canCollideWithPortal(entity, p, 0)
-                && collidingPortal.isOnDestinationSide(p.getOriginPos(), 0.1)
+            p -> CollisionHelper.mayEntityCollideWithPortal(
+                entity, p, p.transformPoint(entityEyePos), boxOtherSide
+            ) && collidingPortal.isOnDestinationSide(p.getOriginPos(), 0.1)
         );
         
         PortalLike collisionHandlingUnit = CollisionHelper.getCollisionHandlingUnit(collidingPortal);
@@ -188,6 +215,7 @@ public class PortalCollisionHandler {
                 collided = handleOtherSideMove(
                     entity, collided,
                     indirectCollidingPortal, boxOtherSide,
+                    collidingPortal.transformPoint(entityEyePos),
                     portalLayer + 1
                 );
             }

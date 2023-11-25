@@ -185,16 +185,15 @@ public final class SpecialFlatPortalShape implements PortalShape {
     
     @Override
     public boolean canCollideWith(
-        Portal portal, UnilateralPortalState portalState, Entity entity, float partialTick
+        Portal portal, UnilateralPortalState portalState, Vec3 entityEyePos, AABB entityBoundingBox
     ) {
-        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
-        boolean inFrontOfPortal = portal.isInFrontOfPortal(cameraPosVec);
+        boolean inFrontOfPortal = portal.isInFrontOfPortal(entityEyePos);
         
         if (!inFrontOfPortal) {
             return false;
         }
         
-        return isBoxInPortalProjection(portalState, entity.getBoundingBox());
+        return isBoxInPortalProjection(portalState, entityBoundingBox);
     }
     
     @Override

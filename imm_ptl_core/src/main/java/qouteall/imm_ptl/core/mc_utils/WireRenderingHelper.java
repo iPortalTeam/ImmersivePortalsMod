@@ -224,7 +224,7 @@ public class WireRenderingHelper {
         
         Matrix4f matrix = matrixStack.last().pose();
         
-        int vertexNum = Mth.clamp((int) Math.round(circleRadius * 40), 20, 400);
+        int vertexNum = Mth.clamp((int) Math.round(circleRadius * 40), 40, 400);
         
         for (int i = 0; i < vertexNum; i++) {
             double angle = i * 2 * Math.PI / vertexNum;

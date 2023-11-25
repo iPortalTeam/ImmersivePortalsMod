@@ -167,17 +167,16 @@ public final class RectangularPortalShape implements PortalShape {
     
     @Override
     public boolean canCollideWith(
-        Portal portal, UnilateralPortalState portalState, Entity entity,
-        float partialTick
+        Portal portal, UnilateralPortalState portalState, Vec3 entityEyePos,
+        AABB entityBoundingBox
     ) {
-        Vec3 cameraPosVec = entity.getEyePosition(partialTick);
-        boolean inFrontOfPortal = portalState.transformGlobalToLocal(cameraPosVec).z() > 0;
+        boolean inFrontOfPortal = portalState.transformGlobalToLocal(entityEyePos).z() > 0;
         
         if (!inFrontOfPortal) {
             return false;
         }
         
-        return isBoxInPortalProjection(portalState, entity.getBoundingBox());
+        return isBoxInPortalProjection(portalState, entityBoundingBox);
     }
     
     @Override
