@@ -183,9 +183,9 @@ public enum AARotation {
     public @Nullable Rotation toVanillaRotation() {
         return switch (this) {
             case SOUTH_ROT0 -> Rotation.NONE;
-            case EAST_ROT0 -> Rotation.CLOCKWISE_90;
+            case EAST_ROT0 -> Rotation.COUNTERCLOCKWISE_90;
             case NORTH_ROT0 -> Rotation.CLOCKWISE_180;
-            case WEST_ROT0 -> Rotation.COUNTERCLOCKWISE_90;
+            case WEST_ROT0 -> Rotation.CLOCKWISE_90;
             
             default -> null;
         };
@@ -194,9 +194,9 @@ public enum AARotation {
     public static AARotation fromVanillaRotation(Rotation vanillaRotation) {
         return switch (vanillaRotation) {
             case NONE -> SOUTH_ROT0;
-            case CLOCKWISE_90 -> EAST_ROT0;
+            case CLOCKWISE_90 -> WEST_ROT0;
             case CLOCKWISE_180 -> NORTH_ROT0;
-            case COUNTERCLOCKWISE_90 -> WEST_ROT0;
+            case COUNTERCLOCKWISE_90 -> EAST_ROT0;
         };
     }
     
