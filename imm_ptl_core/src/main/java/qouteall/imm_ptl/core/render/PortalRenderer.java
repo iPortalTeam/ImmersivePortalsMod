@@ -189,7 +189,7 @@ public abstract class PortalRenderer {
         
         if (IPCGlobal.earlyFrustumCullingPortal) {
             // frustum culling does not work when portal is very close
-            if (distance > 0.03) {
+            if (distance > 0.1) {
                 Frustum frustum = frustumSupplier.get();
                 if (!frustum.isVisible(portal.getExactAreaBox())) {
                     return true;
