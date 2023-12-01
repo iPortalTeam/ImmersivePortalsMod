@@ -559,7 +559,6 @@ public class ServerTeleportationManager {
             
             // TODO check minecart item duplication
             oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-            ((IEEntity) oldEntity).ip_unsetRemoved();
             
             toWorld.addDuringTeleport(newEntity);
             

@@ -40,6 +40,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -58,6 +59,7 @@ import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
+import qouteall.imm_ptl.core.render.TransformationManager;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -102,6 +104,9 @@ public class PortalDebugCommands {
                     
                     float viewLength = FloatArgumentType.getFloat(context, "viewLength");
                     
+                    Validate.isTrue(Math.abs(viewLength) > 0.1);
+                    
+                    /**{@link qouteall.imm_ptl.core.render.TransformationManager.RemoteCallables#enableIsometricView(float)}*/
                     McRemoteProcedureCall.tellClientToInvoke(
                         player,
                         "qouteall.imm_ptl.core.render.TransformationManager.RemoteCallables.enableIsometricView",
@@ -117,6 +122,7 @@ public class PortalDebugCommands {
             .literal("isometric_disable")
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
+                /**{@link TransformationManager.RemoteCallables#disableIsometricView()}*/
                 McRemoteProcedureCall.tellClientToInvoke(
                     player,
                     "qouteall.imm_ptl.core.render.TransformationManager.RemoteCallables.disableIsometricView"

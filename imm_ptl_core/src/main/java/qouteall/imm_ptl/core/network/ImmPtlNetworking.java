@@ -130,6 +130,11 @@ public class ImmPtlNetworking {
         CompoundTag extraData
     ) implements FabricPacket {
         
+        public PortalSyncPacket {
+            // debug
+//            Helper.LOGGER.info("PortalSyncPacket create {}", MiscHelper.getServer().overworld().getGameTime());
+        }
+        
         public static final PacketType<PortalSyncPacket> TYPE = PacketType.create(
             new ResourceLocation("imm_ptl:spawn_portal"),
             PortalSyncPacket::read
@@ -169,6 +174,8 @@ public class ImmPtlNetworking {
          */
         @Environment(EnvType.CLIENT)
         public void handle() {
+//            Helper.LOGGER.info("PortalSyncPacket handle {}", RenderStates.frameIndex);
+            
             ResourceKey<Level> dimension = DimensionAPI.getClientDimKeyFromIntId(dimensionId);
             ClientLevel world = ClientWorldLoader.getWorld(dimension);
             

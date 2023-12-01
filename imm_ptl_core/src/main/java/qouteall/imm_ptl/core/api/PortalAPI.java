@@ -2,22 +2,18 @@ package qouteall.imm_ptl.core.api;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
-import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -138,22 +134,7 @@ public class PortalAPI {
     public static void syncBlockUpdateToClientImmediately(
         ServerLevel world, IntBox box
     ) {
-        ChunkPos lowPos = new ChunkPos(box.l);
-        ChunkPos highPos = new ChunkPos(box.h);
-        
-        IEChunkMap chunkMap = (IEChunkMap) world.getChunkSource().chunkMap;
-        
-        for (int x = lowPos.x; x <= highPos.x; x++) {
-            for (int z = lowPos.z; z <= highPos.z; z++) {
-                long chunkPosLong = ChunkPos.asLong(x, z);
-                ChunkHolder chunkHolder = chunkMap.ip_getChunkHolder(chunkPosLong);
-                if (chunkHolder != null) {
-                    LevelChunk tickingChunk = chunkHolder.getTickingChunk();
-                    if (tickingChunk != null) {
-                        chunkHolder.broadcastChanges(tickingChunk);
-                    }
-                }
-            }
-        }
+        ImmPtlChunkTracking.syncBlockUpdateToClientImmediately(world, box);
     }
+    
 }

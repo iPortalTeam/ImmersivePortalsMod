@@ -182,14 +182,9 @@ public class NormalAnimation implements PortalAnimationDriver {
             ends = true;
         }
         
-        if (passedTicks < -1) {
-            if (context.isClientSide()) {
-                return new AnimationResult(null, false);
-            }
-            else {
-                Helper.err("NormalAnimation starts in the future");
-                return new AnimationResult(null, true);
-            }
+        if (passedTicks < 0) {
+            // the animation can start in the future
+            return new AnimationResult(null, false);
         }
         
         // modulo works for double!

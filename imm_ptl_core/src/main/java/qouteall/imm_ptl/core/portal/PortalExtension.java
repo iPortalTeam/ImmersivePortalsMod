@@ -361,6 +361,13 @@ public class PortalExtension {
         }
         
         if (reversePortal != null) {
+            if (portal.dimensionTo != reversePortal.level().dimension()) {
+                LOGGER.info(
+                    "Moving reverse portal across dimension {} {}",
+                    portal, reversePortal
+                );
+            }
+            
             reversePortal = ServerTeleportationManager.teleportRegularEntityTo(
                 reversePortal,
                 portal.getDestDim(),
@@ -398,6 +405,12 @@ public class PortalExtension {
         }
         
         if (parallelPortal != null) {
+            if (portal.dimensionTo != parallelPortal.level().dimension()) {
+                LOGGER.info(
+                    "Moving parallel portal across dimension {} {}", portal, parallelPortal
+                );
+            }
+            
             parallelPortal = ServerTeleportationManager.teleportRegularEntityTo(
                 parallelPortal,
                 portal.getDestDim(),

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,9 +25,11 @@ import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEServerCommonPacketListene
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -605,6 +608,47 @@ public class ImmPtlChunkTracking {
     
     public static Set<ResourceKey<Level>> getVisibleDimensions(ServerPlayer player) {
         return getPlayerInfo(player).visibleDimensions;
+    }
+    
+    public static void syncBlockUpdateToClientImmediately(ServerLevel world, IntBox box) {
+        ChunkPos lowPos = new ChunkPos(box.l);
+        ChunkPos highPos = new ChunkPos(box.h);
+        
+        // flush pending-sending chunks
+        Set<ServerPlayer> playersViewingRegion = new HashSet<>();
+        ResourceKey<Level> dimension = world.dimension();
+        for (int x = lowPos.x; x <= highPos.x; x++) {
+            for (int z = lowPos.z; z <= highPos.z; z++) {
+                Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord> rec =
+                    getWatchRecordForChunk(dimension, x, z);
+                if (rec != null) {
+                    for (PlayerWatchRecord r : rec.values()) {
+                        if (r.isValid && !r.isLoadedToPlayer) {
+                            playersViewingRegion.add(r.player);
+                        }
+                    }
+                }
+            }
+        }
+        for (ServerPlayer player : playersViewingRegion) {
+            getPlayerInfo(player).doChunkSending(player);
+        }
+        
+        IEChunkMap chunkMap = (IEChunkMap) world.getChunkSource().chunkMap;
+        
+        for (int x = lowPos.x; x <= highPos.x; x++) {
+            for (int z = lowPos.z; z <= highPos.z; z++) {
+                long chunkPosLong = ChunkPos.asLong(x, z);
+                
+                ChunkHolder chunkHolder = chunkMap.ip_getChunkHolder(chunkPosLong);
+                if (chunkHolder != null) {
+                    LevelChunk tickingChunk = chunkHolder.getTickingChunk();
+                    if (tickingChunk != null) {
+                        chunkHolder.broadcastChanges(tickingChunk);
+                    }
+                }
+            }
+        }
     }
     
     public static class RemoteCallables {
