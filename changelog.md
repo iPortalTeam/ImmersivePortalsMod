@@ -1,1 +1,1 @@
-Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1465
+Possibly fix crash on Exaroton.
