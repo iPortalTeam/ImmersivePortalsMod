@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -75,7 +76,7 @@ public class DimensionIdManagement {
         
         try {
             FileInputStream fileInputStream = new FileInputStream(dataFile);
-            CompoundTag tag = NbtIo.readCompressed(fileInputStream);
+            CompoundTag tag = NbtIo.readCompressed(fileInputStream, NbtAccounter.unlimitedHeap());
             fileInputStream.close();
             
             return DimensionIdRecord.tagToRecord(tag);

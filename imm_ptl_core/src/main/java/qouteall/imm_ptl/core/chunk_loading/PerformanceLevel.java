@@ -1,5 +1,8 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerTickRateManager;
+
 public enum PerformanceLevel {
     good, medium, bad;
     
@@ -19,11 +22,16 @@ public enum PerformanceLevel {
     }
     
     
-    public static PerformanceLevel getServerPerformanceLevel(float tickTimeMs) {
-        if (tickTimeMs < 40) {
+    public static PerformanceLevel getServerPerformanceLevel(MinecraftServer server) {
+        ServerTickRateManager tickRateManager = server.tickRateManager();
+        long averageTickTimeNanos = server.getAverageTickTimeNanos();
+        
+        long nanosecondsPerTick = tickRateManager.nanosecondsPerTick();
+        
+        if (averageTickTimeNanos < nanosecondsPerTick * 0.8) {
             return good;
         }
-        else if (tickTimeMs < 80) {
+        else if (averageTickTimeNanos < nanosecondsPerTick) {
             return medium;
         }
         else {

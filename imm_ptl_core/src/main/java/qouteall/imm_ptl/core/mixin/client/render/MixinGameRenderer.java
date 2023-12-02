@@ -49,9 +49,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private Minecraft minecraft;
     
     @Shadow
-    private int tick;
-    
-    @Shadow
     private boolean panoramicMode;
     
     @Shadow

@@ -101,7 +101,6 @@ public class DimStackScreen extends Screen {
             width,
             height,
             100,
-            200,
             DimEntryWidget.widgetHeight,
             this,
             DimListWidget.Type.mainDimensionList,
@@ -189,10 +188,8 @@ public class DimStackScreen extends Screen {
             ),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(false, 1, (from, to) -> {
-                dimListWidget.updateSize(
-                    width, height,
-                    from, to
-                );
+                dimListWidget.setSize(width, to - from);
+                dimListWidget.setPosition(0, from);
             }),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(true, 20, (from, to) -> {

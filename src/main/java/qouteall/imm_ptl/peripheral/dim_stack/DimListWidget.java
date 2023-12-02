@@ -20,10 +20,6 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
     @Nullable
     private final DraggingCallback draggingCallback;
     
-    @Override
-    public void updateNarration(NarrationElementOutput builder) {
-    
-    }
     
     public static enum Type {
         mainDimensionList, addDimensionList
@@ -33,13 +29,12 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
         int width,
         int height,
         int top,
-        int bottom,
         int itemHeight,
         Screen parent,
         Type type,
         @Nullable DraggingCallback draggingCallback
     ) {
-        super(Minecraft.getInstance(), width, height, top, bottom, itemHeight);
+        super(Minecraft.getInstance(), width, height, top, itemHeight);
         this.parent = parent;
         this.type = type;
         this.draggingCallback = draggingCallback;
@@ -69,6 +64,11 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
         }
         
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+    
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+    
     }
     
     // make it wider

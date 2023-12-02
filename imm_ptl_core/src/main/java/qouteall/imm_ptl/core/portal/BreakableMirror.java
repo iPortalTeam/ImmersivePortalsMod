@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.phys.AABB;
@@ -130,7 +129,7 @@ public class BreakableMirror extends Mirror {
     
     public static boolean isGlass(Level world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block instanceof GlassBlock
+        return block == Blocks.GLASS
             || block == Blocks.GLASS_PANE
             || block instanceof StainedGlassBlock
             || block instanceof StainedGlassPaneBlock;

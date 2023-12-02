@@ -35,7 +35,6 @@ public class SelectDimensionScreen extends Screen {
             width,
             height,
             20,
-            height - 30,
             DimEntryWidget.widgetHeight,
             this,
             DimListWidget.Type.addDimensionList,

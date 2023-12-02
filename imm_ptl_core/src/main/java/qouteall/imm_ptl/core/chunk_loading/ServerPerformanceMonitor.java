@@ -40,8 +40,7 @@ public class ServerPerformanceMonitor {
             lastUpdateTime = currTime;
         }
         
-        float tickTime = server.getAverageTickTime();
-        PerformanceLevel newLevel = PerformanceLevel.getServerPerformanceLevel(tickTime);
+        PerformanceLevel newLevel = PerformanceLevel.getServerPerformanceLevel(server);
         if (newLevel != level) {
             level = newLevel;
             limitedLogger.log("Server performance level: " + newLevel);

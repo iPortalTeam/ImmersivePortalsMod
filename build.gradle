@@ -231,7 +231,8 @@ dependencies {
 
     include("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
 
-    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
+//    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
+    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
     testImplementation(platform('org.junit:junit-bom:5.10.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')

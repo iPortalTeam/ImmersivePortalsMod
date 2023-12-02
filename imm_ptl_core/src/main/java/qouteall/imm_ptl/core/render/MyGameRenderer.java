@@ -79,7 +79,7 @@ public class MyGameRenderer {
         usingRenderBuffersObjectNum++;
         
         if (secondaryRenderBuffers.isEmpty()) {
-            return new RenderBuffers();
+            return new RenderBuffers(0);
         }
         else {
             return secondaryRenderBuffers.pop();

@@ -3,6 +3,7 @@ package qouteall.q_misc_util.mixin;
 import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -37,7 +38,7 @@ public abstract class MixinMappedRegistry<T> implements IEMappedRegistry2 {
     
     @Shadow
     @Final
-    private Object2IntMap<T> toId;
+    private Reference2IntMap<T> toId;
     
     @Shadow
     @Final
