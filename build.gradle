@@ -290,6 +290,6 @@ publishMods {
     github {
         repository = "iPortalTeam/ImmersivePortalsMod"
         accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        commitish = minecraft_version // the branch name is the same as minecraft version
+        commitish = "1.20.2-hotfix" // the branch name is the same as minecraft version
     }
 }
