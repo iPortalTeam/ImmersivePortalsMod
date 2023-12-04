@@ -55,12 +55,6 @@ allprojects {
             url = "https://maven.parchmentmc.org"
         }
 
-        // for cardinal components that fusions gravity api uses
-        maven {
-            name = 'Ladysnake Mods'
-            url = 'https://ladysnake.jfrog.io/artifactory/mods'
-        }
-
         // geckolib, for testing with portal gun
         maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
@@ -150,12 +144,12 @@ allprojects {
 //        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
 //        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
 
-        modImplementation("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
+        modCompileOnly("com.github.qouteall:Gravity-Api:0.9.0-mc1.19.4") {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
-        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
+//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
         annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
