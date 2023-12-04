@@ -55,6 +55,11 @@ allprojects {
             url = "https://maven.parchmentmc.org"
         }
 
+        maven {
+            name = 'Ladysnake'
+            url = 'https://maven.ladysnake.org/releases'
+        }
+
         // geckolib, for testing with portal gun
         maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
@@ -148,8 +153,8 @@ allprojects {
             transitive = false
             exclude(group: "net.fabricmc.fabric-api")
         }
-//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
-//        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.1"
+        modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.1"
 
         implementation("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
         annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${mixin_extras_version}")
