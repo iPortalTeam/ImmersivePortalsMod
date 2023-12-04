@@ -60,8 +60,8 @@ allprojects {
 
         // for cardinal components that fusions gravity api uses
         maven {
-            name = 'Ladysnake Mods'
-            url = 'https://ladysnake.jfrog.io/artifactory/mods'
+            name = 'Ladysnake'
+            url = 'https://maven.ladysnake.org/releases'
         }
 
         // geckolib, for testing with portal gun
