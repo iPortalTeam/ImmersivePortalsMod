@@ -55,15 +55,11 @@ public class PortalAnimation {
     public PortalState thisTickAnimatedState;
     
     // for client player teleportation
-    @Environment(EnvType.CLIENT)
     @Nullable
     public PortalState clientLastFramePortalState;
-    @Environment(EnvType.CLIENT)
     public long clientLastFramePortalStateCounter = -1;
-    @Environment(EnvType.CLIENT)
     @Nullable
     public PortalState clientCurrentFramePortalState;
-    @Environment(EnvType.CLIENT)
     public long clientCurrentFramePortalStateCounter = -1;
     
     public void readFromTag(CompoundTag tag) {
