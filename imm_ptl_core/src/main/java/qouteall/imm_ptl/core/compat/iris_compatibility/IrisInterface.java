@@ -4,9 +4,9 @@ import net.coderbot.iris.Iris;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.renderer.LevelRenderer;
+import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.Helper;
 
-import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 
 public class IrisInterface {

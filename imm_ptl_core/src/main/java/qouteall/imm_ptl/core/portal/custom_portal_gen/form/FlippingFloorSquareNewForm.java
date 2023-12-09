@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
@@ -15,8 +16,6 @@ import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
-
-import org.jetbrains.annotations.Nullable;
 
 public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     public static final Codec<FlippingFloorSquareNewForm> codec = RecordCodecBuilder.create(instance -> {

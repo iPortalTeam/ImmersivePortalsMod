@@ -3,9 +3,8 @@ package qouteall.imm_ptl.peripheral.dim_stack;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
-import qouteall.q_misc_util.dimension.DimId;
-
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.dimension.DimId;
 
 // will be serialized by GSON
 public class DimStackEntry {

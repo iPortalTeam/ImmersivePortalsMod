@@ -2,9 +2,10 @@
 # for visualizing 2D mesh
 # the mesh is stored in mesh_to_visualize.json
 
-import matplotlib.pyplot as plt
 import json
+import matplotlib.pyplot as plt
 import random
+
 
 def getRandomColor():
     return (random.random(), random.random(), random.random())

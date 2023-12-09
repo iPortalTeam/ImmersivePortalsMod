@@ -2,8 +2,8 @@ package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Function;
 
 public interface IESectionedEntityCache<T extends EntityAccess> {

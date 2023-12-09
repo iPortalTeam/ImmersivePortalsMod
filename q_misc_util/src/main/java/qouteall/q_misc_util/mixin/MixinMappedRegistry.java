@@ -1,7 +1,6 @@
 package qouteall.q_misc_util.mixin;
 
 import com.mojang.serialization.Lifecycle;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.Holder;

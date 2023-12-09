@@ -4,10 +4,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
-
-import org.jetbrains.annotations.Nullable;
 
 public interface IEEntity {
     void ip_notifyCollidingWithPortal(Entity portal);
