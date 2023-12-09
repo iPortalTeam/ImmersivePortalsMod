@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class WorldWrappingPortal extends GlobalTrackedPortal {
     public static final EntityType<WorldWrappingPortal> entityType =
-        Portal.createPortalEntityType(WorldWrappingPortal::new);
+        createPortalEntityType(WorldWrappingPortal::new);
     
     public boolean isInward = true;
     public int zoneId = -1;

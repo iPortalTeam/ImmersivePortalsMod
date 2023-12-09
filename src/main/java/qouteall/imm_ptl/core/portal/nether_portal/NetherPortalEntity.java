@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -58,7 +57,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     
     
     public static final EntityType<NetherPortalEntity> entityType =
-        Portal.createPortalEntityType(NetherPortalEntity::new);
+        createPortalEntityType(NetherPortalEntity::new);
     
     public NetherPortalEntity(EntityType<?> entityType, Level world) {
         super(entityType, world);

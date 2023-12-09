@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 
 public class VerticalConnectingPortal extends GlobalTrackedPortal {
     public static final EntityType<VerticalConnectingPortal> entityType =
-        Portal.createPortalEntityType(VerticalConnectingPortal::new);
+        createPortalEntityType(VerticalConnectingPortal::new);
     
     public static enum ConnectorType {
         ceil, floor

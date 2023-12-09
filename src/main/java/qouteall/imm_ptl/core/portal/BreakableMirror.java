@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 public class BreakableMirror extends Mirror {
     
     public static final EntityType<BreakableMirror> entityType =
-        Portal.createPortalEntityType(BreakableMirror::new);
+        createPortalEntityType(BreakableMirror::new);
     
     @Nullable
     public IntBox wallArea;

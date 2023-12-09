@@ -38,7 +38,7 @@ public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
     
     public static final EntityType<EndPortalEntity> entityType =
-        Portal.createPortalEntityType(EndPortalEntity::new);
+        createPortalEntityType(EndPortalEntity::new);
     public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
     // only used by scaled view type end portal

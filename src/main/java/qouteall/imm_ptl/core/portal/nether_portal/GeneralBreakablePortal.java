@@ -2,13 +2,12 @@ package qouteall.imm_ptl.core.portal.nether_portal;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 public class GeneralBreakablePortal extends BreakablePortalEntity {
     
     public static final EntityType<GeneralBreakablePortal> entityType =
-        Portal.createPortalEntityType(GeneralBreakablePortal::new);
+        createPortalEntityType(GeneralBreakablePortal::new);
     
     public GeneralBreakablePortal(EntityType<?> entityType, Level world) {
         super(entityType, world);
