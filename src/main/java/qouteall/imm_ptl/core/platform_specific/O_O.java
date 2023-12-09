@@ -140,7 +140,7 @@ public class O_O {
     
     public static @NotNull ImmPtlNetworkConfig.ModVersion getImmPtlVersion() {
         Version version = FabricLoader.getInstance()
-            .getModContainer("imm_ptl_core").orElseThrow()
+            .getModContainer("iportal").orElseThrow()
             .getMetadata().getVersion();
         
         if (!(version instanceof SemanticVersionImpl semanticVersion)) {
@@ -164,7 +164,7 @@ public class O_O {
     
     public static String getImmPtlVersionStr() {
         return FabricLoader.getInstance()
-            .getModContainer("imm_ptl_core").orElseThrow()
+            .getModContainer("iportal").orElseThrow()
             .getMetadata().getVersion().toString();
     }
     
@@ -174,7 +174,7 @@ public class O_O {
         }
         
         Version currentVersion = FabricLoader.getInstance()
-            .getModContainer("imm_ptl_core").get().getMetadata().getVersion();
+            .getModContainer("iportal").get().getMetadata().getVersion();
         try {
             Version latestVersion = Version.parse(latestReleaseVersion);
             

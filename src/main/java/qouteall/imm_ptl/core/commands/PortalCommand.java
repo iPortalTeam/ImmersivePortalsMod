@@ -70,6 +70,7 @@ import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
 import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -100,13 +101,6 @@ public class PortalCommand {
         createCommandStickCommandSignal = new SignalBiArged<>();
     
     private static final Logger LOGGER = LogUtils.getLogger();
-    
-    // the inner mod needs to call outer mod, but cannot have cyclic dependency
-    public static Consumer<ServerPlayer> onDimensionStackCommandExecute = p -> {
-        p.sendSystemMessage(Component.literal(
-            "Immersive Portals mod is not present (but imm_ptl_core is present)"
-        ));
-    };
     
     public static void register(
         CommandDispatcher<CommandSourceStack> dispatcher
@@ -1771,7 +1765,7 @@ public class PortalCommand {
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
                 
-                onDimensionStackCommandExecute.accept(player);
+                DimStackManagement.onDimensionStackCommandExecute(player);
                 
                 return 0;
             })

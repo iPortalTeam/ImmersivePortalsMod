@@ -1,25 +1,17 @@
 plugins {
-    id 'java-library'
-
-    id 'fabric-loom' version '1.4-SNAPSHOT' apply(false)
-    // uses qouteall's fork of fabric loom, see settings.gradle
+    id 'fabric-loom' version '1.4-SNAPSHOT'
 
     id 'maven-publish'
-
-//    id 'io.github.juuxel.loom-vineflower' version '1.11.0' // https://github.com/Juuxel/loom-vineflower
 
     id "me.modmuss50.mod-publish-plugin" version "0.3.5"
 }
 
-allprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'fabric-loom'
-    apply plugin: 'maven-publish'
-}
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
 
 repositories {
     flatDir {
@@ -27,162 +19,164 @@ repositories {
     }
 }
 
-allprojects {
+version = rootProject.mod_version
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name = 'JitPack'
+        url = 'https://jitpack.io'
+    }
+    maven { url "https://maven.shedaniel.me/" }
+
+    // for sodium
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+
+    // for parchment
+    maven {
+        url = "https://maven.parchmentmc.org"
+    }
+
+    // for cardinal components that gravity changer uses
+    maven {
+        name = 'Ladysnake'
+        url = 'https://maven.ladysnake.org/releases'
+    }
+
+    // geckolib, for testing with portal gun
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+
+
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/imm_ptl.accesswidener")
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+    mappings loom.layered() {
+        officialMojangMappings() {
+            setNameSyntheticMembers(false)
+        }
+        parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03")
+    }
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}") {
+        exclude module: "fabric-gametest-api-v1"
+        // for now, the gametest module makes client unable to login dev env server
+    }
+
+    modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
+
+    modCompileOnly("com.github.Virtuoel:Pehkui:${pehkui_version}", {
+        exclude group: "net.fabricmc.fabric-api"
+        transitive(false)
+    })
+
+    modCompileOnly "${project.sodium_path}"
+
+    modCompileOnly "${project.iris_path}"
+
+    modCompileOnly("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    // put these into inner mod to reduce duplicate MC jar
+
+    if (project.enable_sodium.equals('true')) {
+        modLocalRuntime "${project.sodium_path}"
+    }
+
+    if (project.enable_iris.equals('true')) {
+        modLocalRuntime "${project.iris_path}"
+        implementation "org.anarres:jcpp:1.4.14" // for iris
+        implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
+        implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
+    }
+
+    if (project.enable_pehkui.equals('true')) {
+        modLocalRuntime("com.github.Virtuoel:Pehkui:${pehkui_version}", {
+            exclude(group: "net.fabricmc.fabric-api")
+        })
+    }
+
+    if (project.enable_gravity_changer.equals('true')) {
+        modLocalRuntime("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
+            exclude(group: "net.fabricmc.fabric-api")
+        }
+    }
+
+    if (project.enable_geckolib.equals('true')) {
+        // for testing portal gun using dev jar
+        modLocalRuntime('software.bernie.geckolib:geckolib-fabric-1.20:4.2') {
+            transitive(false)
+        }
+    }
+
+    if (project.enable_test_mod.equals('true')) {
+        fileTree(dir: 'deps', include: '*.jar').each {
+            String baseName = it.name.replace(".jar", "")
+            String version = "0.1.0"
+            int split = baseName.lastIndexOf('-')
+
+            if (split != -1) {
+                version = baseName.substring(split + 1)
+                baseName = baseName.substring(0, split)
+            }
+
+            String name = "testmod:${baseName}:${version}"
+
+            System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+
+            modImplementation name
+        }
+    }
+
+    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+
+//    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
+    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
+
+    testImplementation(platform('org.junit:junit-bom:5.10.0'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
 
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-
-    version = rootProject.mod_version
-
-    repositories {
-        mavenCentral()
-        mavenLocal()
-        maven {
-            name = 'JitPack'
-            url = 'https://jitpack.io'
-        }
-        maven { url "https://maven.shedaniel.me/" }
-
-        // for sodium
-        maven {
-            name = "Modrinth"
-            url = "https://api.modrinth.com/maven"
-            content {
-                includeGroup "maven.modrinth"
-            }
-        }
-
-        // for parchment
-        maven {
-            url = "https://maven.parchmentmc.org"
-        }
-
-        // for cardinal components that gravity changer uses
-        maven {
-            name = 'Ladysnake'
-            url = 'https://maven.ladysnake.org/releases'
-        }
-
-        // geckolib, for testing with portal gun
-        maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
-
-
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        options.encoding = "UTF-8"
-        it.options.release = 17
-    }
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${project.minecraft_version}"
-
-        mappings loom.layered() {
-            officialMojangMappings() {
-                setNameSyntheticMembers(false)
-            }
-            parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03")
-        }
-
-        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-        modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}") {
-            exclude module: "fabric-gametest-api-v1"
-            // for now, the gametest module makes client unable to login dev env server
-        }
-
-        modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
-            exclude(group: "net.fabricmc.fabric-api")
-        }
-        modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
-
-        modCompileOnly("com.github.Virtuoel:Pehkui:${pehkui_version}", {
-            exclude group: "net.fabricmc.fabric-api"
-            transitive(false)
-        })
-
-        modCompileOnly "${project.sodium_path}"
-
-        modCompileOnly "${project.iris_path}"
-
-        modCompileOnly("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
-            exclude(group: "net.fabricmc.fabric-api")
-        }
-
-        // put these into inner mod to reduce duplicate MC jar
-
-        if (project.enable_sodium.equals('true')) {
-            modLocalRuntime "${project.sodium_path}"
-        }
-
-        if (project.enable_iris.equals('true')) {
-            modLocalRuntime "${project.iris_path}"
-            implementation "org.anarres:jcpp:1.4.14" // for iris
-            implementation 'io.github.douira:glsl-transformer:2.0.0-pre13' // for iris
-            implementation 'org.antlr:antlr4-runtime:4.11.1' // for iris
-        }
-
-        if (project.enable_pehkui.equals('true')) {
-            modLocalRuntime("com.github.Virtuoel:Pehkui:${pehkui_version}", {
-                exclude(group: "net.fabricmc.fabric-api")
-            })
-        }
-
-        if (project.enable_gravity_changer.equals('true')) {
-            modLocalRuntime("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
-                exclude(group: "net.fabricmc.fabric-api")
-            }
-        }
-
-        if (project.enable_geckolib.equals('true')) {
-            // for testing portal gun using dev jar
-            modLocalRuntime ('software.bernie.geckolib:geckolib-fabric-1.20:4.2') {
-                transitive(false)
-            }
-        }
-
-        if (project.enable_test_mod.equals('true')) {
-            fileTree(dir: 'deps', include: '*.jar').each {
-                String baseName = it.name.replace(".jar", "")
-                String version = "0.1.0"
-                int split = baseName.lastIndexOf('-')
-
-                if (split != -1) {
-                    version = baseName.substring(split + 1)
-                    baseName = baseName.substring(0, split)
-                }
-
-                String name = "testmod:${baseName}:${version}"
-
-                System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
-
-                modImplementation name
-            }
-        }
-    }
-
-    processResources {
-        inputs.property "version", project.version
-
-        filesMatching("fabric.mod.json") {
-            expand "version": project.version
-        }
-    }
-
-    java {
-        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-        // if it is present.
-        // If you remove this line, sources will not be generated.
-        withSourcesJar()
-    }
-
-//    loom {
-//        // from qouteall's fork of fabric loom
-//        // https://github.com/qouteall/fabric-loom/blob/dev/1.3/src/main/java/net/fabricmc/loom/configuration/providers/minecraft/mapped/ProcessedNamedMinecraftProvider.java#L136
-//        forceShareMinecraftJarBetweenSubModules = true
-//    }
-
 }
+
 
 // change the output file name
 remapJar {
@@ -193,50 +187,16 @@ remapJar {
 
 
 jar {
-    from "LICENSE"
-}
-
-subprojects {
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-            }
-        }
-        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-        repositories {
-            // Add repositories to publish to here.
-            // Notice: This block does NOT have the same function as the block in the top level.
-            // The repositories here will be used for publishing your artifact, not for
-            // retrieving dependencies.
-        }
+    from("LICENSE") {
+        rename { "${it}_${project.base.archivesName.get()}"}
     }
 }
-
-subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
         }
-    }
-}
-
-dependencies {
-    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-
-//    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
-    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
-
-    testImplementation(platform('org.junit:junit-bom:5.10.0'))
-    testImplementation('org.junit.jupiter:junit-jupiter')
-}
-
-dependencies {
-    subprojects.each {
-        implementation project(path: ":${it.name}", configuration: "namedElements")
-        include project("${it.name}:")
     }
 }
 

@@ -19,7 +19,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -49,8 +48,6 @@ public class DimStackManagement {
                     .run(server, dimStackToApply);
             }
         });
-        
-        PortalCommand.onDimensionStackCommandExecute = DimStackManagement::onDimensionStackCommandExecute;
     }
     
     // at that time, only overworld has been created, only overworld data can be read

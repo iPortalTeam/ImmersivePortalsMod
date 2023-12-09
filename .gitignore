@@ -44,8 +44,6 @@ logs/
 /misc/mesh_to_visualize.json
 
 /remappedSrc
-/imm_ptl_core/remappedSrc
-/q_misc_util/remappedSrc
 
-/imm_ptl_core/crowdin-translate-1.2.jar
-/imm_ptl_core/src/main/resources/immersive_portals.timestamp
+crowdin-translate-1.2.jar
+src/main/resources/immersive_portals.timestamp

@@ -4,10 +4,6 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
-//        maven { // for quilt-flower
-//            name = 'Cotton'
-//            url = 'https://server.bbkr.space/artifactory/libs-release/'
-//        }
         gradlePluginPortal()
 //        mavenLocal()
         maven {
@@ -25,6 +21,3 @@ pluginManagement {
 //        }
 //    }
 }
-
-include 'imm_ptl_core'
-include 'q_misc_util'

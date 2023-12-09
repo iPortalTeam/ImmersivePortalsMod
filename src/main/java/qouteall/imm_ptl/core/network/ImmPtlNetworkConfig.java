@@ -75,7 +75,7 @@ public class ImmPtlNetworkConfig {
     public static record ImmPtlConfigurationTask(
     ) implements ConfigurationTask {
         public static final ConfigurationTask.Type TYPE =
-            new ConfigurationTask.Type("imm_ptl_core:config");
+            new ConfigurationTask.Type("iportal:config");
         
         @Override
         public void start(Consumer<Packet<?>> consumer) {
@@ -97,7 +97,7 @@ public class ImmPtlNetworkConfig {
     ) implements FabricPacket {
         public static final PacketType<S2CConfigStartPacket> TYPE =
             PacketType.create(
-                new ResourceLocation("imm_ptl_core:config_packet"),
+                new ResourceLocation("iportal:config_packet"),
                 S2CConfigStartPacket::read
             );
         
@@ -134,7 +134,7 @@ public class ImmPtlNetworkConfig {
         boolean clientTolerantVersionMismatch
     ) implements FabricPacket {
         public static final PacketType<C2SConfigCompletePacket> TYPE = PacketType.create(
-            new ResourceLocation("imm_ptl_core:configure_complete"),
+            new ResourceLocation("iportal:configure_complete"),
             C2SConfigCompletePacket::read
         );
         

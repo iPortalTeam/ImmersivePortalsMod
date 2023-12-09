@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersive_portals",
+  "provides": ["iportal", "imm_ptl_core", "immersive_portals_core"],
   "version": "${version}",
   "name": "Immersive Portals",
   "description": "See through portals and travel between dimensions seamlessly.",
@@ -19,24 +20,33 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntry"
+      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntry",
+      "qouteall.imm_ptl.core.platform_specific.IPModEntry",
+      "qouteall.q_misc_util.MiscUtilModEntry"
     ],
     "client": [
-      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntryClient"
+      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntryClient",
+      "qouteall.imm_ptl.core.platform_specific.IPModEntryClient",
+      "qouteall.q_misc_util.MiscUtilModEntryClient"
+    ],
+    "server": [
+      "qouteall.imm_ptl.core.platform_specific.IPModEntryDedicatedServer"
     ],
     "modmenu": [
       "qouteall.imm_ptl.core.platform_specific.IPModMenuConfigEntry"
     ]
   },
   "mixins": [
-    "imm_ptl_peripheral.mixins.json"
+    "imm_ptl_peripheral.mixins.json",
+    "imm_ptl.mixins.json",
+    "imm_ptl_fabric.mixins.json",
+    "imm_ptl_compat.mixins.json",
+    "q_misc_util.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric-api": ">=0.87.0",
-    "minecraft": ["1.20.4"],
-    "immersive_portals_core": "*",
-    "q_misc_util": "*"
+    "minecraft": ["1.20.4"]
   },
   "breaks": {
     "optifabric": "*",
@@ -50,5 +60,21 @@
     "gravity_api": "*"
   },
   "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/BZxgURK"
+      }
+    },
+    "fabric-renderer-indigo:force_compatibility": true,
+    "lithium:options": {
+      "mixin.world.player_chunk_tick": false,
+      "mixin.world.combined_heightmap_update": false
+    },
+    "dashloader:disableoption": [
+      "CACHE_SHADER"
+    ],
+    "polymer:disable_mixin": {
+      "compat.immersive_portals.ip_IPNetworkingMixin": "Implemented"
+    }
   }
 }
