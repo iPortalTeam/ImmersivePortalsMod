@@ -13,7 +13,9 @@ import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.q_misc_util.Helper;
 
@@ -45,8 +48,7 @@ public class O_O {
     
     public static void onPlayerTravelOnServer(
         ServerPlayer player,
-        ResourceKey<Level> from,
-        ResourceKey<Level> to
+        ServerLevel fromWorld, ServerLevel toWorld
     ) {
         RequiemCompat.onPlayerTeleportedServer(player);
     }
@@ -238,5 +240,10 @@ public class O_O {
     public static List<String> getLoadedModIds() {
         return FabricLoader.getInstance().getAllMods().stream()
             .map(c -> c.getMetadata().getId()).sorted().toList();
+    }
+    
+    public static boolean allowTeleportingEntity(Entity entity, Portal portal) {
+        // ForgeHooks.onTravelToDimension() on Forge
+        return true;
     }
 }

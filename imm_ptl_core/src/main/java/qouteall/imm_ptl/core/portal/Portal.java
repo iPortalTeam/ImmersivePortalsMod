@@ -48,6 +48,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
@@ -822,6 +823,10 @@ public class Portal extends Entity implements
                     return false;
                 }
             }
+        }
+        
+        if (!O_O.allowTeleportingEntity(entity, this)) {
+            return false;
         }
         
         // cannot use entity.canChangeDimensions() because that disables riding entity to go through portal

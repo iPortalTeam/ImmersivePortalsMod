@@ -395,8 +395,8 @@ public class ServerTeleportationManager {
         
         O_O.onPlayerTravelOnServer(
             player,
-            fromWorld.dimension(),
-            toWorld.dimension()
+            fromWorld,
+            toWorld
         );
         
         //update advancements

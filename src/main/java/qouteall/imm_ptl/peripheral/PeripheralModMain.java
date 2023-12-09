@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.peripheral;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -12,7 +13,9 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ErrorTerrainGenerator;
@@ -69,23 +72,6 @@ public class PeripheralModMain {
         LifecycleHack.markNamespaceStable("immersive_portals");
         LifecycleHack.markNamespaceStable("imm_ptl");
         
-        Registry.register(
-            BuiltInRegistries.CHUNK_GENERATOR,
-            new ResourceLocation("immersive_portals:error_terrain_generator"),
-            ErrorTerrainGenerator.codec
-        );
-        Registry.register(
-            BuiltInRegistries.CHUNK_GENERATOR,
-            new ResourceLocation("immersive_portals:normal_skyland_generator"),
-            NormalSkylandGenerator.codec
-        );
-        
-        Registry.register(
-            BuiltInRegistries.BIOME_SOURCE,
-            new ResourceLocation("immersive_portals:chaos_biome_source"),
-            ChaosBiomeSource.CODEC
-        );
-        
         PortalWandItem.init();
         
         CommandStickItem.init();
@@ -93,12 +79,6 @@ public class PeripheralModMain {
         PortalWandInteraction.init();
         
         CommandStickItem.registerCommandStickTypes();
-        
-        Registry.register(
-            BuiltInRegistries.CREATIVE_MODE_TAB,
-            new ResourceLocation("immersive_portals", "general"),
-            TAB
-        );
         
     }
     
@@ -123,6 +103,37 @@ public class PeripheralModMain {
         regFunc.accept(
             new ResourceLocation("immersive_portals", "portal_helper"),
             portalHelperBlock
+        );
+    }
+    
+    public static void registerChunkGenerators(
+        BiConsumer<ResourceLocation, Codec<? extends ChunkGenerator>> regFunc
+    ) {
+        regFunc.accept(
+            new ResourceLocation("immersive_portals:error_terrain_generator"),
+            ErrorTerrainGenerator.codec
+        );
+        regFunc.accept(
+            new ResourceLocation("immersive_portals:normal_skyland_generator"),
+            NormalSkylandGenerator.codec
+        );
+    }
+    
+    public static void registerBiomeSources(
+        BiConsumer<ResourceLocation, Codec<? extends BiomeSource>> regFunc
+    ) {
+        regFunc.accept(
+            new ResourceLocation("immersive_portals:chaos_biome_source"),
+            ChaosBiomeSource.CODEC
+        );
+    }
+    
+    public static void registerCreativeTabs(
+        BiConsumer<ResourceLocation, CreativeModeTab> regFunc
+    ) {
+        regFunc.accept(
+            new ResourceLocation("immersive_portals", "general"),
+            TAB
         );
     }
 }
