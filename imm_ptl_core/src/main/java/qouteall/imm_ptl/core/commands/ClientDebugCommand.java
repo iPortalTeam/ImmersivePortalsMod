@@ -665,6 +665,11 @@ public class ClientDebugCommand {
             "teleportation_debug",
             cond -> IPGlobal.teleportationDebugEnabled = cond
         );
+        registerSwitchCommand(
+            builder,
+            "debug_text_to_top",
+            cond -> IPGlobal.moveDebugTextToTop = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")

@@ -5,6 +5,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
@@ -19,13 +20,18 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
+import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.mixin.client.particle.IEParticle;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
 import qouteall.imm_ptl.core.render.ForceMainThreadRebuild;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.QueryManager;
+import qouteall.q_misc_util.Helper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -248,5 +254,42 @@ public class RenderStates {
      */
     public static float getPartialTick() {
         return partialTick;
+    }
+    
+    public static List<String> collectDebugText() {
+        List<String> result = new ArrayList<>();
+        result.add("Rendered Portals: " + lastPortalRenderInfos.size());
+        
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            Portal collidingPortal = ((IEEntity) player).ip_getCollidingPortal();
+            if (collidingPortal != null) {
+                String text = "Colliding " + collidingPortal.toString();
+                result.addAll(Helper.splitStringByLen(text, 50));
+            }
+        }
+        
+        result.add("Occlusion Query Stall: " + QueryManager.queryStallCounter);
+        result.add("Client Perf %s %d %d".formatted(
+            ClientPerformanceMonitor.level,
+            ClientPerformanceMonitor.getAverageFps(),
+            ClientPerformanceMonitor.getAverageFreeMemoryMB()
+        ));
+        
+        result.add(StableClientTimer.getDebugString());
+        
+        String blockPointingInfo = BlockManipulationClient.getDebugString();
+        if (blockPointingInfo != null) {
+            result.add(blockPointingInfo);
+        }
+        
+        if (debugText != null && !debugText.isEmpty()) {
+            result.addAll(Helper.splitStringByLen(
+                "Debug: " + debugText,
+                50
+            ));
+        }
+        
+        return result;
     }
 }

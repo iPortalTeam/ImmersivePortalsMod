@@ -148,6 +148,9 @@ public class IPGlobal {
     
     public static boolean debugRenderPortalShapeMesh = false;
     
+    // make debug text not out-of-screen
+    public static boolean moveDebugTextToTop = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

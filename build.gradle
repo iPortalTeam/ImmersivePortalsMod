@@ -109,9 +109,6 @@ allprojects {
             exclude(group: "net.fabricmc.fabric-api")
         }
 
-        implementation("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
-        annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
-
         // put these into inner mod to reduce duplicate MC jar
 
         if (project.enable_sodium.equals('true')) {
@@ -228,8 +225,6 @@ publishing {
 
 dependencies {
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-
-    include("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
 
 //    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
     modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
