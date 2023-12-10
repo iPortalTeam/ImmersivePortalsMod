@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongPredicate;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
@@ -18,19 +17,17 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.util.SortedArraySet;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.RateStat;
 
 import java.util.ArrayList;
@@ -71,7 +68,7 @@ public class ImmPtlChunkTickets {
     public static final WeakHashMap<ServerLevel, ImmPtlChunkTickets> BY_DIMENSION = new WeakHashMap<>();
     
     public static void init() {
-        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
+        DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
             ImmPtlChunkTickets::onDimensionRemove
         );
         
@@ -273,9 +270,7 @@ public class ImmPtlChunkTickets {
         return chunkPosToTicketInfo.size();
     }
     
-    public static void onDimensionRemove(ResourceKey<Level> dimension) {
-        ServerLevel world = McHelper.getServerWorld(dimension);
-        
+    public static void onDimensionRemove(ServerLevel world) {
         ImmPtlChunkTickets dimTicketManager = BY_DIMENSION.remove(world);
         
         if (dimTicketManager == null) {

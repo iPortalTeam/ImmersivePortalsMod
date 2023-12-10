@@ -28,7 +28,10 @@ repositories {
         name = 'JitPack'
         url = 'https://jitpack.io'
     }
+
+    // cloth config
     maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/releases/" }
 
     // for sodium
     maven {
@@ -95,6 +98,11 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
+    modImplementation("com.github.iPortalTeam:DimLib:${dimlib_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    include("com.github.iPortalTeam:DimLib:${dimlib_version}")
+
     // put these into inner mod to reduce duplicate MC jar
 
     if (project.enable_sodium.equals('true')) {
@@ -147,9 +155,6 @@ dependencies {
     }
 
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-
-//    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
-    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
 
     testImplementation(platform('org.junit:junit-bom:5.10.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')

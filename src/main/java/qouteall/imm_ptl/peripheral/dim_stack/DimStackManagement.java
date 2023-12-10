@@ -18,15 +18,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.dimension.DimId;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -185,7 +184,7 @@ public class DimStackManagement {
         @Environment(EnvType.CLIENT)
         public static void clientOpenScreen(List<String> dimensions) {
             List<ResourceKey<Level>> dimensionList =
-                dimensions.stream().map(DimId::idToKey).collect(Collectors.toList());
+                dimensions.stream().map(Helper::dimIdToKey).collect(Collectors.toList());
             
             DimStackGuiController controller = new DimStackGuiController(
                 null,

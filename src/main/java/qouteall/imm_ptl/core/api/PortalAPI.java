@@ -1,7 +1,10 @@
 package qouteall.imm_ptl.core.api;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
@@ -19,6 +22,7 @@ import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.dimension.DimensionIntId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
@@ -137,4 +141,21 @@ public class PortalAPI {
         ImmPtlChunkTracking.syncBlockUpdateToClientImmediately(world, box);
     }
     
+    @Environment(EnvType.CLIENT)
+    public static int clientDimKeyToInt(ResourceKey<Level> dimension) {
+        return DimensionIntId.getClientMap().toIntegerId(dimension);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static ResourceKey<Level> clientIntToDimKey(int integerId) {
+        return DimensionIntId.getClientMap().fromIntegerId(integerId);
+    }
+    
+    public static int serverDimKeyToInt(MinecraftServer server, ResourceKey<Level> dimension) {
+        return DimensionIntId.getServerMap(server).toIntegerId(dimension);
+    }
+    
+    public static ResourceKey<Level> serverIntToDimKey(MinecraftServer server, int integerId) {
+        return DimensionIntId.getServerMap(server).fromIntegerId(integerId);
+    }
 }

@@ -18,13 +18,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEServerCommonPacketListenerImpl;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class ImmPtlChunkTracking {
         ServerTickEvents.END_SERVER_TICK.register(ImmPtlChunkTracking::tick);
         IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTracking::cleanup);
         
-        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
+        DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
             ImmPtlChunkTracking::onDimensionRemove
         );
     }
@@ -68,15 +68,13 @@ public class ImmPtlChunkTracking {
         forceRemovePlayer(oldPlayer);
     }
     
-    public static void onDimensionRemove(ResourceKey<Level> dimension) {
-        ServerLevel world = McHelper.getServerWorld(dimension);
-        
+    public static void onDimensionRemove(ServerLevel world) {
         ServerChunkCache chunkManager = (ServerChunkCache) world.getChunkSource();
         IEChunkMap storage =
             (IEChunkMap) chunkManager.chunkMap;
         storage.ip_onDimensionRemove();
         
-        forceRemoveDimension(dimension);
+        forceRemoveDimension(world.dimension());
     }
     
     public static class PlayerWatchRecord {

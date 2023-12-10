@@ -43,6 +43,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
+import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
@@ -63,8 +64,6 @@ import qouteall.imm_ptl.core.render.PortalRenderable;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -91,9 +90,8 @@ public class Portal extends Entity implements
     
     public static final Event<Consumer<Portal>> CLIENT_PORTAL_ACCEPT_SYNC_EVENT =
         Helper.createConsumerEvent();
-    
-    @Deprecated
-    public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
+    public static final Event<Consumer<Portal>> CLIENT_PORTAL_SPAWN_EVENT =
+        Helper.createConsumerEvent();
     
     public static <T extends Portal> EntityType<T> createPortalEntityType(
         EntityType.EntityFactory<T> constructor
@@ -305,8 +303,8 @@ public class Portal extends Entity implements
         thickness = compoundTag.getDouble("thickness");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
-        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", level().isClientSide);
-        destination = (Helper.getVec3d(compoundTag, "destination"));
+        dimensionTo = Helper.getWorldId(compoundTag, "dimensionTo");
+        destination = Helper.getVec3d(compoundTag, "destination");
         specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         
         if (compoundTag.contains("portalShape")) {
@@ -436,7 +434,7 @@ public class Portal extends Entity implements
         compoundTag.putDouble("thickness", thickness);
         Helper.putVec3d(compoundTag, "axisW", axisW);
         Helper.putVec3d(compoundTag, "axisH", axisH);
-        DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
+        Helper.putWorldId(compoundTag, "dimensionTo", dimensionTo);
         Helper.putVec3d(compoundTag, "destination", getDestPos());
         
         if (specificPlayerId != null) {
@@ -986,7 +984,7 @@ public class Portal extends Entity implements
         return (Packet<ClientGamePacketListener>) (Packet)
             ServerPlayNetworking.createS2CPacket(new ImmPtlNetworking.PortalSyncPacket(
                 getId(), getUUID(), getType(),
-                DimensionAPI.getServerDimIntId(getServer(), getOriginDim()),
+                PortalAPI.serverDimKeyToInt(getServer(), getOriginDim()),
                 getX(), getY(), getZ(),
                 compoundTag
             ));

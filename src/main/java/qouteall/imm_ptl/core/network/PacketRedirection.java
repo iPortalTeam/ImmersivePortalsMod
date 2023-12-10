@@ -24,10 +24,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_Redirect;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +145,7 @@ public class PacketRedirection {
         }
         else {
             // will use the server argument in the future
-            int intDimId = DimensionAPI.getServerDimIntId(server, dimension);
+            int intDimId = PortalAPI.serverDimKeyToInt(server, dimension);
             Payload payload = new Payload(intDimId, packet);
             
             // the custom payload packet should be able to be bundled
@@ -225,16 +224,10 @@ public class PacketRedirection {
             return payloadId;
         }
         
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Environment(EnvType.CLIENT)
         public void handle(ClientGamePacketListener listener) {
-            if (DimensionIdRecord.clientRecord == null) {
-                throw new RuntimeException(
-                    "The dimension id sync packet is not received early enough"
-                );
-            }
-            
-            ResourceKey<Level> dim = DimensionAPI.getClientDimKeyFromIntId(dimensionIntId);
+            ResourceKey<Level> dim = PortalAPI.clientIntToDimKey(dimensionIntId);
             PacketRedirectionClient.handleRedirectedPacket(
                 dim, (Packet) packet, listener
             );

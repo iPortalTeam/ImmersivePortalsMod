@@ -24,7 +24,6 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import qouteall.imm_ptl.peripheral.dim_stack.DimensionStackAPI;
 import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DimId;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,12 +98,12 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             
             // add vanilla dimensions
             for (var entry : selectedDimensions.dimensions().entrySet()) {
-                result.add(DimId.idToKey(entry.getKey().location()));
+                result.add(Helper.dimIdToKey(entry.getKey().location()));
             }
             
             // add datapack dimensions
             for (var entry : settings.datapackDimensions().entrySet()) {
-                result.add(DimId.idToKey(entry.getKey().location()));
+                result.add(Helper.dimIdToKey(entry.getKey().location()));
             }
             
             // add other dimensions via the event
@@ -118,7 +117,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         catch (Exception e) {
             LOGGER.error("ImmPtl getting dimension list", e);
             if (result.isEmpty()) {
-                result.add(DimId.idToKey("error:error"));
+                result.add(Helper.dimIdToKey("error:error"));
             }
         }
         

@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
-import qouteall.q_misc_util.dimension.DimId;
+import qouteall.q_misc_util.Helper;
 
 // will be serialized by GSON
 public class DimStackEntry {
@@ -29,7 +29,7 @@ public class DimStackEntry {
     
     public ResourceKey<Level> getDimension() {
         Validate.notNull(dimensionIdStr);
-        return DimId.idToKey(dimensionIdStr);
+        return Helper.dimIdToKey(dimensionIdStr);
     }
     
     public DimStackEntry copy() {

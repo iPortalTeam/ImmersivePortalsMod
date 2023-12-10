@@ -23,6 +23,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.collision.CollisionHelper;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -47,7 +48,6 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.ArrayList;
@@ -366,7 +366,7 @@ public class ClientTeleportationManager {
         
         player.connection.send(ClientPlayNetworking.createC2SPacket(
             new ImmPtlNetworking.TeleportPacket(
-                DimensionAPI.getClientDimIntId(fromDimension),
+                PortalAPI.clientDimKeyToInt(fromDimension),
                 lastTickEyePos,
                 portal.getUUID()
             )

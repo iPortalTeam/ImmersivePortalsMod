@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
@@ -36,13 +38,10 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionTypeSync;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,9 +56,12 @@ public class ClientWorldLoader {
         new SignalArged<>();
     public static final SignalArged<ClientLevel> clientWorldLoadSignal = new SignalArged<>();
     
-    private static final Map<ResourceKey<Level>, ClientLevel> clientWorldMap = new HashMap<>();
-    public static final Map<ResourceKey<Level>, LevelRenderer> worldRendererMap = new HashMap<>();
-    public static final Map<ResourceKey<Level>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
+    private static final Map<ResourceKey<Level>, ClientLevel> clientWorldMap =
+        new Object2ObjectOpenHashMap<>();
+    public static final Map<ResourceKey<Level>, LevelRenderer> worldRendererMap =
+        new Object2ObjectOpenHashMap<>();
+    public static final Map<ResourceKey<Level>, DimensionRenderHelper> renderHelperMap =
+        new Object2ObjectOpenHashMap<>();
     
     private static final Minecraft client = Minecraft.getInstance();
     
@@ -381,8 +383,17 @@ public class ClientWorldLoader {
             ClientPacketListener mainNetHandler = client.player.connection;
             Map<String, MapItemSavedData> mapData = ((IEClientLevel_Accessor) client.level).ip_getMapData();
             
-            ResourceKey<DimensionType> dimensionTypeKey =
-                DimensionTypeSync.getDimensionTypeKey(dimension);
+            var typeMap = DimensionAPI.getClientDimensionIdToTypeMap();
+            
+            ResourceKey<DimensionType> dimensionTypeKey = typeMap.get(dimension);
+            
+            if (dimensionTypeKey == null) {
+                throw new IllegalStateException(
+                    "Cannot find dimension type for %s in %s"
+                        .formatted(dimension.location(), typeMap)
+                );
+            }
+            
             ClientLevel.ClientLevelData currentProperty =
                 (ClientLevel.ClientLevelData) ((IEWorld) client.level).ip_getLevelData();
             RegistryAccess registryManager = mainNetHandler.registryAccess();
@@ -412,6 +423,15 @@ public class ClientWorldLoader {
             
             // all worlds share the same map data map
             ((IEClientLevel_Accessor) newWorld).ip_setMapData(mapData);
+            
+            worldRenderer.setLevel(newWorld);
+            
+            worldRenderer.onResourceManagerReload(client.getResourceManager());
+            
+            clientWorldMap.put(dimension, newWorld);
+            worldRendererMap.put(dimension, worldRenderer);
+            
+            LOGGER.info("Client World Created {}", dimension.location());
         }
         catch (Exception e) {
             throw new IllegalStateException(
@@ -419,22 +439,12 @@ public class ClientWorldLoader {
                 e
             );
         }
-        
-        worldRenderer.setLevel(newWorld);
-        
-        // there are two "reload" methods
-        worldRenderer.onResourceManagerReload(client.getResourceManager());
-        
-        clientWorldMap.put(dimension, newWorld);
-        worldRendererMap.put(dimension, worldRenderer);
-        
-        LOGGER.info("Client World Created {}", dimension.location());
-        
-        isCreatingClientWorld = false;
+        finally {
+            isCreatingClientWorld = false;
+            client.getProfiler().pop();
+        }
         
         clientWorldLoadSignal.emit(newWorld);
-        
-        client.getProfiler().pop();
         
         return newWorld;
     }

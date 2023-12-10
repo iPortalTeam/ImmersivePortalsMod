@@ -12,17 +12,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionIdRecord;
-import qouteall.q_misc_util.dimension.DimensionTypeSync;
-import qouteall.q_misc_util.mixin.client.IEClientPacketListener_Misc;
-
-import java.util.Set;
+import qouteall.q_misc_util.dimension.DimIntIdMap;
+import qouteall.q_misc_util.dimension.DimensionIntId;
 
 public class MiscNetworking {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -32,42 +26,35 @@ public class MiscNetworking {
     public static final ResourceLocation id_ctsRemote =
         new ResourceLocation("imm_ptl", "remote_cts");
     
-    public static record DimSyncPacket(
-        CompoundTag idMapTag,
-        CompoundTag typeMapTag
+    public static record DimIdSyncPacket(
+        CompoundTag idMapTag
     ) implements FabricPacket {
-        public static final PacketType<DimSyncPacket> TYPE = PacketType.create(
-            new ResourceLocation("imm_ptl", "dim_sync"),
-            DimSyncPacket::read
+        public static final PacketType<DimIdSyncPacket> TYPE = PacketType.create(
+            new ResourceLocation("imm_ptl", "dim_int_id_sync"),
+            DimIdSyncPacket::read
         );
         
-        public static DimSyncPacket createFromServer(MinecraftServer server) {
-            CompoundTag idMapTag = DimensionIdRecord.recordToTag(
-                DimensionIdRecord.serverRecord,
-                dim -> server.getLevel(dim) != null
-            );
+        public static DimIdSyncPacket createFromServer(MinecraftServer server) {
+            DimIntIdMap rec = DimensionIntId.getServerMap(server);
+            CompoundTag tag = DimIntIdMap.recordToTag(rec, dim -> true);
             
-            CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo(server);
-            
-            return new DimSyncPacket(idMapTag, typeMapTag);
+            return new DimIdSyncPacket(tag);
         }
         
         public static Packet<ClientCommonPacketListener> createPacket(MinecraftServer server) {
             return ServerPlayNetworking.createS2CPacket(
-                MiscNetworking.DimSyncPacket.createFromServer(server)
+                DimIdSyncPacket.createFromServer(server)
             );
         }
         
         @Override
         public void write(FriendlyByteBuf buf) {
             buf.writeNbt(idMapTag);
-            buf.writeNbt(typeMapTag);
         }
         
-        public static DimSyncPacket read(FriendlyByteBuf buf) {
+        public static DimIdSyncPacket read(FriendlyByteBuf buf) {
             CompoundTag idMapTag = buf.readNbt();
-            CompoundTag typeMapTag = buf.readNbt();
-            return new DimSyncPacket(idMapTag, typeMapTag);
+            return new DimIdSyncPacket(idMapTag);
         }
         
         @Override
@@ -76,19 +63,7 @@ public class MiscNetworking {
         }
         
         public void handleOnNetworkingThread(ClientGamePacketListener packetListener) {
-            DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMapTag);
-            
-            DimensionTypeSync.acceptTypeMapData(typeMapTag);
-            
-            LOGGER.info("Received Dimension Id Sync\n{}", DimensionIdRecord.clientRecord);
-            
-            // it's used for command completion
-            Set<ResourceKey<Level>> dimIdSet = DimensionIdRecord.clientRecord.getDimIdSet();
-            ((IEClientPacketListener_Misc) packetListener).ip_setLevels(dimIdSet);
-            
-            MiscHelper.executeOnRenderThread(() -> {
-                DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(dimIdSet);
-            });
+            DimensionIntId.clientRecord = DimIntIdMap.tagToRecord(idMapTag);
         }
     }
     
@@ -102,12 +77,12 @@ public class MiscNetworking {
 //        );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            DimSyncPacket.TYPE.getId(),
+            DimIdSyncPacket.TYPE.getId(),
             (client, handler, buf, responseSender) -> {
                 // must be handled early
                 // should not be handled in client main thread, otherwise it may be late
-                DimSyncPacket dimSyncPacket = DimSyncPacket.TYPE.read(buf);
-                dimSyncPacket.handleOnNetworkingThread(handler);
+                DimIdSyncPacket dimIdSyncPacket = DimIdSyncPacket.TYPE.read(buf);
+                dimIdSyncPacket.handleOnNetworkingThread(handler);
             }
         );
     }

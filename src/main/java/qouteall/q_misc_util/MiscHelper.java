@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 import qouteall.q_misc_util.mixin.IELevelStorageAccess_Misc;
 
@@ -42,7 +41,7 @@ public class MiscHelper {
         @Override
         public ResourceKey<Level> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             String str = json.getAsString();
-            return DimId.idToKey(str);
+            return Helper.dimIdToKey(str);
         }
         
         @Override

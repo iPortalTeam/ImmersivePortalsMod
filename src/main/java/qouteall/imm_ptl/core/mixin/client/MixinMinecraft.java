@@ -151,8 +151,11 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         method = "Lnet/minecraft/client/Minecraft;updateLevelInEngines(Lnet/minecraft/client/multiplayer/ClientLevel;)V",
         at = @At("HEAD")
     )
-    private void onSetWorld(ClientLevel clientWorld_1, CallbackInfo ci) {
-        IPGlobal.clientCleanupSignal.emit();
+    private void onSetWorld(ClientLevel clientLevel, CallbackInfo ci) {
+        if (clientLevel == null) {
+            LOGGER.info("Client cleanup");
+            IPGlobal.clientCleanupSignal.emit();
+        }
     }
     
     //avoid messing up rendering states in fabulous

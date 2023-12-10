@@ -26,7 +26,7 @@ public class MixinPlayerList_Misc {
         CallbackInfo ci
     ) {
         player.connection.send(
-            MiscNetworking.DimSyncPacket.createPacket(player.server)
+            MiscNetworking.DimIdSyncPacket.createPacket(player.server)
         );
     }
 }

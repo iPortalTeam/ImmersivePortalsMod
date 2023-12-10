@@ -9,11 +9,16 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -481,6 +486,30 @@ public class Helper {
         double x2, double y2
     ) {
         return x1 * y2 - x2 * y1;
+    }
+    
+    public static ResourceKey<Level> dimIdToKey(ResourceLocation identifier) {
+        return ResourceKey.create(Registries.DIMENSION, identifier);
+    }
+    
+    public static ResourceKey<Level> dimIdToKey(String str) {
+        return dimIdToKey(new ResourceLocation(str));
+    }
+    
+    public static void putWorldId(CompoundTag tag, String tagName, ResourceKey<Level> dim) {
+        tag.putString(tagName, dim.location().toString());
+    }
+    
+    public static ResourceKey<Level> getWorldId(CompoundTag tag, String tagName) {
+        Tag term = tag.get(tagName);
+        
+        if (term instanceof StringTag) {
+            String id = ((StringTag) term).getAsString();
+            return dimIdToKey(id);
+        }
+        
+        LOGGER.error("Cannot read world id from {}. Fallback to overworld", tag);
+        return Level.OVERWORLD;
     }
     
     public static class SimpleBox<T> {

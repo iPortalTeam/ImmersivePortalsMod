@@ -4,16 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "IELevelStorageAccess_Misc",
-    "MixinMappedRegistry",
     "MixinMinecraftServer_Misc",
-    "dimension.IELayeredRegistryAccess",
-    "dimension.IEMappedRegistry",
-    "dimension.IEWorldBorder",
-    "dimension.MixinLevelProperties_D",
-    "dimension.MixinMinecraftServer_D",
-    "dimension.MixinPlayerList_Misc",
-    "dimension.MixinWorldDimensions",
-    "dimension.MixinWorldGenSettings"
+    "dimension.MixinPlayerList_Misc"
   ],
   "client": [
     "client.IEClientPacketListener_Misc",

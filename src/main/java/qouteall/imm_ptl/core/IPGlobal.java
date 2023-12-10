@@ -33,6 +33,7 @@ public class IPGlobal {
     public static final MyTaskList serverTaskList = new MyTaskList();
     
     // won't be cleared
+    // TODO change to event
     public static final MyTaskList preGameRenderTaskList = new MyTaskList();
     public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
     public static final Signal clientCleanupSignal = new Signal();

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
@@ -9,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
-import qouteall.q_misc_util.dimension.DimId;
 
 @Mixin(ServerboundMovePlayerPacket.PosRot.class)
 public class MixinServerboundMovePlayerPacketPosRot {
@@ -17,7 +17,7 @@ public class MixinServerboundMovePlayerPacketPosRot {
     private static void onRead(
         FriendlyByteBuf buf, CallbackInfoReturnable<ServerboundMovePlayerPacket.PosRot> cir
     ) {
-        ResourceKey<Level> playerDim = DimId.readWorldId(buf, false);
+        ResourceKey<Level> playerDim = buf.readResourceKey(Registries.DIMENSION);
         ((IEPlayerMoveC2SPacket) cir.getReturnValue()).ip_setPlayerDimension(playerDim);
     }
 }

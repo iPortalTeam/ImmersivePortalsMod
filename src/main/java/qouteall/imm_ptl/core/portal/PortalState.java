@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 /**
@@ -97,8 +96,8 @@ public class PortalState {
     }
     
     public static PortalState fromTag(CompoundTag tag) {
-        ResourceKey<Level> fromWorld = DimId.idToKey(tag.getString("fromWorld"));
-        ResourceKey<Level> toWorld = DimId.idToKey(tag.getString("toWorld"));
+        ResourceKey<Level> fromWorld = Helper.dimIdToKey(tag.getString("fromWorld"));
+        ResourceKey<Level> toWorld = Helper.dimIdToKey(tag.getString("toWorld"));
         Vec3 fromPos = Helper.getVec3d(tag, "fromPos");
         Vec3 toPos = Helper.getVec3d(tag, "toPos");
         double scaling = tag.getDouble("scaling");

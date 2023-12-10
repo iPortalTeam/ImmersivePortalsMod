@@ -24,9 +24,9 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -70,7 +70,7 @@ public class ImmPtlNetworking {
         }
         
         public void handle(ServerPlayer player) {
-            ResourceKey<Level> dim = DimensionAPI.getServerDimKeyFromIntId(
+            ResourceKey<Level> dim = PortalAPI.serverIntToDimKey(
                 player.server, dimensionId
             );
             
@@ -108,7 +108,7 @@ public class ImmPtlNetworking {
         
         @Environment(EnvType.CLIENT)
         public void handle() {
-            ResourceKey<Level> dim = DimensionAPI.getClientDimKeyFromIntId(dimensionId);
+            ResourceKey<Level> dim = PortalAPI.clientIntToDimKey(dimensionId);
             
             GlobalPortalStorage.receiveGlobalPortalSync(dim, data);
         }
@@ -176,7 +176,7 @@ public class ImmPtlNetworking {
         public void handle() {
 //            Helper.LOGGER.info("PortalSyncPacket handle {}", RenderStates.frameIndex);
             
-            ResourceKey<Level> dimension = DimensionAPI.getClientDimKeyFromIntId(dimensionId);
+            ResourceKey<Level> dimension = PortalAPI.clientIntToDimKey(dimensionId);
             ClientLevel world = ClientWorldLoader.getWorld(dimension);
             
             Entity existing = world.getEntity(id);
@@ -215,7 +215,7 @@ public class ImmPtlNetworking {
                 world.addEntity(entity);
                 
                 ClientWorldLoader.getWorld(portal.dimensionTo);
-                Portal.clientPortalSpawnSignal.emit(portal);
+                Portal.CLIENT_PORTAL_SPAWN_EVENT.invoker().accept(portal);
                 
                 if (IPGlobal.clientPortalLoadDebug) {
                     LOGGER.info("Portal loaded to client {}", portal);

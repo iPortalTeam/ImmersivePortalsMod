@@ -24,17 +24,18 @@ import net.minecraft.world.level.saveddata.SavedData;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class GlobalPortalStorage extends SavedData {
     ) {
         return ServerPlayNetworking.createS2CPacket(
             new ImmPtlNetworking.GlobalPortalSyncPacket(
-                DimensionAPI.getServerDimIntId(world.getServer(), world.dimension()),
+                PortalAPI.serverDimKeyToInt(world.getServer(), world.dimension()),
                 storage.save(new CompoundTag())
             )
         );

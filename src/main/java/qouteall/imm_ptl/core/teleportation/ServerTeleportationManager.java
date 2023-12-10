@@ -20,6 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -34,7 +35,6 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.WithDim;
@@ -72,7 +72,7 @@ public class ServerTeleportationManager {
             }
         );
         
-        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(
+        DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
             this::evacuatePlayersFromDimension
         );
     }
@@ -758,20 +758,20 @@ public class ServerTeleportationManager {
         ));
     }
     
-    private void evacuatePlayersFromDimension(ResourceKey<Level> dim) {
+    private void evacuatePlayersFromDimension(ServerLevel world) {
         // teleportation modifies the player list
         List<ServerPlayer> players = new ArrayList<>(
             MiscHelper.getServer().getPlayerList().getPlayers()
         );
         for (ServerPlayer player : players) {
-            if (player.level().dimension() == dim) {
+            if (player.level().dimension() == world.dimension()) {
                 ServerLevel overWorld = McHelper.getOverWorldOnServer();
                 BlockPos spawnPos = overWorld.getSharedSpawnPos();
                 
                 forceTeleportPlayer(player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos));
                 
                 player.sendSystemMessage(Component.literal(
-                    "Teleported to spawn pos because dimension %s had been removed".formatted(dim.location())
+                    "Teleported to spawn pos because dimension %s had been removed".formatted(world.dimension().location())
                 ));
             }
         }

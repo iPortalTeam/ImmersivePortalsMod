@@ -1,21 +1,19 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.network.PacketRedirection;
-import qouteall.q_misc_util.dimension.DynamicDimensionsImpl;
 
 public class EntitySync {
     
     public static void init() {
-        DynamicDimensionsImpl.beforeRemovingDimensionEvent.register(EntitySync::forceRemoveDimension);
+        DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(EntitySync::forceRemoveDimension);
     }
     
     /**
@@ -74,7 +72,7 @@ public class EntitySync {
         server.getProfiler().pop();
     }
     
-    private static void forceRemoveDimension(ResourceKey<Level> dimension) {
+    private static void forceRemoveDimension(ServerLevel world) {
     
     }
     

@@ -14,7 +14,6 @@ import org.joml.Vector3d;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.PortalState;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.animation.Animated;
 
@@ -146,7 +145,7 @@ public record UnilateralPortalState(
     }
     
     public static UnilateralPortalState fromTag(CompoundTag tag) {
-        ResourceKey<Level> dimension = DimId.idToKey(tag.getString("dimension"));
+        ResourceKey<Level> dimension = Helper.dimIdToKey(tag.getString("dimension"));
         Vec3 point = Helper.getVec3d(tag, "position");
         DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
         double width = tag.getDouble("width");
