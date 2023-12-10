@@ -45,9 +45,8 @@ public class DimStackInfo {
     }
     
     public static void initializeFuseViewProperty(Portal portal) {
-        if (portal.getNormal().y < 0) {
-            portal.fuseView = true;
-        }
+        // all portals are fuse-view now
+        portal.fuseView = true;
     }
     
     public static void createConnectionBetween(

@@ -36,7 +36,7 @@ public class MiscNetworking {
         
         public static DimIdSyncPacket createFromServer(MinecraftServer server) {
             DimIntIdMap rec = DimensionIntId.getServerMap(server);
-            CompoundTag tag = DimIntIdMap.recordToTag(rec, dim -> true);
+            CompoundTag tag = rec.toTag(dim -> true);
             
             return new DimIdSyncPacket(tag);
         }
@@ -63,7 +63,9 @@ public class MiscNetworking {
         }
         
         public void handleOnNetworkingThread(ClientGamePacketListener packetListener) {
-            DimensionIntId.clientRecord = DimIntIdMap.tagToRecord(idMapTag);
+            DimIntIdMap rec = DimIntIdMap.fromTag(idMapTag);
+            LOGGER.info("Client received dim id sync packet\n{}", rec);
+            DimensionIntId.clientRecord = rec;
         }
     }
     

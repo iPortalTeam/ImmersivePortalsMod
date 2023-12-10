@@ -109,7 +109,7 @@ public class DimIntIdMap {
         return fromIntegerId.containsKey(intId);
     }
     
-    public static DimIntIdMap tagToRecord(CompoundTag tag) {
+    public static DimIntIdMap fromTag(CompoundTag tag) {
         CompoundTag intids = tag.getCompound("intids");
         
         Object2IntOpenHashMap<ResourceKey<Level>> toIntegerId = new Object2IntOpenHashMap<>();
@@ -129,11 +129,9 @@ public class DimIntIdMap {
         );
     }
     
-    public static CompoundTag recordToTag(
-        DimIntIdMap record, Predicate<ResourceKey<Level>> filter
-    ) {
+    public CompoundTag toTag(Predicate<ResourceKey<Level>> filter) {
         CompoundTag intids = new CompoundTag();
-        record.toIntegerId.forEach((key, intid) -> {
+        toIntegerId.forEach((key, intid) -> {
             if (filter.test(key)) {
                 intids.put(key.location().toString(), IntTag.valueOf(intid));
             }
