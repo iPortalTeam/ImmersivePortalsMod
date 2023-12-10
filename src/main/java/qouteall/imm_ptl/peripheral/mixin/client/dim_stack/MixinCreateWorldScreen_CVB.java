@@ -34,7 +34,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 @Mixin(CreateWorldScreen.class)
-public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {
+public abstract class MixinCreateWorldScreen_CVB extends Screen implements IECreateWorldScreen {
     
     @Shadow
     @Final
@@ -47,7 +47,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Nullable
     private DimStackGuiController ip_dimStackController;
     
-    protected MixinCreateWorldScreen(Component title) {
+    protected MixinCreateWorldScreen_CVB(Component title) {
         super(title);
         throw new RuntimeException();
     }

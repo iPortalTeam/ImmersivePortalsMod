@@ -790,14 +790,11 @@ public class McHelper {
         );
     }
     
-    public static void sendMessageToFirstLoggedPlayer(Component text) {
-        Helper.log(text.getContents());
+    public static void sendMessageToFirstLoggedPlayer(
+        MinecraftServer server, Component text
+    ) {
+        LOGGER.info("Message: {}", text.getContents());
         IPGlobal.serverTaskList.addTask(() -> {
-            MinecraftServer server = MiscHelper.getServer();
-            if (server == null) {
-                return false;
-            }
-            
             List<ServerPlayer> playerList = server.getPlayerList().getPlayers();
             if (playerList.isEmpty()) {
                 return false;

@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -22,19 +23,20 @@ import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 @Mixin(EnderEyeItem.class)
-public class MixinEnderEyeItem {
+public class MixinEnderEyeItem_CVB {
     @Inject(method = "Lnet/minecraft/world/item/EnderEyeItem;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", at = @At("HEAD"), cancellable = true)
     private void onUseOnBlock(
         UseOnContext itemUsageContext_1,
         CallbackInfoReturnable<InteractionResult> cir
     ) {
         if (IPGlobal.endPortalMode != IPGlobal.EndPortalMode.vanilla) {
-            cir.setReturnValue(myUseOnBlock(itemUsageContext_1));
+            cir.setReturnValue(ip_useOnBlock(itemUsageContext_1));
             cir.cancel();
         }
     }
     
-    private InteractionResult myUseOnBlock(UseOnContext itemUsageContext) {
+    @Unique
+    private InteractionResult ip_useOnBlock(UseOnContext itemUsageContext) {
         Level world = itemUsageContext.getLevel();
         BlockPos blockPos = itemUsageContext.getClickedPos();
         BlockState blockState = world.getBlockState(blockPos);

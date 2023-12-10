@@ -21,6 +21,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.net.URI;
@@ -318,6 +319,7 @@ public class IPModInfoChecking {
                         }
                         
                         McHelper.sendMessageToFirstLoggedPlayer(
+                            MiscHelper.getServer(),
                             Component.translatable("imm_ptl.message_from_server")
                                 .append(text1)
                         );
@@ -342,6 +344,7 @@ public class IPModInfoChecking {
                                 mod.modName, mod.modId, mod.desc, mod.link
                             );
                             McHelper.sendMessageToFirstLoggedPlayer(
+                                MiscHelper.getServer(),
                                 Component.translatable("imm_ptl.message_from_server")
                                     .append(text1)
                             );

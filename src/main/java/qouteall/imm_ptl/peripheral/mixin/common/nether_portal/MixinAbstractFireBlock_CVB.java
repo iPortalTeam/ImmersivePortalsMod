@@ -16,7 +16,7 @@ import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 import java.util.Optional;
 
 @Mixin(BaseFireBlock.class)
-public class MixinAbstractFireBlock {
+public class MixinAbstractFireBlock_CVB {
     @Redirect(
         method = "Lnet/minecraft/world/level/block/BaseFireBlock;onPlace(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V",
         at = @At(

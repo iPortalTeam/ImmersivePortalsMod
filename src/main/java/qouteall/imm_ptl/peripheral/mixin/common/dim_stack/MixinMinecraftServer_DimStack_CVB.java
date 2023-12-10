@@ -16,7 +16,7 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import java.util.Map;
 
 @Mixin(MinecraftServer.class)
-public abstract class MixinMinecraftServer_DimStack {
+public abstract class MixinMinecraftServer_DimStack_CVB {
     @Shadow
     public abstract ServerLevel getLevel(ResourceKey<Level> dimensionType);
     

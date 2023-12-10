@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
 
 @Mixin(CreateWorldScreen.MoreTab.class)
-public class MixinCreateWorldScreenMoreTab {
+public class MixinCreateWorldScreenMoreTab_CVB {
     // the implicit parent object reference
     @Final
     @Shadow

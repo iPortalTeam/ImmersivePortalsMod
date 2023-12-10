@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ChaosBiomeSource;
 import qouteall.imm_ptl.peripheral.alternate_dimension.ErrorTerrainGenerator;
@@ -24,7 +25,6 @@ import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 import qouteall.imm_ptl.peripheral.wand.ClientPortalWandPortalDrag;
 import qouteall.imm_ptl.peripheral.wand.PortalWandInteraction;
 import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
-import qouteall.q_misc_util.LifecycleHack;
 
 import java.util.function.BiConsumer;
 
@@ -67,8 +67,7 @@ public class PeripheralModMain {
         
         AlternateDimensions.init();
         
-        LifecycleHack.markNamespaceStable("immersive_portals");
-        LifecycleHack.markNamespaceStable("imm_ptl");
+        DimensionAPI.suppressExperimentalWarningForNamespace("immersive_portals");
         
         PortalWandItem.init();
         

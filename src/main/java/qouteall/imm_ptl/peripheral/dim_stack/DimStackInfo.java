@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -108,7 +109,7 @@ public class DimStackInfo {
     public void apply(MinecraftServer server) {
         
         if (entries.isEmpty()) {
-            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(
                 "Error: No dimension for dimension stack"
             ));
             return;
@@ -116,7 +117,7 @@ public class DimStackInfo {
         
         for (DimStackEntry entry : entries) {
             if (server.getLevel(entry.getDimension()) == null) {
-                McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+                McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(
                     "Failed to apply dimension stack. Missing dimension " + entry.dimensionIdStr
                 ).withStyle(ChatFormatting.RED));
                 return;
@@ -125,7 +126,7 @@ public class DimStackInfo {
         
         if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).getDimension())).isEmpty()) {
             Helper.err("There are already global portals when initializing dimension stack");
-            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(
                 "Failed to apply dimension stack because there are already global portals when initializing dimension stack"
             ).withStyle(ChatFormatting.RED));
             return;
@@ -137,7 +138,7 @@ public class DimStackInfo {
             PortalInfo key = entry.getKey();
             List<DimStackEntry> value = entry.getValue();
             if (value != null && value.size() > 1) {
-                McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+                McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(
                     "Failed to apply dimension stack because of connection conflict. There are multiple connections in the %s of %s"
                         .formatted(key.connectorType, key.dimension.location())
                 ).withStyle(ChatFormatting.RED));
@@ -164,16 +165,20 @@ public class DimStackInfo {
             
             BlockState bedrockReplacement = parseBlockString(bedrockReplacementStr);
             
+            ResourceKey<Level> dimId = entry.getDimension();
             if (bedrockReplacement != null) {
-                bedrockReplacementMap.put(entry.getDimension(), bedrockReplacement);
+                bedrockReplacementMap.put(dimId, bedrockReplacement);
             }
-            GlobalPortalStorage gps = GlobalPortalStorage.get(McHelper.getServerWorld(entry.getDimension()));
+            ServerLevel world = server.getLevel(dimId);
+            Validate.notNull(world, "Missing dimension %s", dimId.location());
+            GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             gps.bedrockReplacement = bedrockReplacement;
             gps.onDataChanged();
         }
         DimStackManagement.bedrockReplacementMap = bedrockReplacementMap;
         
         McHelper.sendMessageToFirstLoggedPlayer(
+            server,
             Component.translatable("imm_ptl.dim_stack_initialized")
         );
     }

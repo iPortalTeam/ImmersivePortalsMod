@@ -24,7 +24,7 @@ import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 @Mixin(FlintAndSteelItem.class)
-public class MixinFlintAndSteelItem {
+public class MixinFlintAndSteelItem_CVB {
     @Inject(method = "Lnet/minecraft/world/item/FlintAndSteelItem;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
         UseOnContext context,

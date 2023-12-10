@@ -71,7 +71,6 @@ public class ImmPtlNetworkConfig {
     
     public static ModVersion immPtlVersion;
     
-    @SuppressWarnings("UnstableApiUsage")
     public static record ImmPtlConfigurationTask(
     ) implements ConfigurationTask {
         public static final ConfigurationTask.Type TYPE =

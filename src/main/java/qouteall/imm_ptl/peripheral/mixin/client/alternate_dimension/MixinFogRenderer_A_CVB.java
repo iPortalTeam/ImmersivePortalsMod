@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 
 @Mixin(FogRenderer.class)
-public class MixinFogRenderer_A {
+public class MixinFogRenderer_A_CVB {
     //avoid alternate dimension dark when seeing from overworld
     @Redirect(
         method = "Lnet/minecraft/client/renderer/FogRenderer;setupColor(Lnet/minecraft/client/Camera;FLnet/minecraft/client/multiplayer/ClientLevel;IF)V",

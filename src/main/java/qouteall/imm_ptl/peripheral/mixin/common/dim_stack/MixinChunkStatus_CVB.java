@@ -13,7 +13,7 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
 import java.util.List;
 
 @Mixin(ChunkStatus.class)
-public class MixinChunkStatus {
+public class MixinChunkStatus_CVB {
     @Inject(
         method = "method_17033", at = @At("HEAD"),
         remap = false

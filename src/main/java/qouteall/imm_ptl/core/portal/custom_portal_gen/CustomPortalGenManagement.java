@@ -44,6 +44,7 @@ public class CustomPortalGenManagement {
     private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
     private static final Map<UUID, WithDim<Vec3>> playerPosBeforeTravel = new HashMap<>();
     
+    // TODO refactor to use Fabric API's dynamic registry
     public static void onDatapackReload() {
         useItemGen.clear();
         throwItemGen.clear();
@@ -82,9 +83,12 @@ public class CustomPortalGenManagement {
                     }
                 }
                 else {
-                    McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
-                        "Cannot create reverse generation of " + gen
-                    ));
+                    McHelper.sendMessageToFirstLoggedPlayer(
+                        MiscHelper.getServer(),
+                        Component.literal(
+                            "Cannot create reverse generation of " + gen
+                        )
+                    );
                 }
             }
         });
@@ -121,7 +125,7 @@ public class CustomPortalGenManagement {
         
         errorMap.forEach((key, exception) -> {
             exception.printStackTrace();
-            McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
+            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(
                 "Error loading custom portal generation %s".formatted(key.location())
             ));
         });

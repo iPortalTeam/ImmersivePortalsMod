@@ -24,6 +24,7 @@ import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
+import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 
@@ -41,6 +42,10 @@ public class DimStackManagement {
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
     public static void init() {
+        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+            return;
+        }
+        
         DimensionAPI.SERVER_DIMENSIONS_LOAD_EVENT.register(server -> {
             if (dimStackToApply != null) {
                 DimensionStackAPI.DIMENSION_STACK_PRE_UPDATE_EVENT.invoker()
@@ -53,6 +58,10 @@ public class DimStackManagement {
     // it's going to generate overworld spawn chunks
     // make sure the bedrock replacement map for overworld is initialized in time
     public static void onServerEarlyInit(MinecraftServer server) {
+        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+            return;
+        }
+        
         updateDimStackFromPresetInDedicatedServer(server);
         
         Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
@@ -67,6 +76,10 @@ public class DimStackManagement {
     }
     
     public static void onServerCreatedWorlds(MinecraftServer server) {
+        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+            return;
+        }
+        
         if (dimStackToApply != null) {
             dimStackToApply.apply(server);
             dimStackToApply = null;
@@ -101,31 +114,23 @@ public class DimStackManagement {
         for (ServerLevel world : server.getAllLevels()) {
             BlockState replacement = GlobalPortalStorage.get(world).bedrockReplacement;
             newMap.put(world.dimension(), replacement);
-            Helper.log(String.format(
-                "Bedrock Replacement %s %s",
+            LOGGER.info(
+                "Bedrock Replacement {} {}",
                 world.dimension().location(),
-                replacement != null ? BuiltInRegistries.BLOCK.getKey(replacement.getBlock()) : "null"
-            ));
+                replacement != null ?
+                    BuiltInRegistries.BLOCK.getKey(replacement.getBlock()) : "null"
+            );
         }
         bedrockReplacementMap = newMap;
     }
     
-    public static void upgradeLegacyDimensionStack(MinecraftServer server) {
-        
-        for (ServerLevel world : server.getAllLevels()) {
-            GlobalPortalStorage gps = GlobalPortalStorage.get(world);
-            gps.bedrockReplacement = Blocks.OBSIDIAN.defaultBlockState();
-            gps.onDataChanged();
+    public static void replaceBedrock(ServerLevel world, ChunkAccess chunk) {
+        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+            return;
         }
         
-        updateBedrockReplacementFromStorage(server);
-        
-        Helper.log("Legacy Dimension Stack Upgraded");
-    }
-    
-    public static void replaceBedrock(ServerLevel world, ChunkAccess chunk) {
         if (bedrockReplacementMap == null) {
-            Helper.err("Dimension Stack Bedrock Replacement Abnormal");
+            LOGGER.error("Dimension Stack Bedrock Replacement Abnormal");
             return;
         }
         
@@ -212,7 +217,16 @@ public class DimStackManagement {
             ServerPlayer player, DimStackInfo dimStackInfo
         ) {
             if (!player.hasPermissions(2)) {
-                Helper.err("one player without permission tries to change dimension stack");
+                player.sendSystemMessage(Component.literal(
+                    "You don't have permission to change dimension stack"
+                ));
+                return;
+            }
+            
+            if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+                player.sendSystemMessage(Component.literal(
+                    "Dimension stack feature is not enabled"
+                ));
                 return;
             }
             
