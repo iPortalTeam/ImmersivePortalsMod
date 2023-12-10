@@ -1,1 +1,1 @@
-Possibly fix crash on Exaroton.
+Change Sodium compat version to 0.5.4/0.5.5 and Iris to 1.6.13
