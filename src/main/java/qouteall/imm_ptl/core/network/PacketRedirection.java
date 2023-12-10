@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.BundleDelimiterPacket;
+import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
@@ -17,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
@@ -29,7 +31,9 @@ import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerGamePacketListenerImpl_Redirect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class PacketRedirection {
@@ -43,6 +47,16 @@ public class PacketRedirection {
     private static final ThreadLocal<ResourceKey<Level>> serverPacketRedirection =
         ThreadLocal.withInitial(() -> null);
     
+    public static interface ForceBundleCallback {
+        void accept(
+            ServerCommonPacketListenerImpl listener,
+            Packet<ClientGamePacketListener> packet
+        );
+    }
+    
+    private static final ThreadLocal<ForceBundleCallback> forceBundle =
+        ThreadLocal.withInitial(() -> null);
+    
     public static void withForceRedirect(ServerLevel world, Runnable func) {
         withForceRedirectAndGet(world, () -> {
             func.run();
@@ -50,6 +64,7 @@ public class PacketRedirection {
         });
     }
     
+    @SuppressWarnings("UnusedReturnValue")
     public static <T> T withForceRedirectAndGet(ServerLevel world, Supplier<T> func) {
         if (((IEWorld) world).portal_getThread() != Thread.currentThread()) {
             LOGGER.error(
@@ -187,6 +202,46 @@ public class PacketRedirection {
     public static boolean isRedirectPacket(Packet<?> packet) {
         return packet instanceof ClientboundCustomPayloadPacket customPayloadPacket &&
             customPayloadPacket.payload() instanceof Payload;
+    }
+    
+    @SuppressWarnings({"unchecked", "ThreadLocalSetWithNull"})
+    public static <R> R withForceBundle(Supplier<R> func) {
+        ForceBundleCallback forceBundleCallback = getForceBundleCallback();
+        if (forceBundleCallback != null) {
+            // already in force-bundle mode. directly invoke the function
+            return func.get();
+        }
+        
+        Map<ServerCommonPacketListenerImpl, List<Packet<ClientGamePacketListener>>>
+            map = new HashMap<>();
+        forceBundle.set((listener, packet) -> {
+            List<Packet<ClientGamePacketListener>> packetsToBundle =
+                map.computeIfAbsent(listener, k -> new ArrayList<>());
+            if (packet instanceof BundlePacket<?> bundlePacket) {
+                for (Packet<?> subPacket : bundlePacket.subPackets()) {
+                    packetsToBundle.add((Packet<ClientGamePacketListener>) subPacket);
+                }
+            }
+            else {
+                packetsToBundle.add(packet);
+            }
+        });
+        
+        try {
+            return func.get();
+        }
+        finally {
+            for (var e : map.entrySet()) {
+                ServerCommonPacketListenerImpl listener = e.getKey();
+                List<Packet<ClientGamePacketListener>> packets = e.getValue();
+                listener.send(new ClientboundBundlePacket(packets));
+            }
+            forceBundle.set(null);
+        }
+    }
+    
+    public static @Nullable ForceBundleCallback getForceBundleCallback() {
+        return forceBundle.get();
     }
     
     /**
