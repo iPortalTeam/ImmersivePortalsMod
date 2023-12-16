@@ -218,7 +218,8 @@ public class PacketRedirection {
             List<Packet<ClientGamePacketListener>> packetsToBundle =
                 map.computeIfAbsent(listener, k -> new ArrayList<>());
             if (packet instanceof BundlePacket<?> bundlePacket) {
-                for (Packet<?> subPacket : bundlePacket.subPackets()) {
+                Iterable<? extends Packet<?>> subPackets = bundlePacket.subPackets();
+                for (Packet<?> subPacket : subPackets) {
                     packetsToBundle.add((Packet<ClientGamePacketListener>) subPacket);
                 }
             }
@@ -231,12 +232,12 @@ public class PacketRedirection {
             return func.get();
         }
         finally {
+            forceBundle.set(null);
             for (var e : map.entrySet()) {
                 ServerCommonPacketListenerImpl listener = e.getKey();
                 List<Packet<ClientGamePacketListener>> packets = e.getValue();
                 listener.send(new ClientboundBundlePacket(packets));
             }
-            forceBundle.set(null);
         }
     }
     
