@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -534,13 +535,24 @@ public class ServerTeleportationManager {
         boolean recreateEntity
     ) {
         if (entity.getRemovalReason() != null) {
-            Helper.err("Trying to teleport a removed entity " + entity);
-            new Throwable().printStackTrace();
+            LOGGER.error("Trying to teleport a removed entity {}" , entity, new Throwable());
             return entity;
         }
         
+        MinecraftServer server = entity.getServer();
+        Validate.notNull(server, "server is null");
+        
         ServerLevel fromWorld = (ServerLevel) entity.level();
-        ServerLevel toWorld = MiscHelper.getServer().getLevel(toDimension);
+        ServerLevel toWorld = server.getLevel(toDimension);
+        
+        if (toWorld == null) {
+            LOGGER.error(
+                "Invalid dest dimension {} to teleport entity {} to",
+                toDimension.location(), entity
+            );
+            return entity;
+        }
+        
         entity.unRide();
         
         if (recreateEntity) {
@@ -660,14 +672,15 @@ public class ServerTeleportationManager {
         }
     }
     
-    public static void teleportEntityGeneral(Entity entity, Vec3 targetPos, ServerLevel targetWorld) {
+    public static Entity teleportEntityGeneral(Entity entity, Vec3 targetPos, ServerLevel targetWorld) {
         if (entity instanceof ServerPlayer) {
             IPGlobal.serverTeleportationManager.forceTeleportPlayer(
                 (ServerPlayer) entity, targetWorld.dimension(), targetPos
             );
+            return entity;
         }
         else {
-            teleportRegularEntityTo(entity, targetWorld.dimension(), targetPos);
+            return teleportRegularEntityTo(entity, targetWorld.dimension(), targetPos);
         }
     }
     

@@ -126,14 +126,13 @@ public class PortalAPI {
         ImmPtlChunkTracking.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
-    
     /**
-     * It can teleport the player without loading screen
+     * It can teleport the player without loading screen. Can also teleport regular entities.
+     * @return the new entity (for player, it will be the same object)
      */
-    public static void teleportEntity(Entity entity, ServerLevel targetWorld, Vec3 targetPos) {
-        ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
+    public static Entity teleportEntity(Entity entity, ServerLevel targetWorld, Vec3 targetPos) {
+        return ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
     }
-    
     
     public static void syncBlockUpdateToClientImmediately(
         ServerLevel world, IntBox box

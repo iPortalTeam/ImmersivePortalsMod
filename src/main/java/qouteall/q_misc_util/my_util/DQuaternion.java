@@ -17,9 +17,7 @@ import org.joml.Vector3f;
 import java.util.Objects;
 
 /**
- * Quaternion but in double and immutable.
- * Immutability reduce the chance of having bugs (you have to manually copy everywhere to avoid unintended mutation).
- * Minecraft's quaternion {@link Quaternionf} uses float and is mutable.
+ * Quaternion in double and immutable.
  */
 public class DQuaternion {
     private static final Logger logger = LogManager.getLogger(DQuaternion.class);
