@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-public interface IEMinecraftServer {
+import qouteall.q_misc_util.my_util.MyTaskList;
 
+public interface IEMinecraftServer {
+    public MyTaskList ip_getServerTaskList();
 }

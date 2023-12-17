@@ -47,6 +47,7 @@ import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.network.ImmPtlNetworking;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -608,7 +609,7 @@ public class Portal extends Entity implements
     
     public void reloadAndSyncToClientWithTickDelay(int tickDelay) {
         Validate.isTrue(!level().isClientSide(), "must be used on server side");
-        IPGlobal.serverTaskList.addTask(MyTaskList.withDelay(tickDelay, () -> {
+        ServerTaskList.of(getServer()).addTask(MyTaskList.withDelay(tickDelay, () -> {
             reloadAndSyncToClientNextTick();
             return true;
         }));

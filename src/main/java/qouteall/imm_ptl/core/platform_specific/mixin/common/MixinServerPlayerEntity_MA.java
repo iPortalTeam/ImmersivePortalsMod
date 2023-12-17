@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(ServerPlayer.class)
@@ -45,7 +46,7 @@ public class MixinServerPlayerEntity_MA {
         CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
         ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(player);
         
-        IPGlobal.serverTaskList.addTask(() -> {
+        ServerTaskList.of(player.server).addTask(() -> {
             CustomPortalGenManagement.onAfterConventionalDimensionChange(player);
             return true;
         });

@@ -74,8 +74,6 @@ public class ClientWorldLoader {
     private static boolean isWorldSwitched = false;
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
-        
         DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.register((serverDimensions) -> {
             if (getIsInitialized()) {
                 List<ResourceKey<Level>> dimensionsToRemove =
@@ -193,7 +191,7 @@ public class ClientWorldLoader {
         
     }
     
-    private static void cleanUp() {
+    public static void cleanUp() {
         worldRendererMap.values().forEach(
             ClientWorldLoader::disposeWorldRenderer
         );

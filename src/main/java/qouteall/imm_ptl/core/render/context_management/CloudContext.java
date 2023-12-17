@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
@@ -28,7 +29,7 @@ public class CloudContext {
     public static final ArrayList<CloudContext> contexts = new ArrayList<>();
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(CloudContext::cleanup);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(CloudContext::cleanup);
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
     

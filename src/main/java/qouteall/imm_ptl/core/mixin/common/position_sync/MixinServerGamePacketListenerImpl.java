@@ -28,6 +28,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
@@ -75,6 +76,8 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     @Final
     private static Logger LOGGER;
     
+    @Shadow public abstract ServerPlayer getPlayer();
+    
     private static LimitedLogger ip_limitedLogger = new LimitedLogger(20);
     
     private int ip_dubiousMoveCount = 0;
@@ -95,8 +98,8 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (packetDimension == null) {
             // this actually never happens, because the vanilla client will disconnect immediately
             // when receiving the position sync packet that has the extra dimension field
-            Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
-            IPGlobal.serverTaskList.addTask(() -> {
+            LOGGER.error("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
+            ServerTaskList.of(player.server).addTask(() -> {
                 player.connection.disconnect(Component.literal(
                     "The client does not have Immersive Portals mod"
                 ));

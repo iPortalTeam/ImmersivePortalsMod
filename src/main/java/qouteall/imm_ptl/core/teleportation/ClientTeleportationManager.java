@@ -20,6 +20,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -84,7 +85,7 @@ public class ClientTeleportationManager {
             ClientTeleportationManager::tick
         );
         
-        IPGlobal.clientCleanupSignal.connect(() -> {
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(() -> {
             lastPlayerEyePos = null;
 //            disableTeleportFor(2);
         });

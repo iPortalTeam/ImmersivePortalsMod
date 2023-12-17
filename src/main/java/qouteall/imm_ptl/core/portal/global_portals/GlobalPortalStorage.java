@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -64,14 +65,14 @@ public class GlobalPortalStorage extends SavedData {
             });
         });
         
-        IPGlobal.serverCleanupSignal.connect(() -> {
-            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+        IPGlobal.SERVER_CLEANUP_EVENT.register((s) -> {
+            for (ServerLevel world : s.getAllLevels()) {
                 get(world).onServerClose();
             }
         });
         
         DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.register((server, dims) -> {
-            for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+            for (ServerLevel world : server.getAllLevels()) {
                 GlobalPortalStorage gps = get(world);
                 gps.clearAbnormalPortals();
                 gps.syncToAllPlayers();
@@ -105,7 +106,7 @@ public class GlobalPortalStorage extends SavedData {
     
     @Environment(EnvType.CLIENT)
     private static void initClient() {
-        IPGlobal.clientCleanupSignal.connect(GlobalPortalStorage::onClientCleanup);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(GlobalPortalStorage::onClientCleanup);
     }
     
     @Environment(EnvType.CLIENT)

@@ -104,7 +104,7 @@ public class GuiPortalRendering {
         RenderTarget mcFB = Minecraft.getInstance().getMainRenderTarget();
         if (renderTarget.width != mcFB.width || renderTarget.height != mcFB.height) {
             renderTarget.resize(mcFB.width, mcFB.height, true);
-            Helper.log("Resized Framebuffer for GUI Portal Rendering");
+            LOGGER.info("Resized Framebuffer for GUI Portal Rendering");
         }
         
         renderingTasks.put(renderTarget, worldRenderInfo);
@@ -122,6 +122,6 @@ public class GuiPortalRendering {
     
     // not API
     public static void _init() {
-        IPGlobal.clientCleanupSignal.connect(renderingTasks::clear);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(renderingTasks::clear);
     }
 }

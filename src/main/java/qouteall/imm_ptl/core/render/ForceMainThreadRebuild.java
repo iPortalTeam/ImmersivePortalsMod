@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 
 // Note: this is sometimes effective but not always effective
@@ -16,7 +17,7 @@ public class ForceMainThreadRebuild {
     private static boolean currentFrameForceMainThreadRebuild = false;
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(ForceMainThreadRebuild::reset);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(ForceMainThreadRebuild::reset);
     }
     
     private static void reset() {

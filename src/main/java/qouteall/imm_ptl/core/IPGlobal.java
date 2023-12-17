@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.Event;
+import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Signal;
+
+import java.util.function.Consumer;
 
 public class IPGlobal {
     
@@ -29,15 +32,13 @@ public class IPGlobal {
     // executed after ticking. will be cleared when client encounter loading screen
     public static final MyTaskList clientTaskList = new MyTaskList();
     
-    // executed after ticking. will be cleared when server closes
-    public static final MyTaskList serverTaskList = new MyTaskList();
-    
     // won't be cleared
     // TODO change to event
     public static final MyTaskList preGameRenderTaskList = new MyTaskList();
     public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
-    public static final Signal clientCleanupSignal = new Signal();
-    public static final Signal serverCleanupSignal = new Signal();
+    
+    public static final Event<Consumer<MinecraftServer>> SERVER_CLEANUP_EVENT =
+        Helper.createConsumerEvent();
     
     public static ServerTeleportationManager serverTeleportationManager;
     

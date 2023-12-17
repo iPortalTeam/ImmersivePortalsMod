@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -68,7 +69,7 @@ public class MyGameRenderer {
     public static boolean enablePortalCaveCulling = true;
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(() -> {
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(() -> {
             secondaryRenderBuffers.clear();
         });
     }

@@ -54,6 +54,7 @@ import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -119,6 +120,7 @@ public class McHelper {
     }
     
     public static <T> void performMultiThreadedFindingTaskOnServer(
+        MinecraftServer server,
         Stream<T> stream,
         Predicate<T> predicate,
         IntPredicate taskWatcher,//return false to abort the task
@@ -157,7 +159,7 @@ public class McHelper {
             },
             Util.backgroundExecutor()
         );
-        IPGlobal.serverTaskList.addTask(() -> {
+        ServerTaskList.of(server).addTask(() -> {
             if (future.isDone()) {
                 if (!isAborted.obj) {
                     finishBehavior.obj.run();
@@ -794,7 +796,7 @@ public class McHelper {
         MinecraftServer server, Component text
     ) {
         LOGGER.info("Message: {}", text.getContents());
-        IPGlobal.serverTaskList.addTask(() -> {
+        ServerTaskList.of(server).addTask(() -> {
             List<ServerPlayer> playerList = server.getPlayerList().getPlayers();
             if (playerList.isEmpty()) {
                 return false;

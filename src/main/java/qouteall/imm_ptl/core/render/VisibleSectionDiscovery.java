@@ -12,6 +12,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.ducks.IERenderSection;
@@ -166,7 +167,7 @@ public class VisibleSectionDiscovery {
     }
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(VisibleSectionDiscovery::cleanUp);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(VisibleSectionDiscovery::cleanUp);
         
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect((dim) -> {
             cleanUp();

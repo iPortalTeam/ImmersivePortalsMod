@@ -18,6 +18,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.q_misc_util.Helper;
@@ -245,7 +246,7 @@ public abstract class BreakablePortalEntity extends Portal {
         }
         else {
             int[] counter = {30};
-            IPGlobal.serverTaskList.addTask(() -> {
+            ServerTaskList.of(getServer()).addTask(() -> {
                 BreakablePortalEntity reversePortal1 = getReversePortal();
                 if (reversePortal1 != null) {
                     reversePortal1.shouldBreakPortal = true;

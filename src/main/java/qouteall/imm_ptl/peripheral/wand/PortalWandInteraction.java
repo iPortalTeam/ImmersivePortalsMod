@@ -299,6 +299,7 @@ public class PortalWandInteraction {
         }
     }
     
+    // TODO make per-server
     private static final WeakHashMap<ServerPlayer, DraggingSession> draggingSessionMap = new WeakHashMap<>();
     
     public static void init() {
@@ -326,8 +327,8 @@ public class PortalWandInteraction {
             );
         });
         
-        IPGlobal.serverCleanupSignal.connect(draggingSessionMap::clear);
-        IPGlobal.serverCleanupSignal.connect(copyingSessionMap::clear);
+        IPGlobal.SERVER_CLEANUP_EVENT.register(s -> draggingSessionMap.clear());
+        IPGlobal.SERVER_CLEANUP_EVENT.register(s -> copyingSessionMap.clear());
     }
     
     public static final class DraggingInfo {

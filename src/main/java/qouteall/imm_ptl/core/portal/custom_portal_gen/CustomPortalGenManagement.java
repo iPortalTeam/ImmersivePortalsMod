@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.mixin.common.registry.IERegistryDataLoader;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
@@ -154,10 +155,12 @@ public class CustomPortalGenManagement {
             return;
         }
         
+        MinecraftServer server = context.getLevel().getServer();
+        
         Item item = context.getItemInHand().getItem();
         if (useItemGen.containsKey(item)) {
             // perform it in the second tick
-            IPGlobal.serverTaskList.addTask(() -> {
+            ServerTaskList.of(server).addTask(() -> {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
                         ((ServerLevel) context.getLevel()),
@@ -187,7 +190,7 @@ public class CustomPortalGenManagement {
         if (entity.hasPickUpDelay()) {
             Item item = entity.getItem().getItem();
             if (throwItemGen.containsKey(item)) {
-                IPGlobal.serverTaskList.addTask(() -> {
+                ServerTaskList.of(entity.getServer()).addTask(() -> {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
                             ((ServerLevel) entity.level()),

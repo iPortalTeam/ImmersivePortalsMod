@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
@@ -152,9 +153,19 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         at = @At("HEAD")
     )
     private void onSetWorld(ClientLevel clientLevel, CallbackInfo ci) {
-        if (clientLevel == null) {
+        if (ClientWorldLoader.getIsInitialized()) {
             LOGGER.info("Client cleanup");
-            IPGlobal.clientCleanupSignal.emit();
+            IPCGlobal.CLIENT_CLEANUP_EVENT.invoker().run();
+            
+            if (clientLevel == null) {
+                LOGGER.info("Client exit");
+                IPCGlobal.CLIENT_EXIT_EVENT.invoker().run();
+            }
+            
+            ClientWorldLoader.cleanUp();
+        }
+        else {
+            LOGGER.info("Client world updated but not counted as cleanup");
         }
     }
     

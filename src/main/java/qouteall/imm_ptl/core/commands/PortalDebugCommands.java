@@ -54,6 +54,7 @@ import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEChunkMap_Accessor;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IELevelEntityGetterAdapter;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -789,7 +790,7 @@ public class PortalDebugCommands {
             Vec3.atLowerCornerOf(center.getWorldPosition()).distanceTo(Vec3.atLowerCornerOf(c.getWorldPosition()))
         ));
         
-        IPGlobal.serverTaskList.addTask(MyTaskList.chainTasks(
+        ServerTaskList.of(world.getServer()).addTask(MyTaskList.chainTasks(
             poses.stream().map(chunkPos -> (MyTaskList.MyTask) () -> {
                 eraseChunk(
                     chunkPos, world, downY, upY

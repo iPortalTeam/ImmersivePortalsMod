@@ -45,7 +45,7 @@ public class ImmPtlChunkTracking {
     
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(ImmPtlChunkTracking::tick);
-        IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTracking::cleanup);
+        IPGlobal.SERVER_CLEANUP_EVENT.register(ImmPtlChunkTracking::cleanup);
         
         DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
             ImmPtlChunkTracking::onDimensionRemove
@@ -58,7 +58,9 @@ public class ImmPtlChunkTracking {
     
     // if the player object is recreated, pass in the old player object
     public static void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
-        for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+        LOGGER.info("Removing from chunk tracking {}", oldPlayer);
+        
+        for (ServerLevel world : oldPlayer.server.getAllLevels()) {
             ServerChunkCache chunkManager = world.getChunkSource();
             IEChunkMap storage =
                 (IEChunkMap) chunkManager.chunkMap;
@@ -446,7 +448,7 @@ public class ImmPtlChunkTracking {
         );
     }
     
-    private static void cleanup() {
+    private static void cleanup(MinecraftServer server) {
         chunkWatchRecords.clear();
         additionalChunkLoaders.clear();
         playerInfoMap.clear();
@@ -499,15 +501,17 @@ public class ImmPtlChunkTracking {
         return getDimChunkWatchRecords(dimension).get(ChunkPos.asLong(x, z));
     }
     
-    public static void forceRemovePlayer(ServerPlayer player) {
+    public static void forceRemovePlayer(ServerPlayer oldPlayer) {
+        playerInfoMap.remove(oldPlayer);
+        
         chunkWatchRecords.forEach((dim, dimMap) -> {
             dimMap.long2ObjectEntrySet().removeIf(e -> {
                 long chunkPos = e.getLongKey();
                 Object2ObjectOpenHashMap<ServerPlayer, PlayerWatchRecord> records = e.getValue();
-                PlayerWatchRecord rec = records.remove(player);
+                PlayerWatchRecord rec = records.remove(oldPlayer);
                 if (rec != null) {
                     PacketRedirection.sendRedirectedMessage(
-                        player, dim, new ClientboundForgetLevelChunkPacket(new ChunkPos(chunkPos))
+                        oldPlayer, dim, new ClientboundForgetLevelChunkPacket(new ChunkPos(chunkPos))
                     );
                 }
                 

@@ -5,8 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
@@ -121,10 +121,10 @@ public class ChunkLoader {
      * Load chunks and execute something when the chunks are loaded, then remove the chunk loader.
      * Note: if the server closes before the chunks load, it won't be executed when server starts again.
      */
-    public void loadChunksAndDo(Runnable runnable) {
+    public void loadChunksAndDo(MinecraftServer server, Runnable runnable) {
         ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(this);
         
-        IPGlobal.serverTaskList.addTask(MyTaskList.withDelayCondition(
+        ServerTaskList.of(server).addTask(MyTaskList.withDelayCondition(
             () -> getLoadedChunkNum() < getChunkNum(),
             MyTaskList.oneShotTask(() -> {
                 ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(this);

@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -1849,7 +1850,7 @@ public class PortalCommand {
         Helper.SimpleBox<BlockPos> currentSearchingCenter =
             new Helper.SimpleBox<>(startingPos);
         
-        IPGlobal.serverTaskList.addTask(MyTaskList.chainTask(
+        ServerTaskList.of(world.getServer()).addTask(MyTaskList.chainTask(
             MyTaskList.repeat(
                 roomNumber,
                 () -> MyTaskList.withDelay(20, MyTaskList.oneShotTask(() -> {
@@ -2652,9 +2653,7 @@ public class PortalCommand {
                 }
             }
 
-//            mesh2D.checkStorageIntegrity(); // debug
             mesh2D.simplify();
-//            mesh2D.checkStorageIntegrity(); // debug
             
         }, Util.backgroundExecutor());
         
@@ -2715,7 +2714,7 @@ public class PortalCommand {
         });
         
         // notify the player if it takes too long
-        IPGlobal.serverTaskList.addTask(MyTaskList.withDelay(
+        ServerTaskList.of(server).addTask(MyTaskList.withDelay(
             5, MyTaskList.oneShotTask(() -> {
                 if (!future.isDone()) {
                     if (player != null) {

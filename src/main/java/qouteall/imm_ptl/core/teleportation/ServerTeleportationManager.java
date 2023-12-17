@@ -30,6 +30,7 @@ import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -127,12 +128,12 @@ public class ServerTeleportationManager {
         if (motion > 20) {
             return;
         }
-        IPGlobal.serverTaskList.addTask(() -> {
+        ServerTaskList.of(portal.getServer()).addTask(() -> {
             try {
                 teleportRegularEntity(entity, portal);
             }
             catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("", e);
             }
             return true;
         });
@@ -738,7 +739,7 @@ public class ServerTeleportationManager {
         UUID chaserId = chaser.getUUID();
         ServerLevel destWorld = ((ServerLevel) portal.getDestinationWorld());
         
-        IPGlobal.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
+        ServerTaskList.of(player.server).addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
                 if (chaser.isRemoved()) {

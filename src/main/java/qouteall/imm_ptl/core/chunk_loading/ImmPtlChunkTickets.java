@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongPredicate;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
@@ -72,7 +74,7 @@ public class ImmPtlChunkTickets {
             ImmPtlChunkTickets::onDimensionRemove
         );
         
-        IPGlobal.serverCleanupSignal.connect(ImmPtlChunkTickets::cleanup);
+        IPGlobal.SERVER_CLEANUP_EVENT.register(ImmPtlChunkTickets::cleanup);
     }
     
     public static class ChunkTicketInfo {
@@ -317,7 +319,7 @@ public class ImmPtlChunkTickets {
         return ((IEServerChunkManager) world.getChunkSource()).ip_getDistanceManager();
     }
     
-    private static void cleanup() {
+    private static void cleanup(MinecraftServer server) {
         for (ImmPtlChunkTickets immPtlChunkTickets : BY_DIMENSION.values()) {
             immPtlChunkTickets.isValid = false;
         }

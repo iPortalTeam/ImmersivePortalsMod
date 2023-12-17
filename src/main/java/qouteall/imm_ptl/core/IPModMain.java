@@ -22,6 +22,7 @@ import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.debug.DebugUtil;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.imm_ptl.core.network.ImmPtlNetworking;
@@ -66,19 +67,7 @@ public class IPModMain {
         
         IPGlobal.postClientTickEvent.register(IPGlobal.clientTaskList::processTasks);
         
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            // TODO make it per-server
-            IPGlobal.serverTaskList.processTasks();
-        });
-        
         IPGlobal.preGameRenderSignal.register(IPGlobal.preGameRenderTaskList::processTasks);
-        
-        IPGlobal.clientCleanupSignal.connect(() -> {
-            if (ClientWorldLoader.getIsInitialized()) {
-                IPGlobal.clientTaskList.forceClearTasks();
-            }
-        });
-        IPGlobal.serverCleanupSignal.connect(IPGlobal.serverTaskList::forceClearTasks);
         
         IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
         
@@ -118,6 +107,8 @@ public class IPModMain {
         AxisArgumentType.init();
     
         DebugUtil.init();
+        
+        ServerTaskList.init();
         
         // intrinsic animation driver types
         RotationAnimation.init();

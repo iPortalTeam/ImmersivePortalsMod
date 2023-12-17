@@ -41,8 +41,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
     public static final ExperimentalIrisPortalRenderer instance = new ExperimentalIrisPortalRenderer();
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(() -> {
-        });
+    
     }
     
     @Override

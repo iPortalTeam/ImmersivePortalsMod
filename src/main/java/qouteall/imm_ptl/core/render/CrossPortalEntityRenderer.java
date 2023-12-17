@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.collision.PortalCollisionEntry;
@@ -48,7 +49,7 @@ public class CrossPortalEntityRenderer {
     public static void init() {
         IPGlobal.postClientTickEvent.register(CrossPortalEntityRenderer::onClientTick);
         
-        IPGlobal.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(CrossPortalEntityRenderer::cleanUp);
         
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanUp());
     }

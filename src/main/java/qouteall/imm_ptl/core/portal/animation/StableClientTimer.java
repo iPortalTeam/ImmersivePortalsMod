@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
@@ -107,7 +108,7 @@ public class StableClientTimer {
     private static double debugOffset;
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(StableClientTimer::cleanup);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(StableClientTimer::cleanup);
     }
     
     public static long getStableTickTime() {

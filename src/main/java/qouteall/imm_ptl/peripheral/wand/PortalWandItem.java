@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
@@ -62,9 +63,9 @@ public class PortalWandItem extends Item {
         });
         
         
-        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCreation::reset);
-        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalDrag::reset);
-        IPGlobal.clientCleanupSignal.connect(ClientPortalWandPortalCopy::reset);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(ClientPortalWandPortalCreation::reset);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(ClientPortalWandPortalDrag::reset);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(ClientPortalWandPortalCopy::reset);
     }
     
     public static void addIntoCreativeTag(CreativeModeTab.Output entries) {

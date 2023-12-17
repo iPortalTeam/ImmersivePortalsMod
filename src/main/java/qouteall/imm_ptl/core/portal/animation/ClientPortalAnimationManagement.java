@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -27,7 +28,7 @@ public class ClientPortalAnimationManagement {
     public static final Signal clientAnimationUpdateSignal = new Signal();
     
     public static void init() {
-        IPGlobal.clientCleanupSignal.connect(ClientPortalAnimationManagement::cleanup);
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(ClientPortalAnimationManagement::cleanup);
         ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
     }
     

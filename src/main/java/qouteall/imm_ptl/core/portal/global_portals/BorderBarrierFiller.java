@@ -132,6 +132,7 @@ public class BorderBarrierFiller {
         ThreadedLevelLightEngine lightingProvider = world.getChunkSource().getLightEngine();
         
         McHelper.performMultiThreadedFindingTaskOnServer(
+            world.getServer(),
             stream,
             columnPos -> {
                 ChunkAccess chunk = world.getChunk(columnPos);

@@ -125,6 +125,10 @@ public class IPModMainClient {
         ImmPtlNetworkConfig.initClient();
         
         ForceMainThreadRebuild.init();
+        
+        IPCGlobal.CLIENT_CLEANUP_EVENT.register(() -> {
+            IPGlobal.clientTaskList.forceClearTasks();
+        });
     }
     
 }

@@ -42,7 +42,6 @@ public class PacketRedirectionClient {
      * except for the bundle packet {@link net.minecraft.client.multiplayer.ClientPacketListener#handleBundlePacket(ClientboundBundlePacket)}.
      * <p>
      * For mod packets ({@link ClientboundCustomPayloadPacket}),
-     * handled in {@link net.fabricmc.fabric.mixin.networking.client.ClientPlayNetworkHandlerMixin},
      * the mod will also handle the packet using {@link Minecraft#execute(Runnable)} (If not, that mod has the bug)
      */
     public static void handleRedirectedPacket(

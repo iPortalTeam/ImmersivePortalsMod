@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.compat;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.ChatFormatting;
@@ -10,6 +11,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.MinecraftServer;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
@@ -268,7 +271,7 @@ public class IPModInfoChecking {
     }
     
     public static void initDedicatedServer() {
-        Util.backgroundExecutor().execute(() -> {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             if (!IPGlobal.checkModInfoFromInternet) {
                 return;
             }
@@ -279,7 +282,7 @@ public class IPModInfoChecking {
                 return;
             }
             
-            IPGlobal.serverTaskList.addOneShotTask(() -> {
+            ServerTaskList.of(server).addOneShotTask(() -> {
                 if (IPGlobal.enableUpdateNotification) {
                     if (O_O.shouldUpdateImmPtl(immPtlInfo.latestReleaseVersion)) {
                         LOGGER.info("[Immersive Portals] A new version is available. It is recommended to update to " + immPtlInfo.latestReleaseVersion);
@@ -319,7 +322,7 @@ public class IPModInfoChecking {
                         }
                         
                         McHelper.sendMessageToFirstLoggedPlayer(
-                            MiscHelper.getServer(),
+                            server,
                             Component.translatable("imm_ptl.message_from_server")
                                 .append(text1)
                         );
@@ -344,7 +347,7 @@ public class IPModInfoChecking {
                                 mod.modName, mod.modId, mod.desc, mod.link
                             );
                             McHelper.sendMessageToFirstLoggedPlayer(
-                                MiscHelper.getServer(),
+                                server,
                                 Component.translatable("imm_ptl.message_from_server")
                                     .append(text1)
                             );
