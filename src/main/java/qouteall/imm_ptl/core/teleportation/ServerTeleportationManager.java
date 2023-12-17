@@ -158,7 +158,7 @@ public class ServerTeleportationManager {
         UUID portalId
     ) {
         if (player.getRemovalReason() != null) {
-            Helper.err("Trying to teleport a removed player " + player);
+            LOGGER.error("Trying to teleport a removed player {}", player);
             return;
         }
         
@@ -171,8 +171,9 @@ public class ServerTeleportationManager {
         // Verify teleportation, prevent a hacked client from teleporting through any portal.
         // Well I guess no one will make the hacked ImmPtl client.
         if (canPlayerTeleport(player, dimensionBefore, oldFeetPos, portal)) {
+            assert portal != null;
             if (isTeleporting(player)) {
-                Helper.log(player.toString() + "is teleporting frequently");
+                LOGGER.info("{} is teleporting frequently", player);
             }
             
             notifyChasersForPlayer(player, portal);
@@ -197,13 +198,11 @@ public class ServerTeleportationManager {
             
         }
         else {
-            Helper.err(String.format(
-                "Player cannot teleport through portal %s %s %s %s",
-                player.getName().getContents(),
-                player.level().dimension(),
-                player.position(),
+            LOGGER.error(
+                "Player {} {} {} cannot teleport through portal {}",
+                player, player.level().dimension().location(), player.position(),
                 portal
-            ));
+            );
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level()));
             PehkuiInterface.invoker.setBaseScale(player, PehkuiInterface.invoker.getBaseScale(player));
             GravityChangerInterface.invoker.setBaseGravityDirectionServer(
