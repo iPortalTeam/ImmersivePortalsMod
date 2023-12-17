@@ -246,4 +246,8 @@ public class O_O {
         // ForgeHooks.onTravelToDimension() on Forge
         return true;
     }
+    
+    public static boolean isDevEnv() {
+        return FabricLoader.getInstance().isDevelopmentEnvironment();
+    }
 }

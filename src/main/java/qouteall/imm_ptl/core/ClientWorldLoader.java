@@ -284,7 +284,7 @@ public class ClientWorldLoader {
      */
     @NotNull
     public static ClientLevel getWorld(ResourceKey<Level> dimension) {
-        Validate.notNull(dimension);
+        Validate.notNull(dimension, "dimension is null");
         Validate.isTrue(client.isSameThread());
         
         initializeIfNeeded();
@@ -294,7 +294,7 @@ public class ClientWorldLoader {
         }
         
         ClientLevel result = clientWorldMap.get(dimension);
-        Validate.notNull(result);
+        Validate.notNull(result, "null value in world map");
         return result;
     }
     

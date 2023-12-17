@@ -429,6 +429,7 @@ public class ClientTeleportationManager {
         LOGGER.info("client player force teleported {} {}", toDimension, destination);
         
         ClientLevel fromWorld = client.level;
+        assert fromWorld != null;
         ResourceKey<Level> fromDimension = fromWorld.dimension();
         LocalPlayer player = client.player;
         assert player != null;
@@ -442,7 +443,6 @@ public class ClientTeleportationManager {
         McHelper.adjustVehicle(player);
         
         lastPlayerEyePos = null;
-//        disableTeleportFor(2);
         
         RenderStates.updatePreRenderInfo(RenderStates.getPartialTick());
         MyGameRenderer.vanillaTerrainSetupOverride = 1;

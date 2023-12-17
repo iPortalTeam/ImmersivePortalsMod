@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.commands;
 
 import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -15,9 +16,12 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
@@ -61,6 +65,7 @@ import qouteall.imm_ptl.core.render.ImmPtlViewArea;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -494,10 +499,44 @@ public class ClientDebugCommand {
             })
         );
         
+        // this command is used for testing server-side position validation
+        // only usable on dev env
+        if (O_O.isDevEnv()) {
+            builder.then(ClientCommandManager
+                .literal("tp_on_client_side")
+                .then(ClientCommandManager.argument("dim_id", StringArgumentType.string())
+                    .then(ClientCommandManager.argument("x", DoubleArgumentType.doubleArg())
+                        .then(ClientCommandManager.argument("y", DoubleArgumentType.doubleArg())
+                            .then(ClientCommandManager.argument("z", DoubleArgumentType.doubleArg())
+                                .executes(context -> {
+                                    String dimId = StringArgumentType.getString(context, "dim_id");
+                                    double x = DoubleArgumentType.getDouble(context, "x");
+                                    double y = DoubleArgumentType.getDouble(context, "y");
+                                    double z = DoubleArgumentType.getDouble(context, "z");
+                                    
+                                    ResourceKey<Level> dimKey = ResourceKey.create(
+                                        Registries.DIMENSION,
+                                        new ResourceLocation(dimId)
+                                    );
+                                    Vec3 pos = new Vec3(x, y, z);
+                                    
+                                    ClientTeleportationManager.forceTeleportPlayer(
+                                        dimKey, pos
+                                    );
+                                    
+                                    return 0;
+                                })
+                            )
+                        )
+                    )
+                )
+            );
+        }
+        
         builder.then(ClientCommandManager.literal("show_mod_id_list")
             .executes(context -> {
                 List<String> loadedModIds = O_O.getLoadedModIds();
-                String str = loadedModIds.stream().collect(Collectors.joining("\n"));
+                String str = String.join("\n", loadedModIds);
                 context.getSource().sendFeedback(Component.literal(str));
                 return 0;
             })
