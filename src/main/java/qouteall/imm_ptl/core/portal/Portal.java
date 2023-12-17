@@ -67,9 +67,9 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.Plane;
-import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
@@ -151,15 +151,6 @@ public class Portal extends Entity implements
      */
     @Nullable
     public UUID specificPlayerId;
-    
-    /**
-     * If not null, defines the special shape of the portal
-     * The shape should not exceed the area defined by width and height
-     */
-    // TODO remove in 1.20.3
-    @Nullable
-    @Deprecated
-    public GeometryPortalShape specialShape;
     
     /**
      * The bounding box. Expanded very little.
@@ -321,31 +312,33 @@ public class Portal extends Entity implements
         }
         else {
             // upgrade old data
+            Mesh2D mesh2D;
+            
             if (compoundTag.contains("specialShape")) {
                 // if missing, it will be false
                 boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
                 
                 if (shapeNormalized) {
-                    specialShape = GeometryPortalShape.fromTag(
+                    mesh2D = GeometryPortalShape.readOldMeshFromTag(
                         compoundTag.getList("specialShape", 6)
                     );
                 }
                 else {
-                    specialShape = GeometryPortalShape.fromTagOldFormat(
+                    mesh2D = GeometryPortalShape.readOldMeshFromTagNonNormalized(
                         compoundTag.getList("specialShape", 6),
                         width / 2, height / 2
                     );
                 }
             }
             else {
-                specialShape = null;
+                mesh2D = null;
             }
             
-            if (specialShape == null) {
+            if (mesh2D == null) {
                 portalShape = RectangularPortalShape.INSTANCE;
             }
             else {
-                portalShape = new SpecialFlatPortalShape(specialShape.mesh);
+                portalShape = new SpecialFlatPortalShape(mesh2D);
             }
         }
         
@@ -502,10 +495,6 @@ public class Portal extends Entity implements
     public void setPortalShape(PortalShape portalShape) {
         this.portalShape = portalShape;
         
-        if (!(portalShape instanceof SpecialFlatPortalShape)) {
-            this.specialShape = null;
-        }
-        
         if (portalShape.isPlanar()) {
             thickness = 0;
         }
@@ -636,17 +625,6 @@ public class Portal extends Entity implements
         thisSideCollisionExclusion = null;
         thisSideStateCache = null;
         otherSideStateCache = null;
-        
-        // for API compat, we need to make portalShape change by specialShape
-        // going to remove specialShape in 1.20.3
-        if (specialShape != null) {
-            portalShape = new SpecialFlatPortalShape(specialShape.mesh);
-        }
-        else {
-            if (portalShape instanceof SpecialFlatPortalShape s) {
-                this.specialShape = new GeometryPortalShape(s.mesh);
-            }
-        }
         
         if (updates) {
             portalCacheUpdateSignal.emit(this);
@@ -1318,55 +1296,6 @@ public class Portal extends Entity implements
     
     public AABB getThinAreaBox() {
         return getExactAreaBox();
-    }
-    
-    /**
-     * Project the point into the portal plane, is it in the portal area
-     * TODO remove in 1.20.3
-     */
-    @Deprecated
-    public boolean isPointInPortalProjection(Vec3 pos) {
-        return lenientIsPointInPortalProjection(pos, 0.001);
-    }
-    
-    // TODO remove in 1.20.3
-    @Deprecated
-    public boolean lenientIsPointInPortalProjection(Vec3 pos, double leniency) {
-        Vec3 offset = pos.subtract(getOriginPos());
-        
-        double yInPlane = offset.dot(axisH);
-        double xInPlane = offset.dot(axisW);
-        
-        return lenientIsLocalXYOnPortal(xInPlane, yInPlane, leniency);
-    }
-    
-    @Deprecated
-    public boolean isLocalXYOnPortal(double xInPlane, double yInPlane) {
-        return lenientIsLocalXYOnPortal(xInPlane, yInPlane, 0.001);
-    }
-    
-    @Deprecated
-    public boolean lenientIsLocalXYOnPortal(double xInPlane, double yInPlane, double leniency) {
-        double halfWidth = width / 2;
-        double halfHeight = height / 2;
-        boolean inRange = Math.abs(xInPlane) < (halfWidth + leniency) &&
-            Math.abs(yInPlane) < (halfHeight + leniency);
-        
-        if (halfWidth == 0 || halfHeight == 0) {
-            return false;
-        }
-        
-        if (inRange && specialShape != null) {
-            double boxR = Math.max(leniency, 0.00001);
-            double nx = xInPlane / halfWidth;
-            double ny = yInPlane / halfHeight;
-            return specialShape.boxIntersects(
-                nx - boxR, ny - boxR,
-                nx + boxR, ny + boxR
-            );
-        }
-        
-        return inRange;
     }
     
     /**
@@ -2052,53 +1981,6 @@ public class Portal extends Entity implements
             
         }
         return thisSideCollisionExclusion;
-    }
-    
-    @Deprecated
-    public boolean isBoundingBoxInPortalProjection(AABB boundingBox) {
-        Vec3[] vertexes = Helper.eightVerticesOf(boundingBox);
-        
-        Vec3 originPos = getOriginPos();
-        
-        double minX = vertexes[0].subtract(originPos).dot(axisW);
-        double maxX = minX;
-        double minY = vertexes[0].subtract(originPos).dot(axisH);
-        double maxY = minY;
-        
-        for (int i = 1; i < 8; i++) {
-            Vec3 vertex = vertexes[i];
-            double x = vertex.subtract(originPos).dot(axisW);
-            double y = vertex.subtract(originPos).dot(axisH);
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-        }
-        
-        return isLocalBoxInShape(minX, minY, maxX, maxY);
-    }
-    
-    @Deprecated
-    private boolean isLocalBoxInShape(double minX, double minY, double maxX, double maxY) {
-        double halfWidth = width / 2;
-        double halfHeight = height / 2;
-        
-        if (!Range.rangeIntersects(minX, maxX, -halfWidth, halfWidth)) {
-            return false;
-        }
-        
-        if (!Range.rangeIntersects(minY, maxY, -halfHeight, halfHeight)) {
-            return false;
-        }
-        
-        if (specialShape == null) {
-            return true;
-        }
-        
-        return specialShape.boxIntersects(
-            minX / halfWidth, minY / halfHeight,
-            maxX / halfWidth, maxY / halfHeight
-        );
     }
     
     // for PortalRenderable

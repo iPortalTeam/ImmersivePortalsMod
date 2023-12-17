@@ -22,11 +22,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
-import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
+import qouteall.imm_ptl.core.ducks.IEServerChunkCache;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
@@ -316,7 +315,7 @@ public class ImmPtlChunkTickets {
     }
     
     public static DistanceManager getDistanceManager(ServerLevel world) {
-        return ((IEServerChunkManager) world.getChunkSource()).ip_getDistanceManager();
+        return ((IEServerChunkCache) world.getChunkSource()).ip_getDistanceManager();
     }
     
     private static void cleanup(MinecraftServer server) {

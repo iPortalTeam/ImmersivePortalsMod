@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
@@ -123,6 +123,8 @@ public class NetherPortalGeneration {
         ResourceKey<Level> fromDimension = fromWorld.dimension();
         ResourceKey<Level> toDimension = toWorld.dimension();
         
+        MinecraftServer server = fromWorld.getServer();
+        
         Vec3 indicatorPos = fromShape.innerAreaBox.getCenterVec();
         
         LoadingIndicatorEntity indicatorEntity =
@@ -171,14 +173,14 @@ public class NetherPortalGeneration {
             new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
         
-        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(chunkLoader);
+        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(server, chunkLoader);
         
         Runnable finalizer = () -> {
             indicatorEntity.remove(Entity.RemovalReason.KILLED);
-            ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(chunkLoader);
+            ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(server, chunkLoader);
         };
         
-        ServerTaskList.of(fromWorld.getServer()).addTask(() -> {
+        ServerTaskList.of(server).addTask(() -> {
             
             boolean isPortalIntact = portalIntegrityChecker.getAsBoolean();
             
@@ -187,7 +189,7 @@ public class NetherPortalGeneration {
                 return true;
             }
             
-            int loadedChunks = chunkLoader.getLoadedChunkNum();
+            int loadedChunks = chunkLoader.getLoadedChunkNum(server);
             int allChunksNeedsLoading = chunkLoader.getChunkNum();
             if (loadedChunks < allChunksNeedsLoading) {
                 indicatorEntity.inform(Component.translatable(
@@ -203,8 +205,8 @@ public class NetherPortalGeneration {
             }
             
             WorldGenRegion chunkRegion = new ChunkLoader(
-                chunkLoader.center, frameSearchingRadius
-            ).createChunkRegion();
+                chunkLoader.getCenter(), frameSearchingRadius
+            ).createChunkRegion(server);
             
             indicatorEntity.inform(Component.translatable("imm_ptl.searching_for_frame"));
             

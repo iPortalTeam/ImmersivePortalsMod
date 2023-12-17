@@ -121,9 +121,23 @@ public class PortalAPI {
         ImmPtlChunkTracking.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
+    /**
+     * Note it removes chunk loader by reference, not value equality.
+     */
     public static void removeChunkLoaderForPlayer(ServerPlayer player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
         ImmPtlChunkTracking.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
+    }
+    
+    public static void addGlobalChunkLoader(MinecraftServer server, ChunkLoader chunkLoader) {
+        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(server, chunkLoader);
+    }
+    
+    /**
+     * Note it removes chunk loader by reference, not value equality.
+     */
+    public static void removeGlobalChunkLoader(MinecraftServer server, ChunkLoader chunkLoader) {
+        ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(server, chunkLoader);
     }
     
     /**

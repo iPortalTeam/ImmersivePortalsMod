@@ -179,7 +179,7 @@ public class ImmPtlChunkTracking {
         MinecraftServer server = MiscHelper.getServer();
         
         for (ChunkLoader chunkLoader : chunkLoaders) {
-            ResourceKey<Level> dimension = chunkLoader.center.dimension;
+            ResourceKey<Level> dimension = chunkLoader.dimension();
             var chunkRecordMap = getDimChunkWatchRecords(dimension);
             
             ServerLevel world = server.getLevel(dimension);
@@ -200,7 +200,7 @@ public class ImmPtlChunkTracking {
                 ticketInfo.markForLoading(chunkPos, distanceToSource, generationCounter);
                 
                 records.compute(player, (k, record) -> {
-                    boolean isBoundary = distanceToSource == chunkLoader.radius;
+                    boolean isBoundary = distanceToSource == chunkLoader.radius();
                     if (record == null) {
                         PlayerWatchRecord newRecord = new PlayerWatchRecord(
                             player, dimension, chunkPos, generationCounter, distanceToSource,
@@ -336,7 +336,7 @@ public class ImmPtlChunkTracking {
             new Object2ObjectOpenHashMap<>();
         
         additionalChunkLoaders.removeIf(chunkLoader -> {
-            ResourceKey<Level> dimension = chunkLoader.center.dimension;
+            ResourceKey<Level> dimension = chunkLoader.dimension();
             ServerLevel world = MiscHelper.getServer().getLevel(dimension);
             
             if (world == null) {
@@ -544,11 +544,11 @@ public class ImmPtlChunkTracking {
         chunkWatchRecords.remove(dim);
         
         additionalChunkLoaders.removeIf(chunkLoader -> {
-            return chunkLoader.center.dimension == dim;
+            return chunkLoader.dimension() == dim;
         });
         
         for (PlayerChunkLoading playerInfo : playerInfoMap.values()) {
-            playerInfo.additionalChunkLoaders.removeIf(l -> l.center.dimension == dim);
+            playerInfo.additionalChunkLoaders.removeIf(l -> l.dimension() == dim);
         }
     }
     
@@ -561,11 +561,14 @@ public class ImmPtlChunkTracking {
         return !map.isEmpty();
     }
     
-    public static void addGlobalAdditionalChunkLoader(ChunkLoader chunkLoader) {
+    public static void addGlobalAdditionalChunkLoader(
+        MinecraftServer server,
+        ChunkLoader chunkLoader
+    ) {
         additionalChunkLoaders.add(chunkLoader);
         
-        ResourceKey<Level> dimension = chunkLoader.center.dimension;
-        ServerLevel world = MiscHelper.getServer().getLevel(dimension);
+        ResourceKey<Level> dimension = chunkLoader.dimension();
+        ServerLevel world = server.getLevel(dimension);
         
         if (world == null) {
             LOGGER.error("Missing dimension in chunk loader {}", dimension.location());
@@ -582,7 +585,9 @@ public class ImmPtlChunkTracking {
     /**
      * NOTE it removes chunk loader by object reference, not by value equality
      */
-    public static void removeGlobalAdditionalChunkLoader(ChunkLoader chunkLoader) {
+    public static void removeGlobalAdditionalChunkLoader(
+        MinecraftServer server, ChunkLoader chunkLoader
+    ) {
         additionalChunkLoaders.removeIf(c -> c == chunkLoader);
     }
     

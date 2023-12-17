@@ -30,8 +30,7 @@ public class ChunkVisibility {
                 player.level().dimension(),
                 player.chunkPosition()
             ),
-            McHelper.getPlayerLoadDistance(player),
-            true
+            McHelper.getPlayerLoadDistance(player)
         );
     }
     

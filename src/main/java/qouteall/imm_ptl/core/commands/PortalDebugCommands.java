@@ -43,7 +43,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
@@ -51,7 +50,7 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTickets;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
-import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
+import qouteall.imm_ptl.core.ducks.IEServerChunkCache;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
@@ -729,7 +728,7 @@ public class PortalDebugCommands {
             );
             
             DistanceManager distanceManager =
-                ((IEServerChunkManager) world.getChunkSource()).ip_getDistanceManager();
+                ((IEServerChunkCache) world.getChunkSource()).ip_getDistanceManager();
             SortedArraySet<Ticket<?>> tickets = ((IEDistanceManager) distanceManager).portal_getTicketSet(longChunkPos);
             for (Ticket<?> ticket : tickets) {
                 McHelper.serverLog(

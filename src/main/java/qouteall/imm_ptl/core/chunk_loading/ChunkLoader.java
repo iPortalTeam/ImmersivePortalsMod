@@ -7,39 +7,26 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-import java.util.Objects;
-
-public class ChunkLoader {
-    // TODO flatten and turn to record in 1.20.3
-    public DimensionalChunkPos center;
-    public int radius;
-    // TODO remove in 1.20.3
-    @Deprecated
-    public boolean isDirectLoader = false;
-    
+public final record ChunkLoader(
+    ResourceKey<Level> dimension,
+    int x,
+    int z,
+    int radius
+) {
     public ChunkLoader(DimensionalChunkPos center, int radius) {
-        this(center, radius, false);
+        this(center.dimension, center.x, center.z, radius);
     }
     
-    @Deprecated
-    public ChunkLoader(DimensionalChunkPos center, int radius, boolean isDirectLoader) {
-        this.center = center;
-        this.radius = radius;
-        this.isDirectLoader = isDirectLoader;
-    }
-    
-    @Deprecated
-    public int getLoadedChunkNum() {
-        return getLoadedChunkNum(MiscHelper.getServer());
+    public DimensionalChunkPos getCenter() {
+        return new DimensionalChunkPos(dimension, x, z);
     }
     
     public int getLoadedChunkNum(MinecraftServer server) {
         int[] numBox = {0};
         
-        ServerLevel serverWorld = McHelper.getServerWorld(server, center.dimension);
+        ServerLevel serverWorld = McHelper.getServerWorld(server, dimension);
         
         foreachChunkPos((dim, x, z, dist) -> {
             if (McHelper.isServerChunkFullyLoaded(serverWorld, new ChunkPos(x, z))) {
@@ -61,9 +48,9 @@ public class ChunkLoader {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 func.consume(
-                    center.dimension,
-                    center.x + dx,
-                    center.z + dz,
+                    dimension,
+                    x + dx,
+                    z + dz,
                     Math.max(Math.abs(dx), Math.abs(dz))
                 );
             }
@@ -72,7 +59,7 @@ public class ChunkLoader {
     
     public void foreachChunkPosFromInnerToOuter(ChunkPosConsumer func) {
         // case for r == 0
-        func.consume(center.dimension, center.x, center.z, 0);
+        func.consume(dimension, x, z, 0);
         
         for (int r = 1; r <= radius; r++) {
             // traverse the four sides
@@ -88,33 +75,33 @@ public class ChunkLoader {
             // |           |
             // x - - - - - x
             
-            int minX = center.x - r;
-            int maxX = center.x + r;
-            int minY = center.z - r;
-            int maxY = center.z + r;
+            int minX = x - r;
+            int maxX = x + r;
+            int minY = z - r;
+            int maxY = z + r;
             
             for (int y = minY; y < maxY; y++) {
-                func.consume(center.dimension, maxX, y, r);
+                func.consume(dimension, maxX, y, r);
             }
             
             for (int x = maxX; x > minX; x--) {
-                func.consume(center.dimension, x, maxY, r);
+                func.consume(dimension, x, maxY, r);
             }
             
             for (int y = maxY; y > minY; y--) {
-                func.consume(center.dimension, minX, y, r);
+                func.consume(dimension, minX, y, r);
             }
             
             for (int x = minX; x < maxX; x++) {
-                func.consume(center.dimension, x, minY, r);
+                func.consume(dimension, x, minY, r);
             }
         }
     }
     
-    public LenientChunkRegion createChunkRegion() {
-        ServerLevel world = MiscHelper.getServer().getLevel(center.dimension);
+    public LenientChunkRegion createChunkRegion(MinecraftServer server) {
+        ServerLevel world = server.getLevel(dimension);
         
-        return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
+        return LenientChunkRegion.createLenientChunkRegion(getCenter(), radius, world);
     }
     
     /**
@@ -122,12 +109,12 @@ public class ChunkLoader {
      * Note: if the server closes before the chunks load, it won't be executed when server starts again.
      */
     public void loadChunksAndDo(MinecraftServer server, Runnable runnable) {
-        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(this);
+        ImmPtlChunkTracking.addGlobalAdditionalChunkLoader(server, this);
         
         ServerTaskList.of(server).addTask(MyTaskList.withDelayCondition(
-            () -> getLoadedChunkNum() < getChunkNum(),
+            () -> getLoadedChunkNum(server) < getChunkNum(),
             MyTaskList.oneShotTask(() -> {
-                ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(this);
+                ImmPtlChunkTracking.removeGlobalAdditionalChunkLoader(server, this);
                 runnable.run();
             })
         ));
@@ -135,24 +122,7 @@ public class ChunkLoader {
     
     @Override
     public String toString() {
-        return "{" +
-            "center=" + center +
-            ", radius=" + radius +
-            '}';
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChunkLoader that = (ChunkLoader) o;
-        return radius == that.radius &&
-            center.equals(that.center);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(center, radius);
+        return "(%s %d %d %d)".formatted(dimension.location(), x, z, radius);
     }
     
     public static interface ChunkPosConsumer {
