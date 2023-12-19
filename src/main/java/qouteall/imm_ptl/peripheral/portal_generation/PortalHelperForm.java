@@ -55,11 +55,11 @@ public class PortalHelperForm extends AbstractDiligentForm {
         world.setBlockAndUpdate(info.fromShape.firstFramePos, Blocks.AIR.defaultBlockState());
         world.setBlockAndUpdate(info.toShape.firstFramePos, Blocks.AIR.defaultBlockState());
         
-        Portal portal = info.createTemplatePortal(Portal.entityType);
+        Portal portal = info.createTemplatePortal(Portal.ENTITY_TYPE);
         PortalExtension.get(portal).bindCluster = true;
-        Portal flipped = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
-        Portal reverse = PortalManipulation.createReversePortal(portal, Portal.entityType);
-        Portal parallel = PortalManipulation.createReversePortal(flipped, Portal.entityType);
+        Portal flipped = PortalManipulation.createFlippedPortal(portal, Portal.ENTITY_TYPE);
+        Portal reverse = PortalManipulation.createReversePortal(portal, Portal.ENTITY_TYPE);
+        Portal parallel = PortalManipulation.createReversePortal(flipped, Portal.ENTITY_TYPE);
         
         Portal[] portals = {portal, flipped, reverse, parallel};
         

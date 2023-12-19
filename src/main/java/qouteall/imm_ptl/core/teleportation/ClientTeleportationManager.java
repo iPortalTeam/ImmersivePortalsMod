@@ -81,7 +81,7 @@ public class ClientTeleportationManager {
     private static long teleportationCounter = 0;
     
     public static void init() {
-        IPGlobal.postClientTickEvent.register(
+        IPGlobal.POST_CLIENT_TICK_EVENT.register(
             ClientTeleportationManager::tick
         );
         
@@ -637,7 +637,7 @@ public class ClientTeleportationManager {
         Helper.log("Adjusting Client Player Position");
         
         int[] counter = {0};
-        IPGlobal.clientTaskList.addTask(() -> {
+        IPGlobal.CLIENT_TASK_LIST.addTask(() -> {
             if (player.isRemoved()) {
                 return true;
             }

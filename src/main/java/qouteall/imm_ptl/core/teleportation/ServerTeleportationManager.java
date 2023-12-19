@@ -66,10 +66,10 @@ public class ServerTeleportationManager {
     }
     
     public ServerTeleportationManager() {
-        Portal.serverPortalTickSignal.connectWithWeakRef(
-            this, (this_, portal) -> {
+        Portal.SERVER_PORTAL_TICK_SIGNAL.register(
+            (portal) -> {
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                    this_.startTeleportingRegularEntity(portal, entity);
+                    startTeleportingRegularEntity(portal, entity);
                 });
             }
         );

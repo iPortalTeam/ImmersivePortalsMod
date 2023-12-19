@@ -441,7 +441,7 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        IPGlobal.postClientTickEvent.register(CollisionHelper::tickClient);
+        IPGlobal.POST_CLIENT_TICK_EVENT.register(CollisionHelper::tickClient);
     }
     
     @Environment(EnvType.CLIENT)

@@ -415,7 +415,7 @@ public record UnilateralPortalState(
         return Arrays.stream(RectInvariant.values())
             .map(inv -> Pair.of(inv, inv.getVariantOf(this)))
             .min(Comparator.comparingDouble(
-                p -> DQuaternion.distance(p.getSecond().orientation(), targetOrientation)
+                p -> DQuaternion.distanceSq(p.getSecond().orientation(), targetOrientation)
             ))
             .orElseThrow();
     }

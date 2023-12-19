@@ -80,7 +80,7 @@ public class ImmPtlViewArea extends ViewArea {
             }
         });
         
-        IPGlobal.postClientTickEvent.register(() -> {
+        IPGlobal.POST_CLIENT_TICK_EVENT.register(() -> {
             if (ClientWorldLoader.getIsInitialized()) {
                 for (ClientLevel world : ClientWorldLoader.getClientWorlds()) {
                     LevelRenderer worldRenderer =
@@ -332,7 +332,7 @@ public class ImmPtlViewArea extends ViewArea {
         });
         
         if (!toDelete.isEmpty()) {
-            IPGlobal.preGameRenderTaskList.addTask(() -> {
+            IPGlobal.PRE_GAME_RENDER_TASK_LIST.addTask(() -> {
                 if (toDelete.isEmpty()) {
                     return true;
                 }

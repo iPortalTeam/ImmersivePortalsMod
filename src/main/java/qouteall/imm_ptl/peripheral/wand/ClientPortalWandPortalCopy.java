@@ -180,7 +180,7 @@ public class ClientPortalWandPortalCopy {
             
             AARotation orientationRot = Arrays.stream(AARotation.values())
                 .min(Comparator.comparingDouble(
-                    r -> DQuaternion.distance(r.quaternion, camRotInverse)
+                    r -> DQuaternion.distanceSq(r.quaternion, camRotInverse)
                 ))
                 .orElseThrow();
             DQuaternion orientation = orientationRot.quaternion;

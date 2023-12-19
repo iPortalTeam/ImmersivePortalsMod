@@ -305,7 +305,7 @@ public class PortalManipulation {
         AABB viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
         for (Direction direction : Direction.values()) {
             Portal portal = createOrthodoxPortal(
-                Portal.entityType,
+                Portal.ENTITY_TYPE,
                 boxWorld, areaWorld,
                 direction, Helper.getBoxSurface(viewBox, direction),
                 Helper.getBoxSurface(area, direction).getCenter()
@@ -320,7 +320,7 @@ public class PortalManipulation {
             McHelper.spawnServerEntity(portal);
             
             if (biWay) {
-                Portal reversePortal = createReversePortal(portal, Portal.entityType);
+                Portal reversePortal = createReversePortal(portal, Portal.ENTITY_TYPE);
                 
                 reversePortal.renderingMergable = innerRenderingMergable;
                 
@@ -386,7 +386,7 @@ public class PortalManipulation {
             ? entity.level()
             : hitPortals.get(hitPortals.size() - 1).getDestinationWorld();
         
-        Portal portal = new Portal(Portal.entityType, world);
+        Portal portal = new Portal(Portal.ENTITY_TYPE, world);
         
         portal.setPosRaw(pos.x, pos.y, pos.z);
         

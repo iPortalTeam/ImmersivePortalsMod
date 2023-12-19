@@ -147,7 +147,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         if (entity_1 == null) {
             if (!isReProcessingPassengerPacket) {
                 Helper.log("Re-processed riding packet");
-                IPGlobal.clientTaskList.addTask(() -> {
+                IPGlobal.CLIENT_TASK_LIST.addTask(() -> {
                     isReProcessingPassengerPacket = true;
                     handleSetEntityPassengersPacket(entityPassengersSetS2CPacket_1);
                     isReProcessingPassengerPacket = false;

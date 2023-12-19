@@ -81,7 +81,7 @@ public class PortalRenderInfo {
     private PortalGroup renderingGroup;
     
     public static void init() {
-        Portal.clientPortalTickSignal.connect(portal -> {
+        Portal.CLIENT_PORTAL_TICK_SIGNAL.register(portal -> {
             PortalRenderInfo presentation = getOptional(portal);
             if (presentation != null) {
                 presentation.tick(portal);
@@ -93,7 +93,7 @@ public class PortalRenderInfo {
             PortalRenderInfo::updateGroupBinding
         );
         
-        Portal.portalDisposeSignal.connect(portal -> {
+        Portal.PORTAL_DISPOSE_SIGNAL.register(portal -> {
             if (portal.level().isClientSide()) {
                 PortalRenderInfo renderInfo = getOptional(portal);
                 if (renderInfo != null) {
@@ -392,7 +392,7 @@ public class PortalRenderInfo {
         // normally if a portal is removed by calling remove() it will dispose normally
         // but that cannot be guaranteed
         // use this to avoid potential resource leak
-        IPGlobal.preTotalRenderTaskList.addTask(() -> {
+        IPGlobal.PRE_TOTAL_RENDER_TASK_LIST.addTask(() -> {
 //            if (!infoMap.isEmpty()) {
 //                Helper.err("A PortalRenderInfo is not being deterministically disposed");
 //            }

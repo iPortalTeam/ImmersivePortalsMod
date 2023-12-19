@@ -1186,7 +1186,7 @@ public class PortalCommand {
         double width, double height, Entity fromEntity, Entity toEntity,
         String portalName
     ) {
-        Portal portal = Portal.entityType.create(fromEntity.level());
+        Portal portal = Portal.ENTITY_TYPE.create(fromEntity.level());
         
         portal.setPos(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
         
@@ -1496,7 +1496,7 @@ public class PortalCommand {
                                 double thisSideHeight = area.getYsize() / scale;
                                 double thisSideThickness = area.getZsize() / scale;
                                 
-                                Portal portal = Portal.entityType.create(boxWorld);
+                                Portal portal = Portal.ENTITY_TYPE.create(boxWorld);
                                 assert portal != null;
                                 portal.setDestinationDimension(areaWorld.dimension());
                                 portal.setOriginPos(
@@ -1735,7 +1735,7 @@ public class PortalCommand {
                             
                             Vec3 center = fromPos.add(toPos).scale(0.5);
                             
-                            Portal portal = Portal.entityType.create(context.getSource().getLevel());
+                            Portal portal = Portal.ENTITY_TYPE.create(context.getSource().getLevel());
                             assert portal != null;
                             portal.setOriginPos(center);
                             portal.setOrientation(vecAlongAxis.normalize(), vecNotAlongAxis.normalize());
@@ -1751,7 +1751,7 @@ public class PortalCommand {
                             
                             McHelper.spawnServerEntity(portal);
                             
-                            Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+                            Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.ENTITY_TYPE);
                             McHelper.spawnServerEntity(flippedPortal);
                             
                             return 0;
@@ -1825,7 +1825,7 @@ public class PortalCommand {
                     facingVec, sideDirectionVec
                 );
                 
-                Portal portal = Portal.entityType.create(world);
+                Portal portal = Portal.ENTITY_TYPE.create(world);
                 portal.setOriginPos(portalOrigin);
                 portal.setDestination(portalDestination);
                 portal.setDestinationDimension(world.dimension());
@@ -1887,7 +1887,7 @@ public class PortalCommand {
                     IntBox room1 = room1Area.getAdjusted(1, 1, 1, -1, -1, -1);
                     IntBox room2 = room2Area.getAdjusted(1, 1, 1, -1, -1, -1);
                     
-                    Portal portal = Portal.entityType.create(world);
+                    Portal portal = Portal.ENTITY_TYPE.create(world);
                     Validate.notNull(portal);
                     portal.setOriginPos(room1.getCenterVec().add(
                         roomSize.getX() / 4.0, 0, 0
@@ -1972,7 +1972,7 @@ public class PortalCommand {
     
     private static void addSmallWorldWrappingPortals(AABB box, ServerLevel world, boolean isInward) {
         for (Direction direction : Direction.values()) {
-            Portal portal = Portal.entityType.create(world);
+            Portal portal = Portal.ENTITY_TYPE.create(world);
             WorldWrappingPortal.initWrappingPortal(
                 world, box, direction, isInward, portal
             );
@@ -2034,7 +2034,7 @@ public class PortalCommand {
         PortalManipulation.completeBiWayBiFacedPortal(
             portal,
             p -> sendMessage(context, "Removed " + p),
-            p -> sendMessage(context, "Added " + p), Portal.entityType
+            p -> sendMessage(context, "Added " + p), Portal.ENTITY_TYPE
         );
     }
     
@@ -2055,7 +2055,7 @@ public class PortalCommand {
         
         Portal result = PortalManipulation.completeBiFacedPortal(
             portal,
-            Portal.entityType
+            Portal.ENTITY_TYPE
         );
         sendMessage(context, "Added " + result);
     }
@@ -2077,7 +2077,7 @@ public class PortalCommand {
         
         Portal result = PortalManipulation.completeBiWayPortal(
             portal,
-            Portal.entityType
+            Portal.ENTITY_TYPE
         );
         sendMessage(context, "Added " + result);
     }
@@ -2140,7 +2140,7 @@ public class PortalCommand {
         boolean biWay
     ) {
         Portal newPortal = PortalManipulation.copyPortal(
-            pointedPortal, Portal.entityType
+            pointedPortal, Portal.ENTITY_TYPE
         );
         
         removeMultidestEntry(context, pointedPortal, player);
@@ -2162,14 +2162,14 @@ public class PortalCommand {
                 },
                 p -> {
                 },
-                Portal.entityType
+                Portal.ENTITY_TYPE
             );
         }
         else if (biFaced) {
-            PortalManipulation.completeBiFacedPortal(newPortal, Portal.entityType);
+            PortalManipulation.completeBiFacedPortal(newPortal, Portal.ENTITY_TYPE);
         }
         else if (biWay) {
-            PortalManipulation.completeBiWayPortal(newPortal, Portal.entityType);
+            PortalManipulation.completeBiWayPortal(newPortal, Portal.ENTITY_TYPE);
         }
     }
     
@@ -2415,7 +2415,7 @@ public class PortalCommand {
                                         
                                         ServerLevel world = context.getSource().getLevel();
                                         
-                                        Portal portal = Portal.entityType.create(world);
+                                        Portal portal = Portal.ENTITY_TYPE.create(world);
                                         Validate.notNull(portal);
                                         portal.setOriginPos(origin);
                                         
@@ -2588,7 +2588,7 @@ public class PortalCommand {
         McHelper.spawnServerEntity(otherSideMirror);
         
         // create the invisible portal
-        Portal invisiblePortal = Portal.entityType.create(fromWorld);
+        Portal invisiblePortal = Portal.ENTITY_TYPE.create(fromWorld);
         assert invisiblePortal != null;
         invisiblePortal.dimensionTo = toWorld.dimension();
         invisiblePortal.setPortalState(UnilateralPortalState.combine(thisSideState, otherSideState));
@@ -2597,7 +2597,7 @@ public class PortalCommand {
         invisiblePortal.setOriginPos(invisiblePortal.getOriginPos().add(portal.getNormal().scale(0.001)));
         invisiblePortal.setDestination(invisiblePortal.getDestPos().add(portal.getContentDirection().scale(0.001)));
         
-        Portal reverseInvisiblePortal = PortalManipulation.createReversePortal(invisiblePortal, Portal.entityType);
+        Portal reverseInvisiblePortal = PortalManipulation.createReversePortal(invisiblePortal, Portal.ENTITY_TYPE);
         
         McHelper.spawnServerEntity(invisiblePortal);
         McHelper.spawnServerEntity(reverseInvisiblePortal);

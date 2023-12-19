@@ -37,7 +37,7 @@ public class IPModEntryClient implements ClientModInitializer {
     public static void initPortalRenderers() {
         
         Arrays.stream(new EntityType<?>[]{
-            Portal.entityType,
+            Portal.ENTITY_TYPE,
             NetherPortalEntity.entityType,
             EndPortalEntity.entityType,
             Mirror.entityType,
@@ -94,7 +94,7 @@ public class IPModEntryClient implements ClientModInitializer {
             IrisInterface.invoker = new IrisInterface.OnIrisPresent();
             ExperimentalIrisPortalRenderer.init();
             
-            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+            IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPConfig.getConfig().shouldDisplayWarning("iris")) {
                     CHelper.printChat(
                         Component.translatable("imm_ptl.iris_warning")

@@ -47,7 +47,7 @@ public class CrossPortalEntityRenderer {
     public static boolean isRenderingEntityProjection = false;
     
     public static void init() {
-        IPGlobal.postClientTickEvent.register(CrossPortalEntityRenderer::onClientTick);
+        IPGlobal.POST_CLIENT_TICK_EVENT.register(CrossPortalEntityRenderer::onClientTick);
         
         IPCGlobal.CLIENT_CLEANUP_EVENT.register(CrossPortalEntityRenderer::cleanUp);
         

@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 // currently only exists on client side
+// TODO remove this in 1.21
 @Environment(EnvType.CLIENT)
 public class PortalGroup implements PortalLike {
     

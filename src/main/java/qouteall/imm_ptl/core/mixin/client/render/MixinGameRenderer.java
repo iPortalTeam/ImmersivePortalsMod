@@ -65,7 +65,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         minecraft.getProfiler().push("ip_pre_total_render");
-        IPGlobal.preTotalRenderTaskList.processTasks();
+        IPGlobal.PRE_TOTAL_RENDER_TASK_LIST.processTasks();
         minecraft.getProfiler().pop();
         if (minecraft.level == null) {
             return;
@@ -78,7 +78,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         StableClientTimer.update(minecraft.level.getGameTime(), tickDelta);
         ClientPortalAnimationManagement.update(); // must update before teleportation
         ClientTeleportationManager.manageTeleportation(false);
-        IPGlobal.preGameRenderSignal.invoker().run();
+        IPGlobal.PRE_GAME_RENDER_EVENT.invoker().run();
         if (IPCGlobal.earlyRemoteUpload) {
             MyRenderHelper.earlyRemoteUpload();
         }

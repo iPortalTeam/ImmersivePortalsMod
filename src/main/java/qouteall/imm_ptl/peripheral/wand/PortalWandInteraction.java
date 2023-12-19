@@ -222,7 +222,7 @@ public class PortalWandInteraction {
             }
         }
         
-        Portal portal = Portal.entityType.create(McHelper.getServerWorld(firstSideDimension));
+        Portal portal = Portal.ENTITY_TYPE.create(McHelper.getServerWorld(firstSideDimension));
         Validate.notNull(portal);
         portal.setOriginPos(
             firstSideLeftBottom
@@ -250,9 +250,9 @@ public class PortalWandInteraction {
         );
         portal.setOtherSideOrientation(secondSideOrientation);
         
-        Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
-        Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
-        Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
+        Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.ENTITY_TYPE);
+        Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.ENTITY_TYPE);
+        Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.ENTITY_TYPE);
         
         McHelper.spawnServerEntity(portal);
         
@@ -799,7 +799,7 @@ public class PortalWandInteraction {
             return;
         }
         
-        Portal portal = Portal.entityType.create(player.level());
+        Portal portal = Portal.ENTITY_TYPE.create(player.level());
         assert portal != null;
         
         portal.readPortalDataFromNbt(copyingSession.portalData);
@@ -825,18 +825,18 @@ public class PortalWandInteraction {
             McHelper.spawnServerEntity(portal);
             
             if (copyingSession.hasFlipped) {
-                Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.entityType);
+                Portal flippedPortal = PortalManipulation.createFlippedPortal(portal, Portal.ENTITY_TYPE);
                 flippedPortal.resetAnimationReferenceState(true, false);
                 McHelper.spawnServerEntity(flippedPortal);
             }
             
             if (copyingSession.hasReverse) {
-                Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.entityType);
+                Portal reversePortal = PortalManipulation.createReversePortal(portal, Portal.ENTITY_TYPE);
                 reversePortal.resetAnimationReferenceState(false, true);
                 McHelper.spawnServerEntity(reversePortal);
                 
                 if (copyingSession.hasParallel) {
-                    Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.entityType);
+                    Portal parallelPortal = PortalManipulation.createFlippedPortal(reversePortal, Portal.ENTITY_TYPE);
                     parallelPortal.resetAnimationReferenceState(false, true);
                     McHelper.spawnServerEntity(parallelPortal);
                 }

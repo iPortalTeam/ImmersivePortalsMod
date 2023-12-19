@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -65,9 +64,9 @@ public class IPModMain {
         ImmPtlNetworking.init();
         ImmPtlNetworkConfig.init();
         
-        IPGlobal.postClientTickEvent.register(IPGlobal.clientTaskList::processTasks);
+        IPGlobal.POST_CLIENT_TICK_EVENT.register(IPGlobal.CLIENT_TASK_LIST::processTasks);
         
-        IPGlobal.preGameRenderSignal.register(IPGlobal.preGameRenderTaskList::processTasks);
+        IPGlobal.PRE_GAME_RENDER_EVENT.register(IPGlobal.PRE_GAME_RENDER_TASK_LIST::processTasks);
         
         IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
         
@@ -152,7 +151,7 @@ public class IPModMain {
     
         regFunc.accept(
             new ResourceLocation("immersive_portals", "portal"),
-            Portal.entityType
+            Portal.ENTITY_TYPE
         );
         
         regFunc.accept(

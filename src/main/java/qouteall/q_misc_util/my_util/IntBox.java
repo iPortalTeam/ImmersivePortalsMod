@@ -26,16 +26,6 @@ public class IntBox {
         this.h = Helper.max(l, h);
     }
     
-    // the name is misleading.
-    // TODO remove in 1.20.3
-    @Deprecated
-    public static IntBox getBoxByBasePointAndSize(
-        BlockPos areaSize,
-        BlockPos blockPos
-    ) {
-        return fromBasePointAndSize(blockPos, areaSize);
-    }
-    
     public static IntBox fromBasePointAndSize(
         BlockPos basePoint, BlockPos areaSize
     ) {

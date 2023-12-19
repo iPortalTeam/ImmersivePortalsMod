@@ -40,12 +40,12 @@ public class GcMonitor {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        IPGlobal.preGameRenderSignal.register(GcMonitor::update);
+        IPGlobal.PRE_GAME_RENDER_EVENT.register(GcMonitor::update);
         
         long maxMemory = Runtime.getRuntime().maxMemory();
         long maxMemoryMB = PortalDebugCommands.toMiB(maxMemory);
         if (maxMemoryMB <= 2048) {
-            IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
                 MyTaskList.oneShotTask(() -> {
                     if (IPConfig.getConfig().shouldDisplayWarning("low_max_memory")) {

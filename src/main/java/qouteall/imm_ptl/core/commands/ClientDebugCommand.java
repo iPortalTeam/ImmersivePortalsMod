@@ -434,7 +434,7 @@ public class ClientDebugCommand {
                 // works without modmenu
                 Minecraft client = Minecraft.getInstance();
                 
-                IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+                IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.oneShotTask(() -> {
                     client.setScreen(IPConfigGUI.createClothConfigScreen(null));
                 }));
                 return 0;

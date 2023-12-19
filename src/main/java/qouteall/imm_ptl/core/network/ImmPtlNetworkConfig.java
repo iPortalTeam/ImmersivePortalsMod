@@ -212,7 +212,7 @@ public class ImmPtlNetworkConfig {
                                 The server detected that client does not install Immersive Portals mod.
                                 A server with Immersive Portals mod only works with the clients that have it.
                                 
-                                (Note: The networking sync may be interfered by Essential mod, Bad Packets mod or other mods. When you are using these mods, the detection may malfunction. In this case, you can disable networking check in the server side by changing `serverRejectClientWithoutImmPtl` to `false` in the server's config file `config/immersive_portals.json` and restart.)
+                                (Note: The networking sync may be interfered by Essential mod or other mods. When you are using these mods, the detection may malfunction. In this case, you can disable networking check in the server side by changing `serverRejectClientWithoutImmPtl` to `false` in the server's config file `config/immersive_portals.json` and restart.)
                                 """
                         ));
                     }

@@ -11,7 +11,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.MinecraftServer;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.net.URI;
@@ -156,7 +154,7 @@ public class IPModInfoChecking {
                 // TODO display before entering world
             }
             
-            IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.withDelayCondition(
                 () -> Minecraft.getInstance().level == null,
                 MyTaskList.oneShotTask(() -> {
                     List<MutableComponent> texts = new ArrayList<>();
@@ -216,7 +214,7 @@ public class IPModInfoChecking {
             ));
         });
         
-        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+        IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (IPConfig.getConfig().shouldDisplayWarning("many_mods") && !FabricLoader.getInstance().isDevelopmentEnvironment()) {

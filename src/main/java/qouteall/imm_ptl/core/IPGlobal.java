@@ -10,7 +10,6 @@ import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
-import qouteall.q_misc_util.my_util.Signal;
 
 import java.util.function.Consumer;
 
@@ -25,17 +24,16 @@ public class IPGlobal {
      * This is different to {@link ClientTickEvents#END_CLIENT_TICK}
      * It fires right after ticking client world, which is earlier than the Fabric event.
      */
-    public static final Event<Runnable> postClientTickEvent = Helper.createRunnableEvent();
+    public static final Event<Runnable> POST_CLIENT_TICK_EVENT = Helper.createRunnableEvent();
     
-    public static final Event<Runnable> preGameRenderSignal = Helper.createRunnableEvent();
+    public static final Event<Runnable> PRE_GAME_RENDER_EVENT = Helper.createRunnableEvent();
     
     // executed after ticking. will be cleared when client encounter loading screen
-    public static final MyTaskList clientTaskList = new MyTaskList();
+    public static final MyTaskList CLIENT_TASK_LIST = new MyTaskList();
     
     // won't be cleared
-    // TODO change to event
-    public static final MyTaskList preGameRenderTaskList = new MyTaskList();
-    public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
+    public static final MyTaskList PRE_GAME_RENDER_TASK_LIST = new MyTaskList();
+    public static final MyTaskList PRE_TOTAL_RENDER_TASK_LIST = new MyTaskList();
     
     public static final Event<Consumer<MinecraftServer>> SERVER_CLEANUP_EVENT =
         Helper.createConsumerEvent();

@@ -131,7 +131,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         ClientPortalAnimationManagement.tick(); // must be after remote world ticking
         ClientTeleportationManager.manageTeleportation(true);
         
-        IPGlobal.postClientTickEvent.invoker().run();
+        IPGlobal.POST_CLIENT_TICK_EVENT.invoker().run();
         
         getProfiler().pop();
     }

@@ -35,7 +35,7 @@ import qouteall.q_misc_util.my_util.MyTaskList;
 public class IPModMainClient {
     
     private static void showNvidiaVideoCardWarning() {
-        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+        IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (IPMcHelper.isNvidiaVideocard()) {
@@ -52,7 +52,7 @@ public class IPModMainClient {
     }
     
     private static void showQuiltWarning() {
-        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+        IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.withDelayCondition(
             () -> Minecraft.getInstance().level == null,
             MyTaskList.oneShotTask(() -> {
                 if (O_O.isQuilt()) {
@@ -127,7 +127,7 @@ public class IPModMainClient {
         ForceMainThreadRebuild.init();
         
         IPCGlobal.CLIENT_CLEANUP_EVENT.register(() -> {
-            IPGlobal.clientTaskList.forceClearTasks();
+            IPGlobal.CLIENT_TASK_LIST.forceClearTasks();
         });
     }
     

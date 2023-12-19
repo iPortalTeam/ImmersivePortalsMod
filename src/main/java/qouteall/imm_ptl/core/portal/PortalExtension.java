@@ -27,21 +27,19 @@ public class PortalExtension {
     }
     
     public static void init() {
-        Portal.clientPortalTickSignal.connect(portal -> {
+        Portal.CLIENT_PORTAL_TICK_SIGNAL.register(portal -> {
             get(portal).tick(portal);
-            
         });
         
-        Portal.serverPortalTickSignal.connect(portal -> {
+        Portal.SERVER_PORTAL_TICK_SIGNAL.register(portal -> {
             get(portal).tick(portal);
-            
         });
         
-        Portal.readPortalDataSignal.connect((portal, tag) -> {
+        Portal.READ_PORTAL_DATA_SIGNAL.register((portal, tag) -> {
             get(portal).readFromNbt(tag);
         });
         
-        Portal.writePortalDataSignal.connect((portal, tag) -> {
+        Portal.WRITE_PORTAL_DATA_SIGNAL.register((portal, tag) -> {
             get(portal).writeToNbt(tag);
         });
     }
