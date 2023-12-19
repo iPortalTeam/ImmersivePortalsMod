@@ -7,7 +7,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class CloudContext {
     
     public static void init() {
         IPCGlobal.CLIENT_CLEANUP_EVENT.register(CloudContext::cleanup);
-        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanup());
+        ClientWorldLoader.CLIENT_DIMENSION_DYNAMIC_REMOVE_EVENT.register(dim -> cleanup());
     }
     
     public CloudContext() {

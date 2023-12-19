@@ -70,7 +70,7 @@ public class ImmPtlViewArea extends ViewArea {
         ImmPtlClientChunkMap.clientChunkUnloadSignal.connect(section -> {
             ResourceKey<Level> dimension = section.getLevel().dimension();
             
-            LevelRenderer worldRenderer = ClientWorldLoader.worldRendererMap.get(dimension);
+            LevelRenderer worldRenderer = ClientWorldLoader.WORLD_RENDERER_MAP.get(dimension);
             
             if (worldRenderer != null) {
                 ViewArea viewArea = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();

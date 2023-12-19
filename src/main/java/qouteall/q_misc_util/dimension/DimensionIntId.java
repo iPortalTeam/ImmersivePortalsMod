@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 
@@ -30,7 +29,6 @@ public class DimensionIntId {
         );
         
         IPCGlobal.CLIENT_EXIT_EVENT.register(() -> {
-            LOGGER.info("Reset client dim id record");
             clientRecord = null;
         });
     }

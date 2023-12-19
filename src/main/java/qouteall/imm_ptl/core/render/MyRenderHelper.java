@@ -426,7 +426,7 @@ public class MyRenderHelper {
             return;
         }
         
-        ClientWorldLoader.worldRendererMap.forEach((dim, worldRenderer) -> {
+        ClientWorldLoader.WORLD_RENDERER_MAP.forEach((dim, worldRenderer) -> {
             if (client.level.dimension() != dim) {
                 worldRenderer.getSectionRenderDispatcher().uploadAllPendingUploads();
             }

@@ -178,7 +178,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;resize(II)V", at = @At("RETURN"))
     private void onOnResized(int int_1, int int_2, CallbackInfo ci) {
         if (ClientWorldLoader.getIsInitialized()) {
-            ClientWorldLoader.worldRendererMap.values().stream()
+            ClientWorldLoader.WORLD_RENDERER_MAP.values().stream()
                 .filter(
                     worldRenderer -> worldRenderer != minecraft.levelRenderer
                 )

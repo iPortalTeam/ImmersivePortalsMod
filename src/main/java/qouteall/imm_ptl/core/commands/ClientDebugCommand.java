@@ -16,8 +16,6 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.commands.arguments.DimensionArgument;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -846,7 +844,7 @@ public class ClientDebugCommand {
             
             
             str.append("Chunk Mesh Sections:\n");
-            ClientWorldLoader.worldRendererMap.forEach(
+            ClientWorldLoader.WORLD_RENDERER_MAP.forEach(
                 (dimension, worldRenderer) -> {
                     str.append(String.format(
                         "%s %s\n",

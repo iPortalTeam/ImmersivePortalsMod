@@ -3,15 +3,12 @@ package qouteall.imm_ptl.core;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
-import net.minecraft.client.multiplayer.ClientLevel;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.RendererDebug;
 import qouteall.imm_ptl.core.render.RendererDummy;
 import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
 import qouteall.imm_ptl.core.render.RendererUsingStencil;
 import qouteall.q_misc_util.Helper;
-
-import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class IPCGlobal {
@@ -48,7 +45,7 @@ public class IPCGlobal {
         Helper.createRunnableEvent();
     
     /**
-     * Fired when client exits world. Will not fire when doing conventional dimension travel.
+     * Fired when client exits world. Does not fire when doing conventional dimension travel.
      */
     public static final Event<Runnable> CLIENT_EXIT_EVENT =
         Helper.createRunnableEvent();

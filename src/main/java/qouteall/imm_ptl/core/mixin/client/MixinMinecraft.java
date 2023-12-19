@@ -158,7 +158,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
             IPCGlobal.CLIENT_CLEANUP_EVENT.invoker().run();
             
             if (clientLevel == null) {
-                LOGGER.info("Client exit");
+                LOGGER.info("Client exit world");
                 IPCGlobal.CLIENT_EXIT_EVENT.invoker().run();
             }
             

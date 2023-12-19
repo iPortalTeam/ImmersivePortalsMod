@@ -51,7 +51,7 @@ public class CrossPortalEntityRenderer {
         
         IPCGlobal.CLIENT_CLEANUP_EVENT.register(CrossPortalEntityRenderer::cleanUp);
         
-        ClientWorldLoader.clientDimensionDynamicRemoveSignal.connect(dim -> cleanUp());
+        ClientWorldLoader.CLIENT_DIMENSION_DYNAMIC_REMOVE_EVENT.register(dim -> cleanUp());
     }
     
     private static void cleanUp() {
