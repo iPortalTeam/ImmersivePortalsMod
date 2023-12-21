@@ -4,10 +4,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3d;
 import org.joml.Matrix4d;
 import org.joml.Quaterniond;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Plane;
 
 public class Mirror extends Portal {
     public static final EntityType<Mirror> entityType = Portal.createPortalEntityType(Mirror::new);
@@ -54,6 +56,14 @@ public class Mirror extends Portal {
             .scale(getScale())
             .rotate(rot.toMcQuaternion())
             .translate(-originPos.x, -originPos.y, -originPos.z);
+    }
+    
+    @Nullable
+    @Override
+    public Plane getInnerClipping() {
+        return new Plane(
+            getDestPos(), getContentDirection()
+        );
     }
     
     /**

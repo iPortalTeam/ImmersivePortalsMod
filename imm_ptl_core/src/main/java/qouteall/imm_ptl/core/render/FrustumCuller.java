@@ -9,6 +9,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
+import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -209,6 +210,13 @@ public class FrustumCuller {
             portal.transformPoint(v[2]).subtract(cameraPos),
             portal.transformPoint(v[3]).subtract(cameraPos)
         };
+        
+        if (portal instanceof Mirror) {
+            // reverse
+            vTransformed = new Vec3[]{
+                vTransformed[3], vTransformed[2], vTransformed[1], vTransformed[0]
+            };
+        }
         
         Frustum4Planes fourPlanes =
             getFrustumPlanesFromFourVerticesCounterClockwise(vTransformed);
