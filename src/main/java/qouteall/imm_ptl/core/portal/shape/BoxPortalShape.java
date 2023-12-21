@@ -123,7 +123,8 @@ public final class BoxPortalShape implements PortalShape {
     
     @Override
     public @Nullable Plane getInnerClipping(
-        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState,
+        Portal portal
     ) {
         return null;
     }

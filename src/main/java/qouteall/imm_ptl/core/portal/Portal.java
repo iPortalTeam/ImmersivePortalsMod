@@ -1420,7 +1420,7 @@ public class Portal extends Entity implements
     @Override
     public Plane getInnerClipping() {
         return getPortalShape().getInnerClipping(
-            getThisSideState(), getOtherSideState()
+            getThisSideState(), getOtherSideState(), this
         );
     }
     
@@ -1641,7 +1641,8 @@ public class Portal extends Entity implements
             getScale(),
             getRotationD(),
             getOrientationRotation(),
-            width, height, thickness
+            width, height, thickness,
+            this instanceof Mirror
         );
     }
     

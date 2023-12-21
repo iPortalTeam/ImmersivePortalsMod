@@ -78,7 +78,9 @@ public record UnilateralPortalState(
     public static UnilateralPortalState extractOtherSide(PortalState portalState) {
         DQuaternion otherSideOrientation = portalState.rotation
             .hamiltonProduct(portalState.orientation)
-            .hamiltonProduct(PortalManipulation.flipAxisW);
+            .hamiltonProduct(
+                portalState.isMirror ? DQuaternion.identity : PortalManipulation.flipAxisW
+            );
         return new UnilateralPortalState(
             portalState.toWorld,
             portalState.toPos,
@@ -89,6 +91,7 @@ public record UnilateralPortalState(
         );
     }
     
+    // NOTE does not work for mirror
     public static PortalState combine(
         UnilateralPortalState thisSide,
         UnilateralPortalState otherSide
@@ -112,7 +115,8 @@ public record UnilateralPortalState(
             thisSide.orientation,
             thisSide.width,
             thisSide.height,
-            thisSide.thickness
+            thisSide.thickness,
+            false
         );
         
         return result;

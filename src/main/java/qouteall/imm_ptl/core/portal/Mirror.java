@@ -23,6 +23,7 @@ public class Mirror extends Portal {
         setInteractable(false);
     }
     
+    // rotate before mirror
     @Override
     public Vec3 transformLocalVecNonScale(Vec3 localVec) {
         return getMirrored(super.transformLocalVecNonScale(localVec));
@@ -34,8 +35,13 @@ public class Mirror extends Portal {
     }
     
     public Vec3 getMirrored(Vec3 vec) {
-        double len = vec.dot(getNormal());
-        return vec.add(getNormal().scale(len * -2));
+        Vec3 normal = getNormal();
+        return mirroredVec(vec, normal);
+    }
+    
+    public static Vec3 mirroredVec(Vec3 vec, Vec3 normal) {
+        double len = vec.dot(normal);
+        return vec.add(normal.scale(len * -2));
     }
     
     @Override

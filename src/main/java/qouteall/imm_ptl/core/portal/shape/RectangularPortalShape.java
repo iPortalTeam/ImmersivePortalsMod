@@ -118,7 +118,8 @@ public final class RectangularPortalShape implements PortalShape {
     
     @Override
     public Plane getInnerClipping(
-        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState,
+        Portal portal
     ) {
         return new Plane(
             otherSideState.position(),

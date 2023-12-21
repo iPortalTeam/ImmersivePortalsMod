@@ -25,6 +25,7 @@ import java.lang.ref.WeakReference;
 import java.net.Proxy;
 import java.util.concurrent.Executor;
 
+@SuppressWarnings("rawtypes")
 @Mixin(MinecraftServer.class)
 public abstract class MixinMinecraftServer_Misc extends ReentrantBlockableEventLoop implements IEMinecraftServer_Misc {
     

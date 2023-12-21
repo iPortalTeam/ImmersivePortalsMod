@@ -114,9 +114,12 @@ public final class SpecialFlatPortalShape implements PortalShape {
     
     @Override
     public Plane getInnerClipping(
-        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState
+        UnilateralPortalState thisSideState, UnilateralPortalState otherSideState,
+        Portal portal
     ) {
-        return RectangularPortalShape.INSTANCE.getInnerClipping(thisSideState, otherSideState);
+        return RectangularPortalShape.INSTANCE.getInnerClipping(
+            thisSideState, otherSideState, portal
+        );
     }
     
     @Override

@@ -68,7 +68,8 @@ public interface PortalShape {
     
     public @Nullable Plane getInnerClipping(
         UnilateralPortalState thisSideState,
-        UnilateralPortalState otherSideState
+        UnilateralPortalState otherSideState,
+        Portal portal
     );
     
     public default @Nullable List<Plane> getNearbyPortalPlanes(

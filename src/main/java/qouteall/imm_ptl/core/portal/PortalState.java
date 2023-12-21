@@ -13,6 +13,7 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 
 /**
  * The animatable states of a portal.
+ * Note: does not contain mirroring information.
  */
 public class PortalState {
     public final ResourceKey<Level> fromWorld;
@@ -25,8 +26,8 @@ public class PortalState {
     public final double width;
     public final double height;
     public final double thickness;
+    public final boolean isMirror;
     
-    @Deprecated
     public PortalState(
         ResourceKey<Level> fromWorld, Vec3 fromPos,
         ResourceKey<Level> toWorld, Vec3 toPos,
@@ -43,12 +44,14 @@ public class PortalState {
         this.width = width;
         this.height = height;
         this.thickness = 0;
+        this.isMirror = false;
     }
     
     public PortalState(
         ResourceKey<Level> fromWorld, Vec3 fromPos, ResourceKey<Level> toWorld, Vec3 toPos,
         double scaling, DQuaternion rotation, DQuaternion orientation,
-        double width, double height, double thickness
+        double width, double height, double thickness,
+        boolean isMirror
     ) {
         this.fromWorld = fromWorld;
         this.fromPos = fromPos;
@@ -60,6 +63,7 @@ public class PortalState {
         this.width = width;
         this.height = height;
         this.thickness = thickness;
+        this.isMirror = isMirror;
     }
     
     public PortalState withThisSideUpdated(
@@ -92,6 +96,7 @@ public class PortalState {
         tag.putDouble("thickness", thickness);
         tag.put("rotation", rotation.toTag());
         tag.put("orientation", orientation.toTag());
+        tag.putBoolean("isMirror", isMirror);
         return tag;
     }
     
@@ -106,9 +111,10 @@ public class PortalState {
         double thickness = tag.getDouble("thickness");
         DQuaternion rotation = DQuaternion.fromTag(tag.getCompound("rotation"));
         DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
+        boolean isMirror = tag.getBoolean("isMirror");
         return new PortalState(
             fromWorld, fromPos, toWorld, toPos, scaling, rotation, orientation,
-            width, height, thickness
+            width, height, thickness, isMirror
         );
     }
     
@@ -128,11 +134,14 @@ public class PortalState {
             DQuaternion.interpolate(a.orientation, b.orientation, progress),
             Mth.lerp(progress, a.width, b.width),
             Mth.lerp(progress, a.height, b.height),
-            Mth.lerp(progress, a.thickness, b.thickness)
+            Mth.lerp(progress, a.thickness, b.thickness),
+            a.isMirror
         );
     }
     
-    private static double interpolateScale(PortalState a, PortalState b, double progress, boolean inverseScale) {
+    private static double interpolateScale(
+        PortalState a, PortalState b, double progress, boolean inverseScale
+    ) {
         if (inverseScale) {
             return 1.0 / (Mth.lerp(progress, 1.0 / a.scaling, 1.0 / b.scaling));
         }
@@ -154,9 +163,10 @@ public class PortalState {
      */
     public Vec3 transformPoint(Vec3 pos) {
         Vec3 offset = pos.subtract(fromPos);
-        Vec3 rotated = rotation.rotate(offset);
-        Vec3 scaled = rotated.scale(scaling);
-        return scaled.add(toPos);
+        
+        Vec3 offsetTransformed = transformVec(offset);
+        
+        return offsetTransformed.add(toPos);
     }
     
     /**
@@ -166,7 +176,13 @@ public class PortalState {
     public Vec3 transformVec(Vec3 vec) {
         Vec3 rotated = rotation.rotate(vec);
         Vec3 scaled = rotated.scale(scaling);
-        return scaled;
+        
+        if (isMirror) {
+            return Mirror.mirroredVec(scaled, getNormal());
+        }
+        else {
+            return scaled;
+        }
     }
     
     // the returned pos is in a portal-local coordinate where X is axisW, Y is axisH and Z is normal

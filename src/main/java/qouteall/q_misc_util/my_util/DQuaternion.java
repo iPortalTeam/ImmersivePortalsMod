@@ -18,6 +18,8 @@ import java.util.Objects;
 
 /**
  * Quaternion in double and immutable.
+ *
+ * Maybe will turn to using JOML's quaternion in the future.
  */
 public class DQuaternion {
     private static final Logger logger = LogManager.getLogger(DQuaternion.class);

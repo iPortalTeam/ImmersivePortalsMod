@@ -9,6 +9,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
+import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -124,27 +125,6 @@ public class FrustumCuller {
         return null;
     }
     
-    public static Vec3[] getDownLeftUpRightPlaneNormals(
-        Vec3 portalOriginInLocalCoordinate,
-        Vec3[] fourVertices
-    ) {
-        Vec3[] relativeVertices = {
-            fourVertices[0].add(portalOriginInLocalCoordinate),
-            fourVertices[1].add(portalOriginInLocalCoordinate),
-            fourVertices[2].add(portalOriginInLocalCoordinate),
-            fourVertices[3].add(portalOriginInLocalCoordinate)
-        };
-        
-        //3  2
-        //1  0
-        return new Vec3[]{
-            relativeVertices[0].cross(relativeVertices[1]),
-            relativeVertices[1].cross(relativeVertices[3]),
-            relativeVertices[3].cross(relativeVertices[2]),
-            relativeVertices[2].cross(relativeVertices[0])
-        };
-    }
-    
     @Nullable
     private static Portal getCurrentNearestVisibleCullablePortal() {
         if (TransformationManager.isIsometricView) {
@@ -209,6 +189,13 @@ public class FrustumCuller {
             portal.transformPoint(v[2]).subtract(cameraPos),
             portal.transformPoint(v[3]).subtract(cameraPos)
         };
+        
+        if (portal instanceof Mirror) {
+            // flip for mirror
+            vTransformed = new Vec3[]{
+                vTransformed[3], vTransformed[2], vTransformed[1], vTransformed[0]
+            };
+        }
         
         Frustum4Planes fourPlanes =
             getFrustumPlanesFromFourVerticesCounterClockwise(vTransformed);
