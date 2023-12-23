@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -29,8 +30,8 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.mixin.common.miscellaneous.IEEndDragonFight;
 import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
+import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.Objects;
 
@@ -41,21 +42,17 @@ public class EndPortalEntity extends Portal {
         createPortalEntityType(EndPortalEntity::new);
     public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
-    // only used by scaled view type end portal
-    private EndPortalEntity clientFakedReversePortal;
-    
     public EndPortalEntity(
         EntityType<?> entityType,
         Level world
     ) {
         super(entityType, world);
         
-        renderingMergable = true;
         setCrossPortalCollisionEnabled(false);
     }
     
     public static void onEndPortalComplete(ServerLevel world, Vec3 portalCenter) {
-        ServerLevel endDim = MiscHelper.getServer().getLevel(Level.END);
+        ServerLevel endDim = world.getServer().getLevel(Level.END);
         if (endDim == null) {
             // there is no end dimension (custom preset can remove the end dimension)
             return;
@@ -78,7 +75,7 @@ public class EndPortalEntity extends Portal {
             generateScaledViewEndPortal(world, portalCenter, true);
         }
         else {
-            Helper.err("End portal mode abnormal");
+            LOGGER.error("End portal mode abnormal");
         }
         
         // for toObsidianPlatform mode, if the platform does not get generated before
@@ -114,9 +111,10 @@ public class EndPortalEntity extends Portal {
     }
     
     private static void generateScaledViewEndPortal(
-        ServerLevel world, Vec3 portalCenter, boolean hasAnimation
+        ServerLevel world, Vec3 frameCenter, boolean hasAnimation
     ) {
-        ServerLevel endWorld = McHelper.getServerWorld(Level.END);
+        ServerLevel endWorld = world.getServer().getLevel(Level.END);
+        Validate.notNull(endWorld, "End dimension is not loaded");
         
         double sideLen = 3;
         double height = 1.5;
@@ -124,50 +122,59 @@ public class EndPortalEntity extends Portal {
         final double scale = 280 / sideLen;
         
         AABB thisSideBox = Helper.getBoxByBottomPosAndSize(
-            portalCenter.add(0, 0.2, 0), viewBoxSize
+            frameCenter.add(0, 0.2, 0), viewBoxSize
         );
         AABB otherSideBox = Helper.getBoxByBottomPosAndSize(
             new Vec3(0, 0, 0),
             viewBoxSize.scale(scale)
         );
         
-        for (Direction direction : Direction.values()) {
-            Portal portal = PortalManipulation.createOrthodoxPortal(
-                EndPortalEntity.entityType,
-                world, endWorld,
-                direction, Helper.getBoxSurface(thisSideBox, direction),
-                Helper.getBoxSurface(otherSideBox, direction).getCenter()
+        Vec3 portalCenter = thisSideBox.getCenter();
+        
+        Portal portal = Portal.ENTITY_TYPE.create(world);
+        assert portal != null;
+        
+        portal.setOriginPos(portalCenter);
+        portal.setDestDim(endWorld.dimension());
+        portal.setDestination(otherSideBox.getCenter());
+        
+        portal.setAxisW(new Vec3(1, 0, 0));
+        portal.setAxisH(new Vec3(0, 1, 0));
+        portal.setWidth(sideLen);
+        portal.setHeight(height);
+        portal.setThickness(sideLen);
+        
+        portal.setPortalShape(BoxPortalShape.FACING_OUTWARDS);
+        
+        portal.setScaling(scale);
+        portal.setTeleportChangesScale(false);
+        portal.portalTag = PORTAL_TAG_VIEW_BOX;
+        portal.setInteractable(false);
+        portal.setCrossPortalCollisionEnabled(false);
+        portal.setFuseView(true);
+        
+        if (hasAnimation) {
+            Vec3 rotationCenter = Vec3.ZERO;
+            portal.addOtherSideAnimationDriver(
+                new RotationAnimation.Builder()
+                    .setDegreesPerTick(0.5)
+                    .setInitialOffset(portal.getDestination().subtract(rotationCenter))
+                    .setRotationAxis(new Vec3(0, 1, 0))
+                    .setStartGameTime(world.getGameTime())
+                    .setEndGameTime(Long.MAX_VALUE)
+                    .build()
             );
-            portal.setScaling(scale);
-            portal.setTeleportChangesScale(false);
-            portal.portalTag = PORTAL_TAG_VIEW_BOX;
-            portal.setInteractable(false);
-            //creating a new entity type needs registering
-            //it's easier to discriminate it by portalTag
             
-            if (hasAnimation) {
-                Vec3 rotationCenter = Vec3.ZERO;
-                portal.addOtherSideAnimationDriver(
-                    new RotationAnimation.Builder()
-                        .setDegreesPerTick(0.5)
-                        .setInitialOffset(portal.getDestination().subtract(rotationCenter))
-                        .setRotationAxis(new Vec3(0, 1, 0))
-                        .setStartGameTime(world.getGameTime())
-                        .setEndGameTime(Long.MAX_VALUE)
-                        .build()
-                );
-                
-                portal.addOtherSideAnimationDriver(
-                    NormalAnimation.createOscillationAnimation(
-                        new Vec3(0, 10, 0),
-                        100,
-                        world.getGameTime()
-                    )
-                );
-            }
-            
-            McHelper.spawnServerEntity(portal);
+            portal.addOtherSideAnimationDriver(
+                NormalAnimation.createOscillationAnimation(
+                    new Vec3(0, 10, 0),
+                    100,
+                    world.getGameTime()
+                )
+            );
         }
+        
+        McHelper.spawnServerEntity(portal);
     }
     
     @Override
@@ -225,9 +232,12 @@ public class EndPortalEntity extends Portal {
             );
         }
         
-        ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
-        
-        ServerLevel.makeObsidianPlatform(endWorld);
+        MinecraftServer server = getServer();
+        assert server != null;
+        ServerLevel endWorld = server.getLevel(Level.END);
+        if (endWorld != null) {
+            ServerLevel.makeObsidianPlatform(endWorld);
+        }
     }
     
     private boolean isViewBoxPortal() {
@@ -256,8 +266,7 @@ public class EndPortalEntity extends Portal {
     
     private boolean shouldAddSlowFalling(Entity entity) {
         if (entity instanceof LivingEntity) {
-            if (entity instanceof ServerPlayer) {
-                ServerPlayer player = (ServerPlayer) entity;
+            if (entity instanceof ServerPlayer player) {
                 if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
                     return false;
                 }
@@ -281,14 +290,16 @@ public class EndPortalEntity extends Portal {
     
     @Override
     public void onCollidingWithEntity(Entity entity) {
-        // fix https://github.com/qouteall/ImmersivePortalsMod/issues/698
-        // maybe allows easier farming of obsidian
+        // make obsidian platform not generated too late so that player falls down
         if (!level().isClientSide()) {
             if (entity instanceof ServerPlayer) {
                 if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
-                    ServerLevel endWorld = MiscHelper.getServer().getLevel(Level.END);
-                    
-                    ServerLevel.makeObsidianPlatform(endWorld);
+                    MinecraftServer server = getServer();
+                    assert server != null;
+                    ServerLevel endWorld = server.getLevel(Level.END);
+                    if (endWorld != null) {
+                        ServerLevel.makeObsidianPlatform(endWorld);
+                    }
                 }
             }
         }
