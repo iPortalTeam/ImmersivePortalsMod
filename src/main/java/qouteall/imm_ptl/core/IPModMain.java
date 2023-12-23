@@ -36,6 +36,7 @@ import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.imm_ptl.core.portal.animation.NormalAnimation;
 import qouteall.imm_ptl.core.portal.animation.RotationAnimation;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManager;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalTrackedPortal;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
@@ -108,6 +109,8 @@ public class IPModMain {
         DebugUtil.init();
         
         ServerTaskList.init();
+        
+        CustomPortalGenManager.init();
         
         // intrinsic animation driver types
         RotationAnimation.init();

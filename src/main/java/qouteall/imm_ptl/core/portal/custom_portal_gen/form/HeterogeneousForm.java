@@ -18,8 +18,8 @@ public class HeterogeneousForm extends NetherPortalLikeForm {
     public static final Codec<HeterogeneousForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound),
-            SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock)
+            SimpleBlockPredicate.CODEC.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            SimpleBlockPredicate.CODEC.fieldOf("frame_block").forGetter(o -> o.frameBlock)
         ).apply(instance, HeterogeneousForm::new);
     });
     

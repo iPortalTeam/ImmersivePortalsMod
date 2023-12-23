@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.q_misc_util.MiscNetworking;
-import qouteall.q_misc_util.ducks.IEMinecraftServer_Misc;
 
 import java.util.HashSet;
 
@@ -40,7 +40,8 @@ public class DimensionIntId {
     }
     
     public static @NotNull DimIntIdMap getServerMap(MinecraftServer server) {
-        DimIntIdMap rec = ((IEMinecraftServer_Misc) server).ip_getDimIdRec();
+        IPPerServerInfo perServerInfo = IPPerServerInfo.of(server);
+        DimIntIdMap rec = perServerInfo.dimIntIdMap;
         Validate.notNull(rec, "Server dim id record is not yet initialized");
         return rec;
     }
@@ -57,7 +58,8 @@ public class DimensionIntId {
             }
         }
         
-        ((IEMinecraftServer_Misc) server).ip_setDimIdRec(rec);
+        IPPerServerInfo perServerInfo = IPPerServerInfo.of(server);
+        perServerInfo.dimIntIdMap = rec;
         LOGGER.info("Server dimension integer id mapping:\n{}", rec);
     }
     

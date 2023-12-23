@@ -31,7 +31,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
     
     public static final Codec<ConvertConventionalPortalForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            SimpleBlockPredicate.codec.fieldOf("portal_block").forGetter(o -> o.portalBlock)
+            SimpleBlockPredicate.CODEC.fieldOf("portal_block").forGetter(o -> o.portalBlock)
         ).apply(instance, instance.stable(ConvertConventionalPortalForm::new));
     });
     

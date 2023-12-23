@@ -35,11 +35,11 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         return instance.group(
             Codec.INT.fieldOf("length").forGetter(o -> o.length),
             
-            SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock),
-            SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            SimpleBlockPredicate.codec.optionalFieldOf("up_frame_block", SimpleBlockPredicate.pass)
+            SimpleBlockPredicate.CODEC.fieldOf("frame_block").forGetter(o -> o.frameBlock),
+            SimpleBlockPredicate.CODEC.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            SimpleBlockPredicate.CODEC.optionalFieldOf("up_frame_block", SimpleBlockPredicate.pass)
                 .forGetter(o -> o.upFrameBlock),
-            SimpleBlockPredicate.codec.optionalFieldOf("bottom_block", SimpleBlockPredicate.pass)
+            SimpleBlockPredicate.CODEC.optionalFieldOf("bottom_block", SimpleBlockPredicate.pass)
                 .forGetter(o -> o.bottomBlock)
         
         ).apply(instance, instance.stable(FlippingFloorSquareForm::new));

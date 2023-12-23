@@ -86,6 +86,7 @@ dependencies {
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
     modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
+    modLocalRuntime "maven.modrinth:modmenu:${modmenu_version}"
 
     modCompileOnly("com.github.Virtuoel:Pehkui:${pehkui_version}", {
         exclude group: "net.fabricmc.fabric-api"

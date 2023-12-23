@@ -46,8 +46,8 @@ public class IntrinsicPortalGeneration {
     public static final CustomPortalGeneration diligentFromNether = diligentToNether.getReverse();
     
     public static final CustomPortalGeneration portalHelper = new CustomPortalGeneration(
-        Lists.newArrayList(CustomPortalGeneration.anyDimension),
-        CustomPortalGeneration.theSameDimension,
+        Lists.newArrayList(CustomPortalGeneration.ANY_DIMENSION),
+        CustomPortalGeneration.THE_SAME_DIMENSION,
         1, 1,
         false, portalHelperForm,
         null, new ArrayList<>(), new ArrayList<>()

@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.mc_utils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
+import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 public class ServerTaskList {
@@ -19,6 +19,6 @@ public class ServerTaskList {
     
     // the tasks are executed after ticking. will be cleared when server closes
     public static MyTaskList of(MinecraftServer server) {
-        return ((IEMinecraftServer) server).ip_getServerTaskList();
+        return IPPerServerInfo.of(server).taskList;
     }
 }

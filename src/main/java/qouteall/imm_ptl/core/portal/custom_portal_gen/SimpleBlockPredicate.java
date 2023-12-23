@@ -1,18 +1,22 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import qouteall.q_misc_util.MiscHelper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -22,24 +26,24 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     public static final SimpleBlockPredicate pass = new SimpleBlockPredicate();
     
     public final String name;
-    private final TagKey<Block> tag;
-    private final Block block;
+    private final @Nullable TagKey<Block> tag;
+    private final @Nullable Holder<Block> blockHolder;
     
-    public SimpleBlockPredicate(String name, TagKey<Block> tag) {
+    public SimpleBlockPredicate(String name, @NotNull TagKey<Block> tag) {
         this.name = name;
         this.tag = tag;
-        this.block = null;
+        this.blockHolder = null;
     }
     
-    public SimpleBlockPredicate(String name, Block block) {
+    public SimpleBlockPredicate(String name, @NotNull Holder<Block> blockHolder) {
         this.name = name;
-        this.block = block;
+        this.blockHolder = blockHolder;
         this.tag = null;
     }
     
     private SimpleBlockPredicate() {
         this.tag = null;
-        this.block = null;
+        this.blockHolder = null;
         this.name = "imm_ptl:pass";
     }
     
@@ -49,8 +53,8 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             return blockState.is(tag);
         }
         else {
-            if (block != null) {
-                return blockState.getBlock() == block;
+            if (blockHolder != null) {
+                return blockState.getBlock() == blockHolder.value();
             }
             else {
                 return true;
@@ -58,65 +62,95 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         }
     }
     
-    private static DataResult<SimpleBlockPredicate> deserialize(String string) {
-        MinecraftServer server = MiscHelper.getServer();
-        
-        if (server == null) {
-            return DataResult.error(
-                () -> "[Immersive Portals] Simple block predicate should not be deserialized in client"
-            );
-        }
-        
-        if (string.equals("minecraft:air")) {
-            // to make it work for both normal air, cave air and void air
-            return DataResult.success(new AirPredicate());
-        }
-        
-        ResourceLocation id = new ResourceLocation(string);
-        
-        TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, id);
-        
-        Registry<Block> blockRegistry = server.registryAccess().registry(Registries.BLOCK).get();
-    
-        Optional<HolderSet.Named<Block>> tag1 = blockRegistry.getTag(tagKey);
-        boolean knownTagName = tag1.isPresent();
-        
-        if (knownTagName) {
-            return DataResult.success(new SimpleBlockPredicate(string, tagKey));
-        }
-        
-        if (blockRegistry.keySet().contains(id)) {
-            Block block = BuiltInRegistries.BLOCK.get(id);
-            return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
-        }
-    
-        return DataResult.error(() -> "Unknown block or block tag:" + string);
-    }
-    
-    private static String serialize(SimpleBlockPredicate predicate) {
-        MinecraftServer server = MiscHelper.getServer();
-        
-        if (server == null) {
-            throw new RuntimeException(
-                "Simple block predicate should not be serialized in client"
-            );
-        }
-        
-        return predicate.name;
-    }
-    
-    public static final Codec<SimpleBlockPredicate> codec =
-        Codec.STRING.comapFlatMap(
-            SimpleBlockPredicate::deserialize,
-            SimpleBlockPredicate::serialize
-        );
-    
     // handles cave air and void air
     public static class AirPredicate extends SimpleBlockPredicate {
+        @SuppressWarnings("deprecation")
+        public AirPredicate() {
+            super("minecraft:air", Blocks.AIR.builtInRegistryHolder());
+        }
+        
         @Override
         public boolean test(BlockState blockState) {
             return blockState.isAir();
         }
     }
     
+    public static final Codec<SimpleBlockPredicate> CODEC = new SimpleBlockPredicateCodec();
+    
+    private static class SimpleBlockPredicateCodec implements Codec<SimpleBlockPredicate> {
+        @Override
+        public <T> DataResult<Pair<SimpleBlockPredicate, T>> decode(DynamicOps<T> ops, T input) {
+            if (!(ops instanceof RegistryOps<T> registryOps)) {
+                return DataResult.error(() ->
+                    "To deserialize SimpleBlockPredicate, the DynamicOps must be RegistryOps"
+                );
+            }
+            
+            DataResult<String> stringValue = ops.getStringValue(input);
+            if (stringValue.result().isEmpty()) {
+                return DataResult.error(() -> "SimpleBlockPredicate should be string");
+            }
+            String str = stringValue.result().get();
+            
+            Optional<HolderGetter<Block>> optionalGetter = registryOps.getter(Registries.BLOCK);
+            if (optionalGetter.isEmpty()) {
+                return DataResult.error(() -> "Missing block registry");
+            }
+            HolderGetter<Block> getter = optionalGetter.get();
+            
+            if (str.startsWith("#")) {
+                // also handle block tag ids that start with #
+                String blockTagIdStr = str.substring(1);
+                
+                DataResult<ResourceLocation> bockTagRl = ResourceLocation.read(blockTagIdStr);
+                if (bockTagRl.result().isEmpty()) {
+                    return DataResult.error(() -> "Invalid block tag id:" + blockTagIdStr);
+                }
+                ResourceLocation resourceLocation = bockTagRl.result().get();
+                
+                TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, resourceLocation);
+                return DataResult.success(Pair.of(
+                    new SimpleBlockPredicate(str, tagKey),
+                    ops.empty()
+                ), Lifecycle.stable());
+            }
+            
+            DataResult<ResourceLocation> rl = ResourceLocation.read(str);
+            if (rl.result().isEmpty()) {
+                return DataResult.error(() -> "Invalid resource location:" + str);
+            }
+            ResourceLocation resourceLocation = rl.result().get();
+            
+            if (resourceLocation.toString().equals("minecraft:air")) {
+                // make it able to match cave air and void air
+                return DataResult.success(
+                    Pair.of(new AirPredicate(), ops.empty()),
+                    Lifecycle.stable()
+                );
+            }
+            
+            Optional<Holder.Reference<Block>> blockRef =
+                getter.get(ResourceKey.create(Registries.BLOCK, resourceLocation));
+            
+            if (blockRef.isEmpty()) {
+                TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, resourceLocation);
+                return DataResult.success(Pair.of(
+                    new SimpleBlockPredicate(str, tagKey), ops.empty()
+                ), Lifecycle.stable());
+            }
+            else {
+                return DataResult.success(Pair.of(
+                    new SimpleBlockPredicate(str, blockRef.get()), ops.empty()
+                ), Lifecycle.stable());
+            }
+        }
+        
+        @Override
+        public <T> DataResult<T> encode(SimpleBlockPredicate input, DynamicOps<T> ops, T prefix) {
+            return DataResult.success(
+                ops.createString(input.name),
+                Lifecycle.stable()
+            );
+        }
+    }
 }

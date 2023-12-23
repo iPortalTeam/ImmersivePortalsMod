@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
+import qouteall.imm_ptl.core.IPPerServerInfo;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManager;
 
 import java.util.UUID;
 
@@ -39,7 +40,13 @@ public abstract class MixinItemEntity_P {
         }
         
         this_.level().getProfiler().push("imm_ptl_item_tick");
-        CustomPortalGenManagement.onItemTick(this_);
+        
+        CustomPortalGenManager customPortalGenManager =
+            IPPerServerInfo.of(this_.getServer()).customPortalGenManager;
+        if (customPortalGenManager != null) {
+            customPortalGenManager.onItemTick(this_);
+        }
+        
         this_.level().getProfiler().pop();
     }
 }

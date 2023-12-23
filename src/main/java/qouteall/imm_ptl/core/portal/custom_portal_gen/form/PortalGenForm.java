@@ -66,8 +66,4 @@ public abstract class PortalGenForm {
         ServerLevel toWorld,
         @Nullable Entity triggeringEntity
     );
-    
-    public boolean initAndCheck() {
-        return true;
-    }
 }

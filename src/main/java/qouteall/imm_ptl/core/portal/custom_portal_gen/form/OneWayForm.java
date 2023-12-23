@@ -20,8 +20,8 @@ import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 public class OneWayForm extends PortalGenForm {
     public static final Codec<OneWayForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock),
-            SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            SimpleBlockPredicate.CODEC.fieldOf("frame_block").forGetter(o -> o.frameBlock),
+            SimpleBlockPredicate.CODEC.fieldOf("area_block").forGetter(o -> o.areaBlock),
             Codec.BOOL.fieldOf("bi_faced").forGetter(o -> o.biFaced),
             Codec.BOOL.optionalFieldOf("breakable", true).forGetter(o -> o.breakable)
         ).apply(instance, instance.stable(OneWayForm::new));

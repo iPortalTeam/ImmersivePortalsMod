@@ -21,8 +21,8 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     public static final Codec<FlippingFloorSquareNewForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound),
-            SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock)
+            SimpleBlockPredicate.CODEC.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            SimpleBlockPredicate.CODEC.fieldOf("frame_block").forGetter(o -> o.frameBlock)
         ).apply(instance, FlippingFloorSquareNewForm::new);
     });
     

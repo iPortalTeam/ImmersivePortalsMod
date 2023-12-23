@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManager;
 
 @Mixin(ServerPlayer.class)
 public class MixinServerPlayerEntity_MA {
@@ -43,12 +43,17 @@ public class MixinServerPlayerEntity_MA {
     }
     
     private static void onBeforeDimensionTravel(ServerPlayer player) {
-        CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
-        ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(player);
+        CustomPortalGenManager customPortalGenManager =
+            IPPerServerInfo.of(player.server).customPortalGenManager;
         
-        ServerTaskList.of(player.server).addTask(() -> {
-            CustomPortalGenManagement.onAfterConventionalDimensionChange(player);
-            return true;
-        });
+        if (customPortalGenManager != null) {
+            customPortalGenManager.onBeforeConventionalDimensionChange(player);
+            ImmPtlChunkTracking.removePlayerFromChunkTrackersAndEntityTrackers(player);
+            
+            ServerTaskList.of(player.server).addTask(() -> {
+                customPortalGenManager.onAfterConventionalDimensionChange(player);
+                return true;
+            });
+        }
     }
 }
