@@ -22,20 +22,22 @@ public class IPConfig implements ConfigData {
     
     @ConfigEntry.Category("client")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    @ConfigEntry.Gui.Tooltip
     public int maxPortalLayer = 5;
     @ConfigEntry.Category("client")
+    @ConfigEntry.Gui.Tooltip
     public boolean lagAttackProof = true;
-    @ConfigEntry.Category("client")
-    public boolean compatibilityRenderMode = false;
     @ConfigEntry.Category("client")
     public boolean enableMirrorCreation = true;
     @ConfigEntry.Category("client")
     public boolean enableCrossPortalSound = true;
     @ConfigEntry.Category("client")
+    @ConfigEntry.Gui.Tooltip
     public boolean pureMirror = false;
     @ConfigEntry.Category("client")
     public boolean renderYourselfInPortal = true;
     @ConfigEntry.Category("client")
+    @ConfigEntry.Gui.Tooltip
     public boolean correctCrossPortalEntityRendering = true;
     @ConfigEntry.Category("client")
     public boolean reducedPortalRendering = false;
@@ -44,9 +46,13 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Category("client")
     public boolean enableNetherPortalEffect = true;
     @ConfigEntry.Category("client")
+    @ConfigEntry.Gui.Tooltip
     public boolean enableClientPerformanceAdjustment = true;
     @ConfigEntry.Category("client")
     public boolean clientTolerantVersionMismatchWithServer = false;
+    @ConfigEntry.Category("client")
+    @ConfigEntry.Gui.Tooltip
+    public boolean compatibilityRenderMode = false;
     
     // client invisible configs
     
@@ -83,15 +89,19 @@ public class IPConfig implements ConfigData {
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
     public boolean enableWarning = true;
     public boolean lightVanillaNetherPortalWhenCrouching = true;
+    @ConfigEntry.Gui.Tooltip
     public boolean enableServerPerformanceAdjustment = true;
     public boolean enableDatapackPortalGen = true;
     @ConfigEntry.BoundedDiscrete(min = 1, max = 32)
+    @ConfigEntry.Gui.Tooltip
     public int indirectLoadingRadiusCap = 8;
     @ConfigEntry.BoundedDiscrete(min = 3, max = 64)
     public int regularPortalLengthLimit = 64;
     @ConfigEntry.BoundedDiscrete(min = 4, max = 128)
     public int scaleLimit = 30;
+    @ConfigEntry.Gui.Tooltip
     public boolean easeCreativePermission = true;
+    @ConfigEntry.Gui.Tooltip
     public boolean easeCommandStickPermission = false;
     public boolean portalsChangeGravityByDefault = false;
     
@@ -162,6 +172,7 @@ public class IPConfig implements ConfigData {
         IPGlobal.netherPortalOverlay = netherPortalOverlay;
         IPGlobal.scaleLimit = scaleLimit;
         IPGlobal.easeCreativePermission = easeCreativePermission;
+        IPGlobal.easeCommandStickPermission = easeCommandStickPermission;
         IPGlobal.enableSharedBlockMeshBuffers = sharedBlockMeshBufferOptimization;
         IPGlobal.enableDatapackPortalGen = enableDatapackPortalGen;
         IPGlobal.enableCrossPortalView = enableCrossPortalView;
