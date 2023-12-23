@@ -49,10 +49,11 @@ public class TeleportationUtil {
     
     public static void transformEntityVelocity(
         Portal portal, Entity entity,
-        PortalPointVelocity portalPointVelocity
+        PortalPointVelocity portalPointVelocity,
+        Vec3 oldEntityPos
     ) {
         Vec3 oldVelocityRelativeToPortal = McHelper.getWorldVelocity(entity).subtract(portalPointVelocity.thisSidePointVelocity());
-        Vec3 transformedVelocityRelativeToPortal = portal.transformVelocityRelativeToPortal(oldVelocityRelativeToPortal, entity);
+        Vec3 transformedVelocityRelativeToPortal = portal.transformVelocityRelativeToPortal(oldVelocityRelativeToPortal, entity, oldEntityPos);
         Vec3 newVelocity = transformedVelocityRelativeToPortal.add(portalPointVelocity.otherSidePointVelocity());
         McHelper.setWorldVelocity(entity, newVelocity);
     }
@@ -78,7 +79,7 @@ public class TeleportationUtil {
         Vec3 thisSidePointVelocity,
         Vec3 otherSidePointVelocity
     ) {
-        public static final PortalPointVelocity zero = new PortalPointVelocity(Vec3.ZERO, Vec3.ZERO);
+        public static final PortalPointVelocity ZERO = new PortalPointVelocity(Vec3.ZERO, Vec3.ZERO);
     }
     
     public static record PortalPointOffset(
@@ -134,7 +135,7 @@ public class TeleportationUtil {
             portalState,
             portalState, portalState,
             portalState, portalState,
-            PortalPointVelocity.zero,
+            PortalPointVelocity.ZERO,
             portal.transformPoint(worldHitPos),
             newLastTickEyePos, newThisTickEyePos
         );
@@ -201,47 +202,49 @@ public class TeleportationUtil {
         newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset);
         newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset);
         
-        {
-            // make sure that the end-tick pos is in portal destination side
-            double dot = newOtherSideThisTickPos
-                .subtract(thisTickState.toPos)
-                .dot(thisTickState.getContentDirection());
-            if (dot < 0.00001) {
-                LOGGER.info("Teleported to behind the end-tick portal destination. Corrected.");
-                Vec3 offset1 = thisTickState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
-                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+        if (portalShape.isPlanar()) {
+            {
+                // make sure that the end-tick pos is in portal destination side
+                double dot = newOtherSideThisTickPos
+                    .subtract(thisTickState.toPos)
+                    .dot(thisTickState.getContentDirection());
+                if (dot < 0.00001) {
+                    LOGGER.info("Teleported to behind the end-tick portal destination. Corrected.");
+                    Vec3 offset1 = thisTickState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
+                    newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                    newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+                }
             }
-        }
-        
-        {
-            // make sure that the end-frame camera pos in portal destination side
-            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
             
-            double dot = newImmediateCameraPos
-                .subtract(currentFrameState.toPos)
-                .dot(currentFrameState.getContentDirection());
-            if (dot < 0.00001) {
-                LOGGER.info("Teleported to behind the end-frame portal destination. Corrected.");
-                Vec3 offset1 = currentFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
-                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+            {
+                // make sure that the end-frame camera pos in portal destination side
+                newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+                
+                double dot = newImmediateCameraPos
+                    .subtract(currentFrameState.toPos)
+                    .dot(currentFrameState.getContentDirection());
+                if (dot < 0.00001) {
+                    LOGGER.info("Teleported to behind the end-frame portal destination. Corrected.");
+                    Vec3 offset1 = currentFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.00001);
+                    newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                    newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+                }
             }
-        }
-        
-        {
-            // make sure that the last-frame camera pos in portal destination side
-            // the portal destination may move backwards
-            newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
             
-            double dot = newImmediateCameraPos
-                .subtract(lastFrameState.toPos)
-                .dot(lastFrameState.getContentDirection());
-            if (dot < 0.00001) {
-                LOGGER.info("Teleported to behind the last-frame portal destination. Corrected.");
-                Vec3 offset1 = lastFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.001);
-                newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
-                newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+            {
+                // make sure that the last-frame camera pos in portal destination side
+                // the portal destination may move backwards
+                newImmediateCameraPos = newOtherSideLastTickPos.lerp(newOtherSideThisTickPos, partialTicks);
+                
+                double dot = newImmediateCameraPos
+                    .subtract(lastFrameState.toPos)
+                    .dot(lastFrameState.getContentDirection());
+                if (dot < 0.00001) {
+                    LOGGER.info("Teleported to behind the last-frame portal destination. Corrected.");
+                    Vec3 offset1 = lastFrameState.getContentDirection().scale(Math.max(-dot, 0) + 0.001);
+                    newOtherSideThisTickPos = newOtherSideThisTickPos.add(offset1);
+                    newOtherSideLastTickPos = newOtherSideLastTickPos.add(offset1);
+                }
             }
         }
         

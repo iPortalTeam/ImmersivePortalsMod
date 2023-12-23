@@ -42,6 +42,9 @@ public class EndPortalEntity extends Portal {
         createPortalEntityType(EndPortalEntity::new);
     public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
+    private static final double BOX_PORTAL_SIDE_LEN = 3;
+    private static final double BOX_PORTAL_HEIGHT = 1.5;
+    
     public EndPortalEntity(
         EntityType<?> entityType,
         Level world
@@ -116,10 +119,11 @@ public class EndPortalEntity extends Portal {
         ServerLevel endWorld = world.getServer().getLevel(Level.END);
         Validate.notNull(endWorld, "End dimension is not loaded");
         
-        double sideLen = 3;
-        double height = 1.5;
+        double sideLen = BOX_PORTAL_SIDE_LEN;
+        double otherSideSideLen = 19 * 16; // 19 chunks
+        double height = BOX_PORTAL_HEIGHT;
         final Vec3 viewBoxSize = new Vec3(sideLen, height, sideLen);
-        final double scale = 280 / sideLen;
+        final double scale = otherSideSideLen / sideLen;
         
         AABB thisSideBox = Helper.getBoxByBottomPosAndSize(
             frameCenter.add(0, 0.2, 0), viewBoxSize
@@ -131,7 +135,7 @@ public class EndPortalEntity extends Portal {
         
         Vec3 portalCenter = thisSideBox.getCenter();
         
-        Portal portal = Portal.ENTITY_TYPE.create(world);
+        EndPortalEntity portal = entityType.create(world);
         assert portal != null;
         
         portal.setOriginPos(portalCenter);
@@ -154,20 +158,20 @@ public class EndPortalEntity extends Portal {
         portal.setFuseView(true);
         
         if (hasAnimation) {
-            Vec3 rotationCenter = Vec3.ZERO;
-            portal.addOtherSideAnimationDriver(
+            Vec3 rotationCenter = portalCenter;
+            portal.addThisSideAnimationDriver(
                 new RotationAnimation.Builder()
                     .setDegreesPerTick(0.5)
-                    .setInitialOffset(portal.getDestination().subtract(rotationCenter))
+                    .setInitialOffset(Vec3.ZERO)
                     .setRotationAxis(new Vec3(0, 1, 0))
                     .setStartGameTime(world.getGameTime())
                     .setEndGameTime(Long.MAX_VALUE)
                     .build()
             );
             
-            portal.addOtherSideAnimationDriver(
+            portal.addThisSideAnimationDriver(
                 NormalAnimation.createOscillationAnimation(
-                    new Vec3(0, 10, 0),
+                    new Vec3(0, 0.3, 0),
                     100,
                     world.getGameTime()
                 )
@@ -193,7 +197,22 @@ public class EndPortalEntity extends Portal {
             if (player == null) {
                 return;
             }
-            if (getNormal().y > 0.5) {
+            
+            if (getPortalShape() instanceof BoxPortalShape) {
+                Vec3 cameraPosVec = player.getEyePosition(1);
+                double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
+                if (dist < 1 && isInBoxPortalTeleportataionRange(cameraPosVec)) {
+//                    double mul = Math.min(dist / 2, 0.1);
+                    double mul = 0.5;
+                    player.setDeltaMovement(
+                        player.getDeltaMovement().x * mul,
+                        player.getDeltaMovement().y * mul,
+                        player.getDeltaMovement().z * mul
+                    );
+                }
+            }
+            else if (getNormal().y > 0.5) {
+                // legacy behavior
                 if (((IEEntity) player).ip_getCollidingPortal() == this) {
                     Vec3 cameraPosVec = player.getEyePosition(1);
                     double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
@@ -219,7 +238,7 @@ public class EndPortalEntity extends Portal {
             int duration = 200;
             
             if (isViewBoxPortal()) {
-                duration = 300;
+                duration = 400;
             }
             
             LivingEntity livingEntity = (LivingEntity) entity;
@@ -246,12 +265,22 @@ public class EndPortalEntity extends Portal {
     
     // avoid scale box portal to transform velocity
     @Override
-    public Vec3 transformVelocityRelativeToPortal(Vec3 originalVelocityRelativeToPortal, Entity entity) {
+    public Vec3 transformVelocityRelativeToPortal(
+        Vec3 originalVelocityRelativeToPortal, Entity entity, Vec3 oldEntityPos
+    ) {
         if (isViewBoxPortal()) {
-            return Vec3.ZERO;
+            Vec3 offset = oldEntityPos.subtract(getOriginPos());
+            double threshold = 1.0;
+            double horizontalDistanceSq = offset.x * offset.x + offset.z * offset.z;
+            
+            if (horizontalDistanceSq > threshold * threshold) {
+                // if far from center, it will likely not land to the end island
+                // reset velocity to give player the time to move
+                return Vec3.ZERO;
+            }
         }
         
-        return super.transformVelocityRelativeToPortal(originalVelocityRelativeToPortal, entity);
+        return super.transformVelocityRelativeToPortal(originalVelocityRelativeToPortal, entity, oldEntityPos);
     }
     
     // arrows cannot go through end portal
@@ -261,6 +290,13 @@ public class EndPortalEntity extends Portal {
         if (entity instanceof Arrow) {
             return false;
         }
+        
+        if (getPortalShape() instanceof BoxPortalShape) {
+            if (!isInBoxPortalTeleportataionRange(entity.getEyePosition(1))) {
+                return false;
+            }
+        }
+        
         return super.canTeleportEntity(entity);
     }
     
@@ -303,6 +339,14 @@ public class EndPortalEntity extends Portal {
                 }
             }
         }
+    }
+    
+    public boolean isInBoxPortalTeleportataionRange(Vec3 pos) {
+        Vec3 offset = pos.subtract(getOriginPos());
+        
+        double threshold = BOX_PORTAL_SIDE_LEN / 2;
+        double horizontalDistanceSq = offset.x * offset.x + offset.z * offset.z;
+        return horizontalDistanceSq <= threshold * threshold;
     }
     
 }

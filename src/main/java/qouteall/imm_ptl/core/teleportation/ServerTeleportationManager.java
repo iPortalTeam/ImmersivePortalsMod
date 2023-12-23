@@ -427,20 +427,20 @@ public class ServerTeleportationManager {
     private void teleportRegularEntity(Entity entity, Portal portal) {
         Validate.isTrue(!(entity instanceof ServerPlayer));
         if (entity.getRemovalReason() != null) {
-            Helper.err(String.format(
-                "Trying to teleport an entity that is already removed %s %s",
+            LOGGER.error(
+                "Trying to teleport an entity that is already removed {} {}",
                 entity, portal
-            ));
+            );
             return;
         }
         
         if (entity.level() != portal.level()) {
-            Helper.err(String.format("Cannot teleport %s from %s through %s", entity, entity.level().dimension(), portal));
+            LOGGER.error("Cannot teleport {} from {} through {}", entity, entity.level().dimension(), portal);
             return;
         }
         
         if (portal.getDistanceToNearestPointInPortal(entity.getEyePosition()) > 5) {
-            Helper.err("Entity is too far to teleport " + entity + portal);
+            LOGGER.error("Entity is too far to teleport {} {}", entity, portal);
             return;
         }
         
@@ -456,12 +456,15 @@ public class ServerTeleportationManager {
         }
         
         Vec3 velocity = entity.getDeltaMovement();
+        Vec3 oldPos = entity.position();
         
         List<Entity> passengerList = entity.getPassengers();
         
         Vec3 newEyePos = getRegularEntityTeleportedEyePos(entity, portal);
         
-        TeleportationUtil.transformEntityVelocity(portal, entity, TeleportationUtil.PortalPointVelocity.zero);
+        TeleportationUtil.transformEntityVelocity(
+            portal, entity, TeleportationUtil.PortalPointVelocity.ZERO, oldPos
+        );
         
         if (portal.getDestDim() != entity.level().dimension()) {
             entity = changeEntityDimension(entity, portal.getDestDim(), newEyePos, true);

@@ -334,6 +334,9 @@ public class ClientTeleportationManager {
         ResourceKey<Level> toDimension = portal.getDestDim();
         float tickDelta = RenderStates.getPartialTick();
         
+        Entity vehicle = player.getVehicle();
+        Vec3 oldVehiclePos = vehicle != null ? vehicle.position() : null;
+        
         Vec3 thisTickEyePos = McHelper.getEyePos(player);
         Vec3 lastTickEyePos = McHelper.getLastTickEyePos(player);
         
@@ -349,19 +352,19 @@ public class ClientTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newThisTickEyePos);
         }
         
+        McHelper.setEyePos(player, newThisTickEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
+        
         Vec3 oldRealVelocity = McHelper.getWorldVelocity(player);
         TransformationManager.managePlayerRotationAndChangeGravity(portal);
         McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
         
         TeleportationUtil.PortalPointVelocity portalPointVelocity = teleportation.portalPointVelocity();
-        TeleportationUtil.transformEntityVelocity(portal, player, portalPointVelocity);
+        TeleportationUtil.transformEntityVelocity(portal, player, portalPointVelocity, thisTickEyePos);
         
-        if (player.getVehicle() != null) {
-            TeleportationUtil.transformEntityVelocity(portal, player.getVehicle(), portalPointVelocity);
+        if (vehicle != null) {
+            TeleportationUtil.transformEntityVelocity(portal, vehicle, portalPointVelocity, oldVehiclePos);
         }
-        
-        McHelper.setEyePos(player, newThisTickEyePos, newLastTickEyePos);
-        McHelper.updateBoundingBox(player);
         
         PehkuiInterface.invoker.onClientPlayerTeleported(portal);
         
@@ -426,7 +429,7 @@ public class ClientTeleportationManager {
     }
     
     public static void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
-        LOGGER.info("client player force teleported {} {}", toDimension, destination);
+        LOGGER.info("client player force teleported {} {}", toDimension.location(), destination);
         
         ClientLevel fromWorld = client.level;
         assert fromWorld != null;
