@@ -40,6 +40,7 @@
     "common.debug.MixinLinearPalette",
     "common.debug.MixinPlayerTicketTracker_Debug",
     "common.debug.MixinServerChunkCacheMainThreadExecutor",
+    "common.debug.MixinServerLevel_Debug",
     "common.entity_sync.MixinChunkMap_E",
     "common.entity_sync.MixinPersistentEntitySectionManager",
     "common.entity_sync.MixinServerEntity",

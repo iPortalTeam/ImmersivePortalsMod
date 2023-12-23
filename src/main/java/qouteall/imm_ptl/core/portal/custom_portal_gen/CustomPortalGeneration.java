@@ -216,7 +216,7 @@ public class CustomPortalGeneration {
         }
         
         Set<ResourceKey<Level>> effectiveSrcDimensions = fromDimensions.stream()
-            .filter(dim -> dim == THE_SAME_DIMENSION || server.getLevel(dim) != null)
+            .filter(dim -> dim == ANY_DIMENSION || server.getLevel(dim) != null)
             .collect(Collectors.toSet());
         
         if (effectiveSrcDimensions.isEmpty()) {
