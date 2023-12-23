@@ -17,8 +17,8 @@ public record PortalLocalXYNormalized(double nx, double ny) {
     }
     
     public Vec3 getOffset(Portal portal) {
-        return portal.axisW.scale((nx - 0.5) * portal.width)
-            .add(portal.axisH.scale((ny - 0.5) * portal.height));
+        return portal.getAxisW().scale((nx - 0.5) * portal.getWidth())
+            .add(portal.getAxisH().scale((ny - 0.5) * portal.getHeight()));
     }
     
     public Vec3 getPos(Portal portal) {
@@ -39,8 +39,8 @@ public record PortalLocalXYNormalized(double nx, double ny) {
     
     public static PortalLocalXYNormalized fromOffset(Portal portal, Vec3 offset) {
         return new PortalLocalXYNormalized(
-            portal.axisW.dot(offset) / portal.width + 0.5,
-            portal.axisH.dot(offset) / portal.height + 0.5
+            portal.getAxisW().dot(offset) / portal.getWidth() + 0.5,
+            portal.getAxisH().dot(offset) / portal.getHeight() + 0.5
         );
     }
     

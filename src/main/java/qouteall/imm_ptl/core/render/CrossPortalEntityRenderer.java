@@ -157,7 +157,7 @@ public class CrossPortalEntityRenderer {
                 for (PortalCollisionEntry e : collisionHandler.portalCollisions) {
                     Portal collidingPortal = e.portal;
                     if (!(collidingPortal instanceof Mirror)) {
-                        ResourceKey<Level> projectionDimension = collidingPortal.dimensionTo;
+                        ResourceKey<Level> projectionDimension = collidingPortal.getDestDim();
                         if (clientDim == projectionDimension) {
                             renderProjectedEntity(entity, collidingPortal, matrixStack);
                         }
@@ -220,7 +220,7 @@ public class CrossPortalEntityRenderer {
     ) {
         Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
         
-        ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
+        ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.getDestDim());
         
         Vec3 entityPos = entity.position();
         Vec3 entityEyePos = McHelper.getEyePos(entity);
@@ -256,8 +256,8 @@ public class CrossPortalEntityRenderer {
                 //avoid rendering player too near and block view
                 double dis = newEyePos.distanceTo(cameraPos);
                 double valve = 0.5 + entityLastTickPos.distanceTo(entityPos);
-                if (transformingPortal.scaling > 1) {
-                    valve *= transformingPortal.scaling;
+                if (transformingPortal.getScaling() > 1) {
+                    valve *= transformingPortal.getScaling();
                 }
                 if (dis < valve) {
                     return;
@@ -315,7 +315,7 @@ public class CrossPortalEntityRenderer {
         Portal portal, PoseStack matrixStack,
         Vec3 entityPos, Vec3 entityLastTickPos, Vec3 cameraPos
     ) {
-        if (portal.scaling == 1.0 && portal.getRotation() == null) {
+        if (portal.getScaling() == 1.0 && portal.getRotation() == null) {
             return;
         }
         
@@ -324,7 +324,7 @@ public class CrossPortalEntityRenderer {
         
         matrixStack.translate(anchor.x, anchor.y, anchor.z);
         
-        float scaling = (float) portal.scaling;
+        float scaling = (float) portal.getScaling();
         matrixStack.scale(scaling, scaling, scaling);
         
         if (portal.getRotation() != null) {

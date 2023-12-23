@@ -82,7 +82,7 @@ public class CrossPortalViewRendering {
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
         
         WorldRenderInfo worldRenderInfo = new WorldRenderInfo.Builder()
-            .setWorld(ClientWorldLoader.getWorld(portal.dimensionTo))
+            .setWorld(ClientWorldLoader.getWorld(portal.getDestDim()))
             .setCameraPos(renderingCameraPos)
             .setCameraTransformation(portal.getAdditionalCameraTransformation())
             .setOverwriteCameraTransformation(true)

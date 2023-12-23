@@ -675,10 +675,10 @@ public class WireRenderingHelper {
             int triangleNum = shape.mesh.getStoredTriangleNum();
             int vertexNum = triangleNum * 3;
             Vec3[] vertexes = new Vec3[vertexNum];
-            double halfWidth = portal.width / 2;
-            double halfHeight = portal.height / 2;
-            Vec3 X = portal.axisW.scale(halfWidth);
-            Vec3 Y = portal.axisH.scale(halfHeight);
+            double halfWidth = portal.getWidth() / 2;
+            double halfHeight = portal.getHeight() / 2;
+            Vec3 X = portal.getAxisW().scale(halfWidth);
+            Vec3 Y = portal.getAxisH().scale(halfHeight);
             
             matrixStack.pushPose();
             

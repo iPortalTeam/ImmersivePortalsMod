@@ -188,7 +188,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         fromShape.initPortalPosAxisShape(pa, Direction.AxisDirection.POSITIVE);
         
         pa.setDestination(toShape.innerAreaBox.getCenterVec());
-        pa.dimensionTo = toWorld.dimension();
+        pa.setDestDim(toWorld.dimension());
         pa.setRotation(DQuaternion.rotationByDegrees(
             new Vec3(1, 0, 0),
             180

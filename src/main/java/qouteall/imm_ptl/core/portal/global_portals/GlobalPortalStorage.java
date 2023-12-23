@@ -302,7 +302,7 @@ public class GlobalPortalStorage extends SavedData {
     
     public void clearAbnormalPortals() {
         data.removeIf(e -> {
-            ResourceKey<Level> dimensionTo = ((Portal) e).dimensionTo;
+            ResourceKey<Level> dimensionTo = ((Portal) e).getDestDim();
             if (MiscHelper.getServer().getLevel(dimensionTo) == null) {
                 Helper.err("Missing Dimension for global portal " + dimensionTo.location());
                 return true;

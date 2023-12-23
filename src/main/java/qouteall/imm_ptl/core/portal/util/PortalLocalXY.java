@@ -18,7 +18,7 @@ public record PortalLocalXY(double localX, double localY) {
     
     public static PortalLocalXY fromOffset(Portal portal, Vec3 offset) {
         return new PortalLocalXY(
-            portal.axisW.dot(offset), portal.axisH.dot(offset)
+            portal.getAxisW().dot(offset), portal.getAxisH().dot(offset)
         );
     }
     
@@ -28,7 +28,7 @@ public record PortalLocalXY(double localX, double localY) {
     }
     
     public Vec3 getOffset(Portal portal) {
-        return portal.axisW.scale(localX).add(portal.axisH.scale(localY));
+        return portal.getAxisW().scale(localX).add(portal.getAxisH().scale(localY));
     }
     
     public Vec3 getOffset(UnilateralPortalState state) {

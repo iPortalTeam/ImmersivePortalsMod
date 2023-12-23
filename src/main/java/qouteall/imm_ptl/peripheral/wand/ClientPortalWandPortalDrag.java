@@ -788,16 +788,16 @@ public class ClientPortalWandPortalDrag {
         Predicate<Vec3> isOrthodox = p ->
             Math.abs(p.dot(X)) > 0.9999 || Math.abs(p.dot(Y)) > 0.9999 || Math.abs(p.dot(Z)) > 0.9999;
         
-        if (!isOrthodox.test(portal.axisW)) {
+        if (!isOrthodox.test(portal.getAxisW())) {
             candidates.add(Pair.of(
-                new Plane(cursorPos, portal.axisW),
+                new Plane(cursorPos, portal.getAxisW()),
                 Component.translatable("imm_ptl.wand.plane.portal_x")
             ));
         }
         
-        if (!isOrthodox.test(portal.axisH)) {
+        if (!isOrthodox.test(portal.getAxisH())) {
             candidates.add(Pair.of(
-                new Plane(cursorPos, portal.axisH),
+                new Plane(cursorPos, portal.getAxisH()),
                 Component.translatable("imm_ptl.wand.plane.portal_y")
             ));
         }

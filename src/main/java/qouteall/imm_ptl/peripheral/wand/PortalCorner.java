@@ -31,8 +31,8 @@ public enum PortalCorner {
     }
     
     public Vec3 getOffset(Portal portal) {
-        return portal.axisW.scale((portal.width / 2) * getXSign())
-            .add(portal.axisH.scale((portal.height / 2) * getYSign()));
+        return portal.getAxisW().scale((portal.getWidth() / 2) * getXSign())
+            .add(portal.getAxisH().scale((portal.getHeight() / 2) * getYSign()));
     }
     
     public Vec3 getPos(Portal portal) {

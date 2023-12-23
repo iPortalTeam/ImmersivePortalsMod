@@ -331,7 +331,7 @@ public class ClientTeleportationManager {
         LocalPlayer player = client.player;
         Validate.isTrue(player != null);
         
-        ResourceKey<Level> toDimension = portal.dimensionTo;
+        ResourceKey<Level> toDimension = portal.getDestDim();
         float tickDelta = RenderStates.getPartialTick();
         
         Vec3 thisTickEyePos = McHelper.getEyePos(player);

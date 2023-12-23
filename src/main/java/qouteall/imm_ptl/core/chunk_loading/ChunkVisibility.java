@@ -112,7 +112,7 @@ public class ChunkVisibility {
             
             return new ChunkLoader(
                 new DimensionalChunkPos(
-                    portal.dimensionTo,
+                    portal.getDestDim(),
                     new ChunkPos(BlockPos.containing(
                         portal.transformPoint(player.position())
                     ))
@@ -125,13 +125,13 @@ public class ChunkVisibility {
             double distance = portal.getDistanceToNearestPointInPortal(player.position());
             
             // load more for up scaling portal
-            if (portal.scaling > 2 && distance < 5) {
+            if (portal.getScaling() > 2 && distance < 5) {
                 loadDistance = (int) ((portal.getDestAreaRadiusEstimation() * 1.4) / 16);
             }
             
             return new ChunkLoader(
                 new DimensionalChunkPos(
-                    portal.dimensionTo,
+                    portal.getDestDim(),
                     new ChunkPos(BlockPos.containing(portal.getDestPos()))
                 ),
                 getCappedLoadingDistance(
@@ -156,7 +156,7 @@ public class ChunkVisibility {
             );
             return new ChunkLoader(
                 new DimensionalChunkPos(
-                    portal.dimensionTo,
+                    portal.getDestDim(),
                     new ChunkPos(BlockPos.containing(transformedPos))
                 ),
                 renderDistance
@@ -165,7 +165,7 @@ public class ChunkVisibility {
         else {
             return new ChunkLoader(
                 new DimensionalChunkPos(
-                    portal.dimensionTo,
+                    portal.getDestDim(),
                     new ChunkPos(BlockPos.containing(portal.getDestPos()))
                 ),
                 getCappedLoadingDistance(

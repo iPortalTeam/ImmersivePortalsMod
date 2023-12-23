@@ -467,7 +467,7 @@ public class CollisionHelper {
      * 3. teleportable and hasCrossPortalCollision
      */
     public static void notifyCollidingPortals(Portal portal, float partialTick) {
-        if (!portal.teleportable) {
+        if (!portal.isTeleportable()) {
             return;
         }
         

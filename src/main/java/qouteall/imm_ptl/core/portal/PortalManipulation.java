@@ -44,10 +44,10 @@ public class PortalManipulation {
         @Nullable DQuaternion rotation,
         double scale
     ) {
-        portal.dimensionTo = destDim;
+        portal.setDestDim(destDim);
         portal.setDestination(destPos);
-        portal.rotation = rotation;
-        portal.scaling = scale;
+        portal.setRotation(rotation);
+        portal.setScaling(scale);
         portal.updateCache();
     }
     
@@ -59,7 +59,7 @@ public class PortalManipulation {
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
-        ServerLevel toWorld = MiscHelper.getServer().getLevel(portal.dimensionTo);
+        ServerLevel toWorld = MiscHelper.getServer().getLevel(portal.getDestDim());
         removeOverlappedPortals(
             toWorld,
             portal.getDestPos(),
@@ -90,26 +90,26 @@ public class PortalManipulation {
         
         T newPortal = entityType.create(world);
         assert newPortal != null;
-        newPortal.dimensionTo = portal.level().dimension();
+        newPortal.setDestDim(portal.level().dimension());
         newPortal.setPos(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
         newPortal.setDestination(portal.getOriginPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
-        newPortal.width = portal.width * portal.scaling;
-        newPortal.height = portal.height * portal.scaling;
-        newPortal.thickness = portal.thickness * portal.scaling;
-        newPortal.axisW = portal.axisW.scale(-1);
-        newPortal.axisH = portal.axisH;
+        newPortal.setWidth(portal.getWidth() * portal.getScaling());
+        newPortal.setHeight(portal.getHeight() * portal.getScaling());
+        newPortal.setThickness(portal.getThickness() * portal.getScaling());
+        newPortal.setAxisW(portal.getAxisW().scale(-1));
+        newPortal.setAxisH(portal.getAxisH());
         
         newPortal.setPortalShape(portal.getPortalShape().getReverse());
         
-        if (portal.rotation != null) {
-            rotatePortalBody(newPortal, portal.rotation);
+        if (portal.getRotation() != null) {
+            rotatePortalBody(newPortal, portal.getRotation());
             
-            newPortal.rotation = portal.rotation.getConjugated();
+            newPortal.setRotation(portal.getRotation().getConjugated());
         }
         
-        newPortal.scaling = 1.0 / portal.scaling;
+        newPortal.setScaling(1.0 / portal.getScaling());
         
         copyAdditionalProperties(newPortal, portal);
         
@@ -117,8 +117,8 @@ public class PortalManipulation {
     }
     
     public static void rotatePortalBody(Portal portal, DQuaternion rotation) {
-        portal.axisW = rotation.rotate(portal.axisW);
-        portal.axisH = rotation.rotate(portal.axisH);
+        portal.setAxisW(rotation.rotate(portal.getAxisW()));
+        portal.setAxisH(rotation.rotate(portal.getAxisH()));
     }
     
     public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
@@ -133,22 +133,22 @@ public class PortalManipulation {
         Level world = portal.level();
         T newPortal = entityType.create(world);
         assert newPortal != null;
-        newPortal.dimensionTo = portal.dimensionTo;
+        newPortal.setDestDim(portal.getDestDim());
         newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
-        newPortal.width = portal.width;
-        newPortal.height = portal.height;
-        newPortal.thickness = portal.thickness;
-        newPortal.axisW = portal.axisW.scale(-1);
-        newPortal.axisH = portal.axisH;
+        newPortal.setWidth(portal.getWidth());
+        newPortal.setHeight(portal.getHeight());
+        newPortal.setThickness(portal.getThickness());
+        newPortal.setAxisW(portal.getAxisW().scale(-1));
+        newPortal.setAxisH(portal.getAxisH());
         
         newPortal.setPortalShape(portal.getPortalShape().getFlipped());
         
-        newPortal.rotation = portal.rotation;
+        newPortal.setRotation(portal.getRotation());
         
-        newPortal.scaling = portal.scaling;
+        newPortal.setScaling(portal.getScaling());
         
         copyAdditionalProperties(newPortal, portal);
         
@@ -159,21 +159,21 @@ public class PortalManipulation {
     public static Portal copyPortal(Portal portal, EntityType<Portal> entityType) {
         Level world = portal.level();
         Portal newPortal = entityType.create(world);
-        newPortal.dimensionTo = portal.dimensionTo;
+        newPortal.setDestDim(portal.getDestDim());
         newPortal.setPos(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
-        newPortal.width = portal.width;
-        newPortal.height = portal.height;
-        newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH;
+        newPortal.setWidth(portal.getWidth());
+        newPortal.setHeight(portal.getHeight());
+        newPortal.setAxisW(portal.getAxisW());
+        newPortal.setAxisH(portal.getAxisH());
         
         newPortal.setPortalShape(portal.getPortalShape().cloneIfNecessary());
         
-        newPortal.rotation = portal.rotation;
+        newPortal.setRotation(portal.getRotation());
         
-        newPortal.scaling = portal.scaling;
+        newPortal.setScaling(portal.getScaling());
         
         copyAdditionalProperties(newPortal, portal);
         
@@ -194,7 +194,7 @@ public class PortalManipulation {
         
         Portal oppositeFacedPortal = completeBiFacedPortal(portal, entityType);
         removeOverlappedPortals(
-            MiscHelper.getServer().getLevel(portal.dimensionTo),
+            MiscHelper.getServer().getLevel(portal.getDestDim()),
             portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().scale(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
@@ -203,7 +203,7 @@ public class PortalManipulation {
         
         Portal r1 = completeBiWayPortal(portal, entityType);
         removeOverlappedPortals(
-            MiscHelper.getServer().getLevel(oppositeFacedPortal.dimensionTo),
+            MiscHelper.getServer().getLevel(oppositeFacedPortal.getDestDim()),
             oppositeFacedPortal.getDestPos(),
             oppositeFacedPortal.transformLocalVecNonScale(oppositeFacedPortal.getNormal().scale(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
@@ -258,7 +258,7 @@ public class PortalManipulation {
         PortalAPI.setPortalOrthodoxShape(portal, facing, portalArea);
         
         portal.setDestination(destination);
-        portal.dimensionTo = toWorld.dimension();
+        portal.setDestDim(toWorld.dimension());
         
         return portal;
     }
@@ -268,20 +268,20 @@ public class PortalManipulation {
     }
     
     public static void copyAdditionalProperties(Portal to, Portal from, boolean includeSpecialProperties) {
-        to.teleportable = from.teleportable;
-        to.teleportChangesScale = from.teleportChangesScale;
+        to.setTeleportable(from.isTeleportable());
+        to.setTeleportChangesScale(from.isTeleportChangesScale());
         to.teleportChangesGravity = from.teleportChangesGravity;
         to.specificPlayerId = from.specificPlayerId;
         PortalExtension.get(to).motionAffinity = PortalExtension.get(from).motionAffinity;
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
-        to.hasCrossPortalCollision = from.hasCrossPortalCollision;
+        to.setCrossPortalCollisionEnabled(from.isCrossPortalCollisionEnabled());
         PortalExtension.get(to).bindCluster = PortalExtension.get(from).bindCluster;
         to.animation.defaultAnimation = from.animation.defaultAnimation.copy();
         to.setIsVisible(from.isVisible());
         
         if (includeSpecialProperties) {
             to.portalTag = from.portalTag;
-            to.commandsOnTeleported = from.commandsOnTeleported;
+            to.setCommandsOnTeleported(from.getCommandsOnTeleported());
         }
     }
     
@@ -310,11 +310,11 @@ public class PortalManipulation {
                 direction, Helper.getBoxSurface(viewBox, direction),
                 Helper.getBoxSurface(area, direction).getCenter()
             );
-            portal.scaling = scale;
-            portal.teleportChangesScale = teleportChangesScale;
-            portal.fuseView = outerFuseView;
+            portal.setScaling(scale);
+            portal.setTeleportChangesScale(teleportChangesScale);
+            portal.setFuseView(outerFuseView);
             portal.renderingMergable = outerRenderingMergable;
-            portal.hasCrossPortalCollision = hasCrossPortalCollision;
+            portal.setCrossPortalCollisionEnabled(hasCrossPortalCollision);
             portal.portalTag = "imm_ptl:scale_box";
             
             McHelper.spawnServerEntity(portal);
@@ -390,11 +390,11 @@ public class PortalManipulation {
         
         portal.setPosRaw(pos.x, pos.y, pos.z);
         
-        portal.axisW = axisW;
-        portal.axisH = axisH;
+        portal.setAxisW(axisW);
+        portal.setAxisH(axisH);
         
-        portal.width = width;
-        portal.height = height;
+        portal.setWidth(width);
+        portal.setHeight(height);
         
         return portal;
     }
@@ -420,7 +420,7 @@ public class PortalManipulation {
         DQuaternion delta = b.hamiltonProduct(a.getConjugated());
         
         DQuaternion flip = DQuaternion.rotationByDegrees(
-            portalB.axisH, 180
+            portalB.getAxisH(), 180
         );
         DQuaternion aRot = flip.hamiltonProduct(delta);
         

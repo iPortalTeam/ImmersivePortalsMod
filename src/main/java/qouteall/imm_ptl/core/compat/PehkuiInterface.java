@@ -62,7 +62,7 @@ public class PehkuiInterface {
     
     @Environment(EnvType.CLIENT)
     private static void showMissingPehkui(Portal portal) {
-        if (portal.hasScaling() && portal.teleportChangesScale) {
+        if (portal.hasScaling() && portal.isTeleportChangesScale()) {
             if (!messageShown) {
                 messageShown = true;
                 Minecraft.getInstance().gui.getChat().addMessage(

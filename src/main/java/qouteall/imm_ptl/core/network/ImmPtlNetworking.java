@@ -214,7 +214,7 @@ public class ImmPtlNetworking {
                 
                 world.addEntity(entity);
                 
-                ClientWorldLoader.getWorld(portal.dimensionTo);
+                ClientWorldLoader.getWorld(portal.getDestDim());
                 Portal.CLIENT_PORTAL_SPAWN_EVENT.invoker().accept(portal);
                 
                 if (IPGlobal.clientPortalLoadDebug) {

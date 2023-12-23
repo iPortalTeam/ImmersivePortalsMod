@@ -117,7 +117,7 @@ public class PehkuiInterfaceInitializer {
     
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
-        if (portal.hasScaling() && portal.teleportChangesScale) {
+        if (portal.hasScaling() && portal.isTeleportChangesScale()) {
             Minecraft client = Minecraft.getInstance();
             
             LocalPlayer player = client.player;
@@ -128,14 +128,14 @@ public class PehkuiInterfaceInitializer {
             
             IECamera camera = (IECamera) client.gameRenderer.getMainCamera();
             camera.ip_setCameraY(
-                ((float) (camera.ip_getCameraY() * portal.scaling)),
-                ((float) (camera.ip_getLastCameraY() * portal.scaling))
+                ((float) (camera.ip_getCameraY() * portal.getScaling())),
+                ((float) (camera.ip_getLastCameraY() * portal.getScaling()))
             );
         }
     }
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
-        if (portal.hasScaling() && portal.teleportChangesScale) {
+        if (portal.hasScaling() && portal.isTeleportChangesScale()) {
             doScalingForEntity(entity, portal);
             
             if (entity.getVehicle() != null) {
@@ -175,7 +175,7 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static float transformScale(Portal portal, float oldScale) {
-        float result = (float) (oldScale * portal.scaling);
+        float result = (float) (oldScale * portal.getScaling());
         
         // avoid deviation accumulating
         if (Math.abs(result - 1.0f) < 0.0001f) {

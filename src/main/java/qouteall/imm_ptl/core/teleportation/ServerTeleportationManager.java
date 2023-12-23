@@ -178,7 +178,7 @@ public class ServerTeleportationManager {
             
             notifyChasersForPlayer(player, portal);
             
-            ResourceKey<Level> dimensionTo = portal.dimensionTo;
+            ResourceKey<Level> dimensionTo = portal.getDestDim();
             Vec3 newEyePos = portal.transformPoint(oldEyePos);
             
             recordLastPosition(player, dimensionBefore, oldFeetPos);
@@ -267,7 +267,7 @@ public class ServerTeleportationManager {
             }
         }
         return IPMcHelper.getNearbyPortals(player, 20)
-            .filter(portal -> portal.dimensionTo == dimension)
+            .filter(portal -> portal.getDestDim() == dimension)
             .filter(portal -> portal.canTeleportEntity(player))
             .map(portal -> portal.transformPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.distanceToSqr(pos) < 256);
@@ -463,13 +463,13 @@ public class ServerTeleportationManager {
         
         TeleportationUtil.transformEntityVelocity(portal, entity, TeleportationUtil.PortalPointVelocity.zero);
         
-        if (portal.dimensionTo != entity.level().dimension()) {
-            entity = changeEntityDimension(entity, portal.dimensionTo, newEyePos, true);
+        if (portal.getDestDim() != entity.level().dimension()) {
+            entity = changeEntityDimension(entity, portal.getDestDim(), newEyePos, true);
             
             Entity newEntity = entity;
             
             passengerList.stream().map(
-                e -> changeEntityDimension(e, portal.dimensionTo, newEyePos, true)
+                e -> changeEntityDimension(e, portal.getDestDim(), newEyePos, true)
             ).collect(Collectors.toList()).forEach(e -> {
                 e.startRiding(newEntity, true);
             });

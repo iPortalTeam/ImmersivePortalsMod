@@ -98,20 +98,20 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             entityType, fromWorld
         );
         
-        verticalConnectingPortal.dimensionTo = toWorld.dimension();
-        verticalConnectingPortal.width = 23333333333.0d;
-        verticalConnectingPortal.height = 23333333333.0d;
+        verticalConnectingPortal.setDestDim(toWorld.dimension());
+        verticalConnectingPortal.setWidth(23333333333.0d);
+        verticalConnectingPortal.setHeight(23333333333.0d);
         
         switch (connectorType) {
             case floor:
                 verticalConnectingPortal.setPos(0, fromWorldMinY, 0);
-                verticalConnectingPortal.axisW = new Vec3(0, 0, 1);
-                verticalConnectingPortal.axisH = new Vec3(1, 0, 0);
+                verticalConnectingPortal.setAxisW(new Vec3(0, 0, 1));
+                verticalConnectingPortal.setAxisH(new Vec3(1, 0, 0));
                 break;
             case ceil:
                 verticalConnectingPortal.setPos(0, fromWorldMaxY, 0);
-                verticalConnectingPortal.axisW = new Vec3(1, 0, 0);
-                verticalConnectingPortal.axisH = new Vec3(0, 0, 1);
+                verticalConnectingPortal.setAxisW(new Vec3(1, 0, 0));
+                verticalConnectingPortal.setAxisH(new Vec3(0, 0, 1));
                 break;
         }
         
@@ -144,11 +144,11 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         DQuaternion rotation = Helper.combineNullable(
             inversionRotation, additionalRotation, DQuaternion::hamiltonProduct
         );
-        verticalConnectingPortal.rotation = rotation;
+        verticalConnectingPortal.setRotation(rotation);
         
         if (scaling != 1.0) {
-            verticalConnectingPortal.scaling = scaling;
-            verticalConnectingPortal.teleportChangesScale = false;
+            verticalConnectingPortal.setScaling(scaling);
+            verticalConnectingPortal.setTeleportChangesScale(false);
             PortalExtension.get(verticalConnectingPortal).adjustPositionAfterTeleport = false;
         }
         

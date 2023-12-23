@@ -87,12 +87,12 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         portal.setPos(center.x, center.y, center.z);
         portal.setDestination(destination);
         
-        portal.axisW = Vec3.atLowerCornerOf(axises.getA().getNormal());
-        portal.axisH = Vec3.atLowerCornerOf(axises.getB().getNormal());
-        portal.width = Helper.getCoordinate(areaSize, axises.getA().getAxis());
-        portal.height = Helper.getCoordinate(areaSize, axises.getB().getAxis());
+        portal.setAxisW(Vec3.atLowerCornerOf(axises.getA().getNormal()));
+        portal.setAxisH(Vec3.atLowerCornerOf(axises.getB().getNormal()));
+        portal.setWidth(Helper.getCoordinate(areaSize, axises.getA().getAxis()));
+        portal.setHeight(Helper.getCoordinate(areaSize, axises.getB().getAxis()));
         
-        portal.dimensionTo = serverWorld.dimension();
+        portal.setDestDim(serverWorld.dimension());
     }
     
     public static class WrappingZone {

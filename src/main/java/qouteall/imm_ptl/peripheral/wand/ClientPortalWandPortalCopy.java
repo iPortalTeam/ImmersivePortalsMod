@@ -224,7 +224,7 @@ public class ClientPortalWandPortalCopy {
                 Portal portal = WandUtil.getClientPortalByUUID(statusSelectPortal.selectedPortalId);
                 if (portal != null) {
                     status = new Status_PlacingPortal(
-                        new PlacementRequirement(portal.width, portal.height),
+                        new PlacementRequirement(portal.getWidth(), portal.getHeight()),
                         true
                     );
                     McRemoteProcedureCall.tellServerToInvoke(
@@ -251,7 +251,7 @@ public class ClientPortalWandPortalCopy {
                 Portal portal = WandUtil.getClientPortalByUUID(statusSelectPortal.selectedPortalId);
                 if (portal != null) {
                     status = new Status_PlacingPortal(
-                        new PlacementRequirement(portal.width, portal.height),
+                        new PlacementRequirement(portal.getWidth(), portal.getHeight()),
                         false
                     );
                     McRemoteProcedureCall.tellServerToInvoke(

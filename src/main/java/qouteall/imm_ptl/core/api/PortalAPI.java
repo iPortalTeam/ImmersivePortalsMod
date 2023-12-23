@@ -3,6 +3,8 @@ package qouteall.imm_ptl.core.api;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -51,10 +54,10 @@ public class PortalAPI {
         Vec3 center = boxSurface.getCenter();
         portal.setPos(center.x, center.y, center.z);
         
-        portal.axisW = Vec3.atLowerCornerOf(directions.getA().getNormal());
-        portal.axisH = Vec3.atLowerCornerOf(directions.getB().getNormal());
-        portal.width = Helper.getCoordinate(areaSize, directions.getA().getAxis());
-        portal.height = Helper.getCoordinate(areaSize, directions.getB().getAxis());
+        portal.setAxisW(Vec3.atLowerCornerOf(directions.getA().getNormal()));
+        portal.setAxisH(Vec3.atLowerCornerOf(directions.getB().getNormal()));
+        portal.setWidth(Helper.getCoordinate(areaSize, directions.getA().getAxis()));
+        portal.setHeight(Helper.getCoordinate(areaSize, directions.getB().getAxis()));
     }
     
     public static void setPortalTransformation(
@@ -71,7 +74,7 @@ public class PortalAPI {
     }
     
     public static DQuaternion getPortalOrientationQuaternion(Portal portal) {
-        return PortalManipulation.getPortalOrientationQuaternion(portal.axisW, portal.axisH);
+        return PortalManipulation.getPortalOrientationQuaternion(portal.getAxisW(), portal.getAxisH());
     }
     
     public static void setPortalOrientationQuaternion(Portal portal, DQuaternion quaternion) {
@@ -170,5 +173,18 @@ public class PortalAPI {
     
     public static ResourceKey<Level> serverIntToDimKey(MinecraftServer server, int integerId) {
         return DimensionIntId.getServerMap(server).fromIntegerId(integerId);
+    }
+    
+    public static void sendPacketToEntityTrackers(
+        Entity entity, Packet<ClientGamePacketListener> packet
+    ) {
+        McHelper.sendToTrackers(
+            entity,
+            PacketRedirection.createRedirectedMessage(
+                entity.getServer(),
+                entity.level().dimension(),
+                packet
+            )
+        );
     }
 }

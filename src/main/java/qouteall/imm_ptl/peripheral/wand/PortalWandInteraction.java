@@ -229,19 +229,19 @@ public class PortalWandInteraction {
                 .add(firstSideHorizontalAxis.scale(0.5))
                 .add(firstSideVerticalAxis.scale(0.5))
         );
-        portal.width = firstSideWidth;
-        portal.height = firstSideHeight;
-        portal.axisW = firstSideHorizontalUnitAxis;
-        portal.axisH = firstSideVerticalUnitAxis;
+        portal.setWidth(firstSideWidth);
+        portal.setHeight(firstSideHeight);
+        portal.setAxisW(firstSideHorizontalUnitAxis);
+        portal.setAxisH(firstSideVerticalUnitAxis);
         
-        portal.dimensionTo = secondSideDimension;
+        portal.setDestDim(secondSideDimension);
         portal.setDestination(
             secondSideLeftBottom
                 .add(secondSideHorizontalAxis.scale(0.5))
                 .add(secondSideVerticalAxis.scale(0.5))
         );
         
-        portal.scaling = secondSideWidth / firstSideWidth;
+        portal.setScaling(secondSideWidth / firstSideWidth);
         
         DQuaternion secondSideOrientation = DQuaternion.matrixToQuaternion(
             secondSideHorizontalUnitAxis,

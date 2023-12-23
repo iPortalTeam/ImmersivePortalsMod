@@ -370,10 +370,10 @@ public class BlockPortalShape {
         Direction wDirection = perpendicularDirections.getA();
         Direction hDirection = perpendicularDirections.getB();
         
-        portal.axisW = Vec3.atLowerCornerOf(wDirection.getNormal());
-        portal.axisH = Vec3.atLowerCornerOf(hDirection.getNormal());
-        portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
-        portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
+        portal.setAxisW(Vec3.atLowerCornerOf(wDirection.getNormal()));
+        portal.setAxisH(Vec3.atLowerCornerOf(hDirection.getNormal()));
+        portal.setWidth(Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis()));
+        portal.setHeight(Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis()));
         
         Vec3 offset = Vec3.atLowerCornerOf(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
@@ -385,11 +385,11 @@ public class BlockPortalShape {
         }
         else {
             Mesh2D mesh2D = new Mesh2D();
-            double halfWidth = portal.width / 2;
-            double halfHeight = portal.height / 2;
+            double halfWidth = portal.getWidth() / 2;
+            double halfHeight = portal.getHeight() / 2;
             
-            Vec3 axisW = portal.axisW;
-            Vec3 axisH = portal.axisH;
+            Vec3 axisW = portal.getAxisW();
+            Vec3 axisH = portal.getAxisH();
             
             area.forEach(part -> {
                 Vec3 p1 = Vec3.atLowerCornerOf(part).add(offset);

@@ -333,19 +333,19 @@ public class PortalExtension {
                 portal.getOriginPos()
             );
             
-            flippedPortal.dimensionTo = portal.dimensionTo;
+            flippedPortal.setDestDim(portal.getDestDim());
             flippedPortal.setOriginPos(portal.getOriginPos());
             flippedPortal.setDestination(portal.getDestPos());
             
-            flippedPortal.axisW = portal.axisW.scale(-1);
-            flippedPortal.axisH = portal.axisH;
+            flippedPortal.setAxisW(portal.getAxisW().scale(-1));
+            flippedPortal.setAxisH(portal.getAxisH());
             
-            flippedPortal.scaling = portal.scaling;
-            flippedPortal.rotation = portal.rotation;
+            flippedPortal.setScaling(portal.getScaling());
+            flippedPortal.setRotation(portal.getRotation());
             
-            flippedPortal.width = portal.width;
-            flippedPortal.height = portal.height;
-            flippedPortal.thickness = portal.thickness;
+            flippedPortal.setWidth(portal.getWidth());
+            flippedPortal.setHeight(portal.getHeight());
+            flippedPortal.setThickness(portal.getThickness());
             
             PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
@@ -359,7 +359,7 @@ public class PortalExtension {
         }
         
         if (reversePortal != null) {
-            if (portal.dimensionTo != reversePortal.level().dimension()) {
+            if (portal.getDestDim() != reversePortal.level().dimension()) {
                 LOGGER.info(
                     "Moving reverse portal across dimension {} {}",
                     portal, reversePortal
@@ -373,23 +373,23 @@ public class PortalExtension {
             );
             reversePortalId = reversePortal.getUUID();
             
-            reversePortal.dimensionTo = portal.getOriginDim();
+            reversePortal.setDestDim(portal.getOriginDim());
             reversePortal.setOriginPos(portal.getDestPos());
             reversePortal.setDestination(portal.getOriginPos());
             
-            reversePortal.axisW = portal.transformLocalVecNonScale(portal.axisW.scale(-1));
-            reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
-            reversePortal.scaling = 1.0 / portal.scaling;
-            if (portal.rotation != null) {
-                reversePortal.rotation = portal.rotation.getConjugated();
+            reversePortal.setAxisW(portal.transformLocalVecNonScale(portal.getAxisW().scale(-1)));
+            reversePortal.setAxisH(portal.transformLocalVecNonScale(portal.getAxisH()));
+            reversePortal.setScaling(1.0 / portal.getScaling());
+            if (portal.getRotation() != null) {
+                reversePortal.setRotation(portal.getRotation().getConjugated());
             }
             else {
-                reversePortal.rotation = null;
+                reversePortal.setRotation(null);
             }
             
-            reversePortal.width = portal.width * portal.getScale();
-            reversePortal.height = portal.height * portal.getScale();
-            reversePortal.thickness = portal.thickness * portal.getScale();
+            reversePortal.setWidth(portal.getWidth() * portal.getScale());
+            reversePortal.setHeight(portal.getHeight() * portal.getScale());
+            reversePortal.setThickness(portal.getThickness() * portal.getScale());
             
             PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
@@ -403,7 +403,7 @@ public class PortalExtension {
         }
         
         if (parallelPortal != null) {
-            if (portal.dimensionTo != parallelPortal.level().dimension()) {
+            if (portal.getDestDim() != parallelPortal.level().dimension()) {
                 LOGGER.info(
                     "Moving parallel portal across dimension {} {}", portal, parallelPortal
                 );
@@ -416,23 +416,23 @@ public class PortalExtension {
             );
             parallelPortalId = parallelPortal.getUUID();
             
-            parallelPortal.dimensionTo = portal.getOriginDim();
+            parallelPortal.setDestDim(portal.getOriginDim());
             parallelPortal.setOriginPos(portal.getDestPos());
             parallelPortal.setDestination(portal.getOriginPos());
             
-            parallelPortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
-            parallelPortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
-            parallelPortal.scaling = 1.0 / portal.scaling;
-            if (portal.rotation != null) {
-                parallelPortal.rotation = portal.rotation.getConjugated();
+            parallelPortal.setAxisW(portal.transformLocalVecNonScale(portal.getAxisW()));
+            parallelPortal.setAxisH(portal.transformLocalVecNonScale(portal.getAxisH()));
+            parallelPortal.setScaling(1.0 / portal.getScaling());
+            if (portal.getRotation() != null) {
+                parallelPortal.setRotation(portal.getRotation().getConjugated());
             }
             else {
-                parallelPortal.rotation = null;
+                parallelPortal.setRotation(null);
             }
             
-            parallelPortal.width = portal.width * portal.getScale();
-            parallelPortal.height = portal.height * portal.getScale();
-            parallelPortal.thickness = portal.thickness * portal.getScale();
+            parallelPortal.setWidth(portal.getWidth() * portal.getScale());
+            parallelPortal.setHeight(portal.getHeight() * portal.getScale());
+            parallelPortal.setThickness(portal.getThickness() * portal.getScale());
             
             PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             

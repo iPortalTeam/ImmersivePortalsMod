@@ -51,7 +51,7 @@ public class EndPortalEntity extends Portal {
         super(entityType, world);
         
         renderingMergable = true;
-        hasCrossPortalCollision = false;
+        setCrossPortalCollisionEnabled(false);
     }
     
     public static void onEndPortalComplete(ServerLevel world, Vec3 portalCenter) {
@@ -102,13 +102,13 @@ public class EndPortalEntity extends Portal {
         
         portal.setDestination(destination);
         
-        portal.dimensionTo = Level.END;
+        portal.setDestDim(Level.END);
         
-        portal.axisW = new Vec3(0, 0, 1);
-        portal.axisH = new Vec3(1, 0, 0);
+        portal.setAxisW(new Vec3(0, 0, 1));
+        portal.setAxisH(new Vec3(1, 0, 0));
         
-        portal.width = 3;
-        portal.height = 3;
+        portal.setWidth(3);
+        portal.setHeight(3);
         
         world.addFreshEntity(portal);
     }
@@ -138,8 +138,8 @@ public class EndPortalEntity extends Portal {
                 direction, Helper.getBoxSurface(thisSideBox, direction),
                 Helper.getBoxSurface(otherSideBox, direction).getCenter()
             );
-            portal.scaling = scale;
-            portal.teleportChangesScale = false;
+            portal.setScaling(scale);
+            portal.setTeleportChangesScale(false);
             portal.portalTag = PORTAL_TAG_VIEW_BOX;
             portal.setInteractable(false);
             //creating a new entity type needs registering
@@ -150,7 +150,7 @@ public class EndPortalEntity extends Portal {
                 portal.addOtherSideAnimationDriver(
                     new RotationAnimation.Builder()
                         .setDegreesPerTick(0.5)
-                        .setInitialOffset(portal.destination.subtract(rotationCenter))
+                        .setInitialOffset(portal.getDestination().subtract(rotationCenter))
                         .setRotationAxis(new Vec3(0, 1, 0))
                         .setStartGameTime(world.getGameTime())
                         .setEndGameTime(Long.MAX_VALUE)
@@ -200,7 +200,7 @@ public class EndPortalEntity extends Portal {
                     }
                 }
             }
-            fuseView = true;
+            setFuseView(true);
         }
     }
     

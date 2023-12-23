@@ -128,7 +128,7 @@ public class BlockManipulationClient {
             client.player
         );
         
-        ClientLevel world = ClientWorldLoader.getWorld(portal.dimensionTo);
+        ClientLevel world = ClientWorldLoader.getWorld(portal.getDestDim());
         
         remoteHitResult = BlockGetter.traverseBlocks(
             from, to,
@@ -184,7 +184,7 @@ public class BlockManipulationClient {
         if (remoteHitResult != null) {
             if (!world.getBlockState(((BlockHitResult) remoteHitResult).getBlockPos()).isAir()) {
                 client.hitResult = createMissedHitResult(from, to);
-                remotePointedDim = portal.dimensionTo;
+                remotePointedDim = portal.getDestDim();
             }
         }
         

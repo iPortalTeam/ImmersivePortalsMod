@@ -13,12 +13,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.q_misc_util.my_util.Mesh2D;
 import qouteall.q_misc_util.my_util.TriangleConsumer;
 
 public class ViewAreaRenderer {
@@ -187,11 +185,11 @@ public class ViewAreaRenderer {
         Vec3 posInPlayerCoordinate
     ) {
         //avoid floating point error for converted global portal
-        final double w = Math.min(portal.width, 23333);
-        final double h = Math.min(portal.height, 23333);
+        final double w = Math.min(portal.getWidth(), 23333);
+        final double h = Math.min(portal.getHeight(), 23333);
         
-        Vec3 localXAxis = portal.axisW.scale(w / 2);
-        Vec3 localYAxis = portal.axisH.scale(h / 2);
+        Vec3 localXAxis = portal.getAxisW().scale(w / 2);
+        Vec3 localYAxis = portal.getAxisH().scale(h / 2);
         
         outputFullQuad(vertexOutput, posInPlayerCoordinate, localXAxis, localYAxis);
         
@@ -220,8 +218,8 @@ public class ViewAreaRenderer {
             r = r * 200 / distance;
         }
         
-        Vec3 localXAxis = portal.axisW.scale(r);
-        Vec3 localYAxis = portal.axisH.scale(r);
+        Vec3 localXAxis = portal.getAxisW().scale(r);
+        Vec3 localYAxis = portal.getAxisH().scale(r);
         
         outputFullQuad(vertexOutput, localCenter, localXAxis, localYAxis);
     }

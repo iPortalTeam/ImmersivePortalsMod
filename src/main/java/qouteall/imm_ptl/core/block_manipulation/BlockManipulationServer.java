@@ -80,7 +80,7 @@ public class BlockManipulationServer {
             player,
             IPGlobal.maxNormalPortalRadius
         ).anyMatch(portal ->
-            portal.dimensionTo == dimension &&
+            portal.getDestDim() == dimension &&
                 portal.isInteractableBy(player) &&
                 portal.transformPoint(playerPos).distanceToSqr(pos) <
                     distanceSquare * portal.getScale() * portal.getScale()
@@ -120,7 +120,7 @@ public class BlockManipulationServer {
             blockHitResult.isInside()
         );
         
-        return new Tuple<>(newHitResult, portal.dimensionTo);
+        return new Tuple<>(newHitResult, portal.getDestDim());
     }
     
     public static class RemoteCallables {

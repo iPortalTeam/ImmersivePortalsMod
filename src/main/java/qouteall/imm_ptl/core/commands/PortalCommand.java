@@ -478,9 +478,9 @@ public class PortalCommand {
                         context, portal -> {
                             sendEditBiWayPortalWarning(context, portal);
                             
-                            portal.dimensionTo = DimensionArgument.getDimension(
+                            portal.setDestDim(DimensionArgument.getDimension(
                                 context, "dim"
-                            ).dimension();
+                            ).dimension());
                             portal.setDestination(Vec3Argument.getVec3(
                                 context, "dest"
                             ));
@@ -731,7 +731,7 @@ public class PortalCommand {
                     context, portal -> {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
-                        portal.scaling = scale;
+                        portal.setScaling(scale);
                         
                         reloadPortal(portal);
                     }
@@ -745,7 +745,7 @@ public class PortalCommand {
                     context, portal -> {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
-                        portal.scaling = portal.scaling * scale;
+                        portal.setScaling(portal.getScaling() * scale);
                         
                         reloadPortal(portal);
                     }
@@ -759,7 +759,7 @@ public class PortalCommand {
                     context, portal -> {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
-                        portal.scaling = portal.scaling / scale;
+                        portal.setScaling(portal.getScaling() / scale);
                         
                         reloadPortal(portal);
                     }
@@ -771,7 +771,7 @@ public class PortalCommand {
             .then(Commands.argument("entity", EntityArgument.entity())
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
                     Entity entity = EntityArgument.getEntity(context, "entity");
-                    portal.dimensionTo = entity.level().dimension();
+                    portal.setDestDim(entity.level().dimension());
                     portal.setDestination(entity.position());
                     reloadPortal(portal);
                 }))
@@ -859,9 +859,9 @@ public class PortalCommand {
                     Vec3 offset = Vec3Argument.getVec3(context, "offset");
                     portal.setDestination(
                         portal.getDestPos().add(
-                            portal.transformLocalVec(portal.axisW).scale(offset.x)
+                            portal.transformLocalVec(portal.getAxisW()).scale(offset.x)
                         ).add(
-                            portal.transformLocalVec(portal.axisH).scale(offset.y)
+                            portal.transformLocalVec(portal.getAxisH()).scale(offset.y)
                         ).add(
                             portal.transformLocalVec(portal.getNormal()).scale(offset.z)
                         )
@@ -878,8 +878,8 @@ public class PortalCommand {
                         double width = DoubleArgumentType.getDouble(context, "width");
                         double height = DoubleArgumentType.getDouble(context, "height");
                         
-                        portal.width = width;
-                        portal.height = height;
+                        portal.setWidth(width);
+                        portal.setHeight(height);
                         portal.setPortalShapeToDefault();
                         
                         reloadPortal(portal);
@@ -901,10 +901,10 @@ public class PortalCommand {
             .then(Commands.argument("subCommand", SubCommandArgumentType.instance)
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
                     String subCommand = SubCommandArgumentType.get(context, "subCommand");
-                    if (portal.commandsOnTeleported == null) {
-                        portal.commandsOnTeleported = new ArrayList<>();
+                    if (portal.getCommandsOnTeleported() == null) {
+                        portal.setCommandsOnTeleported(new ArrayList<>());
                     }
-                    portal.commandsOnTeleported.add(subCommand);
+                    portal.getCommandsOnTeleported().add(subCommand);
                     portal.reloadAndSyncToClient();
                     sendPortalInfo(context, portal);
                 }))
@@ -915,18 +915,18 @@ public class PortalCommand {
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .then(Commands.argument("indexStartingFromZero", IntegerArgumentType.integer(0, 100))
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
-                    if (portal.commandsOnTeleported == null) {
+                    if (portal.getCommandsOnTeleported() == null) {
                         return;
                     }
                     
                     int index = IntegerArgumentType.getInteger(context, "indexStartingFromZero");
                     
-                    if (index >= portal.commandsOnTeleported.size()) {
+                    if (index >= portal.getCommandsOnTeleported().size()) {
                         context.getSource().sendFailure(Component.literal("Index out of range"));
                         return;
                     }
                     
-                    portal.commandsOnTeleported.remove(index);
+                    portal.getCommandsOnTeleported().remove(index);
                     portal.reloadAndSyncToClient();
                     sendPortalInfo(context, portal);
                 }))
@@ -940,20 +940,20 @@ public class PortalCommand {
             .then(Commands.argument("indexStartingFromZero", IntegerArgumentType.integer(0, 100))
                 .then(Commands.argument("subCommand", SubCommandArgumentType.instance)
                     .executes(context -> processPortalTargetedCommand(context, portal -> {
-                        if (portal.commandsOnTeleported == null) {
+                        if (portal.getCommandsOnTeleported() == null) {
                             return;
                         }
                         
                         int index = IntegerArgumentType.getInteger(context, "indexStartingFromZero");
                         
-                        if (index >= portal.commandsOnTeleported.size()) {
+                        if (index >= portal.getCommandsOnTeleported().size()) {
                             context.getSource().sendFailure(Component.literal("Index out of range"));
                             return;
                         }
                         
                         String subCommand = SubCommandArgumentType.get(context, "subCommand");
                         
-                        portal.commandsOnTeleported.set(index, subCommand);
+                        portal.getCommandsOnTeleported().set(index, subCommand);
                         portal.reloadAndSyncToClient();
                         sendPortalInfo(context, portal);
                     }))
@@ -964,7 +964,7 @@ public class PortalCommand {
         builder.then(Commands.literal("clear_commands_on_teleported")
             .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
             .executes(context -> processPortalTargetedCommand(context, portal -> {
-                portal.commandsOnTeleported = null;
+                portal.setCommandsOnTeleported(null);
                 portal.reloadAndSyncToClient();
                 sendPortalInfo(context, portal);
             }))
@@ -1190,18 +1190,18 @@ public class PortalCommand {
         
         portal.setPos(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
         
-        portal.dimensionTo = toEntity.level().dimension();
+        portal.setDestDim(toEntity.level().dimension());
         portal.setDestination(toEntity.position());
-        portal.width = width;
-        portal.height = height;
+        portal.setWidth(width);
+        portal.setHeight(height);
         
         Vec3 normal = fromEntity.getViewVector(1);
         Vec3 rightVec = getRightVec(fromEntity);
         
         Vec3 axisH = rightVec.cross(normal).normalize();
         
-        portal.axisW = rightVec;
-        portal.axisH = axisH;
+        portal.setAxisW(rightVec);
+        portal.setAxisH(axisH);
         
         portal.setCustomName(Component.literal(portalName));
         
@@ -1514,8 +1514,8 @@ public class PortalCommand {
                                 
                                 portal.setScaleTransformation(scale);
                                 
-                                portal.fuseView = true;
-                                portal.teleportChangesScale = false;
+                                portal.setFuseView(true);
+                                portal.setTeleportChangesScale(false);
                                 
                                 McHelper.spawnServerEntity(portal);
                                 
@@ -1647,8 +1647,8 @@ public class PortalCommand {
                                         Vec3 offset = portal.getOriginPos().subtract(origin);
                                         Vec3 offsetRotated = quaternion.rotate(offset);
                                         portal.setOriginPos(offsetRotated.add(origin));
-                                        portal.axisW = quaternion.rotate(portal.axisW);
-                                        portal.axisH = quaternion.rotate(portal.axisH);
+                                        portal.setAxisW(quaternion.rotate(portal.getAxisW()));
+                                        portal.setAxisH(quaternion.rotate(portal.getAxisH()));
                                         
                                         portal.setRotationTransformationD(portal.getRotationD().hamiltonProduct(quaternion.getConjugated()));
                                     }
@@ -1691,13 +1691,13 @@ public class PortalCommand {
                                     // but can change other side size if this side scale changes
                                     if (extension.reversePortal != null) {
                                         extension.reversePortal.setDestination(newOrigin);
-                                        extension.reversePortal.scaling /= scale;
+                                        extension.reversePortal.setScaling(extension.reversePortal.getScaling() / scale);
                                         portalsToReload.add(extension.reversePortal);
                                     }
                                     else {
                                         portal.setOriginPos(newOrigin);
-                                        portal.width = portal.width * scale;
-                                        portal.height = portal.height * scale;
+                                        portal.setWidth(portal.getWidth() * scale);
+                                        portal.setHeight(portal.getHeight() * scale);
                                         portalsToReload.add(portal);
                                     }
                                 }
@@ -1744,7 +1744,7 @@ public class PortalCommand {
                             portal.setDestination(center.add(0, 10, 0));
                             portal.setDestinationDimension(context.getSource().getLevel().dimension());
                             
-                            if (portal.width > 64 || portal.height > 64) {
+                            if (portal.getWidth() > 64 || portal.getHeight() > 64) {
                                 context.getSource().sendFailure(Component.literal("portal size is too large"));
                                 return 0;
                             }
@@ -2065,7 +2065,7 @@ public class PortalCommand {
         Portal portal
     ) {
         PortalManipulation.removeOverlappedPortals(
-            MiscHelper.getServer().getLevel(portal.dimensionTo),
+            MiscHelper.getServer().getLevel(portal.getDestDim()),
             portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().scale(-1)),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
@@ -2145,7 +2145,7 @@ public class PortalCommand {
         
         removeMultidestEntry(context, pointedPortal, player);
         
-        newPortal.dimensionTo = dimension;
+        newPortal.setDestDim(dimension);
         newPortal.setDestination(destination);
         newPortal.specificPlayerId = player.getUUID();
         
@@ -2228,11 +2228,11 @@ public class PortalCommand {
     private static Component getMakePortalSuccess(Portal portal) {
         return Component.translatable(
             "imm_ptl.command.make_portal.success",
-            Double.toString(portal.width),
-            Double.toString(portal.height),
+            Double.toString(portal.getWidth()),
+            Double.toString(portal.getHeight()),
             McHelper.dimensionTypeId(portal.level().dimension()).toString(),
             portal.getOriginPos().toString(),
-            McHelper.dimensionTypeId(portal.dimensionTo).toString(),
+            McHelper.dimensionTypeId(portal.getDestDim()).toString(),
             portal.getDestPos().toString()
         );
     }
@@ -2250,7 +2250,7 @@ public class PortalCommand {
             return 0;
         }
         
-        portal.dimensionTo = to;
+        portal.setDestDim(to);
         portal.setDestination(dest);
         McHelper.spawnServerEntity(portal);
         
@@ -2273,8 +2273,8 @@ public class PortalCommand {
         }
         
         // unsafe to use getContentDirection before the destination is fully set
-        portal.dimensionTo = to;
-        portal.setDestination(portal.getOriginPos().add(portal.axisW.cross(portal.axisH).scale(-dist)));
+        portal.setDestDim(to);
+        portal.setDestination(portal.getOriginPos().add(portal.getAxisW().cross(portal.getAxisH()).scale(-dist)));
         
         McHelper.spawnServerEntity(portal);
         
@@ -2564,23 +2564,23 @@ public class PortalCommand {
         // create the 2 mirrors
         Mirror thisSideMirror = Mirror.entityType.create(fromWorld);
         assert thisSideMirror != null;
-        thisSideMirror.dimensionTo = thisSideMirror.level().dimension();
+        thisSideMirror.setDestDim(thisSideMirror.level().dimension());
         thisSideMirror.setOriginPos(thisSideState.position());
         thisSideMirror.setOrientationRotation(thisSideState.orientation());
         thisSideMirror.setDestination(thisSideState.position());
-        thisSideMirror.width = thisSideState.width();
-        thisSideMirror.height = thisSideState.height();
+        thisSideMirror.setWidth(thisSideState.width());
+        thisSideMirror.setHeight(thisSideState.height());
         thisSideMirror.setPortalShape(specialShape);
         thisSideMirror.setRotationTransformationForMirror(spacialRotation);
         
         Mirror otherSideMirror = Mirror.entityType.create(toWorld);
         assert otherSideMirror != null;
-        otherSideMirror.dimensionTo = otherSideMirror.level().dimension();
+        otherSideMirror.setDestDim(otherSideMirror.level().dimension());
         otherSideMirror.setOriginPos(otherSideState.position());
         otherSideMirror.setOrientationRotation(otherSideState.orientation());
         otherSideMirror.setDestination(otherSideState.position());
-        otherSideMirror.width = otherSideState.width();
-        otherSideMirror.height = otherSideState.height();
+        otherSideMirror.setWidth(otherSideState.width());
+        otherSideMirror.setHeight(otherSideState.height());
         otherSideMirror.setPortalShape(specialShape.getFlipped());
         otherSideMirror.setRotationTransformationForMirror(spacialRotation.getConjugated());
         
@@ -2590,7 +2590,7 @@ public class PortalCommand {
         // create the invisible portal
         Portal invisiblePortal = Portal.ENTITY_TYPE.create(fromWorld);
         assert invisiblePortal != null;
-        invisiblePortal.dimensionTo = toWorld.dimension();
+        invisiblePortal.setDestDim(toWorld.dimension());
         invisiblePortal.setPortalState(UnilateralPortalState.combine(thisSideState, otherSideState));
         invisiblePortal.setPortalShape(specialShape);
         invisiblePortal.setIsVisible(false);
@@ -2629,10 +2629,10 @@ public class PortalCommand {
             mesh2D = Mesh2D.createNewFullQuadMesh();
         }
         
-        double halfWidth = portal.width / 2;
-        double halfHeight = portal.height / 2;
-        Vec3 axisW = portal.axisW;
-        Vec3 axisH = portal.axisH;
+        double halfWidth = portal.getWidth() / 2;
+        double halfHeight = portal.getHeight() / 2;
+        Vec3 axisW = portal.getAxisW();
+        Vec3 axisH = portal.getAxisH();
         Plane plane = new Plane(portal.getOriginPos(), portal.getNormal());
         
         double areaBefore = mesh2D.getArea() * halfWidth * halfHeight;
@@ -2742,13 +2742,13 @@ public class PortalCommand {
                 (input.y() - centerLY) / (lHeight / 2)
             ));
             
-            double oldHalfWidth = portal.width / 2.0;
-            double oldHalfHeight = portal.height / 2.0;
+            double oldHalfWidth = portal.getWidth() / 2.0;
+            double oldHalfHeight = portal.getHeight() / 2.0;
             
             double newPortalWidth = oldHalfWidth * lWidth;
             double newPortalHeight = oldHalfHeight * lHeight;
-            Vec3 centerOffset = portal.axisW.scale(centerLX * oldHalfWidth)
-                .add(portal.axisH.scale(centerLY * oldHalfHeight));
+            Vec3 centerOffset = portal.getAxisW().scale(centerLX * oldHalfWidth)
+                .add(portal.getAxisH().scale(centerLY * oldHalfHeight));
             
             Vec3 otherSideCenterOffset = portal.transformLocalVec(centerOffset);
             

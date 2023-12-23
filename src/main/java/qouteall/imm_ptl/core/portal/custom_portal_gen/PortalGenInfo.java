@@ -74,9 +74,9 @@ public class PortalGenInfo {
         T portal = entityType.create(fromWorld);
         assert portal != null;
         fromShape.initPortalPosAxisShape(portal, Direction.AxisDirection.POSITIVE);
-        portal.dimensionTo = to;
+        portal.setDestDim(to);
         portal.setDestination(toShape.innerAreaBox.getCenterVec());
-        portal.scaling = scale;
+        portal.setScaling(scale);
         portal.setRotation(rotation);
         
         return portal;

@@ -194,15 +194,15 @@ public class BreakableMirror extends Mirror {
         );
         breakableMirror.setPos(pos.x, pos.y, pos.z);
         breakableMirror.setDestination(pos);
-        breakableMirror.dimensionTo = world.dimension();
+        breakableMirror.setDestDim(world.dimension());
         
         Tuple<Direction, Direction> perpendicularDirections = Helper.getPerpendicularDirections(facing);
         Direction wDirection = perpendicularDirections.getA();
         Direction hDirection = perpendicularDirections.getB();
-        breakableMirror.width = Helper.getCoordinate(Helper.getBoxSize(wallBox), wDirection.getAxis());
-        breakableMirror.height = Helper.getCoordinate(Helper.getBoxSize(wallBox), hDirection.getAxis());
-        breakableMirror.axisW = Vec3.atLowerCornerOf(wDirection.getNormal());
-        breakableMirror.axisH = Vec3.atLowerCornerOf(hDirection.getNormal());
+        breakableMirror.setWidth(Helper.getCoordinate(Helper.getBoxSize(wallBox), wDirection.getAxis()));
+        breakableMirror.setHeight(Helper.getCoordinate(Helper.getBoxSize(wallBox), hDirection.getAxis()));
+        breakableMirror.setAxisW(Vec3.atLowerCornerOf(wDirection.getNormal()));
+        breakableMirror.setAxisH(Vec3.atLowerCornerOf(hDirection.getNormal()));
         
         initializeMirrorGeometryShape(breakableMirror, facing, shape);
         
@@ -225,8 +225,8 @@ public class BreakableMirror extends Mirror {
         
         Vec3 center = breakableMirror.getOriginPos();
         Level world = breakableMirror.level();
-        Vec3 axisW = breakableMirror.axisW;
-        Vec3 axisH = breakableMirror.axisH;
+        Vec3 axisW = breakableMirror.getAxisW();
+        Vec3 axisH = breakableMirror.getAxisH();
         
         Mesh2D mesh2D = new Mesh2D();
         for (BlockPos blockPos : shape.area) {

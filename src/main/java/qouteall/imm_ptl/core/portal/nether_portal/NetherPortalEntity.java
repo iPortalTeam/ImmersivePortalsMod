@@ -90,10 +90,10 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         
         RandomSource random = level().getRandom();
         
-        for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
+        for (int i = 0; i < (int) Math.ceil(getWidth() * getHeight() / 20); i++) {
             if (random.nextInt(10) == 0) {
-                double px = (random.nextDouble() * 2 - 1) * (width / 2);
-                double py = (random.nextDouble() * 2 - 1) * (height / 2);
+                double px = (random.nextDouble() * 2 - 1) * (getWidth() / 2);
+                double py = (random.nextDouble() * 2 - 1) * (getHeight() / 2);
                 
                 Vec3 pos = getPointInPlane(px, py);
                 

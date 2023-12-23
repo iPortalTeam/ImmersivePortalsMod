@@ -24,9 +24,13 @@ public abstract class MixinServerEntity implements IEEntityTrackerEntry {
     @Final
     private Entity entity;
     
-    @Shadow @Final private VecDeltaCodec positionCodec;
+    @Shadow
+    @Final
+    private VecDeltaCodec positionCodec;
     
-    @Shadow @Final private static Logger LOGGER;
+    @Shadow
+    @Final
+    private static Logger LOGGER;
     
     // make sure that the packet is being redirected
     @Inject(

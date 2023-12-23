@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -141,7 +140,7 @@ public abstract class BreakablePortalEntity extends Portal {
     
     private BreakablePortalEntity getReversePortal() {
         
-        ServerLevel world = getServer().getLevel(dimensionTo);
+        ServerLevel world = getServer().getLevel(getDestDim());
         Entity entity = world.getEntity(reversePortalId);
         if (entity instanceof BreakablePortalEntity) {
             return (BreakablePortalEntity) entity;

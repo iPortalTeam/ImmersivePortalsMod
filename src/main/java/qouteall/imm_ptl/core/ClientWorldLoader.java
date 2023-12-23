@@ -179,7 +179,7 @@ public class ClientWorldLoader {
         ClientLevel newWorld, List<Portal> nearbyPortals
     ) {
         nearbyPortals.stream().filter(
-            portal -> portal.dimensionTo == newWorld.dimension()
+            portal -> portal.getDestDim() == newWorld.dimension()
         ).findFirst().ifPresent(portal -> {
             assert CLIENT.player != null;
             Vec3 playerPos = CLIENT.player.position();
