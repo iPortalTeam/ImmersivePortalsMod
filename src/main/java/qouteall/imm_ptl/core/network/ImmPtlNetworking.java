@@ -38,7 +38,7 @@ public class ImmPtlNetworking {
     
     // client to server
     public static record TeleportPacket(
-        int dimensionId, Vec3 posBefore, UUID portalId
+        int dimensionId, Vec3 eyePosBeforeTeleportation, UUID portalId
     ) implements FabricPacket {
         public static final PacketType<TeleportPacket> TYPE = PacketType.create(
             new ResourceLocation("imm_ptl:teleport"),
@@ -59,9 +59,9 @@ public class ImmPtlNetworking {
         @Override
         public void write(FriendlyByteBuf buf) {
             buf.writeVarInt(dimensionId);
-            buf.writeDouble(posBefore.x);
-            buf.writeDouble(posBefore.y);
-            buf.writeDouble(posBefore.z);
+            buf.writeDouble(eyePosBeforeTeleportation.x);
+            buf.writeDouble(eyePosBeforeTeleportation.y);
+            buf.writeDouble(eyePosBeforeTeleportation.z);
             buf.writeUUID(portalId);
         }
         
@@ -76,7 +76,7 @@ public class ImmPtlNetworking {
             );
             
             ServerTeleportationManager.of(player.server).onPlayerTeleportedInClient(
-                player, dim, posBefore, portalId
+                player, dim, eyePosBeforeTeleportation, portalId
             );
         }
     }

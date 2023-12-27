@@ -126,7 +126,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             
             ip_wrongMovePacketCount += 1;
             
-            if (ip_wrongMovePacketCount > 200) {
+            if (ip_wrongMovePacketCount > 10) {
                 LOGGER.info(
                     "[ImmPtl] Force move player {} {} {}",
                     player, player.level().dimension().location(), player.position()
@@ -197,6 +197,8 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (!IPGlobal.crossPortalCollision) {
             return;
         }
+        
+        // for this to work, the player's portal collision status must be updated after teleporting
         
         AABB activePlayerBB = ((IEEntity) player).ip_getActiveCollisionBox(playerBB);
         

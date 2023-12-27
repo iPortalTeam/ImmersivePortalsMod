@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +25,7 @@ import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
+import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -34,10 +34,8 @@ import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.my_util.WithDim;
 
@@ -54,8 +52,8 @@ import java.util.stream.Stream;
 public class ServerTeleportationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    private Set<Entity> teleportingEntities = new HashSet<>();
-    private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
+    private final Set<Entity> teleportingEntities = new HashSet<>();
+    private final WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
     public boolean isFiringMyChangeDimensionEvent = false;
     public final WeakHashMap<ServerPlayer, WithDim<Vec3>> lastPosition = new WeakHashMap<>();
     
@@ -161,7 +159,7 @@ public class ServerTeleportationManager {
     public void onPlayerTeleportedInClient(
         ServerPlayer player,
         ResourceKey<Level> dimensionBefore,
-        Vec3 oldEyePos,
+        Vec3 eyePosBeforeTeleportation,
         UUID portalId
     ) {
         if (player.getRemovalReason() != null) {
@@ -173,7 +171,7 @@ public class ServerTeleportationManager {
         
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
-        Vec3 oldFeetPos = oldEyePos.subtract(McHelper.getEyeOffset(player));
+        Vec3 oldFeetPos = eyePosBeforeTeleportation.subtract(McHelper.getEyeOffset(player));
         
         // Verify teleportation, prevent a hacked client from teleporting through any portal.
         // Well I guess no one will make the hacked ImmPtl client.
@@ -186,7 +184,7 @@ public class ServerTeleportationManager {
             notifyChasersForPlayer(player, portal);
             
             ResourceKey<Level> dimensionTo = portal.getDestDim();
-            Vec3 newEyePos = portal.transformPoint(oldEyePos);
+            Vec3 newEyePos = portal.transformPoint(eyePosBeforeTeleportation);
             
             recordLastPosition(player, dimensionBefore, oldFeetPos);
             
@@ -283,8 +281,12 @@ public class ServerTeleportationManager {
     public static boolean canPlayerReachBlockEntity(
         ServerPlayer player, BlockEntity blockEntity
     ) {
+        Level world = blockEntity.getLevel();
+        if (world == null) {
+            return false;
+        }
         return canPlayerReachPos(
-            player, blockEntity.getLevel().dimension(),
+            player, world.dimension(),
             Vec3.atCenterOf(blockEntity.getBlockPos())
         );
     }
@@ -294,10 +296,11 @@ public class ServerTeleportationManager {
         ResourceKey<Level> dimensionTo,
         Vec3 newEyePos
     ) {
-        MiscHelper.getServer().getProfiler().push("portal_teleport");
+        MinecraftServer server = player.server;
+        server.getProfiler().push("portal_teleport");
         
         ServerLevel fromWorld = (ServerLevel) player.level();
-        ServerLevel toWorld = MiscHelper.getServer().getLevel(dimensionTo);
+        ServerLevel toWorld = server.getLevel(dimensionTo);
         
         if (player.level().dimension() == dimensionTo) {
             McHelper.setEyePos(player, newEyePos, newEyePos);
@@ -312,11 +315,11 @@ public class ServerTeleportationManager {
         // reset the "authentic" player position as the current position
         player.connection.resetPosition();
 
-//        CollisionHelper.updateCollidingPortalAfterTeleportation(
-//            player, newEyePos, newEyePos, 0
-//        );
+        PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
+            player, newEyePos, newEyePos, 1
+        );
         
-        MiscHelper.getServer().getProfiler().pop();
+        server.getProfiler().pop();
     }
     
     public void forceTeleportPlayer(ServerPlayer player, ResourceKey<Level> dimensionTo, Vec3 newPos) {
@@ -340,6 +343,11 @@ public class ServerTeleportationManager {
         
         // reset the "authentic" player position as the current position
         player.connection.resetPosition();
+        
+        Vec3 newEyePos = McHelper.getEyePos(player);
+        PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
+            player, newEyePos, newEyePos, 1
+        );
         
         ImmPtlChunkTracking.immediatelyUpdateForPlayer(player);
     }
@@ -392,14 +400,14 @@ public class ServerTeleportationManager {
             McHelper.adjustVehicle(player);
         }
         
-        Helper.dbg(String.format(
-            "%s :: (%s %s %s %s)->(%s %s %s %s)",
+        LOGGER.debug(
+            "{} :: ({} {} {} {})->({} {} {} {})",
             player.getName().getContents(),
             fromWorld.dimension().location(),
             oldPos.x(), oldPos.y(), oldPos.z(),
             toWorld.dimension().location(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ()
-        ));
+        );
         
         O_O.onPlayerTravelOnServer(
             player,
@@ -650,42 +658,10 @@ public class ServerTeleportationManager {
         return currGameTime - lastTeleportGameTime < valveTickTime;
     }
     
-    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
-    
-    // it may cause player to go through portal without changing scale and gravity
-    @Deprecated
-    public void acceptDubiousMovePacket(
-        ServerPlayer player,
-        ServerboundMovePlayerPacket packet,
-        ResourceKey<Level> dimension
-    ) {
-        if (player.level().dimension() == dimension) {
-            return;
-        }
-        if (player.getRemovalReason() != null) {
-            return;
-        }
-        double x = packet.getX(player.getX());
-        double y = packet.getY(player.getY());
-        double z = packet.getZ(player.getZ());
-        Vec3 newPos = new Vec3(x, y, z);
-        if (canPlayerReachPos(player, dimension, newPos)) {
-            forceTeleportPlayer(player, dimension, newPos);
-            limitedLogger.lInfo(LOGGER, "accepted dubious move packet {} {} {} {} {} {} {}",
-                player.level().dimension().location(), x, y, z, player.getX(), player.getY(), player.getZ()
-            );
-        }
-        else {
-            limitedLogger.lInfo(LOGGER, "ignored dubious move packet {} {} {} {} {} {} {}",
-                player.level().dimension().location(), x, y, z, player.getX(), player.getY(), player.getZ()
-            );
-        }
-    }
-    
     public static Entity teleportEntityGeneral(Entity entity, Vec3 targetPos, ServerLevel targetWorld) {
-        if (entity instanceof ServerPlayer) {
-            of(entity.getServer()).forceTeleportPlayer(
-                (ServerPlayer) entity, targetWorld.dimension(), targetPos
+        if (entity instanceof ServerPlayer serverPlayer) {
+            of(serverPlayer.server).forceTeleportPlayer(
+                serverPlayer, targetWorld.dimension(), targetPos
             );
             return entity;
         }

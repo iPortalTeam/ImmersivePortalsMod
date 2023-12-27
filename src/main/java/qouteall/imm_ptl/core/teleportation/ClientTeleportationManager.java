@@ -371,7 +371,7 @@ public class ClientTeleportationManager {
         player.connection.send(ClientPlayNetworking.createC2SPacket(
             new ImmPtlNetworking.TeleportPacket(
                 PortalAPI.clientDimKeyToInt(fromDimension),
-                lastTickEyePos,
+                thisTickEyePos,
                 portal.getUUID()
             )
         ));
