@@ -27,6 +27,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -74,7 +75,7 @@ public class ImmPtlNetworking {
                 player.server, dimensionId
             );
             
-            IPGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
+            ServerTeleportationManager.of(player.server).onPlayerTeleportedInClient(
                 player, dim, posBefore, portalId
             );
         }

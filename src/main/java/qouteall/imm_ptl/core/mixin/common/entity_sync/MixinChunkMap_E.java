@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IETrackedEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     )
     private void onUnloadEntity(Entity entity, CallbackInfo ci) {
         // when the player leave this dimension, do not stop tracking entities
-        if (IPGlobal.serverTeleportationManager.isTeleporting(entity)) {
+        if (ServerTeleportationManager.of(entity.getServer()).isTeleporting(entity)) {
             if (entity instanceof ServerPlayer player) {
                 Object tracker = entityMap.remove(entity.getId());
                 ((IETrackedEntity) tracker).ip_stopTrackingToAllPlayers();

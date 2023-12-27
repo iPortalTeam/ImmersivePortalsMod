@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
-import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -37,8 +36,6 @@ public class IPGlobal {
     
     public static final Event<Consumer<MinecraftServer>> SERVER_CLEANUP_EVENT =
         Helper.createConsumerEvent();
-    
-    public static ServerTeleportationManager serverTeleportationManager;
     
     public static final Gson gson = MiscHelper.gson;
     

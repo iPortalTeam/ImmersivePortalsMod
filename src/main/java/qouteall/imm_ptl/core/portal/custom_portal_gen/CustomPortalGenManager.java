@@ -93,7 +93,8 @@ public class CustomPortalGenManager {
                     location, location.getNamespace(), location.getPath(),
                     location.getNamespace(), location.getPath()
                 );
-            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(text));
+            LOGGER.warn("{}", text);
+//            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(text));
         }
         
         IPPerServerInfo perServerInfo = IPPerServerInfo.of(server);

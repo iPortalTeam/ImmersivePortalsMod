@@ -1216,7 +1216,7 @@ public class PortalCommand {
                 .executes(context -> {
                     Entity entity = EntityArgument.getEntity(context, "target");
                     
-                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+                    ServerTeleportationManager.of(context.getSource().getServer()).forceTeleportPlayer(
                         context.getSource().getPlayerOrException(),
                         entity.level().dimension(),
                         entity.position()
@@ -1238,7 +1238,7 @@ public class PortalCommand {
                     Vec3 dest = Vec3Argument.getVec3(context, "dest");
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     
-                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+                    ServerTeleportationManager.of(context.getSource().getServer()).forceTeleportPlayer(
                         player,
                         player.level().dimension(),
                         dest
@@ -1264,7 +1264,7 @@ public class PortalCommand {
                         ).dimension();
                         Vec3 dest = Vec3Argument.getVec3(context, "dest");
                         
-                        IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+                        ServerTeleportationManager.of(context.getSource().getServer()).forceTeleportPlayer(
                             context.getSource().getPlayerOrException(),
                             dim,
                             dest
@@ -1390,13 +1390,15 @@ public class PortalCommand {
         builder.then(Commands.literal("goback")
             .executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
+                ServerTeleportationManager serverTeleportationManager =
+                    ServerTeleportationManager.of(context.getSource().getServer());
                 WithDim<Vec3> lastPos =
-                    IPGlobal.serverTeleportationManager.lastPosition.get(player);
+                    serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
                 }
                 else {
-                    IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+                    serverTeleportationManager.forceTeleportPlayer(
                         player, lastPos.dimension(), lastPos.value()
                     );
                 }

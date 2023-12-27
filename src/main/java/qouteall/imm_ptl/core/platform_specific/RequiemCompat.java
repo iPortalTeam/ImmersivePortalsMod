@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 
 import java.lang.reflect.Method;
@@ -69,7 +69,7 @@ public class RequiemCompat {
         Mob possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
             if (possessedEntity.level() != player.level()) {
-                Helper.log("Move Requiem Possessed Entity at Client");
+                Helper.LOGGER.info("Move Requiem Possessed Entity at Client");
                 ClientTeleportationManager.moveClientEntityAcrossDimension(
                     possessedEntity,
                     ((ClientLevel) player.level()),
@@ -88,7 +88,7 @@ public class RequiemCompat {
         if (possessedEntity != null) {
             if (possessedEntity.level() != player.level()) {
                 Helper.log("Move Requiem Posessed Entity at Server");
-                IPGlobal.serverTeleportationManager.changeEntityDimension(
+                ServerTeleportationManager.of(player.server).changeEntityDimension(
                     possessedEntity,
                     player.level().dimension(),
                     McHelper.getEyePos(player),

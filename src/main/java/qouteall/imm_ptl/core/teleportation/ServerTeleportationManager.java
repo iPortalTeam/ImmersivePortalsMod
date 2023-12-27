@@ -22,8 +22,8 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
@@ -59,27 +59,34 @@ public class ServerTeleportationManager {
     public boolean isFiringMyChangeDimensionEvent = false;
     public final WeakHashMap<ServerPlayer, WithDim<Vec3>> lastPosition = new WeakHashMap<>();
     
-    public static void init() {
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            IPGlobal.serverTeleportationManager.tick();
-        });
+    public static ServerTeleportationManager of(MinecraftServer server) {
+        return IPPerServerInfo.of(server).teleportationManager;
     }
     
-    public ServerTeleportationManager() {
+    public static void init() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            of(server).tick(server);
+        });
+        
         Portal.SERVER_PORTAL_TICK_SIGNAL.register(
             (portal) -> {
+                ServerTeleportationManager serverTeleportationManager = of(portal.getServer());
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                    startTeleportingRegularEntity(portal, entity);
+                   serverTeleportationManager. startTeleportingRegularEntity(portal, entity);
                 });
             }
         );
         
         DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
-            this::evacuatePlayersFromDimension
+            world -> of(world.getServer()).evacuatePlayersFromDimension(world)
         );
     }
     
-    private void tick() {
+    public ServerTeleportationManager() {
+    
+    }
+    
+    private void tick(MinecraftServer server) {
         teleportingEntities.clear();
         
         manageGlobalPortalTeleportation();
@@ -677,7 +684,7 @@ public class ServerTeleportationManager {
     
     public static Entity teleportEntityGeneral(Entity entity, Vec3 targetPos, ServerLevel targetWorld) {
         if (entity instanceof ServerPlayer) {
-            IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+            of(entity.getServer()).forceTeleportPlayer(
                 (ServerPlayer) entity, targetWorld.dimension(), targetPos
             );
             return entity;
@@ -703,7 +710,7 @@ public class ServerTeleportationManager {
             return entity;
         }
         
-        return (E) IPGlobal.serverTeleportationManager.changeEntityDimension(
+        return (E) of(entity.getServer()).changeEntityDimension(
             entity,
             targetDim,
             targetPos.add(McHelper.getEyeOffset(entity)),

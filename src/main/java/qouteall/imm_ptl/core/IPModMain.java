@@ -69,8 +69,6 @@ public class IPModMain {
         
         IPGlobal.PRE_GAME_RENDER_EVENT.register(IPGlobal.PRE_GAME_RENDER_TASK_LIST::processTasks);
         
-        IPGlobal.serverTeleportationManager = new ServerTeleportationManager();
-        
         RectangularPortalShape.init();
         SpecialFlatPortalShape.init();
         BoxPortalShape.init();

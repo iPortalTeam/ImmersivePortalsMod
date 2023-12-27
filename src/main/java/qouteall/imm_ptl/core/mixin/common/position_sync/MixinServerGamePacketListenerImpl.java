@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
@@ -31,6 +32,7 @@ import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.my_util.CountDownInt;
 
 import java.util.Set;
@@ -129,7 +131,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
                     "[ImmPtl] Force move player {} {} {}",
                     player, player.level().dimension().location(), player.position()
                 );
-                IPGlobal.serverTeleportationManager.forceTeleportPlayer(
+                ServerTeleportationManager.of(player.server).forceTeleportPlayer(
                     player, player.level().dimension(), player.position()
                 );
                 ip_wrongMovePacketCount = 0;
@@ -186,21 +188,21 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         this.player.connection.send(lookPacket);
     }
     
-    /**
-     * @author qouteall
-     * @reason more clear than multiple injections
-     * Make it use portal collision to exclude collision boxes.
-     */
-    @Overwrite
-    @IPVanillaCopy
-    private boolean isPlayerCollidingWithAnythingNew(
-        LevelReader level, AABB playerBB,
-        double newX, double newY, double newZ
+    @Inject(
+        method = "isPlayerCollidingWithAnythingNew", at = @At("HEAD"), cancellable = true
+    )
+    private void onIsPlayerCollidingWithAnythingNew(
+        LevelReader level, AABB playerBB, double newX, double newY, double newZ, CallbackInfoReturnable<Boolean> cir
     ) {
+        if (!IPGlobal.crossPortalCollision) {
+            return;
+        }
+        
         AABB activePlayerBB = ((IEEntity) player).ip_getActiveCollisionBox(playerBB);
         
         if (activePlayerBB == null) {
-            return false;
+            cir.setReturnValue(false);
+            return;
         }
         
         AABB newBB = this.player.getBoundingBox().move(
@@ -210,7 +212,8 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         AABB activeNewBB = ((IEEntity) player).ip_getActiveCollisionBox(newBB);
         
         if (activeNewBB == null) {
-            return false;
+            cir.setReturnValue(false);
+            return;
         }
         
         Iterable<VoxelShape> newBBCollisions =
@@ -220,11 +223,14 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         
         for (VoxelShape shape : newBBCollisions) {
             if (!Shapes.joinIsNotEmpty(shape, activePlayerBBShape, BooleanOp.AND)) {
-                return true;
+                // when a new collision box does not intersect with old bounding box
+                // it's considered as colliding with something new
+                cir.setReturnValue(true);
+                return;
             }
         }
         
-        return false;
+        cir.setReturnValue(false);
     }
     
     // don't get recognized as floating when standing on blocks on other side of portal
