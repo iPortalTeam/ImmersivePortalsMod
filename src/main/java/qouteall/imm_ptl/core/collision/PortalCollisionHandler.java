@@ -334,7 +334,7 @@ public class PortalCollisionHandler {
         for (PortalCollisionEntry portalCollision : portalCollisions) {
             Portal portal = portalCollision.portal;
             
-            AABB newBox = portal.getPortalShape().outerClipBox(portal, currentBox);
+            AABB newBox = portal.getPortalShape().transformEntityActiveCollisionBox(portal, currentBox, entity);
             
             if (newBox == null) {
                 return null;

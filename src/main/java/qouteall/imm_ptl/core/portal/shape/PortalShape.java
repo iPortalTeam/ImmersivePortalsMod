@@ -182,7 +182,7 @@ public interface PortalShape {
     /**
      * Currently, this is only used in calculating active collision box that's used in position validation.
      */
-    public default @Nullable AABB outerClipBox(Portal portal, AABB box) {
+    public default @Nullable AABB transformEntityActiveCollisionBox(Portal portal, AABB box, Entity entity) {
         return box;
     }
     

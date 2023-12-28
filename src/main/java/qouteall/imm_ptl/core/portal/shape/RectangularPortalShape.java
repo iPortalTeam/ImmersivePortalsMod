@@ -250,7 +250,7 @@ public final class RectangularPortalShape implements PortalShape {
     }
     
     @Override
-    public @Nullable AABB outerClipBox(Portal portal, AABB box) {
+    public @Nullable AABB transformEntityActiveCollisionBox(Portal portal, AABB box, Entity entity) {
         return CollisionHelper.clipBox(
             box, portal.getOriginPos(), portal.getNormal()
         );

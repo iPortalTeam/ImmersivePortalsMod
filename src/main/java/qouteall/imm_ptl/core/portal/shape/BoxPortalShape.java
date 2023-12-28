@@ -9,6 +9,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.collision.CollisionHelper;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -281,6 +282,65 @@ public final class BoxPortalShape implements PortalShape {
         // the object does not contain any mutable field
         // no need to clone
         return this;
+    }
+    
+    @Override
+    public @Nullable AABB transformEntityActiveCollisionBox(Portal portal, AABB box, Entity entity) {
+        Vec3 eyePos = entity.getEyePosition(1);
+        UnilateralPortalState thisSideState = portal.getThisSideState();
+        Vec3 localEyePos = thisSideState.transformGlobalToLocal(eyePos);
+        
+        AABB currBox = box;
+        
+        if (currBox != null && localEyePos.x() < -thisSideState.width() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(-thisSideState.width() / 2, 0, 0)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(-1, 0, 0))
+            );
+        }
+        
+        if (currBox != null && localEyePos.x() > thisSideState.width() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(thisSideState.width() / 2, 0, 0)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(1, 0, 0))
+            );
+        }
+        
+        if (currBox != null && localEyePos.y() < -thisSideState.height() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(0, -thisSideState.height() / 2, 0)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(0, -1, 0))
+            );
+        }
+        
+        if (currBox != null && localEyePos.y() > thisSideState.height() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(0, thisSideState.height() / 2, 0)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(0, 1, 0))
+            );
+        }
+        
+        if (currBox != null && localEyePos.z() < -thisSideState.thickness() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(0, 0, -thisSideState.thickness() / 2)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(0, 0, -1))
+            );
+        }
+        
+        if (currBox != null && localEyePos.z() > thisSideState.thickness() / 2) {
+            currBox = CollisionHelper.clipBox(
+                currBox,
+                thisSideState.transformLocalToGlobal(new Vec3(0, 0, thisSideState.thickness() / 2)),
+                thisSideState.transformVecLocalToGlobal(new Vec3(0, 0, 1))
+            );
+        }
+        
+        return currBox;
     }
     
     @Override

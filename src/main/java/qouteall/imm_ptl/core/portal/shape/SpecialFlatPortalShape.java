@@ -273,7 +273,7 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
-    public @Nullable AABB outerClipBox(Portal portal, AABB box) {
-        return RectangularPortalShape.INSTANCE.outerClipBox(portal, box);
+    public @Nullable AABB transformEntityActiveCollisionBox(Portal portal, AABB box, Entity entity) {
+        return RectangularPortalShape.INSTANCE.transformEntityActiveCollisionBox(portal, box, entity);
     }
 }
