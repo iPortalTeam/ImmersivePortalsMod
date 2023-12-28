@@ -6,7 +6,7 @@ import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 public class GeneralBreakablePortal extends BreakablePortalEntity {
     
-    public static final EntityType<GeneralBreakablePortal> entityType =
+    public static final EntityType<GeneralBreakablePortal> ENTITY_TYPE =
         createPortalEntityType(GeneralBreakablePortal::new);
     
     public GeneralBreakablePortal(EntityType<?> entityType, Level world) {

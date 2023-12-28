@@ -48,7 +48,6 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO change this to per-server-object to handle multi-server-in-one-JVM case
 public class ServerTeleportationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     

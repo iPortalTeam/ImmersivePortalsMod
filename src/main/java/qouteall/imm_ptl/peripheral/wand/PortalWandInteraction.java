@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -37,6 +39,16 @@ public class PortalWandInteraction {
     private static final double SIZE_LIMIT = 64;
     
     private static final Logger LOGGER = LogUtils.getLogger();
+    
+    private final WeakHashMap<ServerPlayer, DraggingSession> draggingSessionMap = new WeakHashMap<>();
+    
+    public PortalWandInteraction() {
+    
+    }
+    
+    public static PortalWandInteraction of(MinecraftServer server) {
+        return IPPerServerInfo.of(server).portalWandInteraction;
+    }
     
     public static class RemoteCallables {
         public static void finishPortalCreation(
@@ -299,12 +311,9 @@ public class PortalWandInteraction {
         }
     }
     
-    // TODO make per-server
-    private static final WeakHashMap<ServerPlayer, DraggingSession> draggingSessionMap = new WeakHashMap<>();
-    
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            draggingSessionMap.entrySet().removeIf(
+            of(server).draggingSessionMap.entrySet().removeIf(
                 e -> {
                     ServerPlayer player = e.getKey();
                     if (player.isRemoved()) {
@@ -327,7 +336,7 @@ public class PortalWandInteraction {
             );
         });
         
-        IPGlobal.SERVER_CLEANUP_EVENT.register(s -> draggingSessionMap.clear());
+        IPGlobal.SERVER_CLEANUP_EVENT.register(s -> of(s).draggingSessionMap.clear());
         IPGlobal.SERVER_CLEANUP_EVENT.register(s -> copyingSessionMap.clear());
     }
     
@@ -400,7 +409,7 @@ public class PortalWandInteraction {
     }
     
     private static void handleFinishDrag(ServerPlayer player) {
-        DraggingSession session = draggingSessionMap.remove(player);
+        DraggingSession session = of(player.server).draggingSessionMap.remove(player);
         
         if (session == null) {
             return;
@@ -414,7 +423,8 @@ public class PortalWandInteraction {
     }
     
     private static void handleUndoDrag(ServerPlayer player) {
-        DraggingSession session = draggingSessionMap.get(player);
+        PortalWandInteraction portalWandInteraction = of(player.server);
+        DraggingSession session = portalWandInteraction.draggingSessionMap.get(player);
         
         if (session == null) {
 //            player.sendSystemMessage(Component.literal("Cannot undo"));
@@ -432,13 +442,15 @@ public class PortalWandInteraction {
         portal.reloadAndSyncToClientNextTick();
         portal.rectifyClusterPortals(true);
         
-        draggingSessionMap.remove(player);
+        portalWandInteraction.draggingSessionMap.remove(player);
     }
     
     private static void handleDraggingRequest(
         ServerPlayer player, UUID portalId, Vec3 cursorPos, DraggingInfo draggingInfo, Portal portal
     ) {
-        DraggingSession session = draggingSessionMap.get(player);
+        PortalWandInteraction portalWandInteraction = of(player.server);
+        
+        DraggingSession session = portalWandInteraction.draggingSessionMap.get(player);
         
         if (session != null && session.portalId.equals(portalId)) {
             // reuse session
@@ -450,7 +462,7 @@ public class PortalWandInteraction {
                 portal.getPortalState(),
                 draggingInfo
             );
-            draggingSessionMap.put(player, session);
+            portalWandInteraction.draggingSessionMap.put(player, session);
         }
         
         UnilateralPortalState newThisSideState = applyDrag(
@@ -527,7 +539,7 @@ public class PortalWandInteraction {
     }
     
     public static boolean isDragging(ServerPlayer player) {
-        return draggingSessionMap.containsKey(player);
+        return of(player.server).draggingSessionMap.containsKey(player);
     }
     
     @Nullable

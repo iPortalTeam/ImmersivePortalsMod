@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.render;
+package qouteall.imm_ptl.core.render.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -7,12 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.PortalRenderable;
+import qouteall.imm_ptl.core.render.QueryManager;
+import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import java.util.List;
 
-// TODO change package in 1.20.3 update
 public class RendererDebug extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering(PoseStack matrixStack) {

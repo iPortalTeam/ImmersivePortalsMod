@@ -181,7 +181,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     
     public Portal[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         info.generatePlaceholderBlocks();
-        return info.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
+        return info.generateBiWayBiFacedPortal(GeneralBreakablePortal.ENTITY_TYPE);
     }
     
     public abstract void generateNewFrame(

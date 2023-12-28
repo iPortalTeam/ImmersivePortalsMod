@@ -936,6 +936,7 @@ public class McHelper {
     /**
      * Firstly try to use translatable `dimension.modid.dimension_id`.
      * If missing, try to get the mod name and use "a dimension of mod_name" or "a dimension of modid"
+     * TODO possibly infer dimension name from dimension type
      */
     public static Component getDimensionName(ResourceKey<Level> dimension) {
         String namespace = dimension.location().getNamespace();
@@ -947,14 +948,11 @@ public class McHelper {
             // no translation
             // try to get the mod name
             String modName = O_O.getModName(namespace);
-            if (modName != null) {
-                return Component.translatable("imm_ptl.a_dimension_of", modName)
-                    .append(" (" + dimension.location() + ")");
-            }
-            else {
-                return Component.translatable("imm_ptl.a_dimension_of", namespace)
-                    .append(" (" + dimension.location() + ")");
-            }
+            return Component.translatable(
+                    "imm_ptl.a_dimension_of",
+                    modName != null ? modName : namespace
+                )
+                .append(" (" + dimension.location() + ")");
         }
         
         return component;

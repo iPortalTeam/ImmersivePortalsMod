@@ -148,6 +148,8 @@ public class IPGlobal {
     // make debug text not out-of-screen
     public static boolean moveDebugTextToTop = false;
     
+    public static boolean boxPortalSpecialIteration = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

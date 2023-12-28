@@ -80,7 +80,7 @@ public class OneWayForm extends PortalGenForm {
             NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, fromShape);
         }
         
-        GeneralBreakablePortal portal = GeneralBreakablePortal.entityType.create(fromWorld);
+        GeneralBreakablePortal portal = GeneralBreakablePortal.ENTITY_TYPE.create(fromWorld);
         Validate.notNull(portal);
         fromShape.initPortalPosAxisShape(portal, Direction.AxisDirection.POSITIVE);
         

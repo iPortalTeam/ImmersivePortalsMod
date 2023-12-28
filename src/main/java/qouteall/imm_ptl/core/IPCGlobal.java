@@ -3,11 +3,11 @@ package qouteall.imm_ptl.core;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
-import qouteall.imm_ptl.core.render.PortalRenderer;
-import qouteall.imm_ptl.core.render.RendererDebug;
-import qouteall.imm_ptl.core.render.RendererDummy;
-import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
-import qouteall.imm_ptl.core.render.RendererUsingStencil;
+import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
+import qouteall.imm_ptl.core.render.renderer.RendererDebug;
+import qouteall.imm_ptl.core.render.renderer.RendererDummy;
+import qouteall.imm_ptl.core.render.renderer.RendererUsingFrameBuffer;
+import qouteall.imm_ptl.core.render.renderer.RendererUsingStencil;
 import qouteall.q_misc_util.Helper;
 
 @Environment(EnvType.CLIENT)

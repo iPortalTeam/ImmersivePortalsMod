@@ -1,7 +1,8 @@
-package qouteall.imm_ptl.core.render;
+package qouteall.imm_ptl.core.render.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.PortalRenderable;
 
 import java.util.List;
 

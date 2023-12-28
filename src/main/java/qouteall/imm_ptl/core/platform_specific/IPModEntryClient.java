@@ -6,7 +6,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
-import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -34,21 +33,22 @@ import java.util.Arrays;
 
 public class IPModEntryClient implements ClientModInitializer {
     
+    
+    
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static void initPortalRenderers() {
         
         Arrays.stream(new EntityType<?>[]{
             Portal.ENTITY_TYPE,
-            NetherPortalEntity.entityType,
-            EndPortalEntity.entityType,
-            Mirror.entityType,
-            BreakableMirror.entityType,
-            GlobalTrackedPortal.entityType,
-            WorldWrappingPortal.entityType,
-            VerticalConnectingPortal.entityType,
-            GeneralBreakablePortal.entityType
-        }).peek(
-            Validate::notNull
-        ).forEach(
+            NetherPortalEntity.ENTITY_TYPE,
+            EndPortalEntity.ENTITY_TYPE,
+            Mirror.ENTITY_TYPE,
+            BreakableMirror.ENTITY_TYPE,
+            GlobalTrackedPortal.ENTITY_TYPE,
+            WorldWrappingPortal.ENTITY_TYPE,
+            VerticalConnectingPortal.ENTITY_TYPE,
+            GeneralBreakablePortal.ENTITY_TYPE
+        }).forEach(
             entityType -> EntityRendererRegistry.register(
                 entityType,
                 (EntityRendererProvider) PortalEntityRenderer::new

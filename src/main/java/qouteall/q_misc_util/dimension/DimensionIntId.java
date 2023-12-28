@@ -27,10 +27,16 @@ public class DimensionIntId {
         DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.register(
             (server, dimensions) -> onServerDimensionChanged(server)
         );
-        
-        IPCGlobal.CLIENT_EXIT_EVENT.register(() -> {
-            clientRecord = null;
-        });
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void initClient() {
+        IPCGlobal.CLIENT_EXIT_EVENT.register(DimensionIntId::onClientExit);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void onClientExit() {
+        clientRecord = null;
     }
     
     @Environment(EnvType.CLIENT)

@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 
 public class BreakableMirror extends Mirror {
     
-    public static final EntityType<BreakableMirror> entityType =
+    public static final EntityType<BreakableMirror> ENTITY_TYPE =
         createPortalEntityType(BreakableMirror::new);
     
     @Nullable
@@ -170,7 +170,7 @@ public class BreakableMirror extends Mirror {
             return null;
         }
         
-        BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
+        BreakableMirror breakableMirror = BreakableMirror.ENTITY_TYPE.create(world);
         assert breakableMirror != null;
         double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
         

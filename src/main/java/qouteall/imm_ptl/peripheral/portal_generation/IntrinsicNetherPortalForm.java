@@ -58,7 +58,7 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     @Override
     public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         info.generatePlaceholderBlocks();
-        BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
+        BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.ENTITY_TYPE);
         
         return portals;
     }

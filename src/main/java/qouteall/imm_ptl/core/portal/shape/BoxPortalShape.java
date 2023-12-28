@@ -2,11 +2,13 @@ package qouteall.imm_ptl.core.portal.shape;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -279,5 +281,17 @@ public final class BoxPortalShape implements PortalShape {
         // the object does not contain any mutable field
         // no need to clone
         return this;
+    }
+    
+    @Override
+    public @Nullable SectionPos getModifiedVisibleSectionIterationOrigin(
+        Portal portal, Vec3 cameraPos
+    ) {
+        if (!IPGlobal.boxPortalSpecialIteration) {
+            return null;
+        }
+        
+        // TODO
+        return null;
     }
 }

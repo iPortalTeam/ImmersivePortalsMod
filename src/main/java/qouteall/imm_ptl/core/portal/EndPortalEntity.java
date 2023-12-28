@@ -38,7 +38,7 @@ import java.util.Objects;
 public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
     
-    public static final EntityType<EndPortalEntity> entityType =
+    public static final EntityType<EndPortalEntity> ENTITY_TYPE =
         createPortalEntityType(EndPortalEntity::new);
     public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
@@ -96,7 +96,7 @@ public class EndPortalEntity extends Portal {
     }
     
     private static void generateClassicalEndPortal(ServerLevel world, Vec3 destination, Vec3 portalCenter) {
-        Portal portal = new EndPortalEntity(entityType, world);
+        Portal portal = new EndPortalEntity(EndPortalEntity.ENTITY_TYPE, world);
         
         portal.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
         
@@ -135,7 +135,7 @@ public class EndPortalEntity extends Portal {
         
         Vec3 portalCenter = thisSideBox.getCenter();
         
-        EndPortalEntity portal = entityType.create(world);
+        EndPortalEntity portal = EndPortalEntity.ENTITY_TYPE.create(world);
         assert portal != null;
         
         portal.setOriginPos(portalCenter);

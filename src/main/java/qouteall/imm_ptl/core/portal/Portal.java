@@ -64,7 +64,7 @@ import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderable;
-import qouteall.imm_ptl.core.render.PortalRenderer;
+import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -109,8 +109,8 @@ public class Portal extends Entity implements
             .build();
     }
     
-    public static final UUID nullUUID = Util.NIL_UUID;
-    private static final AABB nullBox = new AABB(0, 0, 0, 0, 0, 0);
+    private static final AABB NULL_BOX =
+        new AABB(0, 0, 0, 0, 0, 0);
     
     protected double width = 0;
     protected double height = 0;
@@ -127,10 +127,10 @@ public class Portal extends Entity implements
     
     protected @Nullable PortalShape portalShape;
     
-    // TODO change to selector in 1.20.3
     /**
      * If not null, this portal can only be accessed by one player
-     * If it's {@link Portal#nullUUID} the portal can only be accessed by entities
+     * If it's {@link Util#NIL_UUID} the portal can only be accessed by entities
+     * TODO change to entity selector in future versions.
      */
     @Nullable
     public UUID specificPlayerId;
@@ -361,9 +361,6 @@ public class Portal extends Entity implements
     
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        // make portalShape field update from specialShape field
-        updateCache();
-        
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         compoundTag.putDouble("thickness", thickness);
@@ -709,7 +706,7 @@ public class Portal extends Entity implements
         }
         else {
             if (specificPlayerId != null) {
-                if (!specificPlayerId.equals(nullUUID)) {
+                if (!specificPlayerId.equals(Util.NIL_UUID)) {
                     // it can only be used by the player
                     return false;
                 }
@@ -922,7 +919,7 @@ public class Portal extends Entity implements
     
     @Override
     public void tick() {
-        if (getBoundingBox().equals(nullBox)) {
+        if (getBoundingBox().equals(NULL_BOX)) {
             LOGGER.error("Abnormal bounding box {}", this);
         }
         
@@ -956,7 +953,7 @@ public class Portal extends Entity implements
         if (axisW == null) {
             // it may be called when the portal is not yet initialized
             boundingBoxCache = null;
-            return nullBox;
+            return NULL_BOX;
         }
         if (boundingBoxCache == null) {
             boundingBoxCache = getPortalShape()
@@ -1268,6 +1265,12 @@ public class Portal extends Entity implements
         }
         
         return rayTraceResult.hitPos();
+    }
+    
+    public @Nullable RayTraceResult generalRayTrace(Vec3 from, Vec3 to, double leniency) {
+        return getPortalShape().raytracePortalShape(
+            getThisSideState(), from, to, leniency
+        );
     }
     
     @Override

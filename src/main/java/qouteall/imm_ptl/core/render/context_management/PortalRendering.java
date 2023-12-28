@@ -12,8 +12,8 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.PortalLike;
-import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
+import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
 import qouteall.q_misc_util.my_util.Plane;
 
 import java.lang.ref.WeakReference;
@@ -28,7 +28,6 @@ public class PortalRendering {
     private static boolean isRenderingCache = false;
     private static boolean isRenderingOddNumberOfMirrorsCache = false;
     
-    // TODO replace to PortalRenderable in 1.20.1
     public static void pushPortalLayer(PortalLike portal) {
         portalLayers.push(portal);
         updateCache();

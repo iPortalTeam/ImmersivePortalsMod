@@ -158,7 +158,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         }
         else {
             BreakablePortalEntity[] portals =
-                portalGenInfo.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
+                portalGenInfo.generateBiWayBiFacedPortal(GeneralBreakablePortal.ENTITY_TYPE);
     
             cpg.onPortalsGenerated(portals);
             

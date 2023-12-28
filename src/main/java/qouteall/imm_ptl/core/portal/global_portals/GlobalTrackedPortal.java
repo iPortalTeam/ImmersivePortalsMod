@@ -6,7 +6,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 
 // NOTE don't use `instanceof GlobalTrackedPortal`. Use `portal.getIsGlobal()` instead
 public class GlobalTrackedPortal extends Portal {
-    public static final EntityType<GlobalTrackedPortal> entityType =
+    public static final EntityType<GlobalTrackedPortal> ENTITY_TYPE =
         createPortalEntityType(GlobalTrackedPortal::new);
     
     public GlobalTrackedPortal(

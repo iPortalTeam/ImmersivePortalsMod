@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class WorldWrappingPortal extends GlobalTrackedPortal {
-    public static final EntityType<WorldWrappingPortal> entityType =
+    public static final EntityType<WorldWrappingPortal> ENTITY_TYPE =
         createPortalEntityType(WorldWrappingPortal::new);
     
     public boolean isInward = true;
@@ -59,7 +59,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         int zoneId,
         boolean isInward
     ) {
-        WorldWrappingPortal portal = entityType.create(serverWorld);
+        WorldWrappingPortal portal = WorldWrappingPortal.ENTITY_TYPE.create(serverWorld);
         portal.isInward = isInward;
         portal.zoneId = zoneId;
         

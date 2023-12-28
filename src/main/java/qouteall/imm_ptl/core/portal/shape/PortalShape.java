@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal.shape;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -180,6 +181,14 @@ public interface PortalShape {
     
     @Environment(EnvType.CLIENT)
     public default @Nullable BoxPredicateF getOuterFrustumCullingFunc(
+        Portal portal, Vec3 cameraPos
+    ) {
+        return null;
+    }
+    
+    // TODO
+    @Environment(EnvType.CLIENT)
+    public default @Nullable SectionPos getModifiedVisibleSectionIterationOrigin(
         Portal portal, Vec3 cameraPos
     ) {
         return null;

@@ -31,7 +31,9 @@ import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Plane;
 
 import java.util.WeakHashMap;
 
@@ -191,9 +193,10 @@ public class CrossPortalEntityRenderer {
                 ) {
                     Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
                     
-                    // TODO update this for 3D portal
-                    boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
-                        .dot(collidingPortal.getContentDirection()) < 0;
+                    Plane innerClipping = collidingPortal.getInnerClipping();
+                    
+                    boolean isHidden = innerClipping != null &&
+                        !innerClipping.isPointOnPositiveSide(cameraPos);
                     if (renderingPortal == collidingPortal || !isHidden) {
                         renderEntity(entity, collidingPortal, matrixStack);
                     }

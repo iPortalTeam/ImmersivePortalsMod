@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.render;
+package qouteall.imm_ptl.core.render.renderer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -11,6 +11,12 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.FrontClipping;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderable;
+import qouteall.imm_ptl.core.render.QueryManager;
+import qouteall.imm_ptl.core.render.SecondaryFrameBuffer;
+import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
 import java.util.List;

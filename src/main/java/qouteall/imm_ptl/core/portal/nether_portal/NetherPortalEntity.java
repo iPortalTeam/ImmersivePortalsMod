@@ -56,7 +56,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     );
     
     
-    public static final EntityType<NetherPortalEntity> entityType =
+    public static final EntityType<NetherPortalEntity> ENTITY_TYPE =
         createPortalEntityType(NetherPortalEntity::new);
     
     public NetherPortalEntity(EntityType<?> entityType, Level world) {

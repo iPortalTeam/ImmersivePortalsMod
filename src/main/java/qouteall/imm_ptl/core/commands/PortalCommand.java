@@ -2564,7 +2564,7 @@ public class PortalCommand {
         portal.remove(Entity.RemovalReason.KILLED);
         
         // create the 2 mirrors
-        Mirror thisSideMirror = Mirror.entityType.create(fromWorld);
+        Mirror thisSideMirror = Mirror.ENTITY_TYPE.create(fromWorld);
         assert thisSideMirror != null;
         thisSideMirror.setDestDim(thisSideMirror.level().dimension());
         thisSideMirror.setOriginPos(thisSideState.position());
@@ -2575,7 +2575,7 @@ public class PortalCommand {
         thisSideMirror.setPortalShape(specialShape);
         thisSideMirror.setRotationTransformationForMirror(spacialRotation);
         
-        Mirror otherSideMirror = Mirror.entityType.create(toWorld);
+        Mirror otherSideMirror = Mirror.ENTITY_TYPE.create(toWorld);
         assert otherSideMirror != null;
         otherSideMirror.setDestDim(otherSideMirror.level().dimension());
         otherSideMirror.setOriginPos(otherSideState.position());

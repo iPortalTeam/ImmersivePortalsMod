@@ -157,42 +157,42 @@ public class IPModMain {
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "nether_portal_new"),
-            NetherPortalEntity.entityType
+            NetherPortalEntity.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "end_portal"),
-            EndPortalEntity.entityType
+            EndPortalEntity.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "mirror"),
-            Mirror.entityType
+            Mirror.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "breakable_mirror"),
-            BreakableMirror.entityType
+            BreakableMirror.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "global_tracked_portal"),
-            GlobalTrackedPortal.entityType
+            GlobalTrackedPortal.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "border_portal"),
-            WorldWrappingPortal.entityType
+            WorldWrappingPortal.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "end_floor_portal"),
-            VerticalConnectingPortal.entityType
+            VerticalConnectingPortal.ENTITY_TYPE
         );
         
         regFunc.accept(
             new ResourceLocation("immersive_portals", "general_breakable_portal"),
-            GeneralBreakablePortal.entityType
+            GeneralBreakablePortal.ENTITY_TYPE
         );
         
         regFunc.accept(

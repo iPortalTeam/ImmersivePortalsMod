@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.render;
+package qouteall.imm_ptl.core.render.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -11,6 +11,10 @@ import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.imm_ptl.core.render.FrontClipping;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderable;
+import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -26,8 +30,6 @@ import static org.lwjgl.opengl.GL11.GL_LESS;
 import static org.lwjgl.opengl.GL11.GL_REPLACE;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
-//NOTE do not use glDisable(GL_DEPTH_TEST), use GlStateManager.disableDepthTest() instead
-//because GlStateManager will cache its state. Do not make its cache not synchronized
 public class RendererUsingStencil extends PortalRenderer {
     
     
@@ -50,6 +52,10 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     protected void doPortalRendering(PoseStack matrixStack) {
+        // NOTE do not use glDisable(GL_DEPTH_TEST),
+        // use GlStateManager.disableDepthTest() instead
+        // because GlStateManager will cache its state.
+        // Do not make its cache not synchronized
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
         
