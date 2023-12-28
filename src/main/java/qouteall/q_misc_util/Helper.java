@@ -59,7 +59,7 @@ import java.util.stream.Stream;
 // helper methods
 public class Helper {
     
-    public static final Logger LOGGER = LogManager.getLogger("Portal");
+    public static final Logger LOGGER = LogManager.getLogger("iPortal");
     
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
     

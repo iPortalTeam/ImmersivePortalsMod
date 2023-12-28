@@ -48,9 +48,7 @@ public class CollisionHelper {
      * the facing that normal points to will be remained.
      * return null for empty box.
      */
-    @Nullable
-    public static AABB clipBox(AABB box, Vec3 planePos, Vec3 planeNormal) {
-        
+    public static @Nullable AABB clipBox(AABB box, Vec3 planePos, Vec3 planeNormal) {
         boolean xForward = planeNormal.x > 0;
         boolean yForward = planeNormal.y > 0;
         boolean zForward = planeNormal.z > 0;

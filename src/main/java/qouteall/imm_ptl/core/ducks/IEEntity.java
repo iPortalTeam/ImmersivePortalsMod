@@ -32,8 +32,7 @@ public interface IEEntity {
     
     void ip_unsetRemoved();
     
-    @Nullable
-    AABB ip_getActiveCollisionBox(AABB originalBox);
+    @Nullable AABB ip_getActiveCollisionBox(AABB originalBox);
     
     // don't trigger entity section update or other update
     // as we are temporarily switching the position

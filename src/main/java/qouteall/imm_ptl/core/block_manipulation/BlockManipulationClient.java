@@ -71,9 +71,10 @@ public class BlockManipulationClient {
         
         PortalUtils.raytracePortalFromEntityView(client.player, tickDelta, reachDistance, true, portal1 -> portal1.isInteractableBy(client.player)).ifPresent(pair -> {
             Portal portal = pair.getFirst();
-            double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
+            Vec3 hitPos = pair.getSecond().hitPos();
+            double distanceToPortalPointing = hitPos.distanceTo(cameraPos);
             if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
-                client.hitResult = createMissedHitResult(cameraPos, pair.getSecond());
+                client.hitResult = createMissedHitResult(cameraPos, hitPos);
                 
                 updateTargetedBlockThroughPortal(
                     cameraPos,

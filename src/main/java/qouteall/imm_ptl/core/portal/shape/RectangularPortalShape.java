@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.collision.CollisionHelper;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
@@ -246,5 +247,12 @@ public final class RectangularPortalShape implements PortalShape {
         Vec3 reaching = portalState.getNormal().scale(-10);
         AABB exclusion = thinAreaBox.minmax(thinAreaBox.move(reaching));
         return Shapes.create(exclusion);
+    }
+    
+    @Override
+    public @Nullable AABB outerClipBox(Portal portal, AABB box) {
+        return CollisionHelper.clipBox(
+            box, portal.getOriginPos(), portal.getNormal()
+        );
     }
 }

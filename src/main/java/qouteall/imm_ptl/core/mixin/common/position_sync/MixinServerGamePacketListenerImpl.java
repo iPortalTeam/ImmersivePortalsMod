@@ -106,7 +106,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (packetDimension == null) {
             // this actually never happens, because the vanilla client will disconnect immediately
             // when receiving the position sync packet that has the extra dimension field
-            LOGGER.error("Player move packet is missing dimension info. Maybe the player client doesn't have ImmPtl");
+            LOGGER.error("Player move packet is missing dimension info. Maybe the player client doesn't install iPortal");
             ServerTaskList.of(player.server).addTask(() -> {
                 player.connection.disconnect(Component.literal(
                     "The client does not have Immersive Portals mod"

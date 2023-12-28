@@ -328,27 +328,19 @@ public class PortalCollisionHandler {
         return shape;
     }
     
-    @Nullable
-    public AABB getActiveCollisionBox(Entity entity, AABB rawBoundingBox) {
+    public @Nullable AABB getActiveCollisionBox(Entity entity, AABB rawBoundingBox) {
         AABB currentBox = rawBoundingBox;
         
         for (PortalCollisionEntry portalCollision : portalCollisions) {
             Portal portal = portalCollision.portal;
             
-            Plane outerClipping = portal.getPortalShape()
-                .getOuterClipping(portal.getThisSideState());
+            AABB newBox = portal.getPortalShape().outerClipBox(portal, currentBox);
             
-            if (outerClipping != null) {
-                AABB newBox = CollisionHelper.clipBox(
-                    currentBox, outerClipping.pos(), outerClipping.normal()
-                );
-                
-                if (newBox == null) {
-                    return null;
-                }
-                
-                currentBox = newBox;
+            if (newBox == null) {
+                return null;
             }
+            
+            currentBox = newBox;
         }
         
         return currentBox;

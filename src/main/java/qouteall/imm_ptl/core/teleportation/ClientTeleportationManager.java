@@ -49,6 +49,7 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Vec2d;
 
 import java.util.ArrayList;
@@ -590,12 +591,16 @@ public class ClientTeleportationManager {
         Function<VoxelShape, VoxelShape> shapeFilter = c -> {
             VoxelShape curr = c;
             for (Portal collidingPortal : collidingPortals) {
-                // TODO update for 3D portal
-                curr = CollisionHelper.clipVoxelShape(
-                    curr, collidingPortal.getOriginPos(), collidingPortal.getNormal()
-                );
-                if (curr == null) {
-                    return null;
+                Plane outerClipping = collidingPortal.getPortalShape()
+                    .getOuterClipping(collidingPortal.getThisSideState());
+                
+                if (outerClipping != null) {
+                    curr = CollisionHelper.clipVoxelShape(
+                        curr, outerClipping.pos(), outerClipping.normal()
+                    );
+                    if (curr == null) {
+                        return null;
+                    }
                 }
             }
             

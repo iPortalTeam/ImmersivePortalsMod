@@ -38,6 +38,7 @@ import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.Circle;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
+import qouteall.q_misc_util.my_util.RayTraceResult;
 import qouteall.q_misc_util.my_util.Sphere;
 import qouteall.q_misc_util.my_util.WithDim;
 import qouteall.q_misc_util.my_util.animation.Animated;
@@ -315,7 +316,7 @@ public class ClientPortalWandPortalDrag {
         Vec3 eyePos = player.getEyePosition(RenderStates.getPartialTick());
         Vec3 viewVec = player.getLookAngle();
         
-        Pair<Portal, Vec3> rayTraceResult = PortalUtils.lenientRayTracePortals(
+        Pair<Portal, RayTraceResult> rayTraceResult = PortalUtils.lenientRayTracePortals(
             player.level(),
             eyePos,
             eyePos.add(viewVec.scale(64)),
@@ -347,7 +348,7 @@ public class ClientPortalWandPortalDrag {
         }
         
         Portal portal = rayTraceResult.getFirst();
-        Vec3 hitPos = rayTraceResult.getSecond();
+        Vec3 hitPos = rayTraceResult.getSecond().hitPos();
         
         if (selectedPortalId == null) {
             selectedPortalId = portal.getUUID();

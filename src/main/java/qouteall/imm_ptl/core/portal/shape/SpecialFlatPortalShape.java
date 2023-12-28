@@ -271,4 +271,9 @@ public final class SpecialFlatPortalShape implements PortalShape {
     public VoxelShape getThisSideCollisionExclusion(UnilateralPortalState portalState) {
         return RectangularPortalShape.INSTANCE.getThisSideCollisionExclusion(portalState);
     }
+    
+    @Override
+    public @Nullable AABB outerClipBox(Portal portal, AABB box) {
+        return RectangularPortalShape.INSTANCE.outerClipBox(portal, box);
+    }
 }

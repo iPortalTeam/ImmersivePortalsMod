@@ -179,6 +179,13 @@ public interface PortalShape {
         return null;
     }
     
+    /**
+     * Currently, this is only used in calculating active collision box that's used in position validation.
+     */
+    public default @Nullable AABB outerClipBox(Portal portal, AABB box) {
+        return box;
+    }
+    
     @Environment(EnvType.CLIENT)
     public default @Nullable BoxPredicateF getOuterFrustumCullingFunc(
         Portal portal, Vec3 cameraPos

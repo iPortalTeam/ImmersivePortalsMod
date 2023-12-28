@@ -2367,13 +2367,17 @@ public class PortalCommand {
     public static Optional<Pair<Portal, Vec3>> getPlayerPointingPortalRaw(
         Player player, float tickDelta, double maxDistance, boolean includeGlobalPortal
     ) {
-        return PortalUtils.raytracePortalFromEntityView(player, tickDelta, maxDistance, includeGlobalPortal, p -> true);
+        return PortalUtils.raytracePortalFromEntityView(
+                player, tickDelta, maxDistance, includeGlobalPortal, p -> true
+            )
+            .map(p -> Pair.of(p.getFirst(), p.getSecond().hitPos()));
     }
     
     public static Optional<Pair<Portal, Vec3>> raytracePortals(
         Level world, Vec3 from, Vec3 to, boolean includeGlobalPortal
     ) {
-        return PortalUtils.raytracePortals(world, from, to, includeGlobalPortal, p -> true);
+        return PortalUtils.raytracePortals(world, from, to, includeGlobalPortal, p -> true)
+            .map(p -> Pair.of(p.getFirst(), p.getSecond().hitPos()));
     }
     
     /**
