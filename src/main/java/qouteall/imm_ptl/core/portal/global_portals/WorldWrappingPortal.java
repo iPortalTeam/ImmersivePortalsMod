@@ -128,7 +128,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         public AABB getArea() {
             return portals.stream().map(
-                Portal::getThinAreaBox
+                Portal::getThinBoundingBox
             ).reduce(AABB::minmax).orElse(null);
         }
         

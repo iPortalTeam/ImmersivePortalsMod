@@ -280,6 +280,18 @@ public class IntBox {
         );
     }
     
+    public static IntBox fromRealNumberBox(AABB aabb) {
+        int minX = (int) Math.floor(aabb.minX + 0.00001); // add 0.00001 to avoid -1.00000001 become -2
+        int minY = (int) Math.floor(aabb.minY + 0.00001);
+        int minZ = (int) Math.floor(aabb.minZ + 0.00001);
+        int maxX = (int) Math.floor(aabb.maxX - 0.00001);
+        int maxY = (int) Math.floor(aabb.maxY - 0.00001);
+        int maxZ = (int) Math.floor(aabb.maxZ - 0.00001);
+        return new IntBox(
+            new BlockPos(minX, minY, minZ), new BlockPos(maxX - 1, maxY - 1, maxZ - 1)
+        );
+    }
+    
     public IntBox getExpanded(BlockPos newPoint) {
         return new IntBox(
             Helper.min(l, newPoint), Helper.max(h, newPoint)

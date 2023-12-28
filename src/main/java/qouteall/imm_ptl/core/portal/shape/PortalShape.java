@@ -171,7 +171,7 @@ public interface PortalShape {
         return false;
     }
     
-    // the func returning true for culled
+    // the func returns true for culled, inputs camera-coord box
     @Environment(EnvType.CLIENT)
     public default @Nullable BoxPredicateF getInnerFrustumCullingFunc(
         Portal portal, Vec3 cameraPos

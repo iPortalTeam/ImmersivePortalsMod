@@ -198,7 +198,7 @@ public class Portal extends Entity implements
     protected boolean reloadAndSyncNextTick = false;
     
     // these are caches
-    private @Nullable AABB exactBoundingBoxCache;
+    private @Nullable AABB thinBoundingBoxCache;
     private @Nullable AABB boundingBoxCache;
     private @Nullable Vec3 normalCache;
     private @Nullable Vec3 contentDirectionCache;
@@ -553,7 +553,7 @@ public class Portal extends Entity implements
         
         portalStateCache = null;
         boundingBoxCache = null;
-        exactBoundingBoxCache = null;
+        thinBoundingBoxCache = null;
         normalCache = null;
         contentDirectionCache = null;
         thisSideCollisionExclusion = null;
@@ -966,16 +966,6 @@ public class Portal extends Entity implements
         return !getIsGlobal();
     }
     
-    public AABB getExactBoundingBox() {
-        if (exactBoundingBoxCache == null) {
-            exactBoundingBoxCache = getPortalShape().getBoundingBox(
-                getThisSideState(), false, 0.001
-            );
-        }
-        
-        return exactBoundingBoxCache;
-    }
-    
     @Override
     public void move(MoverType type, Vec3 movement) {
         //portal cannot be moved
@@ -1233,10 +1223,6 @@ public class Portal extends Entity implements
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
     
-    public AABB getThinAreaBox() {
-        return getExactAreaBox();
-    }
-    
     /**
      * NOTE: This does not count animation into consideration.
      */
@@ -1375,10 +1361,15 @@ public class Portal extends Entity implements
         return true;
     }
     
-    // TODO rename to getThinBoundingBox
     @Override
-    public AABB getExactAreaBox() {
-        return getExactBoundingBox();
+    public AABB getThinBoundingBox() {
+        if (thinBoundingBoxCache == null) {
+            thinBoundingBoxCache = getPortalShape().getBoundingBox(
+                getThisSideState(), false, 0.001
+            );
+        }
+        
+        return thinBoundingBoxCache;
     }
     
     @Override

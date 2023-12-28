@@ -18,6 +18,7 @@
     "sodium.IESodiumWorldRenderer",
     "sodium.MixinSodiumChunkShaderInterface",
     "sodium.MixinSodiumFlawlessFrames",
+    "sodium.MixinSodiumOcclusionCuller",
     "sodium.MixinSodiumRenderRegion",
     "sodium.MixinSodiumRenderSectionManager",
     "sodium.MixinSodiumShaderLoader",

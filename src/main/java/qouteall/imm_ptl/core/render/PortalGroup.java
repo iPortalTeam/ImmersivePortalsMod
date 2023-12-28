@@ -80,7 +80,7 @@ public class PortalGroup implements PortalLike {
     public AABB getDestAreaBox() {
         if (destAreaBoxCache == null) {
             destAreaBoxCache = (
-                Helper.transformBox(getExactAreaBox(), pos -> {
+                Helper.transformBox(getThinBoundingBox(), pos -> {
                     return getFirstPortal().transformPoint(pos);
                 })
             );
@@ -95,10 +95,10 @@ public class PortalGroup implements PortalLike {
     }
     
     @Override
-    public AABB getExactAreaBox() {
+    public AABB getThinBoundingBox() {
         if (exactBoundingBox == null) {
             exactBoundingBox = portals.stream().map(
-                Portal::getExactBoundingBox
+                Portal::getThinBoundingBox
             ).reduce(AABB::minmax).get();
         }
         return exactBoundingBox;
@@ -131,7 +131,7 @@ public class PortalGroup implements PortalLike {
     
     @Override
     public double getDistanceToNearestPointInPortal(Vec3 point) {
-        return Helper.getDistanceToBox(getExactAreaBox(), point);
+        return Helper.getDistanceToBox(getThinBoundingBox(), point);
     }
     
     @Override
@@ -144,7 +144,7 @@ public class PortalGroup implements PortalLike {
     @Override
     public Vec3 getOriginPos() {
         if (origin == null) {
-            origin = getExactAreaBox().getCenter();
+            origin = getThinBoundingBox().getCenter();
         }
         
         return origin;
@@ -241,7 +241,7 @@ public class PortalGroup implements PortalLike {
     @Override
     public boolean cannotRenderInMe(Portal portal) {
         if (isEnclosed()) {
-            if (!getDestAreaBox().intersects(portal.getExactAreaBox())) {
+            if (!getDestAreaBox().intersects(portal.getThinBoundingBox())) {
                 return true;
             }
         }

@@ -16,6 +16,8 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.ducks.IERenderSection;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -63,7 +65,22 @@ public class VisibleSectionDiscovery {
         vanillaFrustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
         cameraSectionPos = SectionPos.of(BlockPos.containing(cameraPos));
         
-        if (cameraPos.y < world.getMinBuildHeight()) {
+        SectionPos modifiedVisibleSectionIterationOrigin = null;
+        PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+        if (renderingPortal instanceof Portal portal) {
+            modifiedVisibleSectionIterationOrigin = portal.getPortalShape()
+                .getModifiedVisibleSectionIterationOrigin(portal, cameraPos);
+        }
+        
+        if (modifiedVisibleSectionIterationOrigin != null) {
+            checkSection(
+                modifiedVisibleSectionIterationOrigin.getX(),
+                modifiedVisibleSectionIterationOrigin.getY(),
+                modifiedVisibleSectionIterationOrigin.getZ(),
+                true
+            );
+        }
+        else if (cameraPos.y < world.getMinBuildHeight()) {
             discoverBottomOrTopLayerVisibleChunks(builtChunks.minSectionY);
         }
         else if (cameraPos.y > world.getMaxBuildHeight()) {

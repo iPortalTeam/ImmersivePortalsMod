@@ -196,7 +196,7 @@ public abstract class PortalRenderer {
             // frustum culling does not work when portal is very close
             if (distance > 0.1) {
                 Frustum frustum = frustumSupplier.get();
-                if (!frustum.isVisible(portal.getExactAreaBox())) {
+                if (!frustum.isVisible(portal.getThinBoundingBox())) {
                     return true;
                 }
             }

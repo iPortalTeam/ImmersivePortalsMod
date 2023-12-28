@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -15,6 +16,8 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.animation.UnilateralPortalState;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.BoxPredicateF;
+import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.Range;
 import qouteall.q_misc_util.my_util.RayTraceResult;
@@ -345,13 +348,62 @@ public final class BoxPortalShape implements PortalShape {
     
     @Override
     public @Nullable SectionPos getModifiedVisibleSectionIterationOrigin(
-        Portal portal, Vec3 cameraPos
+        Portal portal, Vec3 innerCameraPos
     ) {
         if (!IPGlobal.boxPortalSpecialIteration) {
             return null;
         }
         
-        // TODO
-        return null;
+        InnerSectionRange r = getInnerSectionRange(portal);
+        SectionPos cameraPosSection = SectionPos.of(innerCameraPos);
+        
+        int secX = Mth.clamp(cameraPosSection.x(), r.l().x(), r.hInclusive().x());
+        int secY = Mth.clamp(cameraPosSection.y(), r.l().y(), r.hInclusive().y());
+        int secZ = Mth.clamp(cameraPosSection.z(), r.l().z(), r.hInclusive().z());
+        
+        return SectionPos.of(secX, secY, secZ);
+    }
+    
+    private InnerSectionRange getInnerSectionRange(Portal portal) {
+        AABB otherSideBoundingBox = Helper.transformBox(
+            getBoundingBox(portal.getThisSideState(), false, 0),
+            portal::transformPoint
+        );
+        
+        IntBox otherSideIntBox = IntBox.fromRealNumberBox(otherSideBoundingBox);
+        
+        SectionPos lSectionPos = SectionPos.of(otherSideIntBox.l);
+        SectionPos hSectionPos = SectionPos.of(otherSideIntBox.h);
+        return new InnerSectionRange(lSectionPos, hSectionPos);
+    }
+    
+    private record InnerSectionRange(
+        SectionPos l, SectionPos hInclusive
+    ) {}
+    
+    @Override
+    public @Nullable BoxPredicateF getInnerFrustumCullingFunc(Portal portal, Vec3 cameraPos) {
+        if (!IPGlobal.boxPortalSpecialIteration) {
+            return null;
+        }
+        
+        InnerSectionRange innerSectionRange = getInnerSectionRange(portal);
+        
+        float lx = (float) (innerSectionRange.l.x() * 16 - cameraPos.x);
+        float ly = (float) (innerSectionRange.l.y() * 16 - cameraPos.y);
+        float lz = (float) (innerSectionRange.l.z() * 16 - cameraPos.z);
+        float hx = (float) ((innerSectionRange.hInclusive.x() + 1) * 16 - cameraPos.x);
+        float hy = (float) ((innerSectionRange.hInclusive.y() + 1) * 16 - cameraPos.y);
+        float hz = (float) ((innerSectionRange.hInclusive.z() + 1) * 16 - cameraPos.z);
+        
+        return (minX, minY, minZ, maxX, maxY, maxZ) -> {
+            float midX = (minX + maxX) / 2;
+            float midY = (minY + maxY) / 2;
+            float midZ = (minZ + maxZ) / 2;
+            
+            return !(midX > lx && midX < hx &&
+                midY > ly && midY < hy &&
+                midZ > lz && midZ < hz);
+        };
     }
 }

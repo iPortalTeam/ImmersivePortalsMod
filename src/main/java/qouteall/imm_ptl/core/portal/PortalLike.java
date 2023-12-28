@@ -29,8 +29,7 @@ public interface PortalLike {
     
     boolean isConventionalPortal();
     
-    // bounding box
-    AABB getExactAreaBox();
+    AABB getThinBoundingBox();
     
     Vec3 transformPoint(Vec3 pos);
     
@@ -109,7 +108,7 @@ public interface PortalLike {
     }
     
     default double getSizeEstimation() {
-        final Vec3 boxSize = Helper.getBoxSize(getExactAreaBox());
+        final Vec3 boxSize = Helper.getBoxSize(getThinBoundingBox());
         final double maxDimension = Math.max(Math.max(boxSize.x, boxSize.y), boxSize.z);
         return maxDimension;
     }
