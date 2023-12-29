@@ -3,6 +3,7 @@ package qouteall.q_misc_util.dimension;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -27,10 +28,12 @@ public class DimensionIntId {
         DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.register(
             (server, dimensions) -> onServerDimensionChanged(server)
         );
-        
-        IPCGlobal.CLIENT_EXIT_EVENT.register(() -> {
-            clientRecord = null;
-        });
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT){
+            IPCGlobal.CLIENT_EXIT_EVENT.register(() -> {
+                clientRecord = null;
+            });
+        }
     }
     
     @Environment(EnvType.CLIENT)
