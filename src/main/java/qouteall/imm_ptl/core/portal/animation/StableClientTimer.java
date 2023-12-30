@@ -4,10 +4,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.world.TickRateManager;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
 /**
@@ -32,7 +32,7 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
  */
 @Environment(EnvType.CLIENT)
 public class StableClientTimer {
-    // use two numbers to keep precision
+    // use two numbers to keep precision (maybe one double is enough?)
     public static final class Time {
         final long tickTime;
         final float partialTicks;
@@ -140,7 +140,23 @@ public class StableClientTimer {
     }
     
     public static void tick() {
-        referenceTickTime++;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) {
+            return;
+        }
+        
+        TickRateManager tickRateManager = mc.level.tickRateManager();
+        
+        if (tickRateManager.tickrate() <= 20.0) {
+            referenceTickTime += 1;
+        }
+        else {
+            // weirdly, when tick rate is more than 20,
+            // seems only server side is accelerated,
+            // the client does not accelerate
+            // TODO refactor this for fast tick rate
+            referenceTickTime += (long) (tickRateManager.tickrate() / 20);
+        }
     }
     
     // updated after every tick and before every frame
@@ -150,7 +166,14 @@ public class StableClientTimer {
             reset(worldGameTime, partialTicks);
             return;
         }
-        if (Minecraft.getInstance().isPaused()) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.isPaused()) {
+            return;
+        }
+        if (mc.level == null) {
+            return;
+        }
+        if (!mc.level.tickRateManager().runsNormally()) {
             return;
         }
         Validate.notNull(stableTime);

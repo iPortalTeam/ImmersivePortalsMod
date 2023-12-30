@@ -8,6 +8,7 @@ import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
@@ -76,6 +77,11 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Shadow
     @Final
     private BlockStatePredictionHandler blockStatePredictionHandler;
+    
+    @Shadow
+    @Final
+    @Mutable
+    private TickRateManager tickRateManager;
     
     @Override
     public List<Portal> ip_getGlobalPortals() {
@@ -176,5 +182,10 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Override
     public BlockStatePredictionHandler ip_getBlockStatePredictionHandler() {
         return blockStatePredictionHandler;
+    }
+    
+    @Override
+    public void ip_setTickRateManager(TickRateManager cond) {
+        tickRateManager = cond;
     }
 }

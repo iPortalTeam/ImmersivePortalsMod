@@ -456,6 +456,9 @@ public class ClientWorldLoader {
             // all worlds share the same map data map
             ((IEClientLevel_Accessor) newWorld).ip_setMapData(mapData);
             
+            // all worlds share the same tick rate manager
+            ((IEClientWorld) newWorld).ip_setTickRateManager(CLIENT.level.tickRateManager());
+            
             worldRenderer.setLevel(newWorld);
             
             worldRenderer.onResourceManagerReload(CLIENT.getResourceManager());
