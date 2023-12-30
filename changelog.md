@@ -1,5 +1,3 @@
-Note: this version is experimental.
+Update to 1.20.4.
 
-Portal shape system refactoring.
-
-Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1467
+Note: this version is preview and is not yet stable. It's recommended to backup world before using.
