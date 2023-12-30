@@ -74,6 +74,7 @@ public class PortalRendering {
     
     /**
      * @return The innermost portal that's currently being rendered.
+     * Must use after checking {@link #isRendering()}
      */
     public static PortalLike getRenderingPortal() {
         return portalLayers.peek();

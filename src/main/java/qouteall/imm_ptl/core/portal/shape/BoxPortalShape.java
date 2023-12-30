@@ -354,6 +354,10 @@ public final class BoxPortalShape implements PortalShape {
             return null;
         }
         
+        if (!facingOutwards) {
+            return null;
+        }
+        
         InnerSectionRange r = getInnerSectionRange(portal);
         SectionPos cameraPosSection = SectionPos.of(innerCameraPos);
         
@@ -384,6 +388,10 @@ public final class BoxPortalShape implements PortalShape {
     @Override
     public @Nullable BoxPredicateF getInnerFrustumCullingFunc(Portal portal, Vec3 cameraPos) {
         if (!IPGlobal.boxPortalSpecialIteration) {
+            return null;
+        }
+        
+        if (!facingOutwards) {
             return null;
         }
         

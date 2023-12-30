@@ -28,11 +28,13 @@ public class MixinSodiumOcclusionCuller {
         
         ip_modifiedStartPoint = null;
         
-        PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-        if (renderingPortal instanceof Portal portal) {
-            ip_modifiedStartPoint = portal.getPortalShape().getModifiedVisibleSectionIterationOrigin(
-                portal, CHelper.getCurrentCameraPos()
-            );
+        if (PortalRendering.isRendering()) {
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+            if (renderingPortal instanceof Portal portal) {
+                ip_modifiedStartPoint = portal.getPortalShape().getModifiedVisibleSectionIterationOrigin(
+                    portal, CHelper.getCurrentCameraPos()
+                );
+            }
         }
         
         return newValue;

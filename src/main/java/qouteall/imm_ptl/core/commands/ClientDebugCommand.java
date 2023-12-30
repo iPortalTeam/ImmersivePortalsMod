@@ -707,6 +707,11 @@ public class ClientDebugCommand {
             "debug_text_to_top",
             cond -> IPGlobal.moveDebugTextToTop = cond
         );
+        registerSwitchCommand(
+            builder,
+            "box_portal_special_iteration",
+            cond -> IPGlobal.boxPortalSpecialIteration = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
