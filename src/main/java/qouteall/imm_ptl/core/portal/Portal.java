@@ -956,6 +956,10 @@ public class Portal extends Entity implements
             return NULL_BOX;
         }
         if (boundingBoxCache == null) {
+            // the bounding box should be limited for non-global portals
+            // some ticking operations traverse all chunks in bounding box
+            // having large bounding box will cause extreme lag
+            // global portal doesn't tick, so it's ok
             boundingBoxCache = getPortalShape()
                 .getBoundingBox(getThisSideState(), shouldLimitBoundingBox(), 0.2);
         }

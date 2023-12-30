@@ -120,7 +120,7 @@ public class EndPortalEntity extends Portal {
         Validate.notNull(endWorld, "End dimension is not loaded");
         
         double sideLen = BOX_PORTAL_SIDE_LEN;
-        double otherSideSideLen = 19 * 16; // 19 chunks
+        double otherSideSideLen = 18 * 16; // 18 chunks
         double height = BOX_PORTAL_HEIGHT;
         final Vec3 viewBoxSize = new Vec3(sideLen, height, sideLen);
         final double scale = otherSideSideLen / sideLen;

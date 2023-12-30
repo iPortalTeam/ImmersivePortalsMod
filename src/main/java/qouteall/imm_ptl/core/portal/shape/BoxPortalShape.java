@@ -70,6 +70,13 @@ public final class BoxPortalShape implements PortalShape {
         double halfW = portalState.width() / 2 + boxExpand;
         double halfH = portalState.height() / 2 + boxExpand;
         double halfT = portalState.thickness() / 2 + boxExpand;
+        
+        if (limitSize) {
+            halfW = Math.min(halfW, 32);
+            halfH = Math.min(halfH, 32);
+            halfT = Math.min(halfT, 32);
+        }
+        
         return Helper.boundingBoxOfPoints(
             new Vec3[]{
                 portalState.transformLocalToGlobal(-halfW, -halfH, -halfT),
@@ -369,9 +376,8 @@ public final class BoxPortalShape implements PortalShape {
     }
     
     private InnerSectionRange getInnerSectionRange(Portal portal) {
-        AABB otherSideBoundingBox = Helper.transformBox(
-            getBoundingBox(portal.getThisSideState(), false, 0),
-            portal::transformPoint
+        AABB otherSideBoundingBox = getReverse().getBoundingBox(
+            portal.getOtherSideState(), false, 0
         );
         
         IntBox otherSideIntBox = IntBox.fromRealNumberBox(otherSideBoundingBox);

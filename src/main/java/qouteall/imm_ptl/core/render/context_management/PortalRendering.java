@@ -11,7 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
 import qouteall.q_misc_util.my_util.Plane;
@@ -132,6 +134,13 @@ public class PortalRendering {
     public static boolean shouldEnableSodiumCaveCulling() {
         if (isRendering()) {
             PortalLike renderingPortal = getRenderingPortal();
+            
+            if (renderingPortal instanceof Portal portal) {
+                if (portal.getPortalShape() instanceof BoxPortalShape) {
+                    return false;
+                }
+            }
+            
             Vec3 currentCameraPos = CHelper.getCurrentCameraPos();
             Vec3 originalCameraPos = renderingPortal.inverseTransformPoint(currentCameraPos);
             double distance = renderingPortal.getDistanceToNearestPointInPortal(originalCameraPos);

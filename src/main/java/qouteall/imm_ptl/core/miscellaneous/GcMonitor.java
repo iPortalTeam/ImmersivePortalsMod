@@ -1,11 +1,13 @@
 package qouteall.imm_ptl.core.miscellaneous;
 
+import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -14,7 +16,7 @@ import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.CountDownInt;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -30,8 +32,10 @@ public class GcMonitor {
     private static final WeakHashMap<GarbageCollectorMXBean, Long> lastCollectCount =
         new WeakHashMap<>();
     
-    private static final LimitedLogger limitedLogger = new LimitedLogger(3);
-    private static final LimitedLogger limitedLogger2 = new LimitedLogger(3);
+    private static final Logger LOGGER = LogUtils.getLogger();
+    
+    private static final CountDownInt MESSAGE_LIMIT = new CountDownInt(3);
+    private static final CountDownInt LOG_LIMIT = new CountDownInt(3);
     
     private static long lastUpdateTime = 0;
     private static long lastLongPauseTime = 0;
@@ -118,10 +122,9 @@ public class GcMonitor {
                 }
             }
             
-            limitedLogger2.invoke(() -> {
-                Helper.err(
-                    "Memory not enough. Try to Shrink loading distance or allocate more memory." +
-                        " If this happens with low loading distance, it usually indicates memory leak"
+            if (LOG_LIMIT.tryDecrement()) {
+                LOGGER.error(
+                    "Memory seems not enough. Try to Shrink loading distance or allocate more memory."
                 );
                 
                 long maxMemory1 = Runtime.getRuntime().maxMemory();
@@ -131,11 +134,15 @@ public class GcMonitor {
                 
                 // When using ZGC, the memory usage amount is decreased with a delay
                 
-                Helper.err(String.format(
+                LOGGER.info(String.format(
                     "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
                     PortalDebugCommands.toMiB(usedMemory1), PortalDebugCommands.toMiB(maxMemory1)
                 ));
-            });
+                
+                if (LOG_LIMIT.isZero()) {
+                    LOGGER.info("Memory warning logging reached limit.");
+                }
+            }
             
             memoryNotEnough = true;
         }
@@ -149,13 +156,13 @@ public class GcMonitor {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
             if (client.player.tickCount > 40) {
-                limitedLogger.invoke(() -> {
+                if (MESSAGE_LIMIT.tryDecrement()) {
                     CHelper.printChat(
                         Component.translatable("imm_ptl.memory_not_enough").append(
                             McHelper.getLinkText(LINK)
                         )
                     );
-                });
+                }
             }
         }
     }
