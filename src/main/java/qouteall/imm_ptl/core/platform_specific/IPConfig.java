@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 import qouteall.q_misc_util.Helper;
 
 import java.util.HashSet;
@@ -27,8 +28,6 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Category("client")
     @ConfigEntry.Gui.Tooltip
     public boolean lagAttackProof = true;
-    @ConfigEntry.Category("client")
-    public boolean enableMirrorCreation = true;
     @ConfigEntry.Category("client")
     public boolean enableCrossPortalSound = true;
     @ConfigEntry.Category("client")
@@ -84,9 +83,18 @@ public class IPConfig implements ConfigData {
     // common visible configs
     
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
+    public IPGlobal.NetherPortalMode netherPortalMode =
+        IPFeatureControl.enableVanillaBehaviorChangingByDefault() ?
+            IPGlobal.NetherPortalMode.normal : IPGlobal.NetherPortalMode.vanilla;
+    
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
+    public IPGlobal.EndPortalMode endPortalMode =
+        IPFeatureControl.enableVanillaBehaviorChangingByDefault() ?
+            IPGlobal.EndPortalMode.normal : IPGlobal.EndPortalMode.vanilla;
+    
+    public boolean enableMirrorCreation =
+        IPFeatureControl.enableVanillaBehaviorChangingByDefault();
+    
     public boolean enableWarning = true;
     public boolean lightVanillaNetherPortalWhenCrouching = true;
     @ConfigEntry.Gui.Tooltip

@@ -24,7 +24,6 @@ import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
-import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 
@@ -42,7 +41,7 @@ public class DimStackManagement {
     public static Map<ResourceKey<Level>, BlockState> bedrockReplacementMap = new HashMap<>();
     
     public static void init() {
-        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+        if (!isDimStackEnabled()) {
             return;
         }
         
@@ -54,11 +53,15 @@ public class DimStackManagement {
         });
     }
     
+    private static boolean isDimStackEnabled() {
+        return true;
+    }
+    
     // at that time, only overworld has been created, only overworld data can be read
     // it's going to generate overworld spawn chunks
     // make sure the bedrock replacement map for overworld is initialized in time
     public static void onServerEarlyInit(MinecraftServer server) {
-        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+        if (!isDimStackEnabled()) {
             return;
         }
         
@@ -76,7 +79,7 @@ public class DimStackManagement {
     }
     
     public static void onServerCreatedWorlds(MinecraftServer server) {
-        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+        if (!isDimStackEnabled()) {
             return;
         }
         
@@ -125,7 +128,7 @@ public class DimStackManagement {
     }
     
     public static void replaceBedrock(ServerLevel world, ChunkAccess chunk) {
-        if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+        if (!isDimStackEnabled()) {
             return;
         }
         
@@ -223,7 +226,7 @@ public class DimStackManagement {
                 return;
             }
             
-            if (!IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+            if (!isDimStackEnabled()) {
                 player.sendSystemMessage(Component.literal(
                     "Dimension stack feature is not enabled"
                 ));

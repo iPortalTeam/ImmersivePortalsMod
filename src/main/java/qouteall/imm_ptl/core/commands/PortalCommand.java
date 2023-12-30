@@ -72,7 +72,6 @@ import qouteall.imm_ptl.core.portal.shape.PortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.imm_ptl.peripheral.dim_stack.DimStackManagement;
-import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -1763,19 +1762,17 @@ public class PortalCommand {
             )
         );
         
-        if (IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
-            builder.then(Commands
-                .literal("dimension_stack")
-                .requires(commandSource -> commandSource.hasPermission(2))
-                .executes(context -> {
-                    ServerPlayer player = context.getSource().getPlayerOrException();
-                    
-                    DimStackManagement.onDimensionStackCommandExecute(player);
-                    
-                    return 0;
-                })
-            );
-        }
+        builder.then(Commands
+            .literal("dimension_stack")
+            .requires(commandSource -> commandSource.hasPermission(2))
+            .executes(context -> {
+                ServerPlayer player = context.getSource().getPlayerOrException();
+                
+                DimStackManagement.onDimensionStackCommandExecute(player);
+                
+                return 0;
+            })
+        );
         
         builder.then(Commands
             .literal("wiki")

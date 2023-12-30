@@ -141,7 +141,7 @@
   "imm_ptl.cannot_connect_to_vanilla_portal": "[沉浸传送门模组] 注意：该模组的地狱传送门无法连接到原版地狱传送门，只能连接到形状、方向相同的黑曜石框架。",
   "imm_ptl.fabulous_warning": "[沉浸传送门] 在使用沉浸传送门模组时，若图像选项为 \"极佳\"，则在某些硬件上透明物体渲染会出错。 建议不要启用 \"极佳\" 模式. 光影可以使游戏变得比原版\"极佳\" 模式更美丽",
   "imm_ptl.intel_warning": "[沉浸传送门] 你正在使用 Intel 显卡。图形界面渲染可能会异常。",
-  "modmenu.descriptionTranslation.immersive_portals": "透视传送门，可以直接走进传送门，无加载界面，让传送门的体验更加自然有沉浸感，产生“非欧几里得几何”的空间现象，产生“沉浸传送门”的假象",
+  "modmenu.descriptionTranslation.immersive_portals": "透视传送门并无缝传送",
   "imm_ptl.enable_warning": "启用警告",
   "imm_ptl.enable_mirror_creation": "允许创建镜子",
   "imm_ptl.top_y": "顶部纵坐标",

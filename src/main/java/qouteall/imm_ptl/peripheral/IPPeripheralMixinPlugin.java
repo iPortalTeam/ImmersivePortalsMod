@@ -3,7 +3,6 @@ package qouteall.imm_ptl.peripheral;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 
 import java.util.List;
 import java.util.Set;
@@ -21,12 +20,13 @@ public class IPPeripheralMixinPlugin implements IMixinConfigPlugin {
     
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
-            return true;
-        }
-        
-        // CVB means "change vanilla behavior"
-        return !mixinClassName.contains("CVB");
+        return true;
+//        if (IPFeatureControl.isVanillaChangingFeaturesEnabled()) {
+//            return true;
+//        }
+//
+//        // CVB means "change vanilla behavior"
+//        return !mixinClassName.contains("CVB");
     }
     
     @Override

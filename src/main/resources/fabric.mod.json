@@ -5,6 +5,7 @@
   "version": "${version}",
   "name": "Immersive Portals",
   "description": "See through portals and travel between dimensions seamlessly.",
+  "$comments": "The actual description that mod menu shows is translated from modmenu.descriptionTranslation.immersive_portals",
   "authors": [
     "qouteall", "Other Contributors (see GitHub)"
   ],

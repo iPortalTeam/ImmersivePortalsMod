@@ -47,6 +47,7 @@ import qouteall.imm_ptl.core.portal.shape.BoxPortalShape;
 import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.imm_ptl.peripheral.platform_specific.IPFeatureControl;
 import qouteall.q_misc_util.Helper;
 
 import java.io.File;
@@ -103,7 +104,7 @@ public class IPModMain {
         SubCommandArgumentType.init();
         TimingFunctionArgumentType.init();
         AxisArgumentType.init();
-    
+        
         DebugUtil.init();
         
         ServerTaskList.init();
@@ -114,6 +115,14 @@ public class IPModMain {
         RotationAnimation.init();
         NormalAnimation.init();
 //        OscillationAnimation.init();
+        
+        if (!IPFeatureControl.enableVanillaBehaviorChangingByDefault()) {
+            LOGGER.info("""
+                iPortal is provided by jar-in-jar.
+                The default value of 'nether portal mode', 'end portal mode' and 'enable mirror creation' in config will be respectively vanilla, vanilla and false.
+                (The default value is only used when config file is not present of missing fields. This does not change existing config.)
+                """);
+        }
     }
     
     private static void loadConfig() {
@@ -149,7 +158,7 @@ public class IPModMain {
     }
     
     public static void registerEntityTypes(BiConsumer<ResourceLocation, EntityType<?>> regFunc) {
-    
+        
         regFunc.accept(
             new ResourceLocation("immersive_portals", "portal"),
             Portal.ENTITY_TYPE
