@@ -202,6 +202,10 @@ public abstract class PortalRenderer {
             }
         }
         
+        if (PortalRendering.isInvalidRecursionRendering(portal)) {
+            return true;
+        }
+        
         boolean predicateTest = PORTAL_RENDERING_PREDICATE.invoker().test(portal);
         if (!predicateTest) {
             return true;

@@ -1376,9 +1376,13 @@ public class Portal extends Entity implements
         return thinBoundingBoxCache;
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
-        return getPortalShape().roughTestVisibility(getThisSideState(), cameraPos);
+        return getPortalShape().roughTestVisibility(
+            getThisSideState(), cameraPos,
+            IrisInterface.invoker.isShaders()
+        );
     }
     
     @Nullable

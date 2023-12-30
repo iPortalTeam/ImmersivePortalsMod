@@ -214,4 +214,21 @@ public class PortalRendering {
         
         return plane;
     }
+    
+    public static boolean isInvalidRecursionRendering(
+        Portal toRender
+    ) {
+        if (portalLayers.size() < 2) {
+            return false;
+        }
+        
+        PortalLike last = portalLayers.get(portalLayers.size() - 1);
+        PortalLike secondLast = portalLayers.get(portalLayers.size() - 2);
+        
+        if (last instanceof Portal lastPortal) {
+            return toRender == secondLast && Portal.isReversePortal(toRender, lastPortal);
+        }
+        
+        return false;
+    }
 }

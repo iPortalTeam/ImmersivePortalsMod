@@ -174,6 +174,7 @@ public class PortalGroup implements PortalLike {
         return getFirstPortal().getDestDim();
     }
     
+    @Environment(EnvType.CLIENT)
     @Override
     public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
         return true;

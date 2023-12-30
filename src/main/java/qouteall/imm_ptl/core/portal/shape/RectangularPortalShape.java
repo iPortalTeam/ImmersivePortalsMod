@@ -160,7 +160,8 @@ public final class RectangularPortalShape implements PortalShape {
     @Override
     public boolean roughTestVisibility(
         UnilateralPortalState portalState,
-        Vec3 cameraPos
+        Vec3 cameraPos,
+        boolean isIrisShaderOn
     ) {
         Vec3 localPos = portalState.transformGlobalToLocal(cameraPos);
         

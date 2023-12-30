@@ -236,9 +236,12 @@ public final class SpecialFlatPortalShape implements PortalShape {
     @Override
     public boolean roughTestVisibility(
         UnilateralPortalState portalState,
-        Vec3 cameraPos
+        Vec3 cameraPos,
+        boolean isIrisShaderOn
     ) {
-        return RectangularPortalShape.INSTANCE.roughTestVisibility(portalState, cameraPos);
+        return RectangularPortalShape.INSTANCE.roughTestVisibility(
+            portalState, cameraPos, isIrisShaderOn
+        );
     }
     
     public static SpecialFlatPortalShape createDefault() {

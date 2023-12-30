@@ -160,8 +160,13 @@ public final class BoxPortalShape implements PortalShape {
     @Override
     public boolean roughTestVisibility(
         UnilateralPortalState portalState,
-        Vec3 cameraPos
+        Vec3 cameraPos,
+        boolean isIrisShaderOn
     ) {
+        if (isIrisShaderOn) {
+            return true;
+        }
+        
         Vec3 localPos = portalState.transformGlobalToLocal(cameraPos);
         
         boolean in = localPos.x() > -portalState.width() / 2 &&
