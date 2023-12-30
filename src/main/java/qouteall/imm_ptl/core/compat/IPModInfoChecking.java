@@ -95,7 +95,7 @@ public class IPModInfoChecking {
         String url = O_O.getImmPtlModInfoUrl();
         
         if (url == null) {
-            LOGGER.info("Not fetching immptl mod info");
+            LOGGER.info("Not fetching iPortal mod info");
             return null;
         }
         
@@ -109,17 +109,17 @@ public class IPModInfoChecking {
             );
             
             if (response.statusCode() != 200) {
-                LOGGER.error("Failed to fetch immptl mod info {}", response.statusCode());
+                LOGGER.error("Failed to fetch iPortal mod info {}", response.statusCode());
                 return null;
             }
             
             String jsonStr = response.body();
             ImmPtlInfo immPtlInfo = Helper.gson.fromJson(jsonStr, ImmPtlInfo.class);
-            LOGGER.info("ImmPtl mod info fetched");
+            LOGGER.info("iPortal mod info fetched");
             return immPtlInfo;
         }
         catch (Throwable e) {
-            LOGGER.error("Failed to fetch immptl mod info", e);
+            LOGGER.error("Failed to fetch iPortal mod info", e);
             return null;
         }
     }

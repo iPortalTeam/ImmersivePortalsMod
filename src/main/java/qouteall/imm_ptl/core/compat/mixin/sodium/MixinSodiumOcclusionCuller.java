@@ -56,7 +56,8 @@ public class MixinSodiumOcclusionCuller {
         method = "init",
         at = @At(
             value = "INVOKE",
-            target = "Lme/jellysquid/mods/sodium/client/render/viewport/Viewport;getChunkCoord()Lnet/minecraft/core/SectionPos;"
+            target = "Lme/jellysquid/mods/sodium/client/render/viewport/Viewport;getChunkCoord()Lnet/minecraft/core/SectionPos;",
+            remap = true
         ),
         remap = false
     )
@@ -88,7 +89,8 @@ public class MixinSodiumOcclusionCuller {
     // when iteration start point become a position that's outside of frustum
     // make it tolerant early frustum test failures to avoid wrongly halting iteration
     @Inject(
-        method = "isOutsideFrustum", at = @At("RETURN"), cancellable = true
+        method = "isOutsideFrustum", at = @At("RETURN"), cancellable = true,
+        remap = false
     )
     private static void onIsOutsideFrustum(
         Viewport viewport, RenderSection section,
