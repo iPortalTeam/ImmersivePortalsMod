@@ -195,7 +195,6 @@
   "text.autoconfig.immersive_portals.option.netherPortalMode": "地狱传送门模式",
   "text.autoconfig.immersive_portals.option.endPortalMode": "末地传送门模式",
   "text.autoconfig.immersive_portals.option.lightVanillaNetherPortalWhenCrouching": "潜行时点亮原版地狱传送门",
-  "text.autoconfig.immersive_portals.option.enableAlternateDimensions": "启用可选位面",
   "text.autoconfig.immersive_portals.option.enableServerPerformanceAdjustment": "启用服务器性能调整",
   "text.autoconfig.immersive_portals.option.enableDatapackPortalGen": "启用数据包自定义传送门生成",
   "text.autoconfig.immersive_portals.option.indirectLoadingRadiusCap": "间接区块加载半径上限",
@@ -263,5 +262,16 @@
   "imm_ptl.mod_patch_version_mismatch": "服务端的沉浸传送门模组版本(%s)与客户端(%s)不符。建议将客户端和服务端的沉浸传送门模组都更新到最新版。",
   "imm_ptl.mod_major_minor_version_mismatch": "服务端的沉浸传送门模组版本 (%s) 与客户端的版本 (%s) 不兼容。\n建议将客户端和服务端的的沉浸传送门模组都更新到最新版。\n如果你想在不更换模组版本情况下进入服务器，需要打开'允许与服务器模组版本不兼容'设置 (需要安装模组列表(Mod Menu)以打开模组设置界面)。",
   "imm_ptl.server_missing_immptl": "你进入了一个没有安装沉浸传送门模组的服务器。沉浸传送门是设计为客户端服务端都安装的情况设计的。在此服务器中沉浸传送门功能将不可用，且可能出现其他问题。建议不使用沉浸传送门模组进入此服务器。",
-  "imm_ptl.put_this_in_the_end_to_avoid_editing_trailing_comma": ""
+  "imm_ptl.put_this_in_the_end_to_avoid_editing_trailing_comma": "",
+  "text.autoconfig.immersive_portals.option.maxPortalLayer.@Tooltip": "控制传送门中传送门渲染最大层数",
+  "text.autoconfig.immersive_portals.option.lagAttackProof.@Tooltip": "卡顿时渲染更少传送门内容",
+  "text.autoconfig.immersive_portals.option.compatibilityRenderMode.@Tooltip": "正常情况下该设置不应被修改。",
+  "text.autoconfig.immersive_portals.option.pureMirror.@Tooltip": "若启用，则镜子上不会出现玻璃材质。（安装Iris时自动开启）",
+  "text.autoconfig.immersive_portals.option.correctCrossPortalEntityRendering.@Tooltip": "更好的跨传送门实体渲染。（安装Iris时自动关闭）",
+  "text.autoconfig.immersive_portals.option.enableClientPerformanceAdjustment.@Tooltip": "若启用，卡顿时将渲染更少传送门内容。",
+  "text.autoconfig.immersive_portals.option.enableServerPerformanceAdjustment.@Tooltip": "若启用，服务端卡顿时将减少传送门区块加载。",
+  "text.autoconfig.immersive_portals.option.indirectLoadingRadiusCap.@Tooltip": "控制传送门对区块加载的距离上限。",
+  "text.autoconfig.immersive_portals.option.easeCreativePermission.@Tooltip": "若启用，创造模式玩家可使用/portal命令",
+  "text.autoconfig.immersive_portals.option.easeCommandStickPermission.@Tooltip": "若启用，所有玩家都可以使用命令杖。若关闭，只有创造模式玩家和具有2级权限的玩家可使用。",
+  "imm_ptl.low_max_memory": "[沉浸传送门] 游戏仅被分配 %s MB 内存。传送门会加载更多区块并需要更多内存。建议对游戏分配更多内存以获得更流畅体验。 (使用官方启动器时，电脑内存极大的情况下也可能只对游戏分配2GB内存) 如何分配内存: "
 }
