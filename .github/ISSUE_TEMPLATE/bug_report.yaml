@@ -54,7 +54,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: "### Note: Only versions for **MC 1.20.4 and MC 1.20.2** is being maintained for now. It's recommended to use MC 1.20.2 or MC 1.20.1 now. Fixing issues on older MC versions is in low priority (except security issues)."
+      value: "### Note: Only versions for **MC 1.20.4 and MC 1.20.2** is being maintained for now. It's recommended to use the supported MC 1.20.4 or 1.20.2 now. Fixing issues on older MC versions is in low priority (except security issues)."
   - type: textarea
     id: what-happened
     attributes:
