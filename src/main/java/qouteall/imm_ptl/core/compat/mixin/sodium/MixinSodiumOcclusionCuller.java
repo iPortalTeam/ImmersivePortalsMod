@@ -4,8 +4,10 @@ import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.occlusion.OcclusionCuller;
 import me.jellysquid.mods.sodium.client.render.viewport.Viewport;
 import net.minecraft.core.SectionPos;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,8 +19,18 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
+import java.util.function.Consumer;
+
 @Mixin(OcclusionCuller.class)
-public class MixinSodiumOcclusionCuller {
+public abstract class MixinSodiumOcclusionCuller {
+    @Shadow
+    public static boolean isOutsideFrustum(Viewport viewport, RenderSection section) {
+        throw new RuntimeException();
+    }
+    
+    @Shadow
+    protected abstract RenderSection getRenderSection(int x, int y, int z);
+    
     @Unique
     private @Nullable SectionPos ip_modifiedStartPoint;
     
@@ -26,10 +38,15 @@ public class MixinSodiumOcclusionCuller {
     private static boolean ip_tolerantInitialFrustumTestFail;
     
     // update the iteration start point modification value
+    @SuppressWarnings("ConstantValue")
     @ModifyVariable(
         method = "findVisible", at = @At("HEAD"), argsOnly = true, remap = false
     )
-    boolean modifyUseOcclusionCulling(boolean originalValue) {
+    boolean modifyUseOcclusionCulling(
+        boolean originalValue,
+        Consumer<RenderSection> visitor, Viewport viewport, float searchDistance,
+        boolean useOcclusionCulling, int frame
+    ) {
         boolean doUseOcclusionCulling = PortalRendering.shouldEnableSodiumCaveCulling();
         
         ip_modifiedStartPoint = null;
@@ -38,12 +55,19 @@ public class MixinSodiumOcclusionCuller {
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             if (renderingPortal instanceof Portal portal) {
+                Vec3 cameraPos = CHelper.getCurrentCameraPos();
                 ip_modifiedStartPoint = portal.getPortalShape().getModifiedVisibleSectionIterationOrigin(
-                    portal, CHelper.getCurrentCameraPos()
+                    portal, cameraPos
                 );
                 if (ip_modifiedStartPoint != null) {
-                    ip_tolerantInitialFrustumTestFail = true;
                     doUseOcclusionCulling = false;
+                    
+                    RenderSection renderSection = getRenderSection(
+                        ip_modifiedStartPoint.x(), ip_modifiedStartPoint.y(), ip_modifiedStartPoint.z()
+                    );
+                    if (renderSection != null && isOutsideFrustum(viewport, renderSection)) {
+                        ip_tolerantInitialFrustumTestFail = true;
+                    }
                 }
             }
         }
