@@ -29,8 +29,10 @@ import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -69,7 +71,7 @@ public class ServerTeleportationManager {
             (portal) -> {
                 ServerTeleportationManager serverTeleportationManager = of(portal.getServer());
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                   serverTeleportationManager. startTeleportingRegularEntity(portal, entity);
+                    serverTeleportationManager.startTeleportingRegularEntity(portal, entity);
                 });
             }
         );
@@ -172,9 +174,10 @@ public class ServerTeleportationManager {
         
         Vec3 oldFeetPos = eyePosBeforeTeleportation.subtract(McHelper.getEyeOffset(player));
         
-        // Verify teleportation, prevent a hacked client from teleporting through any portal.
-        // Well I guess no one will make the hacked ImmPtl client.
-        if (canPlayerTeleport(player, dimensionBefore, oldFeetPos, portal)) {
+        String failReason = validatePlayerTeleportationAndGetReason(
+            player, dimensionBefore, oldFeetPos, portal
+        );
+        if (failReason == null) {
             assert portal != null;
             if (isTeleporting(player)) {
                 LOGGER.info("{} is teleporting frequently", player);
@@ -203,9 +206,9 @@ public class ServerTeleportationManager {
         }
         else {
             LOGGER.error(
-                "Player {} {} {} cannot teleport through portal {}",
+                "Player {} {} {} cannot teleport through portal {}\nReason: {}",
                 player, player.level().dimension().location(), player.position(),
-                portal
+                portal, failReason
             );
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level()));
             PehkuiInterface.invoker.setBaseScale(player, PehkuiInterface.invoker.getBaseScale(player));
@@ -239,24 +242,41 @@ public class ServerTeleportationManager {
         );
     }
     
-    private boolean canPlayerTeleport(
+    /**
+     * @return null if valid. if invalid, it's the reason
+     */
+    private @Nullable String validatePlayerTeleportationAndGetReason(
         ServerPlayer player,
         ResourceKey<Level> dimensionBefore,
         Vec3 posBefore,
-        Entity portalEntity
+        Portal portal
     ) {
         if (player.getVehicle() != null) {
-            return true;
+            return null;
         }
         
-        if (!(portalEntity instanceof Portal portal)) {
-            return false;
+        // cannot teleport if having awaiting teleport
+        if (((IEServerPlayNetworkHandler) player.connection).ip_hasAwaitingTeleport()) {
+            return "has awaiting teleport";
         }
         
-        return portal.canTeleportEntity(player)
-            && player.level().dimension() == dimensionBefore
-            && player.position().distanceToSqr(posBefore) < 256
-            && portal.getDistanceToNearestPointInPortal(posBefore) < 20;
+        if (!portal.canTeleportEntity(player)) {
+            return "portal cannot teleport player";
+        }
+        
+        if (player.level().dimension() != dimensionBefore) {
+            return "player is not in the dimensionBefore in packet";
+        }
+        
+        if (player.position().distanceToSqr(posBefore) > 16 * 16) {
+            return "player is too far from the posBefore in packet";
+        }
+        
+        if (portal.getDistanceToNearestPointInPortal(posBefore) > 20) {
+            return "posBefore is too far from portal";
+        }
+        
+        return null;
     }
     
     public static boolean canPlayerReachPos(
@@ -313,7 +333,7 @@ public class ServerTeleportationManager {
         
         // reset the "authentic" player position as the current position
         player.connection.resetPosition();
-
+        
         PortalCollisionHandler.updateCollidingPortalAfterTeleportation(
             player, newEyePos, newEyePos, 1
         );
@@ -321,9 +341,35 @@ public class ServerTeleportationManager {
         server.getProfiler().pop();
     }
     
-    public void forceTeleportPlayer(ServerPlayer player, ResourceKey<Level> dimensionTo, Vec3 newPos) {
+    public void forceTeleportPlayer(
+        ServerPlayer player, ResourceKey<Level> dimensionTo, Vec3 newPos
+    ) {
+        forceTeleportPlayer(
+            player, dimensionTo, newPos, true
+        );
+    }
+    
+    public void forceTeleportPlayer(
+        ServerPlayer player, ResourceKey<Level> dimensionTo, Vec3 newPos,
+        boolean sendPacket
+    ) {
+        if (IPConfig.getConfig().serverTeleportLogging) {
+            LOGGER.info(
+                "Force teleporting {} to {} {}",
+                player, dimensionTo.location(), newPos
+            );
+        }
+        
         ServerLevel fromWorld = (ServerLevel) player.level();
-        ServerLevel toWorld = MiscHelper.getServer().getLevel(dimensionTo);
+        ServerLevel toWorld = player.server.getLevel(dimensionTo);
+        
+        if (toWorld == null) {
+            LOGGER.error(
+                "Cannot teleport player {} to non-existing dimension {}",
+                player, dimensionTo.location()
+            );
+            return;
+        }
         
         if (player.level().dimension() == dimensionTo) {
             player.setPos(newPos.x, newPos.y, newPos.z);
@@ -332,13 +378,15 @@ public class ServerTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newPos.add(McHelper.getEyeOffset(player)));
         }
         
-        player.connection.teleport(
-            newPos.x,
-            newPos.y,
-            newPos.z,
-            player.getYRot(),
-            player.getXRot()
-        );
+        if (sendPacket) {
+            player.connection.teleport(
+                newPos.x,
+                newPos.y,
+                newPos.z,
+                player.getYRot(),
+                player.getXRot()
+            );
+        }
         
         // reset the "authentic" player position as the current position
         player.connection.resetPosition();
@@ -399,14 +447,16 @@ public class ServerTeleportationManager {
             McHelper.adjustVehicle(player);
         }
         
-        LOGGER.debug(
-            "{} :: ({} {} {} {})->({} {} {} {})",
-            player.getName().getContents(),
-            fromWorld.dimension().location(),
-            oldPos.x(), oldPos.y(), oldPos.z(),
-            toWorld.dimension().location(),
-            (int) player.getX(), (int) player.getY(), (int) player.getZ()
-        );
+        if (IPConfig.getConfig().serverTeleportLogging) {
+            LOGGER.info(
+                "{} :: ({} {} {} {})->({} {} {} {})",
+                player.getName().getContents(),
+                fromWorld.dimension().location(),
+                oldPos.x(), oldPos.y(), oldPos.z(),
+                toWorld.dimension().location(),
+                (int) player.getX(), (int) player.getY(), (int) player.getZ()
+            );
+        }
         
         O_O.onPlayerTravelOnServer(
             player,
@@ -552,7 +602,7 @@ public class ServerTeleportationManager {
         boolean recreateEntity
     ) {
         if (entity.getRemovalReason() != null) {
-            LOGGER.error("Trying to teleport a removed entity {}" , entity, new Throwable());
+            LOGGER.error("Trying to teleport a removed entity {}", entity, new Throwable());
             return entity;
         }
         
@@ -766,7 +816,9 @@ public class ServerTeleportationManager {
                 ServerLevel overWorld = McHelper.getOverWorldOnServer();
                 BlockPos spawnPos = overWorld.getSharedSpawnPos();
                 
-                forceTeleportPlayer(player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos));
+                forceTeleportPlayer(
+                    player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos)
+                );
                 
                 player.sendSystemMessage(Component.literal(
                     "Teleported to spawn pos because dimension %s had been removed".formatted(world.dimension().location())

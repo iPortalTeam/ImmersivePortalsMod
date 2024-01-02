@@ -2,8 +2,10 @@ package qouteall.imm_ptl.core.mixin.common.position_sync;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,6 +35,7 @@ import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.my_util.CountDownInt;
 
@@ -90,6 +94,25 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
     @Unique
     private int ip_wrongMovePacketCount = 0;
     
+    /**
+     * Attach the dimension information to
+     * {@link ServerGamePacketListenerImpl#awaitingPositionFromClient}
+     *
+     * The teleport system: when server wants to teleport a player,
+     * the server will send the {@link ClientboundPlayerPositionPacket}, then
+     * set {@link ServerGamePacketListenerImpl#awaitingPositionFromClient}
+     * and {@link ServerGamePacketListenerImpl#awaitingTeleport} counter.
+     *
+     * Before the client sending {@link ServerboundAcceptTeleportationPacket},
+     * the position packets are ignored, and some of the item using packets are ignored.
+     *
+     * Attach the dimension information to the position, to avoid messing up coordinates
+     * of different dimensions.
+     */
+    @SuppressWarnings("JavadocReference")
+    @Unique
+    private @Nullable ResourceKey<Level> ip_dimOfAwaitingPosition;
+    
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
         method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V",
@@ -119,8 +142,11 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (player.level().dimension() != packetDimension) {
             if (LOG_LIMIT.tryDecrement()) {
                 LOGGER.info(
-                    "[ImmPtl] Ignoring player move packet {} {}",
-                    player, packetDimension.location()
+                    "[ImmPtl] Ignoring player move packet. Player: {} Packet: {} {} {} {}",
+                    player, packetDimension.location(),
+                    packet.getX(player.getX()),
+                    packet.getY(player.getY()),
+                    packet.getZ(player.getZ())
                 );
             }
             
@@ -164,6 +190,13 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             return;
         }
         
+        if (IPConfig.getConfig().serverTeleportLogging) {
+            LOGGER.info(
+                "Teleporting player {} to {} {} {} {}",
+                player, player.level().dimension().location(), x, y, z
+            );
+        }
+        
         double xBase = relativeAttrs.contains(RelativeMovement.X) ? this.player.getX() : 0.0;
         double yBase = relativeAttrs.contains(RelativeMovement.Y) ? this.player.getY() : 0.0;
         double zBase = relativeAttrs.contains(RelativeMovement.Z) ? this.player.getZ() : 0.0;
@@ -171,6 +204,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         float xRotBase = relativeAttrs.contains(RelativeMovement.X_ROT) ? this.player.getXRot() : 0.0f;
         
         this.awaitingPositionFromClient = new Vec3(x, y, z);
+        this.ip_dimOfAwaitingPosition = player.level().dimension();
         if (++this.awaitingTeleport == Integer.MAX_VALUE) {
             this.awaitingTeleport = 0;
         }
@@ -243,4 +277,50 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         }
     }
     
+    // if the awaiting position is in a different dimension, move the player accordingly
+    // avoid messing up position for different dimensions
+    @Inject(
+        method = "handleAcceptTeleportPacket",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;absMoveTo(DDDFF)V"
+        )
+    )
+    private void onHandleAcceptTeleportPacket(
+        ServerboundAcceptTeleportationPacket packet, CallbackInfo ci
+    ) {
+        if (ip_dimOfAwaitingPosition == null) {
+            LOGGER.error("[ImmPtl] ip_dimOfAwaitingPosition is null {}", player);
+            return;
+        }
+        
+        if (ip_dimOfAwaitingPosition != player.level().dimension()) {
+            LOGGER.info(
+                "Accepted teleport to another dimension {} {}",
+                ip_dimOfAwaitingPosition, awaitingPositionFromClient
+            );
+            
+            ServerLevel destWorld = player.server.getLevel(ip_dimOfAwaitingPosition);
+            
+            if (destWorld == null) {
+                LOGGER.error(
+                    "[ImmPtl] Cannot find destination world {}",
+                    ip_dimOfAwaitingPosition.location()
+                );
+                return;
+            }
+            
+            ServerTeleportationManager.of(player.server)
+                .forceTeleportPlayer(
+                    player, ip_dimOfAwaitingPosition,
+                    awaitingPositionFromClient, false
+                );
+            ip_dimOfAwaitingPosition = null;
+        }
+    }
+    
+    @Override
+    public boolean ip_hasAwaitingTeleport() {
+        return awaitingPositionFromClient != null;
+    }
 }

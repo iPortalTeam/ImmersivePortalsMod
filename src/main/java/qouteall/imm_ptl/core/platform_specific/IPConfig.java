@@ -132,6 +132,8 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.Excluded
     public boolean serverRejectClientWithoutImmPtl = true;
     @ConfigEntry.Gui.Excluded
+    public boolean serverTeleportLogging = false;
+    @ConfigEntry.Gui.Excluded
     public HashSet<String> disabledWarnings = new HashSet<>();
     
     @ConfigEntry.Gui.Excluded

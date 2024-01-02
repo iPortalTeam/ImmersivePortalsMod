@@ -37,14 +37,14 @@ import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.network.ImmPtlNetworkConfig;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.CountDownInt;
 
 import java.util.Map;
 import java.util.UUID;
 
 @Mixin(ClientPacketListener.class)
 public abstract class MixinClientPacketListener implements IEClientPlayNetworkHandler {
-    private static final LimitedLogger immptl_limitedLogger = new LimitedLogger(20);
+    private static CountDownInt LOG_LIMIT = new CountDownInt(20);
     
     @Shadow
     private ClientLevel level;
@@ -169,7 +169,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     private Entity redirectGetEntityById(ClientLevel clientWorld, int id) {
         Entity entity = clientWorld.getEntity(id);
         if (entity == null) {
-            immptl_limitedLogger.err("missing entity for data tracking " + clientWorld + " " + id);
+            if (LOG_LIMIT.tryDecrement()) {
+                LOGGER.warn("missing entity for data tracking {} {}", clientWorld, id);
+            }
         }
         return entity;
     }
