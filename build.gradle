@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
 
     id "me.modmuss50.mod-publish-plugin" version "0.3.5"
+    // https://modmuss50.github.io/mod-publish-plugin/
 }
 
 version = project.mod_version
@@ -248,6 +249,10 @@ publishMods {
         projectId = "zJpHMkdD"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         minecraftVersions.add(minecraft_version)
+
+        requires {
+            slug = "fabric-api"
+        }
     }
     github {
         repository = "iPortalTeam/ImmersivePortalsMod"

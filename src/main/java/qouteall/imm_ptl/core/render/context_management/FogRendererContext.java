@@ -13,13 +13,18 @@ import qouteall.imm_ptl.core.ducks.IECamera;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * {@link FogRenderer}
+ * {@link qouteall.imm_ptl.core.mixin.client.multiworld_awareness.MixinFogRenderer}
+ */
+@SuppressWarnings("SpellCheckingInspection")
 public class FogRendererContext {
     public float red;
     public float green;
     public float blue;
-    public int waterFogColor = -1;
-    public int nextWaterFogColor = -1;
-    public long lastWaterFogColorUpdateTime = -1L;
+    public int targetBiomeFog = -1;
+    public int previousBiomeFog = -1;
+    public long biomeChangedTime = -1L;
     
     public static Consumer<FogRendererContext> copyContextFromObject;
     public static Consumer<FogRendererContext> copyContextToObject;

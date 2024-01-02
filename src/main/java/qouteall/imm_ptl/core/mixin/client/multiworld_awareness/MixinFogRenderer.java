@@ -26,18 +26,18 @@ public class MixinFogRenderer {
             fogRed = context.red;
             fogGreen = context.green;
             fogBlue = context.blue;
-            targetBiomeFog = context.waterFogColor;
-            previousBiomeFog = context.nextWaterFogColor;
-            biomeChangedTime = context.lastWaterFogColorUpdateTime;
+            targetBiomeFog = context.targetBiomeFog;
+            previousBiomeFog = context.previousBiomeFog;
+            biomeChangedTime = context.biomeChangedTime;
         };
         
         FogRendererContext.copyContextToObject = context -> {
             context.red = fogRed;
             context.green = fogGreen;
             context.blue = fogBlue;
-            context.waterFogColor = targetBiomeFog;
-            context.nextWaterFogColor = previousBiomeFog;
-            context.lastWaterFogColorUpdateTime = biomeChangedTime;
+            context.targetBiomeFog = targetBiomeFog;
+            context.previousBiomeFog = previousBiomeFog;
+            context.biomeChangedTime = biomeChangedTime;
         };
         
         FogRendererContext.getCurrentFogColor =
