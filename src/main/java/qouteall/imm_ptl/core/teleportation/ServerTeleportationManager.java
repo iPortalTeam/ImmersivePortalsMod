@@ -168,7 +168,15 @@ public class ServerTeleportationManager {
             return;
         }
         
-        Portal portal = findPortal(dimensionBefore, portalId);
+        Portal portal = findPortal(player.server, dimensionBefore, portalId);
+        
+        if (portal == null) {
+            LOGGER.error(
+                "Unable to find portal {} in {} to teleport {}",
+                portalId, dimensionBefore.location(), player
+            );
+            return;
+        }
         
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
@@ -178,7 +186,6 @@ public class ServerTeleportationManager {
             player, dimensionBefore, oldFeetPos, portal
         );
         if (failReason == null) {
-            assert portal != null;
             if (isTeleporting(player)) {
                 LOGGER.info("{} is teleporting frequently", player);
             }
@@ -218,8 +225,17 @@ public class ServerTeleportationManager {
         }
     }
     
-    private Portal findPortal(ResourceKey<Level> dimensionBefore, UUID portalId) {
-        ServerLevel originalWorld = MiscHelper.getServer().getLevel(dimensionBefore);
+    private @Nullable Portal findPortal(
+        MinecraftServer server,
+        ResourceKey<Level> dimensionBefore, UUID portalId
+    ) {
+        ServerLevel originalWorld = server.getLevel(dimensionBefore);
+        
+        if (originalWorld == null) {
+            LOGGER.error("Missing world {} when finding portal", dimensionBefore.location());
+            return null;
+        }
+        
         Entity portalEntity = originalWorld.getEntity(portalId);
         if (portalEntity == null) {
             portalEntity = GlobalPortalStorage.get(originalWorld).data
