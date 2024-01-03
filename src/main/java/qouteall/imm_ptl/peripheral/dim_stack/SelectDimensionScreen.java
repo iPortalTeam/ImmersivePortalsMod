@@ -33,7 +33,7 @@ public class SelectDimensionScreen extends Screen {
     protected void init() {
         dimListWidget = new DimListWidget(
             width,
-            height,
+            height - 20 - 40,
             20,
             DimEntryWidget.widgetHeight,
             this,
