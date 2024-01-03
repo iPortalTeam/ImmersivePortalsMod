@@ -1,1 +1,1 @@
-Possibly fix position sync issue.
+Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1497
