@@ -1,1 +1,1 @@
-Fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1497
+Possibly fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1498
