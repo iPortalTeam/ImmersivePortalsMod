@@ -23,12 +23,12 @@ import java.util.function.Consumer;
 
 @Mixin(OcclusionCuller.class)
 public abstract class MixinSodiumOcclusionCuller {
-    @Shadow
+    @Shadow(remap = false)
     public static boolean isOutsideFrustum(Viewport viewport, RenderSection section) {
         throw new RuntimeException();
     }
     
-    @Shadow
+    @Shadow(remap = false)
     protected abstract RenderSection getRenderSection(int x, int y, int z);
     
     @Unique

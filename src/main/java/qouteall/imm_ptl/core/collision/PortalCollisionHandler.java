@@ -167,12 +167,21 @@ public class PortalCollisionHandler {
             return attemptedMove;
         }
         
+        if (isBoxTooBig(boxOtherSide)) {
+            // don't calculate collision when the collision box is scaled too big
+            return attemptedMove;
+        }
+        
         Level destinationWorld = collidingPortal.getDestWorld();
         
         if (!destinationWorld.hasChunkAt(BlockPos.containing(boxOtherSide.getCenter()))) {
-            return handleOtherSideChunkNotLoaded(
-                entity, attemptedMove, collidingPortal, originalBoundingBox
-            );
+            if (portalLayer <= 1) {
+                return handleOtherSideChunkNotLoaded(
+                    entity, attemptedMove, collidingPortal, originalBoundingBox
+                );
+            }
+            // don't stagnate movement when nested portal other side chunk not loaded
+            return attemptedMove;
         }
         
         List<Portal> indirectCollidingPortals = McHelper.findEntitiesByBox(
@@ -496,5 +505,9 @@ public class PortalCollisionHandler {
             return attemptedMove
                 .subtract(attemptedMoveProjectedToInnerDirection);
         }
+    }
+    
+    private static boolean isBoxTooBig(AABB aabb) {
+        return aabb.getXsize() > 100 || aabb.getYsize() > 100 || aabb.getZsize() > 100;
     }
 }

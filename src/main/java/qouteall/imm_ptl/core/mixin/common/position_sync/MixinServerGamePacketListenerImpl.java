@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -317,6 +319,20 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
                 );
             ip_dimOfAwaitingPosition = null;
         }
+    }
+    
+    @Inject(
+        method = "handlePlayerCommand",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;awaitingPositionFromClient:Lnet/minecraft/world/phys/Vec3;",
+            opcode = Opcodes.PUTFIELD
+        )
+    )
+    private void onTeleportPlayerCancelSleeping(
+        ServerboundPlayerCommandPacket packet, CallbackInfo ci
+    ) {
+        ip_dimOfAwaitingPosition = player.level().dimension();
     }
     
     @Override
