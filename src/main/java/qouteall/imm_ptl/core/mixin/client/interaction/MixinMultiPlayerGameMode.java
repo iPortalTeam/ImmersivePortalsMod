@@ -129,7 +129,7 @@ public abstract class MixinMultiPlayerGameMode implements IEClientPlayerInteract
                     IPMcHelper.packetToBytes(useItemOnPacket)
                 );
             }
-            // no need to redirect ServerboundUseItemPacket
+            // ServerboundUseItemPacket is not redirected
         }
         
         return packet;

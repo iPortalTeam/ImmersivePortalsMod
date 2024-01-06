@@ -23,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -31,7 +32,6 @@ import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.q_misc_util.MiscHelper;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -39,7 +39,14 @@ import java.util.function.Predicate;
 public class BlockManipulationServer {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    public static final ThreadLocal<ServerLevel> SERVER_PLAYER_INTERACTION_REDIRECT =
+    public static record Context(
+        ServerLevel world,
+        @Nullable BlockHitResult blockHitResult
+    ) {
+    
+    }
+    
+    public static final ThreadLocal<Context> REDIRECT_CONTEXT =
         ThreadLocal.withInitial(() -> null);
     
     /**
@@ -135,11 +142,11 @@ public class BlockManipulationServer {
             FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
             ServerboundPlayerActionPacket packet = new ServerboundPlayerActionPacket(buf);
             
-            ServerLevel world = MiscHelper.getServer().getLevel(dimension);
-            Validate.notNull(world);
+            ServerLevel world = player.server.getLevel(dimension);
+            Validate.notNull(world, "missing %s", dimension.location());
             
             withRedirect(
-                world,
+                new Context(world, null),
                 () -> {
                     doProcessPlayerAction(world, player, packet);
                 }
@@ -154,11 +161,11 @@ public class BlockManipulationServer {
             FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
             ServerboundUseItemOnPacket packet = new ServerboundUseItemOnPacket(buf);
             
-            ServerLevel world = MiscHelper.getServer().getLevel(dimension);
-            Validate.notNull(world);
+            ServerLevel world = player.server.getLevel(dimension);
+            Validate.notNull(world, "missing %s", dimension.location());
             
             withRedirect(
-                world,
+                new Context(world, packet.getHitResult()),
                 () -> {
                     doProcessUseItemOn(world, player, packet);
                 }
@@ -171,18 +178,18 @@ public class BlockManipulationServer {
     }
     
     private static void withRedirect(
-        ServerLevel world,
+        Context context,
         Runnable runnable
     ) {
-        ServerLevel original = SERVER_PLAYER_INTERACTION_REDIRECT.get();
-        SERVER_PLAYER_INTERACTION_REDIRECT.set(world);
+        Context original = REDIRECT_CONTEXT.get();
+        REDIRECT_CONTEXT.set(context);
         try {
             PacketRedirection.withForceRedirect(
-                world, runnable
+                context.world(), runnable
             );
         }
         finally {
-            SERVER_PLAYER_INTERACTION_REDIRECT.set(original);
+            REDIRECT_CONTEXT.set(original);
         }
     }
     

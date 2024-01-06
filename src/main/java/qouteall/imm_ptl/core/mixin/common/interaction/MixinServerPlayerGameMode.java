@@ -18,6 +18,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -38,12 +39,15 @@ public class MixinServerPlayerGameMode {
     @Shadow
     private boolean isDestroyingBlock;
     
+    @Unique
     private ServerLevel ip_destroyPosLevel;
     
+    @Unique
     private ServerLevel ip_getActualWorld() {
-        ServerLevel redirect = BlockManipulationServer.SERVER_PLAYER_INTERACTION_REDIRECT.get();
+        BlockManipulationServer.Context redirect =
+            BlockManipulationServer.REDIRECT_CONTEXT.get();
         if (redirect != null) {
-            return redirect;
+            return redirect.world();
         }
         return level;
     }
@@ -91,7 +95,9 @@ public class MixinServerPlayerGameMode {
             target = "(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/item/context/UseOnContext;"
         )
     )
-    private UseOnContext redirectNewUseOnContext(Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+    private UseOnContext redirectNewUseOnContext(
+        Player player, InteractionHand interactionHand, BlockHitResult blockHitResult
+    ) {
         return new UseOnContext(
             ip_getActualWorld(), player, interactionHand,
             player.getItemInHand(interactionHand), blockHitResult
@@ -106,8 +112,11 @@ public class MixinServerPlayerGameMode {
             target = "Lnet/minecraft/world/phys/Vec3;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D"
         )
     )
-    private double wrapDistanceInHandleBlockBreakAction(Vec3 instance, Vec3 vec, Operation<Double> original) {
-        ServerLevel redirect = BlockManipulationServer.SERVER_PLAYER_INTERACTION_REDIRECT.get();
+    private double wrapDistanceInHandleBlockBreakAction(
+        Vec3 instance, Vec3 vec, Operation<Double> original
+    ) {
+        BlockManipulationServer.Context redirect =
+            BlockManipulationServer.REDIRECT_CONTEXT.get();
         if (redirect != null) {
             return 0;
         }
@@ -123,7 +132,10 @@ public class MixinServerPlayerGameMode {
             target = "Lnet/minecraft/server/level/ServerPlayerGameMode;destroyPos:Lnet/minecraft/core/BlockPos;"
         )
     )
-    private void onSetDestroyPos(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction face, int maxBuildHeight, int sequence, CallbackInfo ci) {
+    private void onSetDestroyPos(
+        BlockPos pos, ServerboundPlayerActionPacket.Action action,
+        Direction face, int maxBuildHeight, int sequence, CallbackInfo ci
+    ) {
         ip_destroyPosLevel = ip_getActualWorld();
     }
     
@@ -136,7 +148,10 @@ public class MixinServerPlayerGameMode {
             target = "Lnet/minecraft/server/level/ServerPlayerGameMode;delayedDestroyPos:Lnet/minecraft/core/BlockPos;"
         )
     )
-    private void onSetDelayedDestroyPos(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction face, int maxBuildHeight, int sequence, CallbackInfo ci) {
+    private void onSetDelayedDestroyPos(
+        BlockPos pos, ServerboundPlayerActionPacket.Action action,
+        Direction face, int maxBuildHeight, int sequence, CallbackInfo ci
+    ) {
         ip_destroyPosLevel = ip_getActualWorld();
     }
     
