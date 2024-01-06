@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
@@ -35,6 +37,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class NetherPortalGeneration {
+    
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     @Nullable
     public static IntBox findAirCubePlacement(
@@ -60,7 +64,7 @@ public class NetherPortalGeneration {
                 );
         
         if (foundAirCube == null) {
-            Helper.log("Cannot find normal portal placement");
+            LOGGER.info("Cannot find normal portal placement");
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize, toWorld, mappedPosInOtherDimension, 32
             );

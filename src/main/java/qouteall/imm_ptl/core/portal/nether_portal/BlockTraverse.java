@@ -140,7 +140,7 @@ public class BlockTraverse {
     public static boolean boxAllMatch(IntBox box, Predicate<BlockPos> predicate) {
         Boolean result = searchInBox(box, mutable -> {
             if (predicate.test(mutable)) {
-                return Boolean.valueOf(true);
+                return Boolean.TRUE;
             }
             return null;
         });
