@@ -1,1 +1,2 @@
-Possibly fix https://github.com/iPortalTeam/ImmersivePortalsMod/issues/1498
+Add an option to allow survival mode players to use portal wnad.
+Fix cross-portal bucket usage.

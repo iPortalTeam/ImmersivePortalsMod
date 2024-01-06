@@ -58,8 +58,6 @@ public class ImmPtlChunkTracking {
     
     // if the player object is recreated, pass in the old player object
     public static void removePlayerFromChunkTrackersAndEntityTrackers(ServerPlayer oldPlayer) {
-        LOGGER.info("Removing from chunk tracking {}", oldPlayer);
-        
         for (ServerLevel world : oldPlayer.server.getAllLevels()) {
             ServerChunkCache chunkManager = world.getChunkSource();
             IEChunkMap storage =
