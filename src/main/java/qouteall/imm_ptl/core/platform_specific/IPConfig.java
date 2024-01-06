@@ -112,6 +112,7 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean easeCommandStickPermission = false;
     public boolean portalsChangeGravityByDefault = false;
+    public boolean portalWandUsableOnSurvivalMode = false;
     
     // common invisible configs
     

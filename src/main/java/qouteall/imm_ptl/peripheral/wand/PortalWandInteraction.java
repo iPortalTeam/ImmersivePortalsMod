@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
@@ -520,7 +522,10 @@ public class PortalWandInteraction {
     }
     
     private static boolean canPlayerUsePortalWand(ServerPlayer player) {
-        return player.hasPermissions(2) || (IPGlobal.easeCreativePermission && player.isCreative());
+        return player.hasPermissions(2)
+            || (IPGlobal.easeCreativePermission && player.isCreative())
+            || (IPConfig.getConfig().portalWandUsableOnSurvivalMode
+            && player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL);
     }
     
     private static void giveCommandStick(ServerPlayer player, String command) {
