@@ -30,7 +30,7 @@ public interface MixinContainer {
                 ClipContext.Block.COLLIDER
             );
             if (result != null &&
-                result.hitResult().getBlockPos().equals(blockEntity.getBlockPos())
+                result.hitResult().getBlockPos().distManhattan(blockEntity.getBlockPos()) < 8
             ) {
                 cir.setReturnValue(true);
             }
