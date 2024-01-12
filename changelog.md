@@ -1,1 +1,1 @@
-Fix cross portal interaction of double chest.
+Fix cross-portal interaction of crafting table. Changes of block entity rendering.
