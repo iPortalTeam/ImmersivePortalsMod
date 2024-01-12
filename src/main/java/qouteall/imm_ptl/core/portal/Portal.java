@@ -736,6 +736,9 @@ public class Portal extends Entity implements
      */
     @SuppressWarnings("SpellCheckingInspection")
     public boolean isInteractableBy(Player player) {
+        if (!IPConfig.getConfig().enableCrossPortalInteraction) {
+            return false;
+        }
         if (!isInteractable()) {
             return false;
         }

@@ -271,6 +271,11 @@ public final class SpecialFlatPortalShape implements PortalShape {
     }
     
     @Override
+    public boolean shouldRenderInside(Portal portal, AABB box) {
+        return RectangularPortalShape.INSTANCE.shouldRenderInside(portal, box);
+    }
+    
+    @Override
     public VoxelShape getThisSideCollisionExclusion(UnilateralPortalState portalState) {
         return RectangularPortalShape.INSTANCE.getThisSideCollisionExclusion(portalState);
     }

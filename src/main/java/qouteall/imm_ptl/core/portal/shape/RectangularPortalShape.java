@@ -241,6 +241,22 @@ public final class RectangularPortalShape implements PortalShape {
     }
     
     @Override
+    public boolean shouldRenderInside(Portal portal, AABB box) {
+        Plane innerClipping = getInnerClipping(
+            portal.getThisSideState(), portal.getOtherSideState(), portal
+        );
+        
+        // if the box is fully behind the plane, it should not render
+        // so we should test the point that's furthest from plane normal
+        
+        double testX = innerClipping.normal().x < 0 ? box.minX : box.maxX;
+        double testY = innerClipping.normal().y < 0 ? box.minY : box.maxY;
+        double testZ = innerClipping.normal().z < 0 ? box.minZ : box.maxZ;
+        
+        return innerClipping.isPointOnPositiveSide(new Vec3(testX, testY, testZ));
+    }
+    
+    @Override
     public VoxelShape getThisSideCollisionExclusion(
         UnilateralPortalState portalState
     ) {

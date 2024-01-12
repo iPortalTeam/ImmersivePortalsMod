@@ -181,6 +181,7 @@ public class CommandStickItem extends Item {
         registerPortalSubCommandStick("complete_bi_way_portal");
         registerPortalSubCommandStick("move_portal_front", "move_portal 0.5");
         registerPortalSubCommandStick("move_portal_back", "move_portal -0.5");
+        registerPortalSubCommandStick("move_portal_back_a_little", "move_portal -0.001");
         registerPortalSubCommandStick(
             "move_portal_destination_front", "move_portal_destination 0.5"
         );

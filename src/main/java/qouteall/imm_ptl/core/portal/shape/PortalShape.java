@@ -201,4 +201,6 @@ public interface PortalShape {
     ) {
         return null;
     }
+    
+    public boolean shouldRenderInside(Portal portal, AABB box);
 }

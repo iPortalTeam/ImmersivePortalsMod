@@ -4,12 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
@@ -32,12 +33,12 @@ public class MixinBlockEntityRenderDispatcher {
         }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            boolean canRender = renderingPortal.isOnDestinationSide(
-                Vec3.atCenterOf(blockEntity.getBlockPos()),
-                -0.1
-            );
-            if (!canRender) {
-                ci.cancel();
+            if (renderingPortal instanceof Portal portal) {
+                boolean canRender = portal.getPortalShape()
+                    .shouldRenderInside(portal, new AABB(blockEntity.getBlockPos()));
+                if (!canRender) {
+                    ci.cancel();
+                }
             }
         }
     }

@@ -380,6 +380,11 @@ public final class BoxPortalShape implements PortalShape {
         return SectionPos.of(secX, secY, secZ);
     }
     
+    @Override
+    public boolean shouldRenderInside(Portal portal, AABB box) {
+        return true;
+    }
+    
     private InnerSectionRange getInnerSectionRange(Portal portal) {
         AABB otherSideBoundingBox = getReverse().getBoundingBox(
             portal.getOtherSideState(), false, 0
