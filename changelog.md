@@ -1,1 +1,1 @@
-Possibly fix crash on Exaroton.
+Possibly fix clipping of block entity rendering.
