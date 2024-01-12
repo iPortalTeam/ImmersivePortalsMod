@@ -77,7 +77,7 @@ public class CrossPortalEntityRenderer {
         }
     }
     
-    public static void onBeginRenderingEntities(PoseStack matrixStack) {
+    public static void onBeginRenderingEntitiesAndBlockEntities(PoseStack matrixStack) {
         isRenderingEntityNormally = true;
         
         if (PortalRendering.isRendering()) {
@@ -96,7 +96,7 @@ public class CrossPortalEntityRenderer {
     }
     
     // do not use runWithTransformation here (because matrixStack is changed?)
-    public static void onEndRenderingEntities(PoseStack matrixStack) {
+    public static void onEndRenderingEntitiesAndBlockEntities(PoseStack matrixStack) {
         isRenderingEntityNormally = false;
         
         FrontClipping.disableClipping();

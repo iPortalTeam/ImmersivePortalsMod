@@ -45,6 +45,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.ImmPtlViewArea;
@@ -145,7 +146,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     ) {
 //        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
-        CrossPortalEntityRenderer.onBeginRenderingEntities(matrices);
+        CrossPortalEntityRenderer.onBeginRenderingEntitiesAndBlockEntities(matrices);
     }
     
     @Inject(
@@ -176,15 +177,17 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         FrontClipping.disableClipping();
     }
     
+    @IPVanillaCopy
     @Inject(
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V"
+            target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V",
+            ordinal = 1 // the second occurrence
         )
     )
     private void onEndRenderingEntities(PoseStack poseStack, float partialTick, long finishNanoTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
-        CrossPortalEntityRenderer.onEndRenderingEntities(poseStack);
+        CrossPortalEntityRenderer.onEndRenderingEntitiesAndBlockEntities(poseStack);
     }
     
     @Inject(
