@@ -103,14 +103,14 @@ public class DimensionIntId {
             }
         }
         
-        HashSet<ResourceKey<Level>> serverDimIds = new HashSet<>(server.levelKeys());
+        HashSet<ResourceKey<Level>> usedDimKeys = new HashSet<>(server.levelKeys());
         
-        // re-add vanilla dimensions. avoid them from being removed from mapping
-        serverDimIds.add(Level.OVERWORLD);
-        serverDimIds.add(Level.NETHER);
-        serverDimIds.add(Level.END);
+        // avoid vanilla dimensions from being removed from mapping
+        usedDimKeys.add(Level.OVERWORLD);
+        usedDimKeys.add(Level.NETHER);
+        usedDimKeys.add(Level.END);
         
-        map.removeUnused(serverDimIds);
+        map.removeUnused(usedDimKeys);
         
         LOGGER.info("Current dimension integer id mapping:\n{}", map);
         

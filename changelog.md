@@ -1,1 +1,2 @@
-Fix cross-portal interaction of crafting table. Changes of block entity rendering.
+Fix error when executing command `/dims add_dimension`.
+Changes of block entity rendering.
