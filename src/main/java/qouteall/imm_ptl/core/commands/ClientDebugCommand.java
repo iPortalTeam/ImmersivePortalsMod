@@ -25,6 +25,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.world.entity.Entity;
@@ -48,7 +49,6 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -303,8 +303,9 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("check_server_light")
             .executes(context -> {
-                MiscHelper.getServer().execute(() -> {
-                    ServerPlayer player = McHelper.getRawPlayerList().get(0);
+                MinecraftServer server = MiscHelper.getServer();
+                server.execute(() -> {
+                    ServerPlayer player = server.getPlayerList().getPlayers().get(0);
                     
                     BlockPos.betweenClosedStream(
                         player.blockPosition().offset(-2, -2, -2),
@@ -319,8 +320,9 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
                 .literal("update_server_light")
                 .executes(context -> {
-                    MiscHelper.getServer().execute(() -> {
-                        ServerPlayer player = McHelper.getRawPlayerList().get(0);
+                    MinecraftServer server = MiscHelper.getServer();
+                    server.execute(() -> {
+                        ServerPlayer player = server.getPlayerList().getPlayers().get(0);
                         
                         ThreadedLevelLightEngine lightingProvider = (ThreadedLevelLightEngine) player.level().getLightEngine();
                         lightingProvider.lightChunk(
@@ -917,7 +919,7 @@ public class ClientDebugCommand {
             );
         });
         
-        MiscHelper.getServer().execute(() -> {
+        player.server.execute(() -> {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",

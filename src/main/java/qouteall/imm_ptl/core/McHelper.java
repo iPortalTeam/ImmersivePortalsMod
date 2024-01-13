@@ -95,6 +95,7 @@ public class McHelper {
         ).chunkMap;
     }
     
+    @Deprecated
     public static List<ServerPlayer> getRawPlayerList() {
         return MiscHelper.getServer().getPlayerList().getPlayers();
     }
@@ -103,6 +104,7 @@ public class McHelper {
         return new Vec3(entity.xo, entity.yo, entity.zo);
     }
     
+    @Deprecated
     public static ServerLevel getOverWorldOnServer() {
         return MiscHelper.getServer().getLevel(Level.OVERWORLD);
     }
@@ -426,7 +428,9 @@ public class McHelper {
     
     public static void invokeCommandAs(Entity commandSender, List<String> commandList) {
         CommandSourceStack commandSource = commandSender.createCommandSourceStack().withPermission(2).withSuppressedOutput();
-        Commands commandManager = MiscHelper.getServer().getCommands();
+        MinecraftServer server = commandSender.getServer();
+        assert server != null;
+        Commands commandManager = server.getCommands();
         
         for (String command : commandList) {
             commandManager.performPrefixedCommand(commandSource, command);

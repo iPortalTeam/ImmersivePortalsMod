@@ -62,6 +62,7 @@ public class ImmPtlChunkTickets {
         TicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
     
     // for debugging
+    @SuppressWarnings("FieldMayBeFinal")
     private static boolean enableDebugRateStat = false;
     private static final RateStat debugRateStat = new RateStat("imm_ptl_chunk_ticket");
     

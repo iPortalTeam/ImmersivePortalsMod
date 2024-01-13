@@ -20,11 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEServerCommonPacketListenerImpl;
 import qouteall.imm_ptl.core.network.PacketRedirection;
-import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.ArrayList;
@@ -74,7 +72,7 @@ public class ImmPtlChunkTracking {
             (IEChunkMap) chunkManager.chunkMap;
         storage.ip_onDimensionRemove();
         
-        forceRemoveDimension(world.dimension());
+        forceRemoveDimension(world);
     }
     
     public static class PlayerWatchRecord {
@@ -174,7 +172,7 @@ public class ImmPtlChunkTracking {
         
         chunkLoaders.addAll(playerInfo.additionalChunkLoaders);
         
-        MinecraftServer server = MiscHelper.getServer();
+        MinecraftServer server = player.server;
         
         for (ChunkLoader chunkLoader : chunkLoaders) {
             ResourceKey<Level> dimension = chunkLoader.dimension();
@@ -239,6 +237,7 @@ public class ImmPtlChunkTracking {
     }
     
     private static void purge(
+        MinecraftServer server,
         Object2ObjectOpenHashMap<ResourceKey<Level>, LongOpenHashSet> additionalLoadedChunks
     ) {
         // purge chunk watch records
@@ -284,7 +283,6 @@ public class ImmPtlChunkTracking {
         // purge player info map
         playerInfoMap.entrySet().removeIf(e -> e.getKey().isRemoved());
         
-        MinecraftServer server = MiscHelper.getServer();
         for (ServerLevel world : server.getAllLevels()) {
             ResourceKey<Level> dimension = world.dimension();
             
@@ -329,13 +327,13 @@ public class ImmPtlChunkTracking {
         return defaultDelayUnloadGenerations;
     }
     
-    private static Object2ObjectOpenHashMap<ResourceKey<Level>, LongOpenHashSet> refreshAdditionalChunkLoaders() {
+    private static Object2ObjectOpenHashMap<ResourceKey<Level>, LongOpenHashSet> refreshAdditionalChunkLoaders(MinecraftServer server) {
         Object2ObjectOpenHashMap<ResourceKey<Level>, LongOpenHashSet> additionalLoadedChunks =
             new Object2ObjectOpenHashMap<>();
         
         additionalChunkLoaders.removeIf(chunkLoader -> {
             ResourceKey<Level> dimension = chunkLoader.dimension();
-            ServerLevel world = MiscHelper.getServer().getLevel(dimension);
+            ServerLevel world = server.getLevel(dimension);
             
             if (world == null) {
                 LOGGER.error("Missing dimension in chunk loader {}", dimension.location());
@@ -365,7 +363,7 @@ public class ImmPtlChunkTracking {
         server.getProfiler().push("portal_chunk_tracking");
         
         boolean updates = false;
-        long gameTime = McHelper.getOverWorldOnServer().getGameTime();
+        long gameTime = server.overworld().getGameTime();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PlayerChunkLoading playerInfo = getPlayerInfo(player);
             
@@ -379,13 +377,13 @@ public class ImmPtlChunkTracking {
             }
         }
         if (gameTime % updateInterval == 0) {
-            var additionalLoadedChunks = refreshAdditionalChunkLoaders();
-            purge(additionalLoadedChunks);
+            var additionalLoadedChunks = refreshAdditionalChunkLoaders(server);
+            purge(server, additionalLoadedChunks);
             generationCounter++;
             updates = true;
         }
         
-        for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
+        for (ServerLevel world : server.getAllLevels()) {
             ImmPtlChunkTickets dimTicketManager = ImmPtlChunkTickets.get(world);
             
             dimTicketManager.tick(world);
@@ -518,7 +516,10 @@ public class ImmPtlChunkTracking {
         });
     }
     
-    public static void forceRemoveDimension(ResourceKey<Level> dim) {
+    public static void forceRemoveDimension(ServerLevel world) {
+        ResourceKey<Level> dim = world.dimension();
+        MinecraftServer server = world.getServer();
+        
         var map =
             chunkWatchRecords.get(dim);
         
@@ -528,7 +529,7 @@ public class ImmPtlChunkTracking {
         
         map.forEach((chunkPos, records) -> {
             var unloadPacket = PacketRedirection.createRedirectedMessage(
-                MiscHelper.getServer(),
+                server,
                 dim, new ClientboundForgetLevelChunkPacket(new ChunkPos(chunkPos))
             );
             for (PlayerWatchRecord record : records.values()) {

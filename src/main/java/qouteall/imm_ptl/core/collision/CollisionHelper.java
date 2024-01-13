@@ -388,6 +388,7 @@ public class CollisionHelper {
         }
     }
     
+    @Deprecated
     public static Level getWorld(boolean isClient, ResourceKey<Level> dimension) {
         if (isClient) {
             return CHelper.getClientWorld(dimension);
