@@ -3,7 +3,9 @@ package qouteall.q_misc_util.dimension;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,12 +22,23 @@ import java.util.HashSet;
 
 public class DimensionIntId {
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final ResourceLocation DYNAMIC_UPDATE_EVENT_EARLY_PHASE =
+        new ResourceLocation("iportal:early_phase");
     
     public static DimIntIdMap clientRecord;
     
     public static void init() {
+        // make sure that dimension int id updates before global portal storage update
+        DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.addPhaseOrdering(
+            DYNAMIC_UPDATE_EVENT_EARLY_PHASE,
+            Event.DEFAULT_PHASE
+        );
+        
         DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT.register(
-            (server, dimensions) -> onServerDimensionChanged(server)
+            DYNAMIC_UPDATE_EVENT_EARLY_PHASE,
+            (server, dimensions) -> {
+                onServerDimensionChanged(server);
+            }
         );
     }
     

@@ -435,6 +435,8 @@ public class ClientWorldLoader {
                 .registryOrThrow(Registries.DIMENSION_TYPE)
                 .getHolderOrThrow(dimensionTypeKey);
             
+            // currently use a separated level data object
+            // day time is not shared between worlds
             ClientLevel.ClientLevelData properties = new ClientLevel.ClientLevelData(
                 currentProperty.getDifficulty(),
                 currentProperty.isHardcore(),

@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -78,23 +77,22 @@ public class CustomPortalGenManager {
         
         for (var entry : legacyRegistry.entrySet()) {
             manager.addEntry(server, entry.getKey(), entry.getValue());
-            ResourceLocation location = entry.getKey().location();
-            String text = """
-                [Immersive Portals]
-                Custom portal generation config %s comes from legacy location
-                /data/%s/custom_portal_generation/%s.json
-                
-                It's recommended to migrate it to the new location
-                /data/%s/immersive_portals/custom_portal_generation/%s.json
-                
-                Future versions of the mod may no longer load generation configs from legacy locations.
-                """
-                .formatted(
-                    location, location.getNamespace(), location.getPath(),
-                    location.getNamespace(), location.getPath()
-                );
-            LOGGER.warn("{}", text);
-//            McHelper.sendMessageToFirstLoggedPlayer(server, Component.literal(text));
+//            ResourceLocation location = entry.getKey().location();
+//            String text = """
+//                [Immersive Portals]
+//                Custom portal generation config %s comes from legacy location
+//                /data/%s/custom_portal_generation/%s.json
+//
+//                It's recommended to migrate it to the new location
+//                /data/%s/immersive_portals/custom_portal_generation/%s.json
+//
+//                Future versions of the mod may no longer load generation configs from legacy locations.
+//                """
+//                .formatted(
+//                    location, location.getNamespace(), location.getPath(),
+//                    location.getNamespace(), location.getPath()
+//                );
+//            LOGGER.warn("{}", text);
         }
         
         IPPerServerInfo perServerInfo = IPPerServerInfo.of(server);
