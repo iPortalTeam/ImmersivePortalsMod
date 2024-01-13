@@ -1,1 +1,1 @@
-Possibly fix clipping of block entity rendering.
+Possibly fix clipping of some block entity rendering.

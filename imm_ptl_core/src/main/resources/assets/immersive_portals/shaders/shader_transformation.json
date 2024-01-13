@@ -34,6 +34,7 @@
       "rendertype_entity_smooth_cutout",
       "rendertype_beacon_beam",
       "rendertype_entity_translucent_emissive",
+      "rendertype_entity_translucent_cull",
       "portal_area",
       "particle"
     ],
