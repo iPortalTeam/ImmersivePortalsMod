@@ -181,7 +181,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V",
-            ordinal = 1
+            ordinal = 1,
+            shift = At.Shift.AFTER
         )
     )
     private void onEndRenderingEntities(PoseStack poseStack, float partialTick, long finishNanoTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
