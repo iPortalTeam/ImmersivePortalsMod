@@ -59,7 +59,8 @@
     "cardboard": "*",
     "iris": ["<1.6.14", ">1.6.14"],
     "sodium": ["<0.5.5", ">0.5.5"],
-    "gravity_api": "*"
+    "gravity_api": "*",
+    "vmp": "*"
   },
   "custom": {
     "modmenu": {
