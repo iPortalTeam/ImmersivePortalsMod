@@ -19,17 +19,15 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
-import java.util.function.Consumer;
-
 @Mixin(OcclusionCuller.class)
 public abstract class MixinSodiumOcclusionCuller {
     @Shadow(remap = false)
-    public static boolean isOutsideFrustum(Viewport viewport, RenderSection section) {
+    protected abstract RenderSection getRenderSection(int x, int y, int z);
+    
+    @Shadow
+    public static boolean isWithinFrustum(Viewport viewport, RenderSection section) {
         throw new RuntimeException();
     }
-    
-    @Shadow(remap = false)
-    protected abstract RenderSection getRenderSection(int x, int y, int z);
     
     @Unique
     private @Nullable SectionPos ip_modifiedStartPoint;
@@ -44,8 +42,7 @@ public abstract class MixinSodiumOcclusionCuller {
     )
     boolean modifyUseOcclusionCulling(
         boolean originalValue,
-        Consumer<RenderSection> visitor, Viewport viewport, float searchDistance,
-        boolean useOcclusionCulling, int frame
+        OcclusionCuller.Visitor visitor, Viewport viewport, float searchDistance, boolean useOcclusionCulling, int frame
     ) {
         boolean doUseOcclusionCulling = PortalRendering.shouldEnableSodiumCaveCulling();
         
@@ -65,7 +62,7 @@ public abstract class MixinSodiumOcclusionCuller {
                     RenderSection renderSection = getRenderSection(
                         ip_modifiedStartPoint.x(), ip_modifiedStartPoint.y(), ip_modifiedStartPoint.z()
                     );
-                    if (renderSection != null && isOutsideFrustum(viewport, renderSection)) {
+                    if (renderSection != null && !isWithinFrustum(viewport, renderSection)) {
                         ip_tolerantInitialFrustumTestFail = true;
                     }
                 }
@@ -113,7 +110,7 @@ public abstract class MixinSodiumOcclusionCuller {
     // when iteration start point become a position that's outside of frustum
     // make it tolerant early frustum test failures to avoid wrongly halting iteration
     @Inject(
-        method = "isOutsideFrustum", at = @At("RETURN"), cancellable = true,
+        method = "isWithinFrustum", at = @At("RETURN"), cancellable = true,
         remap = false
     )
     private static void onIsOutsideFrustum(
@@ -121,12 +118,12 @@ public abstract class MixinSodiumOcclusionCuller {
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (ip_tolerantInitialFrustumTestFail) {
-            boolean outsideFrustum = cir.getReturnValueZ();
-            if (!outsideFrustum) {
+            boolean withinFrustum = cir.getReturnValueZ();
+            if (withinFrustum) {
                 // when found a section that's in frustum, frustum test become normal
                 ip_tolerantInitialFrustumTestFail = false;
             }
-            cir.setReturnValue(false);
+            cir.setReturnValue(true);
         }
     }
 }
