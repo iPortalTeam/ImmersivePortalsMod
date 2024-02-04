@@ -24,7 +24,7 @@ public abstract class MixinSodiumOcclusionCuller {
     @Shadow(remap = false)
     protected abstract RenderSection getRenderSection(int x, int y, int z);
     
-    @Shadow
+    @Shadow(remap = false)
     public static boolean isWithinFrustum(Viewport viewport, RenderSection section) {
         throw new RuntimeException();
     }
