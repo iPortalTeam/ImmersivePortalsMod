@@ -1,2 +1,3 @@
-Fix error when executing command `/dims add_dimension`.
-Changes of block entity rendering.
+Fix wrong player movement when colliding with other-side-not-loaded box portal.
+
+Misc changes.
