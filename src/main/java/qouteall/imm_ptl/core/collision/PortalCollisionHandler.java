@@ -403,31 +403,43 @@ public class PortalCollisionHandler {
     }
     
     public static Vec3 getOffsetForPushingBoxOutOfAABB(
-        AABB boxToPush, AABB portalBox
+        AABB boxToPush, AABB portalBox, Vec3 movement
     ) {
-        double mx = Range.getPushRangeMovement(
-            boxToPush.minX, boxToPush.maxX,
-            portalBox.minX, portalBox.maxX
-        );
-        double my = Range.getPushRangeMovement(
-            boxToPush.minY, boxToPush.maxY,
-            portalBox.minY, portalBox.maxY
-        );
-        double mz = Range.getPushRangeMovement(
-            boxToPush.minZ, boxToPush.maxZ,
-            portalBox.minZ, portalBox.maxZ
-        );
+        double absMovementX = Math.abs(movement.x);
+        double absMovementY = Math.abs(movement.y);
+        double absMovementZ = Math.abs(movement.z);
         
-        if (mx != 0) {
-            return new Vec3(mx, 0, 0);
+        if (absMovementX > absMovementY && absMovementX > absMovementZ) {
+            double mx = Range.getPushRangeMovement(
+                boxToPush.minX, boxToPush.maxX,
+                portalBox.minX, portalBox.maxX
+            );
+            
+            if (mx != 0) {
+                return new Vec3(mx, 0, 0);
+            }
         }
         
-        if (my != 0) {
-            return new Vec3(0, my, 0);
+        if (absMovementY > absMovementX && absMovementY > absMovementZ) {
+            double my = Range.getPushRangeMovement(
+                boxToPush.minY, boxToPush.maxY,
+                portalBox.minY, portalBox.maxY
+            );
+            
+            if (my != 0) {
+                return new Vec3(0, my, 0);
+            }
         }
         
-        if (mz != 0) {
-            return new Vec3(0, 0, mz);
+        if (absMovementZ > absMovementX && absMovementZ > absMovementY) {
+            double mz = Range.getPushRangeMovement(
+                boxToPush.minZ, boxToPush.maxZ,
+                portalBox.minZ, portalBox.maxZ
+            );
+            
+            if (mz != 0) {
+                return new Vec3(0, 0, mz);
+            }
         }
         
         return Vec3.ZERO;

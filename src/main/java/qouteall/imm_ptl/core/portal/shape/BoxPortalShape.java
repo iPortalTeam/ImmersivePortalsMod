@@ -278,12 +278,16 @@ public final class BoxPortalShape implements PortalShape {
         AABB movedEntityLocalBox = entityLocalBox.move(localMove);
         
         AABB portalLocalBox = new AABB(
-            -portalState.width(), -portalState.height(), -portalState.thickness(),
-            portalState.width(), portalState.height(), portalState.thickness()
+            -portalState.width() / 2,
+            -portalState.height() / 2,
+            -portalState.thickness() / 2,
+            portalState.width() / 2,
+            portalState.height() / 2,
+            portalState.thickness() / 2
         );
         Vec3 offset = facingOutwards ?
             PortalCollisionHandler.getOffsetForPushingBoxOutOfAABB(
-                movedEntityLocalBox, portalLocalBox
+                movedEntityLocalBox, portalLocalBox, localMove
             ) :
             PortalCollisionHandler.getOffsetForConfiningBoxInsideAABB(
                 movedEntityLocalBox, portalLocalBox
