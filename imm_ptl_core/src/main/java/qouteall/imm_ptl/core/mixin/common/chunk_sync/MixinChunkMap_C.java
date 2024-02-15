@@ -81,15 +81,10 @@ public abstract class MixinChunkMap_C implements IEThreadedAnvilChunkStorage {
         return getVisibleChunkIfPresent(long_1);
     }
     
-    /**
-     * @author qouteall
-     * @reason make mod incompatibility fail fast
-     * Actually handled in {@link qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager}
-     */
-    @Overwrite
-    private void playerLoadedChunk(
-        ServerPlayer player, MutableObject<ClientboundLevelChunkWithLightPacket> cachedDataPacket, LevelChunk chunk
-    ) {
+    //change horrible overwrite to more compatible inject mixin
+    @Inject (method = "playerLoadedChunk", at = @At("HEAD"), cancellable = true)
+    private void playerLoadedChunk(ServerPlayer player, MutableObject<ClientboundLevelChunkWithLightPacket> packetCache, LevelChunk chunk, CallbackInfo ci) {
+        ci.cancel();
         //chunk data packets will be sent on ChunkDataSyncManager
     }
     
