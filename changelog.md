@@ -1,3 +1,3 @@
-Fix wrong player movement when colliding with other-side-not-loaded box portal.
+Move Iris compat version to 1.6.17.
 
-Misc changes.
+Add a workaround for Polymer compat.
