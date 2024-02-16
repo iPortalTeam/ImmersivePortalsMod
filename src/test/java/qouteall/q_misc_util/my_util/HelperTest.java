@@ -8,7 +8,7 @@ import qouteall.q_misc_util.Helper;
 
 public class HelperTest {
     @Test
-    public void test() {
+    public void testRemoveIfEarlyExit() {
         ObjectList<Integer> list = ObjectArrayList.of(1, 2, 3, 9, 1, 2, 3);
         Helper.removeIfWithEarlyExit(
             list, (value, shouldEarlyExit) -> {

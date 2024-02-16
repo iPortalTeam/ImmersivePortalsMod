@@ -716,7 +716,7 @@ public class McHelper {
         Function<T, R> function
     ) {
         SectionPos sectionPos = SectionPos.of(BlockPos.containing(point));
-        int roughRadiusChunks = roughRadius / 16;
+        int roughRadiusChunks = (int) Math.ceil(roughRadius / 16.0);
         if (roughRadiusChunks == 0) {
             roughRadiusChunks = 1;
         }

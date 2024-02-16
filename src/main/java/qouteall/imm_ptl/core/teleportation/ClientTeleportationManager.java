@@ -229,7 +229,7 @@ public class ClientTeleportationManager {
         IPMcHelper.traverseNearbyPortals(
             player.level(),
             thisFrameEyePos,
-            IPGlobal.maxNormalPortalRadius,
+            IPGlobal.maxNormalPortalRadius + 1,
             portal -> {
                 if (!portal.canTeleportEntity(player)) {
                     return;

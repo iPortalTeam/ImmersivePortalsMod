@@ -83,23 +83,33 @@ public class Helper {
             (lineDirection.dot(planeNormal));
     }
     
+    /**
+     * Given a plane origin and a plane normal (plane normal is a unit vector),
+     * a line origin and a line delta, get the t of the colliding point.
+     * Plane: planeNormal * (p - planeOrigin) = 0
+     * Line: p = lineOrigin + t * lineDelta
+     * planeNormal * (lineOrigin - planeOrigin + t * lineDelta) = 0
+     * planeNormal * (lineOrigin - planeOrigin) + t * planeNormal * lineDelta = 0
+     * t = planeNormal * (planeOrigin - lineOrigin) / (planeNormal * lineDelta)
+     * @return NaN if there is no colliding point.
+     */
     public static double getCollidingT(
-        double planeCenterX, double planeCenterY, double planeCenterZ,
+        double planeOriginX, double planeOriginY, double planeOriginZ,
         double planeNormalX, double planeNormalY, double planeNormalZ,
         double lineOriginX, double lineOriginY, double lineOriginZ,
-        double lineDirectionX, double lineDirectionY, double lineDirectionZ
+        double lineDeltaX, double lineDeltaY, double lineDeltaZ
     ) {
-        double denom = lineDirectionX * planeNormalX +
-            lineDirectionY * planeNormalY +
-            lineDirectionZ * planeNormalZ;
+        double denom = lineDeltaX * planeNormalX +
+            lineDeltaY * planeNormalY +
+            lineDeltaZ * planeNormalZ;
         
         if (Math.abs(denom) < 1e-6) {
             return Double.NaN;
         }
         
-        return ((planeCenterX - lineOriginX) * planeNormalX +
-            (planeCenterY - lineOriginY) * planeNormalY +
-            (planeCenterZ - lineOriginZ) * planeNormalZ
+        return ((planeOriginX - lineOriginX) * planeNormalX +
+            (planeOriginY - lineOriginY) * planeNormalY +
+            (planeOriginZ - lineOriginZ) * planeNormalZ
         ) / denom;
     }
     
@@ -108,7 +118,7 @@ public class Helper {
         double boxMinX, double boxMinY, double boxMinZ,
         double boxMaxX, double boxMaxY, double boxMaxZ,
         double lineOriginX, double lineOriginY, double lineOriginZ,
-        double lineDirectionX, double lineDirectionY, double lineDirectionZ
+        double lineDeltaX, double lineDeltaY, double lineDeltaZ
     ) {
         boolean originInBox = lineOriginX > boxMinX && lineOriginX < boxMaxX &&
             lineOriginY > boxMinY && lineOriginY < boxMaxY &&
@@ -120,23 +130,25 @@ public class Helper {
         
         // if box is facing inwards, the testing direction is the same as line direction
         // but flip when the box is facing outwards
-        boolean testXPosi = (lineDirectionX > 0) ^ boxFacingOutwards;
-        boolean testYPosi = (lineDirectionY > 0) ^ boxFacingOutwards;
-        boolean testZPosi = (lineDirectionZ > 0) ^ boxFacingOutwards;
+        boolean testXPosi = (lineDeltaX > 0) ^ boxFacingOutwards;
+        boolean testYPosi = (lineDeltaY > 0) ^ boxFacingOutwards;
+        boolean testZPosi = (lineDeltaZ > 0) ^ boxFacingOutwards;
         
-        boolean normalXPosi = lineDirectionX <= 0;
-        boolean normalYPosi = lineDirectionY <= 0;
-        boolean normalZPosi = lineDirectionZ <= 0;
+        // the normal of the plane that the line is intersecting, whether it's positive
+        // normalXPosi = testXPosi ^ !boxFacingOutwards = (lineDirectionX > 0) ^ 1
+        boolean normalXPosi = lineDeltaX <= 0;
+        boolean normalYPosi = lineDeltaY <= 0;
+        boolean normalZPosi = lineDeltaZ <= 0;
         
         double tX = getCollidingT(
             testXPosi ? boxMaxX : boxMinX, 0, 0,
             normalXPosi ? 1 : -1, 0, 0,
             lineOriginX, lineOriginY, lineOriginZ,
-            lineDirectionX, lineDirectionY, lineDirectionZ
+            lineDeltaX, lineDeltaY, lineDeltaZ
         );
         if (!Double.isNaN(tX) && tX >= 0 && tX <= 1) {
-            double y = lineOriginY + tX * lineDirectionY;
-            double z = lineOriginZ + tX * lineDirectionZ;
+            double y = lineOriginY + tX * lineDeltaY;
+            double z = lineOriginZ + tX * lineDeltaZ;
             if (y >= boxMinY && y <= boxMaxY && z >= boxMinZ && z <= boxMaxZ) {
                 return new RayTraceResult(
                     tX,
@@ -150,11 +162,11 @@ public class Helper {
             0, testYPosi ? boxMaxY : boxMinY, 0,
             0, normalYPosi ? 1 : -1, 0,
             lineOriginX, lineOriginY, lineOriginZ,
-            lineDirectionX, lineDirectionY, lineDirectionZ
+            lineDeltaX, lineDeltaY, lineDeltaZ
         );
         if (!Double.isNaN(tY) && tY >= 0 && tY <= 1) {
-            double x = lineOriginX + tY * lineDirectionX;
-            double z = lineOriginZ + tY * lineDirectionZ;
+            double x = lineOriginX + tY * lineDeltaX;
+            double z = lineOriginZ + tY * lineDeltaZ;
             if (x >= boxMinX && x <= boxMaxX && z >= boxMinZ && z <= boxMaxZ) {
                 return new RayTraceResult(
                     tY,
@@ -168,11 +180,11 @@ public class Helper {
             0, 0, testZPosi ? boxMaxZ : boxMinZ,
             0, 0, normalZPosi ? 1 : -1,
             lineOriginX, lineOriginY, lineOriginZ,
-            lineDirectionX, lineDirectionY, lineDirectionZ
+            lineDeltaX, lineDeltaY, lineDeltaZ
         );
         if (!Double.isNaN(tZ) && tZ >= 0 && tZ <= 1) {
-            double x = lineOriginX + tZ * lineDirectionX;
-            double y = lineOriginY + tZ * lineDirectionY;
+            double x = lineOriginX + tZ * lineDeltaX;
+            double y = lineOriginY + tZ * lineDeltaY;
             if (x >= boxMinX && x <= boxMaxX && y >= boxMinY && y <= boxMaxY) {
                 return new RayTraceResult(
                     tZ,
