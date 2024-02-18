@@ -1,6 +1,11 @@
 name: Issue Report
 description: File an issue report
 body:
+  - type: markdown
+    attributes:
+        value: "**If you are using this mod with Sinytra Connector:
+        This mod is not designed to work with Sinytra Connector and it's not recommended to use this mod with Sinytra Connector.
+        The usage with Sinytra Connector is not being supported.**"
   - type: dropdown
     id: is_compat
     attributes:
