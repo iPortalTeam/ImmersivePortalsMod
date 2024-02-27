@@ -107,7 +107,7 @@ public class ImmPtlChunkTickets {
     }
     
     public void markForLoading(long chunkPos, int distanceToSource, int generation) {
-        Validate.isTrue(distanceToSource >= 0 && distanceToSource <= 32);
+        Validate.isTrue(distanceToSource >= 0);
         
         ChunkTicketInfo info = chunkPosToTicketInfo.get(chunkPos);
         

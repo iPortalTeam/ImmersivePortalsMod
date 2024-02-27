@@ -9,7 +9,6 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
-// TODO considering adding a boolean telling whether to do chunk tick
 public final record ChunkLoader(
     ResourceKey<Level> dimension,
     int x,
