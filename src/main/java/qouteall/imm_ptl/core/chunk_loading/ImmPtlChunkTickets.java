@@ -55,6 +55,7 @@ import java.util.concurrent.Executor;
  * The chunk positions to release are passed into {@link DistanceManager#ticketsToRelease}.
  * A callback for sending message for releasing will be added to these chunk's future.
  */
+@SuppressWarnings("JavadocReference")
 public class ImmPtlChunkTickets {
     private static final Logger LOGGER = LogUtils.getLogger();
     
@@ -189,7 +190,6 @@ public class ImmPtlChunkTickets {
         waitingForLoading.removeIf((long chunkPos) -> {
             ChunkHolder chunkHolder = getChunkHolder(world, chunkPos);
             if (chunkHolder == null) {
-//                LOGGER.error("Missing chunk holder {} {}", world, new ChunkPos(chunkPos));
                 return true;
             }
             
