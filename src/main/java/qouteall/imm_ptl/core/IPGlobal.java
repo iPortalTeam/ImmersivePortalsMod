@@ -173,7 +173,7 @@ public class IPGlobal {
         vanilla
     }
     
-    public static NetherPortalMode netherPortalMode = NetherPortalMode.normal;
+    public static NetherPortalMode netherPortalMode = NetherPortalMode.adaptive;
     
     public static EndPortalMode endPortalMode = EndPortalMode.normal;
 }

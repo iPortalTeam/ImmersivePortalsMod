@@ -85,7 +85,7 @@ public class IPConfig implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public IPGlobal.NetherPortalMode netherPortalMode =
         IPFeatureControl.enableVanillaBehaviorChangingByDefault() ?
-            IPGlobal.NetherPortalMode.normal : IPGlobal.NetherPortalMode.vanilla;
+            IPGlobal.NetherPortalMode.adaptive : IPGlobal.NetherPortalMode.vanilla;
     
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public IPGlobal.EndPortalMode endPortalMode =
@@ -157,7 +157,7 @@ public class IPConfig implements ConfigData {
         regularPortalLengthLimit = Mth.clamp(regularPortalLengthLimit, 3, 64);
         scaleLimit = Mth.clamp(scaleLimit, 8, 128);
         if (netherPortalMode == null) {
-            netherPortalMode = IPGlobal.NetherPortalMode.normal;
+            netherPortalMode = IPGlobal.NetherPortalMode.adaptive;
         }
         if (endPortalMode == null) {
             endPortalMode = IPGlobal.EndPortalMode.normal;
