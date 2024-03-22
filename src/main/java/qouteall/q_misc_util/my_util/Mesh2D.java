@@ -492,7 +492,7 @@ public class Mesh2D {
      * @return The number of edges collapsed.
      */
     public int simplifySteps(int countLimit) {
-        fixEdgeCrossingPoint();
+        fixTJunction();
         
         int count = 0;
         
@@ -1297,13 +1297,13 @@ public class Mesh2D {
     }
     
     /**
-     * For the cases that an edge goes through a point, but the point is not the endpoint of the edge,
-     * it will cause simplification to be wrong.
+     * When T-Junction exists (edge goes through a point, but the point is not the endpoint of the edge),
+     * simplification will now work normally.
      * This should be fixed by detecting point on edge and split relevant triangles.
      *
      * @return count of operations
      */
-    public int fixEdgeCrossingPoint() {
+    public int fixTJunction() {
         enableTriangleLookup();
         
         int operationCount = 0;

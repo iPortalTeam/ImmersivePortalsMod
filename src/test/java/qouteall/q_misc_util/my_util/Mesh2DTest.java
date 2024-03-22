@@ -59,7 +59,7 @@ public class Mesh2DTest {
             0, 0, 0, 0.5, 1, 0
         );
         
-        mesh2D.fixEdgeCrossingPoint();
+        mesh2D.fixTJunction();
         mesh2D.compact();
         mesh2D.checkStorageIntegrity();
         
