@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 
 /**
@@ -23,36 +26,41 @@ public class MixinPlayerChunkSender {
      * @author qouteall
      * @reason see class comment
      */
-    @Overwrite
-    public void markChunkPendingToSend(LevelChunk levelChunk) {
-    
+    @Inject(method = "markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V",
+        at = @At("HEAD"), cancellable = true)
+    public void markChunkPendingToSend(CallbackInfo ci) {
+        ci.cancel();
     }
     
     /**
      * @author qouteall
      * @reason see class comment
      */
-    @Overwrite
-    public void dropChunk(ServerPlayer serverPlayer, ChunkPos chunkPos) {
-    
+    @Inject(method = "dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V",
+        at = @At("HEAD"), cancellable = true)
+    public void dropChunk(CallbackInfo ci) {
+        ci.cancel();
     }
     
     /**
      * @author qouteall
      * @reason see class comment
      */
-    @Overwrite
-    public void sendNextChunks(ServerPlayer serverPlayer) {
+    @Inject(method = "sendNextChunks(Lnet/minecraft/server/level/ServerPlayer;)V",
+        at = @At("HEAD"), cancellable = true)
+    public void sendNextChunks(ServerPlayer serverPlayer, CallbackInfo ci) {
         ImmPtlChunkTracking.getPlayerInfo(serverPlayer).doChunkSending(serverPlayer);
+        ci.cancel();
     }
     
     /**
      * @author qouteall
      * @reason see class comment
      */
-    @Overwrite
-    public void onChunkBatchReceivedByClient(float f) {
-    
+    @Inject(method = "onChunkBatchReceivedByClient(F)V",
+        at = @At("HEAD"), cancellable = true)
+    public void onChunkBatchReceivedByClient(CallbackInfo ci) {
+        ci.cancel();
     }
     
     /**
