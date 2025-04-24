@@ -1,0 +1,37 @@
+name: Build for Arclight 1.20.4
+
+on:
+  workflow_dispatch:   # macht den „Run workflow“-Knopf sichtbar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-java@v4        # Java 17 einrichten
+      with:
+        distribution: temurin
+        java-version: 17
+        cache: gradle
+
+    # ---------- Mini-Patch ----------
+    - name: Apply Arclight patches
+      run: |
+        # 1) Arclight-API einbinden, doppelte Mixin-Lib ausschließen
+        sed -i '/dependencies {/a\    modImplementation "io.izzel.arclight:arclight-api:1.0.4+1.20.4"' build.gradle
+        sed -i 's/fabricApi.module("fabric-mixin")/fabricApi.module("fabric-mixin")) { exclude group: "org.spongepowered" }/' build.gradle
+        # 2) Mixins entfernen, die mit Arclight kollidieren
+        sed -i '/ThreadedAnvilChunkStorage/d;/ServerWorld_Mixin/d' src/main/resources/immersive_portals.mixins.json
+
+    # ---------- bauen ----------
+    - name: Build via Gradle
+      run: ./gradlew build --no-daemon
+
+    # ---------- fertige JAR hochladen ----------
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: immersive-portals-arclight-1.20.4
+        path: build/libs/*.jar
