@@ -29,7 +29,7 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Dimensional Threading is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("gravity_changer_q")) {
+        if (FabricLoader.getInstance().isModLoaded("gravity_changer")) {
             GravityChangerInterface.invoker = new GravityChangerInterface.OnGravityChangerPresent();
             Helper.log("Gravity API is present");
         }
