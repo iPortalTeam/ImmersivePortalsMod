@@ -17,9 +17,12 @@ allprojects {
     apply plugin: 'maven-publish'
 }
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+// set archivesBaseName and version/group within allprojects so the property exists
+allprojects {
+    archivesBaseName = project.archives_base_name
+    version = project.mod_version
+    group = project.maven_group
+}
 
 repositories {
     flatDir {
