@@ -7,7 +7,7 @@ It's a Minecraft mod that provides see-through portals and seamless teleportatio
 
 ## Installation
 
-1. Download [immersive-portals-patched-5.1.4-mc1.20.1-fabric.jar](https://github.com/SirAbgehoben/ImmersivePortalsPatched/releases/download/v5.1.4/immersive-portals-patched-5.1.4-mc1.20.1-fabric.jar)
+1. Download [immersive-portals-patched-5.1.5-mc1.20.1-fabric.jar](https://github.com/SirAbgehoben/ImmersivePortalsPatched/releases/download/v5.1.5/immersive-portals-patched-5.1.5-mc1.20.1-fabric.jar)
 2. Place it in the mods folder
 3. Enjoy!
 
