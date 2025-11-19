@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.compat.mixin.iris;
 
-import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
+import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,8 +11,8 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRen
 import qouteall.imm_ptl.core.compat.iris_compatibility.IEIrisNewWorldRenderingPipeline;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 
-@Mixin(value = NewWorldRenderingPipeline.class, remap = false)
-public class MixinIrisNewWorldRenderingPipeline implements IEIrisNewWorldRenderingPipeline {
+@Mixin(value = IrisRenderingPipeline.class, remap = false)
+public class MixinIrisRenderingPipeline implements IEIrisNewWorldRenderingPipeline {
     @Shadow private boolean isRenderingWorld;
     
 //    @Shadow private ShadowRenderTargets shadowRenderTargets;
@@ -32,7 +32,7 @@ public class MixinIrisNewWorldRenderingPipeline implements IEIrisNewWorldRenderi
         method = "beginTranslucents",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/coderbot/iris/postprocess/CompositeRenderer;renderAll()V",
+            target = "Lnet/irisshaders/iris/pipeline/CompositeRenderer;renderAll()V",
             shift = At.Shift.AFTER
         )
     )

@@ -25,18 +25,18 @@ public class IPCompatMixinPlugin implements IMixinConfigPlugin {
         
         FabricLoader fabricLoader = FabricLoader.getInstance();
         if (mixinClassName.contains("IrisSodium")) {
-            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium");
-            boolean irisLoaded = fabricLoader.isModLoaded("iris");
+            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium") || fabricLoader.isModLoaded("embeddium");
+            boolean irisLoaded = fabricLoader.isModLoaded("iris") || fabricLoader.isModLoaded("oculus");
             return sodiumLoaded && irisLoaded;
         }
         
         if (mixinClassName.contains("Iris")) {
-            boolean irisLoaded = fabricLoader.isModLoaded("iris");
+            boolean irisLoaded = fabricLoader.isModLoaded("iris") || fabricLoader.isModLoaded("oculus");
             return irisLoaded;
         }
         
         if (mixinClassName.contains("Sodium")) {
-            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium");
+            boolean sodiumLoaded = fabricLoader.isModLoaded("sodium") || fabricLoader.isModLoaded("embeddium");
             return sodiumLoaded;
         }
         

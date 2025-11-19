@@ -3,10 +3,10 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.coderbot.iris.Iris;
-import net.coderbot.iris.pipeline.WorldRenderingPipeline;
-import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
-import net.coderbot.iris.uniforms.SystemTimeUniforms;
+import net.irisshaders.iris.Iris;
+import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
+import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
+import net.irisshaders.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -147,7 +147,7 @@ public class ExperimentalIrisPortalRenderer extends PortalRenderer {
         super.invokeWorldRendering(worldRenderInfo);
         SystemTimeUniforms.COUNTER.beginFrame(); // make Iris to update the uniforms
         
-        if (pipeline instanceof NewWorldRenderingPipeline newWorldRenderingPipeline) {
+        if (pipeline instanceof IrisRenderingPipeline newWorldRenderingPipeline) {
             // this is important to hand rendering
             newWorldRenderingPipeline.isBeforeTranslucent = true;
         }

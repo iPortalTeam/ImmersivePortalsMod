@@ -11,7 +11,7 @@
     "iris.MixinIrisClearPass",
     "iris.MixinIrisFinalPassRenderer",
     "iris.MixinIrisIris",
-    "iris.MixinIrisNewWorldRenderingPipeline",
+    "iris.MixinIrisRenderingPipeline",
     "iris.MixinIrisShadowRenderTargets",
     "iris.MixinIrisSodiumChunkShaderInterface",
     "iris.MixinIrisSodiumSodiumTerrainPipeline",

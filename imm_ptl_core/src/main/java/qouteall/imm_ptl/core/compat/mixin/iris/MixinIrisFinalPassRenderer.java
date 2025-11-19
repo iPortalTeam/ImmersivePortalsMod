@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.compat.mixin.iris;
 
-import net.coderbot.iris.postprocess.FinalPassRenderer;
+import net.irisshaders.iris.pipeline.FinalPassRenderer;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

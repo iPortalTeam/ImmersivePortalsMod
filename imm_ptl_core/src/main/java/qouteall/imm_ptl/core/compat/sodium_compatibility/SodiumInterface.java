@@ -63,9 +63,9 @@ public class SodiumInterface {
         @Override
         public void switchContextWithCurrentWorldRenderer(Object context) {
             SodiumWorldRenderer swr =
-                ((WorldRendererExtended) Minecraft.getInstance().levelRenderer).sodium$getWorldRenderer();
+                    ((WorldRendererExtended) Minecraft.getInstance().levelRenderer).sodium$getWorldRenderer();
             swr.scheduleTerrainUpdate();
-            
+
             RenderSectionManager renderSectionManager =
                 ((IESodiumWorldRenderer) swr).ip_getRenderSectionManager();
             

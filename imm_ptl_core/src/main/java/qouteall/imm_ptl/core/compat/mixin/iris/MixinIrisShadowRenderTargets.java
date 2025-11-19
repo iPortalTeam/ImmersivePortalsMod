@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.compat.mixin.iris;
 
-import net.coderbot.iris.shadows.ShadowRenderTargets;
+import net.irisshaders.iris.shadows.ShadowRenderTargets;
 import org.spongepowered.asm.mixin.Mixin;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IEIrisShadowRenderTargets;
 

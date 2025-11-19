@@ -8,6 +8,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
@@ -55,17 +56,30 @@ public class O_O {
     public static boolean isObsidian(BlockState blockState) {
         return blockState == obsidianState;
     }
-    
+
+    // Ensure event invocations run on the client thread to avoid races with the concurrent chunk engine.
+    @Environment(EnvType.CLIENT)
     public static void postClientChunkLoadEvent(LevelChunk chunk) {
-        ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad(
-            ((ClientLevel) chunk.getLevel()), chunk
-        );
+        if (Minecraft.getInstance().isSameThread()) {
+            ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad((ClientLevel) chunk.getLevel(), chunk);
+        }
+        else {
+            Minecraft.getInstance().execute(() ->
+                    ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad((ClientLevel) chunk.getLevel(), chunk)
+            );
+        }
     }
-    
+
+    @Environment(EnvType.CLIENT)
     public static void postClientChunkUnloadEvent(LevelChunk chunk) {
-        ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload(
-            ((ClientLevel) chunk.getLevel()), chunk
-        );
+        if (Minecraft.getInstance().isSameThread()) {
+            ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload((ClientLevel) chunk.getLevel(), chunk);
+        }
+        else {
+            Minecraft.getInstance().execute(() ->
+                    ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload((ClientLevel) chunk.getLevel(), chunk)
+            );
+        }
     }
     
     public static boolean isDedicatedServer() {

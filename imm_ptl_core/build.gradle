@@ -3,4 +3,8 @@ group = "qouteall"
 
 dependencies {
     implementation project(path: ":q_misc_util", configuration: "namedElements")
+
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }

@@ -69,7 +69,7 @@ public class IPModEntryClient implements ClientModInitializer {
         initPortalRenderers();
         
         boolean isSodiumPresent =
-            FabricLoader.getInstance().isModLoaded("sodium");
+            FabricLoader.getInstance().isModLoaded("sodium") || FabricLoader.getInstance().isModLoaded("embeddium");
         if (isSodiumPresent) {
             Helper.log("Sodium is present");
             
@@ -89,7 +89,7 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Sodium is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("iris")) {
+        if (FabricLoader.getInstance().isModLoaded("iris") || FabricLoader.getInstance().isModLoaded("oculus")) {
             Helper.log("Iris is present");
             IrisInterface.invoker = new IrisInterface.OnIrisPresent();
             ExperimentalIrisPortalRenderer.init();
