@@ -1,21 +1,35 @@
+# Immersive Portals Mod
 
+It's a Minecraft mod that provides see-through portals and seamless teleportation. It also can create "Non-Euclidean" (Uneuclidean) space effect.
 
-## What is this?
-This is a fork of Immersive Portals that fixes compatibility with Iris 1.7.6+1.20.1 and Sodium mc1.20.1-0.5.13-fabric.
+![immptl.png](https://i.loli.net/2021/09/30/chHMG45dsnZNqep.png)
 
-It's a Minecraft mod that provides see-through portals and seamless teleportation. It also can create a "Non-Euclidean" (Uneuclidean) space effect.
+[On CurseForge](https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod)     [On Modrinth](https://modrinth.com/mod/immersiveportals)     [Website](https://qouteall.fun/immptl/)
 
-## Installation
+This mod changes a lot of underlying Minecraft mechanics. This mod allows the client to load multiple dimensions at the same time and synchronize remote world information(blocks/entities) to client. It can render portal-in-portals. The portal rendering is roughly compatible with some versions of Sodium and Iris. The portal can transform player scale and gravity direction.  [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details)
 
-1. Download [immersive-portals-patched-5.1.5-mc1.20.1-fabric.jar](https://github.com/SirAbgehoben/ImmersivePortalsPatched/releases/download/v5.1.5/immersive-portals-patched-5.1.5-mc1.20.1-fabric.jar)
-2. Place it in the mods folder
-3. Enjoy!
+(This is the Fabric version of Immersive Portals. [The Forge version](https://github.com/iPortalTeam/ImmersivePortalsModForNeo))
+
+## API
+
+This mod also provides some API for:
+
+* Manage see-through portals
+* Dynamically add dimensions
+* Synchronize remote chunks to client
+* Render the world into GUI
+* Other utilities
+
+[API description](https://qouteall.fun/immptl/wiki/API-for-Other-Mods.html).
+
+## How to run this code
+https://fabricmc.net/wiki/tutorial:setup
 
 ## Other
 
 [Wiki](https://qouteall.fun/immptl/wiki/)
 
-[Discord Server of Immersive Portals](https://discord.gg/BZxgURK)
+[Discord Server](https://discord.gg/BZxgURK)
 
 [Support qouteall on Patreon](https://www.patreon.com/qouteall)
 
