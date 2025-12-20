@@ -1,1 +1,0 @@
-Changed Sodium compat to Sodium 0.6.0 and Iris compat to 1.8.0. Note that this version is experimental.
