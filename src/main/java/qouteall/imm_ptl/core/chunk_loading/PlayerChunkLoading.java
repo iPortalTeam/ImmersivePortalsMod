@@ -140,7 +140,7 @@ public class PlayerChunkLoading {
                 if (world == null) {
                     LOGGER.error(
                         "Missing dimension when flushing pending loading {}",
-                        record.dimension.location()
+                        record.dimension.identifier()
                     );
                     return true;
                 }

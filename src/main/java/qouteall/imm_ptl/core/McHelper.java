@@ -741,7 +741,7 @@ public class McHelper {
     
     
     public static Identifier dimensionTypeId(ResourceKey<Level> dimType) {
-        return dimType.location();
+        return dimType.identifier();
     }
     
     public static <T> String serializeToJson(T object, Codec<T> codec) {
@@ -852,7 +852,7 @@ public class McHelper {
     ) {
         ServerLevel world = server.getLevel(dim);
         if (world == null) {
-            throw new RuntimeException("Missing dimension " + dim.location());
+            throw new RuntimeException("Missing dimension " + dim.identifier());
         }
         return world;
     }
@@ -944,8 +944,8 @@ public class McHelper {
      * TODO possibly infer dimension name from dimension type
      */
     public static Component getDimensionName(ResourceKey<Level> dimension) {
-        String namespace = dimension.location().getNamespace();
-        String path = dimension.location().getPath();
+        String namespace = dimension.identifier().getNamespace();
+        String path = dimension.identifier().getPath();
         String translationkey = "dimension." + namespace + "." + path;
         MutableComponent component = Component.translatable(translationkey);
         
@@ -957,7 +957,7 @@ public class McHelper {
                     "imm_ptl.a_dimension_of",
                     modName != null ? modName : namespace
                 )
-                .append(" (" + dimension.location() + ")");
+                .append(" (" + dimension.identifier() + ")");
         }
         
         return component;

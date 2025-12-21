@@ -144,7 +144,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(BRIGHT_SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                BRIGHT_SKYLAND.location(),
+                BRIGHT_SKYLAND.identifier(),
                 () -> BRIGHT_SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
@@ -152,7 +152,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                SKYLAND.location(),
+                SKYLAND.identifier(),
                 () -> SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
@@ -160,7 +160,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(CHAOS)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                CHAOS.location(),
+                CHAOS.identifier(),
                 () -> CHAOS_TEMPLATE.createLevelStem(server)
             );
         }
@@ -168,7 +168,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(VOID)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                VOID.location(),
+                VOID.identifier(),
                 () -> DimensionTemplate.VOID_TEMPLATE.createLevelStem(server)
             );
         }
@@ -176,7 +176,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(BRIGHT_VOID)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                BRIGHT_VOID.location(),
+                BRIGHT_VOID.identifier(),
                 () -> BRIGHT_VOID_TEMPLATE.createLevelStem(server)
             );
         }
@@ -191,24 +191,24 @@ public class AlternateDimensions {
     
     public static ChunkGenerator createSkylandGenerator(RegistryAccess rm, long seed) {
         return NormalSkylandGenerator.create(
-            rm.registryOrThrow(Registries.BIOME).asLookup(),
-            rm.registryOrThrow(Registries.DENSITY_FUNCTION).asLookup(),
-            rm.registryOrThrow(Registries.NOISE).asLookup(),
-            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup(),
-            rm.registryOrThrow(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST).asLookup(),
+            rm.lookupOrThrow(Registries.BIOME).asLookup(),
+            rm.lookupOrThrow(Registries.DENSITY_FUNCTION).asLookup(),
+            rm.lookupOrThrow(Registries.NOISE).asLookup(),
+            rm.lookupOrThrow(Registries.NOISE_SETTINGS).asLookup(),
+            rm.lookupOrThrow(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST).asLookup(),
             seed
         );
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
         return ErrorTerrainGenerator.create(
-            rm.registryOrThrow(Registries.BIOME).asLookup(),
-            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup()
+            rm.lookupOrThrow(Registries.BIOME).asLookup(),
+            rm.lookupOrThrow(Registries.NOISE_SETTINGS).asLookup()
         );
     }
     
     public static ChunkGenerator createVoidGenerator(RegistryAccess rm) {
-        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomeRegistry = rm.lookupOrThrow(Registries.BIOME);
         
         Holder.Reference<Biome> plainsHolder = biomeRegistry.getHolderOrThrow(Biomes.PLAINS);
         

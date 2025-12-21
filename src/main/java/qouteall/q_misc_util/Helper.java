@@ -510,7 +510,7 @@ public class Helper {
     }
     
     public static void putWorldId(CompoundTag tag, String tagName, ResourceKey<Level> dim) {
-        tag.putString(tagName, dim.location().toString());
+        tag.putString(tagName, dim.identifier().toString());
     }
     
     public static ResourceKey<Level> getWorldId(CompoundTag tag, String tagName) {
@@ -927,7 +927,10 @@ public class Helper {
             return null;
         }
         
-        return new UUID(tag.getLong(key1), tag.getLong(key + "Least"));
+        return new UUID(
+            tag.getLongOr(key1, 0L),
+            tag.getLongOr(key + "Least", 0L)
+        );
     }
     
     public static Vec3 getFlippedVec(Vec3 vec, Vec3 flippingAxis) {
@@ -1466,9 +1469,9 @@ public class Helper {
         if (tag instanceof ListTag listTag) {
             if (listTag.getElementType() == Tag.TAG_DOUBLE && listTag.size() == 3) {
                 return new Vec3(
-                    listTag.getDouble(0),
-                    listTag.getDouble(1),
-                    listTag.getDouble(2)
+                    listTag.getDoubleOr(0, 0.0),
+                    listTag.getDoubleOr(1, 0.0),
+                    listTag.getDoubleOr(2, 0.0)
                 );
             }
         }

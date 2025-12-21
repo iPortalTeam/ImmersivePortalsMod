@@ -145,7 +145,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             if (LOG_LIMIT.tryDecrement()) {
                 LOGGER.info(
                     "[ImmPtl] Ignoring player move packet. Player: {} Packet: {} {} {} {}",
-                    player, packetDimension.location(),
+                    player, packetDimension.identifier(),
                     packet.getX(player.getX()),
                     packet.getY(player.getY()),
                     packet.getZ(player.getZ())
@@ -157,7 +157,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             if (ip_wrongMovePacketCount > 10) {
                 LOGGER.info(
                     "[ImmPtl] Force move player {} {} {}",
-                    player, player.level().dimension().location(), player.position()
+                    player, player.level().dimension().identifier(), player.position()
                 );
                 ServerTeleportationManager.of(player.server).forceTeleportPlayer(
                     player, player.level().dimension(), player.position()
@@ -195,7 +195,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
         if (IPConfig.getConfig().serverTeleportLogging) {
             LOGGER.info(
                 "Teleporting player {} to {} {} {} {}",
-                player, player.level().dimension().location(), x, y, z
+                player, player.level().dimension().identifier(), x, y, z
             );
         }
         
@@ -307,7 +307,7 @@ public abstract class MixinServerGamePacketListenerImpl implements IEServerPlayN
             if (destWorld == null) {
                 LOGGER.error(
                     "[ImmPtl] Cannot find destination world {}",
-                    ip_dimOfAwaitingPosition.location()
+                    ip_dimOfAwaitingPosition.identifier()
                 );
                 return;
             }

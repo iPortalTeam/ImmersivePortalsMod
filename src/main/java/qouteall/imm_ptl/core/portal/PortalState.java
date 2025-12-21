@@ -86,8 +86,8 @@ public class PortalState {
     
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("fromWorld", fromWorld.location().toString());
-        tag.putString("toWorld", toWorld.location().toString());
+        tag.putString("fromWorld", fromWorld.identifier().toString());
+        tag.putString("toWorld", toWorld.identifier().toString());
         Helper.putVec3d(tag, "fromPos", fromPos);
         Helper.putVec3d(tag, "toPos", toPos);
         tag.putDouble("scaling", scaling);

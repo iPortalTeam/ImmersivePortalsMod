@@ -9,12 +9,6 @@ transitive-mutable field net/minecraft/util/profiling/ActiveProfiler WARNING_TIM
 
 transitive-accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 
-transitive-accessible method net/minecraft/world/level/GameRules register (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
-
-transitive-accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
-
-transitive-accessible method com/mojang/blaze3d/shaders/Program$Type getGlType ()I
-
 transitive-extendable method net/minecraft/world/entity/Entity getBoundingBox ()Lnet/minecraft/world/phys/AABB;
 
 #transitive-accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo

@@ -154,7 +154,7 @@ public class CHelper {
      */
     @Nullable
     public static Identifier getDimensionIconPath(ResourceKey<Level> dimension) {
-        Identifier dimensionId = dimension.location();
+        Identifier dimensionId = dimension.identifier();
         
         Identifier dimIconPath = Identifier.fromNamespaceAndPath(
             dimensionId.getNamespace(),

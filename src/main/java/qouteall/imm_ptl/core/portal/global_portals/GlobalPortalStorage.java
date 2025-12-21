@@ -97,7 +97,7 @@ public class GlobalPortalStorage extends SavedData {
         return world.getDataStorage().computeIfAbsent(
             new SavedData.Factory<>(
                 () -> {
-                    LOGGER.info("Global portal storage initialized {}", world.dimension().location());
+                    LOGGER.info("Global portal storage initialized {}", world.dimension().identifier());
                     return new GlobalPortalStorage(world);
                 },
                 (nbt, holderLookup) -> {
@@ -311,7 +311,7 @@ public class GlobalPortalStorage extends SavedData {
         data.removeIf(e -> {
             ResourceKey<Level> dimensionTo = ((Portal) e).getDestDim();
             if (server.getLevel(dimensionTo) == null) {
-                LOGGER.error("Missing Dimension for global portal {}", dimensionTo.location());
+                LOGGER.error("Missing Dimension for global portal {}", dimensionTo.identifier());
                 return true;
             }
             return false;
@@ -345,7 +345,7 @@ public class GlobalPortalStorage extends SavedData {
         
         ((IEClientWorld) world).ip_setGlobalPortals(newPortals);
         
-        LOGGER.info("Global Portals Updated {}", dimension.location());
+        LOGGER.info("Global Portals Updated {}", dimension.identifier());
     }
     
     public static void convertNormalPortalIntoGlobalPortal(Portal portal) {

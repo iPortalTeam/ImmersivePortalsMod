@@ -190,7 +190,7 @@ public class CustomPortalGeneration {
     ) implements InitializationResult {
         @Override
         public String toString() {
-            return "Destination dimension %s not loaded".formatted(dimId.location());
+            return "Destination dimension %s not loaded".formatted(dimId.identifier());
         }
     }
     
@@ -258,7 +258,7 @@ public class CustomPortalGeneration {
         ServerLevel toWorld = MiscHelper.getServer().getLevel(destDimension);
         
         if (toWorld == null) {
-            Helper.err("Missing dimension " + destDimension.location());
+            Helper.err("Missing dimension " + destDimension.identifier());
             return false;
         }
         
