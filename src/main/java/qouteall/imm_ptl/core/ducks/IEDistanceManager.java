@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.server.level.Ticket;
-import net.minecraft.util.SortedArraySet;
+import java.util.List;
 
 public interface IEDistanceManager {
     
-    SortedArraySet<Ticket<?>> portal_getTicketSet(long chunkPos);
+    List<Ticket> portal_getTicketSet(long chunkPos);
     
     
 }
