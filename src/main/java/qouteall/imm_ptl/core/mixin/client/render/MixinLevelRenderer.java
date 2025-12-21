@@ -5,7 +5,6 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -105,22 +104,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     @Shadow
     private Frustum cullingFrustum;
-    
-    @Shadow
-    @Nullable
-    private VertexBuffer starBuffer;
-    
-    @Shadow
-    @Nullable
-    private VertexBuffer skyBuffer;
-    
-    @Shadow
-    @Nullable
-    private VertexBuffer darkBuffer;
-    
-    @Shadow
-    @Nullable
-    private VertexBuffer cloudBuffer;
     
     @Shadow
     protected abstract void deinitTransparency();
@@ -642,19 +625,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Override
     public void portal_fullyDispose() {
         deinitTransparency();
-        
-        if (starBuffer != null) {
-            starBuffer.close();
-        }
-        if (skyBuffer != null) {
-            skyBuffer.close();
-        }
-        if (darkBuffer != null) {
-            darkBuffer.close();
-        }
-        if (cloudBuffer != null) {
-            cloudBuffer.close();
-        }
         
         level = null;
     }

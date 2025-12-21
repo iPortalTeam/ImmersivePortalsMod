@@ -74,7 +74,7 @@ public class ImplRemoteProcedureCall {
     static {
         serializerMap = ImmutableMap.<Class, BiConsumer<RegistryFriendlyByteBuf, Object>>builder()
             .put(Identifier.class, (buf, o) -> buf.writeIdentifier(((Identifier) o)))
-            .put(ResourceKey.class, (buf, o) -> buf.writeIdentifier(((ResourceKey) o).location()))
+            .put(ResourceKey.class, (buf, o) -> buf.writeIdentifier(((ResourceKey) o).identifier()))
             .put(BlockPos.class, (buf, o) -> buf.writeBlockPos(((BlockPos) o)))
             .put(Vec3.class, (buf, o) -> {
                 Vec3 vec = (Vec3) o;

@@ -147,7 +147,7 @@ public abstract class MixinClientLevel implements IEClientWorld {
     @Inject(method = "Lnet/minecraft/client/multiplayer/ClientLevel;toString()Ljava/lang/String;", at = @At("HEAD"), cancellable = true)
     private void onToString(CallbackInfoReturnable<String> cir) {
         ClientLevel this_ = (ClientLevel) (Object) this;
-        cir.setReturnValue("ClientWorld " + this_.dimension().location());
+        cir.setReturnValue("ClientWorld " + this_.dimension().identifier());
     }
     
     @Inject(

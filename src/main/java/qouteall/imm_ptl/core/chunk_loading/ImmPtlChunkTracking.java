@@ -106,7 +106,7 @@ public class ImmPtlChunkTracking {
         public String toString() {
             return String.format(
                 "%s (%d,%d) distance:%d valid:%s loaded:%s",
-                dimension.location(),
+                dimension.identifier(),
                 ChunkPos.getX(chunkPos),
                 ChunkPos.getZ(chunkPos),
                 distanceToSource,
@@ -336,7 +336,7 @@ public class ImmPtlChunkTracking {
             ServerLevel world = server.getLevel(dimension);
             
             if (world == null) {
-                LOGGER.error("Missing dimension in chunk loader {}", dimension.location());
+                LOGGER.error("Missing dimension in chunk loader {}", dimension.identifier());
                 return true;
             }
             
@@ -570,7 +570,7 @@ public class ImmPtlChunkTracking {
         ServerLevel world = server.getLevel(dimension);
         
         if (world == null) {
-            LOGGER.error("Missing dimension in chunk loader {}", dimension.location());
+            LOGGER.error("Missing dimension in chunk loader {}", dimension.identifier());
             return;
         }
         

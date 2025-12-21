@@ -57,7 +57,7 @@ public abstract class MixinServerLevel implements IEServerWorld {
     @Inject(method = "Lnet/minecraft/server/level/ServerLevel;toString()Ljava/lang/String;", at = @At("HEAD"), cancellable = true)
     private void onToString(CallbackInfoReturnable<String> cir) {
         final ServerLevel this_ = (ServerLevel) (Object) this;
-        cir.setReturnValue("ServerWorld " + this_.dimension().location() +
+        cir.setReturnValue("ServerWorld " + this_.dimension().identifier() +
             " " + serverLevelData.getLevelName());
     }
     

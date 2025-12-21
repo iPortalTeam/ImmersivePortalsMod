@@ -59,7 +59,7 @@ public class DimIntIdMap {
         int result = toIntegerId.getInt(dim);
         if (result == MISSING_ID) {
             throw new RuntimeException(
-                "Missing Dimension " + dim.location()
+                "Missing Dimension " + dim.identifier()
             );
         }
         return result;
@@ -68,7 +68,7 @@ public class DimIntIdMap {
     public void add(ResourceKey<Level> dimId, int intId) {
         if (toIntegerId.containsKey(dimId)) {
             throw new RuntimeException(
-                "Dimension Id Record already contains " + dimId.location() + " " + this
+                "Dimension Id Record already contains " + dimId.identifier() + " " + this
             );
         }
         if (fromIntegerId.containsKey(intId)) {
@@ -110,14 +110,14 @@ public class DimIntIdMap {
     }
     
     public static DimIntIdMap fromTag(CompoundTag tag) {
-        CompoundTag intids = tag.getCompound("intids");
+        CompoundTag intids = tag.getCompoundOrEmpty("intids");
         
         Object2IntOpenHashMap<ResourceKey<Level>> toIntegerId = new Object2IntOpenHashMap<>();
         Int2ObjectOpenHashMap<ResourceKey<Level>> fromIntegerId = new Int2ObjectOpenHashMap<>();
         
         intids.getAllKeys().forEach(dim -> {
             if (intids.contains(dim)) {
-                int intid = intids.getInt(dim);
+                int intid = intids.getIntOr(dim, 0);
                 ResourceKey<Level> dimId = Helper.dimIdToKey(dim);
                 toIntegerId.put(dimId, intid);
                 fromIntegerId.put(intid, dimId);
@@ -133,7 +133,7 @@ public class DimIntIdMap {
         CompoundTag intids = new CompoundTag();
         toIntegerId.forEach((key, intid) -> {
             if (filter.test(key)) {
-                intids.put(key.location().toString(), IntTag.valueOf(intid));
+                intids.put(key.identifier().toString(), IntTag.valueOf(intid));
             }
         });
         
@@ -154,7 +154,7 @@ public class DimIntIdMap {
     public String toString() {
         return toIntegerId.object2IntEntrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getIntValue()))
-            .map(e -> e.getKey().location().toString() + " -> " + e.getIntValue())
+            .map(e -> e.getKey().identifier().toString() + " -> " + e.getIntValue())
             .collect(Collectors.joining("\n"));
     }
 }

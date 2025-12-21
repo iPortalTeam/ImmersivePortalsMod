@@ -208,7 +208,7 @@ public class NormalSkylandGenerator extends NoiseBasedChunkGenerator {
             @Override
             public Stream<Holder.Reference<StructureSet>> listElements() {
                 return structureSetLookup.listElements().filter(
-                    holder -> !holder.key().location().getPath().equals("mineshafts")
+                    holder -> !holder.key().identifier().getPath().equals("mineshafts")
                 );
             }
             

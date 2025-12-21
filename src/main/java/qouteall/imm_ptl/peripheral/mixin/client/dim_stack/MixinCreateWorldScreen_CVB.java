@@ -98,12 +98,12 @@ public abstract class MixinCreateWorldScreen_CVB extends Screen implements IECre
             
             // add vanilla dimensions
             for (var entry : selectedDimensions.dimensions().entrySet()) {
-                result.add(Helper.dimIdToKey(entry.getKey().location()));
+                result.add(Helper.dimIdToKey(entry.getKey().identifier()));
             }
             
             // add datapack dimensions
             for (var entry : settings.datapackDimensions().entrySet()) {
-                result.add(Helper.dimIdToKey(entry.getKey().location()));
+                result.add(Helper.dimIdToKey(entry.getKey().identifier()));
             }
             
             // add other dimensions via the event

@@ -129,7 +129,7 @@ public final record ChunkLoader(
     
     @Override
     public String toString() {
-        return "(%s %d %d %d)".formatted(dimension.location(), x, z, radius);
+        return "(%s %d %d %d)".formatted(dimension.identifier(), x, z, radius);
     }
     
     public static interface ChunkPosConsumer {

@@ -1710,17 +1710,17 @@ public class Mesh2D {
         Mesh2D mesh = new Mesh2D();
         
         for (int i = 0; i < triangles.size() / 3; i++) {
-            int p0Index = triangles.getInt(i * 3);
-            int p1Index = triangles.getInt(i * 3 + 1);
-            int p2Index = triangles.getInt(i * 3 + 2);
+            int p0Index = triangles.getIntOr(i * 3, 0);
+            int p1Index = triangles.getIntOr(i * 3 + 1, 0);
+            int p2Index = triangles.getIntOr(i * 3 + 2, 0);
             
             mesh.addTriangle(
-                pointCoords.getDouble(p0Index * 2),
-                pointCoords.getDouble(p0Index * 2 + 1),
-                pointCoords.getDouble(p1Index * 2),
-                pointCoords.getDouble(p1Index * 2 + 1),
-                pointCoords.getDouble(p2Index * 2),
-                pointCoords.getDouble(p2Index * 2 + 1)
+                pointCoords.getDoubleOr(p0Index * 2, 0.0),
+                pointCoords.getDoubleOr(p0Index * 2 + 1, 0.0),
+                pointCoords.getDoubleOr(p1Index * 2, 0.0),
+                pointCoords.getDoubleOr(p1Index * 2 + 1, 0.0),
+                pointCoords.getDoubleOr(p2Index * 2, 0.0),
+                pointCoords.getDoubleOr(p2Index * 2 + 1, 0.0)
             );
         }
         

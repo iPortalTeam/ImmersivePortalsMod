@@ -72,7 +72,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         
         if (player.level() != toWorld) {
             Helper.err("The player is not in the correct world " +
-                player.level().dimension().location());
+                player.level().dimension().identifier());
             return false;
         }
         
@@ -96,8 +96,8 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         
         Helper.log(String.format(
             "Trying to convert conventional portal %s -> %s by %s (%d %d %d)",
-            fromWorld.dimension().location(),
-            toWorld.dimension().location(),
+            fromWorld.dimension().identifier(),
+            toWorld.dimension().identifier(),
             player.getName().getContents(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ()
         ));

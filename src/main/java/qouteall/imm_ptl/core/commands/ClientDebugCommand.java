@@ -341,7 +341,7 @@ public class ClientDebugCommand {
                             ClientWorldLoader.getWorldRenderer(world.dimension()))
                             .ip_getBuiltChunkStorage();
                         CHelper.printChat(
-                            world.dimension().location().toString() + builtChunkStorage.getDebugString()
+                            world.dimension().identifier().toString() + builtChunkStorage.getDebugString()
                         );
                     });
                 });
@@ -780,7 +780,7 @@ public class ClientDebugCommand {
             CHelper.printChat(
                 String.format(
                     "On Client %s %s removal:%s added:%s age:%s",
-                    playerSP.level().dimension().location(),
+                    playerSP.level().dimension().identifier(),
                     playerSP.blockPosition(),
                     playerSP.getRemovalReason(),
                     playerSP.level().getEntity(playerSP.getId()) != null,
@@ -794,7 +794,7 @@ public class ClientDebugCommand {
             
             result.append("Client Portals\n");
             ClientWorldLoader.getClientWorlds().forEach((world) -> {
-                result.append(world.dimension().location().toString() + "\n");
+                result.append(world.dimension().identifier().toString() + "\n");
                 for (Entity e : world.entitiesForRendering()) {
                     if (e instanceof Portal) {
                         result.append(e.toString());
@@ -813,7 +813,7 @@ public class ClientDebugCommand {
             ClientWorldLoader.getClientWorlds().forEach(world -> {
                 str.append(String.format(
                     "%s %s\n",
-                    world.dimension().location(),
+                    world.dimension().identifier(),
                     world.getChunkSource().getLoadedChunksCount()
                 ));
             });
@@ -824,7 +824,7 @@ public class ClientDebugCommand {
                 (dimension, worldRenderer) -> {
                     str.append(String.format(
                         "%s %s\n",
-                        dimension.location(),
+                        dimension.identifier(),
                         ((ImmPtlViewArea) ((IEWorldRenderer) worldRenderer)
                             .ip_getBuiltChunkStorage()
                         ).getManagedSectionNum()

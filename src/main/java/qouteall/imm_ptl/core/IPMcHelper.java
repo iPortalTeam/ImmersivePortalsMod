@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import com.mojang.blaze3d.platform.GlUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.lwjgl.opengl.GL11;
 
 public class IPMcHelper {
     public static final LimitedLogger limitedLogger = new LimitedLogger(20);
@@ -312,7 +312,8 @@ public class IPMcHelper {
     
     @Environment(EnvType.CLIENT)
     public static boolean isNvidiaVideocard() {
-        return GlUtil.getVendor().toLowerCase().contains("nvidia");
+        String vendor = GL11.glGetString(GL11.GL_VENDOR);
+        return vendor != null && vendor.toLowerCase().contains("nvidia");
     }
     
     public static FriendlyByteBuf bytesToBuf(byte[] packetBytes) {
