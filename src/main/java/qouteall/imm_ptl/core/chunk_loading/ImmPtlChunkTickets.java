@@ -10,14 +10,12 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
-import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
-import net.minecraft.util.SortedArraySet;
-import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -32,7 +30,6 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.RateStat;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -48,10 +45,8 @@ import java.util.concurrent.Executor;
  * <p>
  * In vanilla, it uses {@link ChunkTaskPriorityQueue} that has 4 slots of "acquired" chunk positions.
  * If the acquired chunk slots are full, it will stop processing task, until a slot releases.
- * The {@link ChunkTaskPriorityQueueSorter} uses a {@link ProcessorMailbox}
- * (the mailbox is similar to a one-thread thread pool but uses threads from the worker thread pool)
- * to do a lot of message-passing (it enqueues at least 5 messages just to add one ticket).
- * In {@link DistanceManager.PlayerTicketTracker} it sends message for acquiring and releasing.
+ * The {@link net.minecraft.server.level.ThrottlingChunkTaskDispatcher} uses a message queue
+ * to coordinate ticket acquisition and release for player chunk loading.
  * The chunk positions to release are passed into {@link DistanceManager#ticketsToRelease}.
  * A callback for sending message for releasing will be added to these chunk's future.
  */
@@ -59,8 +54,13 @@ import java.util.concurrent.Executor;
 public class ImmPtlChunkTickets {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    public static final TicketType<ChunkPos> TICKET_TYPE =
-        TicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
+    public static final TicketType TICKET_TYPE = new TicketType(
+        TicketType.NO_TIMEOUT,
+        TicketType.FLAG_PERSIST
+            | TicketType.FLAG_LOADING
+            | TicketType.FLAG_SIMULATION
+            | TicketType.FLAG_KEEP_DIMENSION_ACTIVE
+    );
     
     // for debugging
     @SuppressWarnings("FieldMayBeFinal")
@@ -238,8 +238,11 @@ public class ImmPtlChunkTickets {
         }
         
         ChunkPos chunkPosObj = new ChunkPos(chunkPos);
-        distanceManager.addRegionTicket(
-            TICKET_TYPE, chunkPosObj, getLoadingRadius(), chunkPosObj
+        TicketStorage ticketStorage =
+            ((qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager) distanceManager)
+                .ip_getTicketStorage();
+        ticketStorage.addTicketWithRadius(
+            TICKET_TYPE, chunkPosObj, getLoadingRadius()
         );
         
         if (enableDebugRateStat) {
@@ -295,18 +298,21 @@ public class ImmPtlChunkTickets {
     
     private static void removeAllTicketsInWorld(ServerLevel world, ImmPtlChunkTickets dimTicketManager) {
         DistanceManager ticketManager = getDistanceManager(world);
+        TicketStorage ticketStorage =
+            ((qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager) ticketManager)
+                .ip_getTicketStorage();
         
         dimTicketManager.chunkPosToTicketInfo.keySet().forEach((long pos) -> {
-            SortedArraySet<Ticket<?>> tickets = ((IEDistanceManager) getDistanceManager(world))
+            List<Ticket> tickets = ((IEDistanceManager) getDistanceManager(world))
                 .portal_getTicketSet(pos);
             
             // avoid removing ticket when iterating the ticket set
-            List<Ticket<?>> toRemove = tickets.stream()
+            List<Ticket> toRemove = tickets.stream()
                 .filter(t -> t.getType() == TICKET_TYPE).toList();
             
             ChunkPos chunkPos = new ChunkPos(pos);
-            for (Ticket<?> ticket : toRemove) {
-                ticketManager.removeRegionTicket(TICKET_TYPE, chunkPos, ticket.getTicketLevel(), chunkPos);
+            for (Ticket ticket : toRemove) {
+                ticketStorage.removeTicket(ticket, chunkPos);
             }
         });
         

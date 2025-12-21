@@ -3,8 +3,8 @@
 ## METADATI
 - PROJECT_NAME: Immersive Portals Mod
 - PROJECT_PREFIX: IMPT
-- VERSION: v6.0.11
-- LAST_FEATURE_ID: 000005
+- VERSION: v6.0.12
+- LAST_FEATURE_ID: 000006
 - TIMEZONE: Europe/Rome
 - TIMESTAMP_FORMAT: (YYYY-MM-DD HH:MM:SS)
 
@@ -37,6 +37,7 @@ Mod Minecraft che permette di vedere e attraversare portali tra dimensioni senza
 - 🟡 **IMPT000003:** Aggiornato Fabric Loom e Gradle per compatibilità con Javadoc intermediari *(2025-12-20 21:01:32)* [CHG] — Scope: build.gradle, gradle.properties, gradle/wrapper/gradle-wrapper.properties, project.md, changelog.md — Reason: risolvere il blocco Loom su Javadoc non in namespace intermediary e requisiti Gradle del plugin (snapshot 9.2.1) — Test: ./gradlew build — Rollback: ripristinare le versioni precedenti di fabric-loom e gradle wrapper
 - 🟡 **IMPT000004:** Allineati hook server/render per API 1.21.11 (listener livelli, preset grafici, occlusion culling Sodium) *(2025-12-21 11:40:51)* [CHG] — Scope: src/main/java/qouteall/imm_ptl/core/render/renderer/PortalRenderer.java, src/main/java/qouteall/imm_ptl/core/compat/mixin/sodium/MixinSodiumOcclusionCuller.java, src/main/java/qouteall/q_misc_util/mixin/MixinMinecraftServer_Misc.java, src/main/java/qouteall/imm_ptl/peripheral/mixin/common/dim_stack/MixinMinecraftServer_DimStack_CVB.java, src/main/java/qouteall/imm_ptl/peripheral/alternate_dimension/NormalSkylandGenerator.java, project.md, changelog.md — Reason: aggiornare i riferimenti a classi/metodi rinominati in 1.21.11 — Test: ./gradlew build — Rollback: ripristinare gli import e le signature precedenti nei file indicati
 - 🟡 **IMPT000005:** Aggiornati tipi di teletrasporto/proiettili, input GUI e lettura tag opzionali per compatibilità 1.21.11 *(2025-12-21 12:01:26)* [CHG] — Scope: src/main/java/qouteall/imm_ptl/core/portal/Portal.java, src/main/java/qouteall/q_misc_util/Helper.java, src/main/java/qouteall/imm_ptl/peripheral/dim_stack/DimEntryWidget.java, src/main/java/qouteall/imm_ptl/peripheral/dim_stack/DimListWidget.java, src/main/java/qouteall/imm_ptl/peripheral/dim_stack/DimStackEntry.java, src/main/java/qouteall/imm_ptl/core/portal/EndPortalEntity.java, src/main/java/qouteall/imm_ptl/core/mixin/common/collision/MixinAbstractArrow.java, src/main/java/qouteall/imm_ptl/core/mixin/common/collision/MixinThrownEnderPearl.java, src/main/java/qouteall/imm_ptl/core/platform_specific/mixin/common/MixinServerPlayerEntity_MA.java, src/main/java/qouteall/imm_ptl/core/mixin/common/position_sync/MixinServerGamePacketListenerImpl.java, src/main/java/qouteall/q_misc_util/MiscHelper.java, src/main/java/qouteall/q_misc_util/MiscNetworking.java — Reason: allineare API rinominate e nuovi Optional/ValueInput nei salvataggi — Test: ./gradlew build — Rollback: ripristinare le firme/usi precedenti nei file indicati
+- 🟡 **IMPT000006:** Adeguata la gestione ticket chunk ImmPtl a TicketStorage e TicketType di 1.21.11 *(2025-12-21 11:15:41)* [CHG] — Scope: src/main/java/qouteall/imm_ptl/core/mixin/common/chunk_sync/MixinDistanceManager.java, src/main/java/qouteall/imm_ptl/core/ducks/IEDistanceManager.java, src/main/java/qouteall/imm_ptl/core/mixin/common/chunk_sync/IEDistanceManager.java, src/main/java/qouteall/imm_ptl/core/chunk_loading/ImmPtlChunkTickets.java, src/main/java/qouteall/imm_ptl/core/commands/PortalDebugCommands.java, src/main/java/qouteall/imm_ptl/core/mixin/common/chunk_sync/IEChunkTaskPriorityQueueSorter.java, project.md, changelog.md — Reason: aggiornare l’accesso ai ticket e rimuovere le API obsolete (Ticket<?>/ChunkTaskPriorityQueueSorter) — Test: ./gradlew build (fallisce con errori render/shader ancora da portare) — Rollback: ripristinare l’uso di SortedArraySet<Ticket<?>> e le vecchie accessor su DistanceManager
 
 ---
 
