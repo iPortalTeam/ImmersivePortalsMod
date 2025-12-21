@@ -149,12 +149,12 @@ public record UnilateralPortalState(
     }
     
     public static UnilateralPortalState fromTag(CompoundTag tag) {
-        ResourceKey<Level> dimension = Helper.dimIdToKey(tag.getString("dimension"));
+        ResourceKey<Level> dimension = Helper.dimIdToKey(tag.getStringOr("dimension", ""));
         Vec3 point = Helper.getVec3d(tag, "position");
-        DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
-        double width = tag.getDouble("width");
-        double height = tag.getDouble("height");
-        double thickness = tag.getDouble("thickness");
+        DQuaternion orientation = DQuaternion.fromTag(tag.getCompoundOrEmpty("orientation"));
+        double width = tag.getDoubleOr("width", 0.0);
+        double height = tag.getDoubleOr("height", 0.0);
+        double thickness = tag.getDoubleOr("thickness", 0.0);
         return new UnilateralPortalState(
             dimension, point, orientation, width, height, thickness
         );
