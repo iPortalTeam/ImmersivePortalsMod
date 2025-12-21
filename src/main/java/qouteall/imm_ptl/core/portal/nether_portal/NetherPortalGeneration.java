@@ -256,7 +256,7 @@ public class NetherPortalGeneration {
         }
         
         limitedLogger.log(String.format("Portal Generation Attempted %s %s %s %s",
-            fromWorld.dimension().identifier(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
+            fromWorld.dimension().location(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
         ));
         return true;
     }

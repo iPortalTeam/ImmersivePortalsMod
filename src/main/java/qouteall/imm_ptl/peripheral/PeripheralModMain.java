@@ -5,7 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -80,7 +80,7 @@ public class PeripheralModMain {
         
     }
     
-    public static void registerItems(BiConsumer<Identifier, Item> regFunc) {
+    public static void registerItems(BiConsumer<ResourceLocation, Item> regFunc) {
         regFunc.accept(
             McHelper.newIdentifier("immersive_portals", "portal_helper"),
             portalHelperBlockItem
@@ -97,7 +97,7 @@ public class PeripheralModMain {
         );
     }
     
-    public static void registerBlocks(BiConsumer<Identifier, Block> regFunc) {
+    public static void registerBlocks(BiConsumer<ResourceLocation, Block> regFunc) {
         regFunc.accept(
             McHelper.newIdentifier("immersive_portals", "portal_helper"),
             portalHelperBlock
@@ -105,7 +105,7 @@ public class PeripheralModMain {
     }
     
     public static void registerChunkGenerators(
-        BiConsumer<Identifier, MapCodec<? extends ChunkGenerator>> regFunc
+        BiConsumer<ResourceLocation, MapCodec<? extends ChunkGenerator>> regFunc
     ) {
         regFunc.accept(
             McHelper.newIdentifier("immersive_portals:error_terrain_generator"),
@@ -118,7 +118,7 @@ public class PeripheralModMain {
     }
     
     public static void registerBiomeSources(
-        BiConsumer<Identifier, MapCodec<? extends BiomeSource>> regFunc
+        BiConsumer<ResourceLocation, MapCodec<? extends BiomeSource>> regFunc
     ) {
         regFunc.accept(
             McHelper.newIdentifier("immersive_portals:chaos_biome_source"),
@@ -127,7 +127,7 @@ public class PeripheralModMain {
     }
     
     public static void registerCreativeTabs(
-        BiConsumer<Identifier, CreativeModeTab> regFunc
+        BiConsumer<ResourceLocation, CreativeModeTab> regFunc
     ) {
         regFunc.accept(
             McHelper.newIdentifier("immersive_portals", "general"),

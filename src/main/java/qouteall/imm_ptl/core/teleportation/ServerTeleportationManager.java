@@ -173,7 +173,7 @@ public class ServerTeleportationManager {
         if (portal == null) {
             LOGGER.error(
                 "Unable to find portal {} in {} to teleport {}",
-                portalId, dimensionBefore.identifier(), player
+                portalId, dimensionBefore.location(), player
             );
             return;
         }
@@ -214,7 +214,7 @@ public class ServerTeleportationManager {
         else {
             LOGGER.error(
                 "Player {} {} {} cannot teleport through portal {}\nReason: {}",
-                player, player.level().dimension().identifier(), player.position(),
+                player, player.level().dimension().location(), player.position(),
                 portal, failReason
             );
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level()));
@@ -232,7 +232,7 @@ public class ServerTeleportationManager {
         ServerLevel originalWorld = server.getLevel(dimensionBefore);
         
         if (originalWorld == null) {
-            LOGGER.error("Missing world {} when finding portal", dimensionBefore.identifier());
+            LOGGER.error("Missing world {} when finding portal", dimensionBefore.location());
             return null;
         }
         
@@ -372,7 +372,7 @@ public class ServerTeleportationManager {
         if (IPConfig.getConfig().serverTeleportLogging) {
             LOGGER.info(
                 "Force teleporting {} to {} {}",
-                player, dimensionTo.identifier(), newPos
+                player, dimensionTo.location(), newPos
             );
         }
         
@@ -382,7 +382,7 @@ public class ServerTeleportationManager {
         if (toWorld == null) {
             LOGGER.error(
                 "Cannot teleport player {} to non-existing dimension {}",
-                player, dimensionTo.identifier()
+                player, dimensionTo.location()
             );
             return;
         }
@@ -467,9 +467,9 @@ public class ServerTeleportationManager {
             LOGGER.info(
                 "{} :: ({} {} {} {})->({} {} {} {})",
                 player.getName().getContents(),
-                fromWorld.dimension().identifier(),
+                fromWorld.dimension().location(),
                 oldPos.x(), oldPos.y(), oldPos.z(),
-                toWorld.dimension().identifier(),
+                toWorld.dimension().location(),
                 (int) player.getX(), (int) player.getY(), (int) player.getZ()
             );
         }
@@ -632,7 +632,7 @@ public class ServerTeleportationManager {
         if (toWorld == null) {
             LOGGER.error(
                 "Invalid dest dimension {} to teleport entity {} to",
-                toDimension.identifier(), entity
+                toDimension.location(), entity
             );
             return entity;
         }
@@ -838,7 +838,7 @@ public class ServerTeleportationManager {
                 );
                 
                 player.sendSystemMessage(Component.literal(
-                    "Teleported to spawn pos because dimension %s had been removed".formatted(world.dimension().identifier())
+                    "Teleported to spawn pos because dimension %s had been removed".formatted(world.dimension().location())
                 ));
             }
         }

@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.opengl.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.util.Mth;
@@ -110,8 +110,8 @@ public class MyRenderHelper {
     private static ResourceProvider getResourceFactory(ResourceProvider resourceManager) {
         ResourceProvider resourceFactory = new ResourceProvider() {
             @Override
-            public Optional<Resource> getResource(Identifier resourceLocation) {
-                Identifier corrected = McHelper.newIdentifier(
+            public Optional<Resource> getResource(ResourceLocation resourceLocation) {
+                ResourceLocation corrected = McHelper.newIdentifier(
                     "immersive_portals", resourceLocation.getPath());
                 return resourceManager.getResource(corrected);
             }

@@ -22,7 +22,7 @@ public class DimStackEntry {
     public boolean connectsNext = true;
     
     public DimStackEntry(ResourceKey<Level> dimension) {
-        this.dimensionIdStr = dimension.identifier().toString();
+        this.dimensionIdStr = dimension.location().toString();
     }
     
     public DimStackEntry() {}

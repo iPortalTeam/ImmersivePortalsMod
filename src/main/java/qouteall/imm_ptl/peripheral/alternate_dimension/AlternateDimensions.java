@@ -144,7 +144,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(BRIGHT_SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                BRIGHT_SKYLAND.identifier(),
+                BRIGHT_SKYLAND.location(),
                 () -> BRIGHT_SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
@@ -152,7 +152,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(SKYLAND)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                SKYLAND.identifier(),
+                SKYLAND.location(),
                 () -> SKYLAND_TEMPLATE.createLevelStem(server)
             );
         }
@@ -160,7 +160,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(CHAOS)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                CHAOS.identifier(),
+                CHAOS.location(),
                 () -> CHAOS_TEMPLATE.createLevelStem(server)
             );
         }
@@ -168,7 +168,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(VOID)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                VOID.identifier(),
+                VOID.location(),
                 () -> DimensionTemplate.VOID_TEMPLATE.createLevelStem(server)
             );
         }
@@ -176,7 +176,7 @@ public class AlternateDimensions {
         if (dimStackInfo.hasDimension(BRIGHT_VOID)) {
             DimensionAPI.addDimensionIfNotExists(
                 server,
-                BRIGHT_VOID.identifier(),
+                BRIGHT_VOID.location(),
                 () -> BRIGHT_VOID_TEMPLATE.createLevelStem(server)
             );
         }

@@ -237,7 +237,7 @@ public class BlockManipulationClient {
         }
         if (remoteHitResult instanceof BlockHitResult blockHitResult) {
             return "Point:%s %d %d %d".formatted(
-                remotePointedDim.identifier(),
+                remotePointedDim.location(),
                 blockHitResult.getBlockPos().getX(),
                 blockHitResult.getBlockPos().getY(),
                 blockHitResult.getBlockPos().getZ()

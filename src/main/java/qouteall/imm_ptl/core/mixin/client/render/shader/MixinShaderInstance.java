@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.shader;
 
 import com.mojang.blaze3d.shaders.Shader;
-import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.opengl.Uniform;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
