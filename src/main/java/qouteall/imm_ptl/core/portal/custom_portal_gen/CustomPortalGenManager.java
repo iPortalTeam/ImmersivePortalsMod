@@ -77,7 +77,7 @@ public class CustomPortalGenManager {
         
         for (var entry : legacyRegistry.entrySet()) {
             manager.addEntry(server, entry.getKey(), entry.getValue());
-//            Identifier location = entry.getKey().location();
+//            Identifier location = entry.getKey().identifier();
 //            String text = """
 //                [Immersive Portals]
 //                Custom portal generation config %s comes from legacy location
@@ -104,7 +104,7 @@ public class CustomPortalGenManager {
         ResourceKey<CustomPortalGeneration> key,
         CustomPortalGeneration gen
     ) {
-        gen.identifier = key.location();
+        gen.identifier = key.identifier();
         
         CustomPortalGeneration.InitializationResult r1 = gen.initAndCheck(server);
         if (!(r1 instanceof CustomPortalGeneration.InitializationOk)) {
@@ -112,7 +112,7 @@ public class CustomPortalGenManager {
             return;
         }
         
-        LOGGER.info("Loaded Custom Portal Generation {}", key.location());
+        LOGGER.info("Loaded Custom Portal Generation {}", key.identifier());
         
         load(gen);
         
@@ -120,7 +120,7 @@ public class CustomPortalGenManager {
             CustomPortalGeneration reverse = gen.getReverse();
             
             if (reverse != null) {
-                reverse.identifier = key.location();
+                reverse.identifier = key.identifier();
                 CustomPortalGeneration.InitializationResult r2 = reverse.initAndCheck(server);
                 if (!(r2 instanceof CustomPortalGeneration.InitializationOk)) {
                     LOGGER.info(

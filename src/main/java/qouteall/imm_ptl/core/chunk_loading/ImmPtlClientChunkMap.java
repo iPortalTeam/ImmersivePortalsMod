@@ -185,14 +185,14 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
         catch (Exception e) {
             LOGGER.error(
                 "Error deserializing chunk packet {} {}",
-                worldChunk.getLevel().dimension().location(),
+                worldChunk.getLevel().dimension().identifier(),
                 worldChunk.getPos(),
                 e
             );
             CHelper.printChat(
                 Component
                     .literal("Failed to deserialize chunk packet. %s %s %s".formatted(
-                        worldChunk.getLevel().dimension().location(),
+                        worldChunk.getLevel().dimension().identifier(),
                         worldChunk.getPos().x, worldChunk.getPos().z
                     ))
                     .append(Component.literal(" Report issue:"))

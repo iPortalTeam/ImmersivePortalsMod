@@ -23,7 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
@@ -341,7 +341,7 @@ public class ClientDebugCommand {
                             ClientWorldLoader.getWorldRenderer(world.dimension()))
                             .ip_getBuiltChunkStorage();
                         CHelper.printChat(
-                            world.dimension().location().toString() + builtChunkStorage.getDebugString()
+                            world.dimension().identifier().toString() + builtChunkStorage.getDebugString()
                         );
                     });
                 });
@@ -780,7 +780,7 @@ public class ClientDebugCommand {
             CHelper.printChat(
                 String.format(
                     "On Client %s %s removal:%s added:%s age:%s",
-                    playerSP.level().dimension().location(),
+                    playerSP.level().dimension().identifier(),
                     playerSP.blockPosition(),
                     playerSP.getRemovalReason(),
                     playerSP.level().getEntity(playerSP.getId()) != null,
@@ -794,7 +794,7 @@ public class ClientDebugCommand {
             
             result.append("Client Portals\n");
             ClientWorldLoader.getClientWorlds().forEach((world) -> {
-                result.append(world.dimension().location().toString() + "\n");
+                result.append(world.dimension().identifier().toString() + "\n");
                 for (Entity e : world.entitiesForRendering()) {
                     if (e instanceof Portal) {
                         result.append(e.toString());
@@ -813,7 +813,7 @@ public class ClientDebugCommand {
             ClientWorldLoader.getClientWorlds().forEach(world -> {
                 str.append(String.format(
                     "%s %s\n",
-                    world.dimension().location(),
+                    world.dimension().identifier(),
                     world.getChunkSource().getLoadedChunksCount()
                 ));
             });
@@ -824,7 +824,7 @@ public class ClientDebugCommand {
                 (dimension, worldRenderer) -> {
                     str.append(String.format(
                         "%s %s\n",
-                        dimension.location(),
+                        dimension.identifier(),
                         ((ImmPtlViewArea) ((IEWorldRenderer) worldRenderer)
                             .ip_getBuiltChunkStorage()
                         ).getManagedSectionNum()
@@ -850,7 +850,7 @@ public class ClientDebugCommand {
     
     public static class TestRemoteCallable {
         public static void serverToClient(
-            String str, int integer, double doubleNum, ResourceLocation identifier,
+            String str, int integer, double doubleNum, Identifier identifier,
             ResourceKey<Level> dimension, ResourceKey<Biome> biomeKey,
             BlockPos blockPos, Vec3 vec3d
         ) {

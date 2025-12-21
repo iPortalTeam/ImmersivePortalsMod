@@ -381,7 +381,7 @@ public class PortalDebugCommands {
                 CHelper.printChat(
                     String.format(
                         "On Server %s %s removal:%s added:%s age:%s",
-                        player.level().dimension().location(),
+                        player.level().dimension().identifier(),
                         player.blockPosition(),
                         player.getRemovalReason(),
                         player.level().getEntity(player.getId()) != null,
@@ -407,7 +407,7 @@ public class PortalDebugCommands {
                 result.append("Server Portals\n");
                 
                 for (ServerLevel world : MiscHelper.getServer().getAllLevels()) {
-                    result.append(world.dimension().location().toString() + "\n");
+                    result.append(world.dimension().identifier().toString() + "\n");
                     for (Entity entity : world.getAllEntities()) {
                         for (Entity e : world.getAllEntities()) {
                             if (e instanceof Portal) {
@@ -580,7 +580,7 @@ public class PortalDebugCommands {
                 Registry<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
                 Map<String, Integer> map = new HashMap<>();
                 for (Map.Entry<ResourceKey<Biome>, Biome> entry : biomes.entrySet()) {
-                    String strId = entry.getKey().location().toString();
+                    String strId = entry.getKey().identifier().toString();
                     int intId = biomes.getId(entry.getValue());
                     map.put(strId, intId);
                 }
@@ -620,7 +620,7 @@ public class PortalDebugCommands {
 //            .executes(context -> {
 //                MiscHelper.getServer().getAllLevels().forEach(world -> {
 //                    ChunkGenerator generator = world.getChunkSource().getGenerator();
-//                    Helper.log(world.dimension().location());
+//                    Helper.log(world.dimension().identifier());
 //                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
 //                    Helper.log(McHelper.serializeToJson(
 //                        world.dimensionType(),
@@ -752,7 +752,7 @@ public class PortalDebugCommands {
         
         subStr.append(String.format(
             "%s:\nImmPtl Tracked Chunks: %s\nImmPtl Loading Ticket:%s\nChunks: %s\nEntities:%s Entity Sections:%s\n",
-            world.dimension().location(),
+            world.dimension().identifier(),
             ImmPtlChunkTracking.getLoadedChunkNum(world.dimension()),
             dimTicketManager.getLoadedChunkNum(),
             world.getChunkSource().chunkMap.size(),

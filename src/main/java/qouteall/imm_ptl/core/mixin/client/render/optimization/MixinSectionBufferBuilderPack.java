@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

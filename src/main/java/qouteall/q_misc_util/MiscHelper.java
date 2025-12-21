@@ -44,7 +44,7 @@ public class MiscHelper {
         
         @Override
         public JsonElement serialize(ResourceKey<Level> src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src.location().toString());
+            return new JsonPrimitive(src.identifier().toString());
         }
     }
     

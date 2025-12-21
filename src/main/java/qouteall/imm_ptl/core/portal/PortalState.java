@@ -86,8 +86,8 @@ public class PortalState {
     
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("fromWorld", fromWorld.location().toString());
-        tag.putString("toWorld", toWorld.location().toString());
+        tag.putString("fromWorld", fromWorld.identifier().toString());
+        tag.putString("toWorld", toWorld.identifier().toString());
         Helper.putVec3d(tag, "fromPos", fromPos);
         Helper.putVec3d(tag, "toPos", toPos);
         tag.putDouble("scaling", scaling);
@@ -105,17 +105,13 @@ public class PortalState {
         ResourceKey<Level> toWorld = Helper.dimIdToKey(tag.getString("toWorld"));
         Vec3 fromPos = Helper.getVec3d(tag, "fromPos");
         Vec3 toPos = Helper.getVec3d(tag, "toPos");
-        double scaling = tag.getDouble("scaling").orElse(1.0);
-        double width = tag.getDouble("width").orElse(0.0);
-        double height = tag.getDouble("height").orElse(0.0);
-        double thickness = tag.getDouble("thickness").orElse(0.0);
-        DQuaternion rotation = DQuaternion.fromTag(
-            tag.getCompound("rotation").orElseGet(CompoundTag::new)
-        );
-        DQuaternion orientation = DQuaternion.fromTag(
-            tag.getCompound("orientation").orElseGet(CompoundTag::new)
-        );
-        boolean isMirror = tag.getBoolean("isMirror").orElse(false);
+        double scaling = tag.getDouble("scaling");
+        double width = tag.getDouble("width");
+        double height = tag.getDouble("height");
+        double thickness = tag.getDouble("thickness");
+        DQuaternion rotation = DQuaternion.fromTag(tag.getCompound("rotation"));
+        DQuaternion orientation = DQuaternion.fromTag(tag.getCompound("orientation"));
+        boolean isMirror = tag.getBoolean("isMirror");
         return new PortalState(
             fromWorld, fromPos, toWorld, toPos, scaling, rotation, orientation,
             width, height, thickness, isMirror

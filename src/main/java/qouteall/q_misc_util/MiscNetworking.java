@@ -17,7 +17,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -59,18 +59,18 @@ public class MiscNetworking {
                 ResourceKey<Level> dimId = world.dimension();
                 
                 DimensionType dimType = world.dimensionType();
-                ResourceLocation dimTypeId = dimensionTypes.getKey(dimType);
+                Identifier dimTypeId = dimensionTypes.getKey(dimType);
                 
                 if (dimTypeId == null) {
-                    LOGGER.error("Cannot find dimension type for {}", dimId.location());
+                    LOGGER.error("Cannot find dimension type for {}", dimId.identifier());
                     LOGGER.error(
                         "Registered dimension types {}", dimensionTypes.keySet()
                     );
-                    dimTypeId = BuiltinDimensionTypes.OVERWORLD.location();
+                    dimTypeId = BuiltinDimensionTypes.OVERWORLD.identifier();
                 }
                 
                 dimIdToDimTypeIdTag.putString(
-                    dimId.location().toString(),
+                    dimId.identifier().toString(),
                     dimTypeId.toString()
                 );
             }

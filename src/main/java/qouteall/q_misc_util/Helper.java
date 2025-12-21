@@ -16,7 +16,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -501,7 +501,7 @@ public class Helper {
         return x1 * y2 - x2 * y1;
     }
     
-    public static ResourceKey<Level> dimIdToKey(ResourceLocation identifier) {
+    public static ResourceKey<Level> dimIdToKey(Identifier identifier) {
         return ResourceKey.create(Registries.DIMENSION, identifier);
     }
     
@@ -510,7 +510,7 @@ public class Helper {
     }
     
     public static void putWorldId(CompoundTag tag, String tagName, ResourceKey<Level> dim) {
-        tag.putString(tagName, dim.location().toString());
+        tag.putString(tagName, dim.identifier().toString());
     }
     
     public static ResourceKey<Level> getWorldId(CompoundTag tag, String tagName) {
