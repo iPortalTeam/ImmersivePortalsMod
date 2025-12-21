@@ -77,7 +77,7 @@ public class CustomPortalGenManager {
         
         for (var entry : legacyRegistry.entrySet()) {
             manager.addEntry(server, entry.getKey(), entry.getValue());
-//            ResourceLocation location = entry.getKey().location();
+//            Identifier location = entry.getKey().location();
 //            String text = """
 //                [Immersive Portals]
 //                Custom portal generation config %s comes from legacy location

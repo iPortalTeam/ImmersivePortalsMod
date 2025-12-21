@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.multiworld_awareness;
 
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

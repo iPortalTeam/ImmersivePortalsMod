@@ -23,7 +23,7 @@ public record OscillationAnimation(
     // it's currently not called
     public static void init() {
         PortalAnimationDriver.registerDeserializer(
-            McHelper.newResourceLocation("imm_ptl:oscillation"),
+            McHelper.newIdentifier("imm_ptl:oscillation"),
             OscillationAnimation::fromTag
         );
     }

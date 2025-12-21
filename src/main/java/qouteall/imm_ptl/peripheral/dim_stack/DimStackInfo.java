@@ -269,7 +269,7 @@ public class DimStackInfo {
         }
         
         try {
-            Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(McHelper.newResourceLocation(str));
+            Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(McHelper.newIdentifier(str));
             return block.map(Block::defaultBlockState).orElse(null);
         }
         catch (Exception e) {

@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -19,33 +19,33 @@ import java.util.function.Function;
 public abstract class PortalGenForm {
     public static final Registry<MapCodec<? extends PortalGenForm>> CODEC_REGISTRY = Util.make(() -> {
         MappedRegistry<MapCodec<? extends PortalGenForm>> registry = new MappedRegistry<>(
-            ResourceKey.createRegistryKey(McHelper.newResourceLocation("imm_ptl:custom_portal_gen_form")),
+            ResourceKey.createRegistryKey(McHelper.newIdentifier("imm_ptl:custom_portal_gen_form")),
             Lifecycle.stable()
         );
         
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:classical"), ClassicalForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:classical"), ClassicalForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:heterogeneous"), HeterogeneousForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:heterogeneous"), HeterogeneousForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:flipping_floor_square"), FlippingFloorSquareForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:flipping_floor_square"), FlippingFloorSquareForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:scaling_square"), ScalingSquareForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:scaling_square"), ScalingSquareForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:flipping_floor_square_new"), FlippingFloorSquareNewForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:flipping_floor_square_new"), FlippingFloorSquareNewForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:try_hard_to_match"), DiligentForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:try_hard_to_match"), DiligentForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:convert_conventional_portal"), ConvertConventionalPortalForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:convert_conventional_portal"), ConvertConventionalPortalForm.CODEC
         );
         Registry.register(
-            registry, McHelper.newResourceLocation("imm_ptl:one_way"), OneWayForm.CODEC
+            registry, McHelper.newIdentifier("imm_ptl:one_way"), OneWayForm.CODEC
         );
         
         return registry;

@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -11,7 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -153,10 +153,10 @@ public class CHelper {
      * If still missing, return null.
      */
     @Nullable
-    public static ResourceLocation getDimensionIconPath(ResourceKey<Level> dimension) {
-        ResourceLocation dimensionId = dimension.location();
+    public static Identifier getDimensionIconPath(ResourceKey<Level> dimension) {
+        Identifier dimensionId = dimension.location();
         
-        ResourceLocation dimIconPath = ResourceLocation.fromNamespaceAndPath(
+        Identifier dimIconPath = Identifier.fromNamespaceAndPath(
             dimensionId.getNamespace(),
             "textures/dimension/" + dimensionId.getPath() + ".png"
         );
@@ -166,13 +166,13 @@ public class CHelper {
         if (resource.isEmpty()) {
             LOGGER.info("Cannot load texture {}", dimIconPath);
             
-            ResourceLocation modIconLocation = O_O.getModIconLocation(dimensionId.getNamespace());
+            Identifier modIconLocation = O_O.getModIconLocation(dimensionId.getNamespace());
             
             if (modIconLocation == null) {
                 return null;
             }
             
-            ResourceLocation modIconPath = McHelper.newResourceLocation(
+            Identifier modIconPath = McHelper.newIdentifier(
                 modIconLocation.getNamespace(),
                 modIconLocation.getPath()
             );

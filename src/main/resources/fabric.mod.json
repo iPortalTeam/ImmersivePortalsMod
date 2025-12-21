@@ -45,8 +45,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.7.4",
-    "fabric-api": ">=0.109.0",
-    "minecraft": ["1.21", "1.21.1"],
+    "fabric-api": ">=0.140.0",
+    "minecraft": ["1.21.11"],
     "dimlib": "*"
   },
   "breaks": {
@@ -56,8 +56,8 @@
     "resolutioncontrol": "*",
     "canvas": "*",
     "cardboard": "*",
-    "iris": ["<1.8.0", ">1.8.0"],
-    "sodium": ["<0.6.0", ">0.6.0"],
+    "iris": ["<1.10.0"],
+    "sodium": ["<0.8.0"],
     "gravity_api": "*",
     "vmp": "*"
   },

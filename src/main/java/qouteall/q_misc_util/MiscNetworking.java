@@ -17,7 +17,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -39,7 +39,7 @@ public class MiscNetworking {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<DimIdSyncPacket> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("imm_ptl:dim_int_id_sync")
+                McHelper.newIdentifier("imm_ptl:dim_int_id_sync")
             );
         
         public static final StreamCodec<FriendlyByteBuf, DimIdSyncPacket> CODEC =
@@ -59,7 +59,7 @@ public class MiscNetworking {
                 ResourceKey<Level> dimId = world.dimension();
                 
                 DimensionType dimType = world.dimensionType();
-                ResourceLocation dimTypeId = dimensionTypes.getKey(dimType);
+                Identifier dimTypeId = dimensionTypes.getKey(dimType);
                 
                 if (dimTypeId == null) {
                     LOGGER.error("Cannot find dimension type for {}", dimId.location());
@@ -107,12 +107,12 @@ public class MiscNetworking {
             for (String key : dimTypeTag.getAllKeys()) {
                 ResourceKey<Level> dimId = ResourceKey.create(
                     Registries.DIMENSION,
-                    McHelper.newResourceLocation(key)
+                    McHelper.newIdentifier(key)
                 );
                 String dimTypeId = dimTypeTag.getString(key);
                 ResourceKey<DimensionType> dimType = ResourceKey.create(
                     Registries.DIMENSION_TYPE,
-                    McHelper.newResourceLocation(dimTypeId)
+                    McHelper.newIdentifier(dimTypeId)
                 );
                 builder.put(dimId, dimType);
             }

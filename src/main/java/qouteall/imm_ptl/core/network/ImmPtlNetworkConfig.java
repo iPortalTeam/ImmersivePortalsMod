@@ -95,7 +95,7 @@ public class ImmPtlNetworkConfig {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<S2CConfigStartPacket> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("iportal:config_packet")
+                McHelper.newIdentifier("iportal:config_packet")
             );
         
         public static final StreamCodec<FriendlyByteBuf, S2CConfigStartPacket> CODEC = StreamCodec.of(
@@ -136,7 +136,7 @@ public class ImmPtlNetworkConfig {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<C2SConfigCompletePacket> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("iportal:configure_complete")
+                McHelper.newIdentifier("iportal:configure_complete")
             );
         public static final StreamCodec<FriendlyByteBuf, C2SConfigCompletePacket> CODEC = StreamCodec.of(
             (b, p) -> p.write(b), C2SConfigCompletePacket::read

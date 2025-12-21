@@ -29,7 +29,7 @@ import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,8 +73,8 @@ public class ImplRemoteProcedureCall {
     
     static {
         serializerMap = ImmutableMap.<Class, BiConsumer<RegistryFriendlyByteBuf, Object>>builder()
-            .put(ResourceLocation.class, (buf, o) -> buf.writeResourceLocation(((ResourceLocation) o)))
-            .put(ResourceKey.class, (buf, o) -> buf.writeResourceLocation(((ResourceKey) o).location()))
+            .put(Identifier.class, (buf, o) -> buf.writeIdentifier(((Identifier) o)))
+            .put(ResourceKey.class, (buf, o) -> buf.writeIdentifier(((ResourceKey) o).location()))
             .put(BlockPos.class, (buf, o) -> buf.writeBlockPos(((BlockPos) o)))
             .put(Vec3.class, (buf, o) -> {
                 Vec3 vec = (Vec3) o;
@@ -102,17 +102,17 @@ public class ImplRemoteProcedureCall {
             .build();
         
         deserializerMap = ImmutableMap.<Type, Function<RegistryFriendlyByteBuf, Object>>builder()
-            .put(ResourceLocation.class, FriendlyByteBuf::readResourceLocation)
+            .put(Identifier.class, FriendlyByteBuf::readIdentifier)
             .put(
                 new TypeToken<ResourceKey<Level>>() {}.getType(),
                 buf -> ResourceKey.create(
-                    Registries.DIMENSION, buf.readResourceLocation()
+                    Registries.DIMENSION, buf.readIdentifier()
                 )
             )
             .put(
                 new TypeToken<ResourceKey<Biome>>() {}.getType(),
                 buf -> ResourceKey.create(
-                    Registries.BIOME, buf.readResourceLocation()
+                    Registries.BIOME, buf.readIdentifier()
                 )
             )
             .put(BlockPos.class, buf -> buf.readBlockPos())
@@ -146,7 +146,7 @@ public class ImplRemoteProcedureCall {
         
         public static final CustomPacketPayload.Type<C2SRPCPayload> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("iportal:remote_c2s")
+                McHelper.newIdentifier("iportal:remote_c2s")
             );
         
         public static final StreamCodec<RegistryFriendlyByteBuf, C2SRPCPayload> CODEC = StreamCodec.of(
@@ -241,7 +241,7 @@ public class ImplRemoteProcedureCall {
         
         public static final CustomPacketPayload.Type<S2CRPCPayload> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("iportal:remote_s2c")
+                McHelper.newIdentifier("iportal:remote_s2c")
             );
         
         public static final StreamCodec<RegistryFriendlyByteBuf, S2CRPCPayload> CODEC = StreamCodec.of(

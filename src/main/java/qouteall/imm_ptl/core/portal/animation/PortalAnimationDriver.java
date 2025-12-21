@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 public interface PortalAnimationDriver {
-    static final Map<ResourceLocation, Function<CompoundTag, PortalAnimationDriver>> deserializerRegistry =
+    static final Map<Identifier, Function<CompoundTag, PortalAnimationDriver>> deserializerRegistry =
         new HashMap<>();
     
-    public static void registerDeserializer(ResourceLocation key, Function<CompoundTag, PortalAnimationDriver> deserializer) {
+    public static void registerDeserializer(Identifier key, Function<CompoundTag, PortalAnimationDriver> deserializer) {
         PortalAnimationDriver.deserializerRegistry.put(
             key,
             deserializer
@@ -27,7 +27,7 @@ public interface PortalAnimationDriver {
     public static PortalAnimationDriver fromTag(CompoundTag tag) {
         String type = tag.getString("type");
         Function<CompoundTag, PortalAnimationDriver> deserializer = deserializerRegistry.get(
-            McHelper.newResourceLocation(type)
+            McHelper.newIdentifier(type)
         );
         if (deserializer == null) {
             Helper.err("Unknown animation type " + type);

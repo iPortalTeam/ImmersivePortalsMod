@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;

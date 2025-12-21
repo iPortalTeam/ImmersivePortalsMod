@@ -17,7 +17,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -47,7 +47,7 @@ public class ImmPtlNetworking {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<TeleportPacket> TYPE =
             new CustomPacketPayload.Type<>(
-                ResourceLocation.fromNamespaceAndPath("imm_ptl", "teleport")
+                Identifier.fromNamespaceAndPath("imm_ptl", "teleport")
             );
         
         public static final StreamCodec<FriendlyByteBuf, TeleportPacket> CODEC = StreamCodec.of(
@@ -95,7 +95,7 @@ public class ImmPtlNetworking {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<GlobalPortalSyncPacket> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("imm_ptl:upd_glb_ptl")
+                McHelper.newIdentifier("imm_ptl:upd_glb_ptl")
             );
         
         public static final StreamCodec<FriendlyByteBuf, GlobalPortalSyncPacket> CODEC = StreamCodec.of(
@@ -143,7 +143,7 @@ public class ImmPtlNetworking {
     ) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<PortalSyncPacket> TYPE =
             new CustomPacketPayload.Type<>(
-                McHelper.newResourceLocation("imm_ptl:spawn_portal")
+                McHelper.newIdentifier("imm_ptl:spawn_portal")
             );
         
         public static final StreamCodec<RegistryFriendlyByteBuf, PortalSyncPacket> CODEC = StreamCodec.of(

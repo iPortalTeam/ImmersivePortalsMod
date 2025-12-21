@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

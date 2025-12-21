@@ -1,124 +1,104 @@
 # PROJECT — Fonte di verità
 
 ## METADATI
-- PROJECT_NAME: <nome-progetto>
-- PROJECT_PREFIX: <IMPT>   <!-- 4 lettere, deterministico: vedi regola sotto -->
-- VERSION: v0.1.0
-- LAST_FEATURE_ID: 000000  <!-- incrementare quando aggiungi una feature -->
+- PROJECT_NAME: Immersive Portals Mod
+- PROJECT_PREFIX: IMPT
+- VERSION: v6.0.9
+- LAST_FEATURE_ID: 000003
 - TIMEZONE: Europe/Rome
-- TIMESTAMP_FORMAT: (aaaa/mm/gg hh.mm.ss)
+- TIMESTAMP_FORMAT: (YYYY-MM-DD HH:MM:SS)
 
 ---
 
 ## SEZIONE DISCORSIVA
 ### Cos’è questo progetto
-<Spiegazione in linguaggio semplice: cosa fa, per chi, perché esiste.>
+Mod Minecraft che permette di vedere e attraversare portali tra dimensioni senza schermate di caricamento, offrendo strumenti e comandi per creare/manipolare portali.
 
 ### Cosa NON fa (confini)
-- <non fa X>
-- <non fa Y>
+- Non sostituisce shader/renderer completi: integra compatibilità con mod di rendering esterne.
+- Non gestisce la distribuzione del client/server (si affida a Fabric e alle dipendenze standard).
 
 ### Input / Output principali
 - Input:
-  - <es: eventi, richieste, file, comandi, API call>
+  - Eventi di gioco (tick, rendering, teletrasporto)
+  - Comandi server/client per gestione portali
+  - Configurazioni mod e compatibilità runtime
 - Output:
-  - <es: UI, file generati, risposte API, log, modifiche DB>
+  - Rendering di portali e teletrasporto
+  - Log di debug/diagnostica
+  - Modifiche a entità/portali nel mondo
 
 ---
 
 ## SEZIONE FEATURES (ledger)
-> Regole:
-> - Ogni feature: **XXXX000001:** (ID monotono, mai riusato)
-> - Stato: 🟢[ADD] 🔴[DEL] 🟡[CHG]
-> - Timestamp: *(aaaa/mm/gg hh.mm.ss)* in corsivo
-> - Ogni voce include: Scope, Reason, Test, Rollback
-
 ### Elenco features
-- 🟢 **XXXX000001:** <titolo/descrizione feature> *(2025/12/20 14.03.22)*  
-  - Scope: <file/moduli/eventi>
-  - Reason: <perché è stata fatta>
-  - Test: <passi riproducibili per verificare>
-  - Rollback: <come annullare se rompe>
-
-- 🟡 **XXXX000002:** <descrizione modifica> *(2025/12/20 14.10.02)*  
-  - Scope: <...>
-  - Reason: <...>
-  - Test: <...>
-  - Rollback: <...>
+- 🟡 **IMPT000001:** Porting versione Minecraft 1.21.11 con allineamento compatibilità Iris/Sodium *(2025-12-20 19:59:16)* [CHG] — Scope: gradle.properties, src/main/resources/fabric.mod.json, project.md, changelog.md — Reason: aggiornare dipendenze/metadata per 1.21.11 e consentire nuove versioni Iris/Sodium — Test: eseguire build Gradle e avvio client/server Fabric su 1.21.11 — Rollback: ripristinare i valori 1.21.1 in gradle.properties e i vincoli precedenti in fabric.mod.json
+- 🟡 **IMPT000002:** Aggiornate coordinate e vincoli minimi Iris/Sodium per build 1.21.11 *(2025-12-20 20:04:13)* [CHG] — Scope: gradle.properties, src/main/resources/fabric.mod.json, project.md, changelog.md — Reason: allineare dipendenze Modrinth verificate per 1.21.11 — Test: avvio client Fabric con Iris 1.10.3+1.21.11 e Sodium mc1.21.11-0.8.1 — Rollback: ripristinare coordinate precedenti e vincoli minimi in fabric.mod.json
+- 🟡 **IMPT000003:** Aggiornato Fabric Loom e Gradle per compatibilità con Javadoc intermediari *(2025-12-20 21:01:32)* [CHG] — Scope: build.gradle, gradle.properties, gradle/wrapper/gradle-wrapper.properties, project.md, changelog.md — Reason: risolvere il blocco Loom su Javadoc non in namespace intermediary e requisiti Gradle del plugin (snapshot 9.2.1) — Test: ./gradlew build — Rollback: ripristinare le versioni precedenti di fabric-loom e gradle wrapper
 
 ---
 
 ## SEZIONE VARIABILI & FUNZIONI / INTERFACCE
-> Elenco descrittivo (non implementativo). Qui spieghi “cosa sono” e “a cosa servono”.
-
 ### Config / Variabili principali
-- `<NOME_VARIABILE>`: <scopo, formato, valori attesi>
-- `<NOME_VARIABILE>`: <scopo, formato, valori attesi>
+- `minecraft_version`: versione target di Minecraft usata da build e metadata.
+- `yarn_mappings`: mapping Yarn per la versione target.
+- `fabric_version` / `loader_version`: versione Fabric API e loader usate in build.
+- `sodium_path` / `iris_path`: coordinate runtime per mod di rendering compatibili.
 
 ### Funzioni / Endpoint / Eventi / Comandi (pubblici)
-- `<nome>`:
-  - Scopo: <...>
-  - Input: <...>
-  - Output: <...>
-  - Side effects: <...>
-  - Errori/Edge cases: <...>
+- Comandi server `/portal` e debug (registrati via `CommandRegistrationCallback`).
+- Comandi client di debug (registrati via `ClientCommandRegistrationCallback`).
 
 ### Strutture dati / DTO
-- `<NomeStruttura>`:
-  - Campi: <...>
-  - Vincoli: <...>
+- `Portal` e strutture correlate per rappresentare portali, destinazioni e animazioni.
 
 ### Dipendenze esterne
-- <framework/librerie/servizi>
-- Versioni: <se note>
-- Note integrazione: <...>
+- Fabric Loader e Fabric API
+- Yarn mappings + Parchment
+- Iris, Sodium, DimLib, Cloth Config, ModMenu
 
 ---
 
 ## SEZIONE LOGICA (architettura e flussi)
 ### Componenti / Moduli
-- <modulo A>: responsabilità
-- <modulo B>: responsabilità
+- Core portali: gestione entità portale, teletrasporto e rendering.
+- Comandi: registrazione e logiche operative per manipolare portali.
+- Compatibilità: hook verso Iris/Sodium e configurazioni esterne.
 
 ### Flusso principale (happy path)
-1. <step 1>
-2. <step 2>
-3. <step 3>
+1. Loader avvia la mod tramite entrypoints Fabric.
+2. Registrazione comandi e init moduli core.
+3. Rendering e teletrasporto gestiti a runtime.
 
 ### Flussi alternativi / error handling
-- Caso A: <...>
-- Caso B: <...>
+- Mod di rendering non presenti: funzioni compatibilità ignorate.
+- Comandi senza permessi: rifiutati a livello Brigadier.
 
 ### Connessioni tra file/funzioni/logiche
-- `<fileA>` → chiama `<funzioneB>` → emette `<eventoC>` → aggiorna `<statoD>`
+- `IPModMain` registra comandi → `PortalCommand` gestisce logiche → `Portal` applica modifiche.
 
 ### Punti critici
-- Performance: <...>
-- Concorrenza/race: <...>
-- Sicurezza/permessi: <...>
+- Performance: rendering multi-portal e gestione chunk.
+- Sicurezza/permessi: comandi admin e livello permessi.
 
 ---
 
 ## SEZIONE PSEUDO-CODICE
-> Solo per logiche complesse/critiche o per bug/bugfix importanti.
-
-### <NomeFunzioneCritica>
-- Se <condizione>, allora <azione>
-- Altrimenti <azione>
-- Se fallisce <X>, allora <fallback>
-- Garantisce: <invariante>
+Nessuna logica critica aggiornata in questo porting.
 
 ---
 
 ## SEZIONE STRUTTURA PROGETTO
-> Aggiorna quando cambia struttura o file rilevanti.
-
 <root>/
 ├ README.md
 ├ agent.md
 ├ project.md
 ├ changelog.md
+├ build.gradle
+├ gradle.properties
+├ settings.gradle
 ├ src/
-│  ├ ...
-└ tests/
-   └ ...
+│  ├ main/
+│  │  ├ java/
+│  │  └ resources/
+└ misc/

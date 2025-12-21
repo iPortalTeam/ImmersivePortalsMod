@@ -54,13 +54,13 @@ public class IntrinsicPortalGeneration {
     );
     
     public static void init() {
-        intrinsicToNether.identifier = McHelper.newResourceLocation("imm_ptl:intrinsic_nether_portal");
-        intrinsicFromNether.identifier = McHelper.newResourceLocation("imm_ptl:intrinsic_nether_portal");
+        intrinsicToNether.identifier = McHelper.newIdentifier("imm_ptl:intrinsic_nether_portal");
+        intrinsicFromNether.identifier = McHelper.newIdentifier("imm_ptl:intrinsic_nether_portal");
         
-        diligentFromNether.identifier = McHelper.newResourceLocation("imm_ptl:intrinsic_diligent_nether_portal");
-        diligentToNether.identifier = McHelper.newResourceLocation("imm_ptl:intrinsic_diligent_nether_portal");
+        diligentFromNether.identifier = McHelper.newIdentifier("imm_ptl:intrinsic_diligent_nether_portal");
+        diligentToNether.identifier = McHelper.newIdentifier("imm_ptl:intrinsic_diligent_nether_portal");
         
-        portalHelper.identifier = McHelper.newResourceLocation("imm_ptl:intrinsic_portal_helper");
+        portalHelper.identifier = McHelper.newIdentifier("imm_ptl:intrinsic_portal_helper");
     }
     
     /**

@@ -15,7 +15,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -247,7 +247,7 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     private static Portal readPortalFromTag(Level currWorld, CompoundTag compoundTag) {
-        ResourceLocation entityId = McHelper.newResourceLocation(compoundTag.getString("entity_type"));
+        Identifier entityId = McHelper.newIdentifier(compoundTag.getString("entity_type"));
         EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
         
         Entity e = entityType.create(currWorld);

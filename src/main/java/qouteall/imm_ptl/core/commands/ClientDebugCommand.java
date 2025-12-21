@@ -23,7 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
@@ -485,7 +485,7 @@ public class ClientDebugCommand {
                                     
                                     ResourceKey<Level> dimKey = ResourceKey.create(
                                         Registries.DIMENSION,
-                                        McHelper.newResourceLocation(dimId)
+                                        McHelper.newIdentifier(dimId)
                                     );
                                     Vec3 pos = new Vec3(x, y, z);
                                     
@@ -850,7 +850,7 @@ public class ClientDebugCommand {
     
     public static class TestRemoteCallable {
         public static void serverToClient(
-            String str, int integer, double doubleNum, ResourceLocation identifier,
+            String str, int integer, double doubleNum, Identifier identifier,
             ResourceKey<Level> dimension, ResourceKey<Biome> biomeKey,
             BlockPos blockPos, Vec3 vec3d
         ) {
@@ -892,7 +892,7 @@ public class ClientDebugCommand {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
-                "string", 2, 3.5, McHelper.newResourceLocation("imm_ptl:oops"),
+                "string", 2, 3.5, McHelper.newIdentifier("imm_ptl:oops"),
                 Level.NETHER, Biomes.JUNGLE,
                 new BlockPos(3, 5, 4),
                 new Vec3(7, 4, 1)
