@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.compat.mixin.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
+import net.caffeinemc.mods.sodium.client.render.chunk.lists.RenderSectionVisitor;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.OcclusionCuller;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.minecraft.core.SectionPos;
@@ -41,7 +42,7 @@ public abstract class MixinSodiumOcclusionCuller {
     )
     boolean modifyUseOcclusionCulling(
         boolean originalValue,
-        OcclusionCuller.Visitor visitor, Viewport viewport, float searchDistance, boolean useOcclusionCulling, int frame
+        RenderSectionVisitor visitor, Viewport viewport, float searchDistance, boolean useOcclusionCulling, int frame
     ) {
         boolean doUseOcclusionCulling = PortalRendering.shouldEnableSodiumCaveCulling();
         

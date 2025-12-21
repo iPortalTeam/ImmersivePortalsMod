@@ -62,7 +62,7 @@ public class MiscNetworking {
                 Identifier dimTypeId = dimensionTypes.getKey(dimType);
                 
                 if (dimTypeId == null) {
-                    LOGGER.error("Cannot find dimension type for {}", dimId.location());
+                    LOGGER.error("Cannot find dimension type for {}", dimId.identifier());
                     LOGGER.error(
                         "Registered dimension types {}", dimensionTypes.keySet()
                     );
@@ -70,7 +70,7 @@ public class MiscNetworking {
                 }
                 
                 dimIdToDimTypeIdTag.putString(
-                    dimId.location().toString(),
+                    dimId.identifier().toString(),
                     dimTypeId.toString()
                 );
             }
@@ -104,17 +104,18 @@ public class MiscNetworking {
             ImmutableMap.Builder<ResourceKey<Level>, ResourceKey<DimensionType>> builder =
                 new ImmutableMap.Builder<>();
             
-            for (String key : dimTypeTag.getAllKeys()) {
+            for (String key : dimTypeTag.keySet()) {
                 ResourceKey<Level> dimId = ResourceKey.create(
                     Registries.DIMENSION,
                     McHelper.newIdentifier(key)
                 );
-                String dimTypeId = dimTypeTag.getString(key);
-                ResourceKey<DimensionType> dimType = ResourceKey.create(
-                    Registries.DIMENSION_TYPE,
-                    McHelper.newIdentifier(dimTypeId)
-                );
-                builder.put(dimId, dimType);
+                dimTypeTag.getString(key).ifPresent(dimTypeId -> {
+                    ResourceKey<DimensionType> dimType = ResourceKey.create(
+                        Registries.DIMENSION_TYPE,
+                        McHelper.newIdentifier(dimTypeId)
+                    );
+                    builder.put(dimId, dimType);
+                });
             }
             
             var dimTypeMap = builder.build();

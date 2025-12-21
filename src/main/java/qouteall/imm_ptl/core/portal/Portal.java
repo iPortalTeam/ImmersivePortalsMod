@@ -30,6 +30,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -75,7 +79,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 /**
  * Portal entity. Global portals are also entities but not added into world.
@@ -230,10 +234,15 @@ public class Portal extends Entity implements
     }
     
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        width = compoundTag.getDouble("width");
-        height = compoundTag.getDouble("height");
-        thickness = compoundTag.getDouble("thickness");
+    protected void readAdditionalSaveData(ValueInput input) {
+        CompoundTag compoundTag = extractCompoundTag(input);
+        readAdditionalSaveDataFromTag(compoundTag);
+    }
+    
+    private void readAdditionalSaveDataFromTag(CompoundTag compoundTag) {
+        width = compoundTag.getDoubleOr("width", 0.0);
+        height = compoundTag.getDoubleOr("height", 0.0);
+        thickness = compoundTag.getDoubleOr("thickness", 0.0);
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = Helper.getWorldId(compoundTag, "dimensionTo");
@@ -241,7 +250,7 @@ public class Portal extends Entity implements
         specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         
         if (compoundTag.contains("portalShape")) {
-            CompoundTag portalShapeTag = compoundTag.getCompound("portalShape");
+            CompoundTag portalShapeTag = compoundTag.getCompoundOrEmpty("portalShape");
             PortalShape portalShape = PortalShapeSerialization.deserialize(portalShapeTag);
             if (portalShape == null) {
                 LOGGER.error("Cannot deserialize portal shape {}", portalShapeTag);
@@ -257,7 +266,7 @@ public class Portal extends Entity implements
             
             if (compoundTag.contains("specialShape")) {
                 // if missing, it will be false
-                boolean shapeNormalized = compoundTag.getBoolean("shapeNormalized");
+                boolean shapeNormalized = compoundTag.getBooleanOr("shapeNormalized", false);
                 
                 if (shapeNormalized) {
                     mesh2D = GeometryPortalShape.readOldMeshFromTag(
@@ -284,15 +293,15 @@ public class Portal extends Entity implements
         }
         
         if (compoundTag.contains("teleportable")) {
-            teleportable = compoundTag.getBoolean("teleportable");
+            teleportable = compoundTag.getBooleanOr("teleportable", teleportable);
         }
         
         if (compoundTag.contains("rotationA")) {
             setRotationTransformationD(new DQuaternion(
-                compoundTag.getFloat("rotationB"),
-                compoundTag.getFloat("rotationC"),
-                compoundTag.getFloat("rotationD"),
-                compoundTag.getFloat("rotationA")
+                compoundTag.getFloatOr("rotationB", 0.0f),
+                compoundTag.getFloatOr("rotationC", 0.0f),
+                compoundTag.getFloatOr("rotationD", 0.0f),
+                compoundTag.getFloatOr("rotationA", 0.0f)
             ));
         }
         else {
@@ -300,56 +309,62 @@ public class Portal extends Entity implements
         }
         
         if (compoundTag.contains("interactable")) {
-            interactable = compoundTag.getBoolean("interactable");
+            interactable = compoundTag.getBooleanOr("interactable", interactable);
         }
         
         if (compoundTag.contains("scale")) {
-            scaling = compoundTag.getDouble("scale");
+            scaling = compoundTag.getDoubleOr("scale", scaling);
         }
         if (compoundTag.contains("teleportChangesScale")) {
-            teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
+            teleportChangesScale = compoundTag.getBooleanOr("teleportChangesScale", teleportChangesScale);
         }
         if (compoundTag.contains("teleportChangesGravity")) {
-            teleportChangesGravity = compoundTag.getBoolean("teleportChangesGravity");
+            teleportChangesGravity = compoundTag.getBooleanOr("teleportChangesGravity", teleportChangesGravity);
         }
         else {
             teleportChangesGravity = IPConfig.getConfig().portalsChangeGravityByDefault;
         }
         
         if (compoundTag.contains("portalTag")) {
-            portalTag = compoundTag.getString("portalTag");
+            portalTag = compoundTag.getString("portalTag").orElse(null);
         }
         
         if (compoundTag.contains("fuseView")) {
-            fuseView = compoundTag.getBoolean("fuseView");
+            fuseView = compoundTag.getBooleanOr("fuseView", fuseView);
         }
         
         if (compoundTag.contains("renderingMergable")) {
-            renderingMergable = compoundTag.getBoolean("renderingMergable");
+            renderingMergable = compoundTag.getBooleanOr("renderingMergable", renderingMergable);
         }
         
         if (compoundTag.contains("hasCrossPortalCollision")) {
-            crossPortalCollisionEnabled = compoundTag.getBoolean("hasCrossPortalCollision");
+            crossPortalCollisionEnabled = compoundTag.getBooleanOr(
+                "hasCrossPortalCollision", crossPortalCollisionEnabled
+            );
         }
         
         if (compoundTag.contains("commandsOnTeleported")) {
             ListTag list = compoundTag.getList("commandsOnTeleported", 8);
-            commandsOnTeleported = list.stream()
-                .map(t -> ((StringTag) t).getAsString()).collect(Collectors.toList());
+            commandsOnTeleported = new ArrayList<>();
+            for (var tag : list) {
+                if (tag instanceof StringTag stringTag) {
+                    commandsOnTeleported.add(stringTag.getAsString());
+                }
+            }
         }
         else {
             commandsOnTeleported = null;
         }
         
         if (compoundTag.contains("doRenderPlayer")) {
-            doRenderPlayer = compoundTag.getBoolean("doRenderPlayer");
+            doRenderPlayer = compoundTag.getBooleanOr("doRenderPlayer", doRenderPlayer);
         }
         else {
             doRenderPlayer = true;
         }
         
         if (compoundTag.contains("isVisible")) {
-            visible = compoundTag.getBoolean("isVisible");
+            visible = compoundTag.getBooleanOr("isVisible", visible);
         }
         else {
             visible = true;
@@ -363,7 +378,12 @@ public class Portal extends Entity implements
     }
     
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(ValueOutput output) {
+        CompoundTag compoundTag = extractCompoundTag(output);
+        addAdditionalSaveDataToTag(compoundTag);
+    }
+    
+    private void addAdditionalSaveDataToTag(CompoundTag compoundTag) {
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         compoundTag.putDouble("thickness", thickness);
@@ -423,6 +443,34 @@ public class Portal extends Entity implements
         
         WRITE_PORTAL_DATA_SIGNAL.invoker().accept(this, compoundTag);
         
+    }
+    
+    private static CompoundTag extractCompoundTag(ValueInput input) {
+        if (input instanceof TagValueInput tagValueInput) {
+            try {
+                var field = TagValueInput.class.getDeclaredField("input");
+                field.setAccessible(true);
+                return (CompoundTag) field.get(tagValueInput);
+            }
+            catch (ReflectiveOperationException e) {
+                LOGGER.error("Failed to extract portal tag from ValueInput", e);
+            }
+        }
+        return new CompoundTag();
+    }
+    
+    private static CompoundTag extractCompoundTag(ValueOutput output) {
+        if (output instanceof TagValueOutput tagValueOutput) {
+            try {
+                var field = TagValueOutput.class.getDeclaredField("output");
+                field.setAccessible(true);
+                return (CompoundTag) field.get(tagValueOutput);
+            }
+            catch (ReflectiveOperationException e) {
+                LOGGER.error("Failed to extract portal tag from ValueOutput", e);
+            }
+        }
+        return new CompoundTag();
     }
     
     public @NotNull PortalShape getPortalShape() {
@@ -906,7 +954,7 @@ public class Portal extends Entity implements
         Validate.isTrue(!level().isClientSide());
         
         CompoundTag compoundTag = new CompoundTag();
-        addAdditionalSaveData(compoundTag);
+        addAdditionalSaveDataToTag(compoundTag);
         
         // the listener generic parameter is contravariant. this is fine
         return (Packet<ClientGamePacketListener>) (Packet)
@@ -1739,7 +1787,7 @@ public class Portal extends Entity implements
         PortalState oldState = getPortalState();
         
         setPos(pos);
-        readAdditionalSaveData(customData);
+        readAdditionalSaveDataFromTag(customData);
         
         if (animation.defaultAnimation.durationTicks > 0) {
             animation.defaultAnimation.startClientDefaultAnimation(this, oldState);
@@ -1750,13 +1798,13 @@ public class Portal extends Entity implements
     
     public CompoundTag writePortalDataToNbt() {
         CompoundTag nbtCompound = new CompoundTag();
-        addAdditionalSaveData(nbtCompound);
+        addAdditionalSaveDataToTag(nbtCompound);
         return nbtCompound;
     }
     
     public void readPortalDataFromNbt(CompoundTag compound) {
         try {
-            readAdditionalSaveData(compound);
+            readAdditionalSaveDataFromTag(compound);
         }
         catch (Exception e) {
             LOGGER.error("Failed to read portal data from nbt {}", compound, e);
@@ -1769,7 +1817,7 @@ public class Portal extends Entity implements
     public void updatePortalFromNbt(CompoundTag newNbt) {
         CompoundTag data = writePortalDataToNbt();
         
-        newNbt.getAllKeys().forEach(
+        newNbt.keySet().forEach(
             key -> data.put(key, newNbt.get(key))
         );
         
