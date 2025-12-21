@@ -110,8 +110,8 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         if (packetDim != playerWorld.dimension()) {
             LOGGER.info(
                 "[ImmPtl] Client accepted position packet in another dimension. Packet: {} {} {} {}. Player: {} {} {} {}",
-                packetDim.location(), packet.getX(), packet.getY(), packet.getZ(),
-                playerWorld.dimension().location(), player.getX(), player.getY(), player.getZ()
+                packetDim.identifier(), packet.getX(), packet.getY(), packet.getZ(),
+                playerWorld.dimension().identifier(), player.getX(), player.getY(), player.getZ()
             );
             
             ClientTeleportationManager.forceTeleportPlayer(
@@ -124,7 +124,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         
         LOGGER.info(
             "[ImmPtl] Client accepted position packet {} {} {} {}",
-            packetDim.location(), packet.getX(), packet.getY(), packet.getZ()
+            packetDim.identifier(), packet.getX(), packet.getY(), packet.getZ()
         );
     }
     
@@ -278,7 +278,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         ClientboundLevelChunkWithLightPacket packet, CallbackInfo ci
     ) {
         if (IPGlobal.chunkPacketDebug) {
-            LOGGER.info("Chunk Load Packet {} {} {}", level.dimension().location(), packet.getX(), packet.getZ());
+            LOGGER.info("Chunk Load Packet {} {} {}", level.dimension().identifier(), packet.getX(), packet.getZ());
         }
     }
     
@@ -297,7 +297,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         if (IPGlobal.chunkPacketDebug) {
             LOGGER.info(
                 "Chunk Unload Packet {} {} {}",
-                level.dimension().location(), packet.pos().x, packet.pos().z
+                level.dimension().identifier(), packet.pos().x, packet.pos().z
             );
         }
     }

@@ -9,7 +9,7 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 
 public class IPortalInitialScreen extends Screen {
@@ -52,7 +52,7 @@ public class IPortalInitialScreen extends Screen {
         
         iconWidget = ImageWidget.texture(
             30, 30,
-            ResourceLocation.fromNamespaceAndPath("immersive_portals", "icon.png"),
+            Identifier.fromNamespaceAndPath("immersive_portals", "icon.png"),
             30, 30
         );
         

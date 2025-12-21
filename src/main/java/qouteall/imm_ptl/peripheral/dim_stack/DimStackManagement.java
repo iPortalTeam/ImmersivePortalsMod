@@ -119,7 +119,7 @@ public class DimStackManagement {
             newMap.put(world.dimension(), replacement);
             LOGGER.info(
                 "Bedrock Replacement {} {}",
-                world.dimension().location(),
+                world.dimension().identifier(),
                 replacement != null ?
                     BuiltInRegistries.BLOCK.getKey(replacement.getBlock()) : "null"
             );
@@ -179,7 +179,7 @@ public class DimStackManagement {
         ServerPlayer player
     ) {
         List<String> dimIdList = collectDimStackCandidateWhenServerRunning(player.server)
-            .stream().map(k -> k.location().toString()).toList();
+            .stream().map(k -> k.identifier().toString()).toList();
         
         McRemoteProcedureCall.tellClientToInvoke(
             player,
