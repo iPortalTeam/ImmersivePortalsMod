@@ -3,7 +3,6 @@ package qouteall.imm_ptl.peripheral.mixin.common.dim_stack;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,22 +24,22 @@ public abstract class MixinMinecraftServer_DimStack_CVB {
     private Map<ResourceKey<Level>, ServerLevel> levels;
     
     @Inject(
-        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/MinecraftServer;setInitialSpawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ServerLevelData;ZZ)V"
+            target = "Lnet/minecraft/server/MinecraftServer;setInitialSpawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ServerLevelData;ZZLnet/minecraft/server/level/progress/LevelLoadListener;)V"
         )
     )
-    private void onBeforeSetupSpawn(ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci) {
+    private void onBeforeSetupSpawn(CallbackInfo ci) {
         DimStackManagement.onServerEarlyInit((MinecraftServer) (Object) this);
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/MinecraftServer;createLevels(Lnet/minecraft/server/level/progress/ChunkProgressListener;)V",
+        method = "Lnet/minecraft/server/MinecraftServer;createLevels()V",
         at = @At("RETURN")
     )
     private void onCreateWorldsFinishes(
-        ChunkProgressListener worldGenerationProgressListener, CallbackInfo ci
+        CallbackInfo ci
     ) {
         DimStackManagement.onServerCreatedWorlds((MinecraftServer) (Object) this);
     }
