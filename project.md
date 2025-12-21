@@ -3,8 +3,8 @@
 ## METADATI
 - PROJECT_NAME: Immersive Portals Mod
 - PROJECT_PREFIX: IMPT
-- VERSION: v6.0.8
-- LAST_FEATURE_ID: 000002
+- VERSION: v6.0.9
+- LAST_FEATURE_ID: 000003
 - TIMEZONE: Europe/Rome
 - TIMESTAMP_FORMAT: (YYYY-MM-DD HH:MM:SS)
 
@@ -34,6 +34,7 @@ Mod Minecraft che permette di vedere e attraversare portali tra dimensioni senza
 ### Elenco features
 - 🟡 **IMPT000001:** Porting versione Minecraft 1.21.11 con allineamento compatibilità Iris/Sodium *(2025-12-20 19:59:16)* [CHG] — Scope: gradle.properties, src/main/resources/fabric.mod.json, project.md, changelog.md — Reason: aggiornare dipendenze/metadata per 1.21.11 e consentire nuove versioni Iris/Sodium — Test: eseguire build Gradle e avvio client/server Fabric su 1.21.11 — Rollback: ripristinare i valori 1.21.1 in gradle.properties e i vincoli precedenti in fabric.mod.json
 - 🟡 **IMPT000002:** Aggiornate coordinate e vincoli minimi Iris/Sodium per build 1.21.11 *(2025-12-20 20:04:13)* [CHG] — Scope: gradle.properties, src/main/resources/fabric.mod.json, project.md, changelog.md — Reason: allineare dipendenze Modrinth verificate per 1.21.11 — Test: avvio client Fabric con Iris 1.10.3+1.21.11 e Sodium mc1.21.11-0.8.1 — Rollback: ripristinare coordinate precedenti e vincoli minimi in fabric.mod.json
+- 🟡 **IMPT000003:** Aggiornato Fabric Loom e Gradle per compatibilità con Javadoc intermediari *(2025-12-20 21:01:32)* [CHG] — Scope: build.gradle, gradle.properties, gradle/wrapper/gradle-wrapper.properties, project.md, changelog.md — Reason: risolvere il blocco Loom su Javadoc non in namespace intermediary e requisiti Gradle del plugin (snapshot 9.2.1) — Test: ./gradlew build — Rollback: ripristinare le versioni precedenti di fabric-loom e gradle wrapper
 
 ---
 

@@ -10,7 +10,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -102,11 +102,11 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
                 // also handle block tag ids that start with #
                 String blockTagIdStr = str.substring(1);
                 
-                DataResult<ResourceLocation> bockTagRl = ResourceLocation.read(blockTagIdStr);
+                DataResult<Identifier> bockTagRl = Identifier.read(blockTagIdStr);
                 if (bockTagRl.result().isEmpty()) {
                     return DataResult.error(() -> "Invalid block tag id:" + blockTagIdStr);
                 }
-                ResourceLocation resourceLocation = bockTagRl.result().get();
+                Identifier resourceLocation = bockTagRl.result().get();
                 
                 TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, resourceLocation);
                 return DataResult.success(Pair.of(
@@ -115,11 +115,11 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
                 ), Lifecycle.stable());
             }
             
-            DataResult<ResourceLocation> rl = ResourceLocation.read(str);
+            DataResult<Identifier> rl = Identifier.read(str);
             if (rl.result().isEmpty()) {
                 return DataResult.error(() -> "Invalid resource location:" + str);
             }
-            ResourceLocation resourceLocation = rl.result().get();
+            Identifier resourceLocation = rl.result().get();
             
             if (resourceLocation.toString().equals("minecraft:air")) {
                 // make it able to match cave air and void air

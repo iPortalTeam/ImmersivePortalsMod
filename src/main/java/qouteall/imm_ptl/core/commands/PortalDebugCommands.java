@@ -603,7 +603,7 @@ public class PortalDebugCommands {
 //                Registry<Biome> biomes = MiscHelper.getServer().registryAccess().registryOrThrow(Registries.BIOME);
 //
 //                StringBuilder builder1 = new StringBuilder();
-//                for (ResourceLocation resourceLocation : biomes.keySet()) {
+//                for (Identifier resourceLocation : biomes.keySet()) {
 //                    builder1.append("\"");
 //                    builder1.append(resourceLocation);
 //                    builder1.append("\",\n");

@@ -76,7 +76,7 @@ public class SubCommandArgumentType implements ArgumentType<String> {
     
     public static void init() {
         ArgumentTypeRegistry.registerArgumentType(
-            McHelper.newResourceLocation("imm_ptl:sub_command_argument_type"),
+            McHelper.newIdentifier("imm_ptl:sub_command_argument_type"),
             SubCommandArgumentType.class,
             SingletonArgumentInfo.contextFree(() -> instance)
         );

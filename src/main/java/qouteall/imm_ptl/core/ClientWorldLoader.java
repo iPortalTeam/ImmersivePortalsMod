@@ -15,7 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -616,7 +616,7 @@ public class ClientWorldLoader {
             Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
             
             for (Map.Entry<String, Integer> entry : idMap.entrySet()) {
-                ResourceLocation id = McHelper.newResourceLocation(entry.getKey());
+                Identifier id = McHelper.newIdentifier(entry.getKey());
                 int expectedId = entry.getValue();
                 
                 if (biomes.getId(biomes.get(id)) != expectedId) {

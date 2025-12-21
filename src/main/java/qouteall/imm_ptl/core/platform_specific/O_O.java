@@ -12,7 +12,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -199,7 +199,7 @@ public class O_O {
     }
     
     @Nullable
-    public static ResourceLocation getModIconLocation(String modid) {
+    public static Identifier getModIconLocation(String modid) {
         String path = FabricLoader.getInstance().getModContainer(modid)
             .flatMap(c -> c.getMetadata().getIconPath(512))
             .orElse(null);
@@ -223,7 +223,7 @@ public class O_O {
         if (parts.length != 2) {
             return null;
         }
-        return McHelper.newResourceLocation(parts[0], parts[1]);
+        return McHelper.newIdentifier(parts[0], parts[1]);
     }
     
     @Nullable

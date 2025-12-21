@@ -106,7 +106,7 @@ public class ChaosBiomeSource extends BiomeSource {
         for (String vanillaBiomeId : vanillaBiomes) {
             biomeHolderGetter.get(ResourceKey.create(
                 Registries.BIOME,
-                McHelper.newResourceLocation(vanillaBiomeId)
+                McHelper.newIdentifier(vanillaBiomeId)
             )).ifPresent(holders::add);
         }
         

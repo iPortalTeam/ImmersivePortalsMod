@@ -61,7 +61,7 @@ public class AxisArgumentType implements ArgumentType<Direction.Axis> {
     
     public static void init() {
         ArgumentTypeRegistry.registerArgumentType(
-            McHelper.newResourceLocation("imm_ptl:axis"),
+            McHelper.newIdentifier("imm_ptl:axis"),
             AxisArgumentType.class,
             SingletonArgumentInfo.contextFree(() -> AxisArgumentType.instance)
         );

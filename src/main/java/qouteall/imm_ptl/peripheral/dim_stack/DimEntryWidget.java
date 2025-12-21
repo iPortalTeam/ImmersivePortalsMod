@@ -9,7 +9,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +35,7 @@ public class DimEntryWidget extends ContainerObjectSelectionList.Entry<DimEntryW
     public final DimListWidget parent;
     private final Consumer<DimEntryWidget> selectCallback;
     @Nullable
-    private final ResourceLocation dimIconPath;
+    private final Identifier dimIconPath;
     private final Component dimensionName;
     
     // if null, it's in select dimension screen
