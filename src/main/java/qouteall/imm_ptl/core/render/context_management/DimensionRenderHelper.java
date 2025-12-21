@@ -22,7 +22,7 @@ public class DimensionRenderHelper {
         }
         else {
             lightmapTexture = new LightTexture(client.gameRenderer, client);
-            Helper.log("Created lightmap texture for " + world.dimension().identifier());
+            Helper.log("Created lightmap texture for " + world.dimension().location());
         }
     }
     

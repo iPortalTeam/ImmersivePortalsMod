@@ -1,3 +1,11 @@
+## v6.0.15 — 2025-12-22
+- **Changed**
+  - 🟡 (FTR) Aggiornati import ResourceLocation/Util e prime letture NBT Optional per 1.21.10 — Ref: IMPT000009 — Scope: src/main/java/qouteall/imm_ptl/core, src/main/java/qouteall/imm_ptl/peripheral, src/main/java/qouteall/q_misc_util
+
+## v6.0.14 — 2025-12-22
+- **Changed**
+  - 🟡 (FTR) Ripristinato target Minecraft 1.21.10 con versioni Fabric/Iris/Sodium compatibili — Ref: IMPT000008 — Scope: gradle.properties, src/main/resources/fabric.mod.json
+
 ## v6.0.13 — 2025-12-21
 - **Changed**
   - 🟡 (FTR) Allineati accesso NBT, ResourceKey e cleanup mixin cloud/clipping per API 1.21.11 — Ref: IMPT000007 — Scope: src/main/java/qouteall/q_misc_util/my_util/Mesh2D.java, src/main/java/qouteall/q_misc_util/my_util/IntBox.java, src/main/java/qouteall/q_misc_util/dimension/DimIntIdMap.java, src/main/java/qouteall/q_misc_util/Helper.java, src/main/java/qouteall/q_misc_util/my_util/DQuaternion.java, src/main/java/qouteall/imm_ptl/core/ClientWorldLoader.java, src/main/java/qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.java, src/main/java/qouteall/imm_ptl/core/mixin/client/render/MixinRenderSystem_Clipping.java, src/main/java/qouteall/imm_ptl/core/mixin/client/render/optimization/MixinLevelRenderer_Clouds.java, src/main/java/qouteall/imm_ptl/core/render/context_management/CloudContext.java, src/main/java/qouteall/imm_ptl/core/IPMcHelper.java, src/main/java/qouteall/imm_ptl/core/mixin/client/MixinGlDebug.java, src/main/java/qouteall/imm_ptl/core/mixin/client/sync/MixinReceivingLevelScreen.java, src/main/resources/imm_ptl.accesswidener

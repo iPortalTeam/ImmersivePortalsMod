@@ -139,7 +139,7 @@ public record UnilateralPortalState(
     
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("dimension", dimension.identifier().toString());
+        tag.putString("dimension", dimension.location().toString());
         Helper.putVec3d(tag, "position", position);
         tag.put("orientation", orientation.toTag());
         tag.putDouble("width", width);

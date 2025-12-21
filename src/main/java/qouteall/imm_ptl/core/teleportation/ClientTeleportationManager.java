@@ -430,7 +430,7 @@ public class ClientTeleportationManager {
     }
     
     public static void forceTeleportPlayer(ResourceKey<Level> toDimension, Vec3 destination) {
-        LOGGER.info("client player force teleported {} {}", toDimension.identifier(), destination);
+        LOGGER.info("client player force teleported {} {}", toDimension.location(), destination);
         
         ClientLevel fromWorld = client.level;
         assert fromWorld != null;
@@ -515,8 +515,8 @@ public class ClientTeleportationManager {
         
         Helper.log(String.format(
             "Client Changed Dimension from %s to %s time: %s age: %s",
-            fromDimension.identifier(),
-            toDimension.identifier(),
+            fromDimension.location(),
+            toDimension.location(),
             tickTimeForTeleportation,
             player.tickCount
         ));

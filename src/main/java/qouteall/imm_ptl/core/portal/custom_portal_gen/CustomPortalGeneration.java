@@ -5,13 +5,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -107,7 +107,7 @@ public class CustomPortalGeneration {
     public final List<String> postInvokeCommands;
     public final List<List<String>> commandsOnGenerated;
     
-    public Identifier identifier = null;
+    public ResourceLocation identifier = null;
     
     public CustomPortalGeneration(
         List<ResourceKey<Level>> fromDimensions, ResourceKey<Level> toDimension,
@@ -190,7 +190,7 @@ public class CustomPortalGeneration {
     ) implements InitializationResult {
         @Override
         public String toString() {
-            return "Destination dimension %s not loaded".formatted(dimId.identifier());
+            return "Destination dimension %s not loaded".formatted(dimId.location());
         }
     }
     
@@ -258,7 +258,7 @@ public class CustomPortalGeneration {
         ServerLevel toWorld = MiscHelper.getServer().getLevel(destDimension);
         
         if (toWorld == null) {
-            Helper.err("Missing dimension " + destDimension.identifier());
+            Helper.err("Missing dimension " + destDimension.location());
             return false;
         }
         

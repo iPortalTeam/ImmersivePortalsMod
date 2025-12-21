@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -1049,7 +1049,7 @@ public class Portal extends Entity implements
             if (level() instanceof ServerLevel serverLevel) {
                 ServerLevel destWorld = serverLevel.getServer().getLevel(dimensionTo);
                 if (destWorld == null) {
-                    LOGGER.error("Portal Dest Dimension Missing {}", dimensionTo.identifier());
+                    LOGGER.error("Portal Dest Dimension Missing {}", dimensionTo.location());
                     return false;
                 }
                 boolean inWorldBorder = destWorld.getWorldBorder().isWithinBounds(BlockPos.containing(getDestPos()));
@@ -1072,7 +1072,7 @@ public class Portal extends Entity implements
     private boolean isPortalValidClient() {
         boolean contains = ClientWorldLoader.getServerDimensions().contains(dimensionTo);
         if (!contains) {
-            LOGGER.error("Client Portal Dest Dimension Missing {}", dimensionTo.identifier());
+            LOGGER.error("Client Portal Dest Dimension Missing {}", dimensionTo.location());
         }
         return contains;
     }
@@ -1093,8 +1093,8 @@ public class Portal extends Entity implements
             getClass().getSimpleName(),
             getId(),
             getApproximateFacingDirection(),
-            level().dimension().identifier(), getX(), getY(), getZ(),
-            dimensionTo.identifier(), getDestPos().x, getDestPos().y, getDestPos().z,
+            level().dimension().location(), getX(), getY(), getZ(),
+            dimensionTo.location(), getDestPos().x, getDestPos().y, getDestPos().z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : "",
             portalTag != null ? "," + portalTag : ""

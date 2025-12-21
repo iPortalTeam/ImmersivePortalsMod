@@ -147,7 +147,7 @@ public class BlockManipulationServer {
             ServerboundPlayerActionPacket packet = ServerboundPlayerActionPacket.STREAM_CODEC.decode(buf);
             
             ServerLevel world = player.server.getLevel(dimension);
-            Validate.notNull(world, "missing %s", dimension.identifier());
+            Validate.notNull(world, "missing %s", dimension.location());
             
             withRedirect(
                 new Context(world, null),
@@ -170,7 +170,7 @@ public class BlockManipulationServer {
             ServerboundUseItemOnPacket packet = ServerboundUseItemOnPacket.STREAM_CODEC.decode(buf);
             
             ServerLevel world = player.server.getLevel(dimension);
-            Validate.notNull(world, "missing %s", dimension.identifier());
+            Validate.notNull(world, "missing %s", dimension.location());
             
             withRedirect(
                 new Context(world, packet.getHitResult()),
