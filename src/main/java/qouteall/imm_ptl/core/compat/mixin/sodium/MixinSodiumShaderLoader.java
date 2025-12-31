@@ -32,7 +32,7 @@ public abstract class MixinSodiumShaderLoader {
             shaderType == ShaderType.VERTEX
                 ? com.mojang.blaze3d.shaders.ShaderType.VERTEX
                 : com.mojang.blaze3d.shaders.ShaderType.FRAGMENT,
-            name.toString(), shaderSource
+            name, shaderSource
         );
         return shaderSource;
     }

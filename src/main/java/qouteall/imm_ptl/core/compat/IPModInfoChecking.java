@@ -18,7 +18,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -126,7 +126,18 @@ public class IPModInfoChecking {
             );
             
             if (response.statusCode() != 200) {
-                LOGGER.error("Failed to fetch iPortal mod info {}", response.statusCode());
+                if (response.statusCode() == 404) {
+                    LOGGER.info(
+                        "iPortal mod info not available for this version (status {})",
+                        response.statusCode()
+                    );
+                }
+                else {
+                    LOGGER.warn(
+                        "Failed to fetch iPortal mod info {}",
+                        response.statusCode()
+                    );
+                }
                 return null;
             }
             
@@ -378,7 +389,7 @@ public class IPModInfoChecking {
             return;
         }
         
-        String shaderpackName = IrisInterface.invoker.getShaderpackName();
+        String shaderpackName = IrisCompat.getShaderpackName();
         if (!Objects.equals(lastShaderpackName, shaderpackName)) {
             lastShaderpackName = shaderpackName;
             

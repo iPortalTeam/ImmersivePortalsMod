@@ -18,7 +18,7 @@ public class MixinThrownEnderPearl {
         method = "onHit",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/projectile/ThrownEnderpearl;discard()V"
+            target = "Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;discard()V"
         )
     )
     private void onOnHitDiscard(HitResult result, CallbackInfo ci) {

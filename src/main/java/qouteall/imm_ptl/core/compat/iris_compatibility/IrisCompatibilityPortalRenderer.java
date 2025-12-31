@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.compat.iris_compatibility;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Util;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -72,7 +73,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         deferredBuffer.prepare();
         
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
-        deferredBuffer.fb.clear(Minecraft.ON_OSX);
+        deferredBuffer.fb.clear(Util.getPlatform() == Util.OS.OSX);
         
         IPPortingLibCompat.setIsStencilEnabled(
             client.getMainRenderTarget(), false

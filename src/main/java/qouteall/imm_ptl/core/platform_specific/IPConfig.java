@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.serializer.ConfigSerializer;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -151,7 +153,18 @@ public class IPConfig implements ConfigData {
     
     public void saveConfigFile() {
         IPGlobal.configHolder.setConfig(this);
-        IPGlobal.configHolder.save();
+        onConfigChanged();
+        Config configAnnotation = IPConfig.class.getAnnotation(Config.class);
+        if (configAnnotation == null) {
+            Helper.LOGGER.error("Missing @Config annotation on IPConfig; cannot save config.");
+            return;
+        }
+        try {
+            new GsonConfigSerializer<>(configAnnotation, IPConfig.class).serialize(this);
+        }
+        catch (ConfigSerializer.SerializationException e) {
+            Helper.LOGGER.error("Failed to save Immersive Portals config", e);
+        }
     }
     
     public void onConfigChanged() {

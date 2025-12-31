@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render.framebuffer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
@@ -35,10 +34,11 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
     
     
     @Shadow
-    public abstract void resize(int width, int height, boolean clearError);
+    public abstract void resize(int width, int height);
     
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(
+        String name,
         boolean useDepth,
         CallbackInfo ci
     ) {
@@ -51,7 +51,8 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V",
             remap = false
-        )
+        ),
+        require = 0
     )
     private void modifyTexImage2D(Args args) {
         if (Objects.equals(args.get(2), GL_DEPTH_COMPONENT)) {
@@ -104,7 +105,8 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V",
             remap = false
-        )
+        ),
+        require = 0
     )
     private void modifyFrameBufferTexture2D(Args args) {
         if (Objects.equals(args.get(1), GL30C.GL_DEPTH_ATTACHMENT)) {
@@ -153,7 +155,7 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
     public void ip_setIsStencilBufferEnabledAndReload(boolean cond) {
         if (isStencilBufferEnabled != cond) {
             isStencilBufferEnabled = cond;
-            resize(width, height, Minecraft.ON_OSX);
+            resize(width, height);
         }
     }
 }

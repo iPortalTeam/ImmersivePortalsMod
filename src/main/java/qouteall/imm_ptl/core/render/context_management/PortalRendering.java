@@ -103,7 +103,7 @@ public class PortalRendering {
     }
     
     public static Vec3 getRenderingCameraPos() {
-        Vec3 pos = RenderStates.originalCamera.getPosition();
+        Vec3 pos = RenderStates.originalCamera.position();
         for (Portal portal : portalLayers) {
             pos = portal.transformPoint(pos);
         }

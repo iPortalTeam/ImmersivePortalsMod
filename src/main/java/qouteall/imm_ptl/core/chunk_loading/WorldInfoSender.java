@@ -6,10 +6,11 @@ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class WorldInfoSender {
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            server.getProfiler().push("portal_send_world_info");
+            ProfilerCompat.push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     Set<ResourceKey<Level>> visibleDimensions = ImmPtlChunkTracking.getVisibleDimensions(player);
@@ -39,7 +40,7 @@ public class WorldInfoSender {
                     
                 }
             }
-            server.getProfiler().pop();
+            ProfilerCompat.pop();
         });
     }
     
@@ -53,8 +54,8 @@ public class WorldInfoSender {
             new ClientboundSetTimePacket(
                 world.getGameTime(),
                 world.getDayTime(),
-                world.getGameRules().getBoolean(
-                    GameRules.RULE_DAYLIGHT
+                world.getGameRules().get(
+                    GameRules.ADVANCE_TIME
                 )
             )
         );

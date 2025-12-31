@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -10,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.ducks.IEFrustum;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
@@ -59,7 +60,7 @@ public class MixinFrustum implements IEFrustum {
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
-        if (IrisInterface.invoker.isRenderingShadowMap()) {
+        if (IrisCompat.isRenderingShadowMap()) {
             return;
         }
         
@@ -74,21 +75,18 @@ public class MixinFrustum implements IEFrustum {
     }
     
     @Inject(
-        method = "cubeInFrustum",
+        method = "isVisible",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onCubeInFrustum(
-        double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
-        CallbackInfoReturnable<Boolean> cir
-    ) {
+    private void onIsVisible(AABB box, CallbackInfoReturnable<Boolean> cir) {
         if (ip_canDetermineInvisibleWithCamCoord(
-            (float) (minX - portal_camX),
-            (float) (minY - portal_camY),
-            (float) (minZ - portal_camZ),
-            (float) (maxX - portal_camX),
-            (float) (maxY - portal_camY),
-            (float) (maxZ - portal_camZ)
+            (float) (box.minX - portal_camX),
+            (float) (box.minY - portal_camY),
+            (float) (box.minZ - portal_camZ),
+            (float) (box.maxX - portal_camX),
+            (float) (box.maxY - portal_camY),
+            (float) (box.maxZ - portal_camZ)
         )) {
             cir.setReturnValue(false);
         }

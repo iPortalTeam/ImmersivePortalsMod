@@ -33,7 +33,6 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
 public abstract class MixinClientLevel implements IEClientWorld {
@@ -100,8 +99,8 @@ public abstract class MixinClientLevel implements IEClientWorld {
     )
     void onConstructed(
         ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData,
-        ResourceKey resourceKey, Holder holder, int loadDistance, int j, Supplier supplier,
-        LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci
+        ResourceKey resourceKey, Holder holder, int loadDistance, int j,
+        LevelRenderer levelRenderer, boolean bl, long l, int k, CallbackInfo ci
     ) {
         ClientLevel clientWorld = (ClientLevel) (Object) this;
         ClientChunkCache myClientChunkManager =

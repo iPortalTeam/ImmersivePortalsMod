@@ -18,6 +18,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+
+import qouteall.imm_ptl.core.DirectionHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
@@ -46,7 +48,7 @@ public class BlockManipulationClient {
     private static BlockHitResult createMissedHitResult(Vec3 from, Vec3 to) {
         Vec3 dir = to.subtract(from).normalize();
         
-        return BlockHitResult.miss(to, Direction.getNearest(dir.x, dir.y, dir.z), BlockPos.containing(to));
+        return BlockHitResult.miss(to, DirectionHelper.nearestDirection(dir.x, dir.y, dir.z), BlockPos.containing(to));
     }
     
     private static boolean hitResultIsMissedOrNull(HitResult bhr) {
@@ -65,7 +67,7 @@ public class BlockManipulationClient {
             return;
         }
         
-        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
         
         double reachDistance = client.player.blockInteractionRange();
         
@@ -89,7 +91,7 @@ public class BlockManipulationClient {
     }
     
     private static double getCurrentTargetDistance() {
-        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
         
         if (hitResultIsMissedOrNull(client.hitResult)) {
             return 23333;
@@ -167,13 +169,13 @@ public class BlockManipulationClient {
                 Vec3 vec3d = rayTraceContext.getFrom().subtract(rayTraceContext.getTo());
                 return BlockHitResult.miss(
                     rayTraceContext.getTo(),
-                    Direction.getNearest(vec3d.x, vec3d.y, vec3d.z),
+                    DirectionHelper.nearestDirection(vec3d.x, vec3d.y, vec3d.z),
                     BlockPos.containing(rayTraceContext.getTo())
                 );
             }
         );
         
-        if (remoteHitResult.getLocation().y < world.getMinBuildHeight() + 0.1) {
+        if (remoteHitResult.getLocation().y < world.getMinY() + 0.1) {
             remoteHitResult = new BlockHitResult(
                 remoteHitResult.getLocation(),
                 Direction.DOWN,

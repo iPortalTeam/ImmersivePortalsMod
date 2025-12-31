@@ -1,0 +1,1075 @@
+Compiled from "ServerEntity.java"
+public class net.minecraft.server.level.ServerEntity {
+  private static final org.slf4j.Logger LOGGER;
+
+  private static final int TOLERANCE_LEVEL_ROTATION;
+
+  private static final double TOLERANCE_LEVEL_POSITION;
+
+  public static final int FORCED_POS_UPDATE_PERIOD;
+
+  private static final int FORCED_TELEPORT_PERIOD;
+
+  private final net.minecraft.server.level.ServerLevel level;
+
+  private final net.minecraft.world.entity.Entity entity;
+
+  private final int updateInterval;
+
+  private final boolean trackDelta;
+
+  private final net.minecraft.server.level.ServerEntity$Synchronizer synchronizer;
+
+  private final net.minecraft.network.protocol.game.VecDeltaCodec positionCodec;
+
+  private byte lastSentYRot;
+
+  private byte lastSentXRot;
+
+  private byte lastSentYHeadRot;
+
+  private net.minecraft.world.phys.Vec3 lastSentMovement;
+
+  private int tickCount;
+
+  private int teleportDelay;
+
+  private java.util.List<net.minecraft.world.entity.Entity> lastPassengers;
+
+  private boolean wasRiding;
+
+  private boolean wasOnGround;
+
+  private java.util.List<net.minecraft.network.syncher.SynchedEntityData$DataValue<?>> trackedDataValues;
+
+  public net.minecraft.server.level.ServerEntity(net.minecraft.server.level.ServerLevel, net.minecraft.world.entity.Entity, int, boolean, net.minecraft.server.level.ServerEntity$Synchronizer);
+    Code:
+       0: aload_0
+       1: invokespecial #82                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #84                 // class net/minecraft/network/protocol/game/VecDeltaCodec
+       8: dup
+       9: invokespecial #85                 // Method net/minecraft/network/protocol/game/VecDeltaCodec."<init>":()V
+      12: putfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+      15: aload_0
+      16: invokestatic  #93                 // Method java/util/Collections.emptyList:()Ljava/util/List;
+      19: putfield      #95                 // Field lastPassengers:Ljava/util/List;
+      22: aload_0
+      23: aload_1
+      24: putfield      #97                 // Field level:Lnet/minecraft/server/level/ServerLevel;
+      27: aload_0
+      28: aload         5
+      30: putfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+      33: aload_0
+      34: aload_2
+      35: putfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      38: aload_0
+      39: iload_3
+      40: putfield      #103                // Field updateInterval:I
+      43: aload_0
+      44: iload         4
+      46: putfield      #105                // Field trackDelta:Z
+      49: aload_0
+      50: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+      53: aload_2
+      54: invokevirtual #111                // Method net/minecraft/world/entity/Entity.trackingPosition:()Lnet/minecraft/world/phys/Vec3;
+      57: invokevirtual #115                // Method net/minecraft/network/protocol/game/VecDeltaCodec.setBase:(Lnet/minecraft/world/phys/Vec3;)V
+      60: aload_0
+      61: aload_2
+      62: invokevirtual #118                // Method net/minecraft/world/entity/Entity.getDeltaMovement:()Lnet/minecraft/world/phys/Vec3;
+      65: putfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+      68: aload_0
+      69: aload_2
+      70: invokevirtual #124                // Method net/minecraft/world/entity/Entity.getYRot:()F
+      73: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+      76: putfield      #132                // Field lastSentYRot:B
+      79: aload_0
+      80: aload_2
+      81: invokevirtual #135                // Method net/minecraft/world/entity/Entity.getXRot:()F
+      84: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+      87: putfield      #137                // Field lastSentXRot:B
+      90: aload_0
+      91: aload_2
+      92: invokevirtual #140                // Method net/minecraft/world/entity/Entity.getYHeadRot:()F
+      95: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+      98: putfield      #142                // Field lastSentYHeadRot:B
+     101: aload_0
+     102: aload_2
+     103: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     106: putfield      #148                // Field wasOnGround:Z
+     109: aload_0
+     110: aload_2
+     111: invokevirtual #152                // Method net/minecraft/world/entity/Entity.getEntityData:()Lnet/minecraft/network/syncher/SynchedEntityData;
+     114: invokevirtual #155                // Method net/minecraft/network/syncher/SynchedEntityData.getNonDefaultValues:()Ljava/util/List;
+     117: putfield      #157                // Field trackedDataValues:Ljava/util/List;
+     120: return
+
+  public void sendChanges();
+    Code:
+       0: aload_0
+       1: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+       4: invokevirtual #163                // Method net/minecraft/world/entity/Entity.updateDataBeforeSync:()V
+       7: aload_0
+       8: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      11: invokevirtual #166                // Method net/minecraft/world/entity/Entity.getPassengers:()Ljava/util/List;
+      14: astore_1
+      15: aload_1
+      16: aload_0
+      17: getfield      #95                 // Field lastPassengers:Ljava/util/List;
+      20: invokeinterface #172,  2          // InterfaceMethod java/util/List.equals:(Ljava/lang/Object;)Z
+      25: ifne          60
+      28: aload_0
+      29: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+      32: new           #174                // class net/minecraft/network/protocol/game/ClientboundSetPassengersPacket
+      35: dup
+      36: aload_0
+      37: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      40: invokespecial #177                // Method net/minecraft/network/protocol/game/ClientboundSetPassengersPacket."<init>":(Lnet/minecraft/world/entity/Entity;)V
+      43: aload_0
+      44: aload_1
+      45: invokedynamic #196,  0            // InvokeDynamic #0:test:(Lnet/minecraft/server/level/ServerEntity;Ljava/util/List;)Ljava/util/function/Predicate;
+      50: invokeinterface #200,  3          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayersFiltered:(Lnet/minecraft/network/protocol/Packet;Ljava/util/function/Predicate;)V
+      55: aload_0
+      56: aload_1
+      57: putfield      #95                 // Field lastPassengers:Ljava/util/List;
+      60: aload_0
+      61: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      64: astore_3
+      65: aload_3
+      66: instanceof    #202                // class net/minecraft/world/entity/decoration/ItemFrame
+      69: ifeq          207
+      72: aload_3
+      73: checkcast     #202                // class net/minecraft/world/entity/decoration/ItemFrame
+      76: astore_2
+      77: aload_0
+      78: getfield      #204                // Field tickCount:I
+      81: bipush        10
+      83: irem
+      84: ifne          207
+      87: aload_2
+      88: invokevirtual #208                // Method net/minecraft/world/entity/decoration/ItemFrame.getItem:()Lnet/minecraft/world/item/ItemStack;
+      91: astore_3
+      92: aload_3
+      93: invokevirtual #213                // Method net/minecraft/world/item/ItemStack.getItem:()Lnet/minecraft/world/item/Item;
+      96: instanceof    #215                // class net/minecraft/world/item/MapItem
+      99: ifeq          203
+     102: aload_3
+     103: getstatic     #221                // Field net/minecraft/core/component/DataComponents.MAP_ID:Lnet/minecraft/core/component/DataComponentType;
+     106: invokevirtual #225                // Method net/minecraft/world/item/ItemStack.get:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;
+     109: checkcast     #227                // class net/minecraft/world/level/saveddata/maps/MapId
+     112: astore        4
+     114: aload         4
+     116: aload_0
+     117: getfield      #97                 // Field level:Lnet/minecraft/server/level/ServerLevel;
+     120: invokestatic  #231                // Method net/minecraft/world/item/MapItem.getSavedData:(Lnet/minecraft/world/level/saveddata/maps/MapId;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;
+     123: astore        5
+     125: aload         5
+     127: ifnull        203
+     130: aload_0
+     131: getfield      #97                 // Field level:Lnet/minecraft/server/level/ServerLevel;
+     134: invokevirtual #236                // Method net/minecraft/server/level/ServerLevel.players:()Ljava/util/List;
+     137: invokeinterface #240,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     142: astore        6
+     144: aload         6
+     146: invokeinterface #247,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     151: ifeq          203
+     154: aload         6
+     156: invokeinterface #251,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     161: checkcast     #253                // class net/minecraft/server/level/ServerPlayer
+     164: astore        7
+     166: aload         5
+     168: aload         7
+     170: aload_3
+     171: invokevirtual #257                // Method net/minecraft/world/level/saveddata/maps/MapItemSavedData.tickCarriedBy:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V
+     174: aload         5
+     176: aload         4
+     178: aload         7
+     180: invokevirtual #261                // Method net/minecraft/world/level/saveddata/maps/MapItemSavedData.getUpdatePacket:(Lnet/minecraft/world/level/saveddata/maps/MapId;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/network/protocol/Packet;
+     183: astore        8
+     185: aload         8
+     187: ifnull        200
+     190: aload         7
+     192: getfield      #265                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+     195: aload         8
+     197: invokevirtual #271                // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+     200: goto          144
+     203: aload_0
+     204: invokevirtual #274                // Method sendDirtyEntityData:()V
+     207: aload_0
+     208: getfield      #204                // Field tickCount:I
+     211: aload_0
+     212: getfield      #103                // Field updateInterval:I
+     215: irem
+     216: ifeq          242
+     219: aload_0
+     220: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     223: getfield      #277                // Field net/minecraft/world/entity/Entity.needsSync:Z
+     226: ifne          242
+     229: aload_0
+     230: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     233: invokevirtual #152                // Method net/minecraft/world/entity/Entity.getEntityData:()Lnet/minecraft/network/syncher/SynchedEntityData;
+     236: invokevirtual #280                // Method net/minecraft/network/syncher/SynchedEntityData.isDirty:()Z
+     239: ifeq          1144
+     242: aload_0
+     243: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     246: invokevirtual #124                // Method net/minecraft/world/entity/Entity.getYRot:()F
+     249: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+     252: istore_2
+     253: aload_0
+     254: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     257: invokevirtual #135                // Method net/minecraft/world/entity/Entity.getXRot:()F
+     260: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+     263: istore_3
+     264: iload_2
+     265: aload_0
+     266: getfield      #132                // Field lastSentYRot:B
+     269: isub
+     270: invokestatic  #286                // Method java/lang/Math.abs:(I)I
+     273: iconst_1
+     274: if_icmpge     290
+     277: iload_3
+     278: aload_0
+     279: getfield      #137                // Field lastSentXRot:B
+     282: isub
+     283: invokestatic  #286                // Method java/lang/Math.abs:(I)I
+     286: iconst_1
+     287: if_icmplt     294
+     290: iconst_1
+     291: goto          295
+     294: iconst_0
+     295: istore        4
+     297: aload_0
+     298: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     301: invokevirtual #289                // Method net/minecraft/world/entity/Entity.isPassenger:()Z
+     304: ifeq          380
+     307: iload         4
+     309: ifeq          354
+     312: aload_0
+     313: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+     316: new           #10                 // class net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot
+     319: dup
+     320: aload_0
+     321: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     324: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     327: iload_2
+     328: iload_3
+     329: aload_0
+     330: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     333: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     336: invokespecial #296                // Method net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot."<init>":(IBBZ)V
+     339: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+     344: aload_0
+     345: iload_2
+     346: putfield      #132                // Field lastSentYRot:B
+     349: aload_0
+     350: iload_3
+     351: putfield      #137                // Field lastSentXRot:B
+     354: aload_0
+     355: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     358: aload_0
+     359: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     362: invokevirtual #111                // Method net/minecraft/world/entity/Entity.trackingPosition:()Lnet/minecraft/world/phys/Vec3;
+     365: invokevirtual #115                // Method net/minecraft/network/protocol/game/VecDeltaCodec.setBase:(Lnet/minecraft/world/phys/Vec3;)V
+     368: aload_0
+     369: invokevirtual #274                // Method sendDirtyEntityData:()V
+     372: aload_0
+     373: iconst_1
+     374: putfield      #301                // Field wasRiding:Z
+     377: goto          1082
+     380: aload_0
+     381: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     384: astore        7
+     386: aload         7
+     388: instanceof    #303                // class net/minecraft/world/entity/vehicle/minecart/AbstractMinecart
+     391: ifeq          436
+     394: aload         7
+     396: checkcast     #303                // class net/minecraft/world/entity/vehicle/minecart/AbstractMinecart
+     399: astore        5
+     401: aload         5
+     403: invokevirtual #307                // Method net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.getBehavior:()Lnet/minecraft/world/entity/vehicle/minecart/MinecartBehavior;
+     406: astore        7
+     408: aload         7
+     410: instanceof    #23                 // class net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior
+     413: ifeq          436
+     416: aload         7
+     418: checkcast     #23                 // class net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior
+     421: astore        6
+     423: aload_0
+     424: aload         6
+     426: iload_2
+     427: iload_3
+     428: iload         4
+     430: invokevirtual #311                // Method handleMinecartPosRot:(Lnet/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior;BBZ)V
+     433: goto          1082
+     436: aload_0
+     437: dup
+     438: getfield      #313                // Field teleportDelay:I
+     441: iconst_1
+     442: iadd
+     443: putfield      #313                // Field teleportDelay:I
+     446: aload_0
+     447: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     450: invokevirtual #111                // Method net/minecraft/world/entity/Entity.trackingPosition:()Lnet/minecraft/world/phys/Vec3;
+     453: astore        7
+     455: aload_0
+     456: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     459: aload         7
+     461: invokevirtual #317                // Method net/minecraft/network/protocol/game/VecDeltaCodec.delta:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
+     464: invokevirtual #323                // Method net/minecraft/world/phys/Vec3.lengthSqr:()D
+     467: ldc2_w        #42                 // double 7.62939453125E-6d
+     470: dcmpl
+     471: iflt          478
+     474: iconst_1
+     475: goto          479
+     478: iconst_0
+     479: istore        8
+     481: aconst_null
+     482: astore        9
+     484: iload         8
+     486: ifne          499
+     489: aload_0
+     490: getfield      #204                // Field tickCount:I
+     493: bipush        60
+     495: irem
+     496: ifne          503
+     499: iconst_1
+     500: goto          504
+     503: iconst_0
+     504: istore        10
+     506: iconst_0
+     507: istore        11
+     509: iconst_0
+     510: istore        12
+     512: aload_0
+     513: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     516: aload         7
+     518: invokevirtual #327                // Method net/minecraft/network/protocol/game/VecDeltaCodec.encodeX:(Lnet/minecraft/world/phys/Vec3;)J
+     521: lstore        13
+     523: aload_0
+     524: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     527: aload         7
+     529: invokevirtual #330                // Method net/minecraft/network/protocol/game/VecDeltaCodec.encodeY:(Lnet/minecraft/world/phys/Vec3;)J
+     532: lstore        15
+     534: aload_0
+     535: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     538: aload         7
+     540: invokevirtual #333                // Method net/minecraft/network/protocol/game/VecDeltaCodec.encodeZ:(Lnet/minecraft/world/phys/Vec3;)J
+     543: lstore        17
+     545: lload         13
+     547: ldc2_w        #334                // long -32768l
+     550: lcmp
+     551: iflt          599
+     554: lload         13
+     556: ldc2_w        #336                // long 32767l
+     559: lcmp
+     560: ifgt          599
+     563: lload         15
+     565: ldc2_w        #334                // long -32768l
+     568: lcmp
+     569: iflt          599
+     572: lload         15
+     574: ldc2_w        #336                // long 32767l
+     577: lcmp
+     578: ifgt          599
+     581: lload         17
+     583: ldc2_w        #334                // long -32768l
+     586: lcmp
+     587: iflt          599
+     590: lload         17
+     592: ldc2_w        #336                // long 32767l
+     595: lcmp
+     596: ifle          603
+     599: iconst_1
+     600: goto          604
+     603: iconst_0
+     604: istore        19
+     606: aload_0
+     607: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     610: invokevirtual #340                // Method net/minecraft/world/entity/Entity.getRequiresPrecisePosition:()Z
+     613: ifne          652
+     616: iload         19
+     618: ifne          652
+     621: aload_0
+     622: getfield      #313                // Field teleportDelay:I
+     625: sipush        400
+     628: if_icmpgt     652
+     631: aload_0
+     632: getfield      #301                // Field wasRiding:Z
+     635: ifne          652
+     638: aload_0
+     639: getfield      #148                // Field wasOnGround:Z
+     642: aload_0
+     643: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     646: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     649: if_icmpeq     686
+     652: aload_0
+     653: aload_0
+     654: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     657: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     660: putfield      #148                // Field wasOnGround:Z
+     663: aload_0
+     664: iconst_0
+     665: putfield      #313                // Field teleportDelay:I
+     668: aload_0
+     669: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     672: invokestatic  #346                // Method net/minecraft/network/protocol/game/ClientboundEntityPositionSyncPacket.of:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/network/protocol/game/ClientboundEntityPositionSyncPacket;
+     675: astore        9
+     677: iconst_1
+     678: istore        11
+     680: iconst_1
+     681: istore        12
+     683: goto          831
+     686: iload         10
+     688: ifeq          696
+     691: iload         4
+     693: ifne          706
+     696: aload_0
+     697: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     700: instanceof    #348                // class net/minecraft/world/entity/projectile/arrow/AbstractArrow
+     703: ifeq          752
+     706: new           #15                 // class net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$PosRot
+     709: dup
+     710: aload_0
+     711: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     714: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     717: lload         13
+     719: l2i
+     720: i2s
+     721: lload         15
+     723: l2i
+     724: i2s
+     725: lload         17
+     727: l2i
+     728: i2s
+     729: iload_2
+     730: iload_3
+     731: aload_0
+     732: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     735: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     738: invokespecial #351                // Method net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$PosRot."<init>":(ISSSBBZ)V
+     741: astore        9
+     743: iconst_1
+     744: istore        11
+     746: iconst_1
+     747: istore        12
+     749: goto          831
+     752: iload         10
+     754: ifeq          798
+     757: new           #18                 // class net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Pos
+     760: dup
+     761: aload_0
+     762: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     765: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     768: lload         13
+     770: l2i
+     771: i2s
+     772: lload         15
+     774: l2i
+     775: i2s
+     776: lload         17
+     778: l2i
+     779: i2s
+     780: aload_0
+     781: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     784: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     787: invokespecial #354                // Method net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Pos."<init>":(ISSSZ)V
+     790: astore        9
+     792: iconst_1
+     793: istore        11
+     795: goto          831
+     798: iload         4
+     800: ifeq          831
+     803: new           #10                 // class net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot
+     806: dup
+     807: aload_0
+     808: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     811: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     814: iload_2
+     815: iload_3
+     816: aload_0
+     817: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     820: invokevirtual #146                // Method net/minecraft/world/entity/Entity.onGround:()Z
+     823: invokespecial #296                // Method net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot."<init>":(IBBZ)V
+     826: astore        9
+     828: iconst_1
+     829: istore        12
+     831: aload_0
+     832: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     835: getfield      #277                // Field net/minecraft/world/entity/Entity.needsSync:Z
+     838: ifne          871
+     841: aload_0
+     842: getfield      #105                // Field trackDelta:Z
+     845: ifne          871
+     848: aload_0
+     849: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     852: instanceof    #358                // class net/minecraft/world/entity/LivingEntity
+     855: ifeq          1028
+     858: aload_0
+     859: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     862: checkcast     #358                // class net/minecraft/world/entity/LivingEntity
+     865: invokevirtual #361                // Method net/minecraft/world/entity/LivingEntity.isFallFlying:()Z
+     868: ifeq          1028
+     871: aload_0
+     872: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     875: invokevirtual #118                // Method net/minecraft/world/entity/Entity.getDeltaMovement:()Lnet/minecraft/world/phys/Vec3;
+     878: astore        20
+     880: aload         20
+     882: aload_0
+     883: getfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+     886: invokevirtual #365                // Method net/minecraft/world/phys/Vec3.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+     889: dstore        21
+     891: dload         21
+     893: ldc2_w        #366                // double 1.0E-7d
+     896: dcmpl
+     897: ifgt          917
+     900: dload         21
+     902: dconst_0
+     903: dcmpl
+     904: ifle          1028
+     907: aload         20
+     909: invokevirtual #323                // Method net/minecraft/world/phys/Vec3.lengthSqr:()D
+     912: dconst_0
+     913: dcmpl
+     914: ifne          1028
+     917: aload_0
+     918: aload         20
+     920: putfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+     923: aload_0
+     924: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     927: astore        24
+     929: aload         24
+     931: instanceof    #369                // class net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile
+     934: ifeq          1001
+     937: aload         24
+     939: checkcast     #369                // class net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile
+     942: astore        23
+     944: aload_0
+     945: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+     948: new           #371                // class net/minecraft/network/protocol/game/ClientboundBundlePacket
+     951: dup
+     952: new           #373                // class net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket
+     955: dup
+     956: aload_0
+     957: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     960: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     963: aload_0
+     964: getfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+     967: invokespecial #376                // Method net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket."<init>":(ILnet/minecraft/world/phys/Vec3;)V
+     970: new           #378                // class net/minecraft/network/protocol/game/ClientboundProjectilePowerPacket
+     973: dup
+     974: aload         23
+     976: invokevirtual #379                // Method net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile.getId:()I
+     979: aload         23
+     981: getfield      #382                // Field net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile.accelerationPower:D
+     984: invokespecial #385                // Method net/minecraft/network/protocol/game/ClientboundProjectilePowerPacket."<init>":(ID)V
+     987: invokestatic  #388                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/List;
+     990: invokespecial #391                // Method net/minecraft/network/protocol/game/ClientboundBundlePacket."<init>":(Ljava/lang/Iterable;)V
+     993: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+     998: goto          1028
+    1001: aload_0
+    1002: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+    1005: new           #373                // class net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket
+    1008: dup
+    1009: aload_0
+    1010: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1013: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+    1016: aload_0
+    1017: getfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+    1020: invokespecial #376                // Method net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket."<init>":(ILnet/minecraft/world/phys/Vec3;)V
+    1023: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+    1028: aload         9
+    1030: ifnull        1044
+    1033: aload_0
+    1034: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+    1037: aload         9
+    1039: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+    1044: aload_0
+    1045: invokevirtual #274                // Method sendDirtyEntityData:()V
+    1048: iload         11
+    1050: ifeq          1062
+    1053: aload_0
+    1054: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+    1057: aload         7
+    1059: invokevirtual #115                // Method net/minecraft/network/protocol/game/VecDeltaCodec.setBase:(Lnet/minecraft/world/phys/Vec3;)V
+    1062: iload         12
+    1064: ifeq          1077
+    1067: aload_0
+    1068: iload_2
+    1069: putfield      #132                // Field lastSentYRot:B
+    1072: aload_0
+    1073: iload_3
+    1074: putfield      #137                // Field lastSentXRot:B
+    1077: aload_0
+    1078: iconst_0
+    1079: putfield      #301                // Field wasRiding:Z
+    1082: aload_0
+    1083: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1086: invokevirtual #140                // Method net/minecraft/world/entity/Entity.getYHeadRot:()F
+    1089: invokestatic  #130                // Method net/minecraft/util/Mth.packDegrees:(F)B
+    1092: istore        5
+    1094: iload         5
+    1096: aload_0
+    1097: getfield      #142                // Field lastSentYHeadRot:B
+    1100: isub
+    1101: invokestatic  #286                // Method java/lang/Math.abs:(I)I
+    1104: iconst_1
+    1105: if_icmplt     1136
+    1108: aload_0
+    1109: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+    1112: new           #393                // class net/minecraft/network/protocol/game/ClientboundRotateHeadPacket
+    1115: dup
+    1116: aload_0
+    1117: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1120: iload         5
+    1122: invokespecial #396                // Method net/minecraft/network/protocol/game/ClientboundRotateHeadPacket."<init>":(Lnet/minecraft/world/entity/Entity;B)V
+    1125: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+    1130: aload_0
+    1131: iload         5
+    1133: putfield      #142                // Field lastSentYHeadRot:B
+    1136: aload_0
+    1137: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1140: iconst_0
+    1141: putfield      #277                // Field net/minecraft/world/entity/Entity.needsSync:Z
+    1144: aload_0
+    1145: dup
+    1146: getfield      #204                // Field tickCount:I
+    1149: iconst_1
+    1150: iadd
+    1151: putfield      #204                // Field tickCount:I
+    1154: aload_0
+    1155: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1158: getfield      #399                // Field net/minecraft/world/entity/Entity.hurtMarked:Z
+    1161: ifeq          1192
+    1164: aload_0
+    1165: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1168: iconst_0
+    1169: putfield      #399                // Field net/minecraft/world/entity/Entity.hurtMarked:Z
+    1172: aload_0
+    1173: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+    1176: new           #373                // class net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket
+    1179: dup
+    1180: aload_0
+    1181: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+    1184: invokespecial #400                // Method net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket."<init>":(Lnet/minecraft/world/entity/Entity;)V
+    1187: invokeinterface #403,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayersAndSelf:(Lnet/minecraft/network/protocol/Packet;)V
+    1192: return
+
+  private void handleMinecartPosRot(net.minecraft.world.entity.vehicle.minecart.NewMinecartBehavior, byte, byte, boolean);
+    Code:
+       0: aload_0
+       1: invokevirtual #274                // Method sendDirtyEntityData:()V
+       4: aload_1
+       5: getfield      #443                // Field net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.lerpSteps:Ljava/util/List;
+       8: invokeinterface #446,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+      13: ifeq          177
+      16: aload_0
+      17: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      20: invokevirtual #118                // Method net/minecraft/world/entity/Entity.getDeltaMovement:()Lnet/minecraft/world/phys/Vec3;
+      23: astore        5
+      25: aload         5
+      27: aload_0
+      28: getfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+      31: invokevirtual #365                // Method net/minecraft/world/phys/Vec3.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+      34: dstore        6
+      36: aload_0
+      37: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      40: invokevirtual #111                // Method net/minecraft/world/entity/Entity.trackingPosition:()Lnet/minecraft/world/phys/Vec3;
+      43: astore        8
+      45: aload_0
+      46: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+      49: aload         8
+      51: invokevirtual #317                // Method net/minecraft/network/protocol/game/VecDeltaCodec.delta:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
+      54: invokevirtual #323                // Method net/minecraft/world/phys/Vec3.lengthSqr:()D
+      57: ldc2_w        #42                 // double 7.62939453125E-6d
+      60: dcmpl
+      61: iflt          68
+      64: iconst_1
+      65: goto          69
+      68: iconst_0
+      69: istore        9
+      71: iload         9
+      73: ifne          86
+      76: aload_0
+      77: getfield      #204                // Field tickCount:I
+      80: bipush        60
+      82: irem
+      83: ifne          90
+      86: iconst_1
+      87: goto          91
+      90: iconst_0
+      91: istore        10
+      93: iload         10
+      95: ifne          112
+      98: iload         4
+     100: ifne          112
+     103: dload         6
+     105: ldc2_w        #366                // double 1.0E-7d
+     108: dcmpl
+     109: ifle          174
+     112: aload_0
+     113: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+     116: new           #448                // class net/minecraft/network/protocol/game/ClientboundMoveMinecartPacket
+     119: dup
+     120: aload_0
+     121: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     124: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     127: new           #21                 // class net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior$MinecartStep
+     130: dup
+     131: aload_0
+     132: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     135: invokevirtual #451                // Method net/minecraft/world/entity/Entity.position:()Lnet/minecraft/world/phys/Vec3;
+     138: aload_0
+     139: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     142: invokevirtual #118                // Method net/minecraft/world/entity/Entity.getDeltaMovement:()Lnet/minecraft/world/phys/Vec3;
+     145: aload_0
+     146: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     149: invokevirtual #124                // Method net/minecraft/world/entity/Entity.getYRot:()F
+     152: aload_0
+     153: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     156: invokevirtual #135                // Method net/minecraft/world/entity/Entity.getXRot:()F
+     159: fconst_1
+     160: invokespecial #454                // Method net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior$MinecartStep."<init>":(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;FFF)V
+     163: invokestatic  #457                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+     166: invokespecial #460                // Method net/minecraft/network/protocol/game/ClientboundMoveMinecartPacket."<init>":(ILjava/util/List;)V
+     169: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+     174: goto          216
+     177: aload_0
+     178: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+     181: new           #448                // class net/minecraft/network/protocol/game/ClientboundMoveMinecartPacket
+     184: dup
+     185: aload_0
+     186: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     189: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     192: aload_1
+     193: getfield      #443                // Field net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.lerpSteps:Ljava/util/List;
+     196: invokestatic  #464                // InterfaceMethod java/util/List.copyOf:(Ljava/util/Collection;)Ljava/util/List;
+     199: invokespecial #460                // Method net/minecraft/network/protocol/game/ClientboundMoveMinecartPacket."<init>":(ILjava/util/List;)V
+     202: invokeinterface #299,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+     207: aload_1
+     208: getfield      #443                // Field net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.lerpSteps:Ljava/util/List;
+     211: invokeinterface #467,  1          // InterfaceMethod java/util/List.clear:()V
+     216: aload_0
+     217: iload_2
+     218: putfield      #132                // Field lastSentYRot:B
+     221: aload_0
+     222: iload_3
+     223: putfield      #137                // Field lastSentXRot:B
+     226: aload_0
+     227: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+     230: aload_0
+     231: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     234: invokevirtual #451                // Method net/minecraft/world/entity/Entity.position:()Lnet/minecraft/world/phys/Vec3;
+     237: invokevirtual #115                // Method net/minecraft/network/protocol/game/VecDeltaCodec.setBase:(Lnet/minecraft/world/phys/Vec3;)V
+     240: return
+
+  public void removePairing(net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: aload_0
+       1: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+       4: aload_1
+       5: invokevirtual #473                // Method net/minecraft/world/entity/Entity.stopSeenByPlayer:(Lnet/minecraft/server/level/ServerPlayer;)V
+       8: aload_1
+       9: getfield      #265                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+      12: new           #475                // class net/minecraft/network/protocol/game/ClientboundRemoveEntitiesPacket
+      15: dup
+      16: iconst_1
+      17: newarray       int
+      19: dup
+      20: iconst_0
+      21: aload_0
+      22: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      25: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+      28: iastore
+      29: invokespecial #478                // Method net/minecraft/network/protocol/game/ClientboundRemoveEntitiesPacket."<init>":([I)V
+      32: invokevirtual #271                // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+      35: return
+
+  public void addPairing(net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: new           #481                // class java/util/ArrayList
+       3: dup
+       4: invokespecial #482                // Method java/util/ArrayList."<init>":()V
+       7: astore_2
+       8: aload_0
+       9: aload_1
+      10: aload_2
+      11: dup
+      12: invokestatic  #488                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+      15: pop
+      16: invokedynamic #499,  0            // InvokeDynamic #1:accept:(Ljava/util/List;)Ljava/util/function/Consumer;
+      21: invokevirtual #503                // Method sendPairingData:(Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V
+      24: aload_1
+      25: getfield      #265                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+      28: new           #371                // class net/minecraft/network/protocol/game/ClientboundBundlePacket
+      31: dup
+      32: aload_2
+      33: invokespecial #391                // Method net/minecraft/network/protocol/game/ClientboundBundlePacket."<init>":(Ljava/lang/Iterable;)V
+      36: invokevirtual #271                // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+      39: aload_0
+      40: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      43: aload_1
+      44: invokevirtual #506                // Method net/minecraft/world/entity/Entity.startSeenByPlayer:(Lnet/minecraft/server/level/ServerPlayer;)V
+      47: return
+
+  public void sendPairingData(net.minecraft.server.level.ServerPlayer, java.util.function.Consumer<net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>>);
+    Code:
+       0: aload_0
+       1: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+       4: invokevirtual #163                // Method net/minecraft/world/entity/Entity.updateDataBeforeSync:()V
+       7: aload_0
+       8: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      11: invokevirtual #512                // Method net/minecraft/world/entity/Entity.isRemoved:()Z
+      14: ifeq          32
+      17: getstatic     #514                // Field LOGGER:Lorg/slf4j/Logger;
+      20: ldc_w         #516                // String Fetching packet for removed entity {}
+      23: aload_0
+      24: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      27: invokeinterface #522,  3          // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;)V
+      32: aload_0
+      33: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      36: aload_0
+      37: invokevirtual #528                // Method net/minecraft/world/entity/Entity.getAddEntityPacket:(Lnet/minecraft/server/level/ServerEntity;)Lnet/minecraft/network/protocol/Packet;
+      40: astore_3
+      41: aload_2
+      42: aload_3
+      43: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+      48: aload_0
+      49: getfield      #157                // Field trackedDataValues:Ljava/util/List;
+      52: ifnull        79
+      55: aload_2
+      56: new           #532                // class net/minecraft/network/protocol/game/ClientboundSetEntityDataPacket
+      59: dup
+      60: aload_0
+      61: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      64: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+      67: aload_0
+      68: getfield      #157                // Field trackedDataValues:Ljava/util/List;
+      71: invokespecial #533                // Method net/minecraft/network/protocol/game/ClientboundSetEntityDataPacket."<init>":(ILjava/util/List;)V
+      74: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+      79: aload_0
+      80: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      83: astore        5
+      85: aload         5
+      87: instanceof    #358                // class net/minecraft/world/entity/LivingEntity
+      90: ifeq          142
+      93: aload         5
+      95: checkcast     #358                // class net/minecraft/world/entity/LivingEntity
+      98: astore        4
+     100: aload         4
+     102: invokevirtual #537                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+     105: invokevirtual #543                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.getSyncableAttributes:()Ljava/util/Collection;
+     108: astore        5
+     110: aload         5
+     112: invokeinterface #546,  1          // InterfaceMethod java/util/Collection.isEmpty:()Z
+     117: ifne          142
+     120: aload_2
+     121: new           #548                // class net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket
+     124: dup
+     125: aload_0
+     126: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     129: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     132: aload         5
+     134: invokespecial #551                // Method net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket."<init>":(ILjava/util/Collection;)V
+     137: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+     142: aload_0
+     143: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     146: astore        5
+     148: aload         5
+     150: instanceof    #358                // class net/minecraft/world/entity/LivingEntity
+     153: ifeq          270
+     156: aload         5
+     158: checkcast     #358                // class net/minecraft/world/entity/LivingEntity
+     161: astore        4
+     163: invokestatic  #557                // Method com/google/common/collect/Lists.newArrayList:()Ljava/util/ArrayList;
+     166: astore        5
+     168: getstatic     #562                // Field net/minecraft/world/entity/EquipmentSlot.VALUES:Ljava/util/List;
+     171: invokeinterface #240,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     176: astore        6
+     178: aload         6
+     180: invokeinterface #247,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     185: ifeq          238
+     188: aload         6
+     190: invokeinterface #251,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     195: checkcast     #559                // class net/minecraft/world/entity/EquipmentSlot
+     198: astore        7
+     200: aload         4
+     202: aload         7
+     204: invokevirtual #566                // Method net/minecraft/world/entity/LivingEntity.getItemBySlot:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;
+     207: astore        8
+     209: aload         8
+     211: invokevirtual #567                // Method net/minecraft/world/item/ItemStack.isEmpty:()Z
+     214: ifne          235
+     217: aload         5
+     219: aload         7
+     221: aload         8
+     223: invokevirtual #570                // Method net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;
+     226: invokestatic  #575                // Method com/mojang/datafixers/util/Pair.of:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/datafixers/util/Pair;
+     229: invokeinterface #493,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+     234: pop
+     235: goto          178
+     238: aload         5
+     240: invokeinterface #446,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+     245: ifne          270
+     248: aload_2
+     249: new           #577                // class net/minecraft/network/protocol/game/ClientboundSetEquipmentPacket
+     252: dup
+     253: aload_0
+     254: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     257: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+     260: aload         5
+     262: invokespecial #578                // Method net/minecraft/network/protocol/game/ClientboundSetEquipmentPacket."<init>":(ILjava/util/List;)V
+     265: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+     270: aload_0
+     271: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     274: invokevirtual #166                // Method net/minecraft/world/entity/Entity.getPassengers:()Ljava/util/List;
+     277: invokeinterface #446,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+     282: ifne          302
+     285: aload_2
+     286: new           #174                // class net/minecraft/network/protocol/game/ClientboundSetPassengersPacket
+     289: dup
+     290: aload_0
+     291: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     294: invokespecial #177                // Method net/minecraft/network/protocol/game/ClientboundSetPassengersPacket."<init>":(Lnet/minecraft/world/entity/Entity;)V
+     297: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+     302: aload_0
+     303: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     306: invokevirtual #289                // Method net/minecraft/world/entity/Entity.isPassenger:()Z
+     309: ifeq          332
+     312: aload_2
+     313: new           #174                // class net/minecraft/network/protocol/game/ClientboundSetPassengersPacket
+     316: dup
+     317: aload_0
+     318: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     321: invokevirtual #582                // Method net/minecraft/world/entity/Entity.getVehicle:()Lnet/minecraft/world/entity/Entity;
+     324: invokespecial #177                // Method net/minecraft/network/protocol/game/ClientboundSetPassengersPacket."<init>":(Lnet/minecraft/world/entity/Entity;)V
+     327: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+     332: aload_0
+     333: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     336: astore        5
+     338: aload         5
+     340: instanceof    #584                // class net/minecraft/world/entity/Leashable
+     343: ifeq          387
+     346: aload         5
+     348: checkcast     #584                // class net/minecraft/world/entity/Leashable
+     351: astore        4
+     353: aload         4
+     355: invokeinterface #587,  1          // InterfaceMethod net/minecraft/world/entity/Leashable.isLeashed:()Z
+     360: ifeq          387
+     363: aload_2
+     364: new           #589                // class net/minecraft/network/protocol/game/ClientboundSetEntityLinkPacket
+     367: dup
+     368: aload_0
+     369: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+     372: aload         4
+     374: invokeinterface #592,  1          // InterfaceMethod net/minecraft/world/entity/Leashable.getLeashHolder:()Lnet/minecraft/world/entity/Entity;
+     379: invokespecial #595                // Method net/minecraft/network/protocol/game/ClientboundSetEntityLinkPacket."<init>":(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V
+     382: invokeinterface #530,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+     387: return
+
+  public net.minecraft.world.phys.Vec3 getPositionBase();
+    Code:
+       0: aload_0
+       1: getfield      #87                 // Field positionCodec:Lnet/minecraft/network/protocol/game/VecDeltaCodec;
+       4: invokevirtual #611                // Method net/minecraft/network/protocol/game/VecDeltaCodec.getBase:()Lnet/minecraft/world/phys/Vec3;
+       7: areturn
+
+  public net.minecraft.world.phys.Vec3 getLastSentMovement();
+    Code:
+       0: aload_0
+       1: getfield      #120                // Field lastSentMovement:Lnet/minecraft/world/phys/Vec3;
+       4: areturn
+
+  public float getLastSentXRot();
+    Code:
+       0: aload_0
+       1: getfield      #137                // Field lastSentXRot:B
+       4: invokestatic  #617                // Method net/minecraft/util/Mth.unpackDegrees:(B)F
+       7: freturn
+
+  public float getLastSentYRot();
+    Code:
+       0: aload_0
+       1: getfield      #132                // Field lastSentYRot:B
+       4: invokestatic  #617                // Method net/minecraft/util/Mth.unpackDegrees:(B)F
+       7: freturn
+
+  public float getLastSentYHeadRot();
+    Code:
+       0: aload_0
+       1: getfield      #142                // Field lastSentYHeadRot:B
+       4: invokestatic  #617                // Method net/minecraft/util/Mth.unpackDegrees:(B)F
+       7: freturn
+
+  private void sendDirtyEntityData();
+    Code:
+       0: aload_0
+       1: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+       4: invokevirtual #152                // Method net/minecraft/world/entity/Entity.getEntityData:()Lnet/minecraft/network/syncher/SynchedEntityData;
+       7: astore_1
+       8: aload_1
+       9: invokevirtual #622                // Method net/minecraft/network/syncher/SynchedEntityData.packDirty:()Ljava/util/List;
+      12: astore_2
+      13: aload_2
+      14: ifnull        49
+      17: aload_0
+      18: aload_1
+      19: invokevirtual #155                // Method net/minecraft/network/syncher/SynchedEntityData.getNonDefaultValues:()Ljava/util/List;
+      22: putfield      #157                // Field trackedDataValues:Ljava/util/List;
+      25: aload_0
+      26: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+      29: new           #532                // class net/minecraft/network/protocol/game/ClientboundSetEntityDataPacket
+      32: dup
+      33: aload_0
+      34: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      37: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+      40: aload_2
+      41: invokespecial #533                // Method net/minecraft/network/protocol/game/ClientboundSetEntityDataPacket."<init>":(ILjava/util/List;)V
+      44: invokeinterface #403,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayersAndSelf:(Lnet/minecraft/network/protocol/Packet;)V
+      49: aload_0
+      50: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      53: instanceof    #358                // class net/minecraft/world/entity/LivingEntity
+      56: ifeq          112
+      59: aload_0
+      60: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      63: checkcast     #358                // class net/minecraft/world/entity/LivingEntity
+      66: invokevirtual #537                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+      69: invokevirtual #626                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.getAttributesToSync:()Ljava/util/Set;
+      72: astore_3
+      73: aload_3
+      74: invokeinterface #629,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+      79: ifne          106
+      82: aload_0
+      83: getfield      #99                 // Field synchronizer:Lnet/minecraft/server/level/ServerEntity$Synchronizer;
+      86: new           #548                // class net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket
+      89: dup
+      90: aload_0
+      91: getfield      #101                // Field entity:Lnet/minecraft/world/entity/Entity;
+      94: invokevirtual #293                // Method net/minecraft/world/entity/Entity.getId:()I
+      97: aload_3
+      98: invokespecial #551                // Method net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket."<init>":(ILjava/util/Collection;)V
+     101: invokeinterface #403,  2          // InterfaceMethod net/minecraft/server/level/ServerEntity$Synchronizer.sendToTrackingPlayersAndSelf:(Lnet/minecraft/network/protocol/Packet;)V
+     106: aload_3
+     107: invokeinterface #630,  1          // InterfaceMethod java/util/Set.clear:()V
+     112: return
+
+  private boolean method_74532(java.util.List, net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: aload_1
+       1: aload_2
+       2: invokeinterface #638,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+       7: aload_0
+       8: getfield      #95                 // Field lastPassengers:Ljava/util/List;
+      11: aload_2
+      12: invokeinterface #638,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+      17: if_icmpne     24
+      20: iconst_1
+      21: goto          25
+      24: iconst_0
+      25: ireturn
+
+  static {};
+    Code:
+       0: invokestatic  #645                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+       3: putstatic     #514                // Field LOGGER:Lorg/slf4j/Logger;
+       6: return
+}

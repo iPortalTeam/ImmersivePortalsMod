@@ -13,11 +13,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -26,9 +29,14 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -36,6 +44,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -64,6 +75,7 @@ import qouteall.q_misc_util.my_util.IntBox;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -104,6 +116,20 @@ public class McHelper {
     @Deprecated
     public static List<ServerPlayer> getRawPlayerList() {
         return MiscHelper.getServer().getPlayerList().getPlayers();
+    }
+
+    public static boolean hasPermissionLevel(Player player, int level) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+        CommandSourceStack source = serverPlayer.createCommandSourceStack();
+        return switch (level) {
+            case 0 -> true;
+            case 1 -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR);
+            case 2 -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+            case 3 -> source.permissions().hasPermission(Permissions.COMMANDS_ADMIN);
+            default -> source.permissions().hasPermission(Permissions.COMMANDS_OWNER);
+        };
     }
     
     public static Vec3 lastTickPosOf(Entity entity) {
@@ -239,8 +265,9 @@ public class McHelper {
     @SuppressWarnings("JavadocReference")
     @IPVanillaCopy
     public static int getPlayerLoadDistance(ServerPlayer player) {
-        assert player.getServer() != null;
-        int loadDistanceOnServer = getLoadDistanceOnServer(player.getServer());
+        MinecraftServer server = player.level().getServer();
+        Validate.notNull(server, "server is null");
+        int loadDistanceOnServer = getLoadDistanceOnServer(server);
         return Mth.clamp(player.requestedViewDistance(), 2, loadDistanceOnServer);
     }
     
@@ -318,10 +345,6 @@ public class McHelper {
         // minecarts, boats and LivingEntity use position interpolation
         // don't make interpolate, or it may interpolate into unloaded chunks
         vehicle.setPos(newVehiclePos.x(), newVehiclePos.y(), newVehiclePos.z());
-        vehicle.lerpTo(
-            newVehiclePos.x(), newVehiclePos.y(), newVehiclePos.z(),
-            vehicle.getYRot(), vehicle.getXRot(), 0
-        );
         
         McHelper.setPosAndLastTickPos(
             vehicle, newVehiclePos, newVehicleLastTickPos
@@ -396,11 +419,22 @@ public class McHelper {
     
     
     public static Portal copyEntity(Portal portal) {
-        Portal newPortal = ((Portal) portal.getType().create(portal.level()));
+        Portal newPortal = ((Portal) portal.getType().create(portal.level(), EntitySpawnReason.LOAD));
         
         Validate.notNull(newPortal);
         
-        newPortal.load(portal.saveWithoutId(new CompoundTag()));
+        TagValueOutput output = TagValueOutput.createWithContext(
+            ProblemReporter.DISCARDING,
+            portal.level().registryAccess()
+        );
+        portal.saveWithoutId(output);
+        CompoundTag tag = output.buildResult();
+        ValueInput input = TagValueInput.create(
+            ProblemReporter.DISCARDING,
+            portal.level().registryAccess(),
+            tag
+        );
+        newPortal.load(input);
         return newPortal;
     }
     
@@ -422,9 +456,7 @@ public class McHelper {
     
     public static MutableComponent getLinkText(String link) {
         return Component.literal(link).withStyle(
-            style -> style.withClickEvent(new ClickEvent(
-                ClickEvent.Action.OPEN_URL, link
-            )).withUnderlined(true)
+            style -> style.withClickEvent(new ClickEvent.OpenUrl(URI.create(link))).withUnderlined(true)
         );
     }
     
@@ -433,9 +465,11 @@ public class McHelper {
     }
     
     public static void invokeCommandAs(Entity commandSender, List<String> commandList) {
-        CommandSourceStack commandSource = commandSender.createCommandSourceStack().withPermission(2).withSuppressedOutput();
-        MinecraftServer server = commandSender.getServer();
+        MinecraftServer server = commandSender.level().getServer();
         assert server != null;
+        CommandSourceStack commandSource = server.createCommandSourceStack()
+            .withPermission(LevelBasedPermissionSet.GAMEMASTER)
+            .withSuppressedOutput();
         Commands commandManager = server.getCommands();
         
         for (String command : commandList) {
@@ -447,7 +481,7 @@ public class McHelper {
         getIEChunkMap(entity.level().dimension()).ip_resendSpawnPacketToTrackers(entity);
     }
     
-    public static void sendToTrackers(Entity entity, Packet<?> packet) {
+    public static void sendToTrackers(Entity entity, Packet<? super ClientGamePacketListener> packet) {
         ChunkMap.TrackedEntity entityTracker =
             getIEChunkMap(entity.level().dimension()).ip_getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
@@ -455,7 +489,7 @@ public class McHelper {
             return;
         }
         
-        entityTracker.broadcastAndSend(packet);
+        entityTracker.sendToTrackingPlayers(packet);
     }
     
     //it's a little bit incorrect with corner glass pane
@@ -862,11 +896,11 @@ public class McHelper {
     }
     
     public static int getMinY(LevelAccessor world) {
-        return world.getMinBuildHeight();
+        return world.getMinY();
     }
     
     public static int getMaxYExclusive(LevelAccessor world) {
-        return world.getMaxBuildHeight();
+        return world.getMinY() + world.getHeight();
     }
     
     public static int getMaxContentYExclusive(LevelAccessor world) {
@@ -874,11 +908,11 @@ public class McHelper {
     }
     
     public static int getMinSectionY(LevelAccessor world) {
-        return world.getMinSection();
+        return SectionPos.blockToSectionCoord(world.getMinY());
     }
     
     public static int getMaxSectionYExclusive(LevelAccessor world) {
-        return world.getMaxSection();
+        return SectionPos.blockToSectionCoord(world.getMinY() + world.getHeight() - 1) + 1;
     }
     
     public static int getYSectionNumber(LevelAccessor world) {
@@ -962,4 +996,9 @@ public class McHelper {
         
         return component;
     }
+
+    public static Vec3i getNormal(Direction dir) {
+        return new Vec3i(dir.getStepX(), dir.getStepY(), dir.getStepZ());
+    }
+
 }

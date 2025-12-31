@@ -3,7 +3,10 @@ package qouteall.imm_ptl.core.portal.nether_portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -18,6 +21,11 @@ import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class NetherPortalEntity extends BreakablePortalEntity {
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("immersive_portals", "nether_portal_new");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
+    public static final EntityType<NetherPortalEntity> ENTITY_TYPE =
+        createPortalEntityType(KEY, NetherPortalEntity::new);
+
     private static final OverlayInfo overlay_x = new OverlayInfo(
         Blocks.NETHER_PORTAL.defaultBlockState().setValue(
             NetherPortalBlock.AXIS,
@@ -56,8 +64,6 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     );
     
     
-    public static final EntityType<NetherPortalEntity> ENTITY_TYPE =
-        createPortalEntityType(NetherPortalEntity::new);
     
     public NetherPortalEntity(EntityType<?> entityType, Level world) {
         super(entityType, world);

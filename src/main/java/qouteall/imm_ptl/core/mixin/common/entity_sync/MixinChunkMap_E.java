@@ -62,7 +62,7 @@ public abstract class MixinChunkMap_E implements IEChunkMap {
     )
     private void onUnloadEntity(Entity entity, CallbackInfo ci) {
         // when the player leave this dimension, do not stop tracking entities
-        if (ServerTeleportationManager.of(entity.getServer()).isTeleporting(entity)) {
+        if (ServerTeleportationManager.of(entity.level().getServer()).isTeleporting(entity)) {
             if (entity instanceof ServerPlayer player) {
                 Object tracker = entityMap.remove(entity.getId());
                 ((IETrackedEntity) tracker).ip_stopTrackingToAllPlayers();

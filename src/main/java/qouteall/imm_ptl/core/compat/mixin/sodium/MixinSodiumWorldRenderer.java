@@ -21,7 +21,7 @@ public class MixinSodiumWorldRenderer {
         Camera camera, Viewport viewport, boolean spectator, boolean updateChunksImmediately, CallbackInfo ci
     ) {
         SodiumInterface.frustumCuller = new FrustumCuller();
-        Vec3 cameraPos = camera.getPosition();
+        Vec3 cameraPos = camera.position();
         SodiumInterface.frustumCuller.update(cameraPos.x, cameraPos.y, cameraPos.z);
     }
 }

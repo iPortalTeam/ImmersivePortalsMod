@@ -2,11 +2,17 @@ package qouteall.imm_ptl.core.portal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StainedGlassBlock;
@@ -27,8 +33,10 @@ import java.util.function.Predicate;
 
 public class BreakableMirror extends Mirror {
     
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("immersive_portals", "breakable_mirror");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
     public static final EntityType<BreakableMirror> ENTITY_TYPE =
-        createPortalEntityType(BreakableMirror::new);
+        createPortalEntityType(KEY, BreakableMirror::new);
     
     @Nullable
     public IntBox wallArea;
@@ -41,19 +49,20 @@ public class BreakableMirror extends Mirror {
     }
     
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        CompoundTag tag = extractCompoundTag(input);
         if (tag.contains("boxXL")) {
             wallArea = new IntBox(
                 new BlockPos(
-                    tag.getInt("boxXL"),
-                    tag.getInt("boxYL"),
-                    tag.getInt("boxZL")
+                    tag.getIntOr("boxXL", 0),
+                    tag.getIntOr("boxYL", 0),
+                    tag.getIntOr("boxZL", 0)
                 ),
                 new BlockPos(
-                    tag.getInt("boxXH"),
-                    tag.getInt("boxYH"),
-                    tag.getInt("boxZH")
+                    tag.getIntOr("boxXH", 0),
+                    tag.getIntOr("boxYH", 0),
+                    tag.getIntOr("boxZH", 0)
                 )
             );
         }
@@ -61,19 +70,20 @@ public class BreakableMirror extends Mirror {
             wallArea = null;
         }
         if (tag.contains("blockPortalShape")) {
-            blockPortalShape = BlockPortalShape.fromTag(tag.getCompound("blockPortalShape"));
+            blockPortalShape = BlockPortalShape.fromTag(tag.getCompoundOrEmpty("blockPortalShape"));
         }
         else {
             blockPortalShape = null;
         }
         if (tag.contains("unbreakable")) {
-            unbreakable = tag.getBoolean("unbreakable");
+            unbreakable = tag.getBooleanOr("unbreakable", false);
         }
     }
     
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        CompoundTag tag = extractCompoundTag(output);
         if (wallArea != null) {
             tag.putInt("boxXL", wallArea.l.getX());
             tag.putInt("boxYL", wallArea.l.getY());
@@ -93,7 +103,7 @@ public class BreakableMirror extends Mirror {
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             if (!unbreakable) {
                 if (level().getGameTime() % 10 == getId() % 10) {
                     checkWallIntegrity();
@@ -170,7 +180,7 @@ public class BreakableMirror extends Mirror {
             return null;
         }
         
-        BreakableMirror breakableMirror = BreakableMirror.ENTITY_TYPE.create(world);
+        BreakableMirror breakableMirror = BreakableMirror.ENTITY_TYPE.create(world, EntitySpawnReason.COMMAND);
         assert breakableMirror != null;
         double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
         
@@ -187,7 +197,8 @@ public class BreakableMirror extends Mirror {
             pos, facing.getAxis(),
             Helper.getCoordinate(
                 shape.innerAreaBox.getCenterVec().add(
-                    Vec3.atLowerCornerOf(facing.getNormal()).scale(distanceToCenter)
+                    Vec3.atLowerCornerOf(McHelper.getNormal(facing)).scale(distanceToCenter)
+
                 ),
                 facing.getAxis()
             )
@@ -201,8 +212,8 @@ public class BreakableMirror extends Mirror {
         Direction hDirection = perpendicularDirections.getB();
         breakableMirror.setWidth(Helper.getCoordinate(Helper.getBoxSize(wallBox), wDirection.getAxis()));
         breakableMirror.setHeight(Helper.getCoordinate(Helper.getBoxSize(wallBox), hDirection.getAxis()));
-        breakableMirror.setAxisW(Vec3.atLowerCornerOf(wDirection.getNormal()));
-        breakableMirror.setAxisH(Vec3.atLowerCornerOf(hDirection.getNormal()));
+        breakableMirror.setAxisW(Vec3.atLowerCornerOf(McHelper.getNormal(wDirection)));
+        breakableMirror.setAxisH(Vec3.atLowerCornerOf(McHelper.getNormal(hDirection)));
         
         initializeMirrorGeometryShape(breakableMirror, facing, shape);
         

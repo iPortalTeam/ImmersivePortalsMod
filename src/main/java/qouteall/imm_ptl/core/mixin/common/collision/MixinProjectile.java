@@ -3,7 +3,9 @@ package qouteall.imm_ptl.core.mixin.common.collision;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -16,16 +18,26 @@ public abstract class MixinProjectile extends MixinEntity {
         method = "getOwner",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;getEntity(Ljava/util/UUID;)Lnet/minecraft/world/entity/Entity;"
+            target = "Lnet/minecraft/world/entity/EntityReference;getEntity(Lnet/minecraft/world/entity/EntityReference;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;"
         )
     )
     private Entity redirectGetEntityFromUuid(
-        net.minecraft.server.level.ServerLevel serverLevel,
-        java.util.UUID uuid
+        EntityReference<Entity> entityReference,
+        Level level
     ) {
+        Entity entity = EntityReference.getEntity(entityReference, level);
+        if (entity != null) {
+            return entity;
+        }
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return null;
+        }
         MinecraftServer server = serverLevel.getServer();
         for (ServerLevel world : server.getAllLevels()) {
-            Entity entity = world.getEntity(uuid);
+            if (world == serverLevel) {
+                continue;
+            }
+            entity = EntityReference.getEntity(entityReference, world);
             if (entity != null) {
                 return entity;
             }

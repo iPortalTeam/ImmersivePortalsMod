@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -82,7 +82,7 @@ public class FrustumCuller {
         if (!IPCGlobal.doUseAdvancedFrustumCulling) {
             return null;
         }
-        if (IrisInterface.invoker.isRenderingShadowMap()) {
+        if (IrisCompat.isRenderingShadowMap()) {
             return null;
         }
         
@@ -128,7 +128,7 @@ public class FrustumCuller {
             return null;
         }
         
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         return CHelper.getClientNearbyPortals(16).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)
         ).filter(

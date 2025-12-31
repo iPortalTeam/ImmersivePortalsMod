@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -143,14 +145,16 @@ public class DimStackManagement {
             BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int y = chunk.getMinBuildHeight(); y < chunk.getMaxBuildHeight(); y++) {
+                    int minY = chunk.getMinY();
+                    int maxYEx = minY + chunk.getHeight();
+                    for (int y = minY; y < maxYEx; y++) {
                         mutable.set(x, y, z);
                         BlockState blockState = chunk.getBlockState(mutable);
                         if (blockState.getBlock() == Blocks.BEDROCK) {
                             chunk.setBlockState(
                                 mutable,
                                 replacement,
-                                false
+                                Block.UPDATE_NONE
                             );
                         }
                     }
@@ -178,7 +182,7 @@ public class DimStackManagement {
     public static void onDimensionStackCommandExecute(
         ServerPlayer player
     ) {
-        List<String> dimIdList = collectDimStackCandidateWhenServerRunning(player.server)
+        List<String> dimIdList = collectDimStackCandidateWhenServerRunning(player.level().getServer())
             .stream().map(k -> k.identifier().toString()).toList();
         
         McRemoteProcedureCall.tellClientToInvoke(
@@ -219,7 +223,7 @@ public class DimStackManagement {
         public static void serverSetupDimStack(
             ServerPlayer player, DimStackInfo dimStackInfo
         ) {
-            if (!player.hasPermissions(2)) {
+            if (!McHelper.hasPermissionLevel(player, 2)) {
                 player.sendSystemMessage(Component.literal(
                     "You don't have permission to change dimension stack"
                 ));
@@ -233,7 +237,7 @@ public class DimStackManagement {
                 return;
             }
             
-            MinecraftServer server = player.getServer();
+            MinecraftServer server = player.level().getServer();
             
             updateDimStack(server, dimStackInfo);
             
@@ -246,12 +250,12 @@ public class DimStackManagement {
         public static void serverRemoveDimStack(
             ServerPlayer player
         ) {
-            if (!player.hasPermissions(2)) {
+            if (!McHelper.hasPermissionLevel(player, 2)) {
                 Helper.err("one player without permission tries to change dimension stack");
                 return;
             }
             
-            MinecraftServer server = player.getServer();
+            MinecraftServer server = player.level().getServer();
             
             clearDimStackPortals(server);
             

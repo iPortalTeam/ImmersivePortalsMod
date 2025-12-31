@@ -1,8 +1,11 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -10,40 +13,53 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.ViewArea;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
+import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
+import net.minecraft.client.renderer.chunk.CompiledSectionMesh;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.mojang.blaze3d.textures.GpuSampler;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
@@ -61,6 +77,13 @@ import qouteall.q_misc_util.Helper;
 @SuppressWarnings("JavadocReference")
 @Mixin(value = LevelRenderer.class)
 public abstract class MixinLevelRenderer implements IEWorldRenderer {
+    private static final ThreadLocal<Entity> ip$currentRenderedEntity = new ThreadLocal<>();
+    @Unique
+    private Matrix4f ip$layerRenderModelView;
+    @Unique
+    private boolean ip$transparencyChainOverrideSet;
+    @Unique
+    private PostChain ip$transparencyChainOverride;
     
     @Shadow
     private ClientLevel level;
@@ -77,18 +100,15 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     private ViewArea viewArea;
     
     @Shadow
-    protected abstract void renderEntity(
-        Entity entity_1,
-        double double_1,
-        double double_2,
-        double double_3,
-        float float_1,
-        PoseStack matrixStack_1,
-        MultiBufferSource vertexConsumerProvider_1
-    );
-    
+    @Final
+    private LevelRenderState levelRenderState;
+
     @Shadow
-    private PostChain transparencyChain;
+    @Final
+    private FeatureRenderDispatcher featureRenderDispatcher;
+
+    @Invoker("getTransparencyChain")
+    protected abstract PostChain ip$getTransparencyChain();
     
     @Mutable
     @Shadow
@@ -99,14 +119,19 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     private int lastViewDistance;
     
     @Shadow
-    @Nullable
-    private RenderTarget translucentTarget;
+    public abstract RenderTarget getTranslucentTarget();
+    
+    @Invoker("applyFrustum")
+    protected abstract void ip$applyFrustum(Frustum frustum);
+
+    @Shadow
+    public abstract Frustum getCapturedFrustum();
+
+    @Shadow
+    public abstract void killFrustum();
     
     @Shadow
-    private Frustum cullingFrustum;
-    
-    @Shadow
-    protected abstract void deinitTransparency();
+    public abstract void close();
     
     @Shadow
     private @Nullable SectionRenderDispatcher sectionRenderDispatcher;
@@ -115,16 +140,31 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     @Final
     @Mutable
     private ObjectArrayList<SectionRenderDispatcher.RenderSection> visibleSections;
+
+    @Shadow
+    protected abstract EntityRenderState extractEntity(Entity entity, float partialTick);
     
     @Inject(
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z"
-        )
+        ),
+        require = 0,
+        expect = 0
     )
     private void onAfterCutoutRendering(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f matrix4f2, CallbackInfo ci
+        GraphicsResourceAllocator graphicsResourceAllocator,
+        DeltaTracker deltaTracker,
+        boolean bl,
+        Camera camera,
+        Matrix4f modelView,
+        Matrix4f matrix4f2,
+        Matrix4f matrix4f3,
+        GpuBufferSlice fogBuffer,
+        Vector4f fogColor,
+        boolean bl2,
+        CallbackInfo ci
     ) {
 //        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
@@ -135,11 +175,23 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/Sheets;translucentCullBlockSheet()Lnet/minecraft/client/renderer/RenderType;"
-        )
+            target = "Lnet/minecraft/client/renderer/Sheets;translucentCullBlockSheet()Lnet/minecraft/client/renderer/rendertype/RenderType;"
+        ),
+        require = 0,
+        expect = 0
     )
     private void onMyBeforeTranslucentRendering(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f matrix4f2, CallbackInfo ci
+        GraphicsResourceAllocator graphicsResourceAllocator,
+        DeltaTracker deltaTracker,
+        boolean bl,
+        Camera camera,
+        Matrix4f modelView,
+        Matrix4f matrix4f2,
+        Matrix4f matrix4f3,
+        GpuBufferSlice fogBuffer,
+        Vector4f fogColor,
+        boolean bl2,
+        CallbackInfo ci
     ) {
         IPCGlobal.renderer.onBeforeTranslucentRendering(modelView);
         
@@ -150,19 +202,28 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         
         FrontClipping.disableClipping();
     }
-    
-    @IPVanillaCopy
-    @Inject(
+
+    @Redirect(
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V",
-            ordinal = 1, // the second occurrence
-            shift = At.Shift.AFTER
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;getTransparencyChain()Lnet/minecraft/client/renderer/PostChain;"
         )
     )
+    private PostChain ip$redirectTransparencyChain(LevelRenderer instance) {
+        if (ip$transparencyChainOverrideSet) {
+            return ip$transparencyChainOverride;
+        }
+        return ip$getTransparencyChain();
+    }
+    
+    @IPVanillaCopy
+    @Inject(method = "submitBlockEntities", at = @At("TAIL"))
     private void onEndRenderingEntities(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci, @Local PoseStack poseStack
+        PoseStack poseStack,
+        LevelRenderState levelRenderState,
+        SubmitNodeStorage submitNodeStorage,
+        CallbackInfo ci
     ) {
         CrossPortalEntityRenderer.onEndRenderingEntitiesAndBlockEntities(poseStack);
     }
@@ -172,31 +233,85 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         at = @At("RETURN")
     )
     private void onAfterTranslucentRendering(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f matrix4f2, CallbackInfo ci
+        GraphicsResourceAllocator graphicsResourceAllocator,
+        DeltaTracker deltaTracker,
+        boolean bl,
+        Camera camera,
+        Matrix4f modelView,
+        Matrix4f matrix4f2,
+        Matrix4f matrix4f3,
+        GpuBufferSlice fogBuffer,
+        Vector4f fogColor,
+        boolean bl2,
+        CallbackInfo ci
     ) {
         IPCGlobal.renderer.onAfterTranslucentRendering(modelView);
         
         // make hand rendering normal
-        Lighting.setupLevel();
+        minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.LEVEL);
     }
     
     @Inject(
-        method = "renderLevel",
+        method = "method_62214",
+        at = @At("HEAD")
+    )
+    private void ip$cacheLayerRenderModelView(
+        GpuBufferSlice fogBuffer,
+        LevelRenderState levelRenderState,
+        net.minecraft.util.profiling.ProfilerFiller profilerFiller,
+        Matrix4f modelView,
+        com.mojang.blaze3d.resource.ResourceHandle<?> mainTarget,
+        com.mojang.blaze3d.resource.ResourceHandle<?> translucentTarget,
+        boolean renderBlockOutline,
+        com.mojang.blaze3d.resource.ResourceHandle<?> entityOutlineTarget,
+        com.mojang.blaze3d.resource.ResourceHandle<?> entityOutlineDepth,
+        CallbackInfo ci
+    ) {
+        ip$layerRenderModelView = modelView;
+    }
+
+    @Inject(
+        method = "method_62214",
+        at = @At("RETURN")
+    )
+    private void ip$clearLayerRenderModelView(
+        GpuBufferSlice fogBuffer,
+        LevelRenderState levelRenderState,
+        net.minecraft.util.profiling.ProfilerFiller profilerFiller,
+        Matrix4f modelView,
+        com.mojang.blaze3d.resource.ResourceHandle<?> mainTarget,
+        com.mojang.blaze3d.resource.ResourceHandle<?> translucentTarget,
+        boolean renderBlockOutline,
+        com.mojang.blaze3d.resource.ResourceHandle<?> entityOutlineTarget,
+        com.mojang.blaze3d.resource.ResourceHandle<?> entityOutlineDepth,
+        CallbackInfo ci
+    ) {
+        ip$layerRenderModelView = null;
+    }
+
+    @WrapOperation(
+        method = "method_62214",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSectionLayer(Lnet/minecraft/client/renderer/RenderType;DDDLorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V"
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V"
         )
     )
-    private void onBeforeRenderingLayer(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f matrix4f2, CallbackInfo ci
+    private void ip$wrapRenderGroup(
+        ChunkSectionsToRender sectionsToRender,
+        ChunkSectionLayerGroup group,
+        GpuSampler sampler,
+        Operation<Void> original
     ) {
         if (PortalRendering.isRendering()) {
-            FrontClipping.setupInnerClipping(
-                PortalRendering.getActiveClippingPlane(),
-                modelView,
-                -FrontClipping.ADJUSTMENT
-                // move the clipping plane a little back, to make world wrapping portal not z-fight
-            );
+            Matrix4f modelView = ip$layerRenderModelView;
+            if (modelView != null) {
+                FrontClipping.setupInnerClipping(
+                    PortalRendering.getActiveClippingPlane(),
+                    modelView,
+                    -FrontClipping.ADJUSTMENT
+                    // move the clipping plane a little back, to make world wrapping portal not z-fight
+                );
+            }
             
             if (PortalRendering.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
@@ -206,19 +321,9 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                 CHelper.enableDepthClamp();
             }
         }
-    }
-    
-    @Inject(
-        method = "renderLevel",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSectionLayer(Lnet/minecraft/client/renderer/RenderType;DDDLorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V",
-            shift = At.Shift.AFTER
-        )
-    )
-    private void onAfterRenderingLayer(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci
-    ) {
+
+        original.call(sectionsToRender, group, sampler);
+
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
@@ -230,30 +335,30 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
+        method = "cullTerrain",
         at = @At("HEAD"),
         cancellable = true
     )
     private void onSetupTerrainBegin(
-        Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator,
+        Camera camera, Frustum frustum, boolean spectator,
         CallbackInfo ci
     ) {
         if (WorldRenderInfo.isRendering()) {
             if (level.dimension() != RenderStates.originalPlayerDimension) {
-                sectionRenderDispatcher.setCamera(camera.getPosition());
+                sectionRenderDispatcher.setCameraPosition(camera.position());
             }
         }
         
         if (ip_allowOverrideTerrainSetup()) {
             if (WorldRenderInfo.isRendering()) {
-                level.getProfiler().push("ip_terrain_setup");
+                Profiler.get().push("ip_terrain_setup");
                 VisibleSectionDiscovery.discoverVisibleSections(
                     level, ((ImmPtlViewArea) viewArea),
                     camera,
                     new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                     visibleSections
                 );
-                level.getProfiler().pop();
+                Profiler.get().pop();
                 
                 ci.cancel();
             }
@@ -262,16 +367,16 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     private boolean ip_allowOverrideTerrainSetup() {
         return !SodiumInterface.invoker.isSodiumPresent()
-            && !IrisInterface.invoker.isRenderingShadowMap();
+            && !IrisCompat.isRenderingShadowMap();
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
+        method = "cullTerrain",
         at = @At("RETURN"),
         cancellable = true
     )
     private void onSetupTerrainEnd(
-        Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator,
+        Camera camera, Frustum frustum, boolean spectator,
         CallbackInfo ci
     ) {
         if (!WorldRenderInfo.isRendering()) {
@@ -279,25 +384,25 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
                 if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
                     MyGameRenderer.vanillaTerrainSetupOverride--;
                     
-                    level.getProfiler().push("ip_terrain_setup");
+                    Profiler.get().push("ip_terrain_setup");
                     VisibleSectionDiscovery.discoverVisibleSections(
                         level, ((ImmPtlViewArea) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                         visibleSections
                     );
-                    level.getProfiler().pop();
+                    Profiler.get().pop();
                 }
                 else if (IPGlobal.alwaysOverrideTerrainSetup) {
                     // debug
-                    level.getProfiler().push("ip_terrain_setup_debug");
+                    Profiler.get().push("ip_terrain_setup_debug");
                     VisibleSectionDiscovery.discoverVisibleSections(
                         level, ((ImmPtlViewArea) viewArea),
                         camera,
                         new Frustum(frustum).offsetToFullyIncludeCameraCube(8),
                         visibleSections
                     );
-                    level.getProfiler().pop();
+                    Profiler.get().pop();
                 }
             }
         }
@@ -307,13 +412,12 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V",
-            remap = false
+            target = "Lnet/minecraft/client/renderer/LevelTargetBundle;clear()V"
         )
     )
-    private void redirectClearing(int int_1, boolean boolean_1) {
+    private void redirectClearing(LevelTargetBundle targets) {
         if (!IPCGlobal.renderer.replaceFrameBufferClearing()) {
-            RenderSystem.clear(int_1, boolean_1);
+            targets.clear();
         }
     }
     
@@ -342,44 +446,77 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         }
     }
     
-    // @Inject does not allow getting the entity reference
-    // maybe needs Mixin Extra
     @Redirect(
-        method = "renderLevel",
+        method = "extractVisibleEntities",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;extractEntity(Lnet/minecraft/world/entity/Entity;F)Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
         )
     )
-    private void redirectRenderEntity(
-        LevelRenderer worldRenderer,
+    private EntityRenderState redirectExtractEntity(
+        LevelRenderer renderer,
         Entity entity,
+        float partialTick
+    ) {
+        ip$currentRenderedEntity.set(entity);
+        return extractEntity(entity, partialTick);
+    }
+
+    @Redirect(
+        method = "submitEntities",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;submit(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/client/renderer/state/CameraRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V"
+        )
+    )
+    private void redirectSubmitEntity(
+        EntityRenderDispatcher dispatcher,
+        EntityRenderState renderState,
+        CameraRenderState cameraRenderState,
         double cameraX,
         double cameraY,
         double cameraZ,
-        float partialTick,
         PoseStack matrixStack,
-        MultiBufferSource vertexConsumerProvider
+        SubmitNodeCollector collector
     ) {
-        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
-        renderEntity(
-            entity,
-            cameraX, cameraY, cameraZ,
-            partialTick,
-            matrixStack, vertexConsumerProvider
+        Entity entity = ip$currentRenderedEntity.get();
+        if (entity != null) {
+            CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
+        }
+        dispatcher.submit(
+            renderState,
+            cameraRenderState,
+            cameraX,
+            cameraY,
+            cameraZ,
+            matrixStack,
+            collector
         );
-        CrossPortalEntityRenderer.afterRenderingEntity(entity);
+        if (entity != null) {
+            CrossPortalEntityRenderer.afterRenderingEntity(entity);
+        }
+        ip$currentRenderedEntity.remove();
     }
     
     @Inject(
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSnowAndRain(Lnet/minecraft/client/renderer/LightTexture;FDDD)V"
+            target = "Lnet/minecraft/class_761;method_62203(Lnet/minecraft/class_9909;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V"
         )
     )
     private void beforeRenderingWeather(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f matrix4f2, CallbackInfo ci
+        GraphicsResourceAllocator graphicsResourceAllocator,
+        DeltaTracker deltaTracker,
+        boolean bl,
+        Camera camera,
+        Matrix4f modelView,
+        Matrix4f matrix4f2,
+        Matrix4f matrix4f3,
+        GpuBufferSlice fogBuffer,
+        Vector4f fogColor,
+        boolean bl2,
+        CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
@@ -394,12 +531,22 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSnowAndRain(Lnet/minecraft/client/renderer/LightTexture;FDDD)V",
+            target = "Lnet/minecraft/class_761;method_62203(Lnet/minecraft/class_9909;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
             shift = At.Shift.AFTER
         )
     )
     private void afterRenderingWeather(
-        DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci
+        GraphicsResourceAllocator graphicsResourceAllocator,
+        DeltaTracker deltaTracker,
+        boolean bl,
+        Camera camera,
+        Matrix4f matrix4f,
+        Matrix4f matrix4f2,
+        Matrix4f matrix4f3,
+        GpuBufferSlice fogBuffer,
+        Vector4f fogColor,
+        boolean bl2,
+        CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
@@ -409,17 +556,17 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     //avoid render glowing entities when rendering portal
     @Redirect(
-        method = "renderLevel",
+        method = "extractVisibleEntities",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/Minecraft;shouldEntityAppearGlowing(Lnet/minecraft/world/entity/Entity;)Z"
+            target = "Lnet/minecraft/client/renderer/entity/state/EntityRenderState;appearsGlowing()Z"
         )
     )
-    private boolean redirectGlowing(Minecraft client, Entity entity) {
+    private boolean redirectGlowing(EntityRenderState renderState) {
         if (WorldRenderInfo.isRendering()) {
             return false;
         }
-        return client.shouldEntityAppearGlowing(entity);
+        return renderState.appearsGlowing();
     }
     
     // sometimes we change renderDistance but we don't want to reload it
@@ -446,16 +593,16 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "renderSky", at = @At("HEAD"), cancellable = true
+        method = "addSkyPass", at = @At("HEAD"), cancellable = true
     )
     private void onRenderSkyBegin(
-        Matrix4f modelView, Matrix4f matrix4f, float partialTick, Camera camera,
-        boolean isFoggy, Runnable runnable, CallbackInfo ci
+        FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice fogBuffer, CallbackInfo ci
     ) {
         if (WorldRenderInfo.isRendering()) {
             if (!WorldRenderInfo.getTopRenderInfo().doRenderSky) {
-                if (!IrisInterface.invoker.isShaders()) {
+                if (!IrisCompat.isShaders()) {
                     ci.cancel();
+                    return;
                 }
             }
         }
@@ -466,55 +613,21 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "renderSky",
+        method = "addSkyPass",
         at = @At("RETURN")
     )
     private void onRenderSkyEnd(
-        Matrix4f modelView, Matrix4f matrix4f, float f, Camera camera,
-        boolean bl, Runnable runnable, CallbackInfo ci
+        FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice fogBuffer, CallbackInfo ci
     ) {
         MyRenderHelper.recoverFaceCulling();
     }
     
-    // correct the eye position for sky rendering
-    @Redirect(
-        method = "renderSky",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/player/LocalPlayer;getEyePosition(F)Lnet/minecraft/world/phys/Vec3;"
-        )
-    )
-    private Vec3 redirectGetEyePositionInSkyRendering(LocalPlayer player, float partialTicks) {
-        if (WorldRenderInfo.isRendering()) {
-            return WorldRenderInfo.getCameraPos();
-        }
-        return player.getEyePosition(partialTicks);
-    }
-    
-    // vanilla clears translucentFramebuffer even when transparencyShader is null
-    // it makes the framebuffer to be wrongly bound in fabulous mode
-    @Redirect(
-        method = "renderLevel",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;translucentTarget:Lcom/mojang/blaze3d/pipeline/RenderTarget;"
-        )
-    )
-    private RenderTarget redirectTranslucentFramebuffer(LevelRenderer this_) {
-        if (PortalRendering.isRendering()) {
-            return null;
-        }
-        else {
-            return translucentTarget;
-        }
-    }
-    
     // if not in spectator mode, when the camera is in block chunk culling will cull chunks wrongly
     @ModifyVariable(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
+        method = "cullTerrain",
         at = @At("HEAD"),
         argsOnly = true,
-        ordinal = 1
+        index = 3
     )
     private boolean modifyIsSpectator(boolean value) {
         if (WorldRenderInfo.isRendering()) {
@@ -543,7 +656,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
      * So {@link ViewArea#getRenderSectionAt} will return incorrect result
      */
     @Inject(
-        method = "isSectionCompiled",
+        method = "isSectionCompiledAndVisible",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -564,7 +677,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         );
         
         return renderChunk != null
-            && renderChunk.compiled.get() != SectionRenderDispatcher.CompiledSection.UNCOMPILED;
+            && renderChunk.getSectionMesh() != CompiledSectionMesh.UNCOMPILED;
     }
     
     @Override
@@ -587,19 +700,47 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
-        renderEntity(
-            entity, cameraX, cameraY, cameraZ, partialTick, matrixStack, vertexConsumerProvider
+        EntityRenderState renderState = entityRenderDispatcher.extractEntity(entity, partialTick);
+        SubmitNodeCollector collector = featureRenderDispatcher.getSubmitNodeStorage();
+        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
+        entityRenderDispatcher.submit(
+            renderState,
+            levelRenderState.cameraRenderState,
+            cameraX,
+            cameraY,
+            cameraZ,
+            matrixStack,
+            collector
         );
+        CrossPortalEntityRenderer.afterRenderingEntity(entity);
+        featureRenderDispatcher.renderAllFeatures();
+        featureRenderDispatcher.endFrame();
     }
     
     @Override
     public PostChain portal_getTransparencyShader() {
-        return transparencyChain;
+        if (ip$transparencyChainOverrideSet) {
+            return ip$transparencyChainOverride;
+        }
+        return ip$getTransparencyChain();
     }
     
     @Override
     public void portal_setTransparencyShader(PostChain arg) {
-        transparencyChain = arg;
+        if (arg == null) {
+            ip$transparencyChainOverrideSet = true;
+            ip$transparencyChainOverride = null;
+            return;
+        }
+        PostChain current = ip$getTransparencyChain();
+        if (arg == current) {
+            ip$transparencyChainOverrideSet = false;
+            ip$transparencyChainOverride = null;
+        }
+        else {
+            ip$transparencyChainOverrideSet = true;
+            ip$transparencyChainOverride = arg;
+        }
     }
     
     @Override
@@ -614,17 +755,22 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     
     @Override
     public Frustum portal_getFrustum() {
-        return cullingFrustum;
+        return getCapturedFrustum();
     }
     
     @Override
     public void portal_setFrustum(Frustum arg) {
-        cullingFrustum = arg;
+        if (arg == null) {
+            killFrustum();
+        }
+        else {
+            ip$applyFrustum(arg);
+        }
     }
     
     @Override
     public void portal_fullyDispose() {
-        deinitTransparency();
+        close();
         
         level = null;
     }

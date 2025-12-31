@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.portal;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
+import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -210,7 +210,7 @@ public class PortalRenderInfo implements AutoCloseable {
     }
     
     public static boolean renderAndDecideVisibility(Portal portal, Runnable queryRendering) {
-        ProfilerFiller profiler = Minecraft.getInstance().getProfiler();
+        ProfilerFiller profiler = InactiveProfiler.INSTANCE;
         
         boolean decision;
         if (IPGlobal.offsetOcclusionQuery) {

@@ -1,0 +1,96 @@
+  private void addMainPass(com.mojang.blaze3d.framegraph.FrameGraphBuilder, net.minecraft.client.renderer.culling.Frustum, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, boolean, net.minecraft.client.renderer.state.LevelRenderState, net.minecraft.client.DeltaTracker, net.minecraft.util.profiling.ProfilerFiller);
+    Code:
+       0: aload_1
+       1: ldc_w         #1006               // String main
+       4: invokevirtual #1065               // Method com/mojang/blaze3d/framegraph/FrameGraphBuilder.addPass:(Ljava/lang/String;)Lcom/mojang/blaze3d/framegraph/FramePass;
+       7: astore        9
+       9: aload_0
+      10: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      13: aload         9
+      15: aload_0
+      16: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      19: getfield      #1013               // Field net/minecraft/client/renderer/LevelTargetBundle.main:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      22: invokeinterface #1071,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.readsAndWrites:(Lcom/mojang/blaze3d/resource/ResourceHandle;)Lcom/mojang/blaze3d/resource/ResourceHandle;
+      27: putfield      #1013               // Field net/minecraft/client/renderer/LevelTargetBundle.main:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      30: aload_0
+      31: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      34: getfield      #1032               // Field net/minecraft/client/renderer/LevelTargetBundle.translucent:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      37: ifnull        61
+      40: aload_0
+      41: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      44: aload         9
+      46: aload_0
+      47: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      50: getfield      #1032               // Field net/minecraft/client/renderer/LevelTargetBundle.translucent:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      53: invokeinterface #1071,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.readsAndWrites:(Lcom/mojang/blaze3d/resource/ResourceHandle;)Lcom/mojang/blaze3d/resource/ResourceHandle;
+      58: putfield      #1032               // Field net/minecraft/client/renderer/LevelTargetBundle.translucent:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      61: aload_0
+      62: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      65: getfield      #1037               // Field net/minecraft/client/renderer/LevelTargetBundle.itemEntity:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      68: ifnull        92
+      71: aload_0
+      72: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      75: aload         9
+      77: aload_0
+      78: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      81: getfield      #1037               // Field net/minecraft/client/renderer/LevelTargetBundle.itemEntity:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      84: invokeinterface #1071,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.readsAndWrites:(Lcom/mojang/blaze3d/resource/ResourceHandle;)Lcom/mojang/blaze3d/resource/ResourceHandle;
+      89: putfield      #1037               // Field net/minecraft/client/renderer/LevelTargetBundle.itemEntity:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      92: aload_0
+      93: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+      96: getfield      #1043               // Field net/minecraft/client/renderer/LevelTargetBundle.weather:Lcom/mojang/blaze3d/resource/ResourceHandle;
+      99: ifnull        123
+     102: aload_0
+     103: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     106: aload         9
+     108: aload_0
+     109: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     112: getfield      #1043               // Field net/minecraft/client/renderer/LevelTargetBundle.weather:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     115: invokeinterface #1071,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.readsAndWrites:(Lcom/mojang/blaze3d/resource/ResourceHandle;)Lcom/mojang/blaze3d/resource/ResourceHandle;
+     120: putfield      #1043               // Field net/minecraft/client/renderer/LevelTargetBundle.weather:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     123: aload         6
+     125: getfield      #1108               // Field net/minecraft/client/renderer/state/LevelRenderState.haveGlowingEntities:Z
+     128: ifeq          162
+     131: aload_0
+     132: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     135: getfield      #1060               // Field net/minecraft/client/renderer/LevelTargetBundle.entityOutline:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     138: ifnull        162
+     141: aload_0
+     142: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     145: aload         9
+     147: aload_0
+     148: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     151: getfield      #1060               // Field net/minecraft/client/renderer/LevelTargetBundle.entityOutline:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     154: invokeinterface #1071,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.readsAndWrites:(Lcom/mojang/blaze3d/resource/ResourceHandle;)Lcom/mojang/blaze3d/resource/ResourceHandle;
+     159: putfield      #1060               // Field net/minecraft/client/renderer/LevelTargetBundle.entityOutline:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     162: aload_0
+     163: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     166: getfield      #1013               // Field net/minecraft/client/renderer/LevelTargetBundle.main:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     169: astore        10
+     171: aload_0
+     172: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     175: getfield      #1032               // Field net/minecraft/client/renderer/LevelTargetBundle.translucent:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     178: astore        11
+     180: aload_0
+     181: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     184: getfield      #1037               // Field net/minecraft/client/renderer/LevelTargetBundle.itemEntity:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     187: astore        12
+     189: aload_0
+     190: getfield      #262                // Field targets:Lnet/minecraft/client/renderer/LevelTargetBundle;
+     193: getfield      #1060               // Field net/minecraft/client/renderer/LevelTargetBundle.entityOutline:Lcom/mojang/blaze3d/resource/ResourceHandle;
+     196: astore        13
+     198: aload         9
+     200: aload_0
+     201: aload         4
+     203: aload         6
+     205: aload         8
+     207: aload_3
+     208: aload         12
+     210: aload         13
+     212: iload         5
+     214: aload         11
+     216: aload         10
+     218: invokedynamic #1231,  0           // InvokeDynamic #3:run:(Lnet/minecraft/client/renderer/LevelRenderer;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/state/LevelRenderState;Lnet/minecraft/util/profiling/ProfilerFiller;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;ZLcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;)Ljava/lang/Runnable;
+     223: invokeinterface #1092,  2         // InterfaceMethod com/mojang/blaze3d/framegraph/FramePass.executes:(Ljava/lang/Runnable;)V
+     228: return
+

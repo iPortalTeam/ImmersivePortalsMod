@@ -1,10 +1,21 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.WeakHashMap;
+import java.util.concurrent.Executor;
+
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+
 import com.mojang.logging.LogUtils;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongPredicate;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
@@ -17,22 +28,15 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.ducks.IEDistanceManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkCache;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.platform_specific.IPConfig;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.RateStat;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
-import java.util.concurrent.Executor;
 
 /**
  * Each {@link ImmPtlChunkTickets} manages ImmPtl chunk ticket for one dimension.
@@ -71,6 +75,12 @@ public class ImmPtlChunkTickets {
     public static final WeakHashMap<ServerLevel, ImmPtlChunkTickets> BY_DIMENSION = new WeakHashMap<>();
     
     public static void init() {
+        Registry.register(
+            BuiltInRegistries.TICKET_TYPE,
+            McHelper.newIdentifier("immersive_portals", "imm_ptl_chunk_ticket"),
+            TICKET_TYPE
+        );
+        
         DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(
             ImmPtlChunkTickets::onDimensionRemove
         );
@@ -193,7 +203,7 @@ public class ImmPtlChunkTickets {
                 return true;
             }
             
-            ChunkResult<LevelChunk> resultNow = chunkHolder.getEntityTickingChunkFuture()
+            ChunkResult<LevelChunk> resultNow = chunkHolder.getFullChunkFuture()
                 .getNow(null);
             
             if (resultNow == null) {
@@ -203,7 +213,7 @@ public class ImmPtlChunkTickets {
             if (!resultNow.isSuccess()) {
                 LOGGER.error(
                     "Chunk loading failure {} {} {}",
-                    world, new ChunkPos(chunkPos)
+                    world, new ChunkPos(chunkPos), resultNow
                 );
             }
             
@@ -232,7 +242,7 @@ public class ImmPtlChunkTickets {
         }
     }
     
-    private static void addTicket(DistanceManager distanceManager, long chunkPos) {
+/*     private static void addTicket(DistanceManager distanceManager, long chunkPos) {
         if (!IPConfig.getConfig().enableImmPtlChunkLoading) {
             return;
         }
@@ -248,8 +258,29 @@ public class ImmPtlChunkTickets {
         if (enableDebugRateStat) {
             debugRateStat.hit();
         }
+    } */
+
+        
+    private static void addTicket(DistanceManager distanceManager, long chunkPos) {
+        // TEMP DEBUG: non bloccare il chunk loading
+        // if (!IPConfig.getConfig().enableImmPtlChunkLoading) {
+        //     return;
+        // }
+
+        ChunkPos chunkPosObj = new ChunkPos(chunkPos);
+        TicketStorage ticketStorage =
+            ((qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager) distanceManager)
+                .ip_getTicketStorage();
+        ticketStorage.addTicketWithRadius(
+            TICKET_TYPE, chunkPosObj, getLoadingRadius()
+        );
+
+        if (enableDebugRateStat) {
+            debugRateStat.hit();
+        }
     }
-    
+
+
     public void purge(
         ServerLevel world,
         LongPredicate shouldKeepLoadingFunc
@@ -270,8 +301,11 @@ public class ImmPtlChunkTickets {
                 
                 if (!pendingTicketAdding) {
                     ChunkPos chunkPosObj = new ChunkPos(chunkPos);
-                    distanceManager.removeRegionTicket(
-                        TICKET_TYPE, chunkPosObj, getLoadingRadius(), chunkPosObj
+                    TicketStorage ticketStorage =
+                        ((qouteall.imm_ptl.core.mixin.common.chunk_sync.IEDistanceManager) distanceManager)
+                            .ip_getTicketStorage();
+                    ticketStorage.removeTicketWithRadius(
+                        TICKET_TYPE, chunkPosObj, getLoadingRadius()
                     );
                 }
                 return true;

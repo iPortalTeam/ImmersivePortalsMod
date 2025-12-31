@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -44,7 +45,7 @@ public class CHelper {
     
     public static PlayerInfo getClientPlayerListEntry() {
         return Minecraft.getInstance().getConnection().getPlayerInfo(
-            Minecraft.getInstance().player.getGameProfile().getId()
+            Minecraft.getInstance().player.getUUID()
         );
     }
     
@@ -116,7 +117,7 @@ public class CHelper {
     }
     
     public static Vec3 getCurrentCameraPos() {
-        return Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        return Minecraft.getInstance().gameRenderer.getMainCamera().position();
     }
     
     public static Iterable<Entity> getWorldEntityList(Level world) {
@@ -189,5 +190,8 @@ public class CHelper {
         
         return dimIconPath;
     }
-    
+
 }
+
+
+

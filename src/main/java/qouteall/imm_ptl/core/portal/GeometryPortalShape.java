@@ -26,12 +26,12 @@ public class GeometryPortalShape {
         
         for (int i = 0; i < triangleNum; i++) {
             mesh.addTriangle(
-                tag.getDouble(i * 6 + 0),
-                tag.getDouble(i * 6 + 1),
-                tag.getDouble(i * 6 + 2),
-                tag.getDouble(i * 6 + 3),
-                tag.getDouble(i * 6 + 4),
-                tag.getDouble(i * 6 + 5)
+                tag.getDoubleOr(i * 6 + 0, 0.0),
+                tag.getDoubleOr(i * 6 + 1, 0.0),
+                tag.getDoubleOr(i * 6 + 2, 0.0),
+                tag.getDoubleOr(i * 6 + 3, 0.0),
+                tag.getDoubleOr(i * 6 + 4, 0.0),
+                tag.getDoubleOr(i * 6 + 5, 0.0)
             );
         }
         
@@ -58,12 +58,12 @@ public class GeometryPortalShape {
         
         for (int i = 0; i < triangleNum; i++) {
             mesh.addTriangle(
-                tag.getDouble(i * 6 + 0) / halfWidth,
-                tag.getDouble(i * 6 + 1) / halfHeight,
-                tag.getDouble(i * 6 + 2) / halfWidth,
-                tag.getDouble(i * 6 + 3) / halfHeight,
-                tag.getDouble(i * 6 + 4) / halfWidth,
-                tag.getDouble(i * 6 + 5) / halfHeight
+                tag.getDoubleOr(i * 6 + 0, 0.0) / halfWidth,
+                tag.getDoubleOr(i * 6 + 1, 0.0) / halfHeight,
+                tag.getDoubleOr(i * 6 + 2, 0.0) / halfWidth,
+                tag.getDoubleOr(i * 6 + 3, 0.0) / halfHeight,
+                tag.getDoubleOr(i * 6 + 4, 0.0) / halfWidth,
+                tag.getDoubleOr(i * 6 + 5, 0.0) / halfHeight
             );
         }
         

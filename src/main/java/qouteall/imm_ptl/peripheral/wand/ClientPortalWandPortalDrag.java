@@ -10,7 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -874,7 +874,7 @@ public class ClientPortalWandPortalDrag {
         
         Vec3 cameraPos = new Vec3(camX, camY, camZ);
         
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.lines());
         
         Vec3 renderedCursor = getCursorToRender();
         if (renderedCursor != null) {
@@ -957,7 +957,7 @@ public class ClientPortalWandPortalDrag {
             renderWidthHeightLineSegment(matrixStack, cameraPos, vertexConsumer, rect);
         }
         
-        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderType.debugLineStrip(1));
+        VertexConsumer debugLineStripConsumer = bufferSource.getBuffer(RenderTypes.lines());
         
         RenderedPlane plane = renderedPlane.getCurrent();
         if (plane != null && plane.plane() != null && plane.plane().dimension() == currDim) {

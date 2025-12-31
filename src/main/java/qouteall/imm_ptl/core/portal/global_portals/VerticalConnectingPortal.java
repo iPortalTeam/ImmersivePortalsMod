@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -15,8 +17,10 @@ import qouteall.q_misc_util.my_util.DQuaternion;
 import java.util.function.Predicate;
 
 public class VerticalConnectingPortal extends GlobalTrackedPortal {
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("immersive_portals", "vertical_connecting_portal");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
     public static final EntityType<VerticalConnectingPortal> ENTITY_TYPE =
-        createPortalEntityType(VerticalConnectingPortal::new);
+        createPortalEntityType(KEY, VerticalConnectingPortal::new);
     
     public static enum ConnectorType {
         ceil, floor

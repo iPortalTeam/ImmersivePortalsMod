@@ -307,7 +307,7 @@ public class TransformationManager {
     }
     
     public static Vec3 getIsometricAdjustedCameraPos(Camera camera) {
-        Vec3 cameraPos = camera.getPosition();
+        Vec3 cameraPos = camera.position();
         
         if (!isIsometricView) {
             return cameraPos;

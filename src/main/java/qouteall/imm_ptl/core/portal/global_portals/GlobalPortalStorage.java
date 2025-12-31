@@ -19,11 +19,17 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.util.ProblemReporter;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -94,20 +100,25 @@ public class GlobalPortalStorage extends SavedData {
     public static GlobalPortalStorage get(
         ServerLevel world
     ) {
-        return world.getDataStorage().computeIfAbsent(
-            new SavedData.Factory<>(
-                () -> {
-                    LOGGER.info("Global portal storage initialized {}", world.dimension().identifier());
-                    return new GlobalPortalStorage(world);
-                },
-                (nbt, holderLookup) -> {
+        return world.getDataStorage().computeIfAbsent(createDataType(world));
+    }
+
+    private static SavedDataType<GlobalPortalStorage> createDataType(ServerLevel world) {
+        return new SavedDataType<>(
+            "global_portal",
+            () -> {
+                LOGGER.info("Global portal storage initialized {}", world.dimension().identifier());
+                return new GlobalPortalStorage(world);
+            },
+            CompoundTag.CODEC.xmap(
+                tag -> {
                     GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
-                    globalPortalStorage.fromNbt(nbt);
+                    globalPortalStorage.fromNbt(tag);
                     return globalPortalStorage;
                 },
-                null
+                storage -> storage.save(new CompoundTag(), world.registryAccess())
             ),
-            "global_portal"
+            DataFixTypes.LEVEL
         );
     }
     
@@ -208,13 +219,13 @@ public class GlobalPortalStorage extends SavedData {
         data = newData;
         
         if (tag.contains("version")) {
-            version = tag.getInt("version");
+            version = tag.getIntOr("version", 0);
         }
         
         if (tag.contains("bedrockReplacement")) {
             bedrockReplacement = NbtUtils.readBlockState(
                 currWorld.holderLookup(Registries.BLOCK),
-                tag.getCompound("bedrockReplacement")
+                tag.getCompoundOrEmpty("bedrockReplacement")
             );
         }
         else {
@@ -229,12 +240,12 @@ public class GlobalPortalStorage extends SavedData {
         Level currWorld
     ) {
         /**{@link CompoundTag#getType()}*/
-        ListTag listTag = tag.getList("data", 10);
+        ListTag listTag = tag.getListOrEmpty("data");
         
         List<Portal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag compoundTag = listTag.getCompound(i);
+            CompoundTag compoundTag = listTag.getCompoundOrEmpty(i);
             Portal e = readPortalFromTag(currWorld, compoundTag);
             if (e != null) {
                 newData.add(e);
@@ -247,11 +258,24 @@ public class GlobalPortalStorage extends SavedData {
     }
     
     private static Portal readPortalFromTag(Level currWorld, CompoundTag compoundTag) {
-        Identifier entityId = McHelper.newIdentifier(compoundTag.getString("entity_type"));
-        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
+        Identifier entityId = McHelper.newIdentifier(compoundTag.getStringOr("entity_type", ""));
+        var entityTypeHolder = BuiltInRegistries.ENTITY_TYPE.get(entityId);
+        if (entityTypeHolder.isEmpty()) {
+            LOGGER.error("Unknown portal entity type {}", entityId);
+            return null;
+        }
+        EntityType<?> entityType = entityTypeHolder.get().value();
         
-        Entity e = entityType.create(currWorld);
-        e.load(compoundTag);
+        Entity e = entityType.create(currWorld, EntitySpawnReason.LOAD);
+        if (e == null) {
+            LOGGER.error("Failed to create portal entity {}", entityId);
+            return null;
+        }
+        e.load(TagValueInput.create(
+            ProblemReporter.DISCARDING,
+            currWorld.registryAccess(),
+            compoundTag
+        ));
         
         ((Portal) e).isGlobalPortal = true;
         
@@ -262,7 +286,6 @@ public class GlobalPortalStorage extends SavedData {
         return (Portal) e;
     }
     
-    @Override
     public @NotNull CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         if (data == null) {
             return tag;
@@ -274,8 +297,12 @@ public class GlobalPortalStorage extends SavedData {
         
         for (Portal portal : data) {
             Validate.isTrue(portal.level() == currWorld);
-            CompoundTag portalTag = new CompoundTag();
-            portal.saveWithoutId(portalTag);
+            TagValueOutput output = TagValueOutput.createWithContext(
+                ProblemReporter.DISCARDING,
+                registries
+            );
+            portal.saveWithoutId(output);
+            CompoundTag portalTag = output.buildResult();
             portalTag.putString(
                 "entity_type",
                 EntityType.getKey(portal.getType()).toString()

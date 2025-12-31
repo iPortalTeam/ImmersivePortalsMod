@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPConfig;
@@ -78,7 +80,7 @@ public class PortalWandInteraction {
             }
             
             if (!draggingInfo.isValid()) {
-                player.sendSystemMessage(Component.literal("Invalid dragging info"));
+                player.displayClientMessage(Component.literal("Invalid dragging info"), false);
                 LOGGER.error("Invalid dragging info {}", draggingInfo);
                 return;
             }
@@ -146,19 +148,19 @@ public class PortalWandInteraction {
         Vec3 firstSideVerticalUnitAxis = firstSideVerticalAxis.normalize();
         
         if (Math.abs(firstSideWidth) < 0.001 || Math.abs(firstSideHeight) < 0.001) {
-            player.sendSystemMessage(Component.literal("The first side is too small"));
+            player.displayClientMessage(Component.literal("The first side is too small"), false);
             LOGGER.error("The first side is too small");
             return;
         }
         
         if (firstSideHorizontalUnitAxis.dot(firstSideVerticalUnitAxis) > 0.001) {
-            player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in first side"));
+            player.displayClientMessage(Component.literal("The horizontal and vertical axis are not perpendicular in first side"), false);
             LOGGER.error("The horizontal and vertical axis are not perpendicular in first side");
             return;
         }
         
         if (firstSideWidth > SIZE_LIMIT || firstSideHeight > SIZE_LIMIT) {
-            player.sendSystemMessage(Component.literal("The first side is too large"));
+            player.displayClientMessage(Component.literal("The first side is too large"), false);
             LOGGER.error("The first side is too large");
             return;
         }
@@ -171,25 +173,25 @@ public class PortalWandInteraction {
         Vec3 secondSideVerticalUnitAxis = secondSideVerticalAxis.normalize();
         
         if (Math.abs(secondSideWidth) < 0.001 || Math.abs(secondSideHeight) < 0.001) {
-            player.sendSystemMessage(Component.literal("The second side is too small"));
+            player.displayClientMessage(Component.literal("The second side is too small"), false);
             LOGGER.error("The second side is too small");
             return;
         }
         
         if (secondSideHorizontalUnitAxis.dot(secondSideVerticalUnitAxis) > 0.001) {
-            player.sendSystemMessage(Component.literal("The horizontal and vertical axis are not perpendicular in second side"));
+            player.displayClientMessage(Component.literal("The horizontal and vertical axis are not perpendicular in second side"), false);
             LOGGER.error("The horizontal and vertical axis are not perpendicular in second side");
             return;
         }
         
         if (secondSideWidth > SIZE_LIMIT || secondSideHeight > SIZE_LIMIT) {
-            player.sendSystemMessage(Component.literal("The second side is too large"));
+            player.displayClientMessage(Component.literal("The second side is too large"), false);
             LOGGER.error("The second side is too large");
             return;
         }
         
         if (Math.abs((firstSideHeight / firstSideWidth) - (secondSideHeight / secondSideWidth)) > 0.001) {
-            player.sendSystemMessage(Component.literal("The two sides have different aspect ratio"));
+            player.displayClientMessage(Component.literal("The two sides have different aspect ratio"), false);
             LOGGER.error("The two sides have different aspect ratio");
             return;
         }
@@ -236,7 +238,10 @@ public class PortalWandInteraction {
             }
         }
         
-        Portal portal = Portal.ENTITY_TYPE.create(McHelper.getServerWorld(firstSideDimension));
+        Portal portal = Portal.ENTITY_TYPE.create(
+            McHelper.getServerWorld(firstSideDimension),
+            EntitySpawnReason.SPAWN_ITEM_USE
+        );
         Validate.notNull(portal);
         portal.setOriginPos(
             firstSideLeftBottom
@@ -271,7 +276,7 @@ public class PortalWandInteraction {
         McHelper.spawnServerEntity(portal);
         
         if (overlaps) {
-            player.sendSystemMessage(Component.translatable("imm_ptl.wand.overlap"));
+            player.displayClientMessage(Component.translatable("imm_ptl.wand.overlap"), false);
         }
         else {
             McHelper.spawnServerEntity(flippedPortal);
@@ -279,7 +284,7 @@ public class PortalWandInteraction {
             McHelper.spawnServerEntity(parallelPortal);
         }
         
-        player.sendSystemMessage(Component.translatable("imm_ptl.wand.finished"));
+        player.displayClientMessage(Component.translatable("imm_ptl.wand.finished"), false);
         
         giveCommandStick(player, "/portal eradicate_portal_cluster");
     }
@@ -411,7 +416,7 @@ public class PortalWandInteraction {
     }
     
     private static void handleFinishDrag(ServerPlayer player) {
-        DraggingSession session = of(player.server).draggingSessionMap.remove(player);
+        DraggingSession session = of(player.level().getServer()).draggingSessionMap.remove(player);
         
         if (session == null) {
             return;
@@ -425,11 +430,11 @@ public class PortalWandInteraction {
     }
     
     private static void handleUndoDrag(ServerPlayer player) {
-        PortalWandInteraction portalWandInteraction = of(player.server);
+        PortalWandInteraction portalWandInteraction = of(player.level().getServer());
         DraggingSession session = portalWandInteraction.draggingSessionMap.get(player);
         
         if (session == null) {
-//            player.sendSystemMessage(Component.literal("Cannot undo"));
+//            player.displayClientMessage(Component.literal("Cannot undo"), false);
             return;
         }
         
@@ -450,7 +455,7 @@ public class PortalWandInteraction {
     private static void handleDraggingRequest(
         ServerPlayer player, UUID portalId, Vec3 cursorPos, DraggingInfo draggingInfo, Portal portal
     ) {
-        PortalWandInteraction portalWandInteraction = of(player.server);
+        PortalWandInteraction portalWandInteraction = of(player.level().getServer());
         
         DraggingSession session = portalWandInteraction.draggingSessionMap.get(player);
         
@@ -477,13 +482,13 @@ public class PortalWandInteraction {
             portal.rectifyClusterPortals(true);
         }
         else {
-            player.sendSystemMessage(Component.literal("Invalid dragging"));
+            player.displayClientMessage(Component.literal("Invalid dragging"), false);
         }
     }
     
     private static boolean checkPermission(ServerPlayer player) {
         if (!canPlayerUsePortalWand(player)) {
-            player.sendSystemMessage(Component.literal("You cannot use portal wand"));
+            player.displayClientMessage(Component.literal("You cannot use portal wand"), false);
             LOGGER.error("Player cannot use portal wand {}", player);
             return false;
         }
@@ -522,7 +527,7 @@ public class PortalWandInteraction {
     }
     
     private static boolean canPlayerUsePortalWand(ServerPlayer player) {
-        return player.hasPermissions(2)
+        return McHelper.hasPermissionLevel(player, 2)
             || (IPGlobal.easeCreativePermission && player.isCreative())
             || (IPConfig.getConfig().portalWandUsableOnSurvivalMode
             && player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL);
@@ -544,7 +549,7 @@ public class PortalWandInteraction {
     }
     
     public static boolean isDragging(ServerPlayer player) {
-        return of(player.server).draggingSessionMap.containsKey(player);
+        return of(player.level().getServer()).draggingSessionMap.containsKey(player);
     }
     
     @Nullable
@@ -759,7 +764,7 @@ public class PortalWandInteraction {
         Portal portal = WandUtil.getPortalByUUID(player.level(), portalId);
         
         if (portal == null) {
-            player.sendSystemMessage(Component.literal("Cannot find portal " + portalId));
+            player.displayClientMessage(Component.literal("Cannot find portal " + portalId), false);
             return;
         }
         
@@ -805,18 +810,18 @@ public class PortalWandInteraction {
         CopyingSession copyingSession = copyingSessionMap.remove(player);
         
         if (copyingSession == null) {
-            player.sendSystemMessage(Component.literal("Missing copying session"));
+            player.displayClientMessage(Component.literal("Missing copying session"), false);
             return;
         }
         
         DQuaternion orientation = rawOrientation.fixFloatingPointErrorAccumulation();
         
         if (player.position().distanceToSqr(origin) > 64 * 64) {
-            player.sendSystemMessage(Component.literal("Too far away from the portal"));
+            player.displayClientMessage(Component.literal("Too far away from the portal"), false);
             return;
         }
         
-        Portal portal = Portal.ENTITY_TYPE.create(player.level());
+        Portal portal = Portal.ENTITY_TYPE.create(player.level(), EntitySpawnReason.SPAWN_ITEM_USE);
         assert portal != null;
         
         portal.readPortalDataFromNbt(copyingSession.portalData);
@@ -864,7 +869,7 @@ public class PortalWandInteraction {
             McHelper.spawnServerEntity(portal);
             
             if (copyingSession.hasFlipped || copyingSession.hasReverse || copyingSession.hasParallel) {
-                player.sendSystemMessage(Component.translatable("imm_ptl.wand.copy.not_copying_cluster"));
+                player.displayClientMessage(Component.translatable("imm_ptl.wand.copy.not_copying_cluster"), false);
                 giveCommandStick(player, "/portal complete_bi_way_bi_faced_portal");
             }
         }

@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "qouteall.imm_ptl.core.compat.mixin",
+  "refmap": "imm_ptl.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.core.compat.IPCompatMixinPlugin",
   "mixins": [
@@ -8,13 +9,6 @@
     "flywheel.MixinFlywheelCrumblingRenderer",
     "flywheel.MixinFlywheelProgramCompiler",
     "flywheel.MixinFlywheelQuadConverter",
-    "iris.MixinIrisClearPass",
-    "iris.MixinIrisFinalPassRenderer",
-    "iris.MixinIrisIris",
-    "iris.MixinIrisRenderingPipeline",
-    "iris.MixinIrisShadowRenderTargets",
-    "iris.MixinIrisSodiumShader",
-    "iris.MixinIrisTransformPatcher",
     "sodium.IESodiumWorldRenderer",
     "sodium.MixinSodiumDefaultShaderInterface",
     "sodium.MixinSodiumFlawlessFrames",

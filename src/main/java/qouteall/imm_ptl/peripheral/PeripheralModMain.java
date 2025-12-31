@@ -4,8 +4,10 @@ import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -32,10 +34,24 @@ import java.util.function.BiConsumer;
 public class PeripheralModMain {
     
     public static final Block portalHelperBlock =
-        new Block(BlockBehaviour.Properties.of().noOcclusion().isRedstoneConductor((a, b, c) -> false));
+        new Block(BlockBehaviour.Properties.of()
+            .setId(ResourceKey.create(
+                Registries.BLOCK,
+                McHelper.newIdentifier("immersive_portals", "portal_helper")
+            ))
+            .noOcclusion()
+            .isRedstoneConductor((a, b, c) -> false)
+        );
     
     public static final BlockItem portalHelperBlockItem =
-        new PortalHelperItem(PeripheralModMain.portalHelperBlock, new Item.Properties());
+        new PortalHelperItem(
+            PeripheralModMain.portalHelperBlock,
+            new Item.Properties()
+                .setId(ResourceKey.create(
+                    Registries.ITEM,
+                    McHelper.newIdentifier("immersive_portals", "portal_helper")
+                ))
+        );
     
     public static final CreativeModeTab TAB =
         FabricItemGroup.builder()

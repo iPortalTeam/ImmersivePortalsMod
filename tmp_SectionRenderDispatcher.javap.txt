@@ -1,0 +1,346 @@
+Compiled from "SectionRenderDispatcher.java"
+public class net.minecraft.client.renderer.chunk.SectionRenderDispatcher {
+  private final net.minecraft.client.renderer.chunk.CompileTaskDynamicQueue compileQueue;
+
+  private final java.util.Queue<java.lang.Runnable> toUpload;
+
+  final java.util.concurrent.Executor mainThreadUploadExecutor;
+
+  final java.util.Queue<net.minecraft.client.renderer.chunk.SectionMesh> toClose;
+
+  final net.minecraft.client.renderer.SectionBufferBuilderPack fixedBuffers;
+
+  private final net.minecraft.client.renderer.SectionBufferBuilderPool bufferPool;
+
+  volatile boolean closed;
+
+  private final net.minecraft.util.thread.ConsecutiveExecutor consecutiveExecutor;
+
+  private final net.minecraft.TracingExecutor executor;
+
+  net.minecraft.client.multiplayer.ClientLevel level;
+
+  final net.minecraft.client.renderer.LevelRenderer renderer;
+
+  net.minecraft.world.phys.Vec3 cameraPosition;
+
+  final net.minecraft.client.renderer.chunk.SectionCompiler sectionCompiler;
+
+  public net.minecraft.client.renderer.chunk.SectionRenderDispatcher(net.minecraft.client.multiplayer.ClientLevel, net.minecraft.client.renderer.LevelRenderer, net.minecraft.TracingExecutor, net.minecraft.client.renderer.RenderBuffers, net.minecraft.client.renderer.block.BlockRenderDispatcher, net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher);
+    Code:
+       0: aload_0
+       1: invokespecial #67                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #69                 // class net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue
+       8: dup
+       9: invokespecial #70                 // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue."<init>":()V
+      12: putfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+      15: aload_0
+      16: invokestatic  #78                 // Method com/google/common/collect/Queues.newConcurrentLinkedQueue:()Ljava/util/concurrent/ConcurrentLinkedQueue;
+      19: putfield      #80                 // Field toUpload:Ljava/util/Queue;
+      22: aload_0
+      23: aload_0
+      24: getfield      #80                 // Field toUpload:Ljava/util/Queue;
+      27: dup
+      28: invokestatic  #86                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+      31: pop
+      32: invokedynamic #106,  0            // InvokeDynamic #0:execute:(Ljava/util/Queue;)Ljava/util/concurrent/Executor;
+      37: putfield      #108                // Field mainThreadUploadExecutor:Ljava/util/concurrent/Executor;
+      40: aload_0
+      41: invokestatic  #78                 // Method com/google/common/collect/Queues.newConcurrentLinkedQueue:()Ljava/util/concurrent/ConcurrentLinkedQueue;
+      44: putfield      #110                // Field toClose:Ljava/util/Queue;
+      47: aload_0
+      48: getstatic     #115                // Field net/minecraft/world/phys/Vec3.ZERO:Lnet/minecraft/world/phys/Vec3;
+      51: putfield      #117                // Field cameraPosition:Lnet/minecraft/world/phys/Vec3;
+      54: aload_0
+      55: aload_1
+      56: putfield      #119                // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+      59: aload_0
+      60: aload_2
+      61: putfield      #121                // Field renderer:Lnet/minecraft/client/renderer/LevelRenderer;
+      64: aload_0
+      65: aload         4
+      67: invokevirtual #127                // Method net/minecraft/client/renderer/RenderBuffers.fixedBufferPack:()Lnet/minecraft/client/renderer/SectionBufferBuilderPack;
+      70: putfield      #129                // Field fixedBuffers:Lnet/minecraft/client/renderer/SectionBufferBuilderPack;
+      73: aload_0
+      74: aload         4
+      76: invokevirtual #133                // Method net/minecraft/client/renderer/RenderBuffers.sectionBufferPool:()Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      79: putfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      82: aload_0
+      83: aload_3
+      84: putfield      #137                // Field executor:Lnet/minecraft/TracingExecutor;
+      87: aload_0
+      88: new           #139                // class net/minecraft/util/thread/ConsecutiveExecutor
+      91: dup
+      92: aload_3
+      93: ldc           #141                // String Section Renderer
+      95: invokespecial #144                // Method net/minecraft/util/thread/ConsecutiveExecutor."<init>":(Ljava/util/concurrent/Executor;Ljava/lang/String;)V
+      98: putfield      #146                // Field consecutiveExecutor:Lnet/minecraft/util/thread/ConsecutiveExecutor;
+     101: aload_0
+     102: getfield      #146                // Field consecutiveExecutor:Lnet/minecraft/util/thread/ConsecutiveExecutor;
+     105: aload_0
+     106: invokedynamic #155,  0            // InvokeDynamic #1:run:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;)Ljava/lang/Runnable;
+     111: invokevirtual #158                // Method net/minecraft/util/thread/ConsecutiveExecutor.schedule:(Ljava/lang/Runnable;)V
+     114: aload_0
+     115: new           #160                // class net/minecraft/client/renderer/chunk/SectionCompiler
+     118: dup
+     119: aload         5
+     121: aload         6
+     123: invokespecial #163                // Method net/minecraft/client/renderer/chunk/SectionCompiler."<init>":(Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;)V
+     126: putfield      #165                // Field sectionCompiler:Lnet/minecraft/client/renderer/chunk/SectionCompiler;
+     129: return
+
+  public void setLevel(net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #119                // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+       5: return
+
+  private void runTask();
+    Code:
+       0: aload_0
+       1: getfield      #174                // Field closed:Z
+       4: ifne          17
+       7: aload_0
+       8: getfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      11: invokevirtual #180                // Method net/minecraft/client/renderer/SectionBufferBuilderPool.isEmpty:()Z
+      14: ifeq          18
+      17: return
+      18: aload_0
+      19: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+      22: aload_0
+      23: getfield      #117                // Field cameraPosition:Lnet/minecraft/world/phys/Vec3;
+      26: invokevirtual #184                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.poll:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;
+      29: astore_1
+      30: aload_1
+      31: ifnonnull     35
+      34: return
+      35: aload_0
+      36: getfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      39: invokevirtual #187                // Method net/minecraft/client/renderer/SectionBufferBuilderPool.acquire:()Lnet/minecraft/client/renderer/SectionBufferBuilderPack;
+      42: invokestatic  #86                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+      45: checkcast     #189                // class net/minecraft/client/renderer/SectionBufferBuilderPack
+      48: astore_2
+      49: aload_1
+      50: aload_2
+      51: invokedynamic #202,  0            // InvokeDynamic #2:get:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/function/Supplier;
+      56: aload_0
+      57: getfield      #137                // Field executor:Lnet/minecraft/TracingExecutor;
+      60: aload_1
+      61: invokevirtual #206                // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask.name:()Ljava/lang/String;
+      64: invokevirtual #212                // Method net/minecraft/TracingExecutor.forName:(Ljava/lang/String;)Ljava/util/concurrent/Executor;
+      67: invokestatic  #218                // Method java/util/concurrent/CompletableFuture.supplyAsync:(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;
+      70: invokedynamic #229,  0            // InvokeDynamic #3:apply:()Ljava/util/function/Function;
+      75: invokevirtual #233                // Method java/util/concurrent/CompletableFuture.thenCompose:(Ljava/util/function/Function;)Ljava/util/concurrent/CompletableFuture;
+      78: aload_0
+      79: aload_1
+      80: aload_2
+      81: invokedynamic #246,  0            // InvokeDynamic #4:accept:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/function/BiConsumer;
+      86: invokevirtual #250                // Method java/util/concurrent/CompletableFuture.whenComplete:(Ljava/util/function/BiConsumer;)Ljava/util/concurrent/CompletableFuture;
+      89: pop
+      90: return
+
+  public void setCameraPosition(net.minecraft.world.phys.Vec3);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #117                // Field cameraPosition:Lnet/minecraft/world/phys/Vec3;
+       5: return
+
+  public void uploadAllPendingUploads();
+    Code:
+       0: aload_0
+       1: getfield      #80                 // Field toUpload:Ljava/util/Queue;
+       4: invokeinterface #259,  1          // InterfaceMethod java/util/Queue.poll:()Ljava/lang/Object;
+       9: checkcast     #261                // class java/lang/Runnable
+      12: dup
+      13: astore_1
+      14: ifnull        26
+      17: aload_1
+      18: invokeinterface #263,  1          // InterfaceMethod java/lang/Runnable.run:()V
+      23: goto          0
+      26: aload_0
+      27: getfield      #110                // Field toClose:Ljava/util/Queue;
+      30: invokeinterface #259,  1          // InterfaceMethod java/util/Queue.poll:()Ljava/lang/Object;
+      35: checkcast     #265                // class net/minecraft/client/renderer/chunk/SectionMesh
+      38: dup
+      39: astore_2
+      40: ifnull        52
+      43: aload_2
+      44: invokeinterface #268,  1          // InterfaceMethod net/minecraft/client/renderer/chunk/SectionMesh.close:()V
+      49: goto          26
+      52: return
+
+  public void rebuildSectionSync(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection, net.minecraft.client.renderer.chunk.RenderRegionCache);
+    Code:
+       0: aload_1
+       1: aload_2
+       2: invokevirtual #280                // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection.compileSync:(Lnet/minecraft/client/renderer/chunk/RenderRegionCache;)V
+       5: return
+
+  public void schedule(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$CompileTask);
+    Code:
+       0: aload_0
+       1: getfield      #174                // Field closed:Z
+       4: ifeq          8
+       7: return
+       8: aload_0
+       9: getfield      #146                // Field consecutiveExecutor:Lnet/minecraft/util/thread/ConsecutiveExecutor;
+      12: aload_0
+      13: aload_1
+      14: invokedynamic #291,  0            // InvokeDynamic #5:run:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;)Ljava/lang/Runnable;
+      19: invokevirtual #158                // Method net/minecraft/util/thread/ConsecutiveExecutor.schedule:(Ljava/lang/Runnable;)V
+      22: return
+
+  public void clearCompileQueue();
+    Code:
+       0: aload_0
+       1: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+       4: invokevirtual #295                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.clear:()V
+       7: return
+
+  public boolean isQueueEmpty();
+    Code:
+       0: aload_0
+       1: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+       4: invokevirtual #300                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.size:()I
+       7: ifne          26
+      10: aload_0
+      11: getfield      #80                 // Field toUpload:Ljava/util/Queue;
+      14: invokeinterface #301,  1          // InterfaceMethod java/util/Queue.isEmpty:()Z
+      19: ifeq          26
+      22: iconst_1
+      23: goto          27
+      26: iconst_0
+      27: ireturn
+
+  public void dispose();
+    Code:
+       0: aload_0
+       1: iconst_1
+       2: putfield      #174                // Field closed:Z
+       5: aload_0
+       6: invokevirtual #304                // Method clearCompileQueue:()V
+       9: aload_0
+      10: invokevirtual #306                // Method uploadAllPendingUploads:()V
+      13: return
+
+  public java.lang.String getStats();
+    Code:
+       0: getstatic     #314                // Field java/util/Locale.ROOT:Ljava/util/Locale;
+       3: ldc_w         #316                // String pC: %03d, pU: %02d, aB: %02d
+       6: iconst_3
+       7: anewarray     #4                  // class java/lang/Object
+      10: dup
+      11: iconst_0
+      12: aload_0
+      13: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+      16: invokevirtual #300                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.size:()I
+      19: invokestatic  #322                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      22: aastore
+      23: dup
+      24: iconst_1
+      25: aload_0
+      26: getfield      #80                 // Field toUpload:Ljava/util/Queue;
+      29: invokeinterface #323,  1          // InterfaceMethod java/util/Queue.size:()I
+      34: invokestatic  #322                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      37: aastore
+      38: dup
+      39: iconst_2
+      40: aload_0
+      41: getfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      44: invokevirtual #326                // Method net/minecraft/client/renderer/SectionBufferBuilderPool.getFreeBufferCount:()I
+      47: invokestatic  #322                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      50: aastore
+      51: invokestatic  #332                // Method java/lang/String.format:(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      54: areturn
+
+  public int getCompileQueueSize();
+    Code:
+       0: aload_0
+       1: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+       4: invokevirtual #300                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.size:()I
+       7: ireturn
+
+  public int getToUpload();
+    Code:
+       0: aload_0
+       1: getfield      #80                 // Field toUpload:Ljava/util/Queue;
+       4: invokeinterface #323,  1          // InterfaceMethod java/util/Queue.size:()I
+       9: ireturn
+
+  public int getFreeBufferCount();
+    Code:
+       0: aload_0
+       1: getfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+       4: invokevirtual #326                // Method net/minecraft/client/renderer/SectionBufferBuilderPool.getFreeBufferCount:()I
+       7: ireturn
+
+  private void method_23086(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$CompileTask);
+    Code:
+       0: aload_0
+       1: getfield      #174                // Field closed:Z
+       4: ifeq          8
+       7: return
+       8: aload_0
+       9: getfield      #72                 // Field compileQueue:Lnet/minecraft/client/renderer/chunk/CompileTaskDynamicQueue;
+      12: aload_1
+      13: invokevirtual #336                // Method net/minecraft/client/renderer/chunk/CompileTaskDynamicQueue.add:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask;)V
+      16: aload_0
+      17: invokevirtual #150                // Method runTask:()V
+      20: return
+
+  private void method_22755(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$CompileTask, net.minecraft.client.renderer.SectionBufferBuilderPack, net.minecraft.client.renderer.chunk.SectionRenderDispatcher$SectionTaskResult, java.lang.Throwable);
+    Code:
+       0: aload         4
+       2: ifnull        20
+       5: invokestatic  #344                // Method net/minecraft/client/Minecraft.getInstance:()Lnet/minecraft/client/Minecraft;
+       8: aload         4
+      10: ldc_w         #346                // String Batching sections
+      13: invokestatic  #352                // Method net/minecraft/CrashReport.forThrowable:(Ljava/lang/Throwable;Ljava/lang/String;)Lnet/minecraft/CrashReport;
+      16: invokevirtual #356                // Method net/minecraft/client/Minecraft.delayCrash:(Lnet/minecraft/CrashReport;)V
+      19: return
+      20: aload_1
+      21: getfield      #360                // Field net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask.isCompleted:Ljava/util/concurrent/atomic/AtomicBoolean;
+      24: iconst_1
+      25: invokevirtual #366                // Method java/util/concurrent/atomic/AtomicBoolean.set:(Z)V
+      28: aload_0
+      29: getfield      #146                // Field consecutiveExecutor:Lnet/minecraft/util/thread/ConsecutiveExecutor;
+      32: aload_0
+      33: aload_3
+      34: aload_2
+      35: invokedynamic #374,  0            // InvokeDynamic #6:run:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$SectionTaskResult;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/lang/Runnable;
+      40: invokevirtual #158                // Method net/minecraft/util/thread/ConsecutiveExecutor.schedule:(Ljava/lang/Runnable;)V
+      43: return
+
+  private void method_23618(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$SectionTaskResult, net.minecraft.client.renderer.SectionBufferBuilderPack);
+    Code:
+       0: aload_1
+       1: getstatic     #379                // Field net/minecraft/client/renderer/chunk/SectionRenderDispatcher$SectionTaskResult.SUCCESSFUL:Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$SectionTaskResult;
+       4: if_acmpne     14
+       7: aload_2
+       8: invokevirtual #382                // Method net/minecraft/client/renderer/SectionBufferBuilderPack.clearAll:()V
+      11: goto          18
+      14: aload_2
+      15: invokevirtual #385                // Method net/minecraft/client/renderer/SectionBufferBuilderPack.discardAll:()V
+      18: aload_0
+      19: getfield      #135                // Field bufferPool:Lnet/minecraft/client/renderer/SectionBufferBuilderPool;
+      22: aload_2
+      23: invokevirtual #389                // Method net/minecraft/client/renderer/SectionBufferBuilderPool.release:(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)V
+      26: aload_0
+      27: invokevirtual #150                // Method runTask:()V
+      30: return
+
+  private static java.util.concurrent.CompletionStage method_38555(java.util.concurrent.CompletableFuture);
+    Code:
+       0: aload_0
+       1: areturn
+
+  private static java.util.concurrent.CompletableFuture method_22757(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$CompileTask, net.minecraft.client.renderer.SectionBufferBuilderPack);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #395                // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$CompileTask.doTask:(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;
+       5: areturn
+}

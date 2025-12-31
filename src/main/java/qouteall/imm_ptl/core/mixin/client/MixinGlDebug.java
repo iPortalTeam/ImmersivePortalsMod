@@ -12,7 +12,7 @@ public class MixinGlDebug {
     private static int loggedNum = 0;
     
     @Inject(
-        method = "Lcom/mojang/blaze3d/platform/GlDebug;printDebugLog(IIIIIJJ)V", at = @At("RETURN")
+        method = "printDebugLog(IIIIIJJ)V", at = @At("RETURN")
     )
     private static void onLogging(
         int source, int type, int id, int severity, int messageLength, long message, long l,

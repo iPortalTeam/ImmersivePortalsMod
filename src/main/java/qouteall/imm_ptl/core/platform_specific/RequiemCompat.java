@@ -88,7 +88,7 @@ public class RequiemCompat {
         if (possessedEntity != null) {
             if (possessedEntity.level() != player.level()) {
                 Helper.log("Move Requiem Posessed Entity at Server");
-                ServerTeleportationManager.of(player.server).changeEntityDimension(
+                ServerTeleportationManager.of(player.level().getServer()).changeEntityDimension(
                     possessedEntity,
                     player.level().dimension(),
                     McHelper.getEyePos(player),

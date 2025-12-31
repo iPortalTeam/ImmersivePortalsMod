@@ -19,10 +19,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.IPModInfoChecking;
-import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
@@ -87,10 +84,12 @@ public abstract class PortalRenderer {
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
             Frustum frustum = new Frustum(
                 modelView,
-                RenderSystem.getProjectionMatrix()
+                RenderStates.basicProjectionMatrix != null
+                    ? new Matrix4f(RenderStates.basicProjectionMatrix)
+                    : new Matrix4f()
             );
             
-            Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+            Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
             frustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
             
             return frustum;
@@ -324,21 +323,13 @@ public abstract class PortalRenderer {
         
         IPModInfoChecking.checkShaderpack();
         
-        if (IrisInterface.invoker.isIrisPresent()) {
-            if (IrisInterface.invoker.isShaders()) {
-                if (IPCGlobal.experimentalIrisPortalRenderer) {
-                    switchRenderer(ExperimentalIrisPortalRenderer.instance);
-                    return;
-                }
-                
-                switch (IPGlobal.renderMode) {
-                    case normal -> switchRenderer(IrisPortalRenderer.instance);
-                    case compatibility -> switchRenderer(IrisCompatibilityPortalRenderer.instance);
-                    case debug -> switchRenderer(IrisCompatibilityPortalRenderer.debugModeInstance);
-                    case none -> switchRenderer(IPCGlobal.rendererDummy);
-                }
-                return;
+        if (IrisCompat.isShaders()) {
+            switch (IPGlobal.renderMode) {
+                case debug -> switchRenderer(IPCGlobal.rendererDebug);
+                case none -> switchRenderer(IPCGlobal.rendererDummy);
+                default -> switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
             }
+            return;
         }
         
         switch (IPGlobal.renderMode) {
@@ -354,8 +345,8 @@ public abstract class PortalRenderer {
             Helper.log("switched to renderer " + renderer.getClass());
             IPCGlobal.renderer = renderer;
             
-            if (IrisInterface.invoker.isShaders()) {
-                IrisInterface.invoker.reloadPipelines();
+            if (IrisCompat.isShaders()) {
+                IrisCompat.reloadPipelines();
             }
         }
     }

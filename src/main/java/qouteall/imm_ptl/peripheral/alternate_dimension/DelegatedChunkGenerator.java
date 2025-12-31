@@ -16,6 +16,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -115,8 +116,22 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public void createStructures(RegistryAccess registryAccess, ChunkGeneratorStructureState chunkGeneratorStructureState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager) {
-        super.createStructures(registryAccess, chunkGeneratorStructureState, structureManager, chunkAccess, structureTemplateManager);
+    public void createStructures(
+        RegistryAccess registryAccess,
+        ChunkGeneratorStructureState chunkGeneratorStructureState,
+        StructureManager structureManager,
+        ChunkAccess chunkAccess,
+        StructureTemplateManager structureTemplateManager,
+        ResourceKey<Level> dimension
+    ) {
+        super.createStructures(
+            registryAccess,
+            chunkGeneratorStructureState,
+            structureManager,
+            chunkAccess,
+            structureTemplateManager,
+            dimension
+        );
     }
     
     @Override

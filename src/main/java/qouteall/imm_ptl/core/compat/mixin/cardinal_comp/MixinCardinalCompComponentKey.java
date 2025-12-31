@@ -35,7 +35,7 @@ public class MixinCardinalCompComponentKey {
         
         if (instance instanceof Entity entity) {
             var redirected = PacketRedirection.createRedirectedMessage(
-                entity.getServer(),
+                entity.level().getServer(),
                 entity.level().dimension(),
                 (Packet<ClientGamePacketListener>) (Packet) packet
             );

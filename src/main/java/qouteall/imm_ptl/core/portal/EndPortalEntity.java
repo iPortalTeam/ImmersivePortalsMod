@@ -5,12 +5,16 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,8 +44,10 @@ import java.util.Objects;
 public class EndPortalEntity extends Portal {
     private static final Logger LOGGER = LogManager.getLogger(EndPortalEntity.class);
     
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("immersive_portals", "end_portal");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
     public static final EntityType<EndPortalEntity> ENTITY_TYPE =
-        createPortalEntityType(EndPortalEntity::new);
+        createPortalEntityType(KEY, EndPortalEntity::new);
     public static final String PORTAL_TAG_VIEW_BOX = "view_box";
     
     private static final double BOX_PORTAL_SIDE_LEN = 3;
@@ -147,7 +153,7 @@ public class EndPortalEntity extends Portal {
         
         Vec3 portalCenter = thisSideBox.getCenter();
         
-        EndPortalEntity portal = EndPortalEntity.ENTITY_TYPE.create(world);
+        EndPortalEntity portal = EndPortalEntity.ENTITY_TYPE.create(world, EntitySpawnReason.COMMAND);
         assert portal != null;
         
         portal.setOriginPos(portalCenter);

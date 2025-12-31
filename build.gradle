@@ -31,8 +31,8 @@ repositories {
     }
 
     // cloth config
-    maven { url "https://maven.shedaniel.me/" }
-    maven { url "https://maven.terraformersmc.com/releases/" }
+    maven { url = "https://maven.shedaniel.me/" }
+    maven { url = "https://maven.terraformersmc.com/releases/" }
 
     // for sodium
     maven {
@@ -55,13 +55,26 @@ repositories {
     }
 
     // geckolib, for testing with portal gun
-    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
 
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/imm_ptl.accesswidener")
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName = "imm_ptl.refmap.json"
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            exclude "qouteall/imm_ptl/core/compat/iris_compatibility/**"
+            exclude "qouteall/imm_ptl/core/compat/mixin/iris/**"
+        }
+    }
 }
 
 dependencies {
@@ -95,7 +108,7 @@ dependencies {
 
     modCompileOnly("com.github.qouteall:GravityChanger:${gravity_changer_version}") {
         exclude(group: "net.fabricmc.fabric-api")
-        transitive(false)
+        transitive = false
     }
 
     modApi("com.github.iPortalTeam:DimLib:${dimlib_version}") {
@@ -125,7 +138,7 @@ dependencies {
     if (project.enable_geckolib.equals('true')) {
         // for testing portal gun using dev jar
         modLocalRuntime('software.bernie.geckolib:geckolib-fabric-1.20:4.2') {
-            transitive(false)
+            transitive = false
         }
     }
 
@@ -149,6 +162,7 @@ dependencies {
     }
     testImplementation(platform('org.junit:junit-bom:5.10.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 processResources {
@@ -209,12 +223,12 @@ task printClasspath {
 
 // run test when building will slow down the build process
 // manually run when needed
-//test {
-//    useJUnitPlatform()
-//    testLogging {
-//        events "passed", "skipped", "failed"
-//    }
-//}
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
 
 publishMods {
     file = remapJar.archiveFile

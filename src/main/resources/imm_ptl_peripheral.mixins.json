@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "qouteall.imm_ptl.peripheral.mixin",
+  "refmap": "imm_ptl.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.peripheral.IPPeripheralMixinPlugin",
   "mixins": [

@@ -43,7 +43,8 @@ public abstract class MixinServerLevel implements IEServerWorld {
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;isEmpty()Z"
-        )
+        ),
+        require = 0
     )
     private boolean redirectIsEmpty(List list) {
         final ServerLevel this_ = (ServerLevel) (Object) this;

@@ -7,11 +7,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.ProfilerCompat;
 
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -30,7 +32,7 @@ public class CustomTextOverlay {
     private static final boolean renderAtBottomCenter = true;
     
     @Nullable
-    private static MultiLineLabel multiLineLabelCache;
+    private static List<FormattedCharSequence> lineCache;
     
     public static void putText(Component component, double durationSeconds, String key) {
         ENTRIES.put(
@@ -40,7 +42,7 @@ public class CustomTextOverlay {
                 System.nanoTime() + Helper.secondToNano(durationSeconds)
             )
         );
-        multiLineLabelCache = null;
+        lineCache = null;
     }
     
     public static void putText(Component component, double durationSeconds) {
@@ -68,14 +70,14 @@ public class CustomTextOverlay {
         
         boolean removes = ENTRIES.entrySet().removeIf(e -> e.getValue().clearingTime < currTime);
         if (removes) {
-            multiLineLabelCache = null;
+            lineCache = null;
         }
         
         if (ENTRIES.isEmpty()) {
             return;
         }
         
-        if (multiLineLabelCache == null) {
+        if (lineCache == null) {
             // don't make the first component the base component
             // to avoid style override
             MutableComponent component = Component.empty();
@@ -89,45 +91,39 @@ public class CustomTextOverlay {
                 }
                 component.append(entry.component());
             }
-            
-            multiLineLabelCache = MultiLineLabel.create(
-                Minecraft.getInstance().font,
-                component,
-                (Minecraft.getInstance().getWindow().getGuiScaledWidth() - 20)
-            );
-            assert multiLineLabelCache != null;
+
+            Minecraft minecraft = Minecraft.getInstance();
+            Font font = minecraft.font;
+            int maxWidth = minecraft.getWindow().getGuiScaledWidth() - 20;
+            lineCache = font.split(component, maxWidth);
         }
         
         Minecraft minecraft = Minecraft.getInstance();
         
-        guiGraphics.pose().pushPose();
+        guiGraphics.pose().pushMatrix();
         
         int guiScaledWidth = minecraft.getWindow().getGuiScaledWidth();
         int guiScaledHeight = minecraft.getWindow().getGuiScaledHeight();
         
         Font font = minecraft.gui.getFont();
         
-        minecraft.getProfiler().push("imm_ptl_custom_overlay");
-        if (renderAtBottomCenter) {
-            // Note: the parchment names are incorrect
-            multiLineLabelCache.renderCentered(
-                guiGraphics,
-                guiScaledWidth / 2, // x
-                (int) (guiScaledHeight * 0.75) // y
-            );
-        }
-        else {
-            multiLineLabelCache.renderLeftAligned(
-                guiGraphics,
-                10, // x
-                10, // y
-                9, // line height
-                0xffffffff // color
-            );
+        ProfilerCompat.push("imm_ptl_custom_overlay");
+        int lineHeight = font.lineHeight;
+        int color = 0xffffffff;
+        int baseX = renderAtBottomCenter ? guiScaledWidth / 2 : 10;
+        int baseY = renderAtBottomCenter ? (int) (guiScaledHeight * 0.75) : 10;
+        
+        if (lineCache != null) {
+            int y = baseY;
+            for (FormattedCharSequence line : lineCache) {
+                int x = renderAtBottomCenter ? baseX - font.width(line) / 2 : baseX;
+                guiGraphics.drawString(font, line, x, y, color);
+                y += lineHeight;
+            }
         }
         
-        guiGraphics.pose().popPose();
+        guiGraphics.pose().popMatrix();
         
-        minecraft.getProfiler().pop();
+        ProfilerCompat.pop();
     }
 }

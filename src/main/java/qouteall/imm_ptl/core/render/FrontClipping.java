@@ -1,10 +1,13 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -13,10 +16,12 @@ import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEShader;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.Plane;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class FrontClipping {
     private static final Minecraft client = Minecraft.getInstance();
@@ -26,12 +31,16 @@ public class FrontClipping {
     public static boolean isClippingEnabled = false;
     
     public static final double ADJUSTMENT = 0.01;
+
+    private static GpuBuffer clippingUniformBuffer;
+    private static GpuBufferSlice clippingUniformSlice;
     
     public static void disableClipping() {
         if (IPGlobal.enableClippingMechanism) {
             if (isClippingEnabled) {
                 GL11.glDisable(GL11.GL_CLIP_PLANE0);
                 isClippingEnabled = false;
+                updateClippingUniformBuffer();
             }
         }
     }
@@ -79,6 +88,7 @@ public class FrontClipping {
                 transformClipEquation(activeClipPlaneEquationBeforeModelView, modelView);
             
             enableClipping();
+            updateClippingUniformBuffer();
         }
         else {
             activeClipPlaneEquationBeforeModelView = null;
@@ -131,6 +141,7 @@ public class FrontClipping {
                 activeClipPlaneEquationBeforeModelView, matrixStack.last().pose()
             );
             enableClipping();
+            updateClippingUniformBuffer();
         }
         else {
             activeClipPlaneEquationBeforeModelView = null;
@@ -149,7 +160,7 @@ public class FrontClipping {
         
         Vec3 planeNormal = outerClipping.normal();
         
-        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
         
         Vec3 portalPos = outerClipping.pos()
             .subtract(cameraPos);
@@ -171,49 +182,50 @@ public class FrontClipping {
         return activeClipPlaneAfterModelView;
     }
     
-    public static void updateClippingEquationUniformForCurrentShader(
-        boolean isRenderingEntities
-    ) {
+    public static void bindClippingUniform(RenderPass pass) {
         if (!IPGlobal.enableClippingMechanism) {
             return;
         }
         
-        ShaderInstance shader = RenderSystem.getShader();
-        
-        if (shader == null) {
+        ensureClippingUniformBuffer();
+        pass.setUniform("IPortalClipping", clippingUniformSlice);
+    }
+
+    private static void updateClippingUniformBuffer() {
+        if (!IPGlobal.enableClippingMechanism) {
             return;
         }
+        ensureClippingUniformBuffer();
         
-        Uniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
-        if (clippingEquationUniform != null) {
-            if (isClippingEnabled) {
-                double[] equation = activeClipPlaneEquationBeforeModelView;
-//                double[] equation = isRenderingEntities ? activeClipPlaneAfterModelView : activeClipPlaneEquationBeforeModelView;
-                clippingEquationUniform.set(
-                    (float) equation[0], (float) equation[1],
-                    (float) equation[2], (float) equation[3]
-                );
-            }
-            else {
-                clippingEquationUniform.set(0f, 0f, 0f, 1f);
-            }
-        }
+        double[] equation = isClippingEnabled && activeClipPlaneEquationBeforeModelView != null
+            ? activeClipPlaneEquationBeforeModelView
+            : new double[]{0, 0, 0, 1};
+        
+        ByteBuffer buffer = ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder());
+        Std140Builder.intoBuffer(buffer).putVec4(
+            (float) equation[0], (float) equation[1],
+            (float) equation[2], (float) equation[3]
+        );
+        buffer.flip();
+        
+        CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
+        encoder.writeToBuffer(clippingUniformSlice, buffer);
     }
     
-    public static void unsetClippingUniform() {
-        if (!IPGlobal.enableClippingMechanism) {
+    private static void ensureClippingUniformBuffer() {
+        if (clippingUniformBuffer != null && !clippingUniformBuffer.isClosed()) {
             return;
         }
         
-        ShaderInstance shader = RenderSystem.getShader();
+        int alignment = RenderSystem.getDevice().getUniformOffsetAlignment();
+        int size = 16;
+        int alignedSize = ((size + alignment - 1) / alignment) * alignment;
         
-        if (shader == null) {
-            return;
-        }
-        
-        Uniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
-        if (clippingEquationUniform != null) {
-            clippingEquationUniform.set(0f, 0f, 0f, 1f);
-        }
+        clippingUniformBuffer = RenderSystem.getDevice().createBuffer(
+            () -> "imm_ptl_clipping_uniform",
+            GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
+            alignedSize
+        );
+        clippingUniformSlice = clippingUniformBuffer.slice(0, size);
     }
 }

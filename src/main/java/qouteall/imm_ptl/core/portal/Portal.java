@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.portal;
 
 import com.mojang.logging.LogUtils;
+
+import qouteall.imm_ptl.core.DirectionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
@@ -9,6 +11,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -21,6 +24,7 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -49,7 +53,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.ImmPtlEntityExtension;
 import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerEntity;
@@ -67,6 +71,8 @@ import qouteall.imm_ptl.core.portal.shape.PortalShapeSerialization;
 import qouteall.imm_ptl.core.portal.shape.RectangularPortalShape;
 import qouteall.imm_ptl.core.portal.shape.SpecialFlatPortalShape;
 import qouteall.imm_ptl.core.render.renderer.PortalRenderer;
+import qouteall.imm_ptl.core.mixin.common.storage.IETagValueInput;
+import qouteall.imm_ptl.core.mixin.common.storage.IETagValueOutput;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Mesh2D;
@@ -81,21 +87,28 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 
+import net.minecraft.resources.Identifier;
+
+
+
 /**
  * Portal entity. Global portals are also entities but not added into world.
  */
-public class Portal extends Entity implements
-    PortalLike, IPEntityEventListenableEntity {
+public class Portal extends Entity implements PortalLike, IPEntityEventListenableEntity {
     private static final Logger LOGGER = LogUtils.getLogger();
-    
-    public static final EntityType<Portal> ENTITY_TYPE = createPortalEntityType(Portal::new);
-    
+
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("imm_ptl", "loading_indicator");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
+
+    public static final EntityType<Portal> ENTITY_TYPE = createPortalEntityType(KEY, Portal::new);
+
     public static final Event<Consumer<Portal>> CLIENT_PORTAL_ACCEPT_SYNC_EVENT =
         Helper.createConsumerEvent();
     public static final Event<Consumer<Portal>> CLIENT_PORTAL_SPAWN_EVENT =
         Helper.createConsumerEvent();
-    
+
     public static <T extends Portal> EntityType<T> createPortalEntityType(
+        ResourceKey<EntityType<?>> key,
         EntityType.EntityFactory<T> constructor
     ) {
         return FabricEntityTypeBuilder.create(
@@ -108,7 +121,7 @@ public class Portal extends Entity implements
             .trackRangeBlocks(96)
             .trackedUpdateRate(20)
             .forceTrackedVelocityUpdates(true)
-            .build();
+            .build(key);
     }
     
     private static final AABB NULL_BOX =
@@ -232,6 +245,17 @@ public class Portal extends Entity implements
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         // nothing
     }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        return false;
+    }
+
+    public MinecraftServer getServer() {
+        MinecraftServer server = level().getServer();
+        Validate.notNull(server, "server is null");
+        return server;
+    }
     
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
@@ -270,12 +294,13 @@ public class Portal extends Entity implements
                 
                 if (shapeNormalized) {
                     mesh2D = GeometryPortalShape.readOldMeshFromTag(
-                        compoundTag.getList("specialShape", 6)
+                        compoundTag.getListOrEmpty("specialShape") //TODO probabile da aggiungere un fix per il 6 ovvero typeId double Se specialShape nel NBT fosse corrotto o di tipo diverso, le funzioni readOldMeshFromTag* potrebbero crashare
+
                     );
                 }
                 else {
                     mesh2D = GeometryPortalShape.readOldMeshFromTagNonNormalized(
-                        compoundTag.getList("specialShape", 6),
+                        compoundTag.getListOrEmpty("specialShape"), //TODO probabile da aggiungere un fix per il 6 ovvero typeId double Se specialShape nel NBT fosse corrotto o di tipo diverso, le funzioni readOldMeshFromTag* potrebbero crashare
                         width / 2, height / 2
                     );
                 }
@@ -344,14 +369,14 @@ public class Portal extends Entity implements
         }
         
         if (compoundTag.contains("commandsOnTeleported")) {
-            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
-            commandsOnTeleported = new ArrayList<>();
-            for (var tag : list) {
-                if (tag instanceof StringTag stringTag) {
-                    commandsOnTeleported.add(stringTag.getAsString());
-                }
+            ListTag list = compoundTag.getListOrEmpty("commandsOnTeleported");
+            commandsOnTeleported = new ArrayList<>(list.size());
+
+            for (int i = 0; i < list.size(); i++) {
+                list.getString(i).ifPresent(commandsOnTeleported::add);
             }
         }
+
         else {
             commandsOnTeleported = null;
         }
@@ -445,30 +470,16 @@ public class Portal extends Entity implements
         
     }
     
-    private static CompoundTag extractCompoundTag(ValueInput input) {
+    protected static CompoundTag extractCompoundTag(ValueInput input) {
         if (input instanceof TagValueInput tagValueInput) {
-            try {
-                var field = TagValueInput.class.getDeclaredField("input");
-                field.setAccessible(true);
-                return (CompoundTag) field.get(tagValueInput);
-            }
-            catch (ReflectiveOperationException e) {
-                LOGGER.error("Failed to extract portal tag from ValueInput", e);
-            }
+            return ((IETagValueInput) tagValueInput).ip_getInput();
         }
         return new CompoundTag();
     }
     
-    private static CompoundTag extractCompoundTag(ValueOutput output) {
+    protected static CompoundTag extractCompoundTag(ValueOutput output) {
         if (output instanceof TagValueOutput tagValueOutput) {
-            try {
-                var field = TagValueOutput.class.getDeclaredField("output");
-                field.setAccessible(true);
-                return (CompoundTag) field.get(tagValueOutput);
-            }
-            catch (ReflectiveOperationException e) {
-                LOGGER.error("Failed to extract portal tag from ValueOutput", e);
-            }
+            return ((IETagValueOutput) tagValueOutput).ip_getOutput();
         }
         return new CompoundTag();
     }
@@ -620,7 +631,7 @@ public class Portal extends Entity implements
     @Override
     public @NotNull AABB getBoundingBox() {
         if (boundingBoxCache == null) {
-            boundingBoxCache = makeBoundingBox();
+            boundingBoxCache = makePortalBoundingBox();
         }
         return boundingBoxCache;
     }
@@ -927,7 +938,7 @@ public class Portal extends Entity implements
     ) {
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
-            boolean offsetFront = IrisInterface.invoker.isShaders()
+            boolean offsetFront = IrisCompat.isShaders()
                 || IPGlobal.pureMirror;
             double mirrorOffset = offsetFront ? 0.01 : -0.01;
             portalPosRelativeToCamera = portalPosRelativeToCamera.add(
@@ -1005,8 +1016,7 @@ public class Portal extends Entity implements
         super.tick();
     }
     
-    @Override
-    protected @NotNull AABB makeBoundingBox() {
+    protected @NotNull AABB makePortalBoundingBox() {
         if (axisW == null) {
             // it may be called when the portal is not yet initialized
             boundingBoxCache = null;
@@ -1102,7 +1112,7 @@ public class Portal extends Entity implements
     }
     
     public Direction getApproximateFacingDirection() {
-        return Direction.getNearest(
+        return DirectionHelper.nearestDirection(
             getNormal().x, getNormal().y, getNormal().z
         );
     }
@@ -1427,7 +1437,7 @@ public class Portal extends Entity implements
     public boolean isRoughlyVisibleTo(Vec3 cameraPos) {
         return getPortalShape().roughTestVisibility(
             getThisSideState(), cameraPos,
-            IrisInterface.invoker.isShaders()
+            IrisCompat.isShaders()
         );
     }
     
@@ -1701,11 +1711,11 @@ public class Portal extends Entity implements
     }
     
     public Direction getTransformedGravityDirection(Direction oldGravityDir) {
-        Vec3 oldGravityVec = Vec3.atLowerCornerOf(oldGravityDir.getNormal());
+        Vec3 oldGravityVec = Vec3.atLowerCornerOf(McHelper.getNormal(oldGravityDir));
         
         Vec3 newGravityVec = transformLocalVecNonScale(oldGravityVec);
         
-        return Direction.getNearest(
+        return DirectionHelper.nearestDirection(
             newGravityVec.x, newGravityVec.y, newGravityVec.z
         );
     }

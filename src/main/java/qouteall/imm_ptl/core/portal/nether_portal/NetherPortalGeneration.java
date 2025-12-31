@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -129,7 +130,7 @@ public class NetherPortalGeneration {
         Vec3 indicatorPos = fromShape.innerAreaBox.getCenterVec();
         
         LoadingIndicatorEntity indicatorEntity =
-            LoadingIndicatorEntity.entityType.create(fromWorld);
+            LoadingIndicatorEntity.entityType.create(fromWorld, EntitySpawnReason.EVENT);
         indicatorEntity.isValid = true;
         indicatorEntity.setPos(
             indicatorPos.x, indicatorPos.y, indicatorPos.z

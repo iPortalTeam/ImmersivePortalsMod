@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
@@ -71,7 +72,7 @@ public class PortalGenInfo {
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {
         ServerLevel fromWorld = McHelper.getServerWorld(from);
         
-        T portal = entityType.create(fromWorld);
+        T portal = entityType.create(fromWorld, EntitySpawnReason.EVENT);
         assert portal != null;
         fromShape.initPortalPosAxisShape(portal, Direction.AxisDirection.POSITIVE);
         portal.setDestDim(to);

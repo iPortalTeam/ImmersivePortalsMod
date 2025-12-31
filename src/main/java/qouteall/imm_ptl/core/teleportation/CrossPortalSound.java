@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
@@ -43,7 +44,7 @@ public class CrossPortalSound {
             return null;
         }
         
-        soundWorld.getProfiler().push("cross_portal_sound");
+        ProfilerCompat.push("cross_portal_sound");
         
         double soundRadius = Math.min(64, Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS));
         Vec3 playerCameraPos = RenderStates.originalPlayerPos.add(
@@ -86,7 +87,7 @@ public class CrossPortalSound {
             }
         ).orElse(null);
         
-        soundWorld.getProfiler().pop();
+        ProfilerCompat.pop();
         
         return result;
     }

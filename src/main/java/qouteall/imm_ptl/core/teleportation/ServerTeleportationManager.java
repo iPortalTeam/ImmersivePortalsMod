@@ -11,11 +11,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +26,7 @@ import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.ScaleUtils;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
@@ -118,9 +121,6 @@ public class ServerTeleportationManager {
         if (entity.isRemoved()) {
             return;
         }
-        if (!entity.canChangeDimensions(entity.level(), portal.getDestinationWorld())) {
-            return;
-        }
         if (isJustTeleported(entity, 1)) {
             return;
         }
@@ -168,7 +168,7 @@ public class ServerTeleportationManager {
             return;
         }
         
-        Portal portal = findPortal(player.server, dimensionBefore, portalId);
+        Portal portal = findPortal(player.level().getServer(), dimensionBefore, portalId);
         
         if (portal == null) {
             LOGGER.error(
@@ -331,8 +331,9 @@ public class ServerTeleportationManager {
         ResourceKey<Level> dimensionTo,
         Vec3 newEyePos
     ) {
-        MinecraftServer server = player.server;
-        server.getProfiler().push("portal_teleport");
+        MinecraftServer server = player.level().getServer();
+        Validate.notNull(server, "server is null");
+        ProfilerCompat.push("portal_teleport");
         
         ServerLevel fromWorld = (ServerLevel) player.level();
         ServerLevel toWorld = server.getLevel(dimensionTo);
@@ -354,7 +355,7 @@ public class ServerTeleportationManager {
             player, newEyePos, newEyePos, 1
         );
         
-        server.getProfiler().pop();
+        ProfilerCompat.pop();
     }
     
     public void forceTeleportPlayer(
@@ -377,7 +378,7 @@ public class ServerTeleportationManager {
         }
         
         ServerLevel fromWorld = (ServerLevel) player.level();
-        ServerLevel toWorld = player.server.getLevel(dimensionTo);
+        ServerLevel toWorld = player.level().getServer().getLevel(dimensionTo);
         
         if (toWorld == null) {
             LOGGER.error(
@@ -554,7 +555,7 @@ public class ServerTeleportationManager {
             passengerList.stream().map(
                 e -> changeEntityDimension(e, portal.getDestDim(), newEyePos, true)
             ).collect(Collectors.toList()).forEach(e -> {
-                e.startRiding(newEntity, true);
+                e.startRiding(newEntity, true, true);
             });
         }
         
@@ -623,7 +624,7 @@ public class ServerTeleportationManager {
             return entity;
         }
         
-        MinecraftServer server = entity.getServer();
+        MinecraftServer server = entity.level().getServer();
         Validate.notNull(server, "server is null");
         
         ServerLevel fromWorld = (ServerLevel) entity.level();
@@ -642,7 +643,7 @@ public class ServerTeleportationManager {
         if (recreateEntity) {
             Entity oldEntity = entity;
             Entity newEntity;
-            newEntity = entity.getType().create(toWorld);
+            newEntity = entity.getType().create(toWorld, EntitySpawnReason.DIMENSION_TRAVEL);
             if (newEntity == null) {
                 return oldEntity;
             }
@@ -690,7 +691,7 @@ public class ServerTeleportationManager {
         
         Entity oldEntity = entity;
         Entity newEntity;
-        newEntity = entity.getType().create(toWorld);
+        newEntity = entity.getType().create(toWorld, EntitySpawnReason.DIMENSION_TRAVEL);
         Validate.isTrue(newEntity != null);
         
         newEntity.restoreFrom(oldEntity);
@@ -726,7 +727,7 @@ public class ServerTeleportationManager {
     
     public static Entity teleportEntityGeneral(Entity entity, Vec3 targetPos, ServerLevel targetWorld) {
         if (entity instanceof ServerPlayer serverPlayer) {
-            of(serverPlayer.server).forceTeleportPlayer(
+            of(serverPlayer.level().getServer()).forceTeleportPlayer(
                 serverPlayer, targetWorld.dimension(), targetPos
             );
             return entity;
@@ -741,18 +742,20 @@ public class ServerTeleportationManager {
         E entity, ResourceKey<Level> targetDim, Vec3 targetPos
     ) {
         if (entity.level().dimension() == targetDim) {
-            entity.moveTo(
+            float yaw = entity.getYRot();
+            float pitch = entity.getXRot();
+            entity.setPos(
                 targetPos.x,
                 targetPos.y,
-                targetPos.z,
-                entity.getYRot(),
-                entity.getXRot()
+                targetPos.z
             );
+            entity.setYRot(yaw);
+            entity.setXRot(pitch);
             entity.setYHeadRot(entity.getYRot());
             return entity;
         }
         
-        return (E) of(entity.getServer()).changeEntityDimension(
+        return (E) of(entity.level().getServer()).changeEntityDimension(
             entity,
             targetDim,
             targetPos.add(McHelper.getEyeOffset(entity)),
@@ -790,7 +793,7 @@ public class ServerTeleportationManager {
         UUID chaserId = chaser.getUUID();
         ServerLevel destWorld = ((ServerLevel) portal.getDestinationWorld());
         
-        ServerTaskList.of(player.server).addTask(MyTaskList.withRetryNumberLimit(
+        ServerTaskList.of(player.level().getServer()).addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
                 if (chaser.isRemoved()) {
@@ -831,7 +834,8 @@ public class ServerTeleportationManager {
         for (ServerPlayer player : players) {
             if (player.level().dimension() == world.dimension()) {
                 ServerLevel overWorld = McHelper.getOverWorldOnServer();
-                BlockPos spawnPos = overWorld.getSharedSpawnPos();
+                ServerLevelData levelData = (ServerLevelData) overWorld.getLevelData();
+                BlockPos spawnPos = levelData.getRespawnData().pos();
                 
                 forceTeleportPlayer(
                     player, Level.OVERWORLD, Vec3.atCenterOf(spawnPos)

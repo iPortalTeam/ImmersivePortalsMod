@@ -10,12 +10,16 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -118,7 +122,7 @@ public class ClientWorldLoader {
             });
             WORLD_RENDERER_MAP.values().forEach(worldRenderer -> {
                 if (worldRenderer != CLIENT.levelRenderer) {
-                    worldRenderer.tick();
+                    worldRenderer.tick(CLIENT.gameRenderer.getMainCamera());
                 }
             });
             isClientRemoteTicking = false;
@@ -186,7 +190,7 @@ public class ClientWorldLoader {
             Vec3 center = portal.transformPoint(playerPos);
             
             Camera camera = CLIENT.gameRenderer.getMainCamera();
-            Vec3 oldCameraPos = camera.getPosition();
+            Vec3 oldCameraPos = camera.position();
             
             ((IECamera) camera).portal_setPos(center);
             
@@ -397,15 +401,27 @@ public class ClientWorldLoader {
         
         isCreatingClientWorld = true;
         
-        CLIENT.getProfiler().push("create_world");
+        InactiveProfiler.INSTANCE.push("create_world");
         
         int chunkLoadDistance = 3; // my own chunk manager doesn't need it
         
+        LevelRenderState levelRenderState = new LevelRenderState();
+        FeatureRenderDispatcher featureRenderDispatcher = new FeatureRenderDispatcher(
+            new SubmitNodeStorage(),
+            CLIENT.getBlockRenderer(),
+            CLIENT.renderBuffers().bufferSource(),
+            CLIENT.getAtlasManager(),
+            CLIENT.renderBuffers().outlineBufferSource(),
+            CLIENT.renderBuffers().crumblingBufferSource(),
+            CLIENT.font
+        );
         LevelRenderer worldRenderer = new LevelRenderer(
             CLIENT,
             CLIENT.getEntityRenderDispatcher(),
             CLIENT.getBlockEntityRenderDispatcher(),
-            CLIENT.renderBuffers()
+            CLIENT.renderBuffers(),
+            levelRenderState,
+            featureRenderDispatcher
         );
         
         ClientLevel newWorld;
@@ -431,9 +447,9 @@ public class ClientWorldLoader {
             RegistryAccess registryManager = mainNetHandler.registryAccess();
             int simulationDistance = CLIENT.level.getServerSimulationDistance();
             
-            Holder<DimensionType> dimensionType = registryManager
-                .lookupOrThrow(Registries.DIMENSION_TYPE)
-                .getHolderOrThrow(dimensionTypeKey);
+            var dimensionTypeRegistry = registryManager.lookupOrThrow(Registries.DIMENSION_TYPE);
+            DimensionType dimensionTypeValue = dimensionTypeRegistry.getValueOrThrow(dimensionTypeKey);
+            Holder<DimensionType> dimensionType = dimensionTypeRegistry.wrapAsHolder(dimensionTypeValue);
             
             // currently use a separated level data object
             // day time is not shared between worlds
@@ -449,10 +465,10 @@ public class ClientWorldLoader {
                 dimensionType,
                 chunkLoadDistance,
                 simulationDistance,// seems that client world does not use this
-                CLIENT::getProfiler,
                 worldRenderer,
                 CLIENT.level.isDebug(),
-                CLIENT.level.getBiomeManager().biomeZoomSeed
+                CLIENT.level.getBiomeManager().biomeZoomSeed,
+                CLIENT.level.getSeaLevel()
             );
             
             // all worlds share the same map data map
@@ -478,7 +494,7 @@ public class ClientWorldLoader {
         }
         finally {
             isCreatingClientWorld = false;
-            CLIENT.getProfiler().pop();
+            InactiveProfiler.INSTANCE.pop();
         }
         
         CLIENT_WORLD_LOAD_EVENT.invoker().accept(newWorld);

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -76,7 +77,7 @@ public class PortalCollisionHandler {
             return attemptedMove;
         }
         
-        entity.level().getProfiler().push("cross_portal_collision");
+        ProfilerCompat.push("cross_portal_collision");
         
         portalCollisions.sort(
             Comparator.comparingLong((PortalCollisionEntry p) -> p.activeTime).reversed()
@@ -84,7 +85,7 @@ public class PortalCollisionHandler {
         
         Vec3 result = doHandleCollision(entity, attemptedMove, 1, portalCollisions, entity.getBoundingBox());
         
-        entity.level().getProfiler().pop();
+        ProfilerCompat.pop();
         
         return result;
     }

@@ -1,0 +1,66 @@
+        93: checkcast     #410                // class java/lang/Boolean
+        96: invokevirtual #526                // Method java/lang/Boolean.booleanValue:()Z
+>       99: invokestatic  #532                // Method net/minecraft/client/renderer/ItemBlockRenderTypes.setCutoutLeaves:(Z)V
+       102: aload_0
+       103: getfield      #296                // Field minecraft:Lnet/minecraft/client/Minecraft;
+         9: aload_0
+        10: getfield      #468                // Field viewArea:Lnet/minecraft/client/renderer/ViewArea;
+>       13: getfield      #581                // Field net/minecraft/client/renderer/ViewArea.sections:[Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;
+        16: arraylength
+        17: istore_1
+        11: aload_0
+        12: getfield      #468                // Field viewArea:Lnet/minecraft/client/renderer/ViewArea;
+>       15: getfield      #581                // Field net/minecraft/client/renderer/ViewArea.sections:[Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;
+        18: arraylength
+        19: i2d
+        19: aload_2
+        20: invokeinterface #638,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+>       25: checkcast     #22                 // class net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection
+        28: astore_3
+        29: aload_3
+>       30: invokevirtual #642                // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection.getSectionMesh:()Lnet/minecraft/client/renderer/chunk/SectionMesh;
+        33: invokeinterface #647,  1          // InterfaceMethod net/minecraft/client/renderer/chunk/SectionMesh.hasRenderableLayers:()Z
+        38: ifeq          44
+        13: areturn
+  
+>   public void addRecentlyCompiledSection(net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection);
+      Code:
+         0: aload_0
+         1: getfield      #238                // Field sectionOcclusionGraph:Lnet/minecraft/client/renderer/SectionOcclusionGraph;
+         4: aload_1
+>        5: invokevirtual #839                // Method net/minecraft/client/renderer/SectionOcclusionGraph.schedulePropagationFrom:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;)V
+         8: return
+  
+         1: getfield      #468                // Field viewArea:Lnet/minecraft/client/renderer/ViewArea;
+         4: lload_1
+>        5: invokevirtual #2191               // Method net/minecraft/client/renderer/ViewArea.getRenderSection:(J)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;
+         8: astore_3
+         9: aload_3
+        14: getfield      #238                // Field sectionOcclusionGraph:Lnet/minecraft/client/renderer/SectionOcclusionGraph;
+        17: aload_3
+>       18: invokevirtual #839                // Method net/minecraft/client/renderer/SectionOcclusionGraph.schedulePropagationFrom:(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;)V
+        21: aload_3
+        22: iconst_1
+>       23: invokevirtual #2077               // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection.setWasPreviouslyEmpty:(Z)V
+        26: return
+  
+         1: getfield      #468                // Field viewArea:Lnet/minecraft/client/renderer/ViewArea;
+         4: aload_1
+>        5: invokevirtual #2274               // Method net/minecraft/client/renderer/ViewArea.getRenderSectionAt:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;
+         8: astore_2
+         9: aload_2
+        10: ifnull        26
+        13: aload_2
+>       14: getfield      #2277               // Field net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection.sectionMesh:Ljava/util/concurrent/atomic/AtomicReference;
+        17: invokevirtual #2280               // Method java/util/concurrent/atomic/AtomicReference.get:()Ljava/lang/Object;
+        20: getstatic     #2037               // Field net/minecraft/client/renderer/chunk/CompiledSectionMesh.UNCOMPILED:Lnet/minecraft/client/renderer/chunk/SectionMesh;
+        28: aload_2
+        29: invokestatic  #1420               // Method net/minecraft/util/Util.getMillis:()J
+>       32: invokevirtual #1424               // Method net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection.getVisibility:(J)F
+        35: ldc           #123                // float 0.3f
+        37: fcmpl
+        29: areturn
+  
+>   public it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection> getVisibleSections();
+      Code:
+         0: aload_0

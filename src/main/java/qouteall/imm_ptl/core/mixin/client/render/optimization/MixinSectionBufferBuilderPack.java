@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -17,13 +17,13 @@ public class MixinSectionBufferBuilderPack {
     // This mixin will reduce memory usage.
     // The initial size cannot be 0, because it resizes in endVertex(), not before putting data.
     @Redirect(
-        method = "method_60896",
+        method = "method_68707",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/RenderType;bufferSize()I"
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionLayer;bufferSize()I"
         )
     )
-    private static int redirectBufferSize(RenderType instance) {
+    private static int redirectBufferSize(ChunkSectionLayer instance) {
         if (!IPGlobal.saveMemoryInBufferPack) {
             return instance.bufferSize();
         }

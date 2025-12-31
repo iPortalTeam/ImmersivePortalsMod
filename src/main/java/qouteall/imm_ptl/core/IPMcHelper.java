@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core;
 
 import io.netty.buffer.Unpooled;
+import qouteall.imm_ptl.core.DirectionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -22,6 +23,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.imm_ptl.core.DirectionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +179,7 @@ public class IPMcHelper {
      * @return Whatever {@code func} returned.
      */
     public static <T> T withSwitchedContext(Level world, Supplier<T> func) {
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             return ClientWorldLoader.withSwitchedWorld((ClientLevel) world, func);
         }
         else {
@@ -205,7 +207,7 @@ public class IPMcHelper {
             return new Tuple<>(
                 BlockHitResult.miss(
                     end,
-                    Direction.getNearest(diff.x, diff.y, diff.z),
+                    DirectionHelper.nearestDirection(diff.x, diff.y, diff.z),
                     BlockPos.containing(end)
                 ),
                 portals
@@ -289,10 +291,7 @@ public class IPMcHelper {
         String command
     ) {
         return component.withStyle(
-            style -> style.withClickEvent(new ClickEvent(
-                ClickEvent.Action.RUN_COMMAND,
-                command
-            )).withUnderlined(true)
+            style -> style.withClickEvent(new ClickEvent.RunCommand(command)).withUnderlined(true)
         );
     }
     

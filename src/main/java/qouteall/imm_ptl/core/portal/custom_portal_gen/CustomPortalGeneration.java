@@ -18,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
 import qouteall.q_misc_util.Helper;
@@ -200,7 +201,7 @@ public class CustomPortalGeneration {
         @Override
         public String toString() {
             return "No source dimension is loaded %s"
-                .formatted(srcDimIds.stream().map(ResourceKey::location).collect(Collectors.toList()));
+                .formatted(srcDimIds.stream().map(ResourceKey::identifier).collect(Collectors.toList()));
         }
     }
     
@@ -262,9 +263,9 @@ public class CustomPortalGeneration {
             return false;
         }
         
-        world.getProfiler().push("custom_portal_gen_perform");
+        ProfilerCompat.push("custom_portal_gen_perform");
         boolean result = form.perform(this, world, startPos, toWorld, triggeringEntity);
-        world.getProfiler().pop();
+        ProfilerCompat.pop();
         return result;
     }
     

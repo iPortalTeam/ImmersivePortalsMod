@@ -102,7 +102,9 @@ public class DimStackGuiController {
         
         Validate.isTrue(index >= 0 && index <= model.dimStackInfo.entries.size());
         model.dimStackInfo.entries.add(index, entry);
-        view.dimListWidget.children().add(index, view.createDimEntryWidget(entry));
+        List<DimEntryWidget> widgets = new ArrayList<>(view.dimListWidget.children());
+        widgets.add(index, view.createDimEntryWidget(entry));
+        view.dimListWidget.replaceEntries(widgets);
         updateViewState();
         return true;
     }
@@ -114,24 +116,28 @@ public class DimStackGuiController {
             entriesToAdd = entries.subList(0, entryCountLimit - model.dimStackInfo.entries.size());
         }
         int currentIndex = index;
+        List<DimEntryWidget> widgets = new ArrayList<>(view.dimListWidget.children());
         for (DimStackEntry entry : entriesToAdd) {
             model.dimStackInfo.entries.add(currentIndex, entry);
-            view.dimListWidget.children().add(currentIndex, view.createDimEntryWidget(entry));
+            widgets.add(currentIndex, view.createDimEntryWidget(entry));
             currentIndex++;
         }
+        view.dimListWidget.replaceEntries(widgets);
         updateViewState();
     }
     
     public void removeEntry(int index) {
         Validate.isTrue(index >= 0 && index < model.dimStackInfo.entries.size());
         model.dimStackInfo.entries.remove(index);
-        view.dimListWidget.children().remove(index);
+        List<DimEntryWidget> widgets = new ArrayList<>(view.dimListWidget.children());
+        widgets.remove(index);
+        view.dimListWidget.replaceEntries(widgets);
         updateViewState();
     }
     
     public void clear() {
         model.dimStackInfo.entries.clear();
-        view.dimListWidget.children().clear();
+        view.dimListWidget.replaceEntries(new ArrayList<>());
         updateViewState();
     }
     
@@ -147,7 +153,9 @@ public class DimStackGuiController {
         }
     
         DimEntryWidget newWidget = view.createDimEntryWidget(newEntry);
-        view.dimListWidget.children().set(index, newWidget);
+        List<DimEntryWidget> widgets = new ArrayList<>(view.dimListWidget.children());
+        widgets.set(index, newWidget);
+        view.dimListWidget.replaceEntries(widgets);
         view.dimListWidget.setSelected(newWidget);
         updateViewState();
     }
@@ -157,7 +165,9 @@ public class DimStackGuiController {
         Validate.isTrue(mouseOver >= 0 && mouseOver < model.dimStackInfo.entries.size());
         
         Helper.swapListElement(model.dimStackInfo.entries, selected, mouseOver);
-        Helper.swapListElement(view.dimListWidget.children(), selected, mouseOver);
+        List<DimEntryWidget> widgets = new ArrayList<>(view.dimListWidget.children());
+        Helper.swapListElement(widgets, selected, mouseOver);
+        view.dimListWidget.replaceEntries(widgets);
         
         updateViewState();
         view.dimListWidget.setSelected(view.dimListWidget.children().get(mouseOver));

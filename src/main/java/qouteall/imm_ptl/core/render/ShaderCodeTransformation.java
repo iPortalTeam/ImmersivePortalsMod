@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.render;
 import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.logging.LogUtils;
 import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.Yaml;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -69,7 +70,7 @@ public class ShaderCodeTransformation {
         }
     }
     
-    public static String transform(ShaderType type, String shaderId, String inputCode) {
+    public static String transform(ShaderType type, Identifier shaderId, String inputCode) {
         if (configs == null) {
             LOGGER.info("Shader Transform Skipping {}", shaderId);
             return inputCode;
@@ -96,19 +97,69 @@ public class ShaderCodeTransformation {
     }
     
     @Nullable
-    private static Config getConfig(ShaderType type, String shaderId) {
+    private static Config getConfig(ShaderType type, Identifier shaderId) {
         return configs.stream().filter(
             config -> matches(config.type, type) &&
-                config.affectedShaders.contains(shaderId)
+                matchesShaderId(config, shaderId)
         ).findFirst().orElse(null);
     }
     
-    public static boolean shouldAddUniform(String shaderName) {
+    public static boolean shouldAddUniform(Identifier shaderId) {
         if (configs == null) {
-            LOGGER.info("Shader Transform Skipping {} in shouldAddUniform", shaderName);
+            LOGGER.info("Shader Transform Skipping {} in shouldAddUniform", shaderId);
             return false;
         }
         
-        return configs.stream().anyMatch(config -> config.affectedShaders.contains(shaderName));
+        return configs.stream().anyMatch(
+            config -> config.type == ShaderStage.vs && matchesShaderId(config, shaderId)
+        );
+    }
+    
+    private static boolean matchesShaderId(Config config, Identifier shaderId) {
+        String fullId = shaderId.toString();
+        String path = shaderId.getPath();
+        String baseName = getBaseName(path);
+        String pathNoExt = stripExtension(path);
+        String baseNoExt = stripExtension(baseName);
+        String fullNoExt = stripExtension(fullId);
+        
+        for (String configured : config.affectedShaders) {
+            String configuredNoExt = stripExtension(configured);
+            String configuredPath = configuredNoExt;
+            String configuredBase = getBaseName(configuredNoExt);
+            
+            if (configured.equals(fullId) || configured.equals(path) || configured.equals(baseName)) {
+                return true;
+            }
+            if (configuredNoExt.equals(fullId) || configuredNoExt.equals(path) || configuredNoExt.equals(baseName)) {
+                return true;
+            }
+            if (configuredPath.equals(path) || configuredPath.equals(pathNoExt)) {
+                return true;
+            }
+            if (configuredBase.equals(baseName) || configuredBase.equals(baseNoExt)) {
+                return true;
+            }
+            if (configuredNoExt.equals(fullNoExt)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    private static String getBaseName(String path) {
+        int slash = path.lastIndexOf('/');
+        if (slash >= 0 && slash + 1 < path.length()) {
+            return path.substring(slash + 1);
+        }
+        return path;
+    }
+    
+    private static String stripExtension(String value) {
+        if (value.endsWith(".vsh") || value.endsWith(".fsh")) {
+            return value.substring(0, value.length() - 4);
+        }
+        return value;
     }
 }

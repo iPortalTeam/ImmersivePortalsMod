@@ -1,0 +1,443 @@
+Compiled from "ClientChunkCache.java"
+public class net.minecraft.client.multiplayer.ClientChunkCache extends net.minecraft.world.level.chunk.ChunkSource {
+  static final org.slf4j.Logger LOGGER;
+
+  public final net.minecraft.world.level.chunk.LevelChunk emptyChunk;
+
+  public final net.minecraft.world.level.lighting.LevelLightEngine lightEngine;
+
+  public volatile net.minecraft.client.multiplayer.ClientChunkCache$Storage storage;
+
+  public final net.minecraft.client.multiplayer.ClientLevel level;
+
+  public net.minecraft.client.multiplayer.ClientChunkCache(net.minecraft.client.multiplayer.ClientLevel, int);
+    Code:
+       0: aload_0
+       1: invokespecial #48                 // Method net/minecraft/world/level/chunk/ChunkSource."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #50                 // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+       9: aload_0
+      10: new           #52                 // class net/minecraft/world/level/chunk/EmptyLevelChunk
+      13: dup
+      14: aload_1
+      15: new           #54                 // class net/minecraft/world/level/ChunkPos
+      18: dup
+      19: iconst_0
+      20: iconst_0
+      21: invokespecial #57                 // Method net/minecraft/world/level/ChunkPos."<init>":(II)V
+      24: aload_1
+      25: invokevirtual #63                 // Method net/minecraft/client/multiplayer/ClientLevel.registryAccess:()Lnet/minecraft/core/RegistryAccess;
+      28: getstatic     #69                 // Field net/minecraft/core/registries/Registries.BIOME:Lnet/minecraft/resources/ResourceKey;
+      31: invokeinterface #75,  2           // InterfaceMethod net/minecraft/core/RegistryAccess.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Registry;
+      36: getstatic     #80                 // Field net/minecraft/world/level/biome/Biomes.PLAINS:Lnet/minecraft/resources/ResourceKey;
+      39: invokeinterface #86,  2           // InterfaceMethod net/minecraft/core/Registry.getOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Holder$Reference;
+      44: invokespecial #89                 // Method net/minecraft/world/level/chunk/EmptyLevelChunk."<init>":(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/core/Holder;)V
+      47: putfield      #91                 // Field emptyChunk:Lnet/minecraft/world/level/chunk/LevelChunk;
+      50: aload_0
+      51: new           #93                 // class net/minecraft/world/level/lighting/LevelLightEngine
+      54: dup
+      55: aload_0
+      56: iconst_1
+      57: aload_1
+      58: invokevirtual #97                 // Method net/minecraft/client/multiplayer/ClientLevel.dimensionType:()Lnet/minecraft/world/level/dimension/DimensionType;
+      61: invokevirtual #103                // Method net/minecraft/world/level/dimension/DimensionType.hasSkyLight:()Z
+      64: invokespecial #106                // Method net/minecraft/world/level/lighting/LevelLightEngine."<init>":(Lnet/minecraft/world/level/chunk/LightChunkGetter;ZZ)V
+      67: putfield      #108                // Field lightEngine:Lnet/minecraft/world/level/lighting/LevelLightEngine;
+      70: aload_0
+      71: new           #11                 // class net/minecraft/client/multiplayer/ClientChunkCache$Storage
+      74: dup
+      75: aload_0
+      76: iload_2
+      77: invokestatic  #112                // Method calculateStorageRange:(I)I
+      80: invokespecial #115                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage."<init>":(Lnet/minecraft/client/multiplayer/ClientChunkCache;I)V
+      83: putfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      86: return
+
+  public net.minecraft.world.level.lighting.LevelLightEngine getLightEngine();
+    Code:
+       0: aload_0
+       1: getfield      #108                // Field lightEngine:Lnet/minecraft/world/level/lighting/LevelLightEngine;
+       4: areturn
+
+  private static boolean isValidChunk(net.minecraft.world.level.chunk.LevelChunk, int, int);
+    Code:
+       0: aload_0
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_0
+       7: invokevirtual #134                // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+      10: astore_3
+      11: aload_3
+      12: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+      15: iload_1
+      16: if_icmpne     31
+      19: aload_3
+      20: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+      23: iload_2
+      24: if_icmpne     31
+      27: iconst_1
+      28: goto          32
+      31: iconst_0
+      32: ireturn
+
+  public void drop(net.minecraft.world.level.ChunkPos);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: aload_1
+       5: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+       8: aload_1
+       9: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+      12: invokevirtual #146                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.inRange:(II)Z
+      15: ifne          19
+      18: return
+      19: aload_0
+      20: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      23: aload_1
+      24: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+      27: aload_1
+      28: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+      31: invokevirtual #150                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getIndex:(II)I
+      34: istore_2
+      35: aload_0
+      36: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      39: iload_2
+      40: invokevirtual #154                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getChunk:(I)Lnet/minecraft/world/level/chunk/LevelChunk;
+      43: astore_3
+      44: aload_3
+      45: aload_1
+      46: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+      49: aload_1
+      50: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+      53: invokestatic  #156                // Method isValidChunk:(Lnet/minecraft/world/level/chunk/LevelChunk;II)Z
+      56: ifeq          68
+      59: aload_0
+      60: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      63: iload_2
+      64: aload_3
+      65: invokevirtual #159                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.drop:(ILnet/minecraft/world/level/chunk/LevelChunk;)V
+      68: return
+
+  public net.minecraft.world.level.chunk.LevelChunk getChunk(int, int, net.minecraft.world.level.chunk.status.ChunkStatus, boolean);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: iload_1
+       5: iload_2
+       6: invokevirtual #146                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.inRange:(II)Z
+       9: ifeq          43
+      12: aload_0
+      13: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      16: aload_0
+      17: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      20: iload_1
+      21: iload_2
+      22: invokevirtual #150                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getIndex:(II)I
+      25: invokevirtual #154                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getChunk:(I)Lnet/minecraft/world/level/chunk/LevelChunk;
+      28: astore        5
+      30: aload         5
+      32: iload_1
+      33: iload_2
+      34: invokestatic  #156                // Method isValidChunk:(Lnet/minecraft/world/level/chunk/LevelChunk;II)Z
+      37: ifeq          43
+      40: aload         5
+      42: areturn
+      43: iload         4
+      45: ifeq          53
+      48: aload_0
+      49: getfield      #91                 // Field emptyChunk:Lnet/minecraft/world/level/chunk/LevelChunk;
+      52: areturn
+      53: aconst_null
+      54: areturn
+
+  public net.minecraft.world.level.BlockGetter getLevel();
+    Code:
+       0: aload_0
+       1: getfield      #50                 // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+       4: areturn
+
+  public void replaceBiomes(int, int, net.minecraft.network.FriendlyByteBuf);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: iload_1
+       5: iload_2
+       6: invokevirtual #146                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.inRange:(II)Z
+       9: ifne          31
+      12: getstatic     #173                // Field LOGGER:Lorg/slf4j/Logger;
+      15: ldc           #175                // String Ignoring chunk since it\'s not in the view range: {}, {}
+      17: iload_1
+      18: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      21: iload_2
+      22: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      25: invokeinterface #187,  4          // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+      30: return
+      31: aload_0
+      32: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      35: iload_1
+      36: iload_2
+      37: invokevirtual #150                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getIndex:(II)I
+      40: istore        4
+      42: aload_0
+      43: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      46: getfield      #191                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunks:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+      49: iload         4
+      51: invokevirtual #197                // Method java/util/concurrent/atomic/AtomicReferenceArray.get:(I)Ljava/lang/Object;
+      54: checkcast     #130                // class net/minecraft/world/level/chunk/LevelChunk
+      57: astore        5
+      59: aload         5
+      61: iload_1
+      62: iload_2
+      63: invokestatic  #156                // Method isValidChunk:(Lnet/minecraft/world/level/chunk/LevelChunk;II)Z
+      66: ifne          90
+      69: getstatic     #173                // Field LOGGER:Lorg/slf4j/Logger;
+      72: ldc           #199                // String Ignoring chunk since it\'s not present: {}, {}
+      74: iload_1
+      75: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      78: iload_2
+      79: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      82: invokeinterface #187,  4          // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+      87: goto          96
+      90: aload         5
+      92: aload_3
+      93: invokevirtual #204                // Method net/minecraft/world/level/chunk/LevelChunk.replaceBiomes:(Lnet/minecraft/network/FriendlyByteBuf;)V
+      96: return
+
+  public net.minecraft.world.level.chunk.LevelChunk replaceWithPacketData(int, int, net.minecraft.network.FriendlyByteBuf, java.util.Map<net.minecraft.world.level.levelgen.Heightmap$Types, long[]>, java.util.function.Consumer<net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityTagOutput>);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: iload_1
+       5: iload_2
+       6: invokevirtual #146                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.inRange:(II)Z
+       9: ifne          32
+      12: getstatic     #173                // Field LOGGER:Lorg/slf4j/Logger;
+      15: ldc           #175                // String Ignoring chunk since it\'s not in the view range: {}, {}
+      17: iload_1
+      18: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      21: iload_2
+      22: invokestatic  #181                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      25: invokeinterface #187,  4          // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+      30: aconst_null
+      31: areturn
+      32: aload_0
+      33: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      36: iload_1
+      37: iload_2
+      38: invokevirtual #150                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getIndex:(II)I
+      41: istore        6
+      43: aload_0
+      44: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      47: getfield      #191                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunks:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+      50: iload         6
+      52: invokevirtual #197                // Method java/util/concurrent/atomic/AtomicReferenceArray.get:(I)Ljava/lang/Object;
+      55: checkcast     #130                // class net/minecraft/world/level/chunk/LevelChunk
+      58: astore        7
+      60: new           #54                 // class net/minecraft/world/level/ChunkPos
+      63: dup
+      64: iload_1
+      65: iload_2
+      66: invokespecial #57                 // Method net/minecraft/world/level/ChunkPos."<init>":(II)V
+      69: astore        8
+      71: aload         7
+      73: iload_1
+      74: iload_2
+      75: invokestatic  #156                // Method isValidChunk:(Lnet/minecraft/world/level/chunk/LevelChunk;II)Z
+      78: ifne          120
+      81: new           #130                // class net/minecraft/world/level/chunk/LevelChunk
+      84: dup
+      85: aload_0
+      86: getfield      #50                 // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+      89: aload         8
+      91: invokespecial #215                // Method net/minecraft/world/level/chunk/LevelChunk."<init>":(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;)V
+      94: astore        7
+      96: aload         7
+      98: aload_3
+      99: aload         4
+     101: aload         5
+     103: invokevirtual #218                // Method net/minecraft/world/level/chunk/LevelChunk.replaceWithPacketData:(Lnet/minecraft/network/FriendlyByteBuf;Ljava/util/Map;Ljava/util/function/Consumer;)V
+     106: aload_0
+     107: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+     110: iload         6
+     112: aload         7
+     114: invokevirtual #221                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.replace:(ILnet/minecraft/world/level/chunk/LevelChunk;)V
+     117: goto          139
+     120: aload         7
+     122: aload_3
+     123: aload         4
+     125: aload         5
+     127: invokevirtual #218                // Method net/minecraft/world/level/chunk/LevelChunk.replaceWithPacketData:(Lnet/minecraft/network/FriendlyByteBuf;Ljava/util/Map;Ljava/util/function/Consumer;)V
+     130: aload_0
+     131: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+     134: aload         7
+     136: invokevirtual #229                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.refreshEmptySections:(Lnet/minecraft/world/level/chunk/LevelChunk;)V
+     139: aload_0
+     140: getfield      #50                 // Field level:Lnet/minecraft/client/multiplayer/ClientLevel;
+     143: aload         8
+     145: invokevirtual #232                // Method net/minecraft/client/multiplayer/ClientLevel.onChunkLoaded:(Lnet/minecraft/world/level/ChunkPos;)V
+     148: aload         7
+     150: areturn
+
+  public void tick(java.util.function.BooleanSupplier, boolean);
+    Code:
+       0: return
+
+  public void updateViewCenter(int, int);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: iload_1
+       5: putfield      #246                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterX:I
+       8: aload_0
+       9: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      12: iload_2
+      13: putfield      #249                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterZ:I
+      16: return
+
+  public void updateViewRadius(int);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: getfield      #254                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunkRadius:I
+       7: istore_2
+       8: iload_1
+       9: invokestatic  #112                // Method calculateStorageRange:(I)I
+      12: istore_3
+      13: iload_2
+      14: iload_3
+      15: if_icmpeq     152
+      18: new           #11                 // class net/minecraft/client/multiplayer/ClientChunkCache$Storage
+      21: dup
+      22: aload_0
+      23: iload_3
+      24: invokespecial #115                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage."<init>":(Lnet/minecraft/client/multiplayer/ClientChunkCache;I)V
+      27: astore        4
+      29: aload         4
+      31: aload_0
+      32: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      35: getfield      #246                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterX:I
+      38: putfield      #246                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterX:I
+      41: aload         4
+      43: aload_0
+      44: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      47: getfield      #249                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterZ:I
+      50: putfield      #249                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.viewCenterZ:I
+      53: iconst_0
+      54: istore        5
+      56: iload         5
+      58: aload_0
+      59: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      62: getfield      #191                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunks:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+      65: invokevirtual #258                // Method java/util/concurrent/atomic/AtomicReferenceArray.length:()I
+      68: if_icmpge     146
+      71: aload_0
+      72: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+      75: getfield      #191                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunks:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+      78: iload         5
+      80: invokevirtual #197                // Method java/util/concurrent/atomic/AtomicReferenceArray.get:(I)Ljava/lang/Object;
+      83: checkcast     #130                // class net/minecraft/world/level/chunk/LevelChunk
+      86: astore        6
+      88: aload         6
+      90: ifnull        140
+      93: aload         6
+      95: invokevirtual #134                // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+      98: astore        7
+     100: aload         4
+     102: aload         7
+     104: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+     107: aload         7
+     109: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+     112: invokevirtual #146                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.inRange:(II)Z
+     115: ifeq          140
+     118: aload         4
+     120: aload         4
+     122: aload         7
+     124: getfield      #136                // Field net/minecraft/world/level/ChunkPos.x:I
+     127: aload         7
+     129: getfield      #138                // Field net/minecraft/world/level/ChunkPos.z:I
+     132: invokevirtual #150                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.getIndex:(II)I
+     135: aload         6
+     137: invokevirtual #221                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.replace:(ILnet/minecraft/world/level/chunk/LevelChunk;)V
+     140: iinc          5, 1
+     143: goto          56
+     146: aload_0
+     147: aload         4
+     149: putfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+     152: return
+
+  private static int calculateStorageRange(int);
+    Code:
+       0: iconst_2
+       1: iload_0
+       2: invokestatic  #263                // Method java/lang/Math.max:(II)I
+       5: iconst_3
+       6: iadd
+       7: ireturn
+
+  public java.lang.String gatherStats();
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: getfield      #191                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunks:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+       7: invokevirtual #258                // Method java/util/concurrent/atomic/AtomicReferenceArray.length:()I
+      10: aload_0
+      11: invokevirtual #268                // Method getLoadedChunksCount:()I
+      14: invokedynamic #280,  0            // InvokeDynamic #0:makeConcatWithConstants:(II)Ljava/lang/String;
+      19: areturn
+
+  public int getLoadedChunksCount();
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: getfield      #283                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.chunkCount:I
+       7: ireturn
+
+  public void onLightUpdate(net.minecraft.world.level.LightLayer, net.minecraft.core.SectionPos);
+    Code:
+       0: invokestatic  #293                // Method net/minecraft/client/Minecraft.getInstance:()Lnet/minecraft/client/Minecraft;
+       3: getfield      #297                // Field net/minecraft/client/Minecraft.levelRenderer:Lnet/minecraft/client/renderer/LevelRenderer;
+       6: aload_2
+       7: invokevirtual #301                // Method net/minecraft/core/SectionPos.x:()I
+      10: aload_2
+      11: invokevirtual #304                // Method net/minecraft/core/SectionPos.y:()I
+      14: aload_2
+      15: invokevirtual #306                // Method net/minecraft/core/SectionPos.z:()I
+      18: invokevirtual #312                // Method net/minecraft/client/renderer/LevelRenderer.setSectionDirty:(III)V
+      21: return
+
+  public it.unimi.dsi.fastutil.longs.LongOpenHashSet getLoadedEmptySections();
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: getfield      #320                // Field net/minecraft/client/multiplayer/ClientChunkCache$Storage.loadedEmptySections:Lit/unimi/dsi/fastutil/longs/LongOpenHashSet;
+       7: areturn
+
+  public void onSectionEmptinessChanged(int, int, int, boolean);
+    Code:
+       0: aload_0
+       1: getfield      #117                // Field storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;
+       4: iload_1
+       5: iload_2
+       6: iload_3
+       7: iload         4
+       9: invokevirtual #325                // Method net/minecraft/client/multiplayer/ClientChunkCache$Storage.onSectionEmptinessChanged:(IIIZ)V
+      12: return
+
+  public net.minecraft.world.level.chunk.ChunkAccess getChunk(int, int, net.minecraft.world.level.chunk.status.ChunkStatus, boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: iload_2
+       3: aload_3
+       4: iload         4
+       6: invokevirtual #328                // Method getChunk:(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/LevelChunk;
+       9: areturn
+
+  static {};
+    Code:
+       0: invokestatic  #335                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+       3: putstatic     #173                // Field LOGGER:Lorg/slf4j/Logger;
+       6: return
+}

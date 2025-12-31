@@ -1,0 +1,24 @@
+Compiled from "PlayerChunkSender.java"
+public class net.minecraft.server.network.PlayerChunkSender {
+  private static final org.slf4j.Logger LOGGER;
+  public static final float MIN_CHUNKS_PER_TICK;
+  public static final float MAX_CHUNKS_PER_TICK;
+  private static final float START_CHUNKS_PER_TICK;
+  private static final int MAX_UNACKNOWLEDGED_BATCHES;
+  private final it.unimi.dsi.fastutil.longs.LongSet pendingChunks;
+  private final boolean memoryConnection;
+  private float desiredChunksPerTick;
+  private float batchQuota;
+  private int unacknowledgedBatches;
+  private int maxUnacknowledgedBatches;
+  public net.minecraft.server.network.PlayerChunkSender(boolean);
+  public void markChunkPendingToSend(net.minecraft.world.level.chunk.LevelChunk);
+  public void dropChunk(net.minecraft.server.level.ServerPlayer, net.minecraft.world.level.ChunkPos);
+  public void sendNextChunks(net.minecraft.server.level.ServerPlayer);
+  private static void sendChunk(net.minecraft.server.network.ServerGamePacketListenerImpl, net.minecraft.server.level.ServerLevel, net.minecraft.world.level.chunk.LevelChunk);
+  private java.util.List<net.minecraft.world.level.chunk.LevelChunk> collectChunksToSend(net.minecraft.server.level.ChunkMap, net.minecraft.world.level.ChunkPos);
+  public void onChunkBatchReceivedByClient(float);
+  public boolean isPending(long);
+  private static int method_52389(net.minecraft.world.level.ChunkPos, net.minecraft.world.level.chunk.LevelChunk);
+  static {};
+}

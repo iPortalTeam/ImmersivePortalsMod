@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.debug.DebugRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,13 +17,13 @@ import qouteall.imm_ptl.peripheral.wand.PortalWandItem;
 public class MixinDebugRenderer {
     // let's put portal wand marking render into debug renderer
     @Inject(
-        method = "render",
+        method = "emitGizmos",
         at = @At("RETURN")
     )
     private void onRender(
-        PoseStack poseStack,
-        MultiBufferSource.BufferSource bufferSource,
+        Frustum frustum,
         double camX, double camY, double camZ,
+        float partialTick,
         CallbackInfo ci
     ) {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -33,7 +34,10 @@ public class MixinDebugRenderer {
         ItemStack itemStack = player.getMainHandItem();
         
         if (itemStack.getItem() == PortalWandItem.instance) {
+            PoseStack poseStack = new PoseStack();
+            MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
             PortalWandItem.clientRender(player, itemStack, poseStack, bufferSource, camX, camY, camZ);
+            bufferSource.endBatch();
         }
     }
     

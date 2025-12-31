@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -22,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.miscellaneous.IPortalInitialScreen;
@@ -52,9 +52,6 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
     
     @Shadow
     private static int fps;
-    
-    @Shadow
-    public abstract ProfilerFiller getProfiler();
     
     @Shadow
     @Nullable
@@ -125,7 +122,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         )
     )
     private void onAfterClientTick(CallbackInfo ci) {
-        getProfiler().push("imm_ptl_client_tick");
+        ProfilerCompat.push("imm_ptl_client_tick");
         
         // including ticking remote worlds
         ClientWorldLoader.tick();
@@ -138,7 +135,7 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         
         IPGlobal.POST_CLIENT_TICK_EVENT.invoker().run();
         
-        getProfiler().pop();
+        ProfilerCompat.pop();
     }
     
     @Inject(
@@ -186,7 +183,10 @@ public abstract class MixinMinecraft implements IEMinecraftClient {
         method = "addInitialScreens",
         at = @At("RETURN")
     )
-    private void onAddInitialScreens(List<Function<Runnable, Screen>> output, CallbackInfo ci) {
+    private void onAddInitialScreens(
+        List<Function<Runnable, Screen>> output,
+        CallbackInfoReturnable<List<Function<Runnable, Screen>>> cir
+    ) {
         IPConfig config = IPConfig.getConfig();
         if (!config.initialScreenShown) {
             output.add(IPortalInitialScreen::new);

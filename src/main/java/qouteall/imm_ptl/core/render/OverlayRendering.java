@@ -2,23 +2,27 @@ package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import qouteall.imm_ptl.core.DirectionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
@@ -50,7 +54,7 @@ public class OverlayRendering {
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
-        if (IrisInterface.invoker.isShaders()) {
+        if (IrisCompat.isShaders()) {
             if (!shaderOverlayWarned) {
                 shaderOverlayWarned = true;
                 CHelper.printChat("[Immersive Portals] Portal overlay cannot be rendered with shaders");
@@ -68,19 +72,45 @@ public class OverlayRendering {
             );
         }
     }
+
+    public static void submitPortalOverlay(
+        Portal portal,
+        PoseStack matrixStack,
+        SubmitNodeCollector collector
+    ) {
+        if (IrisCompat.isShaders()) {
+            if (!shaderOverlayWarned) {
+                shaderOverlayWarned = true;
+                CHelper.printChat("[Immersive Portals] Portal overlay cannot be rendered with shaders");
+            }
+            return;
+        }
+        
+        if (portal instanceof BreakablePortalEntity breakablePortal) {
+            submitBreakablePortalOverlay(
+                breakablePortal,
+                RenderStates.getPartialTick(),
+                matrixStack,
+                collector
+            );
+        }
+    }
     
-    public static List<BakedQuad> getQuads(BakedModel model, BlockState blockState, Vec3 portalNormal) {
-        Direction facing = Direction.getNearest(portalNormal.x, portalNormal.y, portalNormal.z);
+    public static List<BakedQuad> getQuads(BlockStateModel model, BlockState blockState, Vec3 portalNormal) {
+        Direction facing = DirectionHelper.nearestDirection(portalNormal.x, portalNormal.y, portalNormal.z);
         
         List<BakedQuad> result = new ArrayList<>();
         
-        result.addAll(model.getQuads(blockState, facing, random));
-        
-        result.addAll(model.getQuads(blockState, null, random));
+        List<BlockModelPart> parts = model.collectParts(random);
+        for (BlockModelPart part : parts) {
+            result.addAll(part.getQuads(facing));
+        }
         
         if (result.isEmpty()) {
             for (Direction direction : Direction.values()) {
-                result.addAll(model.getQuads(blockState, direction, random));
+                for (BlockModelPart part : parts) {
+                    result.addAll(part.getQuads(direction));
+                }
             }
         }
         
@@ -129,11 +159,81 @@ public class OverlayRendering {
         
         matrixStack.translate(offset.x, offset.y, offset.z);
         
-        BakedModel model = blockRenderManager.getBlockModel(blockState);
-        RenderType renderLayer = Sheets.translucentCullBlockSheet();
+        BlockStateModel model = blockRenderManager.getBlockModel(blockState);
+        RenderType renderLayer = Sheets.translucentBlockItemSheet();
         VertexConsumer buffer = vertexConsumerProvider.getBuffer(renderLayer);
         
-        List<BakedQuad> quads = getQuads(model, blockState, portal.getNormal());
+        renderBreakablePortalOverlayWithConsumer(
+            portal,
+            overlay,
+            blockPortalShape,
+            model,
+            buffer,
+            matrixStack
+        );
+    }
+
+    private static void submitBreakablePortalOverlay(
+        BreakablePortalEntity portal,
+        float partialTick,
+        PoseStack matrixStack,
+        SubmitNodeCollector collector
+    ) {
+        BreakablePortalEntity.OverlayInfo overlay = portal.getActualOverlay();
+        
+        if (overlay == null) {
+            return;
+        }
+        
+        BlockState blockState = overlay.blockState();
+        if (blockState == null) {
+            return;
+        }
+        
+        BlockPortalShape blockPortalShape = portal.blockPortalShape;
+        if (blockPortalShape == null) {
+            return;
+        }
+        
+        BlockRenderDispatcher blockRenderManager = Minecraft.getInstance().getBlockRenderer();
+        BlockStateModel model = blockRenderManager.getBlockModel(blockState);
+        RenderType renderLayer = Sheets.translucentBlockItemSheet();
+        
+        collector.submitCustomGeometry(
+            matrixStack,
+            renderLayer,
+            (pose, vertexConsumer) -> {
+                PoseStack tempStack = new PoseStack();
+                tempStack.last().pose().set(pose.pose());
+                tempStack.last().normal().set(pose.normal());
+                renderBreakablePortalOverlayWithConsumer(
+                    portal,
+                    overlay,
+                    blockPortalShape,
+                    model,
+                    vertexConsumer,
+                    tempStack
+                );
+            }
+        );
+    }
+    
+    private static void renderBreakablePortalOverlayWithConsumer(
+        BreakablePortalEntity portal,
+        BreakablePortalEntity.OverlayInfo overlay,
+        BlockPortalShape blockPortalShape,
+        BlockStateModel model,
+        VertexConsumer buffer,
+        PoseStack matrixStack
+    ) {
+        Vec3 offset = portal.getNormal().scale(overlay.offset());
+        Vec3 pos = portal.position();
+        
+        matrixStack.pushPose();
+        
+        matrixStack.translate(offset.x, offset.y, offset.z);
+        
+        List<BakedQuad> quads = getQuads(model, overlay.blockState(), portal.getNormal());
         
         random.setSeed(0);
         
@@ -148,15 +248,14 @@ public class OverlayRendering {
             }
             
             for (BakedQuad quad : quads) {
-                SodiumInterface.invoker.markSpriteActive(quad.getSprite());
+                SodiumInterface.invoker.markSpriteActive(quad.sprite());
                 buffer.putBulkData(
                     matrixStack.last(),
                     quad,
                     new float[]{1.0F, 1.0F, 1.0F, 1.0F},
                     1.0f, 1.0f, 1.0f, (float) overlay.opacity(),
                     new int[]{14680304, 14680304, 14680304, 14680304},//packed light value
-                    OverlayTexture.NO_OVERLAY,
-                    true
+                    OverlayTexture.NO_OVERLAY
                 );
             }
             
@@ -164,6 +263,5 @@ public class OverlayRendering {
         }
         
         matrixStack.popPose();
-        
     }
 }

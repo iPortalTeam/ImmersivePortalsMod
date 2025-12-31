@@ -1,0 +1,557 @@
+Compiled from "Frustum.java"
+public class net.minecraft.client.renderer.culling.Frustum {
+  public static final int OFFSET_STEP;
+
+  private final org.joml.FrustumIntersection intersection;
+
+  private final org.joml.Matrix4f matrix;
+
+  private org.joml.Vector4f viewVector;
+
+  private double camX;
+
+  private double camY;
+
+  private double camZ;
+
+  public net.minecraft.client.renderer.culling.Frustum(org.joml.Matrix4f, org.joml.Matrix4f);
+    Code:
+       0: aload_0
+       1: invokespecial #29                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #31                 // class org/joml/FrustumIntersection
+       8: dup
+       9: invokespecial #32                 // Method org/joml/FrustumIntersection."<init>":()V
+      12: putfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      15: aload_0
+      16: new           #36                 // class org/joml/Matrix4f
+      19: dup
+      20: invokespecial #37                 // Method org/joml/Matrix4f."<init>":()V
+      23: putfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      26: aload_0
+      27: aload_1
+      28: aload_2
+      29: invokevirtual #42                 // Method calculateFrustum:(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V
+      32: return
+
+  public net.minecraft.client.renderer.culling.Frustum(net.minecraft.client.renderer.culling.Frustum);
+    Code:
+       0: aload_0
+       1: invokespecial #29                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #31                 // class org/joml/FrustumIntersection
+       8: dup
+       9: invokespecial #32                 // Method org/joml/FrustumIntersection."<init>":()V
+      12: putfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      15: aload_0
+      16: new           #36                 // class org/joml/Matrix4f
+      19: dup
+      20: invokespecial #37                 // Method org/joml/Matrix4f."<init>":()V
+      23: putfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      26: aload_0
+      27: getfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      30: aload_1
+      31: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      34: invokevirtual #50                 // Method org/joml/FrustumIntersection.set:(Lorg/joml/Matrix4fc;)Lorg/joml/FrustumIntersection;
+      37: pop
+      38: aload_0
+      39: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      42: aload_1
+      43: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      46: invokevirtual #53                 // Method org/joml/Matrix4f.set:(Lorg/joml/Matrix4fc;)Lorg/joml/Matrix4f;
+      49: pop
+      50: aload_0
+      51: aload_1
+      52: getfield      #55                 // Field camX:D
+      55: putfield      #55                 // Field camX:D
+      58: aload_0
+      59: aload_1
+      60: getfield      #57                 // Field camY:D
+      63: putfield      #57                 // Field camY:D
+      66: aload_0
+      67: aload_1
+      68: getfield      #59                 // Field camZ:D
+      71: putfield      #59                 // Field camZ:D
+      74: aload_0
+      75: aload_1
+      76: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+      79: putfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+      82: return
+
+  public net.minecraft.client.renderer.culling.Frustum offset(float);
+    Code:
+       0: aload_0
+       1: dup
+       2: getfield      #55                 // Field camX:D
+       5: aload_0
+       6: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+       9: getfield      #70                 // Field org/joml/Vector4f.x:F
+      12: fload_1
+      13: fmul
+      14: f2d
+      15: dadd
+      16: putfield      #55                 // Field camX:D
+      19: aload_0
+      20: dup
+      21: getfield      #57                 // Field camY:D
+      24: aload_0
+      25: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+      28: getfield      #73                 // Field org/joml/Vector4f.y:F
+      31: fload_1
+      32: fmul
+      33: f2d
+      34: dadd
+      35: putfield      #57                 // Field camY:D
+      38: aload_0
+      39: dup
+      40: getfield      #59                 // Field camZ:D
+      43: aload_0
+      44: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+      47: getfield      #76                 // Field org/joml/Vector4f.z:F
+      50: fload_1
+      51: fmul
+      52: f2d
+      53: dadd
+      54: putfield      #59                 // Field camZ:D
+      57: aload_0
+      58: areturn
+
+  public net.minecraft.client.renderer.culling.Frustum offsetToFullyIncludeCameraCube(int);
+    Code:
+       0: aload_0
+       1: getfield      #55                 // Field camX:D
+       4: iload_1
+       5: i2d
+       6: ddiv
+       7: invokestatic  #84                 // Method java/lang/Math.floor:(D)D
+      10: iload_1
+      11: i2d
+      12: dmul
+      13: dstore_2
+      14: aload_0
+      15: getfield      #57                 // Field camY:D
+      18: iload_1
+      19: i2d
+      20: ddiv
+      21: invokestatic  #84                 // Method java/lang/Math.floor:(D)D
+      24: iload_1
+      25: i2d
+      26: dmul
+      27: dstore        4
+      29: aload_0
+      30: getfield      #59                 // Field camZ:D
+      33: iload_1
+      34: i2d
+      35: ddiv
+      36: invokestatic  #84                 // Method java/lang/Math.floor:(D)D
+      39: iload_1
+      40: i2d
+      41: dmul
+      42: dstore        6
+      44: aload_0
+      45: getfield      #55                 // Field camX:D
+      48: iload_1
+      49: i2d
+      50: ddiv
+      51: invokestatic  #87                 // Method java/lang/Math.ceil:(D)D
+      54: iload_1
+      55: i2d
+      56: dmul
+      57: dstore        8
+      59: aload_0
+      60: getfield      #57                 // Field camY:D
+      63: iload_1
+      64: i2d
+      65: ddiv
+      66: invokestatic  #87                 // Method java/lang/Math.ceil:(D)D
+      69: iload_1
+      70: i2d
+      71: dmul
+      72: dstore        10
+      74: aload_0
+      75: getfield      #59                 // Field camZ:D
+      78: iload_1
+      79: i2d
+      80: ddiv
+      81: invokestatic  #87                 // Method java/lang/Math.ceil:(D)D
+      84: iload_1
+      85: i2d
+      86: dmul
+      87: dstore        12
+      89: aload_0
+      90: getfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      93: dload_2
+      94: aload_0
+      95: getfield      #55                 // Field camX:D
+      98: dsub
+      99: d2f
+     100: dload         4
+     102: aload_0
+     103: getfield      #57                 // Field camY:D
+     106: dsub
+     107: d2f
+     108: dload         6
+     110: aload_0
+     111: getfield      #59                 // Field camZ:D
+     114: dsub
+     115: d2f
+     116: dload         8
+     118: aload_0
+     119: getfield      #55                 // Field camX:D
+     122: dsub
+     123: d2f
+     124: dload         10
+     126: aload_0
+     127: getfield      #57                 // Field camY:D
+     130: dsub
+     131: d2f
+     132: dload         12
+     134: aload_0
+     135: getfield      #59                 // Field camZ:D
+     138: dsub
+     139: d2f
+     140: invokevirtual #91                 // Method org/joml/FrustumIntersection.intersectAab:(FFFFFF)I
+     143: bipush        -2
+     145: if_icmpeq     211
+     148: aload_0
+     149: dup
+     150: getfield      #55                 // Field camX:D
+     153: aload_0
+     154: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+     157: invokevirtual #94                 // Method org/joml/Vector4f.x:()F
+     160: ldc           #95                 // float 4.0f
+     162: fmul
+     163: f2d
+     164: dsub
+     165: putfield      #55                 // Field camX:D
+     168: aload_0
+     169: dup
+     170: getfield      #57                 // Field camY:D
+     173: aload_0
+     174: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+     177: invokevirtual #97                 // Method org/joml/Vector4f.y:()F
+     180: ldc           #95                 // float 4.0f
+     182: fmul
+     183: f2d
+     184: dsub
+     185: putfield      #57                 // Field camY:D
+     188: aload_0
+     189: dup
+     190: getfield      #59                 // Field camZ:D
+     193: aload_0
+     194: getfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+     197: invokevirtual #99                 // Method org/joml/Vector4f.z:()F
+     200: ldc           #95                 // float 4.0f
+     202: fmul
+     203: f2d
+     204: dsub
+     205: putfield      #59                 // Field camZ:D
+     208: goto          89
+     211: aload_0
+     212: areturn
+
+  public void prepare(double, double, double);
+    Code:
+       0: aload_0
+       1: dload_1
+       2: putfield      #55                 // Field camX:D
+       5: aload_0
+       6: dload_3
+       7: putfield      #57                 // Field camY:D
+      10: aload_0
+      11: dload         5
+      13: putfield      #59                 // Field camZ:D
+      16: return
+
+  private void calculateFrustum(org.joml.Matrix4f, org.joml.Matrix4f);
+    Code:
+       0: aload_2
+       1: aload_1
+       2: aload_0
+       3: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+       6: invokevirtual #110                // Method org/joml/Matrix4f.mul:(Lorg/joml/Matrix4fc;Lorg/joml/Matrix4f;)Lorg/joml/Matrix4f;
+       9: pop
+      10: aload_0
+      11: getfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      14: aload_0
+      15: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      18: invokevirtual #50                 // Method org/joml/FrustumIntersection.set:(Lorg/joml/Matrix4fc;)Lorg/joml/FrustumIntersection;
+      21: pop
+      22: aload_0
+      23: aload_0
+      24: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+      27: new           #66                 // class org/joml/Vector4f
+      30: dup
+      31: fconst_0
+      32: fconst_0
+      33: fconst_1
+      34: fconst_0
+      35: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      38: invokevirtual #117                // Method org/joml/Matrix4f.transformTranspose:(Lorg/joml/Vector4f;)Lorg/joml/Vector4f;
+      41: putfield      #61                 // Field viewVector:Lorg/joml/Vector4f;
+      44: return
+
+  public boolean isVisible(net.minecraft.world.phys.AABB);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: getfield      #125                // Field net/minecraft/world/phys/AABB.minX:D
+       5: aload_1
+       6: getfield      #128                // Field net/minecraft/world/phys/AABB.minY:D
+       9: aload_1
+      10: getfield      #131                // Field net/minecraft/world/phys/AABB.minZ:D
+      13: aload_1
+      14: getfield      #134                // Field net/minecraft/world/phys/AABB.maxX:D
+      17: aload_1
+      18: getfield      #137                // Field net/minecraft/world/phys/AABB.maxY:D
+      21: aload_1
+      22: getfield      #140                // Field net/minecraft/world/phys/AABB.maxZ:D
+      25: invokevirtual #144                // Method cubeInFrustum:(DDDDDD)I
+      28: istore_2
+      29: iload_2
+      30: bipush        -2
+      32: if_icmpeq     40
+      35: iload_2
+      36: iconst_m1
+      37: if_icmpne     44
+      40: iconst_1
+      41: goto          45
+      44: iconst_0
+      45: ireturn
+
+  public int cubeInFrustum(net.minecraft.world.level.levelgen.structure.BoundingBox);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #152                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.minX:()I
+       5: i2d
+       6: aload_1
+       7: invokevirtual #154                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.minY:()I
+      10: i2d
+      11: aload_1
+      12: invokevirtual #156                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.minZ:()I
+      15: i2d
+      16: aload_1
+      17: invokevirtual #158                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.maxX:()I
+      20: iconst_1
+      21: iadd
+      22: i2d
+      23: aload_1
+      24: invokevirtual #160                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.maxY:()I
+      27: iconst_1
+      28: iadd
+      29: i2d
+      30: aload_1
+      31: invokevirtual #162                // Method net/minecraft/world/level/levelgen/structure/BoundingBox.maxZ:()I
+      34: iconst_1
+      35: iadd
+      36: i2d
+      37: invokevirtual #144                // Method cubeInFrustum:(DDDDDD)I
+      40: ireturn
+
+  private int cubeInFrustum(double, double, double, double, double, double);
+    Code:
+       0: dload_1
+       1: aload_0
+       2: getfield      #55                 // Field camX:D
+       5: dsub
+       6: d2f
+       7: fstore        13
+       9: dload_3
+      10: aload_0
+      11: getfield      #57                 // Field camY:D
+      14: dsub
+      15: d2f
+      16: fstore        14
+      18: dload         5
+      20: aload_0
+      21: getfield      #59                 // Field camZ:D
+      24: dsub
+      25: d2f
+      26: fstore        15
+      28: dload         7
+      30: aload_0
+      31: getfield      #55                 // Field camX:D
+      34: dsub
+      35: d2f
+      36: fstore        16
+      38: dload         9
+      40: aload_0
+      41: getfield      #57                 // Field camY:D
+      44: dsub
+      45: d2f
+      46: fstore        17
+      48: dload         11
+      50: aload_0
+      51: getfield      #59                 // Field camZ:D
+      54: dsub
+      55: d2f
+      56: fstore        18
+      58: aload_0
+      59: getfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+      62: fload         13
+      64: fload         14
+      66: fload         15
+      68: fload         16
+      70: fload         17
+      72: fload         18
+      74: invokevirtual #91                 // Method org/joml/FrustumIntersection.intersectAab:(FFFFFF)I
+      77: ireturn
+
+  public boolean pointInFrustum(double, double, double);
+    Code:
+       0: aload_0
+       1: getfield      #34                 // Field intersection:Lorg/joml/FrustumIntersection;
+       4: dload_1
+       5: aload_0
+       6: getfield      #55                 // Field camX:D
+       9: dsub
+      10: d2f
+      11: dload_3
+      12: aload_0
+      13: getfield      #57                 // Field camY:D
+      16: dsub
+      17: d2f
+      18: dload         5
+      20: aload_0
+      21: getfield      #59                 // Field camZ:D
+      24: dsub
+      25: d2f
+      26: invokevirtual #175                // Method org/joml/FrustumIntersection.testPoint:(FFF)Z
+      29: ireturn
+
+  public org.joml.Vector4f[] getFrustumPoints();
+    Code:
+       0: bipush        8
+       2: anewarray     #66                 // class org/joml/Vector4f
+       5: astore_1
+       6: aload_1
+       7: iconst_0
+       8: new           #66                 // class org/joml/Vector4f
+      11: dup
+      12: ldc           #178                // float -1.0f
+      14: ldc           #178                // float -1.0f
+      16: ldc           #178                // float -1.0f
+      18: fconst_1
+      19: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      22: aastore
+      23: aload_1
+      24: iconst_1
+      25: new           #66                 // class org/joml/Vector4f
+      28: dup
+      29: fconst_1
+      30: ldc           #178                // float -1.0f
+      32: ldc           #178                // float -1.0f
+      34: fconst_1
+      35: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      38: aastore
+      39: aload_1
+      40: iconst_2
+      41: new           #66                 // class org/joml/Vector4f
+      44: dup
+      45: fconst_1
+      46: fconst_1
+      47: ldc           #178                // float -1.0f
+      49: fconst_1
+      50: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      53: aastore
+      54: aload_1
+      55: iconst_3
+      56: new           #66                 // class org/joml/Vector4f
+      59: dup
+      60: ldc           #178                // float -1.0f
+      62: fconst_1
+      63: ldc           #178                // float -1.0f
+      65: fconst_1
+      66: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      69: aastore
+      70: aload_1
+      71: iconst_4
+      72: new           #66                 // class org/joml/Vector4f
+      75: dup
+      76: ldc           #178                // float -1.0f
+      78: ldc           #178                // float -1.0f
+      80: fconst_1
+      81: fconst_1
+      82: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+      85: aastore
+      86: aload_1
+      87: iconst_5
+      88: new           #66                 // class org/joml/Vector4f
+      91: dup
+      92: fconst_1
+      93: ldc           #178                // float -1.0f
+      95: fconst_1
+      96: fconst_1
+      97: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+     100: aastore
+     101: aload_1
+     102: bipush        6
+     104: new           #66                 // class org/joml/Vector4f
+     107: dup
+     108: fconst_1
+     109: fconst_1
+     110: fconst_1
+     111: fconst_1
+     112: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+     115: aastore
+     116: aload_1
+     117: bipush        7
+     119: new           #66                 // class org/joml/Vector4f
+     122: dup
+     123: ldc           #178                // float -1.0f
+     125: fconst_1
+     126: fconst_1
+     127: fconst_1
+     128: invokespecial #113                // Method org/joml/Vector4f."<init>":(FFFF)V
+     131: aastore
+     132: aload_0
+     133: getfield      #39                 // Field matrix:Lorg/joml/Matrix4f;
+     136: new           #36                 // class org/joml/Matrix4f
+     139: dup
+     140: invokespecial #37                 // Method org/joml/Matrix4f."<init>":()V
+     143: invokevirtual #182                // Method org/joml/Matrix4f.invert:(Lorg/joml/Matrix4f;)Lorg/joml/Matrix4f;
+     146: astore_2
+     147: iconst_0
+     148: istore_3
+     149: iload_3
+     150: bipush        8
+     152: if_icmpge     182
+     155: aload_2
+     156: aload_1
+     157: iload_3
+     158: aaload
+     159: invokevirtual #187                // Method org/joml/Matrix4f.transform:(Lorg/joml/Vector4f;)Lorg/joml/Vector4f;
+     162: pop
+     163: aload_1
+     164: iload_3
+     165: aaload
+     166: aload_1
+     167: iload_3
+     168: aaload
+     169: invokevirtual #190                // Method org/joml/Vector4f.w:()F
+     172: invokevirtual #194                // Method org/joml/Vector4f.div:(F)Lorg/joml/Vector4f;
+     175: pop
+     176: iinc          3, 1
+     179: goto          149
+     182: aload_1
+     183: areturn
+
+  public double getCamX();
+    Code:
+       0: aload_0
+       1: getfield      #55                 // Field camX:D
+       4: dreturn
+
+  public double getCamY();
+    Code:
+       0: aload_0
+       1: getfield      #57                 // Field camY:D
+       4: dreturn
+
+  public double getCamZ();
+    Code:
+       0: aload_0
+       1: getfield      #59                 // Field camZ:D
+       4: dreturn
+}

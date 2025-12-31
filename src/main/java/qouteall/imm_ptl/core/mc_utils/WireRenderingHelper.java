@@ -6,7 +6,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -56,22 +55,39 @@ public class WireRenderingHelper {
         matrixStack.mulPose(rotation.toMcQuaternion());
         Matrix4f matrix = matrixStack.last().pose();
         
-        float alpha = ((color >> 24) & 0xff) / 255f;
-        float red = ((color >> 16) & 0xff) / 255f;
-        float green = ((color >> 8) & 0xff) / 255f;
-        float blue = (color & 0xff) / 255f;
+        int alpha = (color >> 24) & 0xff;
+        int red = (color >> 16) & 0xff;
+        int green = (color >> 8) & 0xff;
+        int blue = color & 0xff;
+        int lineColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
         
-        LevelRenderer.renderLineBox(
-            matrixStack,
-            vertexConsumer,
-            -boxSize / 2,
-            -boxSize / 2,
-            -boxSize / 2,
-            boxSize / 2,
-            boxSize / 2,
-            boxSize / 2,
-            red, green, blue, alpha
-        );
+        Matrix3f normalMatrix = matrixStack.last().normal();
+        double min = -boxSize / 2;
+        double max = boxSize / 2;
+        
+        Vec3 p000 = new Vec3(min, min, min);
+        Vec3 p100 = new Vec3(max, min, min);
+        Vec3 p010 = new Vec3(min, max, min);
+        Vec3 p110 = new Vec3(max, max, min);
+        Vec3 p001 = new Vec3(min, min, max);
+        Vec3 p101 = new Vec3(max, min, max);
+        Vec3 p011 = new Vec3(min, max, max);
+        Vec3 p111 = new Vec3(max, max, max);
+        
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p000, p100);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p000, p010);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p010, p110);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p100, p110);
+        
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p001, p101);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p001, p011);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p011, p111);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p101, p111);
+        
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p000, p001);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p100, p101);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p010, p011);
+        putLine(vertexConsumer, lineColor, matrix, normalMatrix, p110, p111);
         matrixStack.popPose();
     }
     
@@ -666,6 +682,12 @@ public class WireRenderingHelper {
     public static void renderPortalShapeMeshDebug(
         PoseStack matrixStack, VertexConsumer vertexConsumer, Portal portal
     ) {
+        renderPortalShapeMeshDebug(matrixStack.last(), vertexConsumer, portal);
+    }
+
+    public static void renderPortalShapeMeshDebug(
+        PoseStack.Pose pose, VertexConsumer vertexConsumer, Portal portal
+    ) {
         double cycle = (Math.sin(CHelper.getSmoothCycles(50) * 2 * Math.PI) + 1) / 2;
         double shrink = 0.03 * cycle;
         
@@ -682,10 +704,8 @@ public class WireRenderingHelper {
             Vec3 X = portal.getAxisW().scale(halfWidth);
             Vec3 Y = portal.getAxisH().scale(halfHeight);
             
-            matrixStack.pushPose();
-            
-            Matrix4f matrix = matrixStack.last().pose();
-            Matrix3f normalMatrix = matrixStack.last().normal();
+            Matrix4f matrix = pose.pose();
+            Matrix3f normalMatrix = pose.normal();
             
             for (int i = 0; i < triangleNum; i++) {
                 int p0Index = shape.mesh.getTrianglePointIndex(i, 0);
@@ -724,8 +744,6 @@ public class WireRenderingHelper {
                     X.scale(x2).add(Y.scale(y2)), X.scale(x0).add(Y.scale(y0))
                 );
             }
-            
-            matrixStack.popPose();
         }
     }
 }

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.q_misc_util.Helper;
 
@@ -55,9 +54,7 @@ public class IPPortingLibCompat {
                         return null;
                     }
                 );
-                renderTarget.resize(
-                    renderTarget.viewWidth, renderTarget.viewHeight, Minecraft.ON_OSX
-                );
+                renderTarget.resize(renderTarget.width, renderTarget.height);
             }
         }
         else {

@@ -40,7 +40,7 @@ public final class BoxPortalShape implements PortalShape {
     }
     
     private static BoxPortalShape deserialize(CompoundTag tag) {
-        boolean facingOutwards1 = tag.getBoolean("facingOutwards");
+        boolean facingOutwards1 = tag.getBooleanOr("facingOutwards", false);
         if (facingOutwards1) {
             return FACING_OUTWARDS;
         }

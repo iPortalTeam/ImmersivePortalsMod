@@ -11,8 +11,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.compat.IPModInfoChecking;
-import qouteall.imm_ptl.core.compat.iris_compatibility.ExperimentalIrisPortalRenderer;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
@@ -89,10 +88,8 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Sodium is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("iris")) {
-            Helper.log("Iris is present");
-            IrisInterface.invoker = new IrisInterface.OnIrisPresent();
-            ExperimentalIrisPortalRenderer.init();
+        if (IrisCompat.isIrisPresent()) {
+            Helper.log("Iris is present (compat disabled)");
             
             IPGlobal.CLIENT_TASK_LIST.addTask(MyTaskList.oneShotTask(() -> {
                 if (IPConfig.getConfig().shouldDisplayWarning("iris")) {

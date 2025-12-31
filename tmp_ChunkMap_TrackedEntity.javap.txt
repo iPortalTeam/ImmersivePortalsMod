@@ -1,0 +1,352 @@
+Compiled from "ChunkMap.java"
+public class net.minecraft.server.level.ChunkMap$TrackedEntity implements net.minecraft.server.level.ServerEntity$Synchronizer {
+  final net.minecraft.server.level.ServerEntity serverEntity;
+
+  final net.minecraft.world.entity.Entity entity;
+
+  private final int range;
+
+  net.minecraft.core.SectionPos lastSectionPos;
+
+  final java.util.Set<net.minecraft.server.network.ServerPlayerConnection> seenBy;
+
+  final net.minecraft.server.level.ChunkMap field_18245;
+
+  public net.minecraft.server.level.ChunkMap$TrackedEntity(net.minecraft.server.level.ChunkMap, net.minecraft.world.entity.Entity, int, int, boolean);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+       5: aload_0
+       6: invokespecial #36                 // Method java/lang/Object."<init>":()V
+       9: aload_0
+      10: invokestatic  #42                 // Method com/google/common/collect/Sets.newIdentityHashSet:()Ljava/util/Set;
+      13: putfield      #44                 // Field seenBy:Ljava/util/Set;
+      16: aload_0
+      17: new           #12                 // class net/minecraft/server/level/ServerEntity
+      20: dup
+      21: aload_1
+      22: getfield      #48                 // Field net/minecraft/server/level/ChunkMap.level:Lnet/minecraft/server/level/ServerLevel;
+      25: aload_2
+      26: iload         4
+      28: iload         5
+      30: aload_0
+      31: invokespecial #51                 // Method net/minecraft/server/level/ServerEntity."<init>":(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;IZLnet/minecraft/server/level/ServerEntity$Synchronizer;)V
+      34: putfield      #53                 // Field serverEntity:Lnet/minecraft/server/level/ServerEntity;
+      37: aload_0
+      38: aload_2
+      39: putfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      42: aload_0
+      43: iload_3
+      44: putfield      #57                 // Field range:I
+      47: aload_0
+      48: aload_2
+      49: invokestatic  #63                 // Method net/minecraft/core/SectionPos.of:(Lnet/minecraft/world/level/entity/EntityAccess;)Lnet/minecraft/core/SectionPos;
+      52: putfield      #65                 // Field lastSectionPos:Lnet/minecraft/core/SectionPos;
+      55: return
+
+  public boolean equals(java.lang.Object);
+    Code:
+       0: aload_1
+       1: instanceof    #2                  // class net/minecraft/server/level/ChunkMap$TrackedEntity
+       4: ifeq          33
+       7: aload_1
+       8: checkcast     #2                  // class net/minecraft/server/level/ChunkMap$TrackedEntity
+      11: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      14: invokevirtual #77                 // Method net/minecraft/world/entity/Entity.getId:()I
+      17: aload_0
+      18: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      21: invokevirtual #77                 // Method net/minecraft/world/entity/Entity.getId:()I
+      24: if_icmpne     31
+      27: iconst_1
+      28: goto          32
+      31: iconst_0
+      32: ireturn
+      33: iconst_0
+      34: ireturn
+
+  public int hashCode();
+    Code:
+       0: aload_0
+       1: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+       4: invokevirtual #77                 // Method net/minecraft/world/entity/Entity.getId:()I
+       7: ireturn
+
+  public void sendToTrackingPlayers(net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>);
+    Code:
+       0: aload_0
+       1: getfield      #44                 // Field seenBy:Ljava/util/Set;
+       4: invokeinterface #89,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       9: astore_2
+      10: aload_2
+      11: invokeinterface #97,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      16: ifeq          39
+      19: aload_2
+      20: invokeinterface #101,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      25: checkcast     #103                // class net/minecraft/server/network/ServerPlayerConnection
+      28: astore_3
+      29: aload_3
+      30: aload_1
+      31: invokeinterface #106,  2          // InterfaceMethod net/minecraft/server/network/ServerPlayerConnection.send:(Lnet/minecraft/network/protocol/Packet;)V
+      36: goto          10
+      39: return
+
+  public void sendToTrackingPlayersAndSelf(net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #113                // Method sendToTrackingPlayers:(Lnet/minecraft/network/protocol/Packet;)V
+       5: aload_0
+       6: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+       9: astore_3
+      10: aload_3
+      11: instanceof    #115                // class net/minecraft/server/level/ServerPlayer
+      14: ifeq          30
+      17: aload_3
+      18: checkcast     #115                // class net/minecraft/server/level/ServerPlayer
+      21: astore_2
+      22: aload_2
+      23: getfield      #119                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+      26: aload_1
+      27: invokevirtual #122                // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+      30: return
+
+  public void sendToTrackingPlayersFiltered(net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>, java.util.function.Predicate<net.minecraft.server.level.ServerPlayer>);
+    Code:
+       0: aload_0
+       1: getfield      #44                 // Field seenBy:Ljava/util/Set;
+       4: invokeinterface #89,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       9: astore_3
+      10: aload_3
+      11: invokeinterface #97,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      16: ifeq          57
+      19: aload_3
+      20: invokeinterface #101,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      25: checkcast     #103                // class net/minecraft/server/network/ServerPlayerConnection
+      28: astore        4
+      30: aload_2
+      31: aload         4
+      33: invokeinterface #134,  1          // InterfaceMethod net/minecraft/server/network/ServerPlayerConnection.getPlayer:()Lnet/minecraft/server/level/ServerPlayer;
+      38: invokeinterface #137,  2          // InterfaceMethod java/util/function/Predicate.test:(Ljava/lang/Object;)Z
+      43: ifeq          54
+      46: aload         4
+      48: aload_1
+      49: invokeinterface #106,  2          // InterfaceMethod net/minecraft/server/network/ServerPlayerConnection.send:(Lnet/minecraft/network/protocol/Packet;)V
+      54: goto          10
+      57: return
+
+  public void broadcastRemoved();
+    Code:
+       0: aload_0
+       1: getfield      #44                 // Field seenBy:Ljava/util/Set;
+       4: invokeinterface #89,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       9: astore_1
+      10: aload_1
+      11: invokeinterface #97,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      16: ifeq          45
+      19: aload_1
+      20: invokeinterface #101,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      25: checkcast     #103                // class net/minecraft/server/network/ServerPlayerConnection
+      28: astore_2
+      29: aload_0
+      30: getfield      #53                 // Field serverEntity:Lnet/minecraft/server/level/ServerEntity;
+      33: aload_2
+      34: invokeinterface #134,  1          // InterfaceMethod net/minecraft/server/network/ServerPlayerConnection.getPlayer:()Lnet/minecraft/server/level/ServerPlayer;
+      39: invokevirtual #144                // Method net/minecraft/server/level/ServerEntity.removePairing:(Lnet/minecraft/server/level/ServerPlayer;)V
+      42: goto          10
+      45: return
+
+  public void removePlayer(net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: aload_0
+       1: getfield      #44                 // Field seenBy:Ljava/util/Set;
+       4: aload_1
+       5: getfield      #119                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+       8: invokeinterface #149,  2          // InterfaceMethod java/util/Set.remove:(Ljava/lang/Object;)Z
+      13: ifeq          53
+      16: aload_0
+      17: getfield      #53                 // Field serverEntity:Lnet/minecraft/server/level/ServerEntity;
+      20: aload_1
+      21: invokevirtual #144                // Method net/minecraft/server/level/ServerEntity.removePairing:(Lnet/minecraft/server/level/ServerPlayer;)V
+      24: aload_0
+      25: getfield      #44                 // Field seenBy:Ljava/util/Set;
+      28: invokeinterface #152,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+      33: ifeq          53
+      36: aload_0
+      37: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+      40: getfield      #48                 // Field net/minecraft/server/level/ChunkMap.level:Lnet/minecraft/server/level/ServerLevel;
+      43: invokevirtual #158                // Method net/minecraft/server/level/ServerLevel.debugSynchronizers:()Lnet/minecraft/util/debug/LevelDebugSynchronizers;
+      46: aload_0
+      47: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      50: invokevirtual #164                // Method net/minecraft/util/debug/LevelDebugSynchronizers.dropEntity:(Lnet/minecraft/world/entity/Entity;)V
+      53: return
+
+  public void updatePlayer(net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: aload_1
+       1: aload_0
+       2: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+       5: if_acmpne     9
+       8: return
+       9: aload_1
+      10: invokevirtual #169                // Method net/minecraft/server/level/ServerPlayer.position:()Lnet/minecraft/world/phys/Vec3;
+      13: aload_0
+      14: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      17: invokevirtual #170                // Method net/minecraft/world/entity/Entity.position:()Lnet/minecraft/world/phys/Vec3;
+      20: invokevirtual #176                // Method net/minecraft/world/phys/Vec3.subtract:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
+      23: astore_2
+      24: aload_0
+      25: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+      28: aload_1
+      29: invokevirtual #180                // Method net/minecraft/server/level/ChunkMap.getPlayerViewDistance:(Lnet/minecraft/server/level/ServerPlayer;)I
+      32: istore_3
+      33: aload_0
+      34: invokevirtual #183                // Method getEffectiveRange:()I
+      37: iload_3
+      38: bipush        16
+      40: imul
+      41: invokestatic  #189                // Method java/lang/Math.min:(II)I
+      44: i2d
+      45: dstore        4
+      47: aload_2
+      48: getfield      #193                // Field net/minecraft/world/phys/Vec3.x:D
+      51: aload_2
+      52: getfield      #193                // Field net/minecraft/world/phys/Vec3.x:D
+      55: dmul
+      56: aload_2
+      57: getfield      #196                // Field net/minecraft/world/phys/Vec3.z:D
+      60: aload_2
+      61: getfield      #196                // Field net/minecraft/world/phys/Vec3.z:D
+      64: dmul
+      65: dadd
+      66: dstore        6
+      68: dload         4
+      70: dload         4
+      72: dmul
+      73: dstore        8
+      75: dload         6
+      77: dload         8
+      79: dcmpg
+      80: ifgt          129
+      83: aload_0
+      84: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+      87: aload_1
+      88: invokevirtual #200                // Method net/minecraft/world/entity/Entity.broadcastToPlayer:(Lnet/minecraft/server/level/ServerPlayer;)Z
+      91: ifeq          129
+      94: aload_0
+      95: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+      98: aload_1
+      99: aload_0
+     100: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+     103: invokevirtual #204                // Method net/minecraft/world/entity/Entity.chunkPosition:()Lnet/minecraft/world/level/ChunkPos;
+     106: getfield      #208                // Field net/minecraft/world/level/ChunkPos.x:I
+     109: aload_0
+     110: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+     113: invokevirtual #204                // Method net/minecraft/world/entity/Entity.chunkPosition:()Lnet/minecraft/world/level/ChunkPos;
+     116: getfield      #210                // Field net/minecraft/world/level/ChunkPos.z:I
+     119: invokevirtual #214                // Method net/minecraft/server/level/ChunkMap.isChunkTracked:(Lnet/minecraft/server/level/ServerPlayer;II)Z
+     122: ifeq          129
+     125: iconst_1
+     126: goto          130
+     129: iconst_0
+     130: istore        10
+     132: iload         10
+     134: ifeq          212
+     137: aload_0
+     138: getfield      #44                 // Field seenBy:Ljava/util/Set;
+     141: aload_1
+     142: getfield      #119                // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+     145: invokeinterface #217,  2          // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+     150: ifeq          217
+     153: aload_0
+     154: getfield      #53                 // Field serverEntity:Lnet/minecraft/server/level/ServerEntity;
+     157: aload_1
+     158: invokevirtual #220                // Method net/minecraft/server/level/ServerEntity.addPairing:(Lnet/minecraft/server/level/ServerPlayer;)V
+     161: aload_0
+     162: getfield      #44                 // Field seenBy:Ljava/util/Set;
+     165: invokeinterface #223,  1          // InterfaceMethod java/util/Set.size:()I
+     170: iconst_1
+     171: if_icmpne     191
+     174: aload_0
+     175: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+     178: getfield      #48                 // Field net/minecraft/server/level/ChunkMap.level:Lnet/minecraft/server/level/ServerLevel;
+     181: invokevirtual #158                // Method net/minecraft/server/level/ServerLevel.debugSynchronizers:()Lnet/minecraft/util/debug/LevelDebugSynchronizers;
+     184: aload_0
+     185: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+     188: invokevirtual #226                // Method net/minecraft/util/debug/LevelDebugSynchronizers.registerEntity:(Lnet/minecraft/world/entity/Entity;)V
+     191: aload_0
+     192: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+     195: getfield      #48                 // Field net/minecraft/server/level/ChunkMap.level:Lnet/minecraft/server/level/ServerLevel;
+     198: invokevirtual #158                // Method net/minecraft/server/level/ServerLevel.debugSynchronizers:()Lnet/minecraft/util/debug/LevelDebugSynchronizers;
+     201: aload_1
+     202: aload_0
+     203: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+     206: invokevirtual #230                // Method net/minecraft/util/debug/LevelDebugSynchronizers.startTrackingEntity:(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/Entity;)V
+     209: goto          217
+     212: aload_0
+     213: aload_1
+     214: invokevirtual #232                // Method removePlayer:(Lnet/minecraft/server/level/ServerPlayer;)V
+     217: return
+
+  private int scaledRange(int);
+    Code:
+       0: aload_0
+       1: getfield      #33                 // Field field_18245:Lnet/minecraft/server/level/ChunkMap;
+       4: getfield      #48                 // Field net/minecraft/server/level/ChunkMap.level:Lnet/minecraft/server/level/ServerLevel;
+       7: invokevirtual #246                // Method net/minecraft/server/level/ServerLevel.getServer:()Lnet/minecraft/server/MinecraftServer;
+      10: iload_1
+      11: invokevirtual #251                // Method net/minecraft/server/MinecraftServer.getScaledTrackingDistance:(I)I
+      14: ireturn
+
+  private int getEffectiveRange();
+    Code:
+       0: aload_0
+       1: getfield      #57                 // Field range:I
+       4: istore_1
+       5: aload_0
+       6: getfield      #55                 // Field entity:Lnet/minecraft/world/entity/Entity;
+       9: invokevirtual #255                // Method net/minecraft/world/entity/Entity.getIndirectPassengers:()Ljava/lang/Iterable;
+      12: invokeinterface #258,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+      17: astore_2
+      18: aload_2
+      19: invokeinterface #97,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      24: ifeq          61
+      27: aload_2
+      28: invokeinterface #101,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      33: checkcast     #73                 // class net/minecraft/world/entity/Entity
+      36: astore_3
+      37: aload_3
+      38: invokevirtual #262                // Method net/minecraft/world/entity/Entity.getType:()Lnet/minecraft/world/entity/EntityType;
+      41: invokevirtual #267                // Method net/minecraft/world/entity/EntityType.clientTrackingRange:()I
+      44: bipush        16
+      46: imul
+      47: istore        4
+      49: iload         4
+      51: iload_1
+      52: if_icmple     58
+      55: iload         4
+      57: istore_1
+      58: goto          18
+      61: aload_0
+      62: iload_1
+      63: invokevirtual #269                // Method scaledRange:(I)I
+      66: ireturn
+
+  public void updatePlayers(java.util.List<net.minecraft.server.level.ServerPlayer>);
+    Code:
+       0: aload_1
+       1: invokeinterface #277,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       6: astore_2
+       7: aload_2
+       8: invokeinterface #97,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      13: ifeq          34
+      16: aload_2
+      17: invokeinterface #101,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      22: checkcast     #115                // class net/minecraft/server/level/ServerPlayer
+      25: astore_3
+      26: aload_0
+      27: aload_3
+      28: invokevirtual #279                // Method updatePlayer:(Lnet/minecraft/server/level/ServerPlayer;)V
+      31: goto          7
+      34: return
+}

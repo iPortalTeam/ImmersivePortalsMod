@@ -1,0 +1,293 @@
+      27: aload         10
+      29: invokevirtual #712                // Method net/minecraft/class_243.method_10215:()D
+      32: dstore        15
+      34: aload_3
+      35: ldc_w         #2501               // String terrain
+      38: invokeinterface #699,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+      43: aload_0
+      44: getfield      #335                // Field field_64218:Lnet/minecraft/class_12137;
+      47: ifnonnull     114
+      50: aload_0
+      51: getfield      #299                // Field field_4088:Lnet/minecraft/class_310;
+      54: getfield      #404                // Field net/minecraft/class_310.field_1690:Lnet/minecraft/class_315;
+      57: invokevirtual #2504               // Method net/minecraft/class_315.method_76747:()Lnet/minecraft/class_7172;
+      60: invokevirtual #527                // Method net/minecraft/class_7172.method_41753:()Ljava/lang/Object;
+      63: getstatic     #2510               // Field net/minecraft/class_12393.field_64665:Lnet/minecraft/class_12393;
+      66: if_acmpne     82
+      69: aload_0
+      70: getfield      #299                // Field field_4088:Lnet/minecraft/class_310;
+      73: getfield      #404                // Field net/minecraft/class_310.field_1690:Lnet/minecraft/class_315;
+      76: invokevirtual #2513               // Method net/minecraft/class_315.method_76248:()I
+      79: goto          83
+      82: iconst_1
+      83: istore        17
+      85: aload_0
+      86: invokestatic  #2449               // Method com/mojang/blaze3d/systems/RenderSystem.getDevice:()Lcom/mojang/blaze3d/systems/GpuDevice;
+      89: getstatic     #2519               // Field com/mojang/blaze3d/textures/AddressMode.CLAMP_TO_EDGE:Lcom/mojang/blaze3d/textures/AddressMode;
+      92: getstatic     #2519               // Field com/mojang/blaze3d/textures/AddressMode.CLAMP_TO_EDGE:Lcom/mojang/blaze3d/textures/AddressMode;
+      95: getstatic     #2525               // Field com/mojang/blaze3d/textures/FilterMode.LINEAR:Lcom/mojang/blaze3d/textures/FilterMode;
+      98: getstatic     #2525               // Field com/mojang/blaze3d/textures/FilterMode.LINEAR:Lcom/mojang/blaze3d/textures/FilterMode;
+     101: iload         17
+     103: invokestatic  #2531               // Method java/util/OptionalDouble.empty:()Ljava/util/OptionalDouble;
+     106: invokeinterface #2535,  7         // InterfaceMethod com/mojang/blaze3d/systems/GpuDevice.createSampler:(Lcom/mojang/blaze3d/textures/AddressMode;Lcom/mojang/blaze3d/textures/AddressMode;Lcom/mojang/blaze3d/textures/FilterMode;Lcom/mojang/blaze3d/textures/FilterMode;ILjava/util/OptionalDouble;)Lnet/minecraft/class_12137;
+     111: putfield      #335                // Field field_64218:Lnet/minecraft/class_12137;
+     114: aload_0
+     115: aload         4
+     117: dload         11
+     119: dload         13
+     121: dload         15
+     123: invokevirtual #2537               // Method method_72157:(Lorg/joml/Matrix4fc;DDD)Lnet/minecraft/class_11532;
+     126: astore        17
+     128: aload         17
+     130: getstatic     #2543               // Field net/minecraft/class_11531.field_61022:Lnet/minecraft/class_11531;
+     133: aload_0
+     134: getfield      #335                // Field field_64218:Lnet/minecraft/class_12137;
+     137: invokevirtual #2547               // Method net/minecraft/class_11532.method_72170:(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V
+     140: aload_0
+     141: getfield      #299                // Field field_4088:Lnet/minecraft/class_310;
+     144: getfield      #446                // Field net/minecraft/class_310.field_1773:Lnet/minecraft/class_757;
+     147: invokevirtual #2551               // Method net/minecraft/class_757.method_71114:()Lnet/minecraft/class_308;
+     150: getstatic     #2555               // Field net/minecraft/class_308$class_11274.field_60025:Lnet/minecraft/class_308$class_11274;
+     153: invokevirtual #2559               // Method net/minecraft/class_308.method_71034:(Lnet/minecraft/class_308$class_11274;)V
+     156: aload         5
+     158: ifnull        181
+     161: aload         5
+     163: invokeinterface #2283,  1         // InterfaceMethod net/minecraft/class_9925.get:()Ljava/lang/Object;
+     168: checkcast     #324                // class net/minecraft/class_276
+     171: aload_0
+     172: getfield      #299                // Field field_4088:Lnet/minecraft/class_310;
+     175: invokevirtual #434                // Method net/minecraft/class_310.method_1522:()Lnet/minecraft/class_276;
+     178: invokevirtual #2489               // Method net/minecraft/class_276.method_29329:(Lnet/minecraft/class_276;)V
+     181: aload_0
+     182: invokevirtual #430                // Method method_3270:()Z
+     185: ifeq          230
+     188: aload         6
+     190: ifnull        230
+     193: aload         6
+     195: invokeinterface #2283,  1         // InterfaceMethod net/minecraft/class_9925.get:()Ljava/lang/Object;
+     200: checkcast     #324                // class net/minecraft/class_276
+     203: astore        18
+     205: invokestatic  #2449               // Method com/mojang/blaze3d/systems/RenderSystem.getDevice:()Lcom/mojang/blaze3d/systems/GpuDevice;
+     208: invokeinterface #2455,  1         // InterfaceMethod com/mojang/blaze3d/systems/GpuDevice.createCommandEncoder:()Lcom/mojang/blaze3d/systems/CommandEncoder;
+     213: aload         18
+     215: invokevirtual #2562               // Method net/minecraft/class_276.method_30277:()Lcom/mojang/blaze3d/textures/GpuTexture;
+     218: iconst_0
+     219: aload         18
+     221: invokevirtual #2459               // Method net/minecraft/class_276.method_30278:()Lcom/mojang/blaze3d/textures/GpuTexture;
+     224: dconst_1
+     225: invokeinterface #2566,  6         // InterfaceMethod com/mojang/blaze3d/systems/CommandEncoder.clearColorAndDepthTextures:(Lcom/mojang/blaze3d/textures/GpuTexture;ILcom/mojang/blaze3d/textures/GpuTexture;D)V
+     230: new           #40                 // class net/minecraft/class_4587
+     233: dup
+     234: invokespecial #1435               // Method net/minecraft/class_4587."<init>":()V
+     237: astore        18
+     239: aload_0
+     240: getfield      #305                // Field field_20951:Lnet/minecraft/class_4599;
+     243: invokevirtual #2429               // Method net/minecraft/class_4599.method_23000:()Lnet/minecraft/class_4597$class_4598;
+     246: astore        19
+     248: aload_0
+     249: getfield      #305                // Field field_20951:Lnet/minecraft/class_4599;
+     252: invokevirtual #2569               // Method net/minecraft/class_4599.method_23001:()Lnet/minecraft/class_4597$class_4598;
+     255: astore        20
+     257: aload_3
+     258: ldc_w         #2571               // String submitEntities
+     261: invokeinterface #897,  2          // InterfaceMethod net/minecraft/class_3695.method_15405:(Ljava/lang/String;)V
+     266: aload_0
+     267: aload         18
+     269: aload_2
+     270: aload_0
+     271: getfield      #313                // Field field_61738:Lnet/minecraft/class_11661;
+     274: invokevirtual #2573               // Method method_72916:(Lnet/minecraft/class_4587;Lnet/minecraft/class_11658;Lnet/minecraft/class_11659;)V
+     277: aload_3
+     278: ldc_w         #2575               // String submitBlockEntities
+     281: invokeinterface #897,  2          // InterfaceMethod net/minecraft/class_3695.method_15405:(Ljava/lang/String;)V
+     286: aload_0
+     287: aload         18
+     289: aload_2
+     290: aload_0
+     291: getfield      #313                // Field field_61738:Lnet/minecraft/class_11661;
+     294: invokevirtual #2577               // Method method_62208:(Lnet/minecraft/class_4587;Lnet/minecraft/class_11658;Lnet/minecraft/class_11661;)V
+     297: aload_3
+     298: ldc_w         #2579               // String renderFeatures
+     301: invokeinterface #897,  2          // InterfaceMethod net/minecraft/class_3695.method_15405:(Ljava/lang/String;)V
+     306: aload_0
+     307: getfield      #317                // Field field_61739:Lnet/minecraft/class_11684;
+     310: invokevirtual #2496               // Method net/minecraft/class_11684.method_73002:()V
+     313: aload         19
+     315: invokevirtual #1728               // Method net/minecraft/class_4597$class_4598.method_37104:()V
+     318: aload_0
+     319: aload         18
+     321: invokevirtual #2471               // Method method_22979:(Lnet/minecraft/class_4587;)V
+     324: aload         19
+     326: invokestatic  #2582               // Method net/minecraft/class_12249.method_75965:()Lnet/minecraft/class_1921;
+     329: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     332: aload         19
+     334: invokestatic  #2589               // Method net/minecraft/class_12249.method_76011:()Lnet/minecraft/class_1921;
+     337: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     340: aload         19
+     342: invokestatic  #2592               // Method net/minecraft/class_12249.method_76013:()Lnet/minecraft/class_1921;
+     345: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     348: aload         19
+     350: invokestatic  #2597               // Method net/minecraft/class_4722.method_24073:()Lnet/minecraft/class_1921;
+     353: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     356: aload         19
+     358: invokestatic  #2600               // Method net/minecraft/class_4722.method_24074:()Lnet/minecraft/class_1921;
+     361: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     364: aload         19
+     366: invokestatic  #2603               // Method net/minecraft/class_4722.method_24069:()Lnet/minecraft/class_1921;
+     369: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     372: aload         19
+     374: invokestatic  #2606               // Method net/minecraft/class_4722.method_24070:()Lnet/minecraft/class_1921;
+     377: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     380: aload         19
+     382: invokestatic  #2609               // Method net/minecraft/class_4722.method_24071:()Lnet/minecraft/class_1921;
+     385: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     388: aload         19
+     390: invokestatic  #2612               // Method net/minecraft/class_4722.method_45783:()Lnet/minecraft/class_1921;
+     393: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     396: aload         19
+     398: invokestatic  #2615               // Method net/minecraft/class_4722.method_24072:()Lnet/minecraft/class_1921;
+     401: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     404: aload_0
+     405: getfield      #305                // Field field_20951:Lnet/minecraft/class_4599;
+     408: invokevirtual #2619               // Method net/minecraft/class_4599.method_23003:()Lnet/minecraft/class_4618;
+     411: invokevirtual #2624               // Method net/minecraft/class_4618.method_23285:()V
+     414: iload         7
+     416: ifeq          429
+     419: aload_0
+     420: aload         19
+     422: aload         18
+     424: iconst_0
+     425: aload_2
+     426: invokevirtual #2626               // Method method_62210:(Lnet/minecraft/class_4597$class_4598;Lnet/minecraft/class_4587;ZLnet/minecraft/class_11658;)V
+     429: aload_3
+     430: invokeinterface #744,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+     435: aload_0
+     436: invokevirtual #2628               // Method method_76647:()V
+     439: aload_0
+     440: getfield      #297                // Field field_64566:Lnet/minecraft/class_761$class_12351;
+     443: invokevirtual #2631               // Method net/minecraft/class_761$class_12351.comp_5236:()Lnet/minecraft/class_12160;
+     446: aload         18
+     448: aload         19
+     450: aload_2
+     451: getfield      #1193               // Field net/minecraft/class_11658.field_63082:Lnet/minecraft/class_12075;
+     454: aload         4
+     456: invokevirtual #2469               // Method net/minecraft/class_12160.method_75477:(Lnet/minecraft/class_4587;Lnet/minecraft/class_4597;Lnet/minecraft/class_12075;Lorg/joml/Matrix4f;)V
+     459: aload         19
+     461: invokevirtual #1728               // Method net/minecraft/class_4597$class_4598.method_37104:()V
+     464: aload_0
+     465: aload         18
+     467: invokevirtual #2471               // Method method_22979:(Lnet/minecraft/class_4587;)V
+     470: aload         19
+     472: invokestatic  #2634               // Method net/minecraft/class_4722.method_29382:()Lnet/minecraft/class_1921;
+     475: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     478: aload         19
+     480: invokestatic  #2637               // Method net/minecraft/class_4722.method_24059:()Lnet/minecraft/class_1921;
+     483: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     486: aload         19
+     488: invokestatic  #2640               // Method net/minecraft/class_4722.method_24067:()Lnet/minecraft/class_1921;
+     491: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     494: aload         19
+     496: invokestatic  #2643               // Method net/minecraft/class_12249.method_75989:()Lnet/minecraft/class_1921;
+     499: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     502: aload         19
+     504: invokestatic  #2646               // Method net/minecraft/class_12249.method_75995:()Lnet/minecraft/class_1921;
+     507: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     510: aload         19
+     512: invokestatic  #2649               // Method net/minecraft/class_12249.method_75993:()Lnet/minecraft/class_1921;
+     515: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     518: aload         19
+     520: invokestatic  #2652               // Method net/minecraft/class_12249.method_75997:()Lnet/minecraft/class_1921;
+     523: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     526: aload_3
+     527: ldc_w         #2654               // String destroyProgress
+     530: invokeinterface #699,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+     535: aload_0
+     536: aload         18
+     538: aload         20
+     540: aload_2
+     541: invokevirtual #2656               // Method method_62206:(Lnet/minecraft/class_4587;Lnet/minecraft/class_4597$class_4598;Lnet/minecraft/class_11658;)V
+     544: aload         20
+     546: invokevirtual #2482               // Method net/minecraft/class_4597$class_4598.method_22993:()V
+     549: aload_3
+     550: invokeinterface #744,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+     555: aload_0
+     556: aload         18
+     558: invokevirtual #2471               // Method method_22979:(Lnet/minecraft/class_4587;)V
+     561: aload         19
+     563: invokestatic  #2659               // Method net/minecraft/class_12249.method_75985:()Lnet/minecraft/class_1921;
+     566: invokevirtual #2586               // Method net/minecraft/class_4597$class_4598.method_22994:(Lnet/minecraft/class_1921;)V
+     569: aload         19
+     571: invokevirtual #2482               // Method net/minecraft/class_4597$class_4598.method_22993:()V
+     574: aload         8
+     576: ifnull        602
+     579: aload         8
+     581: invokeinterface #2283,  1         // InterfaceMethod net/minecraft/class_9925.get:()Ljava/lang/Object;
+     586: checkcast     #324                // class net/minecraft/class_276
+     589: aload         9
+     591: invokeinterface #2283,  1         // InterfaceMethod net/minecraft/class_9925.get:()Ljava/lang/Object;
+     596: checkcast     #324                // class net/minecraft/class_276
+     599: invokevirtual #2489               // Method net/minecraft/class_276.method_29329:(Lnet/minecraft/class_276;)V
+     602: aload_3
+     603: ldc_w         #1037               // String translucent
+     606: invokeinterface #699,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+     611: aload         17
+     613: getstatic     #2662               // Field net/minecraft/class_11531.field_61023:Lnet/minecraft/class_11531;
+     616: aload_0
+     617: getfield      #335                // Field field_64218:Lnet/minecraft/class_12137;
+     620: invokevirtual #2547               // Method net/minecraft/class_11532.method_72170:(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V
+     623: aload_3
+     624: ldc_w         #2664               // String string
+     627: invokeinterface #897,  2          // InterfaceMethod net/minecraft/class_3695.method_15405:(Ljava/lang/String;)V
+     632: aload         17
+     634: getstatic     #2667               // Field net/minecraft/class_11531.field_61024:Lnet/minecraft/class_11531;
+     637: aload_0
+     638: getfield      #335                // Field field_64218:Lnet/minecraft/class_12137;
+     641: invokevirtual #2547               // Method net/minecraft/class_11532.method_72170:(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V
+     644: iload         7
+     646: ifeq          659
+     649: aload_0
+     650: aload         19
+     652: aload         18
+     654: iconst_1
+     655: aload_2
+     656: invokevirtual #2626               // Method method_62210:(Lnet/minecraft/class_4597$class_4598;Lnet/minecraft/class_4587;ZLnet/minecraft/class_11658;)V
+     659: aload         19
+     661: invokevirtual #2482               // Method net/minecraft/class_4597$class_4598.method_22993:()V
+     664: aload_3
+     665: invokeinterface #744,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+     670: return
+
+  private void method_62218(org.joml.Vector4f);
+    Code:
+       0: aload_0
+       1: getfield      #299                // Field field_4088:Lnet/minecraft/class_310;
+       4: invokevirtual #434                // Method net/minecraft/class_310.method_1522:()Lnet/minecraft/class_276;
+       7: astore_2
+       8: invokestatic  #2449               // Method com/mojang/blaze3d/systems/RenderSystem.getDevice:()Lcom/mojang/blaze3d/systems/GpuDevice;
+      11: invokeinterface #2455,  1         // InterfaceMethod com/mojang/blaze3d/systems/GpuDevice.createCommandEncoder:()Lcom/mojang/blaze3d/systems/CommandEncoder;
+      16: aload_2
+      17: invokevirtual #2562               // Method net/minecraft/class_276.method_30277:()Lcom/mojang/blaze3d/textures/GpuTexture;
+      20: fconst_0
+      21: aload_1
+      22: getfield      #2671               // Field org/joml/Vector4f.x:F
+      25: aload_1
+      26: getfield      #2674               // Field org/joml/Vector4f.y:F
+      29: aload_1
+      30: getfield      #2677               // Field org/joml/Vector4f.z:F
+      33: invokestatic  #2126               // Method net/minecraft/class_9848.method_61318:(FFFF)I
+      36: aload_2
+      37: invokevirtual #2459               // Method net/minecraft/class_276.method_30278:()Lcom/mojang/blaze3d/textures/GpuTexture;
+      40: dconst_1
+      41: invokeinterface #2566,  6         // InterfaceMethod com/mojang/blaze3d/systems/CommandEncoder.clearColorAndDepthTextures:(Lcom/mojang/blaze3d/textures/GpuTexture;ILcom/mojang/blaze3d/textures/GpuTexture;D)V
+      46: return
+
+  static {};
+    Code:
+       0: ldc_w         #2680               // String transparency
+       3: invokestatic  #2686               // Method net/minecraft/class_2960.method_60656:(Ljava/lang/String;)Lnet/minecraft/class_2960;
+       6: putstatic     #390                // Field field_53900:Lnet/minecraft/class_2960;
+       9: ldc_w         #1072               // String entity_outline
+      12: invokestatic  #2686               // Method net/minecraft/class_2960.method_60656:(Ljava/lang/String;)Lnet/minecraft/class_2960;
+      15: putstatic     #1117               // Field field_53901:Lnet/minecraft/class_2960;
+      18: return
+}

@@ -119,7 +119,7 @@ public class PacketRedirection {
         else {
             serverPlayNetworkHandler.send(
                 createRedirectedMessage(
-                    serverPlayNetworkHandler.player.server,
+                    serverPlayNetworkHandler.player.level().getServer(),
                     dimension,
                     packet
                 )
@@ -178,7 +178,7 @@ public class PacketRedirection {
         ResourceKey<Level> dimension,
         Packet<ClientGamePacketListener> packet
     ) {
-        player.connection.send(createRedirectedMessage(player.server, dimension, packet));
+        player.connection.send(createRedirectedMessage(player.level().getServer(), dimension, packet));
     }
     
     // Note this doesn't consider bundle packet

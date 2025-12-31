@@ -1,13 +1,18 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 public class GeneralBreakablePortal extends BreakablePortalEntity {
     
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("immersive_portals", "general_breakable_portal");
+    public static final ResourceKey<EntityType<?>> KEY = ResourceKey.create(Registries.ENTITY_TYPE, ID);
     public static final EntityType<GeneralBreakablePortal> ENTITY_TYPE =
-        createPortalEntityType(GeneralBreakablePortal::new);
+        createPortalEntityType(KEY, GeneralBreakablePortal::new);
     
     public GeneralBreakablePortal(EntityType<?> entityType, Level world) {
         super(entityType, world);

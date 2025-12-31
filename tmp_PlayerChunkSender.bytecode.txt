@@ -1,0 +1,331 @@
+Compiled from "PlayerChunkSender.java"
+public class net.minecraft.server.network.PlayerChunkSender {
+  private static final org.slf4j.Logger LOGGER;
+
+  public static final float MIN_CHUNKS_PER_TICK;
+
+  public static final float MAX_CHUNKS_PER_TICK;
+
+  private static final float START_CHUNKS_PER_TICK;
+
+  private static final int MAX_UNACKNOWLEDGED_BATCHES;
+
+  private final it.unimi.dsi.fastutil.longs.LongSet pendingChunks;
+
+  private final boolean memoryConnection;
+
+  private float desiredChunksPerTick;
+
+  private float batchQuota;
+
+  private int unacknowledgedBatches;
+
+  private int maxUnacknowledgedBatches;
+
+  public net.minecraft.server.network.PlayerChunkSender(boolean);
+    Code:
+       0: aload_0
+       1: invokespecial #35                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #37                 // class it/unimi/dsi/fastutil/longs/LongOpenHashSet
+       8: dup
+       9: invokespecial #38                 // Method it/unimi/dsi/fastutil/longs/LongOpenHashSet."<init>":()V
+      12: putfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+      15: aload_0
+      16: ldc           #19                 // float 9.0f
+      18: putfield      #42                 // Field desiredChunksPerTick:F
+      21: aload_0
+      22: iconst_1
+      23: putfield      #44                 // Field maxUnacknowledgedBatches:I
+      26: aload_0
+      27: iload_1
+      28: putfield      #46                 // Field memoryConnection:Z
+      31: return
+
+  public void markChunkPendingToSend(net.minecraft.world.level.chunk.LevelChunk);
+    Code:
+       0: aload_0
+       1: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+       4: aload_1
+       5: invokevirtual #57                 // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+       8: invokevirtual #63                 // Method net/minecraft/world/level/ChunkPos.toLong:()J
+      11: invokeinterface #69,  3           // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.add:(J)Z
+      16: pop
+      17: return
+
+  public void dropChunk(net.minecraft.server.level.ServerPlayer, net.minecraft.world.level.ChunkPos);
+    Code:
+       0: aload_0
+       1: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+       4: aload_2
+       5: invokevirtual #63                 // Method net/minecraft/world/level/ChunkPos.toLong:()J
+       8: invokeinterface #77,  3           // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.remove:(J)Z
+      13: ifne          38
+      16: aload_1
+      17: invokevirtual #83                 // Method net/minecraft/server/level/ServerPlayer.isAlive:()Z
+      20: ifeq          38
+      23: aload_1
+      24: getfield      #87                 // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+      27: new           #89                 // class net/minecraft/network/protocol/game/ClientboundForgetLevelChunkPacket
+      30: dup
+      31: aload_2
+      32: invokespecial #92                 // Method net/minecraft/network/protocol/game/ClientboundForgetLevelChunkPacket."<init>":(Lnet/minecraft/world/level/ChunkPos;)V
+      35: invokevirtual #98                 // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+      38: return
+
+  public void sendNextChunks(net.minecraft.server.level.ServerPlayer);
+    Code:
+       0: aload_0
+       1: getfield      #104                // Field unacknowledgedBatches:I
+       4: aload_0
+       5: getfield      #44                 // Field maxUnacknowledgedBatches:I
+       8: if_icmplt     12
+      11: return
+      12: fconst_1
+      13: aload_0
+      14: getfield      #42                 // Field desiredChunksPerTick:F
+      17: invokestatic  #110                // Method java/lang/Math.max:(FF)F
+      20: fstore_2
+      21: aload_0
+      22: aload_0
+      23: getfield      #112                // Field batchQuota:F
+      26: aload_0
+      27: getfield      #42                 // Field desiredChunksPerTick:F
+      30: fadd
+      31: fload_2
+      32: invokestatic  #115                // Method java/lang/Math.min:(FF)F
+      35: putfield      #112                // Field batchQuota:F
+      38: aload_0
+      39: getfield      #112                // Field batchQuota:F
+      42: fconst_1
+      43: fcmpg
+      44: ifge          48
+      47: return
+      48: aload_0
+      49: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+      52: invokeinterface #118,  1          // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.isEmpty:()Z
+      57: ifeq          61
+      60: return
+      61: aload_1
+      62: invokevirtual #122                // Method net/minecraft/server/level/ServerPlayer.level:()Lnet/minecraft/server/level/ServerLevel;
+      65: astore_3
+      66: aload_3
+      67: invokevirtual #128                // Method net/minecraft/server/level/ServerLevel.getChunkSource:()Lnet/minecraft/server/level/ServerChunkCache;
+      70: getfield      #134                // Field net/minecraft/server/level/ServerChunkCache.chunkMap:Lnet/minecraft/server/level/ChunkMap;
+      73: astore        4
+      75: aload_0
+      76: aload         4
+      78: aload_1
+      79: invokevirtual #137                // Method net/minecraft/server/level/ServerPlayer.chunkPosition:()Lnet/minecraft/world/level/ChunkPos;
+      82: invokevirtual #141                // Method collectChunksToSend:(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/world/level/ChunkPos;)Ljava/util/List;
+      85: astore        5
+      87: aload         5
+      89: invokeinterface #144,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+      94: ifeq          98
+      97: return
+      98: aload_1
+      99: getfield      #87                 // Field net/minecraft/server/level/ServerPlayer.connection:Lnet/minecraft/server/network/ServerGamePacketListenerImpl;
+     102: astore        6
+     104: aload_0
+     105: dup
+     106: getfield      #104                // Field unacknowledgedBatches:I
+     109: iconst_1
+     110: iadd
+     111: putfield      #104                // Field unacknowledgedBatches:I
+     114: aload         6
+     116: getstatic     #150                // Field net/minecraft/network/protocol/game/ClientboundChunkBatchStartPacket.INSTANCE:Lnet/minecraft/network/protocol/game/ClientboundChunkBatchStartPacket;
+     119: invokevirtual #98                 // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+     122: aload         5
+     124: invokeinterface #154,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     129: astore        7
+     131: aload         7
+     133: invokeinterface #159,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     138: ifeq          164
+     141: aload         7
+     143: invokeinterface #163,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     148: checkcast     #53                 // class net/minecraft/world/level/chunk/LevelChunk
+     151: astore        8
+     153: aload         6
+     155: aload_3
+     156: aload         8
+     158: invokestatic  #167                // Method sendChunk:(Lnet/minecraft/server/network/ServerGamePacketListenerImpl;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/LevelChunk;)V
+     161: goto          131
+     164: aload         6
+     166: new           #169                // class net/minecraft/network/protocol/game/ClientboundChunkBatchFinishedPacket
+     169: dup
+     170: aload         5
+     172: invokeinterface #173,  1          // InterfaceMethod java/util/List.size:()I
+     177: invokespecial #176                // Method net/minecraft/network/protocol/game/ClientboundChunkBatchFinishedPacket."<init>":(I)V
+     180: invokevirtual #98                 // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+     183: aload_0
+     184: dup
+     185: getfield      #112                // Field batchQuota:F
+     188: aload         5
+     190: invokeinterface #173,  1          // InterfaceMethod java/util/List.size:()I
+     195: i2f
+     196: fsub
+     197: putfield      #112                // Field batchQuota:F
+     200: return
+
+  private static void sendChunk(net.minecraft.server.network.ServerGamePacketListenerImpl, net.minecraft.server.level.ServerLevel, net.minecraft.world.level.chunk.LevelChunk);
+    Code:
+       0: aload_0
+       1: new           #187                // class net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket
+       4: dup
+       5: aload_2
+       6: aload_1
+       7: invokevirtual #191                // Method net/minecraft/server/level/ServerLevel.getLightEngine:()Lnet/minecraft/world/level/lighting/LevelLightEngine;
+      10: aconst_null
+      11: aconst_null
+      12: invokespecial #194                // Method net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket."<init>":(Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/lighting/LevelLightEngine;Ljava/util/BitSet;Ljava/util/BitSet;)V
+      15: invokevirtual #98                 // Method net/minecraft/server/network/ServerGamePacketListenerImpl.send:(Lnet/minecraft/network/protocol/Packet;)V
+      18: aload_2
+      19: invokevirtual #57                 // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+      22: astore_3
+      23: getstatic     #199                // Field net/minecraft/SharedConstants.DEBUG_VERBOSE_SERVER_EVENTS:Z
+      26: ifeq          40
+      29: getstatic     #201                // Field LOGGER:Lorg/slf4j/Logger;
+      32: ldc           #203                // String SEN {}
+      34: aload_3
+      35: invokeinterface #209,  3          // InterfaceMethod org/slf4j/Logger.debug:(Ljava/lang/String;Ljava/lang/Object;)V
+      40: aload_1
+      41: invokevirtual #213                // Method net/minecraft/server/level/ServerLevel.debugSynchronizers:()Lnet/minecraft/util/debug/LevelDebugSynchronizers;
+      44: aload_0
+      45: getfield      #215                // Field net/minecraft/server/network/ServerGamePacketListenerImpl.player:Lnet/minecraft/server/level/ServerPlayer;
+      48: aload_2
+      49: invokevirtual #57                 // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+      52: invokevirtual #220                // Method net/minecraft/util/debug/LevelDebugSynchronizers.startTrackingChunk:(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V
+      55: return
+
+  private java.util.List<net.minecraft.world.level.chunk.LevelChunk> collectChunksToSend(net.minecraft.server.level.ChunkMap, net.minecraft.world.level.ChunkPos);
+    Code:
+       0: aload_0
+       1: getfield      #112                // Field batchQuota:F
+       4: invokestatic  #227                // Method net/minecraft/util/Mth.floor:(F)I
+       7: istore        4
+       9: aload_0
+      10: getfield      #46                 // Field memoryConnection:Z
+      13: ifne          30
+      16: aload_0
+      17: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+      20: invokeinterface #228,  1          // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.size:()I
+      25: iload         4
+      27: if_icmpgt     88
+      30: aload_0
+      31: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+      34: invokeinterface #232,  1          // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.longStream:()Ljava/util/stream/LongStream;
+      39: aload_1
+      40: dup
+      41: invokestatic  #238                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+      44: pop
+      45: invokedynamic #259,  0            // InvokeDynamic #0:apply:(Lnet/minecraft/server/level/ChunkMap;)Ljava/util/function/LongFunction;
+      50: invokeinterface #265,  2          // InterfaceMethod java/util/stream/LongStream.mapToObj:(Ljava/util/function/LongFunction;)Ljava/util/stream/Stream;
+      55: invokedynamic #277,  0            // InvokeDynamic #1:test:()Ljava/util/function/Predicate;
+      60: invokeinterface #283,  2          // InterfaceMethod java/util/stream/Stream.filter:(Ljava/util/function/Predicate;)Ljava/util/stream/Stream;
+      65: aload_2
+      66: invokedynamic #296,  0            // InvokeDynamic #2:applyAsInt:(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/function/ToIntFunction;
+      71: invokestatic  #302                // InterfaceMethod java/util/Comparator.comparingInt:(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;
+      74: invokeinterface #306,  2          // InterfaceMethod java/util/stream/Stream.sorted:(Ljava/util/Comparator;)Ljava/util/stream/Stream;
+      79: invokeinterface #310,  1          // InterfaceMethod java/util/stream/Stream.toList:()Ljava/util/List;
+      84: astore_3
+      85: goto          171
+      88: aload_0
+      89: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+      92: invokeinterface #314,  1          // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.stream:()Ljava/util/stream/Stream;
+      97: iload         4
+      99: aload_2
+     100: dup
+     101: invokestatic  #238                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+     104: pop
+     105: invokedynamic #322,  0            // InvokeDynamic #3:applyAsInt:(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/function/ToIntFunction;
+     110: invokestatic  #302                // InterfaceMethod java/util/Comparator.comparingInt:(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;
+     113: invokestatic  #328                // Method com/google/common/collect/Comparators.least:(ILjava/util/Comparator;)Ljava/util/stream/Collector;
+     116: invokeinterface #332,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+     121: checkcast     #143                // class java/util/List
+     124: invokeinterface #333,  1          // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+     129: invokedynamic #347,  0            // InvokeDynamic #4:applyAsLong:()Ljava/util/function/ToLongFunction;
+     134: invokeinterface #351,  2          // InterfaceMethod java/util/stream/Stream.mapToLong:(Ljava/util/function/ToLongFunction;)Ljava/util/stream/LongStream;
+     139: aload_1
+     140: dup
+     141: invokestatic  #238                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+     144: pop
+     145: invokedynamic #259,  0            // InvokeDynamic #0:apply:(Lnet/minecraft/server/level/ChunkMap;)Ljava/util/function/LongFunction;
+     150: invokeinterface #265,  2          // InterfaceMethod java/util/stream/LongStream.mapToObj:(Ljava/util/function/LongFunction;)Ljava/util/stream/Stream;
+     155: invokedynamic #277,  0            // InvokeDynamic #1:test:()Ljava/util/function/Predicate;
+     160: invokeinterface #283,  2          // InterfaceMethod java/util/stream/Stream.filter:(Ljava/util/function/Predicate;)Ljava/util/stream/Stream;
+     165: invokeinterface #310,  1          // InterfaceMethod java/util/stream/Stream.toList:()Ljava/util/List;
+     170: astore_3
+     171: aload_3
+     172: invokeinterface #154,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     177: astore        5
+     179: aload         5
+     181: invokeinterface #159,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     186: ifeq          222
+     189: aload         5
+     191: invokeinterface #163,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     196: checkcast     #53                 // class net/minecraft/world/level/chunk/LevelChunk
+     199: astore        6
+     201: aload_0
+     202: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+     205: aload         6
+     207: invokevirtual #57                 // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+     210: invokevirtual #63                 // Method net/minecraft/world/level/ChunkPos.toLong:()J
+     213: invokeinterface #77,  3           // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.remove:(J)Z
+     218: pop
+     219: goto          179
+     222: aload_3
+     223: areturn
+
+  public void onChunkBatchReceivedByClient(float);
+    Code:
+       0: aload_0
+       1: dup
+       2: getfield      #104                // Field unacknowledgedBatches:I
+       5: iconst_1
+       6: isub
+       7: putfield      #104                // Field unacknowledgedBatches:I
+      10: aload_0
+      11: fload_1
+      12: f2d
+      13: invokestatic  #361                // Method java/lang/Double.isNaN:(D)Z
+      16: ifeq          24
+      19: ldc           #15                 // float 0.01f
+      21: goto          32
+      24: fload_1
+      25: ldc           #15                 // float 0.01f
+      27: ldc           #17                 // float 64.0f
+      29: invokestatic  #365                // Method net/minecraft/util/Mth.clamp:(FFF)F
+      32: putfield      #42                 // Field desiredChunksPerTick:F
+      35: aload_0
+      36: getfield      #104                // Field unacknowledgedBatches:I
+      39: ifne          47
+      42: aload_0
+      43: fconst_1
+      44: putfield      #112                // Field batchQuota:F
+      47: aload_0
+      48: bipush        10
+      50: putfield      #44                 // Field maxUnacknowledgedBatches:I
+      53: return
+
+  public boolean isPending(long);
+    Code:
+       0: aload_0
+       1: getfield      #40                 // Field pendingChunks:Lit/unimi/dsi/fastutil/longs/LongSet;
+       4: lload_1
+       5: invokeinterface #369,  3          // InterfaceMethod it/unimi/dsi/fastutil/longs/LongSet.contains:(J)Z
+      10: ireturn
+
+  private static int method_52389(net.minecraft.world.level.ChunkPos, net.minecraft.world.level.chunk.LevelChunk);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #57                 // Method net/minecraft/world/level/chunk/LevelChunk.getPos:()Lnet/minecraft/world/level/ChunkPos;
+       5: invokevirtual #373                // Method net/minecraft/world/level/ChunkPos.distanceSquared:(Lnet/minecraft/world/level/ChunkPos;)I
+       8: ireturn
+
+  static {};
+    Code:
+       0: invokestatic  #380                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+       3: putstatic     #201                // Field LOGGER:Lorg/slf4j/Logger;
+       6: return
+}

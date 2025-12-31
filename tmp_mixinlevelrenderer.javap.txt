@@ -1,0 +1,2554 @@
+Classfile jar:file:///D:/GitProjects/ImmersivePortals/build/libs/immersive-portals-6.0.9-mc1.21.11-fabric.jar!/qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.class
+  Last modified 1 gen 1980; size 22125 bytes
+  SHA-256 checksum d66f951c1b1287ae8e67c227cae30ccf6380d374ae1b254e23d27d73cefc6597
+  Compiled from "MixinLevelRenderer.java"
+public abstract class qouteall.imm_ptl.core.mixin.client.render.MixinLevelRenderer implements qouteall.imm_ptl.core.ducks.IEWorldRenderer
+  minor version: 0
+  major version: 61
+  flags: (0x0421) ACC_PUBLIC, ACC_SUPER, ACC_ABSTRACT
+  this_class: #2                          // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer
+  super_class: #4                         // java/lang/Object
+  interfaces: 1, fields: 13, methods: 47, attributes: 4
+Constant pool:
+    #1 = Utf8               qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer
+    #2 = Class              #1            // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer
+    #3 = Utf8               java/lang/Object
+    #4 = Class              #3            // java/lang/Object
+    #5 = Utf8               qouteall/imm_ptl/core/ducks/IEWorldRenderer
+    #6 = Class              #5            // qouteall/imm_ptl/core/ducks/IEWorldRenderer
+    #7 = Utf8               MixinLevelRenderer.java
+    #8 = Utf8               Lorg/spongepowered/asm/mixin/Mixin;
+    #9 = Utf8               value
+   #10 = Utf8               Lnet/minecraft/class_761;
+   #11 = Utf8               net/minecraft/class_308$class_11274
+   #12 = Class              #11           // net/minecraft/class_308$class_11274
+   #13 = Utf8               net/minecraft/class_308
+   #14 = Class              #13           // net/minecraft/class_308
+   #15 = Utf8               class_11274
+   #16 = Utf8               qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker
+   #17 = Class              #16           // qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker
+   #18 = Utf8               qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface
+   #19 = Class              #18           // qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface
+   #20 = Utf8               Invoker
+   #21 = Utf8               net/minecraft/class_846$class_851
+   #22 = Class              #21           // net/minecraft/class_846$class_851
+   #23 = Utf8               net/minecraft/class_846
+   #24 = Class              #23           // net/minecraft/class_846
+   #25 = Utf8               class_851
+   #26 = Utf8               org/spongepowered/asm/mixin/injection/At$Shift
+   #27 = Class              #26           // org/spongepowered/asm/mixin/injection/At$Shift
+   #28 = Utf8               org/spongepowered/asm/mixin/injection/At
+   #29 = Class              #28           // org/spongepowered/asm/mixin/injection/At
+   #30 = Utf8               Shift
+   #31 = Utf8               java/lang/invoke/MethodHandles$Lookup
+   #32 = Class              #31           // java/lang/invoke/MethodHandles$Lookup
+   #33 = Utf8               java/lang/invoke/MethodHandles
+   #34 = Class              #33           // java/lang/invoke/MethodHandles
+   #35 = Utf8               Lookup
+   #36 = Utf8               ip$currentRenderedEntity
+   #37 = Utf8               Ljava/lang/ThreadLocal;
+   #38 = Utf8               Ljava/lang/ThreadLocal<Lnet/minecraft/class_1297;>;
+   #39 = Utf8               ip$transparencyChainOverrideSet
+   #40 = Utf8               Z
+   #41 = Utf8               Lorg/spongepowered/asm/mixin/Unique;
+   #42 = Utf8               ip$transparencyChainOverride
+   #43 = Utf8               Lnet/minecraft/class_279;
+   #44 = Utf8               field_4085
+   #45 = Utf8               Lnet/minecraft/class_638;
+   #46 = Utf8               Lorg/spongepowered/asm/mixin/Shadow;
+   #47 = Utf8               field_4109
+   #48 = Utf8               Lnet/minecraft/class_898;
+   #49 = Utf8               Lorg/spongepowered/asm/mixin/Final;
+   #50 = Utf8               field_4088
+   #51 = Utf8               Lnet/minecraft/class_310;
+   #52 = Utf8               field_4112
+   #53 = Utf8               Lnet/minecraft/class_769;
+   #54 = Utf8               field_61737
+   #55 = Utf8               Lnet/minecraft/class_11658;
+   #56 = Utf8               field_61739
+   #57 = Utf8               Lnet/minecraft/class_11684;
+   #58 = Utf8               field_20951
+   #59 = Utf8               Lnet/minecraft/class_4599;
+   #60 = Utf8               Lorg/spongepowered/asm/mixin/Mutable;
+   #61 = Utf8               field_4062
+   #62 = Utf8               I
+   #63 = Utf8               field_45614
+   #64 = Utf8               Lnet/minecraft/class_846;
+   #65 = Utf8               Lorg/jetbrains/annotations/Nullable;
+   #66 = Utf8               field_45616
+   #67 = Utf8               Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+   #68 = Utf8               Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;
+   #69 = Utf8               <init>
+   #70 = Utf8               ()V
+   #71 = NameAndType        #69:#70       // "<init>":()V
+   #72 = Methodref          #4.#71        // java/lang/Object."<init>":()V
+   #73 = Utf8               this
+   #74 = Utf8               Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+   #75 = Utf8               ip$getTransparencyChain
+   #76 = Utf8               ()Lnet/minecraft/class_279;
+   #77 = Utf8               Lorg/spongepowered/asm/mixin/gen/Invoker;
+   #78 = Utf8               method_62907
+   #79 = Utf8               method_29360
+   #80 = Utf8               ()Lnet/minecraft/class_276;
+   #81 = Utf8               ip$applyFrustum
+   #82 = Utf8               (Lnet/minecraft/class_4604;)V
+   #83 = Utf8               method_38551
+   #84 = Utf8               method_62222
+   #85 = Utf8               ()Lnet/minecraft/class_4604;
+   #86 = Utf8               method_35776
+   #87 = Utf8               close
+   #88 = Utf8               method_72914
+   #89 = Utf8               (Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+   #90 = Utf8               onAfterCutoutRendering
+   #91 = Utf8               (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+   #92 = Utf8               graphicsResourceAllocator
+   #93 = Utf8               deltaTracker
+   #94 = Utf8               bl
+   #95 = Utf8               camera
+   #96 = Utf8               modelView
+   #97 = Utf8               matrix4f2
+   #98 = Utf8               matrix4f3
+   #99 = Utf8               fogBuffer
+  #100 = Utf8               fogColor
+  #101 = Utf8               bl2
+  #102 = Utf8               ci
+  #103 = Utf8               Lorg/spongepowered/asm/mixin/injection/Inject;
+  #104 = Utf8               method
+  #105 = Utf8               method_22710
+  #106 = Utf8               at
+  #107 = Utf8               Lorg/spongepowered/asm/mixin/injection/At;
+  #108 = Utf8               INVOKE
+  #109 = Utf8               target
+  #110 = Utf8               Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z
+  #111 = Utf8               require
+  #112 = Integer            0
+  #113 = Utf8               expect
+  #114 = Utf8               qouteall/imm_ptl/core/render/CrossPortalEntityRenderer
+  #115 = Class              #114          // qouteall/imm_ptl/core/render/CrossPortalEntityRenderer
+  #116 = Utf8               onBeginRenderingEntitiesAndBlockEntities
+  #117 = Utf8               (Lorg/joml/Matrix4f;)V
+  #118 = NameAndType        #116:#117     // onBeginRenderingEntitiesAndBlockEntities:(Lorg/joml/Matrix4f;)V
+  #119 = Methodref          #115.#118     // qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.onBeginRenderingEntitiesAndBlockEntities:(Lorg/joml/Matrix4f;)V
+  #120 = Utf8               Lnet/minecraft/class_9922;
+  #121 = Utf8               Lnet/minecraft/class_9779;
+  #122 = Utf8               Lnet/minecraft/class_4184;
+  #123 = Utf8               Lorg/joml/Matrix4f;
+  #124 = Utf8               Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+  #125 = Utf8               Lorg/joml/Vector4f;
+  #126 = Utf8               Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+  #127 = Utf8               onMyBeforeTranslucentRendering
+  #128 = Utf8               Lnet/minecraft/class_4722;translucentCullBlockSheet()Lnet/minecraft/class_1921;
+  #129 = Utf8               qouteall/imm_ptl/core/IPCGlobal
+  #130 = Class              #129          // qouteall/imm_ptl/core/IPCGlobal
+  #131 = Utf8               renderer
+  #132 = Utf8               Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+  #133 = NameAndType        #131:#132     // renderer:Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+  #134 = Fieldref           #130.#133     // qouteall/imm_ptl/core/IPCGlobal.renderer:Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+  #135 = Utf8               qouteall/imm_ptl/core/render/renderer/PortalRenderer
+  #136 = Class              #135          // qouteall/imm_ptl/core/render/renderer/PortalRenderer
+  #137 = Utf8               onBeforeTranslucentRendering
+  #138 = NameAndType        #137:#117     // onBeforeTranslucentRendering:(Lorg/joml/Matrix4f;)V
+  #139 = Methodref          #136.#138     // qouteall/imm_ptl/core/render/renderer/PortalRenderer.onBeforeTranslucentRendering:(Lorg/joml/Matrix4f;)V
+  #140 = Utf8               qouteall/imm_ptl/core/render/MyGameRenderer
+  #141 = Class              #140          // qouteall/imm_ptl/core/render/MyGameRenderer
+  #142 = Utf8               updateFogColor
+  #143 = NameAndType        #142:#70      // updateFogColor:()V
+  #144 = Methodref          #141.#143     // qouteall/imm_ptl/core/render/MyGameRenderer.updateFogColor:()V
+  #145 = Utf8               resetFogState
+  #146 = NameAndType        #145:#70      // resetFogState:()V
+  #147 = Methodref          #141.#146     // qouteall/imm_ptl/core/render/MyGameRenderer.resetFogState:()V
+  #148 = Utf8               resetDiffuseLighting
+  #149 = NameAndType        #148:#70      // resetDiffuseLighting:()V
+  #150 = Methodref          #141.#149     // qouteall/imm_ptl/core/render/MyGameRenderer.resetDiffuseLighting:()V
+  #151 = Utf8               qouteall/imm_ptl/core/render/FrontClipping
+  #152 = Class              #151          // qouteall/imm_ptl/core/render/FrontClipping
+  #153 = Utf8               disableClipping
+  #154 = NameAndType        #153:#70      // disableClipping:()V
+  #155 = Methodref          #152.#154     // qouteall/imm_ptl/core/render/FrontClipping.disableClipping:()V
+  #156 = Utf8               ip$redirectTransparencyChain
+  #157 = Utf8               (Lnet/minecraft/class_761;)Lnet/minecraft/class_279;
+  #158 = Utf8               instance
+  #159 = Utf8               Lorg/spongepowered/asm/mixin/injection/Redirect;
+  #160 = Utf8               Lnet/minecraft/class_761;method_62907()Lnet/minecraft/class_279;
+  #161 = NameAndType        #39:#40       // ip$transparencyChainOverrideSet:Z
+  #162 = Fieldref           #2.#161       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip$transparencyChainOverrideSet:Z
+  #163 = NameAndType        #42:#43       // ip$transparencyChainOverride:Lnet/minecraft/class_279;
+  #164 = Fieldref           #2.#163       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip$transparencyChainOverride:Lnet/minecraft/class_279;
+  #165 = NameAndType        #75:#76       // ip$getTransparencyChain:()Lnet/minecraft/class_279;
+  #166 = Methodref          #2.#165       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip$getTransparencyChain:()Lnet/minecraft/class_279;
+  #167 = Utf8               onEndRenderingEntities
+  #168 = Utf8               (Lnet/minecraft/class_4587;Lnet/minecraft/class_11658;Lnet/minecraft/class_11661;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+  #169 = Utf8               poseStack
+  #170 = Utf8               levelRenderState
+  #171 = Utf8               submitNodeStorage
+  #172 = Utf8               method_62208
+  #173 = Utf8               TAIL
+  #174 = Utf8               Lqouteall/imm_ptl/core/miscellaneous/IPVanillaCopy;
+  #175 = Utf8               onEndRenderingEntitiesAndBlockEntities
+  #176 = Utf8               (Lnet/minecraft/class_4587;)V
+  #177 = NameAndType        #175:#176     // onEndRenderingEntitiesAndBlockEntities:(Lnet/minecraft/class_4587;)V
+  #178 = Methodref          #115.#177     // qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.onEndRenderingEntitiesAndBlockEntities:(Lnet/minecraft/class_4587;)V
+  #179 = Utf8               Lnet/minecraft/class_4587;
+  #180 = Utf8               Lnet/minecraft/class_11661;
+  #181 = Utf8               onAfterTranslucentRendering
+  #182 = Utf8               RETURN
+  #183 = NameAndType        #181:#117     // onAfterTranslucentRendering:(Lorg/joml/Matrix4f;)V
+  #184 = Methodref          #136.#183     // qouteall/imm_ptl/core/render/renderer/PortalRenderer.onAfterTranslucentRendering:(Lorg/joml/Matrix4f;)V
+  #185 = NameAndType        #50:#51       // field_4088:Lnet/minecraft/class_310;
+  #186 = Fieldref           #2.#185       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_4088:Lnet/minecraft/class_310;
+  #187 = Utf8               net/minecraft/class_310
+  #188 = Class              #187          // net/minecraft/class_310
+  #189 = Utf8               field_1773
+  #190 = Utf8               Lnet/minecraft/class_757;
+  #191 = NameAndType        #189:#190     // field_1773:Lnet/minecraft/class_757;
+  #192 = Fieldref           #188.#191     // net/minecraft/class_310.field_1773:Lnet/minecraft/class_757;
+  #193 = Utf8               net/minecraft/class_757
+  #194 = Class              #193          // net/minecraft/class_757
+  #195 = Utf8               method_71114
+  #196 = Utf8               ()Lnet/minecraft/class_308;
+  #197 = NameAndType        #195:#196     // method_71114:()Lnet/minecraft/class_308;
+  #198 = Methodref          #194.#197     // net/minecraft/class_757.method_71114:()Lnet/minecraft/class_308;
+  #199 = Utf8               field_60025
+  #200 = Utf8               Lnet/minecraft/class_308$class_11274;
+  #201 = NameAndType        #199:#200     // field_60025:Lnet/minecraft/class_308$class_11274;
+  #202 = Fieldref           #12.#201      // net/minecraft/class_308$class_11274.field_60025:Lnet/minecraft/class_308$class_11274;
+  #203 = Utf8               method_71034
+  #204 = Utf8               (Lnet/minecraft/class_308$class_11274;)V
+  #205 = NameAndType        #203:#204     // method_71034:(Lnet/minecraft/class_308$class_11274;)V
+  #206 = Methodref          #14.#205      // net/minecraft/class_308.method_71034:(Lnet/minecraft/class_308$class_11274;)V
+  #207 = Utf8               onBeforeRenderingLayer
+  #208 = Utf8               Lnet/minecraft/class_11532;method_72170(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V
+  #209 = Utf8               qouteall/imm_ptl/core/render/context_management/PortalRendering
+  #210 = Class              #209          // qouteall/imm_ptl/core/render/context_management/PortalRendering
+  #211 = Utf8               isRendering
+  #212 = Utf8               ()Z
+  #213 = NameAndType        #211:#212     // isRendering:()Z
+  #214 = Methodref          #210.#213     // qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+  #215 = Utf8               getActiveClippingPlane
+  #216 = Utf8               ()Lqouteall/q_misc_util/my_util/Plane;
+  #217 = NameAndType        #215:#216     // getActiveClippingPlane:()Lqouteall/q_misc_util/my_util/Plane;
+  #218 = Methodref          #210.#217     // qouteall/imm_ptl/core/render/context_management/PortalRendering.getActiveClippingPlane:()Lqouteall/q_misc_util/my_util/Plane;
+  #219 = Double             -0.01d
+  #221 = Utf8               setupInnerClipping
+  #222 = Utf8               (Lqouteall/q_misc_util/my_util/Plane;Lorg/joml/Matrix4f;D)V
+  #223 = NameAndType        #221:#222     // setupInnerClipping:(Lqouteall/q_misc_util/my_util/Plane;Lorg/joml/Matrix4f;D)V
+  #224 = Methodref          #152.#223     // qouteall/imm_ptl/core/render/FrontClipping.setupInnerClipping:(Lqouteall/q_misc_util/my_util/Plane;Lorg/joml/Matrix4f;D)V
+  #225 = Utf8               isRenderingOddNumberOfMirrors
+  #226 = NameAndType        #225:#212     // isRenderingOddNumberOfMirrors:()Z
+  #227 = Methodref          #210.#226     // qouteall/imm_ptl/core/render/context_management/PortalRendering.isRenderingOddNumberOfMirrors:()Z
+  #228 = Utf8               qouteall/imm_ptl/core/render/MyRenderHelper
+  #229 = Class              #228          // qouteall/imm_ptl/core/render/MyRenderHelper
+  #230 = Utf8               applyMirrorFaceCulling
+  #231 = NameAndType        #230:#70      // applyMirrorFaceCulling:()V
+  #232 = Methodref          #229.#231     // qouteall/imm_ptl/core/render/MyRenderHelper.applyMirrorFaceCulling:()V
+  #233 = Utf8               qouteall/imm_ptl/core/IPGlobal
+  #234 = Class              #233          // qouteall/imm_ptl/core/IPGlobal
+  #235 = Utf8               enableDepthClampForPortalRendering
+  #236 = NameAndType        #235:#40      // enableDepthClampForPortalRendering:Z
+  #237 = Fieldref           #234.#236     // qouteall/imm_ptl/core/IPGlobal.enableDepthClampForPortalRendering:Z
+  #238 = Utf8               qouteall/imm_ptl/core/CHelper
+  #239 = Class              #238          // qouteall/imm_ptl/core/CHelper
+  #240 = Utf8               enableDepthClamp
+  #241 = NameAndType        #240:#70      // enableDepthClamp:()V
+  #242 = Methodref          #239.#241     // qouteall/imm_ptl/core/CHelper.enableDepthClamp:()V
+  #243 = Utf8               onAfterRenderingLayer
+  #244 = Utf8               matrix4f
+  #245 = Utf8               shift
+  #246 = Utf8               Lorg/spongepowered/asm/mixin/injection/At$Shift;
+  #247 = Utf8               AFTER
+  #248 = Utf8               recoverFaceCulling
+  #249 = NameAndType        #248:#70      // recoverFaceCulling:()V
+  #250 = Methodref          #229.#249     // qouteall/imm_ptl/core/render/MyRenderHelper.recoverFaceCulling:()V
+  #251 = Utf8               disableDepthClamp
+  #252 = NameAndType        #251:#70      // disableDepthClamp:()V
+  #253 = Methodref          #239.#252     // qouteall/imm_ptl/core/CHelper.disableDepthClamp:()V
+  #254 = Utf8               onSetupTerrainBegin
+  #255 = Utf8               (Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+  #256 = Utf8               frustum
+  #257 = Utf8               spectator
+  #258 = Utf8               method_74752
+  #259 = Utf8               HEAD
+  #260 = Utf8               cancellable
+  #261 = Integer            1
+  #262 = Utf8               qouteall/imm_ptl/core/render/context_management/WorldRenderInfo
+  #263 = Class              #262          // qouteall/imm_ptl/core/render/context_management/WorldRenderInfo
+  #264 = Methodref          #263.#213     // qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+  #265 = NameAndType        #44:#45       // field_4085:Lnet/minecraft/class_638;
+  #266 = Fieldref           #2.#265       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_4085:Lnet/minecraft/class_638;
+  #267 = Utf8               net/minecraft/class_638
+  #268 = Class              #267          // net/minecraft/class_638
+  #269 = Utf8               method_27983
+  #270 = Utf8               ()Lnet/minecraft/class_5321;
+  #271 = NameAndType        #269:#270     // method_27983:()Lnet/minecraft/class_5321;
+  #272 = Methodref          #268.#271     // net/minecraft/class_638.method_27983:()Lnet/minecraft/class_5321;
+  #273 = Utf8               qouteall/imm_ptl/core/render/context_management/RenderStates
+  #274 = Class              #273          // qouteall/imm_ptl/core/render/context_management/RenderStates
+  #275 = Utf8               originalPlayerDimension
+  #276 = Utf8               Lnet/minecraft/class_5321;
+  #277 = NameAndType        #275:#276     // originalPlayerDimension:Lnet/minecraft/class_5321;
+  #278 = Fieldref           #274.#277     // qouteall/imm_ptl/core/render/context_management/RenderStates.originalPlayerDimension:Lnet/minecraft/class_5321;
+  #279 = NameAndType        #63:#64       // field_45614:Lnet/minecraft/class_846;
+  #280 = Fieldref           #2.#279       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_45614:Lnet/minecraft/class_846;
+  #281 = Utf8               net/minecraft/class_4184
+  #282 = Class              #281          // net/minecraft/class_4184
+  #283 = Utf8               method_71156
+  #284 = Utf8               ()Lnet/minecraft/class_243;
+  #285 = NameAndType        #283:#284     // method_71156:()Lnet/minecraft/class_243;
+  #286 = Methodref          #282.#285     // net/minecraft/class_4184.method_71156:()Lnet/minecraft/class_243;
+  #287 = Utf8               method_19419
+  #288 = Utf8               (Lnet/minecraft/class_243;)V
+  #289 = NameAndType        #287:#288     // method_19419:(Lnet/minecraft/class_243;)V
+  #290 = Methodref          #24.#289      // net/minecraft/class_846.method_19419:(Lnet/minecraft/class_243;)V
+  #291 = Utf8               ip_allowOverrideTerrainSetup
+  #292 = NameAndType        #291:#212     // ip_allowOverrideTerrainSetup:()Z
+  #293 = Methodref          #2.#292       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip_allowOverrideTerrainSetup:()Z
+  #294 = Utf8               net/minecraft/class_10209
+  #295 = Class              #294          // net/minecraft/class_10209
+  #296 = Utf8               method_64146
+  #297 = Utf8               ()Lnet/minecraft/class_3695;
+  #298 = NameAndType        #296:#297     // method_64146:()Lnet/minecraft/class_3695;
+  #299 = Methodref          #295.#298     // net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+  #300 = Utf8               ip_terrain_setup
+  #301 = String             #300          // ip_terrain_setup
+  #302 = Utf8               net/minecraft/class_3695
+  #303 = Class              #302          // net/minecraft/class_3695
+  #304 = Utf8               method_15396
+  #305 = Utf8               (Ljava/lang/String;)V
+  #306 = NameAndType        #304:#305     // method_15396:(Ljava/lang/String;)V
+  #307 = InterfaceMethodref #303.#306     // net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+  #308 = NameAndType        #52:#53       // field_4112:Lnet/minecraft/class_769;
+  #309 = Fieldref           #2.#308       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_4112:Lnet/minecraft/class_769;
+  #310 = Utf8               qouteall/imm_ptl/core/render/ImmPtlViewArea
+  #311 = Class              #310          // qouteall/imm_ptl/core/render/ImmPtlViewArea
+  #312 = Utf8               net/minecraft/class_4604
+  #313 = Class              #312          // net/minecraft/class_4604
+  #314 = NameAndType        #69:#82       // "<init>":(Lnet/minecraft/class_4604;)V
+  #315 = Methodref          #313.#314     // net/minecraft/class_4604."<init>":(Lnet/minecraft/class_4604;)V
+  #316 = Utf8               method_38557
+  #317 = Utf8               (I)Lnet/minecraft/class_4604;
+  #318 = NameAndType        #316:#317     // method_38557:(I)Lnet/minecraft/class_4604;
+  #319 = Methodref          #313.#318     // net/minecraft/class_4604.method_38557:(I)Lnet/minecraft/class_4604;
+  #320 = NameAndType        #66:#67       // field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+  #321 = Fieldref           #2.#320       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+  #322 = Utf8               qouteall/imm_ptl/core/render/VisibleSectionDiscovery
+  #323 = Class              #322          // qouteall/imm_ptl/core/render/VisibleSectionDiscovery
+  #324 = Utf8               discoverVisibleSections
+  #325 = Utf8               (Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+  #326 = NameAndType        #324:#325     // discoverVisibleSections:(Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+  #327 = Methodref          #323.#326     // qouteall/imm_ptl/core/render/VisibleSectionDiscovery.discoverVisibleSections:(Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+  #328 = Utf8               method_15407
+  #329 = NameAndType        #328:#70      // method_15407:()V
+  #330 = InterfaceMethodref #303.#329     // net/minecraft/class_3695.method_15407:()V
+  #331 = Utf8               org/spongepowered/asm/mixin/injection/callback/CallbackInfo
+  #332 = Class              #331          // org/spongepowered/asm/mixin/injection/callback/CallbackInfo
+  #333 = Utf8               cancel
+  #334 = NameAndType        #333:#70      // cancel:()V
+  #335 = Methodref          #332.#334     // org/spongepowered/asm/mixin/injection/callback/CallbackInfo.cancel:()V
+  #336 = Utf8               Lnet/minecraft/class_4604;
+  #337 = Utf8               invoker
+  #338 = Utf8               Lqouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker;
+  #339 = NameAndType        #337:#338     // invoker:Lqouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker;
+  #340 = Fieldref           #19.#339      // qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface.invoker:Lqouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker;
+  #341 = Utf8               isSodiumPresent
+  #342 = NameAndType        #341:#212     // isSodiumPresent:()Z
+  #343 = Methodref          #17.#342      // qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker.isSodiumPresent:()Z
+  #344 = Utf8               qouteall/imm_ptl/core/compat/IrisCompat
+  #345 = Class              #344          // qouteall/imm_ptl/core/compat/IrisCompat
+  #346 = Utf8               isRenderingShadowMap
+  #347 = NameAndType        #346:#212     // isRenderingShadowMap:()Z
+  #348 = Methodref          #345.#347     // qouteall/imm_ptl/core/compat/IrisCompat.isRenderingShadowMap:()Z
+  #349 = Utf8               onSetupTerrainEnd
+  #350 = Utf8               vanillaTerrainSetupOverride
+  #351 = NameAndType        #350:#62      // vanillaTerrainSetupOverride:I
+  #352 = Fieldref           #141.#351     // qouteall/imm_ptl/core/render/MyGameRenderer.vanillaTerrainSetupOverride:I
+  #353 = Utf8               alwaysOverrideTerrainSetup
+  #354 = NameAndType        #353:#40      // alwaysOverrideTerrainSetup:Z
+  #355 = Fieldref           #234.#354     // qouteall/imm_ptl/core/IPGlobal.alwaysOverrideTerrainSetup:Z
+  #356 = Utf8               ip_terrain_setup_debug
+  #357 = String             #356          // ip_terrain_setup_debug
+  #358 = Utf8               redirectClearing
+  #359 = Utf8               (IZ)V
+  #360 = Utf8               int_1
+  #361 = Utf8               boolean_1
+  #362 = Utf8               Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V
+  #363 = Utf8               remap
+  #364 = Utf8               replaceFrameBufferClearing
+  #365 = NameAndType        #364:#212     // replaceFrameBufferClearing:()Z
+  #366 = Methodref          #136.#365     // qouteall/imm_ptl/core/render/renderer/PortalRenderer.replaceFrameBufferClearing:()Z
+  #367 = Utf8               com/mojang/blaze3d/opengl/GlStateManager
+  #368 = Class              #367          // com/mojang/blaze3d/opengl/GlStateManager
+  #369 = Utf8               _clear
+  #370 = Utf8               (I)V
+  #371 = NameAndType        #369:#370     // _clear:(I)V
+  #372 = Methodref          #368.#371     // com/mojang/blaze3d/opengl/GlStateManager._clear:(I)V
+  #373 = Utf8               redirectConstructingBuildChunkStorage
+  #374 = Utf8               (Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)Lnet/minecraft/class_769;
+  #375 = Utf8               chunkBuilder_1
+  #376 = Utf8               world_1
+  #377 = Utf8               worldRenderer_1
+  #378 = Utf8               method_3279
+  #379 = Utf8               NEW
+  #380 = Utf8               useHackedChunkRenderDispatcher
+  #381 = NameAndType        #380:#40      // useHackedChunkRenderDispatcher:Z
+  #382 = Fieldref           #130.#381     // qouteall/imm_ptl/core/IPCGlobal.useHackedChunkRenderDispatcher:Z
+  #383 = Utf8               (Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+  #384 = NameAndType        #69:#383      // "<init>":(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+  #385 = Methodref          #311.#384     // qouteall/imm_ptl/core/render/ImmPtlViewArea."<init>":(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+  #386 = Utf8               net/minecraft/class_769
+  #387 = Class              #386          // net/minecraft/class_769
+  #388 = Methodref          #387.#384     // net/minecraft/class_769."<init>":(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+  #389 = Utf8               Lnet/minecraft/class_1937;
+  #390 = Utf8               redirectExtractEntity
+  #391 = Utf8               (Lnet/minecraft/class_761;Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #392 = Utf8               entity
+  #393 = Utf8               partialTick
+  #394 = Utf8               Lnet/minecraft/class_761;method_72914(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #395 = NameAndType        #36:#37       // ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+  #396 = Fieldref           #2.#395       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+  #397 = Utf8               java/lang/ThreadLocal
+  #398 = Class              #397          // java/lang/ThreadLocal
+  #399 = Utf8               set
+  #400 = Utf8               (Ljava/lang/Object;)V
+  #401 = NameAndType        #399:#400     // set:(Ljava/lang/Object;)V
+  #402 = Methodref          #398.#401     // java/lang/ThreadLocal.set:(Ljava/lang/Object;)V
+  #403 = NameAndType        #88:#89       // method_72914:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #404 = Methodref          #2.#403       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.method_72914:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #405 = Utf8               Lnet/minecraft/class_1297;
+  #406 = Utf8               F
+  #407 = Utf8               redirectSubmitEntity
+  #408 = Utf8               (Lnet/minecraft/class_898;Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+  #409 = Utf8               dispatcher
+  #410 = Utf8               renderState
+  #411 = Utf8               cameraRenderState
+  #412 = Utf8               cameraX
+  #413 = Utf8               cameraY
+  #414 = Utf8               cameraZ
+  #415 = Utf8               matrixStack
+  #416 = Utf8               collector
+  #417 = Utf8               Lnet/minecraft/class_898;method_72976(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+  #418 = Utf8               get
+  #419 = Utf8               ()Ljava/lang/Object;
+  #420 = NameAndType        #418:#419     // get:()Ljava/lang/Object;
+  #421 = Methodref          #398.#420     // java/lang/ThreadLocal.get:()Ljava/lang/Object;
+  #422 = Utf8               net/minecraft/class_1297
+  #423 = Class              #422          // net/minecraft/class_1297
+  #424 = Utf8               beforeRenderingEntity
+  #425 = Utf8               (Lnet/minecraft/class_1297;Lnet/minecraft/class_4587;)V
+  #426 = NameAndType        #424:#425     // beforeRenderingEntity:(Lnet/minecraft/class_1297;Lnet/minecraft/class_4587;)V
+  #427 = Methodref          #115.#426     // qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.beforeRenderingEntity:(Lnet/minecraft/class_1297;Lnet/minecraft/class_4587;)V
+  #428 = Utf8               net/minecraft/class_898
+  #429 = Class              #428          // net/minecraft/class_898
+  #430 = Utf8               method_72976
+  #431 = Utf8               (Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+  #432 = NameAndType        #430:#431     // method_72976:(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+  #433 = Methodref          #429.#432     // net/minecraft/class_898.method_72976:(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+  #434 = Utf8               afterRenderingEntity
+  #435 = Utf8               (Lnet/minecraft/class_1297;)V
+  #436 = NameAndType        #434:#435     // afterRenderingEntity:(Lnet/minecraft/class_1297;)V
+  #437 = Methodref          #115.#436     // qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.afterRenderingEntity:(Lnet/minecraft/class_1297;)V
+  #438 = Utf8               remove
+  #439 = NameAndType        #438:#70      // remove:()V
+  #440 = Methodref          #398.#439     // java/lang/ThreadLocal.remove:()V
+  #441 = Utf8               Lnet/minecraft/class_10017;
+  #442 = Utf8               Lnet/minecraft/class_12075;
+  #443 = Utf8               D
+  #444 = Utf8               Lnet/minecraft/class_11659;
+  #445 = Utf8               beforeRenderingWeather
+  #446 = Utf8               Lnet/minecraft/class_761;renderSnowAndRain(Lnet/minecraft/class_765;FDDD)V
+  #447 = Utf8               isRenderingPortalWeather
+  #448 = NameAndType        #447:#40      // isRenderingPortalWeather:Z
+  #449 = Fieldref           #274.#448     // qouteall/imm_ptl/core/render/context_management/RenderStates.isRenderingPortalWeather:Z
+  #450 = Utf8               afterRenderingWeather
+  #451 = Utf8               redirectGlowing
+  #452 = Utf8               (Lnet/minecraft/class_310;Lnet/minecraft/class_1297;)Z
+  #453 = Utf8               client
+  #454 = Utf8               Lnet/minecraft/class_310;method_27022(Lnet/minecraft/class_1297;)Z
+  #455 = Utf8               method_27022
+  #456 = Utf8               (Lnet/minecraft/class_1297;)Z
+  #457 = NameAndType        #455:#456     // method_27022:(Lnet/minecraft/class_1297;)Z
+  #458 = Methodref          #188.#457     // net/minecraft/class_310.method_27022:(Lnet/minecraft/class_1297;)Z
+  #459 = Utf8               onReloadStarted
+  #460 = Utf8               (Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+  #461 = Utf8               world renderer reloading cancelled during portal rendering
+  #462 = String             #461          // world renderer reloading cancelled during portal rendering
+  #463 = Utf8               qouteall/q_misc_util/Helper
+  #464 = Class              #463          // qouteall/q_misc_util/Helper
+  #465 = Utf8               log
+  #466 = NameAndType        #465:#400     // log:(Ljava/lang/Object;)V
+  #467 = Methodref          #464.#466     // qouteall/q_misc_util/Helper.log:(Ljava/lang/Object;)V
+  #468 = Utf8               onReloadFinished
+  #469 = Utf8               net/minecraft/class_761
+  #470 = Class              #469          // net/minecraft/class_761
+  #471 = Utf8               qouteall/imm_ptl/core/ClientWorldLoader
+  #472 = Class              #471          // qouteall/imm_ptl/core/ClientWorldLoader
+  #473 = Utf8               getIsCreatingClientWorld
+  #474 = NameAndType        #473:#212     // getIsCreatingClientWorld:()Z
+  #475 = Methodref          #472.#474     // qouteall/imm_ptl/core/ClientWorldLoader.getIsCreatingClientWorld:()Z
+  #476 = Utf8               method_1551
+  #477 = Utf8               ()Lnet/minecraft/class_310;
+  #478 = NameAndType        #476:#477     // method_1551:()Lnet/minecraft/class_310;
+  #479 = Methodref          #188.#478     // net/minecraft/class_310.method_1551:()Lnet/minecraft/class_310;
+  #480 = Utf8               field_1769
+  #481 = NameAndType        #480:#10      // field_1769:Lnet/minecraft/class_761;
+  #482 = Fieldref           #188.#481     // net/minecraft/class_310.field_1769:Lnet/minecraft/class_761;
+  #483 = Utf8               org/apache/commons/lang3/Validate
+  #484 = Class              #483          // org/apache/commons/lang3/Validate
+  #485 = Utf8               isTrue
+  #486 = Utf8               (Z)V
+  #487 = NameAndType        #485:#486     // isTrue:(Z)V
+  #488 = Methodref          #484.#487     // org/apache/commons/lang3/Validate.isTrue:(Z)V
+  #489 = Utf8               _onWorldRendererReloaded
+  #490 = NameAndType        #489:#70      // _onWorldRendererReloaded:()V
+  #491 = Methodref          #472.#490     // qouteall/imm_ptl/core/ClientWorldLoader._onWorldRendererReloaded:()V
+  #492 = Utf8               this_
+  #493 = Utf8               onRenderSkyBegin
+  #494 = Utf8               (Lnet/minecraft/class_9909;Lnet/minecraft/class_4184;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+  #495 = Utf8               frameGraphBuilder
+  #496 = Utf8               method_62200
+  #497 = Utf8               getTopRenderInfo
+  #498 = Utf8               ()Lqouteall/imm_ptl/core/render/context_management/WorldRenderInfo;
+  #499 = NameAndType        #497:#498     // getTopRenderInfo:()Lqouteall/imm_ptl/core/render/context_management/WorldRenderInfo;
+  #500 = Methodref          #263.#499     // qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.getTopRenderInfo:()Lqouteall/imm_ptl/core/render/context_management/WorldRenderInfo;
+  #501 = Utf8               doRenderSky
+  #502 = NameAndType        #501:#40      // doRenderSky:Z
+  #503 = Fieldref           #263.#502     // qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.doRenderSky:Z
+  #504 = Utf8               isShaders
+  #505 = NameAndType        #504:#212     // isShaders:()Z
+  #506 = Methodref          #345.#505     // qouteall/imm_ptl/core/compat/IrisCompat.isShaders:()Z
+  #507 = Utf8               Lnet/minecraft/class_9909;
+  #508 = Utf8               onRenderSkyEnd
+  #509 = Utf8               redirectTranslucentFramebuffer
+  #510 = Utf8               (Lnet/minecraft/class_761;)Lnet/minecraft/class_276;
+  #511 = Utf8               Lnet/minecraft/class_761;method_29360()Lnet/minecraft/class_276;
+  #512 = NameAndType        #79:#80       // method_29360:()Lnet/minecraft/class_276;
+  #513 = Methodref          #2.#512       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.method_29360:()Lnet/minecraft/class_276;
+  #514 = Utf8               modifyIsSpectator
+  #515 = Utf8               (Z)Z
+  #516 = Utf8               Lorg/spongepowered/asm/mixin/injection/ModifyVariable;
+  #517 = Utf8               argsOnly
+  #518 = Utf8               index
+  #519 = Integer            2
+  #520 = Utf8               redirectRunQueuedChunkUpdates
+  #521 = Utf8               (Lnet/minecraft/class_638;)V
+  #522 = Utf8               world
+  #523 = Utf8               Lnet/minecraft/class_638;method_38534()V
+  #524 = Utf8               java/util/Objects
+  #525 = Class              #524          // java/util/Objects
+  #526 = Utf8               requireNonNull
+  #527 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #528 = NameAndType        #526:#527     // requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #529 = Methodref          #525.#528     // java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #530 = MethodType         #70           //  ()V
+  #531 = Utf8               method_38534
+  #532 = NameAndType        #531:#70      // method_38534:()V
+  #533 = Methodref          #268.#532     // net/minecraft/class_638.method_38534:()V
+  #534 = MethodHandle       5:#533        // REF_invokeVirtual net/minecraft/class_638.method_38534:()V
+  #535 = Utf8               java/lang/invoke/LambdaMetafactory
+  #536 = Class              #535          // java/lang/invoke/LambdaMetafactory
+  #537 = Utf8               metafactory
+  #538 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #539 = NameAndType        #537:#538     // metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #540 = Methodref          #536.#539     // java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #541 = MethodHandle       6:#540        // REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #542 = Utf8               run
+  #543 = Utf8               (Lnet/minecraft/class_638;)Ljava/lang/Runnable;
+  #544 = NameAndType        #542:#543     // run:(Lnet/minecraft/class_638;)Ljava/lang/Runnable;
+  #545 = InvokeDynamic      #0:#544       // #0:run:(Lnet/minecraft/class_638;)Ljava/lang/Runnable;
+  #546 = Utf8               withSwitchedWorld
+  #547 = Utf8               (Lnet/minecraft/class_638;Ljava/lang/Runnable;)V
+  #548 = NameAndType        #546:#547     // withSwitchedWorld:(Lnet/minecraft/class_638;Ljava/lang/Runnable;)V
+  #549 = Methodref          #472.#548     // qouteall/imm_ptl/core/ClientWorldLoader.withSwitchedWorld:(Lnet/minecraft/class_638;Ljava/lang/Runnable;)V
+  #550 = Utf8               onIsChunkCompiled
+  #551 = Utf8               (Lnet/minecraft/class_2338;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;)V
+  #552 = Utf8               (Lnet/minecraft/class_2338;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable<Ljava/lang/Boolean;>;)V
+  #553 = Utf8               blockPos
+  #554 = Utf8               cir
+  #555 = Utf8               method_40050
+  #556 = Utf8               ip_isChunkCompiled
+  #557 = Utf8               (Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_2338;)Z
+  #558 = NameAndType        #556:#557     // ip_isChunkCompiled:(Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_2338;)Z
+  #559 = Methodref          #2.#558       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip_isChunkCompiled:(Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_2338;)Z
+  #560 = Utf8               java/lang/Boolean
+  #561 = Class              #560          // java/lang/Boolean
+  #562 = Utf8               valueOf
+  #563 = Utf8               (Z)Ljava/lang/Boolean;
+  #564 = NameAndType        #562:#563     // valueOf:(Z)Ljava/lang/Boolean;
+  #565 = Methodref          #561.#564     // java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+  #566 = Utf8               org/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable
+  #567 = Class              #566          // org/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable
+  #568 = Utf8               setReturnValue
+  #569 = NameAndType        #568:#400     // setReturnValue:(Ljava/lang/Object;)V
+  #570 = Methodref          #567.#569     // org/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable.setReturnValue:(Ljava/lang/Object;)V
+  #571 = Utf8               immPtlViewArea
+  #572 = Utf8               Lqouteall/imm_ptl/core/render/ImmPtlViewArea;
+  #573 = Utf8               Lnet/minecraft/class_2338;
+  #574 = Utf8               Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable<Ljava/lang/Boolean;>;
+  #575 = Utf8               Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;
+  #576 = Utf8               net/minecraft/class_4076
+  #577 = Class              #576          // net/minecraft/class_4076
+  #578 = Utf8               method_18682
+  #579 = Utf8               (Lnet/minecraft/class_2338;)Lnet/minecraft/class_4076;
+  #580 = NameAndType        #578:#579     // method_18682:(Lnet/minecraft/class_2338;)Lnet/minecraft/class_4076;
+  #581 = Methodref          #577.#580     // net/minecraft/class_4076.method_18682:(Lnet/minecraft/class_2338;)Lnet/minecraft/class_4076;
+  #582 = Utf8               method_18674
+  #583 = Utf8               ()I
+  #584 = NameAndType        #582:#583     // method_18674:()I
+  #585 = Methodref          #577.#584     // net/minecraft/class_4076.method_18674:()I
+  #586 = Utf8               method_18683
+  #587 = NameAndType        #586:#583     // method_18683:()I
+  #588 = Methodref          #577.#587     // net/minecraft/class_4076.method_18683:()I
+  #589 = Utf8               method_18687
+  #590 = NameAndType        #589:#583     // method_18687:()I
+  #591 = Methodref          #577.#590     // net/minecraft/class_4076.method_18687:()I
+  #592 = Utf8               rawGet
+  #593 = Utf8               (III)Lnet/minecraft/class_846$class_851;
+  #594 = NameAndType        #592:#593     // rawGet:(III)Lnet/minecraft/class_846$class_851;
+  #595 = Methodref          #311.#594     // qouteall/imm_ptl/core/render/ImmPtlViewArea.rawGet:(III)Lnet/minecraft/class_846$class_851;
+  #596 = Utf8               method_72052
+  #597 = Utf8               ()Lnet/minecraft/class_11517;
+  #598 = NameAndType        #596:#597     // method_72052:()Lnet/minecraft/class_11517;
+  #599 = Methodref          #22.#598      // net/minecraft/class_846$class_851.method_72052:()Lnet/minecraft/class_11517;
+  #600 = Utf8               net/minecraft/class_11516
+  #601 = Class              #600          // net/minecraft/class_11516
+  #602 = Utf8               field_60935
+  #603 = Utf8               Lnet/minecraft/class_11517;
+  #604 = NameAndType        #602:#603     // field_60935:Lnet/minecraft/class_11517;
+  #605 = Fieldref           #601.#604     // net/minecraft/class_11516.field_60935:Lnet/minecraft/class_11517;
+  #606 = Utf8               sectionPos
+  #607 = Utf8               Lnet/minecraft/class_4076;
+  #608 = Utf8               renderChunk
+  #609 = Utf8               Lnet/minecraft/class_846$class_851;
+  #610 = Utf8               ip_getEntityRenderDispatcher
+  #611 = Utf8               ()Lnet/minecraft/class_898;
+  #612 = NameAndType        #47:#48       // field_4109:Lnet/minecraft/class_898;
+  #613 = Fieldref           #2.#612       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_4109:Lnet/minecraft/class_898;
+  #614 = Utf8               ip_getBuiltChunkStorage
+  #615 = Utf8               ()Lnet/minecraft/class_769;
+  #616 = Utf8               ip_myRenderEntity
+  #617 = Utf8               (Lnet/minecraft/class_1297;DDDFLnet/minecraft/class_4587;Lnet/minecraft/class_4597;)V
+  #618 = Utf8               vertexConsumerProvider
+  #619 = Utf8               method_72977
+  #620 = NameAndType        #619:#89      // method_72977:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #621 = Methodref          #429.#620     // net/minecraft/class_898.method_72977:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+  #622 = NameAndType        #56:#57       // field_61739:Lnet/minecraft/class_11684;
+  #623 = Fieldref           #2.#622       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_61739:Lnet/minecraft/class_11684;
+  #624 = Utf8               net/minecraft/class_11684
+  #625 = Class              #624          // net/minecraft/class_11684
+  #626 = Utf8               method_73003
+  #627 = Utf8               ()Lnet/minecraft/class_11661;
+  #628 = NameAndType        #626:#627     // method_73003:()Lnet/minecraft/class_11661;
+  #629 = Methodref          #625.#628     // net/minecraft/class_11684.method_73003:()Lnet/minecraft/class_11661;
+  #630 = NameAndType        #54:#55       // field_61737:Lnet/minecraft/class_11658;
+  #631 = Fieldref           #2.#630       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_61737:Lnet/minecraft/class_11658;
+  #632 = Utf8               net/minecraft/class_11658
+  #633 = Class              #632          // net/minecraft/class_11658
+  #634 = Utf8               field_63082
+  #635 = NameAndType        #634:#442     // field_63082:Lnet/minecraft/class_12075;
+  #636 = Fieldref           #633.#635     // net/minecraft/class_11658.field_63082:Lnet/minecraft/class_12075;
+  #637 = Utf8               method_73002
+  #638 = NameAndType        #637:#70      // method_73002:()V
+  #639 = Methodref          #625.#638     // net/minecraft/class_11684.method_73002:()V
+  #640 = Utf8               method_74817
+  #641 = NameAndType        #640:#70      // method_74817:()V
+  #642 = Methodref          #625.#641     // net/minecraft/class_11684.method_74817:()V
+  #643 = Utf8               Lnet/minecraft/class_4597;
+  #644 = Utf8               portal_getTransparencyShader
+  #645 = Utf8               portal_setTransparencyShader
+  #646 = Utf8               (Lnet/minecraft/class_279;)V
+  #647 = Utf8               arg
+  #648 = Utf8               net/minecraft/class_279
+  #649 = Class              #648          // net/minecraft/class_279
+  #650 = Utf8               current
+  #651 = Utf8               ip_getRenderBuffers
+  #652 = Utf8               ()Lnet/minecraft/class_4599;
+  #653 = NameAndType        #58:#59       // field_20951:Lnet/minecraft/class_4599;
+  #654 = Fieldref           #2.#653       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.field_20951:Lnet/minecraft/class_4599;
+  #655 = Utf8               ip_setRenderBuffers
+  #656 = Utf8               (Lnet/minecraft/class_4599;)V
+  #657 = Utf8               portal_getFrustum
+  #658 = NameAndType        #84:#85       // method_62222:()Lnet/minecraft/class_4604;
+  #659 = Methodref          #2.#658       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.method_62222:()Lnet/minecraft/class_4604;
+  #660 = Utf8               portal_setFrustum
+  #661 = NameAndType        #86:#70       // method_35776:()V
+  #662 = Methodref          #2.#661       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.method_35776:()V
+  #663 = NameAndType        #81:#82       // ip$applyFrustum:(Lnet/minecraft/class_4604;)V
+  #664 = Methodref          #2.#663       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.ip$applyFrustum:(Lnet/minecraft/class_4604;)V
+  #665 = Utf8               portal_fullyDispose
+  #666 = NameAndType        #87:#70       // close:()V
+  #667 = Methodref          #2.#666       // qouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer.close:()V
+  #668 = Utf8               portal_setChunkInfoList
+  #669 = Utf8               (Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+  #670 = Utf8               (Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;)V
+  #671 = Utf8               portal_getChunkInfoList
+  #672 = Utf8               ()Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+  #673 = Utf8               ()Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;
+  #674 = Utf8               <clinit>
+  #675 = Methodref          #398.#71      // java/lang/ThreadLocal."<init>":()V
+  #676 = Utf8               Signature
+  #677 = Utf8               RuntimeVisibleAnnotations
+  #678 = Utf8               RuntimeInvisibleAnnotations
+  #679 = Utf8               RuntimeInvisibleTypeAnnotations
+  #680 = Utf8               Code
+  #681 = Utf8               LineNumberTable
+  #682 = Utf8               LocalVariableTable
+  #683 = Utf8               MethodParameters
+  #684 = Utf8               StackMapTable
+  #685 = Utf8               LocalVariableTypeTable
+  #686 = Utf8               InnerClasses
+  #687 = Utf8               SourceFile
+  #688 = Utf8               BootstrapMethods
+{
+  private static final java.lang.ThreadLocal<net.minecraft.class_1297> ip$currentRenderedEntity;
+    descriptor: Ljava/lang/ThreadLocal;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Signature: #38                          // Ljava/lang/ThreadLocal<Lnet/minecraft/class_1297;>;
+
+  private boolean ip$transparencyChainOverrideSet;
+    descriptor: Z
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #41()
+        org.spongepowered.asm.mixin.Unique
+
+  private net.minecraft.class_279 ip$transparencyChainOverride;
+    descriptor: Lnet/minecraft/class_279;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #41()
+        org.spongepowered.asm.mixin.Unique
+
+  private net.minecraft.class_638 field_4085;
+    descriptor: Lnet/minecraft/class_638;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  private net.minecraft.class_898 field_4109;
+    descriptor: Lnet/minecraft/class_898;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+      1: #49()
+        org.spongepowered.asm.mixin.Final
+
+  private net.minecraft.class_310 field_4088;
+    descriptor: Lnet/minecraft/class_310;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+      1: #49()
+        org.spongepowered.asm.mixin.Final
+
+  private net.minecraft.class_769 field_4112;
+    descriptor: Lnet/minecraft/class_769;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  private net.minecraft.class_11658 field_61737;
+    descriptor: Lnet/minecraft/class_11658;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+      1: #49()
+        org.spongepowered.asm.mixin.Final
+
+  private net.minecraft.class_11684 field_61739;
+    descriptor: Lnet/minecraft/class_11684;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+      1: #49()
+        org.spongepowered.asm.mixin.Final
+
+  private net.minecraft.class_4599 field_20951;
+    descriptor: Lnet/minecraft/class_4599;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #60()
+        org.spongepowered.asm.mixin.Mutable
+      1: #46()
+        org.spongepowered.asm.mixin.Shadow
+      2: #49()
+        org.spongepowered.asm.mixin.Final
+
+  private int field_4062;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  private net.minecraft.class_846 field_45614;
+    descriptor: Lnet/minecraft/class_846;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+    RuntimeInvisibleAnnotations:
+      0: #65()
+        org.jetbrains.annotations.Nullable
+    RuntimeInvisibleTypeAnnotations:
+      0: #65(): FIELD
+        org.jetbrains.annotations.Nullable
+
+  private it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.class_846$class_851> field_45616;
+    descriptor: Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+    flags: (0x0002) ACC_PRIVATE
+    Signature: #68                          // Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+      1: #49()
+        org.spongepowered.asm.mixin.Final
+      2: #60()
+        org.spongepowered.asm.mixin.Mutable
+
+  public qouteall.imm_ptl.core.mixin.client.render.MixinLevelRenderer();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #72                 // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 73: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  protected abstract net.minecraft.class_279 ip$getTransparencyChain();
+    descriptor: ()Lnet/minecraft/class_279;
+    flags: (0x0404) ACC_PROTECTED, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #77(#9=s#78)
+        org.spongepowered.asm.mixin.gen.Invoker(
+          value="method_62907"
+        )
+
+  public abstract net.minecraft.class_276 method_29360();
+    descriptor: ()Lnet/minecraft/class_276;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  protected abstract void ip$applyFrustum(net.minecraft.class_4604);
+    descriptor: (Lnet/minecraft/class_4604;)V
+    flags: (0x0404) ACC_PROTECTED, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #77(#9=s#83)
+        org.spongepowered.asm.mixin.gen.Invoker(
+          value="method_38551"
+        )
+
+  public abstract net.minecraft.class_4604 method_62222();
+    descriptor: ()Lnet/minecraft/class_4604;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  public abstract void method_35776();
+    descriptor: ()V
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  public abstract void close();
+    descriptor: ()V
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  protected abstract net.minecraft.class_10017 method_72914(net.minecraft.class_1297, float);
+    descriptor: (Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+    flags: (0x0404) ACC_PROTECTED, ACC_ABSTRACT
+    RuntimeVisibleAnnotations:
+      0: #46()
+        org.spongepowered.asm.mixin.Shadow
+
+  private void onAfterCutoutRendering(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=12, args_size=12
+         0: aload         5
+         2: invokestatic  #119                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.onBeginRenderingEntitiesAndBlockEntities:(Lorg/joml/Matrix4f;)V
+         5: return
+      LineNumberTable:
+        line 163: 0
+        line 164: 5
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       6     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0       6     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0       6     2 deltaTracker   Lnet/minecraft/class_9779;
+            0       6     3    bl   Z
+            0       6     4 camera   Lnet/minecraft/class_4184;
+            0       6     5 modelView   Lorg/joml/Matrix4f;
+            0       6     6 matrix4f2   Lorg/joml/Matrix4f;
+            0       6     7 matrix4f3   Lorg/joml/Matrix4f;
+            0       6     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0       6     9 fogColor   Lorg/joml/Vector4f;
+            0       6    10   bl2   Z
+            0       6    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#110)],#111=I#112,#113=I#112)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z"
+          )]
+          require=0
+          expect=0
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      modelView
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private void onMyBeforeTranslucentRendering(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=2, locals=12, args_size=12
+         0: getstatic     #134                // Field qouteall/imm_ptl/core/IPCGlobal.renderer:Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+         3: aload         5
+         5: invokevirtual #139                // Method qouteall/imm_ptl/core/render/renderer/PortalRenderer.onBeforeTranslucentRendering:(Lorg/joml/Matrix4f;)V
+         8: invokestatic  #144                // Method qouteall/imm_ptl/core/render/MyGameRenderer.updateFogColor:()V
+        11: invokestatic  #147                // Method qouteall/imm_ptl/core/render/MyGameRenderer.resetFogState:()V
+        14: invokestatic  #150                // Method qouteall/imm_ptl/core/render/MyGameRenderer.resetDiffuseLighting:()V
+        17: invokestatic  #155                // Method qouteall/imm_ptl/core/render/FrontClipping.disableClipping:()V
+        20: return
+      LineNumberTable:
+        line 188: 0
+        line 190: 8
+        line 191: 11
+        line 193: 14
+        line 195: 17
+        line 196: 20
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      21     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      21     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      21     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      21     3    bl   Z
+            0      21     4 camera   Lnet/minecraft/class_4184;
+            0      21     5 modelView   Lorg/joml/Matrix4f;
+            0      21     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      21     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      21     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      21     9 fogColor   Lorg/joml/Vector4f;
+            0      21    10   bl2   Z
+            0      21    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#128)],#111=I#112,#113=I#112)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_4722;translucentCullBlockSheet()Lnet/minecraft/class_1921;"
+          )]
+          require=0
+          expect=0
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      modelView
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private net.minecraft.class_279 ip$redirectTransparencyChain(net.minecraft.class_761);
+    descriptor: (Lnet/minecraft/class_761;)Lnet/minecraft/class_279;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: aload_0
+         1: getfield      #162                // Field ip$transparencyChainOverrideSet:Z
+         4: ifeq          12
+         7: aload_0
+         8: getfield      #164                // Field ip$transparencyChainOverride:Lnet/minecraft/class_279;
+        11: areturn
+        12: aload_0
+        13: invokevirtual #166                // Method ip$getTransparencyChain:()Lnet/minecraft/class_279;
+        16: areturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+      LineNumberTable:
+        line 206: 0
+        line 207: 7
+        line 209: 12
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      17     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      17     1 instance   Lnet/minecraft/class_761;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#160))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_761;method_62907()Lnet/minecraft/class_279;"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      instance
+
+  private void onEndRenderingEntities(net.minecraft.class_4587, net.minecraft.class_11658, net.minecraft.class_11661, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_4587;Lnet/minecraft/class_11658;Lnet/minecraft/class_11661;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=5, args_size=5
+         0: aload_1
+         1: invokestatic  #178                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.onEndRenderingEntitiesAndBlockEntities:(Lnet/minecraft/class_4587;)V
+         4: return
+      LineNumberTable:
+        line 220: 0
+        line 221: 4
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0       5     1 poseStack   Lnet/minecraft/class_4587;
+            0       5     2 levelRenderState   Lnet/minecraft/class_11658;
+            0       5     3 submitNodeStorage   Lnet/minecraft/class_11661;
+            0       5     4    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#172],#106=[@#107(#9=s#173)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_62208"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="TAIL"
+          )]
+        )
+    RuntimeInvisibleAnnotations:
+      0: #174()
+        qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy
+    MethodParameters:
+      Name                           Flags
+      poseStack
+      levelRenderState
+      submitNodeStorage
+      ci
+
+  private void onAfterTranslucentRendering(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=2, locals=12, args_size=12
+         0: getstatic     #134                // Field qouteall/imm_ptl/core/IPCGlobal.renderer:Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+         3: aload         5
+         5: invokevirtual #184                // Method qouteall/imm_ptl/core/render/renderer/PortalRenderer.onAfterTranslucentRendering:(Lorg/joml/Matrix4f;)V
+         8: aload_0
+         9: getfield      #186                // Field field_4088:Lnet/minecraft/class_310;
+        12: getfield      #192                // Field net/minecraft/class_310.field_1773:Lnet/minecraft/class_757;
+        15: invokevirtual #198                // Method net/minecraft/class_757.method_71114:()Lnet/minecraft/class_308;
+        18: getstatic     #202                // Field net/minecraft/class_308$class_11274.field_60025:Lnet/minecraft/class_308$class_11274;
+        21: invokevirtual #206                // Method net/minecraft/class_308.method_71034:(Lnet/minecraft/class_308$class_11274;)V
+        24: return
+      LineNumberTable:
+        line 240: 0
+        line 243: 8
+        line 244: 24
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      25     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      25     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      25     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      25     3    bl   Z
+            0      25     4 camera   Lnet/minecraft/class_4184;
+            0      25     5 modelView   Lorg/joml/Matrix4f;
+            0      25     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      25     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      25     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      25     9 fogColor   Lorg/joml/Vector4f;
+            0      25    10   bl2   Z
+            0      25    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#182)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="RETURN"
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      modelView
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private void onBeforeRenderingLayer(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=4, locals=12, args_size=12
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          35
+         6: invokestatic  #218                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.getActiveClippingPlane:()Lqouteall/q_misc_util/my_util/Plane;
+         9: aload         5
+        11: ldc2_w        #219                // double -0.01d
+        14: invokestatic  #224                // Method qouteall/imm_ptl/core/render/FrontClipping.setupInnerClipping:(Lqouteall/q_misc_util/my_util/Plane;Lorg/joml/Matrix4f;D)V
+        17: invokestatic  #227                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRenderingOddNumberOfMirrors:()Z
+        20: ifeq          26
+        23: invokestatic  #232                // Method qouteall/imm_ptl/core/render/MyRenderHelper.applyMirrorFaceCulling:()V
+        26: getstatic     #237                // Field qouteall/imm_ptl/core/IPGlobal.enableDepthClampForPortalRendering:Z
+        29: ifeq          35
+        32: invokestatic  #242                // Method qouteall/imm_ptl/core/CHelper.enableDepthClamp:()V
+        35: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 26 /* same */
+        frame_type = 8 /* same */
+      LineNumberTable:
+        line 266: 0
+        line 268: 6
+        line 267: 14
+        line 274: 17
+        line 275: 23
+        line 278: 26
+        line 279: 32
+        line 282: 35
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      36     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      36     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      36     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      36     3    bl   Z
+            0      36     4 camera   Lnet/minecraft/class_4184;
+            0      36     5 modelView   Lorg/joml/Matrix4f;
+            0      36     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      36     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      36     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      36     9 fogColor   Lorg/joml/Vector4f;
+            0      36    10   bl2   Z
+            0      36    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#208)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_11532;method_72170(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V"
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      modelView
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private void onAfterRenderingLayer(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=12, args_size=12
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          21
+         6: invokestatic  #155                // Method qouteall/imm_ptl/core/render/FrontClipping.disableClipping:()V
+         9: invokestatic  #250                // Method qouteall/imm_ptl/core/render/MyRenderHelper.recoverFaceCulling:()V
+        12: getstatic     #237                // Field qouteall/imm_ptl/core/IPGlobal.enableDepthClampForPortalRendering:Z
+        15: ifeq          21
+        18: invokestatic  #253                // Method qouteall/imm_ptl/core/CHelper.disableDepthClamp:()V
+        21: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 21 /* same */
+      LineNumberTable:
+        line 305: 0
+        line 306: 6
+        line 307: 9
+        line 309: 12
+        line 310: 18
+        line 313: 21
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      22     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      22     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      22     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      22     3    bl   Z
+            0      22     4 camera   Lnet/minecraft/class_4184;
+            0      22     5 matrix4f   Lorg/joml/Matrix4f;
+            0      22     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      22     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      22     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      22     9 fogColor   Lorg/joml/Vector4f;
+            0      22    10   bl2   Z
+            0      22    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#208,#245=e#246.#247)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_11532;method_72170(Lnet/minecraft/class_11531;Lnet/minecraft/class_12137;)V"
+            shift=Lorg/spongepowered/asm/mixin/injection/At$Shift;.AFTER
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      matrix4f
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private void onSetupTerrainBegin(net.minecraft.class_4184, net.minecraft.class_4604, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=6, locals=5, args_size=5
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifeq          30
+         6: aload_0
+         7: getfield      #266                // Field field_4085:Lnet/minecraft/class_638;
+        10: invokevirtual #272                // Method net/minecraft/class_638.method_27983:()Lnet/minecraft/class_5321;
+        13: getstatic     #278                // Field qouteall/imm_ptl/core/render/context_management/RenderStates.originalPlayerDimension:Lnet/minecraft/class_5321;
+        16: if_acmpeq     30
+        19: aload_0
+        20: getfield      #280                // Field field_45614:Lnet/minecraft/class_846;
+        23: aload_1
+        24: invokevirtual #286                // Method net/minecraft/class_4184.method_71156:()Lnet/minecraft/class_243;
+        27: invokevirtual #290                // Method net/minecraft/class_846.method_19419:(Lnet/minecraft/class_243;)V
+        30: aload_0
+        31: invokevirtual #293                // Method ip_allowOverrideTerrainSetup:()Z
+        34: ifeq          99
+        37: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+        40: ifeq          99
+        43: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+        46: ldc_w         #301                // String ip_terrain_setup
+        49: invokeinterface #307,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+        54: aload_0
+        55: getfield      #266                // Field field_4085:Lnet/minecraft/class_638;
+        58: aload_0
+        59: getfield      #309                // Field field_4112:Lnet/minecraft/class_769;
+        62: checkcast     #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+        65: aload_1
+        66: new           #313                // class net/minecraft/class_4604
+        69: dup
+        70: aload_2
+        71: invokespecial #315                // Method net/minecraft/class_4604."<init>":(Lnet/minecraft/class_4604;)V
+        74: bipush        8
+        76: invokevirtual #319                // Method net/minecraft/class_4604.method_38557:(I)Lnet/minecraft/class_4604;
+        79: aload_0
+        80: getfield      #321                // Field field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+        83: invokestatic  #327                // Method qouteall/imm_ptl/core/render/VisibleSectionDiscovery.discoverVisibleSections:(Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+        86: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+        89: invokeinterface #330,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+        94: aload         4
+        96: invokevirtual #335                // Method org/spongepowered/asm/mixin/injection/callback/CallbackInfo.cancel:()V
+        99: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 30 /* same */
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 68
+      LineNumberTable:
+        line 324: 0
+        line 325: 6
+        line 326: 19
+        line 330: 30
+        line 331: 37
+        line 332: 43
+        line 333: 54
+        line 336: 76
+        line 333: 83
+        line 339: 86
+        line 341: 94
+        line 344: 99
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0     100     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0     100     1 camera   Lnet/minecraft/class_4184;
+            0     100     2 frustum   Lnet/minecraft/class_4604;
+            0     100     3 spectator   Z
+            0     100     4    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#258],#106=[@#107(#9=s#259)],#260=Z#261)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_74752"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="HEAD"
+          )]
+          cancellable=true
+        )
+    MethodParameters:
+      Name                           Flags
+      camera
+      frustum
+      spectator
+      ci
+
+  private boolean ip_allowOverrideTerrainSetup();
+    descriptor: ()Z
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=1, args_size=1
+         0: getstatic     #340                // Field qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface.invoker:Lqouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker;
+         3: invokevirtual #343                // Method qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker.isSodiumPresent:()Z
+         6: ifne          19
+         9: invokestatic  #348                // Method qouteall/imm_ptl/core/compat/IrisCompat.isRenderingShadowMap:()Z
+        12: ifne          19
+        15: iconst_1
+        16: goto          20
+        19: iconst_0
+        20: ireturn
+      StackMapTable: number_of_entries = 2
+        frame_type = 19 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+      LineNumberTable:
+        line 347: 0
+        line 348: 9
+        line 347: 20
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      21     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  private void onSetupTerrainEnd(net.minecraft.class_4184, net.minecraft.class_4604, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=6, locals=5, args_size=5
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifne          138
+         6: aload_0
+         7: invokevirtual #293                // Method ip_allowOverrideTerrainSetup:()Z
+        10: ifeq          138
+        13: getstatic     #352                // Field qouteall/imm_ptl/core/render/MyGameRenderer.vanillaTerrainSetupOverride:I
+        16: ifle          81
+        19: getstatic     #352                // Field qouteall/imm_ptl/core/render/MyGameRenderer.vanillaTerrainSetupOverride:I
+        22: iconst_1
+        23: isub
+        24: putstatic     #352                // Field qouteall/imm_ptl/core/render/MyGameRenderer.vanillaTerrainSetupOverride:I
+        27: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+        30: ldc_w         #301                // String ip_terrain_setup
+        33: invokeinterface #307,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+        38: aload_0
+        39: getfield      #266                // Field field_4085:Lnet/minecraft/class_638;
+        42: aload_0
+        43: getfield      #309                // Field field_4112:Lnet/minecraft/class_769;
+        46: checkcast     #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+        49: aload_1
+        50: new           #313                // class net/minecraft/class_4604
+        53: dup
+        54: aload_2
+        55: invokespecial #315                // Method net/minecraft/class_4604."<init>":(Lnet/minecraft/class_4604;)V
+        58: bipush        8
+        60: invokevirtual #319                // Method net/minecraft/class_4604.method_38557:(I)Lnet/minecraft/class_4604;
+        63: aload_0
+        64: getfield      #321                // Field field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+        67: invokestatic  #327                // Method qouteall/imm_ptl/core/render/VisibleSectionDiscovery.discoverVisibleSections:(Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+        70: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+        73: invokeinterface #330,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+        78: goto          138
+        81: getstatic     #355                // Field qouteall/imm_ptl/core/IPGlobal.alwaysOverrideTerrainSetup:Z
+        84: ifeq          138
+        87: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+        90: ldc_w         #357                // String ip_terrain_setup_debug
+        93: invokeinterface #307,  2          // InterfaceMethod net/minecraft/class_3695.method_15396:(Ljava/lang/String;)V
+        98: aload_0
+        99: getfield      #266                // Field field_4085:Lnet/minecraft/class_638;
+       102: aload_0
+       103: getfield      #309                // Field field_4112:Lnet/minecraft/class_769;
+       106: checkcast     #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+       109: aload_1
+       110: new           #313                // class net/minecraft/class_4604
+       113: dup
+       114: aload_2
+       115: invokespecial #315                // Method net/minecraft/class_4604."<init>":(Lnet/minecraft/class_4604;)V
+       118: bipush        8
+       120: invokevirtual #319                // Method net/minecraft/class_4604.method_38557:(I)Lnet/minecraft/class_4604;
+       123: aload_0
+       124: getfield      #321                // Field field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+       127: invokestatic  #327                // Method qouteall/imm_ptl/core/render/VisibleSectionDiscovery.discoverVisibleSections:(Lnet/minecraft/class_638;Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_4184;Lnet/minecraft/class_4604;Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+       130: invokestatic  #299                // Method net/minecraft/class_10209.method_64146:()Lnet/minecraft/class_3695;
+       133: invokeinterface #330,  1          // InterfaceMethod net/minecraft/class_3695.method_15407:()V
+       138: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 81
+        frame_type = 56 /* same */
+      LineNumberTable:
+        line 360: 0
+        line 361: 6
+        line 362: 13
+        line 363: 19
+        line 365: 27
+        line 366: 38
+        line 369: 60
+        line 366: 67
+        line 372: 70
+        line 374: 81
+        line 376: 87
+        line 377: 98
+        line 380: 120
+        line 377: 127
+        line 383: 130
+        line 387: 138
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0     139     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0     139     1 camera   Lnet/minecraft/class_4184;
+            0     139     2 frustum   Lnet/minecraft/class_4604;
+            0     139     3 spectator   Z
+            0     139     4    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#258],#106=[@#107(#9=s#182)],#260=Z#261)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_74752"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="RETURN"
+          )]
+          cancellable=true
+        )
+    MethodParameters:
+      Name                           Flags
+      camera
+      frustum
+      spectator
+      ci
+
+  private void redirectClearing(int, boolean);
+    descriptor: (IZ)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=3, args_size=3
+         0: getstatic     #134                // Field qouteall/imm_ptl/core/IPCGlobal.renderer:Lqouteall/imm_ptl/core/render/renderer/PortalRenderer;
+         3: invokevirtual #366                // Method qouteall/imm_ptl/core/render/renderer/PortalRenderer.replaceFrameBufferClearing:()Z
+         6: ifne          13
+         9: iload_1
+        10: invokestatic  #372                // Method com/mojang/blaze3d/opengl/GlStateManager._clear:(I)V
+        13: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 13 /* same */
+      LineNumberTable:
+        line 398: 0
+        line 399: 9
+        line 401: 13
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      14     1 int_1   I
+            0      14     2 boolean_1   Z
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#362,#363=Z#112))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"
+            remap=false
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      int_1
+      boolean_1
+
+  private net.minecraft.class_769 redirectConstructingBuildChunkStorage(net.minecraft.class_846, net.minecraft.class_1937, int, net.minecraft.class_761);
+    descriptor: (Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)Lnet/minecraft/class_769;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=6, locals=5, args_size=5
+         0: getstatic     #382                // Field qouteall/imm_ptl/core/IPCGlobal.useHackedChunkRenderDispatcher:Z
+         3: ifeq          19
+         6: new           #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+         9: dup
+        10: aload_1
+        11: aload_2
+        12: iload_3
+        13: aload         4
+        15: invokespecial #385                // Method qouteall/imm_ptl/core/render/ImmPtlViewArea."<init>":(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+        18: areturn
+        19: new           #387                // class net/minecraft/class_769
+        22: dup
+        23: aload_1
+        24: aload_2
+        25: iload_3
+        26: aload         4
+        28: invokespecial #388                // Method net/minecraft/class_769."<init>":(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)V
+        31: areturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 19 /* same */
+      LineNumberTable:
+        line 416: 0
+        line 417: 6
+        line 422: 19
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      32     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      32     1 chunkBuilder_1   Lnet/minecraft/class_846;
+            0      32     2 world_1   Lnet/minecraft/class_1937;
+            0      32     3 int_1   I
+            0      32     4 worldRenderer_1   Lnet/minecraft/class_761;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#378],#106=@#107(#9=s#379,#109=s#374))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_3279"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="NEW"
+            target="(Lnet/minecraft/class_846;Lnet/minecraft/class_1937;ILnet/minecraft/class_761;)Lnet/minecraft/class_769;"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      chunkBuilder_1
+      world_1
+      int_1
+      worldRenderer_1
+
+  private net.minecraft.class_10017 redirectExtractEntity(net.minecraft.class_761, net.minecraft.class_1297, float);
+    descriptor: (Lnet/minecraft/class_761;Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=3, locals=4, args_size=4
+         0: getstatic     #396                // Field ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+         3: aload_2
+         4: invokevirtual #402                // Method java/lang/ThreadLocal.set:(Ljava/lang/Object;)V
+         7: aload_0
+         8: aload_2
+         9: fload_3
+        10: invokevirtual #404                // Method method_72914:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+        13: areturn
+      LineNumberTable:
+        line 440: 0
+        line 441: 7
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      14     1 renderer   Lnet/minecraft/class_761;
+            0      14     2 entity   Lnet/minecraft/class_1297;
+            0      14     3 partialTick   F
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#394))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_761;method_72914(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      renderer
+      entity
+      partialTick
+
+  private void redirectSubmitEntity(net.minecraft.class_898, net.minecraft.class_10017, net.minecraft.class_12075, double, double, double, net.minecraft.class_4587, net.minecraft.class_11659);
+    descriptor: (Lnet/minecraft/class_898;Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=11, locals=13, args_size=9
+         0: getstatic     #396                // Field ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+         3: invokevirtual #421                // Method java/lang/ThreadLocal.get:()Ljava/lang/Object;
+         6: checkcast     #423                // class net/minecraft/class_1297
+         9: astore        12
+        11: aload         12
+        13: ifnull        23
+        16: aload         12
+        18: aload         10
+        20: invokestatic  #427                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.beforeRenderingEntity:(Lnet/minecraft/class_1297;Lnet/minecraft/class_4587;)V
+        23: aload_1
+        24: aload_2
+        25: aload_3
+        26: dload         4
+        28: dload         6
+        30: dload         8
+        32: aload         10
+        34: aload         11
+        36: invokevirtual #433                // Method net/minecraft/class_898.method_72976:(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+        39: aload         12
+        41: ifnull        49
+        44: aload         12
+        46: invokestatic  #437                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.afterRenderingEntity:(Lnet/minecraft/class_1297;)V
+        49: getstatic     #396                // Field ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+        52: invokevirtual #440                // Method java/lang/ThreadLocal.remove:()V
+        55: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [ class net/minecraft/class_1297 ]
+        frame_type = 25 /* same */
+      LineNumberTable:
+        line 461: 0
+        line 462: 11
+        line 463: 16
+        line 465: 23
+        line 474: 39
+        line 475: 44
+        line 477: 49
+        line 478: 55
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      56     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      56     1 dispatcher   Lnet/minecraft/class_898;
+            0      56     2 renderState   Lnet/minecraft/class_10017;
+            0      56     3 cameraRenderState   Lnet/minecraft/class_12075;
+            0      56     4 cameraX   D
+            0      56     6 cameraY   D
+            0      56     8 cameraZ   D
+            0      56    10 matrixStack   Lnet/minecraft/class_4587;
+            0      56    11 collector   Lnet/minecraft/class_11659;
+           11      45    12 entity   Lnet/minecraft/class_1297;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#417))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_898;method_72976(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      dispatcher
+      renderState
+      cameraRenderState
+      cameraX
+      cameraY
+      cameraZ
+      matrixStack
+      collector
+
+  private void beforeRenderingWeather(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=4, locals=12, args_size=12
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          19
+         6: invokestatic  #218                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.getActiveClippingPlane:()Lqouteall/q_misc_util/my_util/Plane;
+         9: aload         5
+        11: dconst_0
+        12: invokestatic  #224                // Method qouteall/imm_ptl/core/render/FrontClipping.setupInnerClipping:(Lqouteall/q_misc_util/my_util/Plane;Lorg/joml/Matrix4f;D)V
+        15: iconst_1
+        16: putstatic     #449                // Field qouteall/imm_ptl/core/render/context_management/RenderStates.isRenderingPortalWeather:Z
+        19: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 19 /* same */
+      LineNumberTable:
+        line 500: 0
+        line 502: 6
+        line 501: 12
+        line 505: 15
+        line 507: 19
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      20     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      20     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      20     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      20     3    bl   Z
+            0      20     4 camera   Lnet/minecraft/class_4184;
+            0      20     5 modelView   Lorg/joml/Matrix4f;
+            0      20     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      20     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      20     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      20     9 fogColor   Lorg/joml/Vector4f;
+            0      20    10   bl2   Z
+            0      20    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#446)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_761;renderSnowAndRain(Lnet/minecraft/class_765;FDDD)V"
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      modelView
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private void afterRenderingWeather(net.minecraft.class_9922, net.minecraft.class_9779, boolean, net.minecraft.class_4184, org.joml.Matrix4f, org.joml.Matrix4f, org.joml.Matrix4f, com.mojang.blaze3d.buffers.GpuBufferSlice, org.joml.Vector4f, boolean, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9922;Lnet/minecraft/class_9779;ZLnet/minecraft/class_4184;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=12, args_size=12
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          13
+         6: invokestatic  #155                // Method qouteall/imm_ptl/core/render/FrontClipping.disableClipping:()V
+         9: iconst_0
+        10: putstatic     #449                // Field qouteall/imm_ptl/core/render/context_management/RenderStates.isRenderingPortalWeather:Z
+        13: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 13 /* same */
+      LineNumberTable:
+        line 530: 0
+        line 531: 6
+        line 532: 9
+        line 534: 13
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      14     1 graphicsResourceAllocator   Lnet/minecraft/class_9922;
+            0      14     2 deltaTracker   Lnet/minecraft/class_9779;
+            0      14     3    bl   Z
+            0      14     4 camera   Lnet/minecraft/class_4184;
+            0      14     5 matrix4f   Lorg/joml/Matrix4f;
+            0      14     6 matrix4f2   Lorg/joml/Matrix4f;
+            0      14     7 matrix4f3   Lorg/joml/Matrix4f;
+            0      14     8 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      14     9 fogColor   Lorg/joml/Vector4f;
+            0      14    10   bl2   Z
+            0      14    11    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#105],#106=[@#107(#9=s#108,#109=s#446,#245=e#246.#247)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_22710"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_761;renderSnowAndRain(Lnet/minecraft/class_765;FDDD)V"
+            shift=Lorg/spongepowered/asm/mixin/injection/At$Shift;.AFTER
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      graphicsResourceAllocator
+      deltaTracker
+      bl
+      camera
+      matrix4f
+      matrix4f2
+      matrix4f3
+      fogBuffer
+      fogColor
+      bl2
+      ci
+
+  private boolean redirectGlowing(net.minecraft.class_310, net.minecraft.class_1297);
+    descriptor: (Lnet/minecraft/class_310;Lnet/minecraft/class_1297;)Z
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=2, locals=3, args_size=3
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifeq          8
+         6: iconst_0
+         7: ireturn
+         8: aload_1
+         9: aload_2
+        10: invokevirtual #458                // Method net/minecraft/class_310.method_27022:(Lnet/minecraft/class_1297;)Z
+        13: ireturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 8 /* same */
+      LineNumberTable:
+        line 545: 0
+        line 546: 6
+        line 548: 8
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      14     1 client   Lnet/minecraft/class_310;
+            0      14     2 entity   Lnet/minecraft/class_1297;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#454))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_310;method_27022(Lnet/minecraft/class_1297;)Z"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      client
+      entity
+
+  private void onReloadStarted(org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifeq          16
+         6: ldc_w         #462                // String world renderer reloading cancelled during portal rendering
+         9: invokestatic  #467                // Method qouteall/q_misc_util/Helper.log:(Ljava/lang/Object;)V
+        12: aload_1
+        13: invokevirtual #335                // Method org/spongepowered/asm/mixin/injection/callback/CallbackInfo.cancel:()V
+        16: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 16 /* same */
+      LineNumberTable:
+        line 554: 0
+        line 555: 6
+        line 556: 12
+        line 558: 16
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      17     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      17     1    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#378],#106=[@#107(#9=s#259)],#260=Z#261)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_3279"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="HEAD"
+          )]
+          cancellable=true
+        )
+    MethodParameters:
+      Name                           Flags
+      ci
+
+  private void onReloadFinished(org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=2, locals=3, args_size=2
+         0: aload_0
+         1: checkcast     #470                // class net/minecraft/class_761
+         4: astore_2
+         5: invokestatic  #475                // Method qouteall/imm_ptl/core/ClientWorldLoader.getIsCreatingClientWorld:()Z
+         8: ifeq          12
+        11: return
+        12: invokestatic  #479                // Method net/minecraft/class_310.method_1551:()Lnet/minecraft/class_310;
+        15: getfield      #482                // Field net/minecraft/class_310.field_1769:Lnet/minecraft/class_761;
+        18: aload_2
+        19: if_acmpne     26
+        22: iconst_1
+        23: goto          27
+        26: iconst_0
+        27: invokestatic  #488                // Method org/apache/commons/lang3/Validate.isTrue:(Z)V
+        30: invokestatic  #491                // Method qouteall/imm_ptl/core/ClientWorldLoader._onWorldRendererReloaded:()V
+        33: return
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 12
+          locals = [ class net/minecraft/class_761 ]
+        frame_type = 13 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+      LineNumberTable:
+        line 563: 0
+        line 565: 5
+        line 566: 11
+        line 569: 12
+        line 571: 30
+        line 572: 33
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      34     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      34     1    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+            5      29     2 this_   Lnet/minecraft/class_761;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#378],#106=[@#107(#9=s#173)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_3279"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="TAIL"
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      ci
+
+  private void onRenderSkyBegin(net.minecraft.class_9909, net.minecraft.class_4184, com.mojang.blaze3d.buffers.GpuBufferSlice, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9909;Lnet/minecraft/class_4184;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=5, args_size=5
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifeq          27
+         6: invokestatic  #500                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.getTopRenderInfo:()Lqouteall/imm_ptl/core/render/context_management/WorldRenderInfo;
+         9: getfield      #503                // Field qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.doRenderSky:Z
+        12: ifne          27
+        15: invokestatic  #506                // Method qouteall/imm_ptl/core/compat/IrisCompat.isShaders:()Z
+        18: ifne          27
+        21: aload         4
+        23: invokevirtual #335                // Method org/spongepowered/asm/mixin/injection/callback/CallbackInfo.cancel:()V
+        26: return
+        27: invokestatic  #227                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRenderingOddNumberOfMirrors:()Z
+        30: ifeq          36
+        33: invokestatic  #232                // Method qouteall/imm_ptl/core/render/MyRenderHelper.applyMirrorFaceCulling:()V
+        36: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 27 /* same */
+        frame_type = 8 /* same */
+      LineNumberTable:
+        line 580: 0
+        line 581: 6
+        line 582: 15
+        line 583: 21
+        line 584: 26
+        line 589: 27
+        line 590: 33
+        line 592: 36
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      37     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      37     1 frameGraphBuilder   Lnet/minecraft/class_9909;
+            0      37     2 camera   Lnet/minecraft/class_4184;
+            0      37     3 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0      37     4    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#496],#106=[@#107(#9=s#259)],#260=Z#261)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_62200"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="HEAD"
+          )]
+          cancellable=true
+        )
+    MethodParameters:
+      Name                           Flags
+      frameGraphBuilder
+      camera
+      fogBuffer
+      ci
+
+  private void onRenderSkyEnd(net.minecraft.class_9909, net.minecraft.class_4184, com.mojang.blaze3d.buffers.GpuBufferSlice, org.spongepowered.asm.mixin.injection.callback.CallbackInfo);
+    descriptor: (Lnet/minecraft/class_9909;Lnet/minecraft/class_4184;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=0, locals=5, args_size=5
+         0: invokestatic  #250                // Method qouteall/imm_ptl/core/render/MyRenderHelper.recoverFaceCulling:()V
+         3: return
+      LineNumberTable:
+        line 601: 0
+        line 602: 3
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       4     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0       4     1 frameGraphBuilder   Lnet/minecraft/class_9909;
+            0       4     2 camera   Lnet/minecraft/class_4184;
+            0       4     3 fogBuffer   Lcom/mojang/blaze3d/buffers/GpuBufferSlice;
+            0       4     4    ci   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#496],#106=[@#107(#9=s#182)])
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_62200"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="RETURN"
+          )]
+        )
+    MethodParameters:
+      Name                           Flags
+      frameGraphBuilder
+      camera
+      fogBuffer
+      ci
+
+  private net.minecraft.class_276 redirectTranslucentFramebuffer(net.minecraft.class_761);
+    descriptor: (Lnet/minecraft/class_761;)Lnet/minecraft/class_276;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          8
+         6: aconst_null
+         7: areturn
+         8: aload_0
+         9: invokevirtual #513                // Method method_29360:()Lnet/minecraft/class_276;
+        12: areturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 8 /* same */
+      LineNumberTable:
+        line 614: 0
+        line 615: 6
+        line 618: 8
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      13     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      13     1 this_   Lnet/minecraft/class_761;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#511))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_761;method_29360()Lnet/minecraft/class_276;"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      this_
+
+  private boolean modifyIsSpectator(boolean);
+    descriptor: (Z)Z
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: invokestatic  #264                // Method qouteall/imm_ptl/core/render/context_management/WorldRenderInfo.isRendering:()Z
+         3: ifeq          8
+         6: iconst_1
+         7: ireturn
+         8: iload_1
+         9: ireturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 8 /* same */
+      LineNumberTable:
+        line 630: 0
+        line 631: 6
+        line 633: 8
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      10     1 value   Z
+    RuntimeVisibleAnnotations:
+      0: #516(#104=[s#258],#106=@#107(#9=s#259),#517=Z#261,#518=I#519)
+        org.spongepowered.asm.mixin.injection.ModifyVariable(
+          method=["method_74752"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="HEAD"
+          )
+          argsOnly=true
+          index=2
+        )
+    MethodParameters:
+      Name                           Flags
+      value
+
+  private void redirectRunQueuedChunkUpdates(net.minecraft.class_638);
+    descriptor: (Lnet/minecraft/class_638;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=3, locals=2, args_size=2
+         0: aload_1
+         1: aload_1
+         2: dup
+         3: invokestatic  #529                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         6: pop
+         7: invokedynamic #545,  0            // InvokeDynamic #0:run:(Lnet/minecraft/class_638;)Ljava/lang/Runnable;
+        12: invokestatic  #549                // Method qouteall/imm_ptl/core/ClientWorldLoader.withSwitchedWorld:(Lnet/minecraft/class_638;Ljava/lang/Runnable;)V
+        15: return
+      LineNumberTable:
+        line 646: 0
+        line 647: 3
+        line 646: 12
+        line 649: 15
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      16     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      16     1 world   Lnet/minecraft/class_638;
+    RuntimeVisibleAnnotations:
+      0: #159(#104=[s#105],#106=@#107(#9=s#108,#109=s#523))
+        org.spongepowered.asm.mixin.injection.Redirect(
+          method=["method_22710"]
+          at=@org.spongepowered.asm.mixin.injection.At(
+            value="INVOKE"
+            target="Lnet/minecraft/class_638;method_38534()V"
+          )
+        )
+    MethodParameters:
+      Name                           Flags
+      world
+
+  private void onIsChunkCompiled(net.minecraft.class_2338, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<java.lang.Boolean>);
+    descriptor: (Lnet/minecraft/class_2338;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=4, locals=5, args_size=3
+         0: invokestatic  #214                // Method qouteall/imm_ptl/core/render/context_management/PortalRendering.isRendering:()Z
+         3: ifeq          48
+         6: getstatic     #340                // Field qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface.invoker:Lqouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker;
+         9: invokevirtual #343                // Method qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker.isSodiumPresent:()Z
+        12: ifne          48
+        15: aload_0
+        16: getfield      #309                // Field field_4112:Lnet/minecraft/class_769;
+        19: astore        4
+        21: aload         4
+        23: instanceof    #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+        26: ifeq          48
+        29: aload         4
+        31: checkcast     #311                // class qouteall/imm_ptl/core/render/ImmPtlViewArea
+        34: astore_3
+        35: aload_2
+        36: aload_0
+        37: aload_3
+        38: aload_1
+        39: invokevirtual #559                // Method ip_isChunkCompiled:(Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_2338;)Z
+        42: invokestatic  #565                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        45: invokevirtual #570                // Method org/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable.setReturnValue:(Ljava/lang/Object;)V
+        48: return
+      StackMapTable: number_of_entries = 1
+        frame_type = 48 /* same */
+      LineNumberTable:
+        line 661: 0
+        line 662: 6
+        line 663: 15
+        line 664: 35
+        line 668: 48
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           35      13     3 immPtlViewArea   Lqouteall/imm_ptl/core/render/ImmPtlViewArea;
+            0      49     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      49     1 blockPos   Lnet/minecraft/class_2338;
+            0      49     2   cir   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;
+      LocalVariableTypeTable:
+        Start  Length  Slot  Name   Signature
+            0      49     2   cir   Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable<Ljava/lang/Boolean;>;
+    Signature: #552                         // (Lnet/minecraft/class_2338;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable<Ljava/lang/Boolean;>;)V
+    RuntimeVisibleAnnotations:
+      0: #103(#104=[s#555],#106=[@#107(#9=s#259)],#260=Z#261)
+        org.spongepowered.asm.mixin.injection.Inject(
+          method=["method_40050"]
+          at=[@org.spongepowered.asm.mixin.injection.At(
+            value="HEAD"
+          )]
+          cancellable=true
+        )
+    MethodParameters:
+      Name                           Flags
+      blockPos
+      cir
+
+  private boolean ip_isChunkCompiled(qouteall.imm_ptl.core.render.ImmPtlViewArea, net.minecraft.class_2338);
+    descriptor: (Lqouteall/imm_ptl/core/render/ImmPtlViewArea;Lnet/minecraft/class_2338;)Z
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=4, locals=5, args_size=3
+         0: aload_2
+         1: invokestatic  #581                // Method net/minecraft/class_4076.method_18682:(Lnet/minecraft/class_2338;)Lnet/minecraft/class_4076;
+         4: astore_3
+         5: aload_1
+         6: aload_3
+         7: invokevirtual #585                // Method net/minecraft/class_4076.method_18674:()I
+        10: aload_3
+        11: invokevirtual #588                // Method net/minecraft/class_4076.method_18683:()I
+        14: aload_3
+        15: invokevirtual #591                // Method net/minecraft/class_4076.method_18687:()I
+        18: invokevirtual #595                // Method qouteall/imm_ptl/core/render/ImmPtlViewArea.rawGet:(III)Lnet/minecraft/class_846$class_851;
+        21: astore        4
+        23: aload         4
+        25: ifnull        43
+        28: aload         4
+        30: invokevirtual #599                // Method net/minecraft/class_846$class_851.method_72052:()Lnet/minecraft/class_11517;
+        33: getstatic     #605                // Field net/minecraft/class_11516.field_60935:Lnet/minecraft/class_11517;
+        36: if_acmpeq     43
+        39: iconst_1
+        40: goto          44
+        43: iconst_0
+        44: ireturn
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 43
+          locals = [ class net/minecraft/class_4076, class net/minecraft/class_846$class_851 ]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+      LineNumberTable:
+        line 671: 0
+        line 672: 5
+        line 673: 7
+        line 672: 18
+        line 676: 23
+        line 677: 30
+        line 676: 44
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      45     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      45     1 immPtlViewArea   Lqouteall/imm_ptl/core/render/ImmPtlViewArea;
+            0      45     2 blockPos   Lnet/minecraft/class_2338;
+            5      40     3 sectionPos   Lnet/minecraft/class_4076;
+           23      22     4 renderChunk   Lnet/minecraft/class_846$class_851;
+    MethodParameters:
+      Name                           Flags
+      immPtlViewArea
+      blockPos
+
+  public net.minecraft.class_898 ip_getEntityRenderDispatcher();
+    descriptor: ()Lnet/minecraft/class_898;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #613                // Field field_4109:Lnet/minecraft/class_898;
+         4: areturn
+      LineNumberTable:
+        line 682: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public net.minecraft.class_769 ip_getBuiltChunkStorage();
+    descriptor: ()Lnet/minecraft/class_769;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #309                // Field field_4112:Lnet/minecraft/class_769;
+         4: areturn
+      LineNumberTable:
+        line 687: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public void ip_myRenderEntity(net.minecraft.class_1297, double, double, double, float, net.minecraft.class_4587, net.minecraft.class_4597);
+    descriptor: (Lnet/minecraft/class_1297;DDDFLnet/minecraft/class_4587;Lnet/minecraft/class_4597;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=11, locals=13, args_size=8
+         0: aload_0
+         1: getfield      #613                // Field field_4109:Lnet/minecraft/class_898;
+         4: aload_1
+         5: fload         8
+         7: invokevirtual #621                // Method net/minecraft/class_898.method_72977:(Lnet/minecraft/class_1297;F)Lnet/minecraft/class_10017;
+        10: astore        11
+        12: aload_0
+        13: getfield      #623                // Field field_61739:Lnet/minecraft/class_11684;
+        16: invokevirtual #629                // Method net/minecraft/class_11684.method_73003:()Lnet/minecraft/class_11661;
+        19: astore        12
+        21: aload_1
+        22: aload         9
+        24: invokestatic  #427                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.beforeRenderingEntity:(Lnet/minecraft/class_1297;Lnet/minecraft/class_4587;)V
+        27: aload_0
+        28: getfield      #613                // Field field_4109:Lnet/minecraft/class_898;
+        31: aload         11
+        33: aload_0
+        34: getfield      #631                // Field field_61737:Lnet/minecraft/class_11658;
+        37: getfield      #636                // Field net/minecraft/class_11658.field_63082:Lnet/minecraft/class_12075;
+        40: dload_2
+        41: dload         4
+        43: dload         6
+        45: aload         9
+        47: aload         12
+        49: invokevirtual #433                // Method net/minecraft/class_898.method_72976:(Lnet/minecraft/class_10017;Lnet/minecraft/class_12075;DDDLnet/minecraft/class_4587;Lnet/minecraft/class_11659;)V
+        52: aload_1
+        53: invokestatic  #437                // Method qouteall/imm_ptl/core/render/CrossPortalEntityRenderer.afterRenderingEntity:(Lnet/minecraft/class_1297;)V
+        56: aload_0
+        57: getfield      #623                // Field field_61739:Lnet/minecraft/class_11684;
+        60: invokevirtual #639                // Method net/minecraft/class_11684.method_73002:()V
+        63: aload_0
+        64: getfield      #623                // Field field_61739:Lnet/minecraft/class_11684;
+        67: invokevirtual #642                // Method net/minecraft/class_11684.method_74817:()V
+        70: return
+      LineNumberTable:
+        line 700: 0
+        line 701: 12
+        line 702: 21
+        line 703: 27
+        line 712: 52
+        line 713: 56
+        line 714: 63
+        line 715: 70
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      71     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      71     1 entity   Lnet/minecraft/class_1297;
+            0      71     2 cameraX   D
+            0      71     4 cameraY   D
+            0      71     6 cameraZ   D
+            0      71     8 partialTick   F
+            0      71     9 matrixStack   Lnet/minecraft/class_4587;
+            0      71    10 vertexConsumerProvider   Lnet/minecraft/class_4597;
+           12      59    11 renderState   Lnet/minecraft/class_10017;
+           21      50    12 collector   Lnet/minecraft/class_11659;
+    MethodParameters:
+      Name                           Flags
+      entity
+      cameraX
+      cameraY
+      cameraZ
+      partialTick
+      matrixStack
+      vertexConsumerProvider
+
+  public net.minecraft.class_279 portal_getTransparencyShader();
+    descriptor: ()Lnet/minecraft/class_279;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #162                // Field ip$transparencyChainOverrideSet:Z
+         4: ifeq          12
+         7: aload_0
+         8: getfield      #164                // Field ip$transparencyChainOverride:Lnet/minecraft/class_279;
+        11: areturn
+        12: aload_0
+        13: invokevirtual #166                // Method ip$getTransparencyChain:()Lnet/minecraft/class_279;
+        16: areturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+      LineNumberTable:
+        line 719: 0
+        line 720: 7
+        line 722: 12
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      17     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public void portal_setTransparencyShader(net.minecraft.class_279);
+    descriptor: (Lnet/minecraft/class_279;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=2
+         0: aload_1
+         1: ifnonnull     15
+         4: aload_0
+         5: iconst_1
+         6: putfield      #162                // Field ip$transparencyChainOverrideSet:Z
+         9: aload_0
+        10: aconst_null
+        11: putfield      #164                // Field ip$transparencyChainOverride:Lnet/minecraft/class_279;
+        14: return
+        15: aload_0
+        16: invokevirtual #166                // Method ip$getTransparencyChain:()Lnet/minecraft/class_279;
+        19: astore_2
+        20: aload_1
+        21: aload_2
+        22: if_acmpne     38
+        25: aload_0
+        26: iconst_0
+        27: putfield      #162                // Field ip$transparencyChainOverrideSet:Z
+        30: aload_0
+        31: aconst_null
+        32: putfield      #164                // Field ip$transparencyChainOverride:Lnet/minecraft/class_279;
+        35: goto          48
+        38: aload_0
+        39: iconst_1
+        40: putfield      #162                // Field ip$transparencyChainOverrideSet:Z
+        43: aload_0
+        44: aload_1
+        45: putfield      #164                // Field ip$transparencyChainOverride:Lnet/minecraft/class_279;
+        48: return
+      StackMapTable: number_of_entries = 3
+        frame_type = 15 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 22
+          locals = [ class net/minecraft/class_279 ]
+        frame_type = 9 /* same */
+      LineNumberTable:
+        line 727: 0
+        line 728: 4
+        line 729: 9
+        line 730: 14
+        line 732: 15
+        line 733: 20
+        line 734: 25
+        line 735: 30
+        line 738: 38
+        line 739: 43
+        line 741: 48
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      49     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      49     1   arg   Lnet/minecraft/class_279;
+           20      29     2 current   Lnet/minecraft/class_279;
+    MethodParameters:
+      Name                           Flags
+      arg
+
+  public net.minecraft.class_4599 ip_getRenderBuffers();
+    descriptor: ()Lnet/minecraft/class_4599;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #654                // Field field_20951:Lnet/minecraft/class_4599;
+         4: areturn
+      LineNumberTable:
+        line 745: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public void ip_setRenderBuffers(net.minecraft.class_4599);
+    descriptor: (Lnet/minecraft/class_4599;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: aload_1
+         2: putfield      #654                // Field field_20951:Lnet/minecraft/class_4599;
+         5: return
+      LineNumberTable:
+        line 750: 0
+        line 751: 5
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       6     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0       6     1   arg   Lnet/minecraft/class_4599;
+    MethodParameters:
+      Name                           Flags
+      arg
+
+  public net.minecraft.class_4604 portal_getFrustum();
+    descriptor: ()Lnet/minecraft/class_4604;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #659                // Method method_62222:()Lnet/minecraft/class_4604;
+         4: areturn
+      LineNumberTable:
+        line 755: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public void portal_setFrustum(net.minecraft.class_4604);
+    descriptor: (Lnet/minecraft/class_4604;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_1
+         1: ifnonnull     11
+         4: aload_0
+         5: invokevirtual #662                // Method method_35776:()V
+         8: goto          16
+        11: aload_0
+        12: aload_1
+        13: invokevirtual #664                // Method ip$applyFrustum:(Lnet/minecraft/class_4604;)V
+        16: return
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 4 /* same */
+      LineNumberTable:
+        line 760: 0
+        line 761: 4
+        line 764: 11
+        line 766: 16
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      17     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0      17     1   arg   Lnet/minecraft/class_4604;
+    MethodParameters:
+      Name                           Flags
+      arg
+
+  public void portal_fullyDispose();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #667                // Method close:()V
+         4: aload_0
+         5: aconst_null
+         6: putfield      #266                // Field field_4085:Lnet/minecraft/class_638;
+         9: return
+      LineNumberTable:
+        line 770: 0
+        line 772: 4
+        line 773: 9
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+
+  public void portal_setChunkInfoList(it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.class_846$class_851>);
+    descriptor: (Lit/unimi/dsi/fastutil/objects/ObjectArrayList;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: aload_1
+         2: putfield      #321                // Field field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+         5: return
+      LineNumberTable:
+        line 777: 0
+        line 778: 5
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       6     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+            0       6     1   arg   Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+      LocalVariableTypeTable:
+        Start  Length  Slot  Name   Signature
+            0       6     1   arg   Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;
+    Signature: #670                         // (Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;)V
+    MethodParameters:
+      Name                           Flags
+      arg
+
+  public it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.class_846$class_851> portal_getChunkInfoList();
+    descriptor: ()Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #321                // Field field_45616:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+         4: areturn
+      LineNumberTable:
+        line 782: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lqouteall/imm_ptl/core/mixin/client/render/MixinLevelRenderer;
+    Signature: #673                         // ()Lit/unimi/dsi/fastutil/objects/ObjectArrayList<Lnet/minecraft/class_846$class_851;>;
+
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code:
+      stack=2, locals=0, args_size=0
+         0: new           #398                // class java/lang/ThreadLocal
+         3: dup
+         4: invokespecial #675                // Method java/lang/ThreadLocal."<init>":()V
+         7: putstatic     #396                // Field ip$currentRenderedEntity:Ljava/lang/ThreadLocal;
+        10: return
+      LineNumberTable:
+        line 74: 0
+}
+InnerClasses:
+  public static final #15= #12 of #14;    // class_11274=class net/minecraft/class_308$class_11274 of class net/minecraft/class_308
+  public static #20= #17 of #19;          // Invoker=class qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface$Invoker of class qouteall/imm_ptl/core/compat/sodium_compatibility/SodiumInterface
+  public #25= #22 of #24;                 // class_851=class net/minecraft/class_846$class_851 of class net/minecraft/class_846
+  public static final #30= #27 of #29;    // Shift=class org/spongepowered/asm/mixin/injection/At$Shift of class org/spongepowered/asm/mixin/injection/At
+  public static final #35= #32 of #34;    // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles
+SourceFile: "MixinLevelRenderer.java"
+RuntimeInvisibleAnnotations:
+  0: #8(#9=[c#10])
+    org.spongepowered.asm.mixin.Mixin(
+      value=[class Lnet/minecraft/class_761;]
+    )
+BootstrapMethods:
+  0: #541 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #530 ()V
+      #534 REF_invokeVirtual net/minecraft/class_638.method_38534:()V
+      #530 ()V

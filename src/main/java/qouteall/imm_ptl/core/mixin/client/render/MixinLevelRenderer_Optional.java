@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.world.phys.Vec3;
@@ -12,7 +13,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.render.FrontClipping;
@@ -36,7 +36,7 @@ public class MixinLevelRenderer_Optional {
         method = "renderSectionLayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
+            target = "Lnet/minecraft/client/renderer/rendertype/RenderTypes;translucentMovingBlock()Lnet/minecraft/client/renderer/rendertype/RenderType;",
             ordinal = 0
         ),
         require = 0
@@ -45,16 +45,16 @@ public class MixinLevelRenderer_Optional {
         if (PortalRendering.isRendering()) {
             return null;
         }
-        return RenderType.translucent();
+        return RenderTypes.translucentMovingBlock();
     }
     
     //the camera position is used for translucent sort
     //avoid messing it
     @Redirect(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V",
+        method = "cullTerrain",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;setCamera(Lnet/minecraft/world/phys/Vec3;)V"
+            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher;setCameraPosition(Lnet/minecraft/world/phys/Vec3;)V"
         ),
         require = 0
     )
@@ -66,21 +66,7 @@ public class MixinLevelRenderer_Optional {
                 return;
             }
         }
-        chunkBuilder.setCamera(cameraPosition);
-    }
-    
-    @Inject(
-        method = "renderSectionLayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/ShaderInstance;apply()V"
-        ),
-        require = 0
-    )
-    private void onGetShaderInRenderingLayer(
-        RenderType renderType, double x, double y, double z, Matrix4f projectionMatrix, Matrix4f frustrumMatrix, CallbackInfo ci
-    ) {
-        FrontClipping.updateClippingEquationUniformForCurrentShader(false);
+        chunkBuilder.setCameraPosition(cameraPosition);
     }
     
     // correct the position of updating ViewArea

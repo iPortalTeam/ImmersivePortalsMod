@@ -7,6 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Rotation;
+import qouteall.imm_ptl.core.McHelper;
+
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,33 +66,36 @@ public enum AARotation {
         this.transformedX = transformedX;
         this.transformedY = dirCrossProduct(transformedZ, transformedX);
         matrix = new IntMatrix3(
-            this.transformedX.getNormal(),
-            this.transformedY.getNormal(),
-            this.transformedZ.getNormal()
+            McHelper.getNormal(this.transformedX),
+            McHelper.getNormal(this.transformedY),
+            McHelper.getNormal(this.transformedZ)
         );
         quaternion = matrix.toQuaternion();
     }
+
     
     public BlockPos transform(Vec3i vec) {
         return matrix.transform(vec);
     }
     
     public Direction transformDirection(Direction direction) {
-        BlockPos transformedVec = transform(direction.getNormal());
-        return Direction.fromDelta(
+        BlockPos transformedVec = transform(McHelper.getNormal(direction));
+        return Direction.getNearest(
             transformedVec.getX(),
             transformedVec.getY(),
-            transformedVec.getZ()
+            transformedVec.getZ(),
+            Direction.NORTH
         );
     }
     
     @NotNull
     public static Direction dirCrossProduct(Direction a, Direction b) {
         Validate.isTrue(a.getAxis() != b.getAxis());
-        Direction result = Direction.fromDelta(
+        Direction result = Direction.getNearest(
             a.getStepY() * b.getStepZ() - a.getStepZ() * b.getStepY(),
             a.getStepZ() * b.getStepX() - a.getStepX() * b.getStepZ(),
-            a.getStepX() * b.getStepY() - a.getStepY() * b.getStepX()
+            a.getStepX() * b.getStepY() - a.getStepY() * b.getStepX(),
+            Direction.NORTH
         );
         Validate.notNull(result);
         return result;

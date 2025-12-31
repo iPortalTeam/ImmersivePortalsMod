@@ -8,6 +8,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Arrays;
@@ -52,24 +54,25 @@ public class IntBox {
     public IntBox getExpanded(Direction.Axis axis, int n) {
         return expandOrShrink(
             Helper.scale(
-                Direction.get(
+                McHelper.getNormal(Direction.get(
                     Direction.AxisDirection.POSITIVE, axis
-                ).getNormal(),
+                )),
                 n
             )
         );
     }
+
     
     public IntBox getExpanded(Direction direction, int n) {
         if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
             return new IntBox(
                 l,
-                h.offset(Helper.scale(direction.getNormal(), n))
+                h.offset(Helper.scale(McHelper.getNormal(direction), n))
             );
         }
         else {
             return new IntBox(
-                l.offset(Helper.scale(direction.getNormal(), n)),
+                l.offset(Helper.scale(McHelper.getNormal(direction), n)),
                 h
             );
         }

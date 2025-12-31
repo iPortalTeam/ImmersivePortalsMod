@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -12,48 +12,36 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 
-@Mixin(LivingEntity.class)
+@Mixin(Entity.class)
 public class MixinLivingEntity_C {
-    @Shadow
-    protected double lerpX;
-    
-    @Shadow
-    protected double lerpY;
-    
-    @Shadow
-    protected double lerpZ;
-    
-    @Shadow
-    protected int lerpSteps;
-    
     // avoid entity position interpolate when crossing portal to the same dimension
     @Inject(
-        method = "lerpTo",
+        method = "moveOrInterpolateTo(Lnet/minecraft/world/phys/Vec3;FF)V",
         at = @At("RETURN")
     )
     private void onUpdateTrackedPositionAndAngles(
-        double x,
-        double y,
-        double z,
+        Vec3 position,
         float yaw,
         float pitch,
-        int interpolationSteps,
         CallbackInfo ci
     ) {
-        LivingEntity this_ = ((LivingEntity) (Object) this);
+        Entity this_ = (Entity) (Object) this;
+        if (!(this_ instanceof LivingEntity)) {
+            return;
+        }
         if (!IPGlobal.allowClientEntityPosInterpolation) {
-            this_.setPos(x, y, z);
+            this_.setPos(position.x, position.y, position.z);
             return;
         }
         
         Portal collidingPortal = ((IEEntity) this).ip_getCollidingPortal();
         if (collidingPortal != null) {
-            
-            double dx = this_.getX() - lerpX;
-            double dy = this_.getY() - lerpY;
-            double dz = this_.getZ() - lerpZ;
+            Vec3 interpolationPos = this_.getInterpolation().position();
+            double dx = this_.getX() - interpolationPos.x;
+            double dy = this_.getY() - interpolationPos.y;
+            double dz = this_.getZ() - interpolationPos.z;
             if (dx * dx + dy * dy + dz * dz > 4) {
-                Vec3 currPos = new Vec3(lerpX, lerpY, lerpZ);
+                Vec3 currPos = interpolationPos;
                 McHelper.setPosAndLastTickPos(
                     this_,
                     currPos,

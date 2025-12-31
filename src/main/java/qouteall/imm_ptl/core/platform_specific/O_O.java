@@ -95,7 +95,7 @@ public class O_O {
     
     @Nullable
     public static String getImmPtlModInfoUrl() {
-        String gameVersion = SharedConstants.getCurrentVersion().getName();
+        String gameVersion = SharedConstants.getCurrentVersion().name();
         
         if (O_O.isForge()) {
             return "https://qouteall.fun/immptl_info/forge-%s.json".formatted(gameVersion);

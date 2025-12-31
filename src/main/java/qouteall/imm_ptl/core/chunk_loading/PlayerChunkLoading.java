@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.game.ClientboundChunkBatchStartPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
-import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.Helper;
@@ -110,7 +108,8 @@ public class PlayerChunkLoading {
         }
         
         ServerGamePacketListenerImpl connection = serverPlayer.connection;
-        MinecraftServer server = serverPlayer.server;
+        MinecraftServer server = serverPlayer.level().getServer();
+        Validate.notNull(server, "server is null");
         
         int maxSendNum = (int) Math.floor(batchQuota);
         Validate.isTrue(maxSendNum != 0);
@@ -146,16 +145,10 @@ public class PlayerChunkLoading {
                 }
                 
                 ChunkMap chunkMap = world.getChunkSource().chunkMap;
-                ChunkHolder chunkHolder = ((IEChunkMap) chunkMap).ip_getChunkHolder(record.chunkPos);
-                
-                if (chunkHolder == null) {
-                    return false; // skip
-                }
-                
-                LevelChunk tickingChunk = chunkHolder.getTickingChunk();
+                LevelChunk chunkToSend = chunkMap.getChunkToSend(record.chunkPos);
                 
                 // skip that chunk if not yet loaded
-                if (tickingChunk == null) {
+                if (chunkToSend == null) {
                     return false;
                 }
                 
@@ -168,7 +161,7 @@ public class PlayerChunkLoading {
                 sentNum.increment();
                 
                 sendChunkPacket(
-                    connection, world, tickingChunk
+                    connection, world, chunkToSend
                 );
                 
                 if (sentNum.getValue() >= maxSendNum) {

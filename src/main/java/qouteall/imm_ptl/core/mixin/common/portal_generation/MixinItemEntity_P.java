@@ -1,8 +1,9 @@
 package qouteall.imm_ptl.core.mixin.common.portal_generation;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.profiling.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,15 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManager;
 
-import java.util.UUID;
-
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity_P {
     @Shadow
     public abstract ItemStack getItem();
-    
-    @Shadow
-    private @Nullable UUID thrower;
     
     @Inject(
         method = "Lnet/minecraft/world/entity/item/ItemEntity;tick()V",
@@ -35,18 +31,19 @@ public abstract class MixinItemEntity_P {
             return;
         }
         
-        if (thrower == null) {
+        Entity owner = this_.getOwner();
+        if (owner == null) {
             return;
         }
         
-        this_.level().getProfiler().push("imm_ptl_item_tick");
+        Profiler.get().push("imm_ptl_item_tick");
         
         CustomPortalGenManager customPortalGenManager =
-            IPPerServerInfo.of(this_.getServer()).customPortalGenManager;
+            IPPerServerInfo.of(this_.level().getServer()).customPortalGenManager;
         if (customPortalGenManager != null) {
             customPortalGenManager.onItemTick(this_);
         }
         
-        this_.level().getProfiler().pop();
+        Profiler.get().pop();
     }
 }

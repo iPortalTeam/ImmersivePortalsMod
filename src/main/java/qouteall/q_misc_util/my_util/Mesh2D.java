@@ -1694,14 +1694,20 @@ public class Mesh2D {
     }
     
     public static @Nullable Mesh2D fromTag(CompoundTag tag) {
-        ListTag pointCoords = tag.getList("pointCoords", Tag.TAG_DOUBLE);
-        ListTag triangles = tag.getList("triangles", Tag.TAG_INT);
+        ListTag pointCoords = tag.getListOrEmpty("pointCoords");
+        ListTag triangles = tag.getListOrEmpty("triangles");
         
         if (pointCoords.isEmpty() || pointCoords.size() % 2 != 0) {
             return null;
         }
+        if (pointCoords.get(0).getId() != Tag.TAG_DOUBLE) {
+            return null;
+        }
         
         if (triangles.isEmpty() || triangles.size() % 3 != 0) {
+            return null;
+        }
+        if (triangles.get(0).getId() != Tag.TAG_INT) {
             return null;
         }
         

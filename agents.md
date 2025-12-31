@@ -179,3 +179,11 @@ Ogni risposta che include modifiche deve contenere:
 2. **Modifiche al codice** (diff o patch)
 3. **Aggiornamento project.md** (sezioni aggiornate)
 4. **Aggiornamento changelog.md** (snippet pronto da incollare)
+
+
+## 8) Istruzioni specifiche per progetti JAVA - Minecraft - Fabric/Forge/NeoForge
+
+1. In caso di porting o di refactoring, usa **Mojmap** indipendentemente se siamo in contesto Fabric, Forge oppure NeoForge.
+2. In caso di crash durante i build, non proporre mai soluzioni che disabilitano un componente a meno che non sia per debug, proponi sempre dei fix mirati per poter implementare la nuova logica dopo un eventuale refactor o un porting.
+3. Utilizza sempre il comando **.\gradlew build --stacktrace --info *> build.log** poiché genera sempre un log verificabile ed eventualmente punta ad errori di build identificabili ad occhio.
+

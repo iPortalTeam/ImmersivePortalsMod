@@ -12,7 +12,9 @@ configs:
           void ( )*main( )*\(( )*( )*\)( )*(
           )*\{
         replacement: |-
-          uniform vec4 iportal_ClippingEquation;
+          layout(std140) uniform IPortalClipping {
+              vec4 iportal_ClippingEquation;
+          };
           void main() {
               gl_ClipDistance[0] = dot(Position.xyz + ChunkOffset, iportal_ClippingEquation.xyz) +
                   iportal_ClippingEquation.w;
@@ -28,7 +30,7 @@ configs:
       - rendertype_entity_translucent_cull
       - rendertype_entity_translucent
       - rendertype_entity_smooth_cutout
-      - rendertype_beacon_beam",
+      - rendertype_beacon_beam
       - rendertype_entity_translucent_emissive
       - rendertype_entity_translucent_cull
       - portal_area
@@ -38,7 +40,9 @@ configs:
           void ( )*main( )*\(( )*( )*\)( )*(
           )*\{
         replacement: |-
-          uniform vec4 iportal_ClippingEquation;
+          layout(std140) uniform IPortalClipping {
+              vec4 iportal_ClippingEquation;
+          };
           void main() {
               gl_ClipDistance[0] = dot(Position.xyz, iportal_ClippingEquation.xyz) + 
                   iportal_ClippingEquation.w;
@@ -53,7 +57,9 @@ configs:
           void ( )*main( )*\(( )*( )*\)( )*(
           )*\{
         replacement: |-
-          uniform vec4 iportal_ClippingEquation;
+          layout(std140) uniform IPortalClipping {
+              vec4 iportal_ClippingEquation;
+          };
           void main() {
       - pattern: "\\}(?![\\S\\s]*\\})"
         # match the last } ([\S\s] matches any character). use the modelview-transformed coordinate
@@ -71,8 +77,10 @@ configs:
       - pattern: |-
           void ( )*main( )*\(( )*( )*\)( )*(
           )*\{
-        replacement:
-          uniform vec4 iportal_ClippingEquation;
+        replacement: |-
+          layout(std140) uniform IPortalClipping {
+              vec4 iportal_ClippingEquation;
+          };
           void main() {
       - pattern: "\\}(?![\\S\\s]*\\})"
         # match the last } ([\S\s] matches any character). use the modelview-transformed coordinate

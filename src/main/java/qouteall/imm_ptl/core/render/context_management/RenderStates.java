@@ -89,7 +89,7 @@ public class RenderStates {
     ) {
         ClientWorldLoader.initializeIfNeeded();
         
-        Entity cameraEntity = MyRenderHelper.client.cameraEntity;
+        Entity cameraEntity = MyRenderHelper.client.getCameraEntity();
         
         if (cameraEntity == null) {
             return;
@@ -210,7 +210,7 @@ public class RenderStates {
         gameRenderer.ip_setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(client.level.dimension()).lightmapTexture);
         
-        Vec3 currCameraPos = client.gameRenderer.getMainCamera().getPosition();
+        Vec3 currCameraPos = client.gameRenderer.getMainCamera().position();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);
         if (cameraPosDelta.lengthSqr() > 1) {
             cameraPosDelta = Vec3.ZERO;

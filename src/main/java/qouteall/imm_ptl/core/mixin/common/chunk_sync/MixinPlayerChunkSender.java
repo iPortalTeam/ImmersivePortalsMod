@@ -50,11 +50,13 @@ public class MixinPlayerChunkSender {
         at = @At("HEAD"),
         cancellable = true
     )
+
     public void sendNextChunks(ServerPlayer serverPlayer, CallbackInfo ci) {
         ImmPtlChunkTracking.getPlayerInfo(serverPlayer).doChunkSending(serverPlayer);
         ci.cancel();
     }
-    
+
+
     /**
      * @author qouteall
      * @reason see class comment

@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.FastBlockPortalShape;
 import qouteall.q_misc_util.Helper;
@@ -153,8 +154,12 @@ public class DiligentMatcher {
         int multiplyFactor
     ) {
         Tuple<Direction.Axis, Direction.Axis> axs = Helper.getAnotherTwoAxis(shape.axis);
-        Vec3i v1 = Direction.fromAxisAndDirection(axs.getA(), Direction.AxisDirection.POSITIVE).getNormal();
-        Vec3i v2 = Direction.fromAxisAndDirection(axs.getB(), Direction.AxisDirection.POSITIVE).getNormal();
+        Vec3i v1 = McHelper.getNormal(
+            Direction.fromAxisAndDirection(axs.getA(), Direction.AxisDirection.POSITIVE)
+        );
+        Vec3i v2 = McHelper.getNormal(
+            Direction.fromAxisAndDirection(axs.getB(), Direction.AxisDirection.POSITIVE)
+        );
         
         return new BlockPortalShape(
             shape.area.stream().flatMap(

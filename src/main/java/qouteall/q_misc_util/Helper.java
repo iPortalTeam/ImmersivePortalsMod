@@ -216,11 +216,12 @@ public class Helper {
     }
     
     public static Vec3i getUnitFromAxis(Direction.Axis axis) {
-        return Direction.get(
+        return McHelper.getNormal(Direction.get(
             Direction.AxisDirection.POSITIVE,
             axis
-        ).getNormal();
+        ));
     }
+
     
     public static int getCoordinate(Vec3i v, Direction.Axis axis) {
         return axis.choose(v.getX(), v.getY(), v.getZ());
@@ -406,7 +407,7 @@ public class Helper {
     
     public static AABB getBoxSurfaceInversed(AABB box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
-        Vec3 shrinkVec = Vec3.atLowerCornerOf(direction.getNormal()).scale(size);
+        Vec3 shrinkVec = Vec3.atLowerCornerOf(McHelper.getNormal(direction)).scale(size);
         return box.contract(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
@@ -517,7 +518,7 @@ public class Helper {
         Tag term = tag.get(tagName);
         
         if (term instanceof StringTag) {
-            String id = ((StringTag) term).getAsString();
+            String id = ((StringTag) term).value();
             return dimIdToKey(id);
         }
         
@@ -686,7 +687,7 @@ public class Helper {
     }
     
     public static ListTag getCompoundList(CompoundTag tag, String name) {
-        return tag.getList(name, 10);
+        return tag.getListOrEmpty(name);
     }
     
     /**
@@ -1467,7 +1468,7 @@ public class Helper {
     
     public static @Nullable Vec3 vec3FromListTag(Tag tag) {
         if (tag instanceof ListTag listTag) {
-            if (listTag.getElementType() == Tag.TAG_DOUBLE && listTag.size() == 3) {
+            if (listTag.size() == 3 && listTag.get(0).getId() == Tag.TAG_DOUBLE) {
                 return new Vec3(
                     listTag.getDoubleOr(0, 0.0),
                     listTag.getDoubleOr(1, 0.0),

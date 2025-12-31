@@ -44,7 +44,7 @@ public class MixinPlayerList {
     
     @Inject(method = "Lnet/minecraft/server/players/PlayerList;sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayer player, ServerLevel world, CallbackInfo ci) {
-        if (!ServerTeleportationManager.of(player.server).isFiringMyChangeDimensionEvent) {
+        if (!ServerTeleportationManager.of(player.level().getServer()).isFiringMyChangeDimensionEvent) {
             GlobalPortalStorage.onPlayerLoggedIn(player);
         }
     }
@@ -126,7 +126,7 @@ public class MixinPlayerList {
                 )) {
                     rec.player.connection.send(
                         PacketRedirection.createRedirectedMessage(
-                            rec.player.getServer(),
+                            rec.player.level().getServer(),
                             dimension, (Packet<ClientGamePacketListener>) packet
                         )
                     );

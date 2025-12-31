@@ -888,7 +888,7 @@ public class ClientDebugCommand {
             );
         });
         
-        player.server.execute(() -> {
+        player.level().getServer().execute(() -> {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",

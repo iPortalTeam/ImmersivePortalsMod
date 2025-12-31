@@ -14,7 +14,8 @@ public class MixinLevelRenderer_ForceMainThreadRebuild {
             value = "INVOKE",
             target = "Lnet/minecraft/client/Options;prioritizeChunkUpdates()Lnet/minecraft/client/OptionInstance;",
             ordinal = 0
-        )
+        ),
+        index = 14
     )
     private boolean modifyShouldImmediatelyRebuild(boolean originalValue) {
         if (ForceMainThreadRebuild.isCurrentFrameForceMainThreadRebuild()) {

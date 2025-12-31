@@ -42,7 +42,7 @@ public class MixinEnderEyeItem_CVB {
         BlockState blockState = world.getBlockState(blockPos);
         if (blockState.getBlock() == Blocks.END_PORTAL_FRAME &&
             !blockState.getValue(EndPortalFrameBlock.HAS_EYE)) {
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
             else {

@@ -27,6 +27,8 @@ import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
+import net.minecraft.client.input.KeyEvent;
+
 import java.util.WeakHashMap;
 
 /**
@@ -109,7 +111,7 @@ public class ExampleGuiPortalRendering {
             if (frameBuffer == null) {
                 // the framebuffer size doesn't matter here
                 // because it will be automatically resized when rendering
-                frameBuffer = new TextureTarget(2, 2, true, true);
+                frameBuffer = new TextureTarget("imm_ptl_gui_portal", 2, 2, true);
             }
             
             Minecraft.getInstance().setScreen(new GuiPortalScreen(dimension, position));
@@ -205,16 +207,13 @@ public class ExampleGuiPortalRendering {
         
         // close when E is pressed
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (super.keyPressed(keyCode, scanCode, modifiers)) {
-                return true;
-            }
-            
-            if (minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+        public boolean keyPressed(KeyEvent event) {
+            if (super.keyPressed(event)) return true;
+
+            if (minecraft.options.keyInventory.matches(event)) {
                 this.onClose();
                 return true;
             }
-            
             return false;
         }
     }

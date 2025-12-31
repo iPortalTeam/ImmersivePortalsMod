@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ScaleUtils;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
@@ -102,7 +103,7 @@ public class BlockManipulationServer {
         BlockHitResult blockHitResult
     ) {
         Direction side = blockHitResult.getDirection();
-        Vec3 sideVec = Vec3.atLowerCornerOf(side.getNormal());
+        Vec3 sideVec = Vec3.atLowerCornerOf(McHelper.getNormal(side));
         BlockPos hitPos = blockHitResult.getBlockPos();
         Vec3 hitCenter = Vec3.atCenterOf(hitPos);
         
@@ -146,7 +147,7 @@ public class BlockManipulationServer {
             FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
             ServerboundPlayerActionPacket packet = ServerboundPlayerActionPacket.STREAM_CODEC.decode(buf);
             
-            ServerLevel world = player.server.getLevel(dimension);
+            ServerLevel world = player.level().getServer().getLevel(dimension);
             Validate.notNull(world, "missing %s", dimension.identifier());
             
             withRedirect(
@@ -169,7 +170,7 @@ public class BlockManipulationServer {
             FriendlyByteBuf buf = IPMcHelper.bytesToBuf(packetBytes);
             ServerboundUseItemOnPacket packet = ServerboundUseItemOnPacket.STREAM_CODEC.decode(buf);
             
-            ServerLevel world = player.server.getLevel(dimension);
+            ServerLevel world = player.level().getServer().getLevel(dimension);
             Validate.notNull(world, "missing %s", dimension.identifier());
             
             withRedirect(
@@ -218,7 +219,7 @@ public class BlockManipulationServer {
         if (isAttackingAction(action)) {
             player.gameMode.handleBlockBreakAction(
                 blockPos, action, packet.getDirection(),
-                world.getMaxBuildHeight(), packet.getSequence()
+                world.getMinY() + world.getHeight(), packet.getSequence()
             );
             player.connection.ackBlockChangesUpTo(packet.getSequence());
         }
@@ -264,7 +265,7 @@ public class BlockManipulationServer {
                 hand,
                 blockHitResult
             );
-            if (actionResult.shouldSwing()) {
+            if (actionResult.consumesAction()) {
                 player.swing(hand, true);
             }
         }
@@ -276,7 +277,9 @@ public class BlockManipulationServer {
         );
         
         BlockPos offseted = blockPos.relative(direction);
-        if (offseted.getY() >= world.getMinBuildHeight() && offseted.getY() < world.getMaxBuildHeight()) {
+        int minY = world.getMinY();
+        int maxYExclusive = minY + world.getHeight();
+        if (offseted.getY() >= minY && offseted.getY() < maxYExclusive) {
             PacketRedirection.sendRedirectedMessage(
                 player,
                 dimension,

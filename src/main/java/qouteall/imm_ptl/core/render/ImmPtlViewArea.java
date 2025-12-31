@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlClientChunkMap;
 import qouteall.imm_ptl.core.ducks.IERenderSection;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -123,7 +125,7 @@ public class ImmPtlViewArea extends ViewArea {
     public void releaseAllBuffers() {
         Set<RenderSection> allActiveBuiltChunks = getAllActiveBuiltChunks();
         allActiveBuiltChunks.forEach(
-            RenderSection::releaseBuffers
+            RenderSection::reset
         );
         columnMap.clear();
         presets.clear();
@@ -132,22 +134,17 @@ public class ImmPtlViewArea extends ViewArea {
     }
     
     /**
-     * It will only be called during vanilla outer world rendering
-     * Won't be called in portal rendering
+     * It will only be called during vanilla outer world rendering.
+     * Won't be called in portal rendering.
      * In {@link net.minecraft.client.renderer.SectionOcclusionGraph#initializeQueueForFullUpdate(Camera, Queue)} it reads the RenderChunks in another thread.
      */
     @Override
-    public void repositionCamera(double playerX, double playerZ) {
-        Minecraft.getInstance().getProfiler().push("built_section_storage");
-        
-        int cameraBlockX = Mth.floor(playerX);
-        int cameraBlockZ = Mth.floor(playerZ);
-        
-        int cameraChunkX = cameraBlockX >> 4;
-        int cameraChunkZ = cameraBlockZ >> 4;
-        ChunkPos cameraChunkPos = new ChunkPos(
-            cameraChunkX, cameraChunkZ
-        );
+    public void repositionCamera(SectionPos cameraSectionPos) {
+        ProfilerCompat.push("built_section_storage");
+
+        int cameraChunkX = cameraSectionPos.x();
+        int cameraChunkZ = cameraSectionPos.z();
+        ChunkPos cameraChunkPos = new ChunkPos(cameraChunkX, cameraChunkZ);
         
         Preset preset = presets.computeIfAbsent(
             cameraChunkPos.toLong(),
@@ -157,10 +154,11 @@ public class ImmPtlViewArea extends ViewArea {
         );
         preset.lastActiveTime = System.nanoTime();
         
+        syncSectionIndices(preset.data);
         this.sections = preset.data;
         this.currentPreset = preset;
         
-        Minecraft.getInstance().getProfiler().pop();
+        ProfilerCompat.pop();
     }
     
     @Override
@@ -257,9 +255,11 @@ public class ImmPtlViewArea extends ViewArea {
         int minY = McHelper.getMinY(level);
         
         for (int offsetCY = 0; offsetCY < sectionGridSizeY; offsetCY++) {
+            int sectionY = minSectionY + offsetCY;
+            long sectionNode = SectionPos.asLong(sectionX, sectionY, sectionZ);
             RenderSection builtChunk = factory.new RenderSection(
                 0,
-                sectionX << 4, (offsetCY << 4) + minY, sectionZ << 4
+                sectionNode
             );
             
             array[offsetCY] = builtChunk;
@@ -289,7 +289,7 @@ public class ImmPtlViewArea extends ViewArea {
     }
     
     private void purge() {
-        Minecraft.getInstance().getProfiler().push("my_built_section_storage_purge");
+        ProfilerCompat.push("my_built_section_storage_purge");
         
         long dropTime = Helper.secondToNano(GcMonitor.isMemoryNotEnough() ? 3 : 20);
         
@@ -340,7 +340,7 @@ public class ImmPtlViewArea extends ViewArea {
                 int num = 0;
                 while (!toDelete.isEmpty() && num < 100) {
                     RenderSection builtChunk = toDelete.poll();
-                    builtChunk.releaseBuffers();
+                    builtChunk.reset();
                     num++;
                 }
                 
@@ -348,7 +348,7 @@ public class ImmPtlViewArea extends ViewArea {
             });
         }
         
-        Minecraft.getInstance().getProfiler().pop();
+        ProfilerCompat.pop();
     }
     
     private boolean shouldDropPreset(long dropTime, long currentTime, Preset preset) {
@@ -373,6 +373,15 @@ public class ImmPtlViewArea extends ViewArea {
         result.remove(null);
         
         return result;
+    }
+
+    private void syncSectionIndices(RenderSection[] sectionsToSync) {
+        for (int index = 0; index < sectionsToSync.length; index++) {
+            RenderSection section = sectionsToSync[index];
+            if (section != null) {
+                ((IERenderSection) section).portal_setIndex(index);
+            }
+        }
     }
     
     public int getManagedSectionNum() {

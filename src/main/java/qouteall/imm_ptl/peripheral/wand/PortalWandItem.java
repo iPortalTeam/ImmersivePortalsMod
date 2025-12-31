@@ -11,11 +11,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,16 +26,25 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PortalWandItem extends Item {
-    public static final PortalWandItem instance = new PortalWandItem(new Properties());
+    public static final PortalWandItem instance = new PortalWandItem(
+        new Properties()
+            .setId(ResourceKey.create(
+                Registries.ITEM,
+                McHelper.newIdentifier("immersive_portals", "portal_wand")
+            ))
+    );
     
     public static void init() {
         Registry.register(
@@ -219,17 +230,20 @@ public class PortalWandItem extends Item {
     @Environment(EnvType.CLIENT)
     @Override
     public void appendHoverText(
-        ItemStack stack, Item.TooltipContext tooltipContext,
-        List<Component> tooltip, TooltipFlag tooltipFlag
+        ItemStack stack,
+        Item.TooltipContext tooltipContext,
+        TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltip,
+        TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, tooltipContext, tooltip, tooltipFlag);
+        super.appendHoverText(stack, tooltipContext, tooltipDisplay, tooltip, tooltipFlag);
         
-        tooltip.add(Component.translatable(
+        tooltip.accept(Component.translatable(
             "imm_ptl.wand.item_desc_1",
             Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(),
             Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage()
         ));
-        tooltip.add(Component.translatable(
+        tooltip.accept(Component.translatable(
             "imm_ptl.wand.item_desc_2",
             Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(),
             Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage()
@@ -248,8 +262,8 @@ public class PortalWandItem extends Item {
     }
     
     public static void showSettings(Player player) {
-        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_1"));
-        player.sendSystemMessage(Component.translatable("imm_ptl.wand.settings_alignment"));
+        player.displayClientMessage(Component.translatable("imm_ptl.wand.settings_1"), false);
+        player.displayClientMessage(Component.translatable("imm_ptl.wand.settings_alignment"), false);
         
         int[] alignments = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 32, 64};
         
@@ -267,13 +281,17 @@ public class PortalWandItem extends Item {
             "/imm_ptl_client_debug wand set_cursor_alignment 0"
         ));
         
-        player.sendSystemMessage(
-            alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b))
+        player.displayClientMessage(
+            alignmentSettingTexts.stream().reduce(Component.literal(""), (a, b) -> a.append(" ").append(b)),
+            false
         );
         
-        player.sendSystemMessage(Component.translatable(
-            "imm_ptl.wand.settings_2", Minecraft.getInstance().options.keyChat.getTranslatedKeyMessage()
-        ));
+        player.displayClientMessage(
+            Component.translatable(
+                "imm_ptl.wand.settings_2", Minecraft.getInstance().options.keyChat.getTranslatedKeyMessage()
+            ),
+            false
+        );
     }
     
     private static boolean instructionInformed = false;

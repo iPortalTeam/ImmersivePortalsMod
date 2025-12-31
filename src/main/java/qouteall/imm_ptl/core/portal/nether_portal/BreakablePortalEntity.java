@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -60,17 +62,18 @@ public abstract class BreakablePortalEntity extends Portal {
     
     @Override
     public boolean isPortalValid() {
-        if (level().isClientSide) {
+        if (level().isClientSide()) {
             return super.isPortalValid();
         }
         return super.isPortalValid() && blockPortalShape != null && reversePortalId != null;
     }
     
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        CompoundTag compoundTag = extractCompoundTag(input);
         if (compoundTag.contains("netherPortalShape")) {
-            blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
+            blockPortalShape = new BlockPortalShape(compoundTag.getCompoundOrEmpty("netherPortalShape"));
         }
         
         reversePortalId = Helper.getUuid(compoundTag, "reversePortalId");
@@ -79,22 +82,22 @@ public abstract class BreakablePortalEntity extends Portal {
             reversePortalId = Util.NIL_UUID;
         }
         
-        unbreakable = compoundTag.getBoolean("unbreakable");
+        unbreakable = compoundTag.getBooleanOr("unbreakable", false);
         
         if (compoundTag.contains("overlayBlockState")) {
             BlockState overlayBlockState = NbtUtils.readBlockState(
                 level().holderLookup(Registries.BLOCK),
-                compoundTag.getCompound("overlayBlockState")
+                compoundTag.getCompoundOrEmpty("overlayBlockState")
             );
             if (overlayBlockState.isAir()) {
                 overlayInfo = null;
             }
             else {
-                double overlayOpacity = compoundTag.getDouble("overlayOpacity");
+                double overlayOpacity = compoundTag.getDoubleOr("overlayOpacity", 0.0);
                 if (overlayOpacity == 0) {
                     overlayOpacity = 0.5;
                 }
-                double overlayOffset = compoundTag.getDouble("overlayOffset");
+                double overlayOffset = compoundTag.getDoubleOr("overlayOffset", 0.0);
                 DQuaternion rotation = Helper.getQuaternion(compoundTag, "overlayRotation");
                 
                 overlayInfo = new OverlayInfo(
@@ -108,8 +111,9 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        CompoundTag compoundTag = extractCompoundTag(output);
         if (blockPortalShape != null) {
             compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
@@ -177,7 +181,7 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     private void checkPortalIntegrity() {
-        Validate.isTrue(!level().isClientSide);
+        Validate.isTrue(!level().isClientSide());
         
         if (!isPortalValid()) {
             remove(RemovalReason.KILLED);

@@ -24,6 +24,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ScaleUtils;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.mixin.common.collision.IEEntity_Collision;
@@ -401,7 +402,7 @@ public class CollisionHelper {
     }
     
     public static void updateCollidingPortalForWorld(Level world, float partialTick) {
-        world.getProfiler().push("update_colliding_portal");
+        ProfilerCompat.push("update_colliding_portal");
         
         List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
@@ -425,7 +426,7 @@ public class CollisionHelper {
             }
         }
         
-        world.getProfiler().pop();
+        ProfilerCompat.pop();
     }
     
     public static void init() {

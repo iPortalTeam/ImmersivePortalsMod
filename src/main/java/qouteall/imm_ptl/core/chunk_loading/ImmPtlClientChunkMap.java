@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.SectionPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -16,6 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,12 +24,14 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
+import qouteall.imm_ptl.core.mixin.client.accessor.IEClientChunkCacheStorage;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -58,8 +60,7 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     public static final SignalArged<LevelChunk> clientChunkUnloadSignal = new SignalArged<>();
     
     public ImmPtlClientChunkMap(ClientLevel clientWorld, int loadDistance) {
-        super(clientWorld, 1);
-        // the chunk array is unused. make it small by passing 1 as load distance to super constructor
+        super(clientWorld, loadDistance);
         
         mainThread = ((IEMinecraftClient) Minecraft.getInstance()).ip_getRunningThread();
     }
@@ -77,7 +78,9 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
             });
             
             O_O.postClientChunkUnloadEvent(chunk);
-            this.level.unload(chunk);
+            if (!dropFromStorageIfInRange(chunkPos)) {
+                this.level.unload(chunk);
+            }
             SodiumInterface.invoker.onClientChunkUnloaded(level, chunkPos.x, chunkPos.z);
             clientChunkUnloadSignal.emit(chunk);
         }
@@ -139,24 +142,43 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     @Override
     public LevelChunk replaceWithPacketData(
         int x, int z,
-        FriendlyByteBuf buf, CompoundTag nbt,
+        FriendlyByteBuf buf, Map<Heightmap.Types, long[]> heightmaps,
         Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         Validate.isTrue(Thread.currentThread() == mainThread);
         
+        IEClientChunkCacheStorage storageAccess = getStorageAccess();
+        boolean inRange = storageAccess.ip_inRange(x, z);
+        int storageIndex = inRange ? storageAccess.ip_getIndex(x, z) : -1;
+        LevelChunk storageChunk = inRange ? storageAccess.ip_getChunk(storageIndex) : null;
+        boolean useStorageChunk = isValidChunk(storageChunk, x, z);
+        
         long chunkPosLong = ChunkPos.asLong(x, z);
-        LevelChunk worldChunk = chunkMapForMainThread.get(chunkPosLong);
+        LevelChunk worldChunk = useStorageChunk
+            ? storageChunk
+            : chunkMapForMainThread.get(chunkPosLong);
         if (worldChunk == null) {
             worldChunk = new LevelChunk(this.level, new ChunkPos(x, z));
-            loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
-            
+        }
+        
+        loadChunkDataFromPacket(buf, heightmaps, worldChunk, consumer);
+        
+        if (inRange) {
+            if (!useStorageChunk) {
+                storageAccess.ip_replace(storageIndex, worldChunk);
+            }
+            storageAccess.ip_refreshEmptySections(worldChunk);
+        }
+        
+        LevelChunk previousChunk = chunkMapForMainThread.get(chunkPosLong);
+        if (previousChunk != worldChunk) {
             LevelChunk worldChunkToPut = worldChunk; // lambda can only capture effectively final variables
             modifyChunkMap(chunkMap -> {
                 chunkMap.put(chunkPosLong, worldChunkToPut);
             });
-        }
-        else {
-            loadChunkDataFromPacket(buf, nbt, worldChunk, consumer);
+            if (previousChunk != null) {
+                this.level.unload(previousChunk);
+            }
         }
         
         this.level.onChunkLoaded(new ChunkPos(x, z));
@@ -175,12 +197,12 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
      */
     private void loadChunkDataFromPacket(
         FriendlyByteBuf buf,
-        CompoundTag nbt,
+        Map<Heightmap.Types, long[]> heightmaps,
         LevelChunk worldChunk,
         Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         try {
-            worldChunk.replaceWithPacketData(buf, nbt, consumer);
+            worldChunk.replaceWithPacketData(buf, heightmaps, consumer);
         }
         catch (Exception e) {
             LOGGER.error(
@@ -212,12 +234,12 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     
     @Override
     public void updateViewCenter(int x, int z) {
-        // do nothing
+        super.updateViewCenter(x, z);
     }
     
     @Override
     public void updateViewRadius(int r) {
-        // do nothing
+        super.updateViewRadius(r);
     }
     
     @Override
@@ -236,6 +258,32 @@ public class ImmPtlClientChunkMap extends ClientChunkCache {
     public void onLightUpdate(LightLayer lightType, SectionPos chunkSectionPos) {
         ClientWorldLoader.getWorldRenderer(level.dimension())
             .setSectionDirty(chunkSectionPos.x(), chunkSectionPos.y(), chunkSectionPos.z());
+    }
+    
+    private boolean dropFromStorageIfInRange(ChunkPos chunkPos) {
+        IEClientChunkCacheStorage storageAccess = getStorageAccess();
+        if (!storageAccess.ip_inRange(chunkPos.x, chunkPos.z)) {
+            return false;
+        }
+        int index = storageAccess.ip_getIndex(chunkPos.x, chunkPos.z);
+        LevelChunk storageChunk = storageAccess.ip_getChunk(index);
+        if (!isValidChunk(storageChunk, chunkPos.x, chunkPos.z)) {
+            return false;
+        }
+        storageAccess.ip_drop(index, storageChunk);
+        return true;
+    }
+    
+    private IEClientChunkCacheStorage getStorageAccess() {
+        return (IEClientChunkCacheStorage) (Object) this.storage;
+    }
+    
+    private static boolean isValidChunk(LevelChunk chunk, int x, int z) {
+        if (chunk == null) {
+            return false;
+        }
+        ChunkPos chunkPos = chunk.getPos();
+        return chunkPos.x == x && chunkPos.z == z;
     }
     
 }

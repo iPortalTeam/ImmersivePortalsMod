@@ -1,0 +1,351 @@
+Compiled from "BiomeAmbientSoundsHandler.java"
+public class net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler implements net.minecraft.client.resources.sounds.AmbientSoundHandler {
+  private static final int LOOP_SOUND_CROSS_FADE_TIME;
+
+  private static final float SKY_MOOD_RECOVERY_RATE;
+
+  private final net.minecraft.client.player.LocalPlayer player;
+
+  private final net.minecraft.client.sounds.SoundManager soundManager;
+
+  private final net.minecraft.util.RandomSource random;
+
+  private final it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap<net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler$LoopSoundInstance> loopSounds;
+
+  private float moodiness;
+
+  private net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent> previousLoopSound;
+
+  public net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler(net.minecraft.client.player.LocalPlayer, net.minecraft.client.sounds.SoundManager);
+    Code:
+       0: aload_0
+       1: invokespecial #50                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #52                 // class it/unimi/dsi/fastutil/objects/Object2ObjectArrayMap
+       8: dup
+       9: invokespecial #53                 // Method it/unimi/dsi/fastutil/objects/Object2ObjectArrayMap."<init>":()V
+      12: putfield      #55                 // Field loopSounds:Lit/unimi/dsi/fastutil/objects/Object2ObjectArrayMap;
+      15: aload_0
+      16: aload_1
+      17: invokevirtual #61                 // Method net/minecraft/client/player/LocalPlayer.level:()Lnet/minecraft/world/level/Level;
+      20: invokevirtual #67                 // Method net/minecraft/world/level/Level.getRandom:()Lnet/minecraft/util/RandomSource;
+      23: putfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+      26: aload_0
+      27: aload_1
+      28: putfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      31: aload_0
+      32: aload_2
+      33: putfield      #73                 // Field soundManager:Lnet/minecraft/client/sounds/SoundManager;
+      36: return
+
+  public float getMoodiness();
+    Code:
+       0: aload_0
+       1: getfield      #79                 // Field moodiness:F
+       4: freturn
+
+  public void tick();
+    Code:
+       0: aload_0
+       1: getfield      #55                 // Field loopSounds:Lit/unimi/dsi/fastutil/objects/Object2ObjectArrayMap;
+       4: invokevirtual #84                 // Method it/unimi/dsi/fastutil/objects/Object2ObjectArrayMap.values:()Lit/unimi/dsi/fastutil/objects/ObjectCollection;
+       7: invokedynamic #106,  0            // InvokeDynamic #0:test:()Ljava/util/function/Predicate;
+      12: invokeinterface #112,  2          // InterfaceMethod it/unimi/dsi/fastutil/objects/ObjectCollection.removeIf:(Ljava/util/function/Predicate;)Z
+      17: pop
+      18: aload_0
+      19: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      22: invokevirtual #61                 // Method net/minecraft/client/player/LocalPlayer.level:()Lnet/minecraft/world/level/Level;
+      25: astore_1
+      26: aload_1
+      27: invokevirtual #116                // Method net/minecraft/world/level/Level.environmentAttributes:()Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;
+      30: astore_2
+      31: aload_2
+      32: getstatic     #122                // Field net/minecraft/world/attribute/EnvironmentAttributes.AMBIENT_SOUNDS:Lnet/minecraft/world/attribute/EnvironmentAttribute;
+      35: aload_0
+      36: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      39: invokevirtual #126                // Method net/minecraft/client/player/LocalPlayer.position:()Lnet/minecraft/world/phys/Vec3;
+      42: invokevirtual #132                // Method net/minecraft/world/attribute/EnvironmentAttributeSystem.getValue:(Lnet/minecraft/world/attribute/EnvironmentAttribute;Lnet/minecraft/world/phys/Vec3;)Ljava/lang/Object;
+      45: checkcast     #134                // class net/minecraft/world/attribute/AmbientSounds
+      48: astore_3
+      49: aload_3
+      50: invokevirtual #138                // Method net/minecraft/world/attribute/AmbientSounds.loop:()Ljava/util/Optional;
+      53: aconst_null
+      54: invokevirtual #144                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+      57: checkcast     #146                // class net/minecraft/core/Holder
+      60: astore        4
+      62: aload         4
+      64: aload_0
+      65: getfield      #148                // Field previousLoopSound:Lnet/minecraft/core/Holder;
+      68: invokestatic  #154                // Method java/util/Objects.equals:(Ljava/lang/Object;Ljava/lang/Object;)Z
+      71: ifne          120
+      74: aload_0
+      75: aload         4
+      77: putfield      #148                // Field previousLoopSound:Lnet/minecraft/core/Holder;
+      80: aload_0
+      81: getfield      #55                 // Field loopSounds:Lit/unimi/dsi/fastutil/objects/Object2ObjectArrayMap;
+      84: invokevirtual #84                 // Method it/unimi/dsi/fastutil/objects/Object2ObjectArrayMap.values:()Lit/unimi/dsi/fastutil/objects/ObjectCollection;
+      87: invokedynamic #166,  0            // InvokeDynamic #1:accept:()Ljava/util/function/Consumer;
+      92: invokeinterface #170,  2          // InterfaceMethod it/unimi/dsi/fastutil/objects/ObjectCollection.forEach:(Ljava/util/function/Consumer;)V
+      97: aload         4
+      99: ifnull        120
+     102: aload_0
+     103: getfield      #55                 // Field loopSounds:Lit/unimi/dsi/fastutil/objects/Object2ObjectArrayMap;
+     106: aload         4
+     108: aload_0
+     109: aload         4
+     111: invokedynamic #183,  0            // InvokeDynamic #2:apply:(Lnet/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler;Lnet/minecraft/core/Holder;)Ljava/util/function/BiFunction;
+     116: invokevirtual #187                // Method it/unimi/dsi/fastutil/objects/Object2ObjectArrayMap.compute:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+     119: pop
+     120: aload_3
+     121: invokevirtual #191                // Method net/minecraft/world/attribute/AmbientSounds.additions:()Ljava/util/List;
+     124: invokeinterface #197,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     129: astore        5
+     131: aload         5
+     133: invokeinterface #202,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     138: ifeq          198
+     141: aload         5
+     143: invokeinterface #206,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     148: checkcast     #208                // class net/minecraft/world/attribute/AmbientAdditionsSettings
+     151: astore        6
+     153: aload_0
+     154: getfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+     157: invokeinterface #214,  1          // InterfaceMethod net/minecraft/util/RandomSource.nextDouble:()D
+     162: aload         6
+     164: invokevirtual #217                // Method net/minecraft/world/attribute/AmbientAdditionsSettings.tickChance:()D
+     167: dcmpg
+     168: ifge          195
+     171: aload_0
+     172: getfield      #73                 // Field soundManager:Lnet/minecraft/client/sounds/SoundManager;
+     175: aload         6
+     177: invokevirtual #221                // Method net/minecraft/world/attribute/AmbientAdditionsSettings.soundEvent:()Lnet/minecraft/core/Holder;
+     180: invokeinterface #223,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+     185: checkcast     #225                // class net/minecraft/sounds/SoundEvent
+     188: invokestatic  #231                // Method net/minecraft/client/resources/sounds/SimpleSoundInstance.forAmbientAddition:(Lnet/minecraft/sounds/SoundEvent;)Lnet/minecraft/client/resources/sounds/SimpleSoundInstance;
+     191: invokevirtual #237                // Method net/minecraft/client/sounds/SoundManager.play:(Lnet/minecraft/client/resources/sounds/SoundInstance;)Lnet/minecraft/client/sounds/SoundEngine$PlayResult;
+     194: pop
+     195: goto          131
+     198: aload_3
+     199: invokevirtual #240                // Method net/minecraft/world/attribute/AmbientSounds.mood:()Ljava/util/Optional;
+     202: aload_0
+     203: aload_1
+     204: invokedynamic #250,  0            // InvokeDynamic #3:accept:(Lnet/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler;Lnet/minecraft/world/level/Level;)Ljava/util/function/Consumer;
+     209: invokevirtual #253                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+     212: return
+
+  private void method_75840(net.minecraft.world.level.Level, net.minecraft.world.attribute.AmbientMoodSettings);
+    Code:
+       0: aload_2
+       1: invokevirtual #268                // Method net/minecraft/world/attribute/AmbientMoodSettings.blockSearchExtent:()I
+       4: iconst_2
+       5: imul
+       6: iconst_1
+       7: iadd
+       8: istore_3
+       9: aload_0
+      10: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      13: invokevirtual #271                // Method net/minecraft/client/player/LocalPlayer.getX:()D
+      16: aload_0
+      17: getfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+      20: iload_3
+      21: invokeinterface #275,  2          // InterfaceMethod net/minecraft/util/RandomSource.nextInt:(I)I
+      26: i2d
+      27: dadd
+      28: aload_2
+      29: invokevirtual #268                // Method net/minecraft/world/attribute/AmbientMoodSettings.blockSearchExtent:()I
+      32: i2d
+      33: dsub
+      34: aload_0
+      35: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      38: invokevirtual #278                // Method net/minecraft/client/player/LocalPlayer.getEyeY:()D
+      41: aload_0
+      42: getfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+      45: iload_3
+      46: invokeinterface #275,  2          // InterfaceMethod net/minecraft/util/RandomSource.nextInt:(I)I
+      51: i2d
+      52: dadd
+      53: aload_2
+      54: invokevirtual #268                // Method net/minecraft/world/attribute/AmbientMoodSettings.blockSearchExtent:()I
+      57: i2d
+      58: dsub
+      59: aload_0
+      60: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+      63: invokevirtual #281                // Method net/minecraft/client/player/LocalPlayer.getZ:()D
+      66: aload_0
+      67: getfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+      70: iload_3
+      71: invokeinterface #275,  2          // InterfaceMethod net/minecraft/util/RandomSource.nextInt:(I)I
+      76: i2d
+      77: dadd
+      78: aload_2
+      79: invokevirtual #268                // Method net/minecraft/world/attribute/AmbientMoodSettings.blockSearchExtent:()I
+      82: i2d
+      83: dsub
+      84: invokestatic  #287                // Method net/minecraft/core/BlockPos.containing:(DDD)Lnet/minecraft/core/BlockPos;
+      87: astore        4
+      89: aload_1
+      90: getstatic     #293                // Field net/minecraft/world/level/LightLayer.SKY:Lnet/minecraft/world/level/LightLayer;
+      93: aload         4
+      95: invokevirtual #297                // Method net/minecraft/world/level/Level.getBrightness:(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/BlockPos;)I
+      98: istore        5
+     100: iload         5
+     102: ifle          127
+     105: aload_0
+     106: dup
+     107: getfield      #79                 // Field moodiness:F
+     110: iload         5
+     112: i2f
+     113: ldc_w         #298                // float 15.0f
+     116: fdiv
+     117: ldc           #30                 // float 0.001f
+     119: fmul
+     120: fsub
+     121: putfield      #79                 // Field moodiness:F
+     124: goto          154
+     127: aload_0
+     128: dup
+     129: getfield      #79                 // Field moodiness:F
+     132: aload_1
+     133: getstatic     #301                // Field net/minecraft/world/level/LightLayer.BLOCK:Lnet/minecraft/world/level/LightLayer;
+     136: aload         4
+     138: invokevirtual #297                // Method net/minecraft/world/level/Level.getBrightness:(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/BlockPos;)I
+     141: iconst_1
+     142: isub
+     143: i2f
+     144: aload_2
+     145: invokevirtual #304                // Method net/minecraft/world/attribute/AmbientMoodSettings.tickDelay:()I
+     148: i2f
+     149: fdiv
+     150: fsub
+     151: putfield      #79                 // Field moodiness:F
+     154: aload_0
+     155: getfield      #79                 // Field moodiness:F
+     158: fconst_1
+     159: fcmpl
+     160: iflt          353
+     163: aload         4
+     165: invokevirtual #306                // Method net/minecraft/core/BlockPos.getX:()I
+     168: i2d
+     169: ldc2_w        #307                // double 0.5d
+     172: dadd
+     173: dstore        6
+     175: aload         4
+     177: invokevirtual #311                // Method net/minecraft/core/BlockPos.getY:()I
+     180: i2d
+     181: ldc2_w        #307                // double 0.5d
+     184: dadd
+     185: dstore        8
+     187: aload         4
+     189: invokevirtual #313                // Method net/minecraft/core/BlockPos.getZ:()I
+     192: i2d
+     193: ldc2_w        #307                // double 0.5d
+     196: dadd
+     197: dstore        10
+     199: dload         6
+     201: aload_0
+     202: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     205: invokevirtual #271                // Method net/minecraft/client/player/LocalPlayer.getX:()D
+     208: dsub
+     209: dstore        12
+     211: dload         8
+     213: aload_0
+     214: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     217: invokevirtual #278                // Method net/minecraft/client/player/LocalPlayer.getEyeY:()D
+     220: dsub
+     221: dstore        14
+     223: dload         10
+     225: aload_0
+     226: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     229: invokevirtual #281                // Method net/minecraft/client/player/LocalPlayer.getZ:()D
+     232: dsub
+     233: dstore        16
+     235: dload         12
+     237: dload         12
+     239: dmul
+     240: dload         14
+     242: dload         14
+     244: dmul
+     245: dadd
+     246: dload         16
+     248: dload         16
+     250: dmul
+     251: dadd
+     252: invokestatic  #319                // Method java/lang/Math.sqrt:(D)D
+     255: dstore        18
+     257: dload         18
+     259: aload_2
+     260: invokevirtual #322                // Method net/minecraft/world/attribute/AmbientMoodSettings.soundPositionOffset:()D
+     263: dadd
+     264: dstore        20
+     266: aload_2
+     267: invokevirtual #323                // Method net/minecraft/world/attribute/AmbientMoodSettings.soundEvent:()Lnet/minecraft/core/Holder;
+     270: invokeinterface #223,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+     275: checkcast     #225                // class net/minecraft/sounds/SoundEvent
+     278: aload_0
+     279: getfield      #69                 // Field random:Lnet/minecraft/util/RandomSource;
+     282: aload_0
+     283: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     286: invokevirtual #271                // Method net/minecraft/client/player/LocalPlayer.getX:()D
+     289: dload         12
+     291: dload         18
+     293: ddiv
+     294: dload         20
+     296: dmul
+     297: dadd
+     298: aload_0
+     299: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     302: invokevirtual #278                // Method net/minecraft/client/player/LocalPlayer.getEyeY:()D
+     305: dload         14
+     307: dload         18
+     309: ddiv
+     310: dload         20
+     312: dmul
+     313: dadd
+     314: aload_0
+     315: getfield      #71                 // Field player:Lnet/minecraft/client/player/LocalPlayer;
+     318: invokevirtual #281                // Method net/minecraft/client/player/LocalPlayer.getZ:()D
+     321: dload         16
+     323: dload         18
+     325: ddiv
+     326: dload         20
+     328: dmul
+     329: dadd
+     330: invokestatic  #327                // Method net/minecraft/client/resources/sounds/SimpleSoundInstance.forAmbientMood:(Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/util/RandomSource;DDD)Lnet/minecraft/client/resources/sounds/SimpleSoundInstance;
+     333: astore        22
+     335: aload_0
+     336: getfield      #73                 // Field soundManager:Lnet/minecraft/client/sounds/SoundManager;
+     339: aload         22
+     341: invokevirtual #237                // Method net/minecraft/client/sounds/SoundManager.play:(Lnet/minecraft/client/resources/sounds/SoundInstance;)Lnet/minecraft/client/sounds/SoundEngine$PlayResult;
+     344: pop
+     345: aload_0
+     346: fconst_0
+     347: putfield      #79                 // Field moodiness:F
+     350: goto          365
+     353: aload_0
+     354: aload_0
+     355: getfield      #79                 // Field moodiness:F
+     358: fconst_0
+     359: invokestatic  #331                // Method java/lang/Math.max:(FF)F
+     362: putfield      #79                 // Field moodiness:F
+     365: return
+
+  private net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler$LoopSoundInstance method_25459(net.minecraft.core.Holder, net.minecraft.core.Holder, net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler$LoopSoundInstance);
+    Code:
+       0: aload_3
+       1: ifnonnull     30
+       4: new           #13                 // class net/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler$LoopSoundInstance
+       7: dup
+       8: aload_1
+       9: invokeinterface #223,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+      14: checkcast     #225                // class net/minecraft/sounds/SoundEvent
+      17: invokespecial #352                // Method net/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler$LoopSoundInstance."<init>":(Lnet/minecraft/sounds/SoundEvent;)V
+      20: astore_3
+      21: aload_0
+      22: getfield      #73                 // Field soundManager:Lnet/minecraft/client/sounds/SoundManager;
+      25: aload_3
+      26: invokevirtual #237                // Method net/minecraft/client/sounds/SoundManager.play:(Lnet/minecraft/client/resources/sounds/SoundInstance;)Lnet/minecraft/client/sounds/SoundEngine$PlayResult;
+      29: pop
+      30: aload_3
+      31: invokevirtual #355                // Method net/minecraft/client/resources/sounds/BiomeAmbientSoundsHandler$LoopSoundInstance.fadeIn:()V
+      34: aload_3
+      35: areturn
+}

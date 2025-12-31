@@ -22,7 +22,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.collision.PortalCollisionEntry;
 import qouteall.imm_ptl.core.collision.PortalCollisionHandler;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.IrisCompat;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.portal.Mirror;
@@ -89,7 +89,7 @@ public class CrossPortalEntityRenderer {
     }
     
     private static boolean isCrossPortalRenderingEnabled() {
-        if (IrisInterface.invoker.isIrisPresent()) {
+        if (IrisCompat.isIrisPresent()) {
             return false;
         }
         return IPGlobal.correctCrossPortalEntityRendering;
@@ -190,7 +190,7 @@ public class CrossPortalEntityRenderer {
                 if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)
                     && !Portal.isReversePortal(((Portal) renderingPortal), collidingPortal)
                 ) {
-                    Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+                    Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
                     
                     Plane innerClipping = collidingPortal.getInnerClipping();
                     
@@ -220,7 +220,7 @@ public class CrossPortalEntityRenderer {
         Portal transformingPortal,
         PoseStack matrixStack
     ) {
-        Vec3 cameraPos = client.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = client.gameRenderer.getMainCamera().position();
         
         ClientLevel newWorld = ClientWorldLoader.getWorld(transformingPortal.getDestDim());
         
@@ -368,7 +368,7 @@ public class CrossPortalEntityRenderer {
     
     public static boolean shouldRenderEntityNow(Entity entity) {
         Validate.notNull(entity);
-        if (IrisInterface.invoker.isRenderingShadowMap()) {
+        if (IrisCompat.isRenderingShadowMap()) {
             return true;
         }
         if (PortalRendering.isRendering()) {
@@ -383,7 +383,7 @@ public class CrossPortalEntityRenderer {
             if (collidingPortal != null && !(entity instanceof LocalPlayer)) {
                 if (renderingPortal instanceof Portal) {
                     if (!Portal.isReversePortal(collidingPortal, ((Portal) renderingPortal))) {
-                        Vec3 cameraPos = PortalRenderer.client.gameRenderer.getMainCamera().getPosition();
+                        Vec3 cameraPos = PortalRenderer.client.gameRenderer.getMainCamera().position();
                         
                         boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
                             .dot(collidingPortal.getNormal()) < 0;
@@ -412,7 +412,7 @@ public class CrossPortalEntityRenderer {
         
         double distanceToCamera =
             getRenderingCameraPos(entity)
-                .distanceTo(client.gameRenderer.getMainCamera().getPosition());
+                .distanceTo(client.gameRenderer.getMainCamera().position());
         //avoid rendering player too near and block view except mirror
         return distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors();
     }

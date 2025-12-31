@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.Vec3;
@@ -138,7 +139,7 @@ public class BorderBarrierFiller {
                 ChunkAccess chunk = world.getChunk(columnPos);
                 for (int y = minY; y < maxYEx; y++) {
                     temp1.set(columnPos.getX(), y, columnPos.getZ());
-                    chunk.setBlockState(temp1, Blocks.AIR.defaultBlockState(), false);
+                    chunk.setBlockState(temp1, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
                     lightingProvider.checkBlock(temp1);
                 }
                 

@@ -16,7 +16,7 @@ public class MixinGameRenderer_Isometric {
         cancellable = true
     )
     private void onGetBasicProjectionMatrix(
-        double d,
+        float fov,
         CallbackInfoReturnable<Matrix4f> cir
     ) {
         if (TransformationManager.isIsometricView) {

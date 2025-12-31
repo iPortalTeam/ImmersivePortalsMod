@@ -6,6 +6,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
+
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 
 import java.util.Objects;
@@ -32,10 +34,11 @@ public class IntMatrix3 {
         Direction d1 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.X, Direction.AxisDirection.POSITIVE));
         Direction d2 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.Y, Direction.AxisDirection.POSITIVE));
         Direction d3 = t.rotate(Direction.fromAxisAndDirection(Direction.Axis.Z, Direction.AxisDirection.POSITIVE));
-        x = d1.getNormal();
-        y = d2.getNormal();
-        z = d3.getNormal();
+        x = McHelper.getNormal(d1);
+        y = McHelper.getNormal(d2);
+        z = McHelper.getNormal(d3);
     }
+
     
     // p * m  p is horizontal vector
     public BlockPos transform(Vec3i p) {
@@ -54,8 +57,8 @@ public class IntMatrix3 {
     }
     
     public Direction transformDirection(Direction direction) {
-        BlockPos vec = transform(direction.getNormal());
-        return Direction.fromDelta(vec.getX(), vec.getY(), vec.getZ());
+        BlockPos vec = transform(McHelper.getNormal(direction));
+        return Direction.getNearest(vec, Direction.NORTH);
     }
     
     @Override

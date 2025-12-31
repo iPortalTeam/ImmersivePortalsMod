@@ -79,7 +79,7 @@ public class DimListWidget extends AbstractSelectionList<DimEntryWidget> {
     }
     
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return (width - ROW_WIDTH) / 2 + ROW_WIDTH;
     }
     

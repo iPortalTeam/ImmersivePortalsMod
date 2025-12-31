@@ -11,11 +11,11 @@ import qouteall.imm_ptl.core.IPGlobal;
 public class MixinAbstractMinecartEntity {
     // for debugging
     @Inject(
-        method = "lerpTo",
+        method = "lerpPositionAndRotationStep",
         at = @At("RETURN")
     )
     private void onUpdateTracketPositionAndAngles(
-        double x, double y, double z, float yaw, float pitch, int steps, CallbackInfo ci
+        int steps, double x, double y, double z, double yaw, double pitch, CallbackInfo ci
     ) {
         AbstractMinecart this_ = (AbstractMinecart) ((Object) this);
         if (!IPGlobal.allowClientEntityPosInterpolation) {

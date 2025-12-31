@@ -131,7 +131,7 @@ public class IntrinsicPortalGeneration {
         }
         
         PortalShape areaHelper = newPortal.get();
-        areaHelper.createPortalBlocks();
+        areaHelper.createPortalBlocks(world);
         return true;
     }
 }

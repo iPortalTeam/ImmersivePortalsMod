@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.mixin.common.interaction;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+
+import qouteall.imm_ptl.core.DirectionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -52,7 +54,7 @@ public class MixinBucketItem {
             Vec3 dest = eyePos.add(viewVector.scale(distance));
             return BlockHitResult.miss(
                 dest,
-                Direction.getNearest(viewVector.x, viewVector.y, viewVector.z),
+                DirectionHelper.nearestDirection(viewVector.x, viewVector.y, viewVector.z),
                 BlockPos.containing(dest)
             );
         }

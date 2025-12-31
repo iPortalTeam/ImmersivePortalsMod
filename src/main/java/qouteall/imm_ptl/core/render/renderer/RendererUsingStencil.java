@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.render.renderer;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ProfilerCompat;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -15,6 +15,7 @@ import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.List;
@@ -36,9 +37,9 @@ public class RendererUsingStencil extends PortalRenderer {
         boolean skipClearing = WorldRenderInfo.isRendering();
         if (skipClearing) {
             if (WorldRenderInfo.getTopRenderInfo().doRenderSky) {
-                RenderSystem.depthMask(false);
+                GlStateManager._depthMask(false);
                 MyRenderHelper.renderScreenTriangle(FogRendererContext.getCurrentFogColor.get());
-                RenderSystem.depthMask(true);
+                GlStateManager._depthMask(true);
             }
         }
         return skipClearing;
@@ -54,10 +55,10 @@ public class RendererUsingStencil extends PortalRenderer {
         // use GlStateManager.disableDepthTest() instead
         // because GlStateManager will cache its state.
         // Do not make its cache not synchronized
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
+        GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(true);
         
-        client.getProfiler().popPush("render_portal_total");
+        ProfilerCompat.popPush("render_portal_total");
         renderPortals(modelView);
         if (PortalRendering.isRendering()) {
             setStencilStateForWorldRendering();
@@ -97,8 +98,6 @@ public class RendererUsingStencil extends PortalRenderer {
             }
         }
         
-        client.getMainRenderTarget().bindWrite(false);
-        
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         
@@ -130,13 +129,13 @@ public class RendererUsingStencil extends PortalRenderer {
         
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
-        client.getProfiler().push("render_view_area");
+        ProfilerCompat.push("render_view_area");
         
         boolean anySamplePassed = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
             renderPortalViewAreaToStencil(portal, modelView);
         });
         
-        client.getProfiler().pop();
+        ProfilerCompat.pop();
         
         if (!anySamplePassed) {
             setStencilStateForWorldRendering();
@@ -148,9 +147,9 @@ public class RendererUsingStencil extends PortalRenderer {
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
         if (!portal.isFuseView()) {
-            client.getProfiler().push("clear_depth_of_view_area");
+            ProfilerCompat.push("clear_depth_of_view_area");
             clearDepthOfThePortalViewArea(portal);
-            client.getProfiler().pop();
+            ProfilerCompat.pop();
         }
         
         setStencilStateForWorldRendering();
@@ -194,7 +193,9 @@ public class RendererUsingStencil extends PortalRenderer {
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3.ZERO,
             modelView,
-            RenderSystem.getProjectionMatrix(),
+            RenderStates.basicProjectionMatrix != null
+                ? new Matrix4f(RenderStates.basicProjectionMatrix)
+                : new Matrix4f(),
             true, true,
             true, true
         );
@@ -241,7 +242,9 @@ public class RendererUsingStencil extends PortalRenderer {
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3.ZERO,
             modelView,
-            RenderSystem.getProjectionMatrix(),
+            RenderStates.basicProjectionMatrix != null
+                ? new Matrix4f(RenderStates.basicProjectionMatrix)
+                : new Matrix4f(),
             false, false,
             true,
             true // important: should clip, otherwise depth will be abnormal when viewing scale box from inside in portal

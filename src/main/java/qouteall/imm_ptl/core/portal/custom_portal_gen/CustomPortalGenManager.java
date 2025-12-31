@@ -204,7 +204,7 @@ public class CustomPortalGenManager {
             return;
         }
         
-        ServerTaskList.of(entity.getServer()).addTask(() -> {
+        ServerTaskList.of(entity.level().getServer()).addTask(() -> {
             for (CustomPortalGeneration gen : gens) {
                 boolean result = gen.perform(
                     ((ServerLevel) entity.level()),
@@ -235,7 +235,7 @@ public class CustomPortalGenManager {
         if (playerPosBeforeTravel.containsKey(uuid)) {
             WithDim<Vec3> startCoord = playerPosBeforeTravel.get(uuid);
             
-            ServerLevel startWorld = player.server.getLevel(startCoord.dimension());
+            ServerLevel startWorld = player.level().getServer().getLevel(startCoord.dimension());
             if (startWorld == null) {
                 LOGGER.error("Cannot find world {}", startCoord.dimension());
                 return;
