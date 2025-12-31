@@ -1,6 +1,20 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+
 import com.mojang.logging.LogUtils;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -16,9 +30,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ProfilerCompat;
@@ -27,18 +38,11 @@ import qouteall.imm_ptl.core.mixin.common.chunk_sync.IEServerCommonPacketListene
 import qouteall.imm_ptl.core.network.PacketRedirection;
 import qouteall.q_misc_util.my_util.IntBox;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 public class ImmPtlChunkTracking {
     
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final boolean IP_DBG_CHUNK_SYNC = true;
+
     
     public static final int updateInterval = 13;
     public static final int defaultDelayUnloadGenerations = 4;
@@ -140,14 +144,24 @@ public class ImmPtlChunkTracking {
     }
     
     public static PlayerChunkLoading getPlayerInfo(ServerPlayer player) {
-        return playerInfoMap.computeIfAbsent(
-            player,
-            (ServerPlayer p) -> new PlayerChunkLoading(
-                ((IEServerCommonPacketListenerImpl) p.connection)
-                    .ip_getConnection().isMemoryConnection()
-            )
-        );
+
+        return playerInfoMap.computeIfAbsent(player, (ServerPlayer p) -> {
+            var conn = ((IEServerCommonPacketListenerImpl) p.connection).ip_getConnection();
+            boolean isMemoryConnection = conn != null && conn.isMemoryConnection();
+
+            if (IP_DBG_CHUNK_SYNC) {
+                LOGGER.info(
+                    "[ImmPtlDbg] creating PlayerChunkLoading player={} isMemoryConnection={}",
+                    p.getName().getString(),
+                    isMemoryConnection
+                );
+            }
+
+            return new PlayerChunkLoading(isMemoryConnection);
+        });
     }
+
+
     
     public static void immediatelyUpdateForPlayer(ServerPlayer player) {
         ImmPtlChunkTracking.updateForPlayer(player);
@@ -203,42 +217,83 @@ public class ImmPtlChunkTracking {
                 ticketInfo.markForLoading(chunkPos, distanceToSource, generationCounter);
                 
                 records.compute(player, (k, record) -> {
+
+                    // snapshot dello stato "prima" (serve per log e per capire transizioni)
+                    final int oldDistance = (record == null) ? Integer.MAX_VALUE : record.distanceToSource;
+                    final int oldGen = (record == null) ? -1 : record.lastWatchGeneration;
+                    final boolean oldLoaded = (record != null) && record.isLoadedToPlayer;
+                    final boolean oldValid = (record != null) && record.isValid;
+                    final boolean oldBoundary = (record != null) && record.isBoundary;
+
+                    boolean didMarkPending = false;
                     boolean isBoundary = distanceToSource == chunkLoader.radius();
+
+                    PlayerWatchRecord result;
+
                     if (record == null) {
                         PlayerWatchRecord newRecord = new PlayerWatchRecord(
                             player, dimension, chunkPos, generationCounter, distanceToSource,
                             false, isBoundary
                         );
+
                         playerInfo.markPendingLoading(newRecord);
+                        didMarkPending = true;
+
                         playerInfo.loadedChunks++;
-                        return newRecord;
+                        result = newRecord;
                     }
                     else {
-                        int oldDistance = record.distanceToSource;
-                        if (record.lastWatchGeneration == generationCounter) {
-                            // being updated again in the same turn
-                            if (distanceToSource < oldDistance) {
-                                record.distanceToSource = distanceToSource;
-                                playerInfo.markPendingLoading(record);
+                        result = record;
+
+                        int prevDistance = result.distanceToSource;
+
+                        if (result.lastWatchGeneration == generationCounter) {
+                            // aggiornato di nuovo nello stesso tick
+                            if (distanceToSource < prevDistance) {
+                                result.distanceToSource = distanceToSource;
+                                playerInfo.markPendingLoading(result);
+                                didMarkPending = true;
                             }
-                            
-                            record.isBoundary = (record.isBoundary && isBoundary);
+
+                            result.isBoundary = (result.isBoundary && isBoundary);
                         }
                         else {
-                            // being updated at the first time in this turn
+                            // primo update di questo tick
                             playerInfo.loadedChunks++;
-                            if (distanceToSource < oldDistance) {
-                                playerInfo.markPendingLoading(record);
+
+                            if (distanceToSource < prevDistance) {
+                                playerInfo.markPendingLoading(result);
+                                didMarkPending = true;
                             }
-                            
-                            record.distanceToSource = distanceToSource;
-                            record.lastWatchGeneration = generationCounter;
-                            record.isBoundary = isBoundary;
+
+                            result.distanceToSource = distanceToSource;
+                            result.lastWatchGeneration = generationCounter;
+                            result.isBoundary = isBoundary;
                         }
                     }
-                    
-                    return record;
+
+                    // LOG: super filtrato (solo chunk molto vicini) e solo se abilitato
+                    if (IP_DBG_CHUNK_SYNC && distanceToSource <= 1) {
+                        int cx = ChunkPos.getX(chunkPos);
+                        int cz = ChunkPos.getZ(chunkPos);
+
+                        LOGGER.info(
+                            "[ImmPtlDbg] watchUpdate p={} dim={} chunk=({}, {}) dist {}->{} gen {}->{} loaded {}->{} valid {}->{} boundary {}->{} pending={}",
+                            player.getName().getString(),
+                            dimension, // evita location()/identifier() per non impiccarsi coi mapping
+                            cx, cz,
+                            oldDistance, result.distanceToSource,
+                            oldGen, result.lastWatchGeneration,
+                            oldLoaded, result.isLoadedToPlayer,
+                            oldValid, result.isValid,
+                            oldBoundary, result.isBoundary,
+                            didMarkPending
+                        );
+                    }
+
+                    return result;
                 });
+
             });
         }
     }
@@ -670,7 +725,18 @@ public class ImmPtlChunkTracking {
             PerformanceLevel performanceLevel
         ) {
             PlayerChunkLoading playerInfo = getPlayerInfo(player);
+            PerformanceLevel old = playerInfo.performanceLevel;
             playerInfo.performanceLevel = performanceLevel;
+
+            if (IP_DBG_CHUNK_SYNC) {
+                LOGGER.info(
+                    "[ImmPtlDbg] acceptClientPerformanceInfo player={} {} -> {}",
+                    player.getName().getString(),
+                    old,
+                    performanceLevel
+                );
+            }
         }
+
     }
 }

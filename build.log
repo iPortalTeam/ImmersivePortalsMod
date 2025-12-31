@@ -6,23 +6,20 @@ Wanted: DaemonRequestContext{jvmCriteria=C:\Program Files\Java\jdk-21 (no JDK sp
 Actual: DefaultDaemonContext[uid=bd77a86c-3c7a-4c6f-9b4e-7a2beb7cd214,javaHome=C:\Program Files\Java\jdk-21,javaVersion=21,javaVendor=Oracle Corporation,daemonRegistryDir=C:\Users\simon\.gradle\daemon,pid=3748,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-Xmx1G,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
 
   Looking for a different daemon...
-The client will now receive all logging from the daemon (pid: 95192). The daemon log file: C:\Users\simon\.gradle\daemon\9.2.1-20251115020124+0000\daemon-95192.out.log
-Starting 6th build in daemon [uptime: 2 hrs 28 mins 16.449 secs, performance: 99%, GC rate: 0.00/s, heap usage: 0% of 2 GiB]
+The client will now receive all logging from the daemon (pid: 55132). The daemon log file: C:\Users\simon\.gradle\daemon\9.2.1-20251115020124+0000\daemon-55132.out.log
+Starting 20th build in daemon [uptime: 4 hrs 14 mins 15.497 secs, performance: 99%, GC rate: 0.00/s, heap usage: 0% of 2 GiB]
 Using 32 worker leases.
 Operational build model parameters: {requiresToolingModels=false, parallelProjectExecution=false, configureOnDemand=false, configurationCache=false, configurationCacheParallelStore=false, configurationCacheParallelLoad=true, isolatedProjects=false, parallelProjectConfiguration=false, intermediateModelCache=false, parallelToolingApiActions=false, invalidateCoupledProjects=false, modelAsProjectDependency=false, resilientModelBuilding=false}
-Now considering [D:\GitProjects\ImmersivePortals2, D:\GitProjects\ImmersivePortals] as hierarchies to watch
+Now considering [D:\GitProjects\ImmersivePortals2] as hierarchies to watch
 Watching the file system is configured to be enabled if available
 File system watching is active
 Starting Build
-Invalidating in-memory cache of C:\Users\simon\.gradle\caches\journal-1\file-access.bin
 Settings evaluated using settings file 'D:\GitProjects\ImmersivePortals2\settings.gradle'.
 Projects loaded. Root project using build file 'D:\GitProjects\ImmersivePortals2\build.gradle'.
 Included projects: [root project 'ImmersivePortals2']
 
 > Configure project :
 Evaluating root project 'ImmersivePortals2' using build file 'D:\GitProjects\ImmersivePortals2\build.gradle'.
-Invalidating in-memory cache of C:\Users\simon\.gradle\caches\9.2.1-20251115020124+0000\fileHashes\fileHashes.bin
-Invalidating in-memory cache of C:\Users\simon\.gradle\caches\9.2.1-20251115020124+0000\fileHashes\resourceHashesCache.bin
 Resolved plugin [id: 'fabric-loom', version: '1.14-SNAPSHOT']
 Resolved plugin [id: 'maven-publish']
 Resolved plugin [id: 'me.modmuss50.mod-publish-plugin', version: '0.3.5']
@@ -34,46 +31,9 @@ Fabric Loom: 1.14.10
 (org.objectweb.asm.tree.ClassNode) with version (9.9) was loaded from (/C:/Users/simon/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.9/f8de6eead6d24dd0f45bd065bbe112b2cda6ea21/asm-tree-9.9.jar)
 (org.objectweb.asm.util.ASMifier) with version (9.9) was loaded from (/C:/Users/simon/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.9/42fdfc0508b43807c8078d6e82ecff2ce2112ae8/asm-util-9.9.jar)
 (com.google.gson.Gson) with version (null) was loaded from (/C:/Users/simon/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.10.1/b3add478d4382b78ea20b1671390a858002feb6c/gson-2.10.1.jar)
-"Lock for cache='C:\Users\simon\.gradle\caches\fabric-loom', project=':'" is currently held by pid '42152'.
-- pid: 42152
-- command: C:\Users\simon\.vscode\extensions\redhat.java-1.50.0-win32-x64\jre\21.0.9-win32-x86_64\bin\java.exe
-- started at: 2025-12-31T12:15:15.776Z
-- user: NYX\simon
-- parent:
-	- pid: 51220
-	- command: C:\Users\simon\.vscode\extensions\redhat.java-1.50.0-win32-x64\jre\21.0.9-win32-x86_64\bin\java.exe
-	- started at: 2025-12-31T12:15:12.214Z
-	- user: NYX\simon
-	- parent:
-		- pid: 35588
-		- command: C:\Windows\System32\cmd.exe
-		- started at: 2025-12-31T12:15:12.071Z
-		- user: NYX\simon
-		- parent:
-			- pid: 78756
-			- command: C:\Users\simon\AppData\Local\Programs\Microsoft VS Code\Code.exe
-			- started at: 2025-12-31T12:15:07.548Z
-			- user: NYX\simon
-			- parent:
-				- title: 'Welcome - ImmersivePortals2 - Visual Studio Code'
-				- pid: 17064
-				- command: C:\Users\simon\AppData\Local\Programs\Microsoft VS Code\Code.exe
-				- started at: 2025-12-31T09:36:52.391Z
-				- user: NYX\simon
-				- parent:
-					- pid: 16780
-					- command: C:\Windows\explorer.exe
-					- started at: 2025-12-31T09:13:46.351Z
-					- user: NYX\simon
-Waiting for lock to be released...
 Using cached Minecraft jars
 :Extracting server jar from bootstrap
 Evaluating layer mapping: loom:mappings:layered+hash.1865420937
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\md5-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha256-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha1-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha512-checksums.bin
-Invalidating in-memory cache of C:\Users\simon\.gradle\caches\journal-1\file-access.bin
 Mod dependency options: {"__inlineRefmap__":false,"__mappings__":"loom.mappings.1_21_11.layered+hash.1865420937-v2"}
 Applying installer data from C:\Users\simon\.gradle\caches\modules-2\files-2.1\net.fabricmc\fabric-loader\0.18.3\234f25229c51fdd8c0f3a72af0dbcf1ecf2f45d1\fabric-loader-0.18.3.jar
 Found another installer JSON in (C:\Users\simon\.gradle\caches\modules-2\files-2.1\net.fabricmc\fabric-loader\0.18.3\234f25229c51fdd8c0f3a72af0dbcf1ecf2f45d1\fabric-loader-0.18.3.jar), ignoring
@@ -90,22 +50,17 @@ file or directory 'D:\GitProjects\ImmersivePortals2\src\test\resources', not fou
 file or directory 'D:\GitProjects\ImmersivePortals2\src\test\resources', not found
 Tasks to be executed: [task ':compileJava', task ':processResources', task ':classes', task ':compileTestJava', task ':jar', task ':processIncludeJars', task ':remapJar', task ':sourcesJar', task ':remapSourcesJar', task ':assemble', task ':processTestResources', task ':testClasses', task ':test', task ':validateAccessWidener', task ':check', task ':build']
 Tasks that were excluded: []
-Resolve mutations for :compileJava (Thread[#2505,Execution worker,5,main]) started.
-:compileJava (Thread[#2505,Execution worker,5,main]) started.
+Resolve mutations for :compileJava (Thread[#8583,Execution worker,5,main]) started.
+:compileJava (Thread[#8594,Execution worker Thread 12,5,main]) started.
 
 > Task :compileJava
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\md5-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha256-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha1-checksums.bin
-Invalidating in-memory cache of D:\GitProjects\ImmersivePortals2\.gradle\9.2.1-20251115020124+0000\checksums\sha512-checksums.bin
-Invalidating in-memory cache of C:\Users\simon\.gradle\caches\journal-1\file-access.bin
 Caching disabled for task ':compileJava' because:
   Build cache is disabled
 Task ':compileJava' is not up-to-date because:
-  No history is available.
-The input changes require a full rebuild for incremental task ':compileJava'.
+  Input property 'stableSources' file D:\GitProjects\ImmersivePortals2\src\main\java\qouteall\imm_ptl\core\chunk_loading\PlayerChunkLoading.java has changed.
 Compilation mode: in-process compilation
-Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
+Created classpath snapshot for incremental compilation in 0.042 secs.
+Full recompilation is required because org.spongepowered.tools.obfuscation.MixinObfuscationProcessorTargets is not incremental. Analysis took 0.131 secs.
 Compiling with toolchain 'C:\Program Files\Java\jdk-21'.
 Compiling with JDK Java compiler API.
 D:\GitProjects\ImmersivePortals2\src\main\java\qouteall\imm_ptl\core\mixin\client\render\MixinLevelRenderer.java:147: warning: Unable to locate method mapping for @At(INVOKE.<target>) 'Lnet/minecraft/client/renderer/DimensionSpecialEffects;constantAmbientLight()Z'
@@ -143,136 +98,124 @@ Note: Recompile with -Xlint:deprecation for details.
 Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 10 warnings
-Class dependency analysis for incremental compilation took 4.081 secs.
-Created classpath snapshot for incremental compilation in 3.175 secs.
-Resolve mutations for :processResources (Thread[#2505,Execution worker,5,main]) started.
-:processResources (Thread[#2505,Execution worker,5,main]) started.
+Class dependency analysis for incremental compilation took 2.922 secs.
+Resolve mutations for :processResources (Thread[#8594,Execution worker Thread 12,5,main]) started.
+:processResources (Thread[#8594,Execution worker Thread 12,5,main]) started.
 
-> Task :processResources
-Deleting stale output file: D:\GitProjects\ImmersivePortals2\build\resources\main
+> Task :processResources UP-TO-DATE
 Caching disabled for task ':processResources' because:
   Build cache is disabled
   Not worth caching
-Task ':processResources' is not up-to-date because:
-  No history is available.
-Resolve mutations for :classes (Thread[#2505,Execution worker,5,main]) started.
-:classes (Thread[#2505,Execution worker,5,main]) started.
+Skipping task ':processResources' as it is up-to-date.
+Resolve mutations for :classes (Thread[#8594,Execution worker Thread 12,5,main]) started.
+:classes (Thread[#8600,Execution worker Thread 18,5,main]) started.
 
 > Task :classes
 Skipping task ':classes' as it has no actions.
-Resolve mutations for :compileTestJava (Thread[#2535,Execution worker Thread 30,5,main]) started.
-:compileTestJava (Thread[#2535,Execution worker Thread 30,5,main]) started.
+Resolve mutations for :compileTestJava (Thread[#8600,Execution worker Thread 18,5,main]) started.
+:compileTestJava (Thread[#8600,Execution worker Thread 18,5,main]) started.
 
-> Task :compileTestJava
-Deleting stale output file: D:\GitProjects\ImmersivePortals2\build\classes\java\test
+> Task :compileTestJava UP-TO-DATE
 Caching disabled for task ':compileTestJava' because:
   Build cache is disabled
-Task ':compileTestJava' is not up-to-date because:
-  No history is available.
-The input changes require a full rebuild for incremental task ':compileTestJava'.
-Compilation mode: in-process compilation
-Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
-Compiling with toolchain 'C:\Program Files\Java\jdk-21'.
-Compiling with JDK Java compiler API.
-Class dependency analysis for incremental compilation took 0.013 secs.
-Created classpath snapshot for incremental compilation in 0.077 secs.
-Resolve mutations for :jar (Thread[#2535,Execution worker Thread 30,5,main]) started.
-:jar (Thread[#2535,Execution worker Thread 30,5,main]) started.
+Skipping task ':compileTestJava' as it is up-to-date.
+Resolve mutations for :jar (Thread[#8600,Execution worker Thread 18,5,main]) started.
+:jar (Thread[#8600,Execution worker Thread 18,5,main]) started.
 
 > Task :jar
 Caching disabled for task ':jar' because:
   Build cache is disabled
   Not worth caching
 Task ':jar' is not up-to-date because:
-  No history is available.
-Resolve mutations for :processIncludeJars (Thread[#2535,Execution worker Thread 30,5,main]) started.
-:processIncludeJars (Thread[#2535,Execution worker Thread 30,5,main]) started.
+  Input property 'rootSpec$1' file D:\GitProjects\ImmersivePortals2\build\classes\java\main\qouteall\imm_ptl\core\chunk_loading\PlayerChunkLoading.class has changed.
+Resolve mutations for :processIncludeJars (Thread[#8600,Execution worker Thread 18,5,main]) started.
+:processIncludeJars (Thread[#8600,Execution worker Thread 18,5,main]) started.
 
-> Task :processIncludeJars
+> Task :processIncludeJars UP-TO-DATE
 Caching disabled for task ':processIncludeJars' because:
   Build cache is disabled
   Caching has not been enabled for the task
-Task ':processIncludeJars' is not up-to-date because:
-  No history is available.
-(v1.1.0-mc1.21.1) is not valid semver for dependency com.github.iPortalTeam:DimLib:v1.1.0-mc1.21.1
-Resolve mutations for :remapJar (Thread[#2535,Execution worker Thread 30,5,main]) started.
+Skipping task ':processIncludeJars' as it is up-to-date.
+Resolve mutations for :remapJar (Thread[#8600,Execution worker Thread 18,5,main]) started.
 file or directory 'D:\GitProjects\ImmersivePortals2\src\test\resources', not found
-:remapJar (Thread[#2535,Execution worker Thread 30,5,main]) started.
-Resolve mutations for :sourcesJar (Thread[#2521,Execution worker Thread 16,5,main]) started.
-:sourcesJar (Thread[#2526,Execution worker Thread 21,5,main]) started.
+:remapJar (Thread[#8600,Execution worker Thread 18,5,main]) started.
+Resolve mutations for :sourcesJar (Thread[#8587,Execution worker Thread 5,5,main]) started.
+:sourcesJar (Thread[#8587,Execution worker Thread 5,5,main]) started.
 
 > Task :sourcesJar
 Caching disabled for task ':sourcesJar' because:
   Build cache is disabled
   Not worth caching
 Task ':sourcesJar' is not up-to-date because:
-  No history is available.
-Resolve mutations for :remapSourcesJar (Thread[#2526,Execution worker Thread 21,5,main]) started.
-:remapSourcesJar (Thread[#2526,Execution worker Thread 21,5,main]) started.
-Resolve mutations for :processTestResources (Thread[#2521,Execution worker Thread 16,5,main]) started.
-:processTestResources (Thread[#2521,Execution worker Thread 16,5,main]) started.
+  Input property 'rootSpec$1' file D:\GitProjects\ImmersivePortals2\src\main\java\qouteall\imm_ptl\core\chunk_loading\PlayerChunkLoading.java has changed.
+Resolve mutations for :remapSourcesJar (Thread[#8587,Execution worker Thread 5,5,main]) started.
+:remapSourcesJar (Thread[#8587,Execution worker Thread 5,5,main]) started.
+Resolve mutations for :processTestResources (Thread[#8598,Execution worker Thread 16,5,main]) started.
+:processTestResources (Thread[#8598,Execution worker Thread 16,5,main]) started.
 
 > Task :processTestResources NO-SOURCE
-Deleting stale output file: D:\GitProjects\ImmersivePortals2\build\resources\test
 Skipping task ':processTestResources' as it has no source files and no previous output files.
-Resolve mutations for :testClasses (Thread[#2521,Execution worker Thread 16,5,main]) started.
-:testClasses (Thread[#2521,Execution worker Thread 16,5,main]) started.
+Resolve mutations for :testClasses (Thread[#8598,Execution worker Thread 16,5,main]) started.
+:testClasses (Thread[#8592,Execution worker Thread 10,5,main]) started.
 
-> Task :testClasses
+> Task :testClasses UP-TO-DATE
 Skipping task ':testClasses' as it has no actions.
-Resolve mutations for :test (Thread[#2521,Execution worker Thread 16,5,main]) started.
-:test (Thread[#2521,Execution worker Thread 16,5,main]) started.
+Resolve mutations for :test (Thread[#8592,Execution worker Thread 10,5,main]) started.
+:test (Thread[#8583,Execution worker,5,main]) started.
+Gradle Test Executor 7 started executing tests.
 
 > Task :remapJar
 Caching disabled for task ':remapJar' because:
   Build cache is disabled
   Caching has not been enabled for the task
 Task ':remapJar' is not up-to-date because:
-  No history is available.
+  Input property 'input' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-dev.jar has changed.
+  Input property 'inputFile' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-dev.jar has changed.
+  Input property 'rootSpec$1' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-dev.jar has changed.
+  and more...
 file or directory 'D:\GitProjects\ImmersivePortals2\src\test\resources', not found
-Remapping C:\Users\simon\AppData\Local\Temp\loom-remapJar-7585315920851571858-input.jar to D:\GitProjects\ImmersivePortals2\build\libs\immersive-portals-6.0.9-mc1.21.11-fabric.jar
-Gradle Test Executor 1 started executing tests.
+Remapping C:\Users\simon\AppData\Local\Temp\loom-remapJar-1820602988447536213-input.jar to D:\GitProjects\ImmersivePortals2\build\libs\immersive-portals-6.0.9-mc1.21.11-fabric.jar
+Gradle Test Executor 7 finished executing tests.
 
 > Task :remapSourcesJar
 Caching disabled for task ':remapSourcesJar' because:
   Build cache is disabled
   Caching has not been enabled for the task
 Task ':remapSourcesJar' is not up-to-date because:
-  No history is available.
-
-Gradle Test Executor 1 finished executing tests.
+  Input property 'input' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-sources.jar has changed.
+  Input property 'inputFile' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-sources.jar has changed.
+  Input property 'rootSpec$1' file D:\GitProjects\ImmersivePortals2\build\devlibs\immersive-portals-6.0.9-sources.jar has changed.
 
 > Task :test
 Caching disabled for task ':test' because:
   Build cache is disabled
 Task ':test' is not up-to-date because:
-  No history is available.
-Starting process 'Gradle Test Executor 1'. Working directory: D:\GitProjects\ImmersivePortals2 Command: C:\Program Files\Java\jdk-21\bin\java.exe -Dorg.gradle.internal.worker.tmpdir=D:\GitProjects\ImmersivePortals2\build\tmp\test\work @C:\Users\simon\.gradle\.tmp\gradle-worker-classpath4403884782125187235txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=IT -Duser.language=it -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
-Successfully started process 'Gradle Test Executor 1'
-Finished generating test XML results (0.03 secs) into: D:\GitProjects\ImmersivePortals2\build\test-results\test
+  Input property 'stableClasspath' file D:\GitProjects\ImmersivePortals2\build\classes\java\main\qouteall\imm_ptl\core\chunk_loading\PlayerChunkLoading.class has changed.
+Starting process 'Gradle Test Executor 7'. Working directory: D:\GitProjects\ImmersivePortals2 Command: C:\Program Files\Java\jdk-21\bin\java.exe -Dorg.gradle.internal.worker.tmpdir=D:\GitProjects\ImmersivePortals2\build\tmp\test\work @C:\Users\simon\.gradle\.tmp\gradle-worker-classpath10016147619661995922txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=IT -Duser.language=it -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 7'
+Successfully started process 'Gradle Test Executor 7'
+Finished generating test XML results (0.002 secs) into: D:\GitProjects\ImmersivePortals2\build\test-results\test
 Generating HTML test report...
-Finished generating test html results (0.092 secs) into: D:\GitProjects\ImmersivePortals2\build\reports\tests\test
-Resolve mutations for :validateAccessWidener (Thread[#2521,Execution worker Thread 16,5,main]) started.
-:validateAccessWidener (Thread[#2530,Execution worker Thread 25,5,main]) started.
+Finished generating test html results (0.003 secs) into: D:\GitProjects\ImmersivePortals2\build\reports\tests\test
+Resolve mutations for :validateAccessWidener (Thread[#8583,Execution worker,5,main]) started.
+:validateAccessWidener (Thread[#8583,Execution worker,5,main]) started.
 
-> Task :validateAccessWidener
+> Task :validateAccessWidener UP-TO-DATE
 Caching disabled for task ':validateAccessWidener' because:
   Build cache is disabled
   Caching has not been enabled for the task
-Task ':validateAccessWidener' is not up-to-date because:
-  No history is available.
-Resolve mutations for :check (Thread[#2530,Execution worker Thread 25,5,main]) started.
-:check (Thread[#2530,Execution worker Thread 25,5,main]) started.
+Skipping task ':validateAccessWidener' as it is up-to-date.
+Resolve mutations for :check (Thread[#8583,Execution worker,5,main]) started.
+:check (Thread[#8609,Execution worker Thread 26,5,main]) started.
 
 > Task :check
 Skipping task ':check' as it has no actions.
-Resolve mutations for :assemble (Thread[#2530,Execution worker Thread 25,5,main]) started.
-:assemble (Thread[#2530,Execution worker Thread 25,5,main]) started.
+Resolve mutations for :assemble (Thread[#8587,Execution worker Thread 5,5,main]) started.
+:assemble (Thread[#8607,Execution worker Thread 24,5,main]) started.
 
 > Task :assemble
 Skipping task ':assemble' as it has no actions.
-Resolve mutations for :build (Thread[#2530,Execution worker Thread 25,5,main]) started.
-:build (Thread[#2530,Execution worker Thread 25,5,main]) started.
+Resolve mutations for :build (Thread[#8607,Execution worker Thread 24,5,main]) started.
+:build (Thread[#8583,Execution worker,5,main]) started.
 
 > Task :build
 Skipping task ':build' as it has no actions.
@@ -285,6 +228,6 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/9.2.1-20251115020124+0000/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 56s
-10 actionable tasks: 10 executed
-Watched directory hierarchies: [D:\GitProjects\ImmersivePortals2, D:\GitProjects\ImmersivePortals]
+BUILD SUCCESSFUL in 18s
+10 actionable tasks: 6 executed, 4 up-to-date
+Watched directory hierarchies: [D:\GitProjects\ImmersivePortals2]
