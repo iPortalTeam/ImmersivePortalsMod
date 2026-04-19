@@ -38,7 +38,7 @@
     "imm_ptl_compat.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.7.4",
+    "fabricloader": ">=0.17.0",
     "fabric": ">=0.28.1"
   },
   "breaks": {
