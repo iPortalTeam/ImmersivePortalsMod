@@ -19,6 +19,7 @@ import qouteall.imm_ptl.core.commands.AxisArgumentType;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.commands.SubCommandArgumentType;
 import qouteall.imm_ptl.core.commands.TimingFunctionArgumentType;
+import qouteall.imm_ptl.core.compat.IPCardinalCompBlockCompat;
 import qouteall.imm_ptl.core.compat.IPPortingLibCompat;
 import qouteall.imm_ptl.core.debug.DebugUtil;
 import qouteall.imm_ptl.core.mc_utils.ServerTaskList;
@@ -95,7 +96,9 @@ public class IPModMain {
         ServerPerformanceMonitor.init();
         
         ImmPtlChunkTickets.init();
-        
+
+        IPCardinalCompBlockCompat.init();
+
         IPPortingLibCompat.init();
         
         BlockManipulationServer.init();

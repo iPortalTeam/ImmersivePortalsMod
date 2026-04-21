@@ -22,6 +22,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.compat.IPCardinalCompBlockCompat;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.network.PacketRedirection;
@@ -170,6 +171,8 @@ public class PlayerChunkLoading {
                 sendChunkPacket(
                     connection, world, tickingChunk
                 );
+
+                IPCardinalCompBlockCompat.syncBlockEntities(serverPlayer, tickingChunk);
                 
                 if (sentNum.getValue() >= maxSendNum) {
                     shouldStop.setValue(true);
