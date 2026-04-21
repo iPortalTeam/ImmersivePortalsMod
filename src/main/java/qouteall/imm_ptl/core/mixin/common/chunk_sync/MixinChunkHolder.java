@@ -40,24 +40,5 @@ public class MixinChunkHolder implements IEChunkHolder {
             ((Packet) packet)
         );
     }
-    
-    /**
-     * Does not mixin {@link net.minecraft.server.level.ChunkMap#getPlayers(ChunkPos, boolean)}
-     * because the current chunk map tracking implementation should coexist with vanilla tracking
-     * and avoid deeply interfering with vanilla chunk tracking.
-     */
-    @Redirect(
-        method = "broadcastChanges",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"
-        )
-    )
-    private List<ServerPlayer> redirectGetPlayers(ChunkHolder.PlayerProvider playerProvider, ChunkPos chunkPos, boolean boundaryOnly) {
-        return ImmPtlChunkTracking.getPlayersViewingChunk(
-            ((Level) levelHeightAccessor).dimension(),
-            chunkPos.x, chunkPos.z,
-            boundaryOnly
-        );
-    }
+
 }

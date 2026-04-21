@@ -6,6 +6,7 @@ import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,9 +15,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 import qouteall.imm_ptl.core.ducks.IEChunkMap;
+
+import java.util.List;
 
 @Mixin(value = ChunkMap.class, priority = 1100)
 public abstract class MixinChunkMap_C implements IEChunkMap {
@@ -68,7 +72,16 @@ public abstract class MixinChunkMap_C implements IEChunkMap {
     ) {
         ci.cancel();
     }
-    
+
+    @Inject(
+        method = "getPlayers",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    public void getPlayers(ChunkPos pos, boolean boundaryOnly, CallbackInfoReturnable<List<ServerPlayer>> cir) {
+        cir.setReturnValue(ImmPtlChunkTracking.getPlayersViewingChunk(this.level.dimension(), pos.x, pos.z, boundaryOnly));
+    }
+
     /**
      * @author qouteall
      * @reason
